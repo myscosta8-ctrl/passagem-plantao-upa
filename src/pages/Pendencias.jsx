@@ -6,6 +6,7 @@ import PassagemForm from './PassagemForm'
 export default function Pendencias({ plantao, onVoltar }) {
   const { enfermeiro } = useAuth()
   const [exames, setExames] = useState([])
+  const [sorologiasPendentes, setSorologiasPendentes] = useState([])
   const [hemoderivados, setHemoderivados] = useState([])
   const [outras, setOutras] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -26,6 +27,7 @@ export default function Pendencias({ plantao, onVoltar }) {
     const ids = (pacientes ?? []).map((p) => p.id)
     if (ids.length === 0) {
       setExames([])
+      setSorologiasPendentes([])
       setHemoderivados([])
       setOutras([])
       setCarregando(false)
@@ -45,6 +47,7 @@ export default function Pendencias({ plantao, onVoltar }) {
     }
 
     const listaExames = []
+    const listaSorologias = []
     const listaHemo = []
     const listaOutras = []
 
@@ -52,8 +55,11 @@ export default function Pendencias({ plantao, onVoltar }) {
       const p = ultimaPorPaciente[paciente.id]
       if (!p) continue
 
-      if (p.exame_a_realizar_data || p.exame_a_realizar_local || p.exames_pendentes) {
+      if (p.exame_status === 'A realizar' || p.exame_status === 'Aguardando laudo') {
         listaExames.push({ paciente, passagem: p })
+      }
+      if (p.sorologia_status === 'Coleta pendente' || p.sorologia_status === 'Aguardando resultado') {
+        listaSorologias.push({ paciente, passagem: p })
       }
       if (p.hemo_solicitado === true && p.hemo_transfundido !== true) {
         listaHemo.push({ paciente, passagem: p })
@@ -64,6 +70,7 @@ export default function Pendencias({ plantao, onVoltar }) {
     }
 
     setExames(listaExames)
+    setSorologiasPendentes(listaSorologias)
     setHemoderivados(listaHemo)
     setOutras(listaOutras)
     setCarregando(false)
@@ -120,11 +127,24 @@ export default function Pendencias({ plantao, onVoltar }) {
                 key={paciente.id}
                 paciente={paciente}
                 texto={[
-                  passagem.exames_pendentes,
-                  passagem.exame_a_realizar_data
-                    ? `A realizar: ${passagem.exame_a_realizar_data} ${passagem.exame_a_realizar_hora ?? ''} ${passagem.exame_a_realizar_local ?? ''}`
+                  passagem.exame_nome,
+                  passagem.exame_status,
+                  passagem.exame_status === 'A realizar' && passagem.exame_a_realizar_data
+                    ? `${passagem.exame_a_realizar_data} ${passagem.exame_a_realizar_hora ?? ''} ${passagem.exame_a_realizar_local ?? ''}`
                     : null,
                 ].filter(Boolean).join(' · ')}
+              />
+            ))}
+          </div>
+
+          <div className="card" style={{ marginBottom: 18 }}>
+            <div className="section-label">Sorologias pendentes ({sorologiasPendentes.length})</div>
+            {sorologiasPendentes.length === 0 && <p style={{ color: 'var(--color-text-muted)', fontSize: 13.5 }}>Nenhuma.</p>}
+            {sorologiasPendentes.map(({ paciente, passagem }) => (
+              <Item
+                key={paciente.id}
+                paciente={paciente}
+                texto={[passagem.sorologias, passagem.sorologia_status, passagem.sorologia_data_coleta].filter(Boolean).join(' · ')}
               />
             ))}
           </div>

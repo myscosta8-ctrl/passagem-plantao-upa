@@ -25,6 +25,7 @@ export default function Home() {
   const [tela, setTela] = useState('painel') // 'painel' | 'print1' | 'print2' | 'historico' | 'ajuda'
   const [verificandoRetomada, setVerificandoRetomada] = useState(true)
   const [encerrando, setEncerrando] = useState(false)
+  const [menuAberto, setMenuAberto] = useState(false)
 
   useEffect(() => {
     purgarHistoricoAntigo()
@@ -99,25 +100,41 @@ export default function Home() {
         </div>
         <div className="topbar-user">
           {plantao && (
-            <span>
+            <span className="topbar-turno">
               {plantao.turno} — {new Date(plantao.data + 'T00:00:00').toLocaleDateString('pt-BR')}
             </span>
           )}
+
           {plantao && setoresIds && tela === 'painel' && (
-            <>
-              <button onClick={() => setSetoresIds(null)}>Trocar setores</button>
-              <button onClick={() => setTela('print1')}>Imprimir Vermelha+Internação</button>
-              <button onClick={() => setTela('print2')}>Imprimir Pediátrico+Observação</button>
-              <button onClick={() => setTela('historico')}>Histórico</button>
-              <button onClick={() => setTela('altas')}>Altas recentes</button>
-              <button onClick={() => setTela('pendencias')}>Pendências</button>
-              <button onClick={encerrarPlantao} disabled={encerrando} style={{ color: 'var(--color-accent)', borderColor: 'var(--color-accent)' }}>
-                {encerrando ? 'Encerrando...' : 'Encerrar minha participação'}
+            <div className="topbar-menu">
+              <button className="topbar-menu-btn" onClick={() => setMenuAberto((v) => !v)}>
+                ☰ Menu
               </button>
-            </>
+              {menuAberto && (
+                <div className="topbar-menu-panel" onClick={() => setMenuAberto(false)}>
+                  <button onClick={() => setSetoresIds(null)}>Trocar setores</button>
+                  <button onClick={() => setTela('print1')}>Imprimir Vermelha+Internação</button>
+                  <button onClick={() => setTela('print2')}>Imprimir Pediátrico+Observação</button>
+                  <button onClick={() => setTela('historico')}>Histórico</button>
+                  <button onClick={() => setTela('altas')}>Altas recentes</button>
+                  <button onClick={() => setTela('pendencias')}>Pendências</button>
+                  <button onClick={() => setTela('ajuda')}>Ajuda</button>
+                  <button
+                    onClick={encerrarPlantao}
+                    disabled={encerrando}
+                    className="topbar-menu-danger"
+                  >
+                    {encerrando ? 'Encerrando...' : 'Encerrar minha participação'}
+                  </button>
+                </div>
+              )}
+            </div>
           )}
-          <button onClick={() => setTela('ajuda')}>Ajuda</button>
-          <span>{enfermeiro?.nome_exibicao || enfermeiro?.nome}</span>
+
+          {!(plantao && setoresIds && tela === 'painel') && (
+            <button onClick={() => setTela('ajuda')}>Ajuda</button>
+          )}
+          <span className="topbar-nome">{enfermeiro?.nome_exibicao || enfermeiro?.nome}</span>
           <button onClick={logout}>Sair</button>
         </div>
       </div>

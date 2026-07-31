@@ -4,34 +4,47 @@ import './PassagemForm.css'
 
 const DISPOSITIVOS_OPCOES = ['SVD', 'SNE', 'Dreno', 'O2']
 const NIVEIS_CONSCIENCIA = ['Alerta', 'Confuso', 'Sonolento', 'Inconsciente']
+const EXAME_STATUS_OPCOES = ['A realizar', 'Aguardando laudo', 'Resultado disponível']
+const SOROLOGIA_STATUS_OPCOES = ['Coleta pendente', 'Aguardando resultado', 'Resultado disponível']
 
 const PASSAGEM_VAZIA = {
   curativo_realizado: null,
   avp: null,
   avp_data_insercao: '',
-  exames_realizados: '',
-  laudo_pendente: '',
-  exames_pendentes: '',
-  exame_a_realizar_data: '',
-  exame_a_realizar_hora: '',
-  exame_a_realizar_local: '',
-  sorologias: '',
-  coletado: null,
-  hemo_tipo: '',
-  hemo_solicitado: null,
-  hemo_transfundido: null,
-  hemo_quantidade: '',
-  pendencias: '',
   nivel_consciencia: '',
   dispositivos: [],
   dispositivos_detalhe: '',
   acompanhante: null,
+
+  exame_nome: '',
+  exame_status: '',
+  exame_a_realizar_data: '',
+  exame_a_realizar_hora: '',
+  exame_a_realizar_local: '',
   preparo_exame: '',
+  exame_resultado: '',
+
+  sorologias: '',
+  sorologia_status: '',
+  sorologia_data_coleta: '',
+
+  hemo_tipo: '',
+  hemo_solicitado: null,
+  hemo_transfundido: null,
+  hemo_data_transfusao: '',
+  hemo_quantidade: '',
+
+  leito_liberado_outro_hospital: null,
+  leito_liberado_hospital: '',
+  leito_liberado_transporte: '',
+  alta_sala_vermelha: null,
+  alta_sala_vermelha_data: '',
+  alta_sala_vermelha_hora: '',
+
   notificacao_agravo: '',
   notificacao_status: '',
-  regulado: null,
-  leito_liberado_outro_hospital: null,
-  alta_sala_vermelha: null,
+
+  pendencias: '',
 }
 
 export default function PassagemForm({ paciente, leito, setorNome, plantaoId, enfermeiroId, onFechar, onSalvo, onRealocar }) {
@@ -147,6 +160,10 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
       avp_data_insercao: passagem.avp_data_insercao || null,
       exame_a_realizar_data: passagem.exame_a_realizar_data || null,
       exame_a_realizar_hora: passagem.exame_a_realizar_hora || null,
+      hemo_data_transfusao: passagem.hemo_data_transfusao || null,
+      sorologia_data_coleta: passagem.sorologia_data_coleta || null,
+      alta_sala_vermelha_data: passagem.alta_sala_vermelha_data || null,
+      alta_sala_vermelha_hora: passagem.alta_sala_vermelha_hora || null,
     }
 
     const { error } = await supabase
@@ -157,6 +174,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     if (!error) {
       setSalvo(true)
       onSalvo?.()
+      onFechar?.()
     }
   }
 
@@ -351,45 +369,136 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           <div className="form-section-title">Exames</div>
           <div className="form-grid">
             <div className="form-field span-2">
-              <label>Realizados</label>
-              <input type="text" value={passagem.exames_realizados ?? ''} onChange={(e) => set('exames_realizados', e.target.value)} />
-            </div>
-            <div className="form-field span-2">
-              <label>Laudo pendente</label>
-              <input type="text" value={passagem.laudo_pendente ?? ''} onChange={(e) => set('laudo_pendente', e.target.value)} />
-            </div>
-            <div className="form-field span-2">
-              <label>Pendentes</label>
-              <input type="text" value={passagem.exames_pendentes ?? ''} onChange={(e) => set('exames_pendentes', e.target.value)} />
-            </div>
-            <div className="form-field">
-              <label>A realizar — data</label>
-              <input type="date" value={passagem.exame_a_realizar_data ?? ''} onChange={(e) => set('exame_a_realizar_data', e.target.value)} />
-            </div>
-            <div className="form-field">
-              <label>Hora</label>
-              <input type="time" value={passagem.exame_a_realizar_hora ?? ''} onChange={(e) => set('exame_a_realizar_hora', e.target.value)} />
-            </div>
-            <div className="form-field span-2">
-              <label>Local</label>
-              <input type="text" value={passagem.exame_a_realizar_local ?? ''} onChange={(e) => set('exame_a_realizar_local', e.target.value)} />
-            </div>
-            <div className="form-field span-3">
-              <label>Preparo específico para o exame</label>
+              <label>Qual exame</label>
               <input
                 type="text"
-                placeholder="ex: jejum 8h, contraste, suspender medicação X"
-                value={passagem.preparo_exame ?? ''}
-                onChange={(e) => set('preparo_exame', e.target.value)}
+                placeholder="ex: USG abdominal total"
+                value={passagem.exame_nome ?? ''}
+                onChange={(e) => set('exame_nome', e.target.value)}
               />
             </div>
+            <div className="form-field span-3">
+              <label>Situação do exame</label>
+              <div className="chip-group">
+                {EXAME_STATUS_OPCOES.map((op) => (
+                  <button
+                    type="button"
+                    key={op}
+                    className={`chip ${passagem.exame_status === op ? 'on' : ''}`}
+                    onClick={() => set('exame_status', passagem.exame_status === op ? '' : op)}
+                  >
+                    {op}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {passagem.exame_status === 'A realizar' && (
+              <>
+                <div className="form-field">
+                  <label>Data agendada</label>
+                  <input type="date" value={passagem.exame_a_realizar_data ?? ''} onChange={(e) => set('exame_a_realizar_data', e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label>Hora</label>
+                  <input type="time" value={passagem.exame_a_realizar_hora ?? ''} onChange={(e) => set('exame_a_realizar_hora', e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label>Local</label>
+                  <input type="text" value={passagem.exame_a_realizar_local ?? ''} onChange={(e) => set('exame_a_realizar_local', e.target.value)} />
+                </div>
+                <div className="form-field span-3">
+                  <label>Preparo específico</label>
+                  <input
+                    type="text"
+                    placeholder="ex: jejum 8h, contraste, suspender medicação X"
+                    value={passagem.preparo_exame ?? ''}
+                    onChange={(e) => set('preparo_exame', e.target.value)}
+                  />
+                </div>
+              </>
+            )}
+
+            {(passagem.exame_status === 'Aguardando laudo' || passagem.exame_status === 'Resultado disponível') && (
+              <div className="form-field span-3">
+                <label>{passagem.exame_status === 'Resultado disponível' ? 'Resultado / laudo' : 'Observação sobre o laudo'}</label>
+                <input
+                  type="text"
+                  placeholder={passagem.exame_status === 'Resultado disponível' ? 'ex: sem alterações, aguardando avaliação médica' : 'ex: realizado em 30/07, aguardando laudo'}
+                  value={passagem.exame_resultado ?? ''}
+                  onChange={(e) => set('exame_resultado', e.target.value)}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* SOROLOGIA */}
+        <div className="form-section">
+          <div className="form-section-title">Sorologia</div>
+          <div className="form-grid">
             <div className="form-field span-2">
-              <label>Sorologias</label>
-              <input type="text" value={passagem.sorologias ?? ''} onChange={(e) => set('sorologias', e.target.value)} />
+              <label>Qual sorologia</label>
+              <input
+                type="text"
+                placeholder="ex: HIV, HBV, HCV"
+                value={passagem.sorologias ?? ''}
+                onChange={(e) => set('sorologias', e.target.value)}
+              />
             </div>
             <div className="form-field">
-              <label>Coletado</label>
-              <SimNao valor={passagem.coletado} onChange={(v) => set('coletado', v)} />
+              <label>Data da coleta</label>
+              <input type="date" value={passagem.sorologia_data_coleta ?? ''} onChange={(e) => set('sorologia_data_coleta', e.target.value)} />
+            </div>
+            <div className="form-field span-3">
+              <label>Situação</label>
+              <div className="chip-group">
+                {SOROLOGIA_STATUS_OPCOES.map((op) => (
+                  <button
+                    type="button"
+                    key={op}
+                    className={`chip ${passagem.sorologia_status === op ? 'on' : ''}`}
+                    onClick={() => set('sorologia_status', passagem.sorologia_status === op ? '' : op)}
+                  >
+                    {op}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* NOTIFICAÇÃO COMPULSÓRIA */}
+        <div className="form-section">
+          <div className="form-section-title">Notificação compulsória</div>
+          <div className="form-grid">
+            <div className="form-field span-2">
+              <label>Qual agravo</label>
+              <input
+                type="text"
+                placeholder="ex: Malária, Chagas, Ofidismo, SRAG"
+                value={passagem.notificacao_agravo ?? ''}
+                onChange={(e) => set('notificacao_agravo', e.target.value)}
+              />
+            </div>
+            <div className="form-field">
+              <label>Status</label>
+              <div className="toggle-group">
+                <button
+                  type="button"
+                  className={`toggle-btn ${passagem.notificacao_status === 'Pendente' ? 'on danger' : ''}`}
+                  onClick={() => set('notificacao_status', passagem.notificacao_status === 'Pendente' ? '' : 'Pendente')}
+                >
+                  Pendente
+                </button>
+                <button
+                  type="button"
+                  className={`toggle-btn ${passagem.notificacao_status === 'Coletado' ? 'on' : ''}`}
+                  onClick={() => set('notificacao_status', passagem.notificacao_status === 'Coletado' ? '' : 'Coletado')}
+                >
+                  Coletado
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -421,6 +530,12 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
               <label>Transfundido</label>
               <SimNao valor={passagem.hemo_transfundido} onChange={(v) => set('hemo_transfundido', v)} />
             </div>
+            {passagem.hemo_transfundido === true && (
+              <div className="form-field">
+                <label>Data da transfusão</label>
+                <input type="date" value={passagem.hemo_data_transfusao ?? ''} onChange={(e) => set('hemo_data_transfusao', e.target.value)} />
+              </div>
+            )}
             <div className="form-field span-2">
               <label>Quantidade</label>
               <input type="text" value={passagem.hemo_quantidade ?? ''} onChange={(e) => set('hemo_quantidade', e.target.value)} />
@@ -433,52 +548,42 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           <div className="form-section-title">Regulação e transferência</div>
           <div className="form-grid">
             <div className="form-field">
-              <label>Regulado</label>
-              <SimNao valor={passagem.regulado} onChange={(v) => set('regulado', v)} />
-            </div>
-            <div className="form-field">
               <label>Leito liberado p/ outro hospital</label>
               <SimNao valor={passagem.leito_liberado_outro_hospital} onChange={(v) => set('leito_liberado_outro_hospital', v)} />
             </div>
+            {passagem.leito_liberado_outro_hospital === true && (
+              <>
+                <div className="form-field span-2">
+                  <label>Qual hospital</label>
+                  <input type="text" value={passagem.leito_liberado_hospital ?? ''} onChange={(e) => set('leito_liberado_hospital', e.target.value)} />
+                </div>
+                <div className="form-field span-3">
+                  <label>Tipo de transporte</label>
+                  <input
+                    type="text"
+                    placeholder="ex: SAMU, ambulância própria, veículo particular"
+                    value={passagem.leito_liberado_transporte ?? ''}
+                    onChange={(e) => set('leito_liberado_transporte', e.target.value)}
+                  />
+                </div>
+              </>
+            )}
             <div className="form-field">
               <label>Alta Sala Vermelha</label>
               <SimNao valor={passagem.alta_sala_vermelha} onChange={(v) => set('alta_sala_vermelha', v)} />
             </div>
-          </div>
-        </div>
-
-        {/* NOTIFICAÇÃO COMPULSÓRIA */}
-        <div className="form-section">
-          <div className="form-section-title">Notificação compulsória</div>
-          <div className="form-grid">
-            <div className="form-field span-2">
-              <label>Qual agravo</label>
-              <input
-                type="text"
-                placeholder="ex: Malária, Chagas, Ofidismo, SRAG"
-                value={passagem.notificacao_agravo ?? ''}
-                onChange={(e) => set('notificacao_agravo', e.target.value)}
-              />
-            </div>
-            <div className="form-field">
-              <label>Status</label>
-              <div className="toggle-group">
-                <button
-                  type="button"
-                  className={`toggle-btn ${passagem.notificacao_status === 'Pendente' ? 'on danger' : ''}`}
-                  onClick={() => set('notificacao_status', 'Pendente')}
-                >
-                  Pendente
-                </button>
-                <button
-                  type="button"
-                  className={`toggle-btn ${passagem.notificacao_status === 'Coletado' ? 'on' : ''}`}
-                  onClick={() => set('notificacao_status', 'Coletado')}
-                >
-                  Coletado
-                </button>
-              </div>
-            </div>
+            {passagem.alta_sala_vermelha === true && (
+              <>
+                <div className="form-field">
+                  <label>Data da alta</label>
+                  <input type="date" value={passagem.alta_sala_vermelha_data ?? ''} onChange={(e) => set('alta_sala_vermelha_data', e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label>Horário da alta</label>
+                  <input type="time" value={passagem.alta_sala_vermelha_hora ?? ''} onChange={(e) => set('alta_sala_vermelha_hora', e.target.value)} />
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -505,8 +610,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
 function SimNao({ valor, onChange }) {
   return (
     <div className="toggle-group">
-      <button type="button" className={`toggle-btn ${valor === false ? 'on' : ''}`} onClick={() => onChange(false)}>Não</button>
-      <button type="button" className={`toggle-btn ${valor === true ? 'on' : ''}`} onClick={() => onChange(true)}>Sim</button>
+      <button type="button" className={`toggle-btn ${valor === false ? 'on' : ''}`} onClick={() => onChange(valor === false ? null : false)}>Não</button>
+      <button type="button" className={`toggle-btn ${valor === true ? 'on' : ''}`} onClick={() => onChange(valor === true ? null : true)}>Sim</button>
     </div>
   )
 }

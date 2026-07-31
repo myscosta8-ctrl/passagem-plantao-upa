@@ -54,8 +54,6 @@ export default function Painel({ plantao, setoresIds }) {
   }
 
   async function internarPaciente(leito, dados) {
-    const setorDoLeito = setores.find((s) => s.id === leito.setor_id)
-    const statusInicial = setorDoLeito?.nome === 'Internação' ? 'Internado' : 'Em observação'
     const { data: novo, error } = await supabase
       .from('pacientes')
       .insert({
@@ -64,7 +62,7 @@ export default function Painel({ plantao, setoresIds }) {
         data_admissao: dados.dataAdmissao,
         leito_atual_id: leito.id,
         status: 'internado',
-        status_internacao: statusInicial,
+        status_internacao: dados.status,
       })
       .select()
       .single()
@@ -140,6 +138,7 @@ export default function Painel({ plantao, setoresIds }) {
       {modalLeito && (
         <ModalInternar
           leito={modalLeito}
+          setorNome={setores.find((s) => s.id === modalLeito.setor_id)?.nome}
           onCancelar={() => setModalLeito(null)}
           onConfirmar={(dados) => internarPaciente(modalLeito, dados)}
         />
@@ -177,10 +176,12 @@ export default function Painel({ plantao, setoresIds }) {
   )
 }
 
-function ModalInternar({ leito, onCancelar, onConfirmar }) {
+function ModalInternar({ leito, setorNome, onCancelar, onConfirmar }) {
+  const travado = setorNome === 'Internação'
   const [nome, setNome] = useState('')
   const [diagnostico, setDiagnostico] = useState('')
   const [dataAdmissao, setDataAdmissao] = useState('')
+  const [status, setStatus] = useState(travado ? 'Internado' : 'Em observação')
 
   const valido = nome.trim() && diagnostico.trim() && dataAdmissao
 
@@ -207,7 +208,7 @@ function ModalInternar({ leito, onCancelar, onConfirmar }) {
             onChange={(e) => setDiagnostico(e.target.value)}
           />
         </div>
-        <div className="field">
+        <div className="field" style={{ marginBottom: 14 }}>
           <label>Data de admissão *</label>
           <input
             type="date"
@@ -219,12 +220,37 @@ function ModalInternar({ leito, onCancelar, onConfirmar }) {
             Pode ser uma data anterior a hoje (internação retroativa).
           </p>
         </div>
+        <div className="field">
+          <label>Status {travado && '(Internação Adulto — fixo)'}</label>
+          {travado ? (
+            <div className="toggle-group">
+              <button type="button" className="toggle-btn on" disabled>Internado</button>
+            </div>
+          ) : (
+            <div className="toggle-group">
+              <button
+                type="button"
+                className={`toggle-btn ${status === 'Em observação' ? 'on' : ''}`}
+                onClick={() => setStatus('Em observação')}
+              >
+                Em observação
+              </button>
+              <button
+                type="button"
+                className={`toggle-btn ${status === 'Internado' ? 'on' : ''}`}
+                onClick={() => setStatus('Internado')}
+              >
+                Internado
+              </button>
+            </div>
+          )}
+        </div>
         <div className="modal-actions">
           <button className="modal-btn-secondary" onClick={onCancelar}>Cancelar</button>
           <button
             className="modal-btn-primary"
             disabled={!valido}
-            onClick={() => onConfirmar({ nome, diagnostico, dataAdmissao })}
+            onClick={() => onConfirmar({ nome, diagnostico, dataAdmissao, status })}
           >
             Internar
           </button>

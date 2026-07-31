@@ -112,37 +112,47 @@ function CardPaciente({ leito, paciente, passagem }) {
       </div>
     )
   }
-  if (p.exames_realizados) linhas.push(<div className="linha" key="er"><span className="rotulo">Ex.real:</span> {p.exames_realizados}</div>)
-  if (p.laudo_pendente) linhas.push(<div className="linha" key="lp"><span className="rotulo">Laudo:</span> {p.laudo_pendente}</div>)
-  if (p.exames_pendentes) linhas.push(<div className="linha" key="ep"><span className="rotulo">Pend:</span> {p.exames_pendentes}</div>)
-  if (p.exame_a_realizar_data || p.exame_a_realizar_local) {
-    linhas.push(
-      <div className="linha" key="ar">
-        <span className="rotulo">A realizar:</span> {p.exame_a_realizar_data || ''} {p.exame_a_realizar_hora || ''} {p.exame_a_realizar_local || ''}
-      </div>
-    )
+
+  if (p.exame_nome || p.exame_status) {
+    let detalhe = p.exame_status || ''
+    if (p.exame_status === 'A realizar' && (p.exame_a_realizar_data || p.exame_a_realizar_local)) {
+      detalhe += ` (${p.exame_a_realizar_data || ''} ${p.exame_a_realizar_hora || ''} ${p.exame_a_realizar_local || ''})`
+    }
+    if (p.exame_resultado) detalhe += ` — ${p.exame_resultado}`
+    linhas.push(<div className="linha" key="exame"><span className="rotulo">Exame:</span> {p.exame_nome || ''} {detalhe}</div>)
   }
   if (p.preparo_exame) linhas.push(<div className="linha" key="prep"><span className="rotulo">Preparo:</span> {p.preparo_exame}</div>)
-  if (p.sorologias) {
+
+  if (p.sorologias || p.sorologia_status) {
     linhas.push(
       <div className="linha" key="sorol">
-        <span className="rotulo">Sorol:</span> {p.sorologias} ({p.coletado ? 'Col' : 'Pend'})
-      </div>
-    )
-  }
-  if (p.hemo_tipo || p.hemo_solicitado || p.hemo_transfundido) {
-    linhas.push(
-      <div className="linha" key="hemo">
-        <span className="rotulo">Hemo:</span> {p.hemo_tipo || ''} Sol:{p.hemo_solicitado ? 'S' : 'N'} Transf:{p.hemo_transfundido ? 'S' : 'N'}{p.hemo_quantidade ? ` (${p.hemo_quantidade})` : ''}
+        <span className="rotulo">Sorol:</span> {p.sorologias || ''} — {p.sorologia_status || ''}{p.sorologia_data_coleta ? ` (${p.sorologia_data_coleta})` : ''}
       </div>
     )
   }
 
-  const reg = []
-  if (p.regulado !== null && p.regulado !== undefined) reg.push(`Reg:${p.regulado ? 'S' : 'N'}`)
-  if (p.leito_liberado_outro_hospital !== null && p.leito_liberado_outro_hospital !== undefined) reg.push(`Lib:${p.leito_liberado_outro_hospital ? 'S' : 'N'}`)
-  if (p.alta_sala_vermelha !== null && p.alta_sala_vermelha !== undefined) reg.push(`AltaV:${p.alta_sala_vermelha ? 'S' : 'N'}`)
-  if (reg.length) linhas.push(<div className="linha" key="reg">{reg.join(' · ')}</div>)
+  if (p.hemo_tipo || p.hemo_solicitado || p.hemo_transfundido) {
+    linhas.push(
+      <div className="linha" key="hemo">
+        <span className="rotulo">Hemo:</span> {p.hemo_tipo || ''} Sol:{p.hemo_solicitado ? 'S' : 'N'} Transf:{p.hemo_transfundido ? 'S' : 'N'}{p.hemo_data_transfusao ? ` (${p.hemo_data_transfusao})` : ''}{p.hemo_quantidade ? ` — ${p.hemo_quantidade}` : ''}
+      </div>
+    )
+  }
+
+  if (p.leito_liberado_outro_hospital) {
+    linhas.push(
+      <div className="linha" key="lib">
+        <span className="rotulo">Leito liberado:</span> {p.leito_liberado_hospital || '—'}{p.leito_liberado_transporte ? ` (${p.leito_liberado_transporte})` : ''}
+      </div>
+    )
+  }
+  if (p.alta_sala_vermelha) {
+    linhas.push(
+      <div className="linha" key="altaV">
+        <span className="rotulo">Alta Vermelha:</span> {p.alta_sala_vermelha_data || ''} {p.alta_sala_vermelha_hora || ''}
+      </div>
+    )
+  }
 
   if (p.notificacao_agravo) {
     linhas.push(
