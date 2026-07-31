@@ -191,7 +191,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
 
   if (carregando) {
     return (
-      <div className="form-overlay" onClick={onFechar}>
+      <div className="form-overlay">
         <div className="form-panel" onClick={(e) => e.stopPropagation()}>
           <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
         </div>
@@ -200,7 +200,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   }
 
   return (
-    <div className="form-overlay" onClick={onFechar}>
+    <div className="form-overlay">
       <div className="form-panel" onClick={(e) => e.stopPropagation()}>
         <div className="form-header">
           <span className="form-leito-tag">Leito {leito.numero}</span>

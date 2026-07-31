@@ -61,6 +61,7 @@ export default function Painel({ plantao, setoresIds }) {
       .insert({
         nome: dados.nome,
         diagnostico: dados.diagnostico,
+        data_admissao: dados.dataAdmissao,
         leito_atual_id: leito.id,
         status: 'internado',
         status_internacao: statusInicial,
@@ -179,13 +180,16 @@ export default function Painel({ plantao, setoresIds }) {
 function ModalInternar({ leito, onCancelar, onConfirmar }) {
   const [nome, setNome] = useState('')
   const [diagnostico, setDiagnostico] = useState('')
+  const [dataAdmissao, setDataAdmissao] = useState('')
+
+  const valido = nome.trim() && diagnostico.trim() && dataAdmissao
 
   return (
-    <div className="modal-backdrop" onClick={onCancelar}>
+    <div className="modal-backdrop">
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <h2 className="modal-title">Internar no leito {leito.numero}</h2>
         <div className="field" style={{ marginBottom: 14 }}>
-          <label>Nome do paciente</label>
+          <label>Nome completo *</label>
           <input
             type="text"
             style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
@@ -194,8 +198,8 @@ function ModalInternar({ leito, onCancelar, onConfirmar }) {
             autoFocus
           />
         </div>
-        <div className="field">
-          <label>Diagnóstico</label>
+        <div className="field" style={{ marginBottom: 14 }}>
+          <label>Diagnóstico *</label>
           <input
             type="text"
             style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
@@ -203,12 +207,24 @@ function ModalInternar({ leito, onCancelar, onConfirmar }) {
             onChange={(e) => setDiagnostico(e.target.value)}
           />
         </div>
+        <div className="field">
+          <label>Data de admissão *</label>
+          <input
+            type="date"
+            style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
+            value={dataAdmissao}
+            onChange={(e) => setDataAdmissao(e.target.value)}
+          />
+          <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 6 }}>
+            Pode ser uma data anterior a hoje (internação retroativa).
+          </p>
+        </div>
         <div className="modal-actions">
           <button className="modal-btn-secondary" onClick={onCancelar}>Cancelar</button>
           <button
             className="modal-btn-primary"
-            disabled={!nome.trim()}
-            onClick={() => onConfirmar({ nome, diagnostico })}
+            disabled={!valido}
+            onClick={() => onConfirmar({ nome, diagnostico, dataAdmissao })}
           >
             Internar
           </button>

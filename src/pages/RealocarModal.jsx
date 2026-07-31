@@ -58,7 +58,7 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
   }
 
   return (
-    <div className="modal-backdrop" onClick={onFechar}>
+    <div className="modal-backdrop">
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <h2 className="modal-title">Realocar {paciente.nome}</h2>
         <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 18 }}>
