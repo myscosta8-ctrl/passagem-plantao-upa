@@ -19,6 +19,10 @@ export default function PrintView({ plantao, grupo, onVoltar }) {
     const { data: leitos } = await supabase.from('leitos').select('*').eq('ativo', true)
     const { data: pacientes } = await supabase.from('pacientes').select('*').eq('status', 'internado')
     const { data: passagens } = await supabase.from('passagens').select('*').eq('plantao_id', plantao.id)
+    const { data: equipe } = await supabase
+      .from('plantao_profissionais')
+      .select('profissionais(nome, categoria)')
+      .eq('plantao_id', plantao.id)
 
     const passagemPorPaciente = {}
     for (const p of passagens ?? []) passagemPorPaciente[p.paciente_id] = p
@@ -26,7 +30,12 @@ export default function PrintView({ plantao, grupo, onVoltar }) {
     const pacientePorLeito = {}
     for (const p of pacientes ?? []) if (p.leito_atual_id) pacientePorLeito[p.leito_atual_id] = p
 
-    setDados({ setores: setores ?? [], leitos: leitos ?? [], pacientePorLeito, passagemPorPaciente })
+    const plantonistas = (equipe ?? [])
+      .map((e) => e.profissionais)
+      .filter(Boolean)
+      .sort((a, b) => a.nome.localeCompare(b.nome))
+
+    setDados({ setores: setores ?? [], leitos: leitos ?? [], pacientePorLeito, passagemPorPaciente, plantonistas })
   }
 
   if (!dados) return null
@@ -52,6 +61,11 @@ export default function PrintView({ plantao, grupo, onVoltar }) {
           <div className="meta">
             {plantao.turno} — {new Date(plantao.data + 'T00:00:00').toLocaleDateString('pt-BR')}
           </div>
+          {dados.plantonistas.length > 0 && (
+            <div className="meta">
+              Plantonistas: {dados.plantonistas.map((p) => p.nome).join(', ')}
+            </div>
+          )}
         </div>
 
         {setoresDoGrupo.map((setor) => {
@@ -88,7 +102,7 @@ function CardPaciente({ leito, paciente, passagem }) {
   const p = passagem ?? {}
   const linhas = []
 
-  linhas.push(<div className="linha" key="dg"><span className="rotulo">Dg:</span> {paciente.diagnostico || '(sem diagnóstico registrado)'}</div>)
+  linhas.push(<div className="linha" key="dg"><span className="rotulo">HD:</span> {paciente.diagnostico || '(sem diagnóstico registrado)'}</div>)
 
   if (paciente.alergias) {
     linhas.push(
@@ -158,7 +172,7 @@ function CardPaciente({ leito, paciente, passagem }) {
 
   return (
     <div className="print-card">
-      <b>Leito {leito.numero} — {paciente.nome} ({paciente.status_internacao === 'Internado' ? 'I' : 'O'})</b>
+      <b>Leito {leito.numero} — {paciente.nome} ({paciente.status_internacao === 'Internado' ? 'INT' : 'OBS'})</b>
       {linhas}
     </div>
   )

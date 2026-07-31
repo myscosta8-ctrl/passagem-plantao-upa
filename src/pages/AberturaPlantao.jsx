@@ -57,10 +57,17 @@ export default function AberturaPlantao({ onPlantaoAberto }) {
     setNovoNome('')
   }
 
+  const qtdEnfermeirosExigida = turno === 'Diurno' ? 3 : 2
+  const enfermeirosSelecionados = Array.from(selecionados).filter(
+    (id) => profissionais.find((p) => p.id === id)?.categoria === 'Enfermeiro'
+  ).length
+
   async function abrirPlantao() {
     setErro('')
-    if (selecionados.size === 0) {
-      setErro('Marque ao menos um profissional presente no plantão.')
+    if (enfermeirosSelecionados !== qtdEnfermeirosExigida) {
+      setErro(
+        `O turno ${turno} precisa de exatamente ${qtdEnfermeirosExigida} enfermeiro(s) selecionado(s). Você marcou ${enfermeirosSelecionados}.`
+      )
       return
     }
     setCarregando(true)
@@ -132,7 +139,12 @@ export default function AberturaPlantao({ onPlantaoAberto }) {
           </div>
         </div>
 
-        <div className="section-label">Profissionais presentes</div>
+        <div className="section-label">
+          Profissionais presentes
+          <span style={{ fontWeight: 400, color: enfermeirosSelecionados === qtdEnfermeirosExigida ? 'var(--color-success)' : 'var(--color-accent)' }}>
+            {' '}— {enfermeirosSelecionados}/{qtdEnfermeirosExigida} enfermeiros ({turno})
+          </span>
+        </div>
         <div className="profissionais-lista">
           {profissionais.length === 0 && (
             <div style={{ padding: 10, color: 'var(--color-text-muted)', fontSize: 13.5 }}>
@@ -167,10 +179,11 @@ export default function AberturaPlantao({ onPlantaoAberto }) {
           <button type="button" onClick={adicionarProfissional}>+ Adicionar</button>
         </div>
 
-        <button className="submit-btn" onClick={abrirPlantao} disabled={carregando}>
+        <button className="submit-btn" onClick={abrirPlantao} disabled={carregando || enfermeirosSelecionados !== qtdEnfermeirosExigida}>
           {carregando ? 'Abrindo...' : 'Abrir plantão'}
         </button>
         <p className="hint">
+          O turno {turno} exige exatamente {qtdEnfermeirosExigida} enfermeiro(s) marcado(s) (técnicos não contam nesse número, mas podem ser adicionados à vontade).
           Se já existe um plantão aberto para essa data e turno, os profissionais marcados são adicionados a ele.
         </p>
       </div>

@@ -10,6 +10,7 @@ export default function Painel({ plantao, setoresIds }) {
   const [setores, setSetores] = useState([])
   const [leitos, setLeitos] = useState([])
   const [pacientesPorLeito, setPacientesPorLeito] = useState({})
+  const [passagemPorPaciente, setPassagemPorPaciente] = useState({})
   const [modalLeito, setModalLeito] = useState(null) // internar rápido
   const [modalPassagem, setModalPassagem] = useState(null) // { paciente, leito }
   const [modalRealocar, setModalRealocar] = useState(null) // { paciente, leitoOrigem }
@@ -39,6 +40,23 @@ export default function Painel({ plantao, setoresIds }) {
       if (p.leito_atual_id) mapa[p.leito_atual_id] = p
     }
     setPacientesPorLeito(mapa)
+
+    const ids = (listaPacientes ?? []).map((p) => p.id)
+    if (ids.length > 0) {
+      const { data: passagens } = await supabase
+        .from('passagens')
+        .select('*')
+        .in('paciente_id', ids)
+        .order('criado_em', { ascending: false })
+      const ultimaPorPaciente = {}
+      for (const p of passagens ?? []) {
+        if (!ultimaPorPaciente[p.paciente_id]) ultimaPorPaciente[p.paciente_id] = p
+      }
+      setPassagemPorPaciente(ultimaPorPaciente)
+    } else {
+      setPassagemPorPaciente({})
+    }
+
     setCarregando(false)
   }
 
@@ -79,7 +97,7 @@ export default function Painel({ plantao, setoresIds }) {
   const setoresVisiveis = setores.filter((s) => setoresIds.includes(s.id))
 
   return (
-    <div className="page" style={{ maxWidth: 1080 }}>
+    <div className="page" style={{ maxWidth: 1400 }}>
       <h1 className="page-title">Painel do plantão</h1>
       <p className="page-subtitle">Selecione um leito para internar, editar ou realocar um paciente.</p>
 
@@ -102,6 +120,7 @@ export default function Painel({ plantao, setoresIds }) {
             <div className="leitos-grid">
               {leitosDoSetor.map((leito) => {
                 const paciente = pacientesPorLeito[leito.id]
+                const p = paciente ? passagemPorPaciente[paciente.id] : null
                 return (
                   <div
                     key={leito.id}
@@ -118,8 +137,21 @@ export default function Painel({ plantao, setoresIds }) {
                           <span className={`status-badge ${paciente.status_internacao === 'Internado' ? 'internado' : 'observacao'}`}>
                             {paciente.status_internacao}
                           </span>
+                          {paciente.alergias && <span className="status-badge alerta">Alergia</span>}
                         </div>
-                        <div className="leito-paciente-diag">{paciente.diagnostico || 'Sem diagnóstico registrado'}</div>
+                        <div className="leito-paciente-diag">HD: {paciente.diagnostico || 'Sem diagnóstico registrado'}</div>
+                        <div className="leito-paciente-extra">
+                          {paciente.idade ? `${paciente.idade} anos` : null}
+                          {paciente.idade && paciente.sexo ? ' · ' : null}
+                          {paciente.sexo === 'F' ? 'Feminino' : paciente.sexo === 'M' ? 'Masculino' : null}
+                          {paciente.data_admissao ? ` · Admissão: ${new Date(paciente.data_admissao + 'T00:00:00').toLocaleDateString('pt-BR')}` : null}
+                        </div>
+                        {p?.dispositivos?.length > 0 && (
+                          <div className="leito-paciente-extra">Dispositivos: {p.dispositivos.join(', ')}</div>
+                        )}
+                        {p?.pendencias && (
+                          <div className="leito-paciente-pendencia">{p.pendencias}</div>
+                        )}
                       </>
                     ) : (
                       <div className="leito-vazio-texto">Leito vazio — clique para internar</div>

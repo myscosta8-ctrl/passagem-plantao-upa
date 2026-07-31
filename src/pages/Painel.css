@@ -26,7 +26,7 @@
 
 .leitos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 14px;
 }
 
@@ -96,6 +96,27 @@
 .status-badge.observacao {
   background: #FFF3D6;
   color: #8A5A00;
+}
+
+.status-badge.alerta {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+
+.leito-paciente-extra {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+.leito-paciente-pendencia {
+  font-size: 12px;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-top: 8px;
+  line-height: 1.4;
 }
 
 .leito-paciente-diag {
