@@ -41,9 +41,6 @@ const PASSAGEM_VAZIA = {
   alta_sala_vermelha_data: '',
   alta_sala_vermelha_hora: '',
 
-  notificacao_agravo: '',
-  notificacao_status: '',
-
   pendencias: '',
 }
 
@@ -433,15 +430,15 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           </div>
         </div>
 
-        {/* SOROLOGIA */}
+        {/* SOROLOGIA / NOTIFICAÇÃO COMPULSÓRIA */}
         <div className="form-section">
-          <div className="form-section-title">Sorologia</div>
+          <div className="form-section-title">Sorologia / Notificação compulsória</div>
           <div className="form-grid">
             <div className="form-field span-2">
-              <label>Qual sorologia</label>
+              <label>Qual agravo / sorologia</label>
               <input
                 type="text"
-                placeholder="ex: HIV, HBV, HCV"
+                placeholder="ex: Malária, Chagas, Ofidismo, SRAG, HIV, HBV, HCV"
                 value={passagem.sorologias ?? ''}
                 onChange={(e) => set('sorologias', e.target.value)}
               />
@@ -463,41 +460,6 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
                     {op}
                   </button>
                 ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* NOTIFICAÇÃO COMPULSÓRIA */}
-        <div className="form-section">
-          <div className="form-section-title">Notificação compulsória</div>
-          <div className="form-grid">
-            <div className="form-field span-2">
-              <label>Qual agravo</label>
-              <input
-                type="text"
-                placeholder="ex: Malária, Chagas, Ofidismo, SRAG"
-                value={passagem.notificacao_agravo ?? ''}
-                onChange={(e) => set('notificacao_agravo', e.target.value)}
-              />
-            </div>
-            <div className="form-field">
-              <label>Status</label>
-              <div className="toggle-group">
-                <button
-                  type="button"
-                  className={`toggle-btn ${passagem.notificacao_status === 'Pendente' ? 'on danger' : ''}`}
-                  onClick={() => set('notificacao_status', passagem.notificacao_status === 'Pendente' ? '' : 'Pendente')}
-                >
-                  Pendente
-                </button>
-                <button
-                  type="button"
-                  className={`toggle-btn ${passagem.notificacao_status === 'Coletado' ? 'on' : ''}`}
-                  onClick={() => set('notificacao_status', passagem.notificacao_status === 'Coletado' ? '' : 'Coletado')}
-                >
-                  Coletado
-                </button>
               </div>
             </div>
           </div>

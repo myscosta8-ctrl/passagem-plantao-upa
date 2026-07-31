@@ -154,13 +154,6 @@ function CardPaciente({ leito, paciente, passagem }) {
     )
   }
 
-  if (p.notificacao_agravo) {
-    linhas.push(
-      <div className="linha" key="notif">
-        <span className="rotulo">Notif:</span> {p.notificacao_agravo} — {p.notificacao_status || '—'}
-      </div>
-    )
-  }
   if (p.pendencias) linhas.push(<div className="linha" key="obs"><span className="rotulo">Obs:</span> {p.pendencias}</div>)
 
   return (
