@@ -1,0 +1,119 @@
+.auth-screen {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, var(--color-primary-light), transparent),
+    var(--color-bg);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  padding: 36px 32px 28px;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.auth-brand-mark {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.auth-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin: 0 0 2px;
+}
+
+.auth-subtitle {
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  margin: 0 0 28px;
+}
+
+.auth-field {
+  margin-bottom: 16px;
+}
+
+.auth-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
+
+.auth-field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: border-color 0.15s ease;
+}
+
+.auth-field input:focus {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.auth-submit {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  margin-top: 6px;
+  transition: background 0.15s ease;
+}
+
+.auth-submit:hover { background: var(--color-primary-dark); }
+.auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.auth-toggle {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+}
+
+.auth-toggle button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  padding: 0;
+  margin-left: 4px;
+}
+
+.auth-error {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}

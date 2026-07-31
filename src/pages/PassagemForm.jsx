@@ -1,0 +1,512 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabaseClient'
+import './PassagemForm.css'
+
+const DISPOSITIVOS_OPCOES = ['SVD', 'SNE', 'Dreno', 'O2']
+const NIVEIS_CONSCIENCIA = ['Alerta', 'Confuso', 'Sonolento', 'Inconsciente']
+
+const PASSAGEM_VAZIA = {
+  curativo_realizado: null,
+  avp: null,
+  avp_data_insercao: '',
+  exames_realizados: '',
+  laudo_pendente: '',
+  exames_pendentes: '',
+  exame_a_realizar_data: '',
+  exame_a_realizar_hora: '',
+  exame_a_realizar_local: '',
+  sorologias: '',
+  coletado: null,
+  hemo_tipo: '',
+  hemo_solicitado: null,
+  hemo_transfundido: null,
+  hemo_quantidade: '',
+  pendencias: '',
+  nivel_consciencia: '',
+  dispositivos: [],
+  dispositivos_detalhe: '',
+  acompanhante: null,
+  preparo_exame: '',
+  notificacao_agravo: '',
+  notificacao_status: '',
+  regulado: null,
+  leito_liberado_outro_hospital: null,
+  alta_sala_vermelha: null,
+}
+
+export default function PassagemForm({ paciente, leito, setorNome, plantaoId, enfermeiroId, onFechar, onSalvo, onRealocar }) {
+  const [processando, setProcessando] = useState(false)
+  const statusTravado = setorNome === 'Internação'
+  const [identificacao, setIdentificacao] = useState({
+    nome: paciente.nome ?? '',
+    diagnostico: paciente.diagnostico ?? '',
+    idade: paciente.idade ?? '',
+    sexo: paciente.sexo ?? '',
+    data_admissao: paciente.data_admissao ?? '',
+    alergias: paciente.alergias ?? false,
+    alergias_obs: paciente.alergias_obs ?? '',
+    status_internacao: statusTravado ? 'Internado' : (paciente.status_internacao ?? 'Em observação'),
+  })
+  const [passagem, setPassagem] = useState(PASSAGEM_VAZIA)
+  const [carregando, setCarregando] = useState(true)
+  const [salvando, setSalvando] = useState(false)
+  const [salvo, setSalvo] = useState(false)
+  const [origemCopia, setOrigemCopia] = useState(null)
+
+  useEffect(() => {
+    carregar()
+  }, [])
+
+  async function carregar() {
+    setCarregando(true)
+
+    // 1. Já existe passagem preenchida NESTE plantão para esse paciente?
+    const { data: atual } = await supabase
+      .from('passagens')
+      .select('*')
+      .eq('plantao_id', plantaoId)
+      .eq('paciente_id', paciente.id)
+      .maybeSingle()
+
+    if (atual) {
+      setPassagem({ ...PASSAGEM_VAZIA, ...atual })
+      setCarregando(false)
+      return
+    }
+
+    // 2. Senão, copia automaticamente da última passagem desse paciente (outro plantão)
+    const { data: anterior } = await supabase
+      .from('passagens')
+      .select('*')
+      .eq('paciente_id', paciente.id)
+      .order('criado_em', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (anterior) {
+      setPassagem({ ...PASSAGEM_VAZIA, ...anterior })
+      setOrigemCopia(anterior.criado_em)
+    }
+    setCarregando(false)
+  }
+
+  async function copiarNovamente() {
+    const { data: anterior } = await supabase
+      .from('passagens')
+      .select('*')
+      .eq('paciente_id', paciente.id)
+      .order('criado_em', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (anterior) {
+      setPassagem({ ...PASSAGEM_VAZIA, ...anterior })
+      setOrigemCopia(anterior.criado_em)
+    }
+  }
+
+  function set(campo, valor) {
+    setPassagem((prev) => ({ ...prev, [campo]: valor }))
+    setSalvo(false)
+  }
+
+  function toggleDispositivo(d) {
+    setPassagem((prev) => ({
+      ...prev,
+      dispositivos: prev.dispositivos.includes(d)
+        ? prev.dispositivos.filter((x) => x !== d)
+        : [...prev.dispositivos, d],
+    }))
+    setSalvo(false)
+  }
+
+  async function salvar() {
+    setSalvando(true)
+
+    await supabase
+      .from('pacientes')
+      .update({
+        nome: identificacao.nome,
+        diagnostico: identificacao.diagnostico,
+        idade: identificacao.idade || null,
+        sexo: identificacao.sexo || null,
+        data_admissao: identificacao.data_admissao || null,
+        alergias: identificacao.alergias,
+        alergias_obs: identificacao.alergias_obs,
+        status_internacao: statusTravado ? 'Internado' : identificacao.status_internacao,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', paciente.id)
+
+    const payload = {
+      plantao_id: plantaoId,
+      paciente_id: paciente.id,
+      leito_id: leito.id,
+      setor_id: leito.setor_id,
+      criado_por: enfermeiroId,
+      ...passagem,
+      avp_data_insercao: passagem.avp_data_insercao || null,
+      exame_a_realizar_data: passagem.exame_a_realizar_data || null,
+      exame_a_realizar_hora: passagem.exame_a_realizar_hora || null,
+    }
+
+    const { error } = await supabase
+      .from('passagens')
+      .upsert(payload, { onConflict: 'plantao_id,paciente_id' })
+
+    setSalvando(false)
+    if (!error) {
+      setSalvo(true)
+      onSalvo?.()
+    }
+  }
+
+  async function darAlta() {
+    const confirmado = window.confirm(`Confirmar alta de ${identificacao.nome}? O leito ${leito.numero} fica liberado.`)
+    if (!confirmado) return
+    setProcessando(true)
+    const { error } = await supabase
+      .from('pacientes')
+      .update({ status: 'alta', data_alta: new Date().toISOString() })
+      .eq('id', paciente.id)
+    setProcessando(false)
+    if (!error) {
+      onSalvo?.()
+      onFechar?.()
+    }
+  }
+
+  async function excluirPaciente() {
+    const confirmado = window.confirm(
+      `Excluir ${identificacao.nome} definitivamente? Isso apaga o cadastro e todo o histórico de passagens dele. Use só em caso de erro/duplicidade — não é o mesmo que dar alta.`
+    )
+    if (!confirmado) return
+    setProcessando(true)
+    const { error } = await supabase.from('pacientes').delete().eq('id', paciente.id)
+    setProcessando(false)
+    if (!error) {
+      onSalvo?.()
+      onFechar?.()
+    }
+  }
+
+  if (carregando) {
+    return (
+      <div className="form-overlay" onClick={onFechar}>
+        <div className="form-panel" onClick={(e) => e.stopPropagation()}>
+          <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="form-overlay" onClick={onFechar}>
+      <div className="form-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="form-header">
+          <span className="form-leito-tag">Leito {leito.numero}</span>
+          <button className="form-header-close" onClick={onFechar}>×</button>
+        </div>
+
+        <div className="form-toolbar">
+          <button className="btn-copiar" onClick={copiarNovamente}>↺ Copiar do plantão anterior</button>
+          <button className="btn-realocar" onClick={() => onRealocar?.(paciente, leito)}>⇄ Realocar paciente</button>
+          <button className="btn-alta" onClick={darAlta} disabled={processando}>✓ Dar alta</button>
+          <button className="btn-excluir" onClick={excluirPaciente} disabled={processando}>🗑 Excluir paciente</button>
+        </div>
+        {origemCopia && (
+          <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: -14, marginBottom: 18 }}>
+            Copiado do plantão de {new Date(origemCopia).toLocaleString('pt-BR')}. Ajuste o que mudou.
+          </p>
+        )}
+
+        {/* IDENTIFICAÇÃO */}
+        <div className="form-section">
+          <div className="form-section-title">Identificação</div>
+          <div className="form-grid">
+            <div className="form-field span-2">
+              <label>Nome</label>
+              <input type="text" value={identificacao.nome} onChange={(e) => setIdentificacao((p) => ({ ...p, nome: e.target.value }))} />
+            </div>
+            <div className="form-field span-2">
+              <label>Diagnóstico</label>
+              <input type="text" value={identificacao.diagnostico} onChange={(e) => setIdentificacao((p) => ({ ...p, diagnostico: e.target.value }))} />
+            </div>
+            <div className="form-field">
+              <label>Idade</label>
+              <input type="number" value={identificacao.idade} onChange={(e) => setIdentificacao((p) => ({ ...p, idade: e.target.value }))} />
+            </div>
+            <div className="form-field">
+              <label>Sexo</label>
+              <select value={identificacao.sexo} onChange={(e) => setIdentificacao((p) => ({ ...p, sexo: e.target.value }))}>
+                <option value="">—</option>
+                <option value="F">Feminino</option>
+                <option value="M">Masculino</option>
+              </select>
+            </div>
+            <div className="form-field span-2">
+              <label>Status {statusTravado && '(Internação Adulto — fixo)'}</label>
+              {statusTravado ? (
+                <div className="toggle-group">
+                  <button type="button" className="toggle-btn on" disabled>Internado</button>
+                </div>
+              ) : (
+                <div className="toggle-group">
+                  <button
+                    type="button"
+                    className={`toggle-btn ${identificacao.status_internacao === 'Em observação' ? 'on' : ''}`}
+                    onClick={() => setIdentificacao((p) => ({ ...p, status_internacao: 'Em observação' }))}
+                  >
+                    Em observação
+                  </button>
+                  <button
+                    type="button"
+                    className={`toggle-btn ${identificacao.status_internacao === 'Internado' ? 'on' : ''}`}
+                    onClick={() => setIdentificacao((p) => ({ ...p, status_internacao: 'Internado' }))}
+                  >
+                    Internado
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="form-field span-2">
+              <label>Data de admissão</label>
+              <input type="date" value={identificacao.data_admissao} onChange={(e) => setIdentificacao((p) => ({ ...p, data_admissao: e.target.value }))} />
+            </div>
+            <div className="form-field">
+              <label>Alergias</label>
+              <div className="toggle-group">
+                <button type="button" className={`toggle-btn ${identificacao.alergias === false ? 'on' : ''}`} onClick={() => setIdentificacao((p) => ({ ...p, alergias: false }))}>Não</button>
+                <button type="button" className={`toggle-btn ${identificacao.alergias === true ? 'on danger' : ''}`} onClick={() => setIdentificacao((p) => ({ ...p, alergias: true }))}>Sim</button>
+              </div>
+            </div>
+            {identificacao.alergias && (
+              <div className="form-field span-3">
+                <label>Quais alergias</label>
+                <input type="text" value={identificacao.alergias_obs} onChange={(e) => setIdentificacao((p) => ({ ...p, alergias_obs: e.target.value }))} />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ASSISTÊNCIA */}
+        <div className="form-section">
+          <div className="form-section-title">Assistência</div>
+          <div className="form-grid">
+            <div className="form-field">
+              <label>Curativo realizado</label>
+              <SimNao valor={passagem.curativo_realizado} onChange={(v) => set('curativo_realizado', v)} />
+            </div>
+            <div className="form-field">
+              <label>AVP</label>
+              <SimNao valor={passagem.avp} onChange={(v) => set('avp', v)} />
+            </div>
+            {passagem.avp && (
+              <div className="form-field span-2">
+                <label>Data de inserção do AVP</label>
+                <input type="date" value={passagem.avp_data_insercao ?? ''} onChange={(e) => set('avp_data_insercao', e.target.value)} />
+              </div>
+            )}
+            <div className="form-field">
+              <label>Nível de consciência</label>
+              <select value={passagem.nivel_consciencia ?? ''} onChange={(e) => set('nivel_consciencia', e.target.value)}>
+                <option value="">—</option>
+                {NIVEIS_CONSCIENCIA.map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <div className="form-field">
+              <label>Acompanhante presente</label>
+              <SimNao valor={passagem.acompanhante} onChange={(v) => set('acompanhante', v)} />
+            </div>
+            <div className="form-field span-3">
+              <label>Dispositivos invasivos (além do AVP)</label>
+              <div className="chip-group">
+                {DISPOSITIVOS_OPCOES.map((d) => (
+                  <button
+                    type="button"
+                    key={d}
+                    className={`chip ${passagem.dispositivos?.includes(d) ? 'on' : ''}`}
+                    onClick={() => toggleDispositivo(d)}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {passagem.dispositivos?.length > 0 && (
+              <div className="form-field span-3">
+                <label>Detalhe do dispositivo (nº, tamanho)</label>
+                <input
+                  type="text"
+                  placeholder="ex: SVD Nº16, TOT 7,5"
+                  value={passagem.dispositivos_detalhe ?? ''}
+                  onChange={(e) => set('dispositivos_detalhe', e.target.value)}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* EXAMES */}
+        <div className="form-section">
+          <div className="form-section-title">Exames</div>
+          <div className="form-grid">
+            <div className="form-field span-2">
+              <label>Realizados</label>
+              <input type="text" value={passagem.exames_realizados ?? ''} onChange={(e) => set('exames_realizados', e.target.value)} />
+            </div>
+            <div className="form-field span-2">
+              <label>Laudo pendente</label>
+              <input type="text" value={passagem.laudo_pendente ?? ''} onChange={(e) => set('laudo_pendente', e.target.value)} />
+            </div>
+            <div className="form-field span-2">
+              <label>Pendentes</label>
+              <input type="text" value={passagem.exames_pendentes ?? ''} onChange={(e) => set('exames_pendentes', e.target.value)} />
+            </div>
+            <div className="form-field">
+              <label>A realizar — data</label>
+              <input type="date" value={passagem.exame_a_realizar_data ?? ''} onChange={(e) => set('exame_a_realizar_data', e.target.value)} />
+            </div>
+            <div className="form-field">
+              <label>Hora</label>
+              <input type="time" value={passagem.exame_a_realizar_hora ?? ''} onChange={(e) => set('exame_a_realizar_hora', e.target.value)} />
+            </div>
+            <div className="form-field span-2">
+              <label>Local</label>
+              <input type="text" value={passagem.exame_a_realizar_local ?? ''} onChange={(e) => set('exame_a_realizar_local', e.target.value)} />
+            </div>
+            <div className="form-field span-3">
+              <label>Preparo específico para o exame</label>
+              <input
+                type="text"
+                placeholder="ex: jejum 8h, contraste, suspender medicação X"
+                value={passagem.preparo_exame ?? ''}
+                onChange={(e) => set('preparo_exame', e.target.value)}
+              />
+            </div>
+            <div className="form-field span-2">
+              <label>Sorologias</label>
+              <input type="text" value={passagem.sorologias ?? ''} onChange={(e) => set('sorologias', e.target.value)} />
+            </div>
+            <div className="form-field">
+              <label>Coletado</label>
+              <SimNao valor={passagem.coletado} onChange={(v) => set('coletado', v)} />
+            </div>
+          </div>
+        </div>
+
+        {/* HEMOTERAPIA */}
+        <div className="form-section">
+          <div className="form-section-title">Hemoterapia</div>
+          <div className="form-grid">
+            <div className="form-field span-2">
+              <label>Tipo</label>
+              <div className="chip-group">
+                {['CH', 'PFC', 'CP', 'Crioprecipitado'].map((t) => (
+                  <button
+                    type="button"
+                    key={t}
+                    className={`chip ${passagem.hemo_tipo === t ? 'on' : ''}`}
+                    onClick={() => set('hemo_tipo', passagem.hemo_tipo === t ? '' : t)}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="form-field">
+              <label>Solicitado</label>
+              <SimNao valor={passagem.hemo_solicitado} onChange={(v) => set('hemo_solicitado', v)} />
+            </div>
+            <div className="form-field">
+              <label>Transfundido</label>
+              <SimNao valor={passagem.hemo_transfundido} onChange={(v) => set('hemo_transfundido', v)} />
+            </div>
+            <div className="form-field span-2">
+              <label>Quantidade</label>
+              <input type="text" value={passagem.hemo_quantidade ?? ''} onChange={(e) => set('hemo_quantidade', e.target.value)} />
+            </div>
+          </div>
+        </div>
+
+        {/* REGULAÇÃO E TRANSFERÊNCIA */}
+        <div className="form-section">
+          <div className="form-section-title">Regulação e transferência</div>
+          <div className="form-grid">
+            <div className="form-field">
+              <label>Regulado</label>
+              <SimNao valor={passagem.regulado} onChange={(v) => set('regulado', v)} />
+            </div>
+            <div className="form-field">
+              <label>Leito liberado p/ outro hospital</label>
+              <SimNao valor={passagem.leito_liberado_outro_hospital} onChange={(v) => set('leito_liberado_outro_hospital', v)} />
+            </div>
+            <div className="form-field">
+              <label>Alta Sala Vermelha</label>
+              <SimNao valor={passagem.alta_sala_vermelha} onChange={(v) => set('alta_sala_vermelha', v)} />
+            </div>
+          </div>
+        </div>
+
+        {/* NOTIFICAÇÃO COMPULSÓRIA */}
+        <div className="form-section">
+          <div className="form-section-title">Notificação compulsória</div>
+          <div className="form-grid">
+            <div className="form-field span-2">
+              <label>Qual agravo</label>
+              <input
+                type="text"
+                placeholder="ex: Malária, Chagas, Ofidismo, SRAG"
+                value={passagem.notificacao_agravo ?? ''}
+                onChange={(e) => set('notificacao_agravo', e.target.value)}
+              />
+            </div>
+            <div className="form-field">
+              <label>Status</label>
+              <div className="toggle-group">
+                <button
+                  type="button"
+                  className={`toggle-btn ${passagem.notificacao_status === 'Pendente' ? 'on danger' : ''}`}
+                  onClick={() => set('notificacao_status', 'Pendente')}
+                >
+                  Pendente
+                </button>
+                <button
+                  type="button"
+                  className={`toggle-btn ${passagem.notificacao_status === 'Coletado' ? 'on' : ''}`}
+                  onClick={() => set('notificacao_status', 'Coletado')}
+                >
+                  Coletado
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* PENDÊNCIAS */}
+        <div className="form-section">
+          <div className="form-section-title">Observações/Pendência para o próximo plantão</div>
+          <div className="form-field">
+            <textarea value={passagem.pendencias ?? ''} onChange={(e) => set('pendencias', e.target.value)} />
+          </div>
+        </div>
+
+        <div className="form-footer">
+          <button className="btn-fechar" onClick={onFechar}>Fechar</button>
+          <button className="btn-salvar" onClick={salvar} disabled={salvando}>
+            {salvando ? 'Salvando...' : 'Salvar passagem'}
+          </button>
+        </div>
+        {salvo && <div className="save-flag">Salvo com sucesso.</div>}
+      </div>
+    </div>
+  )
+}
+
+function SimNao({ valor, onChange }) {
+  return (
+    <div className="toggle-group">
+      <button type="button" className={`toggle-btn ${valor === false ? 'on' : ''}`} onClick={() => onChange(false)}>Não</button>
+      <button type="button" className={`toggle-btn ${valor === true ? 'on' : ''}`} onClick={() => onChange(true)}>Sim</button>
+    </div>
+  )
+}

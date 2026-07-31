@@ -1,0 +1,99 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+  .no-print {
+    display: none !important;
+  }
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+}
+
+.print-page {
+  font-family: Arial, sans-serif;
+  color: #111;
+}
+
+.print-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.print-header-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 6px;
+}
+
+.print-header-logos img {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+}
+
+.print-header h1 {
+  font-size: 14px;
+  margin: 0 0 2px;
+}
+
+.print-header .meta {
+  font-size: 10.5px;
+  color: #444;
+}
+
+.print-setor-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #eee;
+  padding: 3px 6px;
+  margin: 10px 0 6px;
+  break-after: avoid;
+}
+
+.print-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.print-card {
+  border: 1px solid #999;
+  padding: 5px 7px;
+  font-size: 9px;
+  line-height: 1.3;
+  break-inside: avoid;
+}
+
+.print-card b {
+  font-size: 9.5px;
+}
+
+.print-card .linha {
+  margin-top: 2px;
+}
+
+.print-card .rotulo {
+  font-weight: 700;
+}
+
+.print-empty {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+  padding: 6px 0;
+}
