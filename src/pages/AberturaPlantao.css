@@ -63,6 +63,18 @@
   font-size: 13px;
 }
 
+.admin-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
 .topbar-menu {
   position: relative;
 }

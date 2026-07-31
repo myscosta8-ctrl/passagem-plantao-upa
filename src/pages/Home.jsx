@@ -18,8 +18,15 @@ async function purgarHistoricoAntigo() {
   await supabase.from('plantoes').delete().lt('data', limite)
 }
 
+function hojeISOLocal() {
+  const d = new Date()
+  const off = d.getTimezoneOffset()
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10)
+}
+
 export default function Home() {
   const { enfermeiro, logout } = useAuth()
+  const isAdmin = enfermeiro?.role === 'admin'
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState('painel') // 'painel' | 'print1' | 'print2' | 'historico' | 'ajuda'
@@ -29,8 +36,41 @@ export default function Home() {
 
   useEffect(() => {
     purgarHistoricoAntigo()
-    retomarPlantaoAtivo()
+    if (isAdmin) {
+      entrarComoAdmin()
+    } else {
+      retomarPlantaoAtivo()
+    }
   }, [])
+
+  async function entrarComoAdmin() {
+    // Admin não tem limite de acesso: sem exigência de equipe, vê todos os setores direto
+    const { data: setores } = await supabase.from('setores').select('id')
+    setSetoresIds((setores ?? []).map((s) => s.id))
+
+    const hoje = hojeISOLocal()
+    const horaAtual = new Date().getHours()
+    const turno = horaAtual >= 7 && horaAtual < 19 ? 'Diurno' : 'Noturno'
+
+    const { data: existente } = await supabase
+      .from('plantoes')
+      .select('id, data, turno, status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (existente) {
+      setPlantao(existente)
+    } else {
+      const { data: criado } = await supabase
+        .from('plantoes')
+        .insert({ data: hoje, turno })
+        .select()
+        .single()
+      if (criado) setPlantao(criado)
+    }
+    setVerificandoRetomada(false)
+  }
 
   async function retomarPlantaoAtivo() {
     if (!enfermeiro?.id) {
@@ -112,20 +152,22 @@ export default function Home() {
               </button>
               {menuAberto && (
                 <div className="topbar-menu-panel" onClick={() => setMenuAberto(false)}>
-                  <button onClick={() => setSetoresIds(null)}>Trocar setores</button>
+                  {!isAdmin && <button onClick={() => setSetoresIds(null)}>Trocar setores</button>}
                   <button onClick={() => setTela('print1')}>Imprimir Vermelha+Internação</button>
                   <button onClick={() => setTela('print2')}>Imprimir Pediátrico+Observação</button>
                   <button onClick={() => setTela('historico')}>Histórico</button>
                   <button onClick={() => setTela('altas')}>Altas recentes</button>
                   <button onClick={() => setTela('pendencias')}>Pendências</button>
                   <button onClick={() => setTela('ajuda')}>Ajuda</button>
-                  <button
-                    onClick={encerrarPlantao}
-                    disabled={encerrando}
-                    className="topbar-menu-danger"
-                  >
-                    {encerrando ? 'Encerrando...' : 'Encerrar minha participação'}
-                  </button>
+                  {!isAdmin && (
+                    <button
+                      onClick={encerrarPlantao}
+                      disabled={encerrando}
+                      className="topbar-menu-danger"
+                    >
+                      {encerrando ? 'Encerrando...' : 'Encerrar minha participação'}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -134,7 +176,10 @@ export default function Home() {
           {!(plantao && setoresIds && tela === 'painel') && (
             <button onClick={() => setTela('ajuda')}>Ajuda</button>
           )}
-          <span className="topbar-nome">{enfermeiro?.nome_exibicao || enfermeiro?.nome}</span>
+          <span className="topbar-nome">
+            {enfermeiro?.nome_exibicao || enfermeiro?.nome}
+            {isAdmin && <span className="admin-badge">ADMIN</span>}
+          </span>
           <button onClick={logout}>Sair</button>
         </div>
       </div>
