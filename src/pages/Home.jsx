@@ -156,7 +156,7 @@ export default function Home() {
                   <button onClick={() => setTela('print1')}>Imprimir Vermelha+Internação</button>
                   <button onClick={() => setTela('print2')}>Imprimir Pediátrico+Observação</button>
                   <button onClick={() => setTela('historico')}>Histórico</button>
-                  <button onClick={() => setTela('altas')}>Altas recentes</button>
+                  <button onClick={() => setTela('altas')}>Desfechos (7 dias)</button>
                   <button onClick={() => setTela('pendencias')}>Pendências</button>
                   <button onClick={() => setTela('ajuda')}>Ajuda</button>
                   {!isAdmin && (

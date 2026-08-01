@@ -171,6 +171,7 @@ export default function Painel({ plantao, setoresIds }) {
         <ModalInternar
           leito={modalLeito}
           setorNome={setores.find((s) => s.id === modalLeito.setor_id)?.nome}
+          pacientesExistentes={Object.values(pacientesPorLeito)}
           onCancelar={() => setModalLeito(null)}
           onConfirmar={(dados) => internarPaciente(modalLeito, dados)}
         />
@@ -208,14 +209,36 @@ export default function Painel({ plantao, setoresIds }) {
   )
 }
 
-function ModalInternar({ leito, setorNome, onCancelar, onConfirmar }) {
+function normalizarNome(s) {
+  return s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')
+}
+
+function ModalInternar({ leito, setorNome, pacientesExistentes, onCancelar, onConfirmar }) {
   const travado = setorNome === 'Internação'
   const [nome, setNome] = useState('')
   const [diagnostico, setDiagnostico] = useState('')
   const [dataAdmissao, setDataAdmissao] = useState('')
   const [status, setStatus] = useState(travado ? 'Internado' : 'Em observação')
+  const [confirmouDuplicata, setConfirmouDuplicata] = useState(false)
 
   const valido = nome.trim() && diagnostico.trim() && dataAdmissao
+
+  const duplicata = nome.trim()
+    ? (pacientesExistentes ?? []).find((p) => normalizarNome(p.nome) === normalizarNome(nome))
+    : null
+
+  function tentarInternar() {
+    if (duplicata && !confirmouDuplicata) {
+      setConfirmouDuplicata(true) // primeiro clique só revela o aviso/confirmação
+      return
+    }
+    onConfirmar({ nome, diagnostico, dataAdmissao, status })
+  }
 
   return (
     <div className="modal-backdrop">
@@ -227,7 +250,7 @@ function ModalInternar({ leito, setorNome, onCancelar, onConfirmar }) {
             type="text"
             style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
             value={nome}
-            onChange={(e) => setNome(e.target.value)}
+            onChange={(e) => { setNome(e.target.value); setConfirmouDuplicata(false) }}
             autoFocus
           />
         </div>
@@ -277,14 +300,25 @@ function ModalInternar({ leito, setorNome, onCancelar, onConfirmar }) {
             </div>
           )}
         </div>
+
+        {duplicata && (
+          <div className="error-box" style={{ marginTop: 14, marginBottom: 0 }}>
+            ⚠ Já existe um paciente com nome parecido internado: <b>{duplicata.nome}</b>.
+            {confirmouDuplicata
+              ? ' Clique em "Internar mesmo assim" de novo pra confirmar.'
+              : ' Confira se não é a mesma pessoa antes de continuar.'}
+          </div>
+        )}
+
         <div className="modal-actions">
           <button className="modal-btn-secondary" onClick={onCancelar}>Cancelar</button>
           <button
             className="modal-btn-primary"
             disabled={!valido}
-            onClick={() => onConfirmar({ nome, diagnostico, dataAdmissao, status })}
+            onClick={tentarInternar}
+            style={duplicata ? { background: 'var(--color-accent)', borderColor: 'var(--color-accent)' } : undefined}
           >
-            Internar
+            {duplicata ? (confirmouDuplicata ? 'Internar mesmo assim' : 'Verificar duplicata') : 'Internar'}
           </button>
         </div>
       </div>

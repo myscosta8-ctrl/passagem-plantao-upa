@@ -46,6 +46,7 @@ const PASSAGEM_VAZIA = {
 
 export default function PassagemForm({ paciente, leito, setorNome, plantaoId, enfermeiroId, onFechar, onSalvo, onRealocar }) {
   const [processando, setProcessando] = useState(false)
+  const [modalDesfecho, setModalDesfecho] = useState(false)
   const statusTravado = setorNome === 'Internação'
   const [identificacao, setIdentificacao] = useState({
     nome: paciente.nome ?? '',
@@ -176,13 +177,16 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     }
   }
 
-  async function darAlta() {
-    const confirmado = window.confirm(`Confirmar alta de ${identificacao.nome}? O leito ${leito.numero} fica liberado.`)
-    if (!confirmado) return
+  async function registrarDesfecho(tipo, detalhe) {
     setProcessando(true)
     const { error } = await supabase
       .from('pacientes')
-      .update({ status: 'alta', data_alta: new Date().toISOString() })
+      .update({
+        status: 'alta',
+        tipo_desfecho: tipo,
+        desfecho_detalhe: detalhe || null,
+        data_desfecho: new Date().toISOString(),
+      })
       .eq('id', paciente.id)
     setProcessando(false)
     if (!error) {
@@ -226,7 +230,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         <div className="form-toolbar">
           <button className="btn-copiar" onClick={copiarNovamente}>↺ Copiar do plantão anterior</button>
           <button className="btn-realocar" onClick={() => onRealocar?.(paciente, leito)}>⇄ Realocar paciente</button>
-          <button className="btn-alta" onClick={darAlta} disabled={processando}>✓ Dar alta</button>
+          <button className="btn-alta" onClick={() => setModalDesfecho(true)} disabled={processando}>✓ Registrar desfecho</button>
           <button className="btn-excluir" onClick={excluirPaciente} disabled={processando}>🗑 Excluir paciente</button>
         </div>
         {origemCopia && (
@@ -566,6 +570,16 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         </div>
         {salvo && <div className="save-flag">Salvo com sucesso.</div>}
       </div>
+
+      {modalDesfecho && (
+        <ModalDesfecho
+          nomePaciente={identificacao.nome}
+          numeroLeito={leito.numero}
+          processando={processando}
+          onCancelar={() => setModalDesfecho(false)}
+          onConfirmar={(tipo, detalhe) => registrarDesfecho(tipo, detalhe)}
+        />
+      )}
     </div>
   )
 }
@@ -575,6 +589,69 @@ function SimNao({ valor, onChange }) {
     <div className="toggle-group">
       <button type="button" className={`toggle-btn ${valor === false ? 'on' : ''}`} onClick={() => onChange(valor === false ? null : false)}>Não</button>
       <button type="button" className={`toggle-btn ${valor === true ? 'on' : ''}`} onClick={() => onChange(valor === true ? null : true)}>Sim</button>
+    </div>
+  )
+}
+
+const TIPOS_DESFECHO = [
+  { tipo: 'Alta', legenda: 'Alta médica normal' },
+  { tipo: 'Transferência', legenda: 'Encaminhado para outra unidade/hospital' },
+  { tipo: 'Evasão', legenda: 'Saiu sem alta médica' },
+  { tipo: 'Óbito', legenda: 'Foi a óbito' },
+]
+
+function ModalDesfecho({ nomePaciente, numeroLeito, processando, onCancelar, onConfirmar }) {
+  const [tipo, setTipo] = useState('')
+  const [detalhe, setDetalhe] = useState('')
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <h2 className="modal-title">Desfecho de {nomePaciente}</h2>
+        <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 16 }}>
+          O leito {numeroLeito} fica liberado. Isso fica registrado no histórico dos próximos 7 dias.
+        </p>
+
+        <div className="field" style={{ marginBottom: 14 }}>
+          <label>O que aconteceu?</label>
+          <div className="chip-group">
+            {TIPOS_DESFECHO.map((op) => (
+              <button
+                type="button"
+                key={op.tipo}
+                className={`chip ${tipo === op.tipo ? 'on' : ''}`}
+                onClick={() => setTipo(tipo === op.tipo ? '' : op.tipo)}
+              >
+                {op.tipo}
+              </button>
+            ))}
+          </div>
+          {tipo && <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 6 }}>{TIPOS_DESFECHO.find((o) => o.tipo === tipo)?.legenda}</p>}
+        </div>
+
+        {(tipo === 'Transferência' || tipo === 'Óbito') && (
+          <div className="field">
+            <label>{tipo === 'Transferência' ? 'Para qual unidade/hospital' : 'Observação (opcional)'}</label>
+            <input
+              type="text"
+              style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
+              value={detalhe}
+              onChange={(e) => setDetalhe(e.target.value)}
+            />
+          </div>
+        )}
+
+        <div className="modal-actions">
+          <button className="modal-btn-secondary" onClick={onCancelar}>Cancelar</button>
+          <button
+            className="modal-btn-primary"
+            disabled={!tipo || processando}
+            onClick={() => onConfirmar(tipo, detalhe)}
+          >
+            {processando ? 'Salvando...' : 'Confirmar'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

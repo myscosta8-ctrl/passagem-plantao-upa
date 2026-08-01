@@ -57,6 +57,24 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
     onRealocado?.()
   }
 
+  async function abrirLeitoExtra() {
+    const { count } = await supabase
+      .from('leitos')
+      .select('id', { count: 'exact', head: true })
+      .eq('setor_id', Number(setorDestinoId))
+      .eq('tipo', 'extra')
+    const numeroExtra = (count ?? 0) + 1
+    const { data: novo, error } = await supabase
+      .from('leitos')
+      .insert({ setor_id: Number(setorDestinoId), numero: `Extra ${numeroExtra}`, tipo: 'extra' })
+      .select()
+      .single()
+    if (!error && novo) {
+      setLeitosVazios((prev) => [...prev, novo])
+      setLeitoDestinoId(String(novo.id))
+    }
+  }
+
   return (
     <div className="modal-backdrop">
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
@@ -93,9 +111,22 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
               ))}
             </select>
             {leitosDoSetorDestino.length === 0 && (
-              <p style={{ fontSize: 12.5, color: 'var(--color-text-muted)', marginTop: 6 }}>
-                Nenhum leito vazio nesse setor. Abra um leito extra primeiro.
-              </p>
+              <div style={{ marginTop: 8 }}>
+                <p style={{ fontSize: 12.5, color: 'var(--color-text-muted)', marginBottom: 8 }}>
+                  Nenhum leito vazio nesse setor no momento.
+                </p>
+                <button
+                  type="button"
+                  onClick={abrirLeitoExtra}
+                  style={{
+                    padding: '8px 14px', border: '1px dashed var(--color-primary)',
+                    background: 'var(--color-primary-light)', color: 'var(--color-primary-dark)',
+                    borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  }}
+                >
+                  + Abrir leito extra neste setor
+                </button>
+              </div>
             )}
           </div>
         )}
