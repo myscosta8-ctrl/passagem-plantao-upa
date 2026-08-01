@@ -120,12 +120,13 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   }
 
   function toggleDispositivo(d) {
-    setPassagem((prev) => ({
-      ...prev,
-      dispositivos: prev.dispositivos.includes(d)
-        ? prev.dispositivos.filter((x) => x !== d)
-        : [...prev.dispositivos, d],
-    }))
+    setPassagem((prev) => {
+      const atuais = prev.dispositivos ?? []
+      return {
+        ...prev,
+        dispositivos: atuais.includes(d) ? atuais.filter((x) => x !== d) : [...atuais, d],
+      }
+    })
     setSalvo(false)
   }
 
