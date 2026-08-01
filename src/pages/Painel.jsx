@@ -106,7 +106,7 @@ export default function Painel({ plantao, setoresIds }) {
           .filter((l) => l.setor_id === setor.id)
           .sort((a, b) => {
             if (a.tipo !== b.tipo) return a.tipo === 'extra' ? 1 : -1
-            return Number(a.numero) - Number(b.numero) || a.numero.localeCompare(b.numero)
+            return parseInt(a.numero, 10) - parseInt(b.numero, 10) || a.numero.localeCompare(b.numero)
           })
         const ocupados = leitosDoSetor.filter((l) => pacientesPorLeito[l.id]).length
 
