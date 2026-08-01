@@ -18,14 +18,27 @@ export default function PrintView({ plantao, grupo, onVoltar }) {
     const { data: setores } = await supabase.from('setores').select('*').order('ordem')
     const { data: leitos } = await supabase.from('leitos').select('*').eq('ativo', true)
     const { data: pacientes } = await supabase.from('pacientes').select('*').eq('status', 'internado')
-    const { data: passagens } = await supabase.from('passagens').select('*').eq('plantao_id', plantao.id)
+    const idsInternados = (pacientes ?? []).map((p) => p.id)
+
+    let passagens = []
+    if (idsInternados.length > 0) {
+      const { data } = await supabase
+        .from('passagens')
+        .select('*')
+        .in('paciente_id', idsInternados)
+        .order('criado_em', { ascending: false })
+      passagens = data ?? []
+    }
     const { data: equipe } = await supabase
       .from('plantao_profissionais')
       .select('profissionais(nome, categoria)')
       .eq('plantao_id', plantao.id)
 
+    // mantém só a passagem mais recente de cada paciente (a lista já vem ordenada do mais novo pro mais antigo)
     const passagemPorPaciente = {}
-    for (const p of passagens ?? []) passagemPorPaciente[p.paciente_id] = p
+    for (const p of passagens) {
+      if (!passagemPorPaciente[p.paciente_id]) passagemPorPaciente[p.paciente_id] = p
+    }
 
     const pacientePorLeito = {}
     for (const p of pacientes ?? []) if (p.leito_atual_id) pacientePorLeito[p.leito_atual_id] = p
@@ -86,6 +99,7 @@ export default function PrintView({ plantao, grupo, onVoltar }) {
                       leito={leito}
                       paciente={dados.pacientePorLeito[leito.id]}
                       passagem={dados.passagemPorPaciente[dados.pacientePorLeito[leito.id].id]}
+                      plantaoAtualId={plantao.id}
                     />
                   ))}
                 </div>
@@ -98,8 +112,9 @@ export default function PrintView({ plantao, grupo, onVoltar }) {
   )
 }
 
-function CardPaciente({ leito, paciente, passagem }) {
+function CardPaciente({ leito, paciente, passagem, plantaoAtualId }) {
   const p = passagem ?? {}
+  const desatualizado = p.plantao_id && p.plantao_id !== plantaoAtualId
   const linhas = []
 
   linhas.push(<div className="linha" key="dg"><span className="rotulo">HD:</span> {paciente.diagnostico || '(sem diagnóstico registrado)'}</div>)
@@ -173,6 +188,7 @@ function CardPaciente({ leito, paciente, passagem }) {
   return (
     <div className="print-card">
       <b>Leito {leito.numero} — {paciente.nome} ({paciente.status_internacao === 'Internado' ? 'INT' : 'OBS'})</b>
+      {desatualizado && <div className="linha aviso-desatualizado">⚠ Não revisado neste plantão — dado do plantão anterior</div>}
       {linhas}
     </div>
   )

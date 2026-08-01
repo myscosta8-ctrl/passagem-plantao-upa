@@ -91,6 +91,11 @@
   font-weight: 700;
 }
 
+.print-card .aviso-desatualizado {
+  font-weight: 700;
+  color: #8A5A00;
+}
+
 .print-empty {
   font-size: 11px;
   color: #666;
