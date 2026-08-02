@@ -110,6 +110,7 @@ export default function Pendencias({ plantao, onVoltar }) {
 
   return (
     <div className="page">
+      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
       <h1 className="page-title">Pendências</h1>
       <p className="page-subtitle">
         Exames, hemoderivados e observações em aberto de todos os pacientes internados. Clique num item para abrir e atualizar.

@@ -250,44 +250,49 @@ export default function Home() {
           <span className="topbar-title">Passagem de Plantão</span>
         </div>
         <div className="topbar-user">
-          {plantao && (
-            <span className="topbar-turno">
-              {plantao.turno} — {new Date(plantao.data + 'T00:00:00').toLocaleDateString('pt-BR')}
+          <div className="topbar-group">
+            {plantao && (
+              <span className="topbar-turno">
+                {plantao.turno} — {new Date(plantao.data + 'T00:00:00').toLocaleDateString('pt-BR')}
+              </span>
+            )}
+
+            {plantao && setoresIds && tela === 'painel' && (
+              <div className="topbar-menu">
+                <button className="topbar-menu-btn" onClick={() => setMenuAberto((v) => !v)}>
+                  ☰ Menu
+                </button>
+                {menuAberto && (
+                  <div className="topbar-menu-panel" onClick={() => setMenuAberto(false)}>
+                    {!isAdmin && <button onClick={() => setSetoresIds(null)}>Trocar setores</button>}
+                    <button onClick={() => setTela('print1')}>Imprimir Vermelha+Internação</button>
+                    <button onClick={() => setTela('print2')}>Imprimir Pediátrico+Observação</button>
+                    <button onClick={() => setTela('historico')}>Histórico</button>
+                    <button onClick={() => setTela('altas')}>Desfechos (7 dias)</button>
+                    <button onClick={() => setTela('pendencias')}>Pendências</button>
+                    <button onClick={() => setTela('ajuda')}>Ajuda</button>
+                    {!isAdmin && (
+                      <button onClick={encerrarPlantao} disabled={encerrando} className="topbar-menu-danger">
+                        {encerrando ? 'Encerrando...' : 'Encerrar minha participação'}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!(plantao && setoresIds && tela === 'painel') && (
+              <button onClick={() => setTela('ajuda')}>Ajuda</button>
+            )}
+          </div>
+
+          <div className="topbar-group">
+            <span className="topbar-nome">
+              {enfermeiro?.nome_exibicao || enfermeiro?.nome}
+              {isAdmin && <span className="admin-badge">ADMIN</span>}
             </span>
-          )}
-
-          {plantao && setoresIds && tela === 'painel' && (
-            <div className="topbar-menu">
-              <button className="topbar-menu-btn" onClick={() => setMenuAberto((v) => !v)}>
-                ☰ Menu
-              </button>
-              {menuAberto && (
-                <div className="topbar-menu-panel" onClick={() => setMenuAberto(false)}>
-                  {!isAdmin && <button onClick={() => setSetoresIds(null)}>Trocar setores</button>}
-                  <button onClick={() => setTela('print1')}>Imprimir Vermelha+Internação</button>
-                  <button onClick={() => setTela('print2')}>Imprimir Pediátrico+Observação</button>
-                  <button onClick={() => setTela('historico')}>Histórico</button>
-                  <button onClick={() => setTela('altas')}>Desfechos (7 dias)</button>
-                  <button onClick={() => setTela('pendencias')}>Pendências</button>
-                  <button onClick={() => setTela('ajuda')}>Ajuda</button>
-                  {!isAdmin && (
-                    <button onClick={encerrarPlantao} disabled={encerrando} className="topbar-menu-danger">
-                      {encerrando ? 'Encerrando...' : 'Encerrar minha participação'}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {!(plantao && setoresIds && tela === 'painel') && (
-            <button onClick={() => setTela('ajuda')}>Ajuda</button>
-          )}
-          <span className="topbar-nome">
-            {enfermeiro?.nome_exibicao || enfermeiro?.nome}
-            {isAdmin && <span className="admin-badge">ADMIN</span>}
-          </span>
-          <button onClick={logout}>Sair</button>
+            <button onClick={logout}>Sair</button>
+          </div>
         </div>
       </div>
 

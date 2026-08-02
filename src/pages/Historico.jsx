@@ -33,6 +33,7 @@ export default function Historico({ onVoltar }) {
 
   return (
     <div className="page">
+      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
       <h1 className="page-title">Histórico (últimos 7 dias)</h1>
       <p className="page-subtitle">Registros mais antigos são apagados automaticamente.</p>
 

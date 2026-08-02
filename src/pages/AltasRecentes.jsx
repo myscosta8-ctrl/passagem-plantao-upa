@@ -39,6 +39,7 @@ export default function AltasRecentes({ onVoltar }) {
 
   return (
     <div className="page">
+      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
       <h1 className="page-title">Desfechos recentes</h1>
       <p className="page-subtitle">Altas, transferências, evasões e óbitos dos últimos 7 dias.</p>
 

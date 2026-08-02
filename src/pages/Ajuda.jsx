@@ -3,6 +3,7 @@ import { PASSOS_GUIA } from './guiaConteudo'
 export default function Ajuda({ onVoltar }) {
   return (
     <div className="page">
+      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
       <h1 className="page-title">Como usar o app</h1>
       <p className="page-subtitle">Guia rápido do fluxo de trabalho, passo a passo.</p>
 
