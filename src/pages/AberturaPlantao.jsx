@@ -10,17 +10,24 @@ function hojeISO() {
 
 export default function AberturaPlantao({ onPlantaoAberto }) {
   const [data, setData] = useState(hojeISO())
-  const [turno, setTurno] = useState('Diurno')
+  const [turno, setTurno] = useState('') // sem padrão — precisa ser escolhido
   const [profissionais, setProfissionais] = useState([])
+  const [jaConfirmadosIds, setJaConfirmadosIds] = useState(new Set()) // já vinculados a este plantão por outra pessoa
   const [selecionados, setSelecionados] = useState(new Set())
   const [novoNome, setNovoNome] = useState('')
   const [novaCategoria, setNovaCategoria] = useState('Enfermeiro')
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
+  const [verificandoEquipe, setVerificandoEquipe] = useState(false)
 
   useEffect(() => {
     carregarProfissionais()
   }, [])
+
+  useEffect(() => {
+    if (data && turno) verificarEquipeJaConfirmada()
+    else setJaConfirmadosIds(new Set())
+  }, [data, turno])
 
   async function carregarProfissionais() {
     const { data: lista } = await supabase
@@ -31,7 +38,30 @@ export default function AberturaPlantao({ onPlantaoAberto }) {
     setProfissionais(lista ?? [])
   }
 
+  // Descobre se já existe um plantão pra essa data/turno, e quem já está confirmado nele
+  async function verificarEquipeJaConfirmada() {
+    setVerificandoEquipe(true)
+    const { data: plantaoExistente } = await supabase
+      .from('plantoes')
+      .select('id')
+      .eq('data', data)
+      .eq('turno', turno)
+      .maybeSingle()
+
+    if (plantaoExistente) {
+      const { data: vinculados } = await supabase
+        .from('plantao_profissionais')
+        .select('profissional_id')
+        .eq('plantao_id', plantaoExistente.id)
+      setJaConfirmadosIds(new Set((vinculados ?? []).map((v) => v.profissional_id)))
+    } else {
+      setJaConfirmadosIds(new Set())
+    }
+    setVerificandoEquipe(false)
+  }
+
   function toggleSelecionado(id) {
+    if (jaConfirmadosIds.has(id)) return // já confirmado por outra pessoa, não mexe
     setSelecionados((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
@@ -57,22 +87,31 @@ export default function AberturaPlantao({ onPlantaoAberto }) {
     setNovoNome('')
   }
 
-  const qtdEnfermeirosExigida = turno === 'Diurno' ? 3 : 2
-  const enfermeirosSelecionados = Array.from(selecionados).filter(
+  const qtdEnfermeirosExigida = turno === 'Diurno' ? 3 : turno === 'Noturno' ? 2 : null
+
+  const enfermeirosJaConfirmados = profissionais.filter(
+    (p) => p.categoria === 'Enfermeiro' && jaConfirmadosIds.has(p.id)
+  ).length
+  const enfermeirosSelecionadosAgora = Array.from(selecionados).filter(
     (id) => profissionais.find((p) => p.id === id)?.categoria === 'Enfermeiro'
   ).length
+  const totalEnfermeiros = enfermeirosJaConfirmados + enfermeirosSelecionadosAgora
+  const equipeCompleta = qtdEnfermeirosExigida !== null && enfermeirosJaConfirmados >= qtdEnfermeirosExigida
 
   async function abrirPlantao() {
     setErro('')
-    if (enfermeirosSelecionados !== qtdEnfermeirosExigida) {
+    if (!turno) {
+      setErro('Escolha o turno (Diurno ou Noturno) antes de continuar.')
+      return
+    }
+    if (totalEnfermeiros !== qtdEnfermeirosExigida) {
       setErro(
-        `O turno ${turno} precisa de exatamente ${qtdEnfermeirosExigida} enfermeiro(s) selecionado(s). Você marcou ${enfermeirosSelecionados}.`
+        `O turno ${turno} precisa de exatamente ${qtdEnfermeirosExigida} enfermeiro(s) no total. Hoje esse plantão está com ${totalEnfermeiros}.`
       )
       return
     }
     setCarregando(true)
 
-    // Busca plantão existente (data + turno) ou cria um novo
     let plantaoId
     const { data: existente } = await supabase
       .from('plantoes')
@@ -97,13 +136,14 @@ export default function AberturaPlantao({ onPlantaoAberto }) {
       plantaoId = criado.id
     }
 
-    // Garante os profissionais marcados vinculados a este plantão (sem duplicar)
     const linhas = Array.from(selecionados).map((profissional_id) => ({
       plantao_id: plantaoId,
       profissional_id,
       encerrado: false,
     }))
-    await supabase.from('plantao_profissionais').upsert(linhas, { onConflict: 'plantao_id,profissional_id' })
+    if (linhas.length > 0) {
+      await supabase.from('plantao_profissionais').upsert(linhas, { onConflict: 'plantao_id,profissional_id' })
+    }
 
     setCarregando(false)
     onPlantaoAberto({ id: plantaoId, data, turno })
@@ -123,7 +163,7 @@ export default function AberturaPlantao({ onPlantaoAberto }) {
             <input id="data" type="date" value={data} onChange={(e) => setData(e.target.value)} />
           </div>
           <div className="field">
-            <label>Turno</label>
+            <label>Turno *</label>
             <div className="turno-toggle">
               {['Diurno', 'Noturno'].map((t) => (
                 <button
@@ -136,56 +176,81 @@ export default function AberturaPlantao({ onPlantaoAberto }) {
                 </button>
               ))}
             </div>
+            {!turno && <p style={{ fontSize: 12, color: 'var(--color-accent)', marginTop: 6 }}>Obrigatório escolher.</p>}
           </div>
         </div>
 
-        <div className="section-label">
-          Profissionais presentes
-          <span style={{ fontWeight: 400, color: enfermeirosSelecionados === qtdEnfermeirosExigida ? 'var(--color-success)' : 'var(--color-accent)' }}>
-            {' '}— {enfermeirosSelecionados}/{qtdEnfermeirosExigida} enfermeiros ({turno})
-          </span>
-        </div>
-        <div className="profissionais-lista">
-          {profissionais.length === 0 && (
-            <div style={{ padding: 10, color: 'var(--color-text-muted)', fontSize: 13.5 }}>
-              Nenhum profissional cadastrado ainda. Adicione abaixo.
+        {turno && (
+          <>
+            <div className="section-label">
+              Profissionais presentes
+              <span style={{ fontWeight: 400, color: totalEnfermeiros === qtdEnfermeirosExigida ? 'var(--color-success)' : 'var(--color-accent)' }}>
+                {' '}— {totalEnfermeiros}/{qtdEnfermeirosExigida} enfermeiros ({turno})
+              </span>
             </div>
-          )}
-          {profissionais.map((p) => (
-            <label className="profissional-item" key={p.id}>
+            {enfermeirosJaConfirmados > 0 && (
+              <p style={{ fontSize: 12.5, color: 'var(--color-text-muted)', marginTop: -8, marginBottom: 10 }}>
+                {enfermeirosJaConfirmados} já confirmado(s) por outra pessoa para esse plantão (marcados e travados abaixo).
+              </p>
+            )}
+            <div className="profissionais-lista">
+              {verificandoEquipe && (
+                <div style={{ padding: 10, color: 'var(--color-text-muted)', fontSize: 13.5 }}>Verificando equipe...</div>
+              )}
+              {!verificandoEquipe && profissionais.length === 0 && (
+                <div style={{ padding: 10, color: 'var(--color-text-muted)', fontSize: 13.5 }}>
+                  Nenhum profissional cadastrado ainda. Adicione abaixo.
+                </div>
+              )}
+              {!verificandoEquipe && profissionais.map((p) => {
+                const jaConfirmado = jaConfirmadosIds.has(p.id)
+                const desabilitadoPorLimite = !jaConfirmado && p.categoria === 'Enfermeiro' && equipeCompleta && !selecionados.has(p.id)
+                return (
+                  <label
+                    className="profissional-item"
+                    key={p.id}
+                    style={{ opacity: desabilitadoPorLimite ? 0.45 : 1, cursor: jaConfirmado || desabilitadoPorLimite ? 'not-allowed' : 'pointer' }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={jaConfirmado || selecionados.has(p.id)}
+                      disabled={jaConfirmado || desabilitadoPorLimite}
+                      onChange={() => toggleSelecionado(p.id)}
+                    />
+                    <span className="profissional-nome">
+                      {p.nome} {jaConfirmado && <span style={{ fontSize: 11, color: 'var(--color-success)' }}>(já confirmado)</span>}
+                    </span>
+                    <span className="profissional-categoria">{p.categoria}</span>
+                  </label>
+                )
+              })}
+            </div>
+
+            <div className="add-profissional">
               <input
-                type="checkbox"
-                checked={selecionados.has(p.id)}
-                onChange={() => toggleSelecionado(p.id)}
+                type="text"
+                placeholder="Nome do profissional"
+                value={novoNome}
+                onChange={(e) => setNovoNome(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), adicionarProfissional())}
               />
-              <span className="profissional-nome">{p.nome}</span>
-              <span className="profissional-categoria">{p.categoria}</span>
-            </label>
-          ))}
-        </div>
+              <select value={novaCategoria} onChange={(e) => setNovaCategoria(e.target.value)}>
+                <option>Enfermeiro</option>
+                <option>Técnico</option>
+              </select>
+              <button type="button" onClick={adicionarProfissional}>+ Adicionar</button>
+            </div>
+          </>
+        )}
 
-        <div className="add-profissional">
-          <input
-            type="text"
-            placeholder="Nome do profissional"
-            value={novoNome}
-            onChange={(e) => setNovoNome(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), adicionarProfissional())}
-          />
-          <select value={novaCategoria} onChange={(e) => setNovaCategoria(e.target.value)}>
-            <option>Enfermeiro</option>
-            <option>Técnico</option>
-          </select>
-          <button type="button" onClick={adicionarProfissional}>+ Adicionar</button>
-        </div>
-
-        <button className="submit-btn" onClick={abrirPlantao} disabled={carregando || enfermeirosSelecionados !== qtdEnfermeirosExigida}>
+        <button className="submit-btn" onClick={abrirPlantao} disabled={carregando || !turno || totalEnfermeiros !== qtdEnfermeirosExigida}>
           {carregando ? 'Abrindo...' : 'Abrir plantão'}
         </button>
-        <p className="hint">
-          O turno {turno} exige exatamente {qtdEnfermeirosExigida} enfermeiro(s) marcado(s) (técnicos não contam nesse número, mas podem ser adicionados à vontade).
-          Se já existe um plantão aberto para essa data e turno, os profissionais marcados são adicionados a ele.
-        </p>
+        {turno && (
+          <p className="hint">
+            O turno {turno} exige exatamente {qtdEnfermeirosExigida} enfermeiro(s) no total (contando quem já foi confirmado por outra pessoa). Técnicos não entram nesse número.
+          </p>
+        )}
       </div>
     </div>
   )
