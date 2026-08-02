@@ -9,6 +9,7 @@ import Historico from './Historico'
 import Ajuda from './Ajuda'
 import AltasRecentes from './AltasRecentes'
 import Pendencias from './Pendencias'
+import ConfirmModal from './ConfirmModal'
 import './AberturaPlantao.css'
 
 async function purgarHistoricoAntigo() {
@@ -16,6 +17,28 @@ async function purgarHistoricoAntigo() {
   seteDiasAtras.setDate(seteDiasAtras.getDate() - 7)
   const limite = seteDiasAtras.toISOString().slice(0, 10)
   await supabase.from('plantoes').delete().lt('data', limite)
+}
+
+// Leitos extras (superlotação) que ficaram vazios por mais de 3h se autoexcluem,
+// pra não acumular leito criado e esquecido no sistema.
+async function limparLeitosExtrasNaoUsados() {
+  const tresHorasAtras = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
+  const { data: candidatos } = await supabase
+    .from('leitos')
+    .select('id')
+    .eq('tipo', 'extra')
+    .lt('criado_em', tresHorasAtras)
+  if (!candidatos?.length) return
+
+  const ids = candidatos.map((l) => l.id)
+  const { data: ocupados } = await supabase
+    .from('pacientes')
+    .select('leito_atual_id')
+    .eq('status', 'internado')
+    .in('leito_atual_id', ids)
+  const ocupadosSet = new Set((ocupados ?? []).map((p) => p.leito_atual_id))
+  const paraExcluir = ids.filter((id) => !ocupadosSet.has(id))
+  if (paraExcluir.length) await supabase.from('leitos').delete().in('id', paraExcluir)
 }
 
 function hojeISOLocal() {
@@ -46,10 +69,12 @@ export default function Home() {
   const [menuAberto, setMenuAberto] = useState(false)
   const [avisoEncerradoAutomatico, setAvisoEncerradoAutomatico] = useState(null)
   const [minutosParaCorte, setMinutosParaCorte] = useState(null)
+  const [modalConfirmar, setModalConfirmar] = useState(null)
   const intervaloRef = useRef(null)
 
   useEffect(() => {
     purgarHistoricoAntigo()
+    limparLeitosExtrasNaoUsados()
     if (isAdmin) {
       entrarComoAdmin()
     } else {
@@ -167,22 +192,25 @@ export default function Home() {
 
   async function encerrarPlantao() {
     if (!plantao?.id) return
-    const confirmado = window.confirm(
-      'Encerrar sua participação neste plantão? Isso afeta só a sua sessão — o outro enfermeiro (se houver) continua normalmente até encerrar a dele.'
-    )
-    if (!confirmado) return
-
-    setEncerrando(true)
-    await supabase
-      .from('plantao_profissionais')
-      .update({ encerrado: true, encerrado_em: new Date().toISOString() })
-      .eq('plantao_id', plantao.id)
-      .eq('profissional_id', enfermeiro?.id)
-    setEncerrando(false)
-    setPlantao(null)
-    setCorteEm(null)
-    setSetoresIds(null)
-    setTela('painel')
+    setModalConfirmar({
+      titulo: 'Encerrar sua participação?',
+      mensagem: 'Isso afeta só a sua sessão — o outro enfermeiro (se houver) continua normalmente até encerrar a dele.',
+      confirmarTexto: 'Encerrar',
+      onConfirmar: async () => {
+        setModalConfirmar(null)
+        setEncerrando(true)
+        await supabase
+          .from('plantao_profissionais')
+          .update({ encerrado: true, encerrado_em: new Date().toISOString() })
+          .eq('plantao_id', plantao.id)
+          .eq('profissional_id', enfermeiro?.id)
+        setEncerrando(false)
+        setPlantao(null)
+        setCorteEm(null)
+        setSetoresIds(null)
+        setTela('painel')
+      },
+    })
   }
 
   async function encerrarPorSistema() {
@@ -197,7 +225,13 @@ export default function Home() {
     setSetoresIds(null)
     setTela('painel')
     setMinutosParaCorte(null)
-    window.alert('O horário deste plantão terminou e sua participação foi encerrada automaticamente. Se ainda estiver trabalhando, abra o plantão novamente.')
+    setModalConfirmar({
+      titulo: 'Horário do plantão encerrado',
+      mensagem: 'O horário deste plantão terminou e sua participação foi encerrada automaticamente. Se ainda estiver trabalhando, abra o plantão novamente.',
+      confirmarTexto: 'Entendi',
+      somenteAviso: true,
+      onConfirmar: () => setModalConfirmar(null),
+    })
   }
 
   if (verificandoRetomada) {
@@ -292,6 +326,8 @@ export default function Home() {
           {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
         </>
       )}
+
+      {modalConfirmar && <ConfirmModal {...modalConfirmar} onCancelar={() => setModalConfirmar(null)} />}
     </div>
   )
 }

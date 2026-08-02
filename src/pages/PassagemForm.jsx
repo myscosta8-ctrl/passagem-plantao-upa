@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import ConfirmModal from './ConfirmModal'
 import './PassagemForm.css'
 
 const DISPOSITIVOS_OPCOES = ['SVD', 'SNE', 'Dreno', 'O2']
@@ -47,6 +48,7 @@ const PASSAGEM_VAZIA = {
 export default function PassagemForm({ paciente, leito, setorNome, plantaoId, enfermeiroId, onFechar, onSalvo, onRealocar }) {
   const [processando, setProcessando] = useState(false)
   const [modalDesfecho, setModalDesfecho] = useState(false)
+  const [modalExcluir, setModalExcluir] = useState(false)
   const statusTravado = setorNome === 'Internação'
   const [identificacao, setIdentificacao] = useState({
     nome: paciente.nome ?? '',
@@ -196,10 +198,11 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   }
 
   async function excluirPaciente() {
-    const confirmado = window.confirm(
-      `Excluir ${identificacao.nome} definitivamente? Isso apaga o cadastro e todo o histórico de passagens dele. Use só em caso de erro/duplicidade — não é o mesmo que dar alta.`
-    )
-    if (!confirmado) return
+    setModalExcluir(true)
+  }
+
+  async function confirmarExclusao() {
+    setModalExcluir(false)
     setProcessando(true)
     const { error } = await supabase.from('pacientes').delete().eq('id', paciente.id)
     setProcessando(false)
@@ -578,6 +581,17 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           processando={processando}
           onCancelar={() => setModalDesfecho(false)}
           onConfirmar={(tipo, detalhe) => registrarDesfecho(tipo, detalhe)}
+        />
+      )}
+
+      {modalExcluir && (
+        <ConfirmModal
+          titulo={`Excluir ${identificacao.nome}?`}
+          mensagem="Isso apaga o cadastro e todo o histórico de passagens dele, definitivamente. Use só em caso de erro/duplicidade — não é o mesmo que registrar um desfecho."
+          confirmarTexto="Excluir definitivamente"
+          perigo
+          onConfirmar={confirmarExclusao}
+          onCancelar={() => setModalExcluir(false)}
         />
       )}
     </div>
