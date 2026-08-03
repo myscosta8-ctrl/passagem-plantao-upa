@@ -4,7 +4,7 @@ import ConfirmModal from './ConfirmModal'
 import './PassagemForm.css'
 
 const DISPOSITIVOS_OPCOES = ['SVD', 'SNE', 'Dreno', 'O2']
-const NIVEIS_CONSCIENCIA = ['Alerta', 'Confuso', 'Sonolento', 'Inconsciente']
+const NIVEIS_CONSCIENCIA = ['Consciente', 'Confuso', 'Sonolento', 'Sedado', 'Torporoso', 'Agitado', 'Inconsciente']
 const EXAME_STATUS_OPCOES = ['A realizar', 'Aguardando laudo', 'Resultado disponível']
 const SOROLOGIA_STATUS_OPCOES = ['Coleta pendente', 'Aguardando resultado', 'Resultado disponível']
 
@@ -160,15 +160,11 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
       setor_id: leito.setor_id,
       criado_por: enfermeiroId,
       ...passagem,
-      avp_data_insercao: passagem.avp_data_insercao || null,
-      exame_a_realizar_data: passagem.exame_a_realizar_data || null,
-      exame_a_realizar_hora: passagem.exame_a_realizar_hora || null,
-      hemo_data_transfusao: passagem.hemo_data_transfusao || null,
-      sorologia_data_coleta: passagem.sorologia_data_coleta || null,
-      alta_sala_vermelha_data: passagem.alta_sala_vermelha_data || null,
-      alta_sala_vermelha_hora: passagem.alta_sala_vermelha_hora || null,
-      exame_status: passagem.exame_status || null,
-      sorologia_status: passagem.sorologia_status || null,
+    }
+    // Qualquer campo de texto vazio vira NULL — evita que campos com valores
+    // restritos (nivel_consciencia, exame_status, etc) travem a gravação no banco.
+    for (const chave in payload) {
+      if (payload[chave] === '') payload[chave] = null
     }
 
     const { error } = await supabase
