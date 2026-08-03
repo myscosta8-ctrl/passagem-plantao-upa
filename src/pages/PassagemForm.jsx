@@ -159,6 +159,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
       leito_id: leito.id,
       setor_id: leito.setor_id,
       criado_por: enfermeiroId,
+      atualizado_em: new Date().toISOString(),
       ...passagem,
     }
     // Qualquer campo de texto vazio vira NULL — evita que campos com valores

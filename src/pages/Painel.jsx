@@ -45,7 +45,7 @@ export default function Painel({ plantao, setoresIds }) {
     if (ids.length > 0) {
       const { data: passagens } = await supabase
         .from('passagens')
-        .select('*')
+        .select('*, enfermeiros(nome_exibicao, nome)')
         .in('paciente_id', ids)
         .order('criado_em', { ascending: false })
       const ultimaPorPaciente = {}
@@ -151,6 +151,13 @@ export default function Painel({ plantao, setoresIds }) {
                         )}
                         {p?.pendencias && (
                           <div className="leito-paciente-pendencia">{p.pendencias}</div>
+                        )}
+                        {p && (
+                          <div className="leito-ultima-alteracao no-print">
+                            Última alteração: {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome || 'desconhecido'}
+                            {' — '}
+                            {new Date(p.atualizado_em || p.criado_em).toLocaleString('pt-BR')}
+                          </div>
                         )}
                       </>
                     ) : (
