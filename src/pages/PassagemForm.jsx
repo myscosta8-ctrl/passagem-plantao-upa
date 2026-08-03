@@ -198,6 +198,10 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     if (!error) {
       onSalvo?.()
       onFechar?.()
+    } else {
+      setModalDesfecho(false)
+      setErroSalvar('Não foi possível registrar o desfecho. Nada foi perdido — tente de novo, e se persistir, avise o suporte.')
+      console.error('Erro ao registrar desfecho:', error)
     }
   }
 
@@ -213,6 +217,9 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     if (!error) {
       onSalvo?.()
       onFechar?.()
+    } else {
+      setErroSalvar('Não foi possível excluir. Nada foi alterado — tente de novo, e se persistir, avise o suporte.')
+      console.error('Erro ao excluir paciente:', error)
     }
   }
 

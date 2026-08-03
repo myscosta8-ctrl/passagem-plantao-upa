@@ -72,6 +72,9 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
     if (!error && novo) {
       setLeitosVazios((prev) => [...prev, novo])
       setLeitoDestinoId(String(novo.id))
+    } else {
+      setErro('Não foi possível abrir o leito extra. Tente de novo.')
+      console.error('Erro ao abrir leito extra na realocação:', error)
     }
   }
 

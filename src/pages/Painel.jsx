@@ -12,6 +12,8 @@ export default function Painel({ plantao, setoresIds }) {
   const [pacientesPorLeito, setPacientesPorLeito] = useState({})
   const [passagemPorPaciente, setPassagemPorPaciente] = useState({})
   const [modalLeito, setModalLeito] = useState(null) // internar rápido
+  const [erroInternar, setErroInternar] = useState('')
+  const [erroGeral, setErroGeral] = useState('')
   const [modalPassagem, setModalPassagem] = useState(null) // { paciente, leito }
   const [modalRealocar, setModalRealocar] = useState(null) // { paciente, leitoOrigem }
   const [carregando, setCarregando] = useState(true)
@@ -68,10 +70,16 @@ export default function Painel({ plantao, setoresIds }) {
       .insert({ setor_id: setorId, numero: `Extra ${numeroExtra}`, tipo: 'extra' })
       .select()
       .single()
-    if (!error) setLeitos((prev) => [...prev, novo])
+    if (!error) {
+      setLeitos((prev) => [...prev, novo])
+    } else {
+      setErroGeral('Não foi possível abrir o leito extra. Tente de novo, e se persistir, avise o suporte.')
+      console.error('Erro ao abrir leito extra:', error)
+    }
   }
 
   async function internarPaciente(leito, dados) {
+    setErroInternar('')
     const { data: novo, error } = await supabase
       .from('pacientes')
       .insert({
@@ -87,6 +95,9 @@ export default function Painel({ plantao, setoresIds }) {
     if (!error) {
       setPacientesPorLeito((prev) => ({ ...prev, [leito.id]: novo }))
       setModalLeito(null)
+    } else {
+      setErroInternar('Não foi possível internar. Nada foi perdido do que estava preenchido — tente de novo, e se persistir, avise o suporte.')
+      console.error('Erro ao internar paciente:', error)
     }
   }
 
@@ -100,6 +111,13 @@ export default function Painel({ plantao, setoresIds }) {
     <div className="page" style={{ maxWidth: 1400 }}>
       <h1 className="page-title">Painel do plantão</h1>
       <p className="page-subtitle">Selecione um leito para internar, editar ou realocar um paciente.</p>
+
+      {erroGeral && (
+        <div className="error-box" style={{ marginBottom: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{erroGeral}</span>
+          <button onClick={() => setErroGeral('')} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontWeight: 700, cursor: 'pointer' }}>✕</button>
+        </div>
+      )}
 
       {setoresVisiveis.map((setor) => {
         const leitosDoSetor = leitos
@@ -179,7 +197,8 @@ export default function Painel({ plantao, setoresIds }) {
           leito={modalLeito}
           setorNome={setores.find((s) => s.id === modalLeito.setor_id)?.nome}
           pacientesExistentes={Object.values(pacientesPorLeito)}
-          onCancelar={() => setModalLeito(null)}
+          erroExterno={erroInternar}
+          onCancelar={() => { setModalLeito(null); setErroInternar('') }}
           onConfirmar={(dados) => internarPaciente(modalLeito, dados)}
         />
       )}
@@ -225,7 +244,7 @@ function normalizarNome(s) {
     .replace(/\s+/g, ' ')
 }
 
-function ModalInternar({ leito, setorNome, pacientesExistentes, onCancelar, onConfirmar }) {
+function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onCancelar, onConfirmar }) {
   const travado = setorNome === 'Internação'
   const [nome, setNome] = useState('')
   const [diagnostico, setDiagnostico] = useState('')
@@ -315,6 +334,10 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, onCancelar, onCo
               ? ' Clique em "Internar mesmo assim" de novo pra confirmar.'
               : ' Confira se não é a mesma pessoa antes de continuar.'}
           </div>
+        )}
+
+        {erroExterno && (
+          <div className="error-box" style={{ marginTop: 14, marginBottom: 0 }}>{erroExterno}</div>
         )}
 
         <div className="modal-actions">
