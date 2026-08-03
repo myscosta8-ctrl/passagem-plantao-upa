@@ -7,7 +7,7 @@ const GRUPOS = {
   grupo2: { titulo: 'Pediátrico + Observação/Internação', setoresNomes: ['Pediátrico', 'Observação/Internação'] },
 }
 
-export default function PrintView({ plantao, grupo, onVoltar }) {
+export default function PrintView({ plantao, grupo, onVoltar, viaHistorico }) {
   const [dados, setDados] = useState(null)
 
   useEffect(() => {
@@ -62,6 +62,12 @@ export default function PrintView({ plantao, grupo, onVoltar }) {
         <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
         <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
       </div>
+
+      {viaHistorico && (
+        <div className="no-print" style={{ background: '#E6EEF0', color: 'var(--color-primary-dark)', padding: '10px 20px', fontSize: 13.5, fontWeight: 600 }}>
+          📅 Você está vendo o histórico do plantão de {new Date(plantao.data + 'T00:00:00').toLocaleDateString('pt-BR')} ({plantao.turno}) — isso é só consulta/reimpressão. Seu plantão de hoje continua ativo, sem nenhuma alteração.
+        </div>
+      )}
 
       <div className="print-area">
         <div className="print-header">

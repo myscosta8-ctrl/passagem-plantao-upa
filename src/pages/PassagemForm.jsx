@@ -64,6 +64,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const [salvo, setSalvo] = useState(false)
+  const [erroSalvar, setErroSalvar] = useState('')
   const [origemCopia, setOrigemCopia] = useState(null)
 
   useEffect(() => {
@@ -135,6 +136,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
 
   async function salvar() {
     setSalvando(true)
+    setErroSalvar('')
 
     await supabase
       .from('pacientes')
@@ -165,6 +167,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
       sorologia_data_coleta: passagem.sorologia_data_coleta || null,
       alta_sala_vermelha_data: passagem.alta_sala_vermelha_data || null,
       alta_sala_vermelha_hora: passagem.alta_sala_vermelha_hora || null,
+      exame_status: passagem.exame_status || null,
+      sorologia_status: passagem.sorologia_status || null,
     }
 
     const { error } = await supabase
@@ -176,6 +180,9 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
       setSalvo(true)
       onSalvo?.()
       onFechar?.()
+    } else {
+      setErroSalvar('Não foi possível salvar. Nada foi perdido do que estava preenchido — tente de novo, e se persistir, avise o suporte.')
+      console.error('Erro ao salvar passagem:', error)
     }
   }
 
@@ -572,6 +579,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           </button>
         </div>
         {salvo && <div className="save-flag">Salvo com sucesso.</div>}
+        {erroSalvar && <div className="error-box" style={{ marginTop: 10 }}>{erroSalvar}</div>}
       </div>
 
       {modalDesfecho && (

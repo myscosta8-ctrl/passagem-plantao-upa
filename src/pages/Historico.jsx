@@ -27,6 +27,7 @@ export default function Historico({ onVoltar }) {
         plantao={selecionado.plantao}
         grupo={selecionado.grupo}
         onVoltar={() => setSelecionado(null)}
+        viaHistorico
       />
     )
   }
