@@ -170,7 +170,7 @@ export default function Painel({ plantao, setoresIds }) {
                         {p?.pendencias && (
                           <div className="leito-paciente-pendencia">{p.pendencias}</div>
                         )}
-                        {p && (
+                        {p?.criado_por && p?.enfermeiros && (
                           <div className="leito-ultima-alteracao no-print">
                             Última alteração: {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome || 'desconhecido'}
                             {' — '}
