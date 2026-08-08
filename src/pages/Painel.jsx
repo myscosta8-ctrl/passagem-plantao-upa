@@ -253,6 +253,7 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
   const [dataAdmissao, setDataAdmissao] = useState('')
   const [status, setStatus] = useState(travado ? 'Internado' : 'Em observação')
   const [confirmouDuplicata, setConfirmouDuplicata] = useState(false)
+  const [camposFaltando, setCamposFaltando] = useState([])
 
   useEffect(() => {
     const bruto = localStorage.getItem(chaveRascunho)
@@ -296,6 +297,16 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
   }
 
   function tentarInternar() {
+    const faltando = []
+    if (!nome.trim()) faltando.push('Nome completo')
+    if (!diagnostico.trim()) faltando.push('Diagnóstico')
+    if (!dataAdmissao) faltando.push('Data de admissão')
+    if (faltando.length > 0) {
+      setCamposFaltando(faltando)
+      return
+    }
+    setCamposFaltando([])
+
     if (duplicata && !confirmouDuplicata) {
       setConfirmouDuplicata(true) // primeiro clique só revela o aviso/confirmação
       return
@@ -314,7 +325,7 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
             type="text"
             style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
             value={nome}
-            onChange={(e) => { setNome(e.target.value); setConfirmouDuplicata(false) }}
+            onChange={(e) => { setNome(e.target.value); setConfirmouDuplicata(false); setCamposFaltando([]) }}
             autoFocus
           />
         </div>
@@ -324,7 +335,7 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
             type="text"
             style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
             value={diagnostico}
-            onChange={(e) => setDiagnostico(e.target.value)}
+            onChange={(e) => { setDiagnostico(e.target.value); setCamposFaltando([]) }}
           />
         </div>
         <div className="field" style={{ marginBottom: 14 }}>
@@ -333,7 +344,7 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
             type="date"
             style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
             value={dataAdmissao}
-            onChange={(e) => setDataAdmissao(e.target.value)}
+            onChange={(e) => { setDataAdmissao(e.target.value); setCamposFaltando([]) }}
           />
           <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 6 }}>
             Pode ser uma data anterior a hoje (internação retroativa).
@@ -374,6 +385,12 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
           </div>
         )}
 
+        {camposFaltando.length > 0 && (
+          <div className="error-box" style={{ marginTop: 14, marginBottom: 0 }}>
+            ⚠ Preencha antes de continuar: <b>{camposFaltando.join(', ')}</b>
+          </div>
+        )}
+
         {erroExterno && (
           <div className="error-box" style={{ marginTop: 14, marginBottom: 0 }}>{erroExterno}</div>
         )}
@@ -382,7 +399,6 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
           <button className="modal-btn-secondary" onClick={cancelarComLimpeza}>Cancelar</button>
           <button
             className="modal-btn-primary"
-            disabled={!valido}
             onClick={tentarInternar}
             style={duplicata ? { background: 'var(--color-accent)', borderColor: 'var(--color-accent)' } : undefined}
           >
