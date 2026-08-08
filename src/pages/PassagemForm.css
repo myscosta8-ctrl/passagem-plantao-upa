@@ -1,0 +1,247 @@
+.form-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 40, 48, 0.5);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 60;
+}
+
+.form-panel {
+  background: var(--color-surface);
+  width: 100%;
+  max-width: 620px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 28px 32px 100px;
+  box-shadow: -4px 0 24px rgba(20, 40, 48, 0.15);
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.form-header-close {
+  border: none;
+  background: none;
+  font-size: 22px;
+  color: var(--color-text-muted);
+  line-height: 1;
+  padding: 4px 8px;
+}
+
+.form-leito-tag {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  border-radius: 5px;
+  padding: 3px 8px;
+}
+
+.form-toolbar {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 24px;
+  flex-wrap: wrap;
+}
+
+.form-toolbar button {
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.form-toolbar .btn-copiar {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.form-toolbar .btn-realocar {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.form-toolbar .btn-alta {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.form-toolbar .btn-excluir {
+  border-color: #8a1f1f;
+  color: #8a1f1f;
+  background: #fdf0f0;
+}
+
+.form-section {
+  margin-bottom: 26px;
+}
+
+.form-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-primary-dark);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.form-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.form-field label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 5px;
+}
+
+.form-field input[type="text"],
+.form-field input[type="date"],
+.form-field input[type="time"],
+.form-field input[type="number"],
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 13.5px;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-field.span-2 { grid-column: span 2; }
+.form-field.span-3 { grid-column: span 3; }
+
+.toggle-group {
+  display: flex;
+  gap: 8px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-bg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.toggle-btn.on {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.toggle-btn.on.danger {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 7px 13px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+.chip.on {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.form-footer {
+  position: sticky;
+  bottom: -100px;
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+.form-footer button {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.btn-salvar {
+  border: none;
+  background: var(--color-primary);
+  color: white;
+}
+
+.btn-fechar {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.save-flag {
+  font-size: 12.5px;
+  color: var(--color-success);
+  margin-top: 8px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .form-panel {
+    max-width: 100%;
+    padding: 20px 18px 90px;
+  }
+
+  .form-grid,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field.span-2,
+  .form-field.span-3 {
+    grid-column: span 1;
+  }
+
+  .form-toolbar {
+    flex-direction: column;
+  }
+
+  .form-toolbar button {
+    width: 100%;
+  }
+}
