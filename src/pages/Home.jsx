@@ -63,7 +63,12 @@ export default function Home() {
   const [plantao, setPlantao] = useState(null)
   const [corteEm, setCorteEm] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
-  const [tela, setTela] = useState('painel')
+  const [tela, setTela] = useState(() => localStorage.getItem('app_tela') || 'painel')
+
+  useEffect(() => {
+    localStorage.setItem('app_tela', tela)
+  }, [tela])
+
   const [verificandoRetomada, setVerificandoRetomada] = useState(true)
   const [encerrando, setEncerrando] = useState(false)
   const [menuAberto, setMenuAberto] = useState(false)
