@@ -53,6 +53,7 @@ export default function AberturaPlantao({ onPlantaoAberto }) {
         .from('plantao_profissionais')
         .select('profissional_id')
         .eq('plantao_id', plantaoExistente.id)
+        .eq('encerrado', false)
       setJaConfirmadosIds(new Set((vinculados ?? []).map((v) => v.profissional_id)))
     } else {
       setJaConfirmadosIds(new Set())
