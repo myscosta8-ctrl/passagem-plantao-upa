@@ -10,6 +10,7 @@ import Ajuda from './Ajuda'
 import AltasRecentes from './AltasRecentes'
 import Pendencias from './Pendencias'
 import ConfirmModal from './ConfirmModal'
+import PainelEquipe from './PainelEquipe'
 import './AberturaPlantao.css'
 
 async function purgarHistoricoAntigo() {
@@ -140,8 +141,8 @@ export default function Home() {
     const { data: existente } = await supabase
       .from('plantoes')
       .select('id, data, turno, status, created_at')
-      .order('created_at', { ascending: false })
-      .limit(1)
+      .eq('data', hoje)
+      .eq('turno', turno)
       .maybeSingle()
 
     if (existente) {
@@ -298,6 +299,11 @@ export default function Home() {
                     <button onClick={() => setTela('historico')}>Histórico</button>
                     <button onClick={() => setTela('altas')}>Desfechos (7 dias)</button>
                     <button onClick={() => setTela('pendencias')}>Pendências</button>
+                    {isAdmin && (
+                      <button onClick={() => setTela('equipe')} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                        Encerrar plantonista (ADM)
+                      </button>
+                    )}
                     <button onClick={() => setTela('ajuda')}>Ajuda</button>
                     {!isAdmin && (
                       <button onClick={encerrarPlantao} disabled={encerrando} className="topbar-menu-danger">
@@ -357,6 +363,7 @@ export default function Home() {
           {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
+          {plantao && setoresIds && tela === 'equipe' && isAdmin && <PainelEquipe onVoltar={() => setTela('painel')} />}
         </>
       )}
 
