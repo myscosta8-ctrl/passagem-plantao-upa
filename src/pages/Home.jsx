@@ -138,7 +138,9 @@ export default function Home() {
     setSetoresIds((setores ?? []).map((s) => s.id))
 
     const hoje = hojeISOLocal()
-    const horaAtual = new Date().getHours()
+    const horaAtual = Number(
+      new Intl.DateTimeFormat('en-US', { timeZone: 'America/Belem', hour: 'numeric', hour12: false }).format(new Date())
+    )
     const turno = horaAtual >= 7 && horaAtual < 19 ? 'Diurno' : 'Noturno'
 
     const { data: existente } = await supabase
