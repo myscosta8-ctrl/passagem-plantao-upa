@@ -43,19 +43,19 @@ async function limparLeitosExtrasNaoUsados() {
 }
 
 function hojeISOLocal() {
-  const d = new Date()
-  const off = d.getTimezoneOffset()
-  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10)
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Belem', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 }
 
 // Horário fixo de corte de cada turno, baseado na data do plantão (não em quando a pessoa logou)
 function calcularCorte(plantao) {
   const [ano, mes, dia] = plantao.data.split('-').map(Number)
+  // America/Belém é sempre UTC-3, sem horário de verão — calculado direto em UTC
+  // pra nunca depender do fuso configurado no aparelho de quem está usando.
   if (plantao.turno === 'Diurno') {
-    return new Date(ano, mes - 1, dia, 19, 20, 0)
+    return new Date(Date.UTC(ano, mes - 1, dia, 19 + 3, 20, 0))
   }
   // Noturno: corte é 07h20 da manhã seguinte
-  return new Date(ano, mes - 1, dia + 1, 7, 20, 0)
+  return new Date(Date.UTC(ano, mes - 1, dia + 1, 7 + 3, 20, 0))
 }
 
 // Guarda em qual tela a pessoa estava, pra voltar pro mesmo lugar se o app recarregar sozinho
@@ -80,6 +80,9 @@ function lerTelaSalva() {
 export default function Home() {
   const { enfermeiro, logout } = useAuth()
   const isAdmin = enfermeiro?.role === 'admin'
+  // "Encerrar plantonista" é destrutivo demais pra qualquer conta admin — só o Marcus.
+  const ID_MARCUS_ADMIN = '66901c7a-d3b9-435a-932c-276659210f69'
+  const podeEncerrarQualquerPlantonista = enfermeiro?.id === ID_MARCUS_ADMIN
   const [plantao, setPlantao] = useState(null)
   const [corteEm, setCorteEm] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
@@ -299,7 +302,7 @@ export default function Home() {
                     <button onClick={() => setTela('historico')}>Histórico</button>
                     <button onClick={() => setTela('altas')}>Desfechos (7 dias)</button>
                     <button onClick={() => setTela('pendencias')}>Pendências</button>
-                    {isAdmin && (
+                    {podeEncerrarQualquerPlantonista && (
                       <button onClick={() => setTela('equipe')} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
                         Encerrar plantonista (ADM)
                       </button>
@@ -363,7 +366,7 @@ export default function Home() {
           {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
-          {plantao && setoresIds && tela === 'equipe' && isAdmin && <PainelEquipe onVoltar={() => setTela('painel')} />}
+          {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
         </>
       )}
 

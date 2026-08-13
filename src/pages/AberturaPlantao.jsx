@@ -3,9 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import './AberturaPlantao.css'
 
 function hojeISO() {
-  const d = new Date()
-  const off = d.getTimezoneOffset()
-  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10)
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Belem', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 }
 
 export default function AberturaPlantao({ onPlantaoAberto }) {
