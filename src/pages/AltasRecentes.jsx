@@ -24,23 +24,12 @@ export default function AltasRecentes({ onVoltar }) {
 
     const { data } = await supabase
       .from('pacientes')
-      .select('*, leitos(numero, setores(nome)), atendimentos(*)')
+      .select('*, leitos(numero, setores(nome))')
       .eq('status', 'alta')
       .gte('data_desfecho', seteDiasAtras.toISOString())
       .order('data_desfecho', { ascending: false })
 
-    const mapeados = (data ?? []).map(p => {
-      // Prioriza o atendimento de alta mais recente, se houver
-      const atdAlta = p.atendimentos?.filter(a => a.status === 'alta').sort((a, b) => new Date(b.data_alta) - new Date(a.data_alta))[0]
-      return {
-        ...p,
-        tipo_desfecho: atdAlta?.tipo_desfecho || p.tipo_desfecho,
-        desfecho_detalhe: atdAlta?.desfecho_detalhe || p.desfecho_detalhe,
-        data_desfecho: atdAlta?.data_alta || p.data_desfecho
-      }
-    })
-
-    setDesfechos(mapeados)
+    setDesfechos(data ?? [])
     setCarregando(false)
   }
 
