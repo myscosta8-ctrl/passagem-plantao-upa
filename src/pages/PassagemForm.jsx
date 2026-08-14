@@ -73,6 +73,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   const [salvo, setSalvo] = useState(false)
   const [sujo, setSujo] = useState(false)
   const [erroSalvar, setErroSalvar] = useState('')
+  const [rascunhoEncontrado, setRascunhoEncontrado] = useState(null)
+  const [confirmandoFechar, setConfirmandoFechar] = useState(false)
   const [origemCopia, setOrigemCopia] = useState(null)
 
   useEffect(() => {
@@ -104,6 +106,18 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     return `rascunho_passagem_${plantaoId}_${paciente.id}`
   }
 
+  function continuarRascunho() {
+    setPassagem({ ...PASSAGEM_VAZIA, ...rascunhoEncontrado.dados })
+    setSujo(true)
+    setRascunhoEncontrado(null)
+  }
+
+  function descartarRascunho() {
+    localStorage.removeItem(chaveRascunho())
+    setRascunhoEncontrado(null)
+    carregar()
+  }
+
   async function carregar() {
     setCarregando(true)
 
@@ -112,16 +126,9 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     if (rascunhoBruto) {
       try {
         const rascunho = JSON.parse(rascunhoBruto)
-        const continuar = window.confirm(
-          `Encontramos um rascunho não salvo desta passagem, de ${new Date(rascunho.quando).toLocaleString('pt-BR')} — provavelmente a tela recarregou antes de você conseguir salvar. Deseja continuar de onde parou?`
-        )
-        if (continuar) {
-          setPassagem({ ...PASSAGEM_VAZIA, ...rascunho.dados })
-          setSujo(true)
-          setCarregando(false)
-          return
-        }
-        localStorage.removeItem(chaveRascunho())
+        setRascunhoEncontrado(rascunho)
+        setCarregando(false)
+        return
       } catch {
         localStorage.removeItem(chaveRascunho())
       }
@@ -286,9 +293,15 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
 
   function fecharComConfirmacao() {
     if (sujo) {
-      const descartar = window.confirm('Você tem alterações não salvas nesta passagem. Fechar mesmo assim? O rascunho será descartado.')
-      if (!descartar) return
+      setConfirmandoFechar(true)
+      return
     }
+    localStorage.removeItem(chaveRascunho())
+    onFechar?.()
+  }
+
+  function confirmarFecharDescartando() {
+    setConfirmandoFechar(false)
     localStorage.removeItem(chaveRascunho())
     onFechar?.()
   }
@@ -711,6 +724,29 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           perigo
           onConfirmar={confirmarExclusao}
           onCancelar={() => setModalExcluir(false)}
+        />
+      )}
+
+      {rascunhoEncontrado && (
+        <ConfirmModal
+          titulo="Continuar rascunho anterior?"
+          mensagem={`Encontramos um rascunho não salvo desta passagem, de ${new Date(rascunhoEncontrado.quando).toLocaleString('pt-BR')} — provavelmente a tela recarregou antes de você conseguir salvar. Deseja continuar de onde parou?`}
+          confirmarTexto="Continuar rascunho"
+          cancelarTexto="Descartar"
+          onConfirmar={continuarRascunho}
+          onCancelar={descartarRascunho}
+        />
+      )}
+
+      {confirmandoFechar && (
+        <ConfirmModal
+          titulo="Fechar sem salvar?"
+          mensagem="Você tem alterações não salvas nesta passagem. O rascunho será descartado."
+          confirmarTexto="Fechar mesmo assim"
+          cancelarTexto="Continuar editando"
+          perigo
+          onConfirmar={confirmarFecharDescartando}
+          onCancelar={() => setConfirmandoFechar(false)}
         />
       )}
     </div>

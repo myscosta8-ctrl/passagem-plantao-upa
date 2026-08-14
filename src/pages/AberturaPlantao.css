@@ -199,7 +199,7 @@
 
 .field input[type="date"]:focus {
   outline: none;
-  border-color: #0D9488;
+  border-color: var(--color-acao);
   box-shadow: 0 0 0 2px rgba(13,148,136,0.18);
 }
 
@@ -226,8 +226,8 @@
 }
 
 .turno-btn.active {
-  background: #0D9488;
-  border-color: #0D9488;
+  background: var(--color-acao);
+  border-color: var(--color-acao);
   color: white;
 }
 
@@ -301,7 +301,7 @@
 
 .add-profissional input:focus {
   outline: none;
-  border-color: #0D9488;
+  border-color: var(--color-acao);
   box-shadow: 0 0 0 2px rgba(13,148,136,0.18);
 }
 
@@ -335,7 +335,7 @@
   padding: 12px;
   border: none;
   border-radius: 5px;
-  background: #0D9488;
+  background: var(--color-acao);
   color: white;
   font-weight: 600;
   font-size: 14px;
@@ -345,7 +345,7 @@
 }
 
 .submit-btn:hover:not(:disabled) { 
-  background: #0f766e; 
+  background: var(--color-acao-hover); 
   box-shadow: 0 4px 14px rgba(13,148,136,0.30);
 }
 .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }

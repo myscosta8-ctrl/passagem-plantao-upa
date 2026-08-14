@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
 import PassagemForm from './PassagemForm'
 import RealocarModal from './RealocarModal'
+import ConfirmModal from './ConfirmModal'
 import './Painel.css'
 
 export default function Painel({ plantao, setoresIds }) {
@@ -257,27 +258,32 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
   const [confirmouDuplicata, setConfirmouDuplicata] = useState(false)
   const [camposFaltando, setCamposFaltando] = useState([])
 
+  const [rascunhoEncontrado, setRascunhoEncontrado] = useState(null)
+
   useEffect(() => {
     const bruto = localStorage.getItem(chaveRascunho)
     if (!bruto) return
     try {
       const rascunho = JSON.parse(bruto)
-      const continuar = window.confirm(
-        `Encontramos um rascunho não salvo de internação neste leito, de ${new Date(rascunho.quando).toLocaleString('pt-BR')} — a tela deve ter recarregado antes de salvar. Deseja continuar de onde parou?`
-      )
-      if (continuar) {
-        setNome(rascunho.nome ?? '')
-        setDiagnostico(rascunho.diagnostico ?? '')
-        setDataAdmissao(rascunho.dataAdmissao ?? '')
-        setStatus(rascunho.status ?? (travado ? 'Internado' : 'Em observação'))
-      } else {
-        localStorage.removeItem(chaveRascunho)
-      }
+      setRascunhoEncontrado(rascunho)
     } catch {
       localStorage.removeItem(chaveRascunho)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  function continuarRascunho() {
+    setNome(rascunhoEncontrado.nome ?? '')
+    setDiagnostico(rascunhoEncontrado.diagnostico ?? '')
+    setDataAdmissao(rascunhoEncontrado.dataAdmissao ?? '')
+    setStatus(rascunhoEncontrado.status ?? (travado ? 'Internado' : 'Em observação'))
+    setRascunhoEncontrado(null)
+  }
+
+  function descartarRascunho() {
+    localStorage.removeItem(chaveRascunho)
+    setRascunhoEncontrado(null)
+  }
 
   useEffect(() => {
     if (!nome.trim() && !diagnostico.trim()) return
@@ -318,6 +324,7 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
   }
 
   return (
+    <>
     <div className="modal-backdrop">
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <h2 className="modal-title">Internar no leito {leito.numero}</h2>
@@ -409,5 +416,16 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
         </div>
       </div>
     </div>
+    {rascunhoEncontrado && (
+      <ConfirmModal
+        titulo="Continuar rascunho anterior?"
+        mensagem={`Encontramos um rascunho não salvo de internação neste leito, de ${new Date(rascunhoEncontrado.quando).toLocaleString('pt-BR')} — a tela deve ter recarregado antes de salvar. Deseja continuar de onde parou?`}
+        confirmarTexto="Continuar rascunho"
+        cancelarTexto="Descartar"
+        onConfirmar={continuarRascunho}
+        onCancelar={descartarRascunho}
+      />
+    )}
+    </>
   )
 }

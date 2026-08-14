@@ -1,0 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+/* =====================================================================
+   PEP ENTERPRISE — SISTEMA DE GESTÃO CLÍNICA
+   Design System v2.0 — Identidade visual própria
+   Tema: Hospitalar Profissional, Alta Densidade, Hierarquia Clínica
+   ===================================================================== */
+
+:root {
+  /* PALETA PRINCIPAL (Cores do Projeto Antigo) */
+  --c-primary:        #14507d;   /* --azul */
+  --c-primary-dark:   #0d3a5c;   /* --azul-escuro */
+  --c-primary-mid:    #14507d;   
+  --c-primary-light:  #eaf2f8;   /* --azul-claro */
+  --c-primary-border: #b8d0e8;
+
+  /* SUPERFÍCIES */
+  --c-bg:             #f4f6f8;   /* --cinza-fundo */
+  --c-surface:        #ffffff;
+  --c-surface-raised: #f7f9fc;
+  --c-surface-inset:  #edf0f4;
+
+  /* TEXTO */
+  --c-text-primary:   #33424e;   /* --cinza-texto */
+  --c-text-secondary: #556677;
+  --c-text-muted:     #8899aa;
+  --c-text-inverse:   #ffffff;
+
+  /* BORDAS */
+  --c-border:         #d7dee3;   /* --cinza-borda */
+  --c-border-light:   #eef1f3;
+  --c-border-dark:    #a8b8c8;
+
+  /* ESTADO / SEMÂNTICA */
+  --c-success:        #1f8a5f;   /* --verde */
+  --c-success-light:  #e8f5ee;
+  --c-warning:        #b8860b;   /* --amarelo */
+  --c-warning-light:  #fdecea;
+  --c-danger:         #c0392b;   /* --vermelho */
+  --c-danger-light:   #fee2e2;
+  --c-info:           #0369a1;
+  --c-info-light:     #e0f2fe;
+
+  /* TIPOGRAFIA */
+  --font-ui:          'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:        'JetBrains Mono', ui-monospace, monospace;
+
+  /* ESCALA */
+  --text-xs:   11px;
+  --text-sm:   12px;
+  --text-base: 13px;
+  --text-md:   14px;
+  --text-lg:   16px;
+  --text-xl:   18px;
+
+  /* ESPAÇAMENTO */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+
+  /* RAIO DE BORDA */
+  --r-sm:  4px;
+  --r-md:  6px;
+  --r-lg:  8px;
+  --r-xl:  12px;
+
+  /* SOMBRAS */
+  --shadow-xs:  0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sm:  0 1px 4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,0.12);
+  --shadow-xl:  0 20px 48px rgba(0,0,0,0.18);
+
+  /* TRANSIÇÕES */
+  --ease: 0.15s ease;
+
+  /* =====================================================================
+     ALIASES DE COMPATIBILIDADE (usados em Auth.css, Painel.css, etc.)
+     ===================================================================== */
+  --color-primary:        var(--c-primary);
+  --color-primary-dark:   var(--c-primary-dark);
+  --color-primary-light:  var(--c-primary-light);
+  --color-bg:             var(--c-bg);
+  --color-surface:        var(--c-surface);
+  --color-border:         var(--c-border);
+  --color-text:           var(--c-text-primary);
+  --color-text-muted:     var(--c-text-muted);
+  --color-success:        var(--c-success);
+  --color-danger:         var(--c-danger);
+  --color-warning:        var(--c-warning);
+  --color-accent:         var(--c-danger);
+  --color-accent-light:   var(--c-danger-light);
+  --color-acao:           #0D9488;
+  --color-acao-hover:     #0f766e;
+  --radius:               var(--r-md);
+  --shadow-md:            var(--shadow-md, 0 4px 12px rgba(0,0,0,0.10));
+}
+
+/* ===================== RESET E BASE ===================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  background: var(--c-bg);
+  color: var(--c-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+button { cursor: pointer; }
+
+a { color: var(--c-primary-mid); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===================== FOCO ===================== */
+:focus-visible {
+  outline: 2px solid var(--c-primary-mid);
+  outline-offset: 2px;
+}
+
+/* ===================== SELEÇÃO DE TEXTO ===================== */
+::selection      { background: #1e5f8a; color: #fff; }
+::-moz-selection { background: #1e5f8a; color: #fff; }
+
+/* ===================== SCROLLBAR ===================== */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--c-border-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--c-text-muted); }
+
+/* =====================================================================
+   SISTEMA DE INPUTS — MODAIS DO PEP ENTERPRISE
+   Tema claro profissional, fundo branco, azul-petróleo como ação
+   ===================================================================== */
+
+/* Inputs do pep-backdrop (prontuário modal claro) */
+.pep-backdrop input,
+.pep-backdrop select,
+.pep-backdrop textarea,
+.pep-modal-workspace-full input,
+.pep-modal-workspace-full select,
+.pep-modal-workspace-full textarea,
+.pep-modal-content input,
+.pep-modal-content select,
+.pep-modal-content textarea {
+  width: 100%;
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: var(--r-md) !important;
+  padding: 8px 11px !important;
+  font-size: var(--text-sm) !important;
+  font-family: inherit !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: border-color var(--ease), box-shadow var(--ease) !important;
+  caret-color: #0D9488 !important;
+}
+
+/* FOCO */
+.pep-backdrop input:focus,
+.pep-backdrop select:focus,
+.pep-backdrop textarea:focus,
+.pep-modal-workspace-full input:focus,
+.pep-modal-workspace-full select:focus,
+.pep-modal-workspace-full textarea:focus,
+.pep-modal-content input:focus,
+.pep-modal-content select:focus,
+.pep-modal-content textarea:focus {
+  border-color: #0D9488 !important;
+  box-shadow: 0 0 0 2px rgba(13,148,136,0.18) !important;
+  background-color: #f0fdfa !important;
+  color: #0f172a !important;
+}
+
+/* DISABLED */
+.pep-backdrop input:disabled,
+.pep-backdrop select:disabled,
+.pep-backdrop textarea:disabled,
+.pep-modal-workspace-full input:disabled,
+.pep-modal-workspace-full select:disabled,
+.pep-modal-workspace-full textarea:disabled {
+  background-color: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  border-color: #e2e8f0 !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+/* LABELS NOS MODAIS */
+.pep-modal-content label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+}
+
+/* =====================================================================
+   UTILITÁRIOS GLOBAIS PEP
+   ===================================================================== */
+
+.pep-divider {
+  height: 1px;
+  background: var(--c-border-light);
+  margin: var(--sp-3) 0;
+}
+
+.pep-section-title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--c-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-2);
+  border-bottom: 2px solid var(--c-primary-light);
+  margin-bottom: var(--sp-3);
+}
+
+.pep-empty-state {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--c-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* BOTÕES UTILITÁRIOS */
+.pep-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 7px 14px;
+  border-radius: var(--r-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all var(--ease);
+  white-space: nowrap;
+}
+.pep-btn-primary  { background: var(--c-primary-mid); color: #fff; }
+.pep-btn-primary:hover  { background: var(--c-primary-dark); }
+.pep-btn-success  { background: var(--c-success); color: #fff; }
+.pep-btn-success:hover  { background: #155c34; }
+.pep-btn-danger   { background: var(--c-danger); color: #fff; }
+.pep-btn-danger:hover   { background: #991b1b; }
+.pep-btn-ghost    { background: transparent; color: var(--c-text-secondary); border: 1px solid var(--c-border); }
+.pep-btn-ghost:hover    { background: var(--c-surface-inset); }
+
+/* BADGES */
+.pep-badge {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+}
+.badge-blue    { background: var(--c-info-light);    color: var(--c-info);    }
+.badge-green   { background: var(--c-success-light); color: var(--c-success); }
+.badge-red     { background: var(--c-danger-light);  color: var(--c-danger);  }
+.badge-amber   { background: var(--c-warning-light); color: var(--c-warning); }
+.badge-gray    { background: var(--c-surface-inset); color: var(--c-text-secondary); }
+.badge-sus     { background: #fef3c7; color: #92400e; }
+
+/* TABELAS CLÍNICAS */
+.pep-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--c-border-light);
+}
+
+.pep-clinical-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  text-align: left;
+}
+
+.pep-clinical-table thead tr {
+  background: var(--c-surface-raised);
+}
+
+.pep-clinical-table th {
+  padding: 9px 12px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--c-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--c-border);
+  white-space: nowrap;
+}
+
+.pep-clinical-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--c-border-light);
+  color: var(--c-text-primary);
+  vertical-align: middle;
+}
+
+.pep-clinical-table tbody tr:hover td {
+  background: var(--c-primary-light);
+}
+
+.pep-clinical-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ALERTAS */
+.pep-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  font-size: var(--text-sm);
+  border-left: 3px solid;
+}
+.pep-alert-info    { background: var(--c-info-light);    border-color: var(--c-info);    color: var(--c-info);    }
+.pep-alert-success { background: var(--c-success-light); border-color: var(--c-success); color: var(--c-success); }
+.pep-alert-danger  { background: var(--c-danger-light);  border-color: var(--c-danger);  color: var(--c-danger);  }
+.pep-alert-warning { background: var(--c-warning-light); border-color: var(--c-warning); color: var(--c-warning); }
