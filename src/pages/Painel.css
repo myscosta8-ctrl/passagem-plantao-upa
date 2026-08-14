@@ -9,7 +9,7 @@
   font-size: 15px;
   font-weight: 700;
   color: #0d1b2a;
-  border-bottom: 2px solid #0D9488;
+  border-bottom: 2px solid var(--color-acao);
   padding-bottom: 8px;
   margin-bottom: 14px;
 }
@@ -47,7 +47,7 @@
 
 .leito-card:hover {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border-color: #0D9488;
+  border-color: var(--color-acao);
 }
 
 .leito-card.vazio {
@@ -189,8 +189,8 @@
 }
 
 .leito-add-extra:hover {
-  border-color: #0D9488;
-  color: #0D9488;
+  border-color: var(--color-acao);
+  color: var(--color-acao);
   background: #f0fdfb;
 }
 
@@ -228,7 +228,7 @@
   display: inline-block;
   width: 3px;
   height: 16px;
-  background: #0D9488;
+  background: var(--color-acao);
   border-radius: 2px;
 }
 
@@ -250,10 +250,10 @@
 
 .modal-btn-primary {
   border: none;
-  background: #0D9488;
+  background: var(--color-acao);
   color: white;
 }
-.modal-btn-primary:hover:not(:disabled) { background: #0f766e; }
+.modal-btn-primary:hover:not(:disabled) { background: var(--color-acao-hover); }
 .modal-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .modal-btn-secondary {

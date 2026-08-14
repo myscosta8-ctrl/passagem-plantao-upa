@@ -80,7 +80,7 @@
   padding: 11px;
   border: none;
   border-radius: var(--radius);
-  background: var(--color-primary);
+  background: var(--color-acao);
   color: white;
   font-weight: 600;
   font-size: 14px;
@@ -88,7 +88,7 @@
   transition: background 0.15s ease;
 }
 
-.auth-submit:hover { background: var(--color-primary-dark); }
+.auth-submit:hover { background: var(--color-acao-hover); }
 .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .auth-toggle {

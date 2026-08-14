@@ -204,8 +204,11 @@
 
 .btn-salvar {
   border: none;
-  background: var(--color-primary);
+  background: var(--color-acao);
   color: white;
+}
+.btn-salvar:hover:not(:disabled) {
+  background: var(--color-acao-hover);
 }
 
 .btn-fechar {
