@@ -35,7 +35,12 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
 
     const { error: erroUpdate } = await supabase
       .from('pacientes')
-      .update({ leito_atual_id: Number(leitoDestinoId), updated_at: new Date().toISOString() })
+      .update({
+        leito_atual_id: Number(leitoDestinoId),
+        updated_at: new Date().toISOString(),
+        ultima_alteracao_por: enfermeiroId,
+        ultima_alteracao_em: new Date().toISOString(),
+      })
       .eq('id', paciente.id)
 
     if (erroUpdate) {

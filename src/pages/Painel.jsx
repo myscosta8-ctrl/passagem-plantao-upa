@@ -32,7 +32,7 @@ export default function Painel({ plantao, setoresIds }) {
       .order('numero')
     const { data: listaPacientes } = await supabase
       .from('pacientes')
-      .select('*')
+      .select('*, ultima_alteracao_por_enfermeiro:enfermeiros!ultima_alteracao_por(nome_exibicao, nome)')
       .eq('status', 'internado')
 
     setSetores(listaSetores ?? [])
@@ -89,6 +89,8 @@ export default function Painel({ plantao, setoresIds }) {
         leito_atual_id: leito.id,
         status: 'internado',
         status_internacao: dados.status,
+        ultima_alteracao_por: enfermeiro?.id,
+        ultima_alteracao_em: new Date().toISOString(),
       })
       .select()
       .single()
@@ -170,11 +172,11 @@ export default function Painel({ plantao, setoresIds }) {
                         {p?.pendencias && (
                           <div className="leito-paciente-pendencia">{p.pendencias}</div>
                         )}
-                        {p?.criado_por && p?.enfermeiros && (
+                        {paciente?.ultima_alteracao_por && paciente?.ultima_alteracao_por_enfermeiro && (
                           <div className="leito-ultima-alteracao no-print">
-                            Última alteração: {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome || 'desconhecido'}
+                            Última alteração: {paciente.ultima_alteracao_por_enfermeiro?.nome_exibicao || paciente.ultima_alteracao_por_enfermeiro?.nome || 'desconhecido'}
                             {' — '}
-                            {new Date(p.atualizado_em || p.criado_em).toLocaleString('pt-BR')}
+                            {new Date(paciente.ultima_alteracao_em).toLocaleString('pt-BR')}
                           </div>
                         )}
                       </>

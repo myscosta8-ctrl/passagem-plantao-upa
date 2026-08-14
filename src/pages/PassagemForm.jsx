@@ -198,6 +198,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         alergias_obs: identificacao.alergias_obs,
         status_internacao: statusTravado ? 'Internado' : identificacao.status_internacao,
         updated_at: new Date().toISOString(),
+        ultima_alteracao_por: enfermeiroId,
+        ultima_alteracao_em: new Date().toISOString(),
       })
       .eq('id', paciente.id)
 
@@ -242,6 +244,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         tipo_desfecho: tipo,
         desfecho_detalhe: detalhe || null,
         data_desfecho: new Date().toISOString(),
+        ultima_alteracao_por: enfermeiroId,
+        ultima_alteracao_em: new Date().toISOString(),
       })
       .eq('id', paciente.id)
     setProcessando(false)
