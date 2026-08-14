@@ -93,6 +93,8 @@
   --color-warning:        var(--c-warning);
   --color-accent:         var(--c-danger);
   --color-accent-light:   var(--c-danger-light);
+  --color-acao:           #0D9488;
+  --color-acao-hover:     #0f766e;
   --radius:               var(--r-md);
   --shadow-md:            var(--shadow-md, 0 4px 12px rgba(0,0,0,0.10));
 }
