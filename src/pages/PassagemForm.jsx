@@ -7,6 +7,7 @@ const DISPOSITIVOS_OPCOES = ['SVD', 'SNE', 'Dreno', 'O2']
 const NIVEIS_CONSCIENCIA = ['Consciente', 'Confuso', 'Sonolento', 'Sedado', 'Torporoso', 'Agitado', 'Inconsciente']
 const EXAME_STATUS_OPCOES = ['A realizar', 'Aguardando laudo', 'Resultado disponível']
 const SOROLOGIA_STATUS_OPCOES = ['Coleta pendente', 'Aguardando resultado', 'Resultado disponível']
+const REGULACAO_TIPO_OPCOES = ['SER', 'SISREG']
 
 const PASSAGEM_VAZIA = {
   curativo_realizado: null,
@@ -28,12 +29,18 @@ const PASSAGEM_VAZIA = {
   sorologias: '',
   sorologia_status: '',
   sorologia_data_coleta: '',
+  sorologia_data_notificacao: '',
 
   hemo_tipo: '',
   hemo_solicitado: null,
   hemo_transfundido: null,
+  hemo_data_solicitacao: '',
   hemo_data_transfusao: '',
   hemo_quantidade: '',
+
+  regulacao_flag: null,
+  regulacao_tipo: '',
+  regulacao_data_cadastro: '',
 
   leito_liberado_outro_hospital: null,
   leito_liberado_hospital: '',
@@ -526,6 +533,10 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
               />
             </div>
             <div className="form-field">
+              <label>Data da notificação</label>
+              <input type="date" value={passagem.sorologia_data_notificacao ?? ''} onChange={(e) => set('sorologia_data_notificacao', e.target.value)} />
+            </div>
+            <div className="form-field">
               <label>Data da coleta</label>
               <input type="date" value={passagem.sorologia_data_coleta ?? ''} onChange={(e) => set('sorologia_data_coleta', e.target.value)} />
             </div>
@@ -570,6 +581,12 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
               <label>Solicitado</label>
               <SimNao valor={passagem.hemo_solicitado} onChange={(v) => set('hemo_solicitado', v)} />
             </div>
+            {passagem.hemo_solicitado === true && (
+              <div className="form-field">
+                <label>Data da solicitação</label>
+                <input type="date" value={passagem.hemo_data_solicitacao ?? ''} onChange={(e) => set('hemo_data_solicitacao', e.target.value)} />
+              </div>
+            )}
             <div className="form-field">
               <label>Transfundido</label>
               <SimNao valor={passagem.hemo_transfundido} onChange={(v) => set('hemo_transfundido', v)} />
@@ -591,6 +608,33 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         <div className="form-section">
           <div className="form-section-title">Regulação e transferência</div>
           <div className="form-grid">
+            <div className="form-field">
+              <label>Paciente regulado</label>
+              <SimNao valor={passagem.regulacao_flag} onChange={(v) => set('regulacao_flag', v)} />
+            </div>
+            {passagem.regulacao_flag === true && (
+              <>
+                <div className="form-field span-2">
+                  <label>Tipo</label>
+                  <div className="chip-group">
+                    {REGULACAO_TIPO_OPCOES.map((t) => (
+                      <button
+                        type="button"
+                        key={t}
+                        className={`chip ${passagem.regulacao_tipo === t ? 'on' : ''}`}
+                        onClick={() => set('regulacao_tipo', passagem.regulacao_tipo === t ? '' : t)}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label>Data de cadastro</label>
+                  <input type="date" value={passagem.regulacao_data_cadastro ?? ''} onChange={(e) => set('regulacao_data_cadastro', e.target.value)} />
+                </div>
+              </>
+            )}
             <div className="form-field">
               <label>Leito liberado p/ outro hospital</label>
               <SimNao valor={passagem.leito_liberado_outro_hospital} onChange={(v) => set('leito_liberado_outro_hospital', v)} />
