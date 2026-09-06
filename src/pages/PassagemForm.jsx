@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import ConfirmModal from './ConfirmModal'
 import './PassagemForm.css'
 
-const DISPOSITIVOS_OPCOES = ['SVD', 'SNE', 'Dreno', 'O2']
+const DISPOSITIVOS_OPCOES = ['AVP', 'SVD', 'SNE', 'Dreno', 'O2']
 const NIVEIS_CONSCIENCIA = ['Consciente', 'Confuso', 'Sonolento', 'Sedado', 'Torporoso', 'Agitado', 'Inconsciente']
 const EXAME_STATUS_OPCOES = ['A realizar', 'Aguardando laudo', 'Resultado disponível']
 const SOROLOGIA_STATUS_OPCOES = ['Coleta pendente', 'Aguardando resultado', 'Resultado disponível']
@@ -11,8 +11,8 @@ const REGULACAO_TIPO_OPCOES = ['SER', 'SISREG']
 
 const PASSAGEM_VAZIA = {
   curativo_realizado: null,
-  avp: null,
   avp_data_insercao: '',
+  avp_hora_insercao: '',
   nivel_consciencia: '',
   dispositivos: [],
   dispositivos_detalhe: '',
@@ -73,6 +73,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   const [salvo, setSalvo] = useState(false)
   const [sujo, setSujo] = useState(false)
   const [erroSalvar, setErroSalvar] = useState('')
+  const [camposFaltando, setCamposFaltando] = useState([])
   const [rascunhoEncontrado, setRascunhoEncontrado] = useState(null)
   const [confirmandoFechar, setConfirmandoFechar] = useState(false)
   const [origemCopia, setOrigemCopia] = useState(null)
@@ -93,21 +94,57 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   }, [sujo])
 
   // Guarda um rascunho automaticamente enquanto a pessoa digita, pra sobreviver
-  // se a tela recarregar sozinha (comum no celular ao trocar de app e voltar).
+  // se a tela recarregar sozinha (comum no celular ao trocar de app e voltar, ou
+  // no PWA minimizado por tempo demais). Inclui identificação — não só a passagem —
+  // porque nome/diagnóstico/idade são digitados no mesmo formulário.
+  function salvarRascunhoAgora() {
+    if (!sujo || carregando) return
+    localStorage.setItem(chaveRascunho(), JSON.stringify({ identificacao, passagem, quando: new Date().toISOString() }))
+  }
+
   useEffect(() => {
     if (!sujo || carregando) return
-    const atraso = setTimeout(() => {
-      localStorage.setItem(chaveRascunho(), JSON.stringify({ dados: passagem, quando: new Date().toISOString() }))
-    }, 800)
+    const atraso = setTimeout(salvarRascunhoAgora, 800)
     return () => clearTimeout(atraso)
-  }, [passagem, sujo, carregando])
+  }, [identificacao, passagem, sujo, carregando])
+
+  // Rede de segurança: se a tela for escondida (troca de app, aba minimizada) antes
+  // dos 800ms acima rodarem, salva na hora — sem esperar o debounce, sem esperar
+  // o beforeunload (que no celular pode nunca disparar a tempo).
+  useEffect(() => {
+    function aoEsconder() {
+      if (document.visibilityState === 'hidden') salvarRascunhoAgora()
+    }
+    document.addEventListener('visibilitychange', aoEsconder)
+    window.addEventListener('pagehide', salvarRascunhoAgora)
+    return () => {
+      document.removeEventListener('visibilitychange', aoEsconder)
+      window.removeEventListener('pagehide', salvarRascunhoAgora)
+    }
+  }, [identificacao, passagem, sujo, carregando])
 
   function chaveRascunho() {
     return `rascunho_passagem_${plantaoId}_${paciente.id}`
   }
 
+  // Compatibilidade: passagens antigas guardavam "AVP: sim" num campo à parte,
+  // separado do grupo de dispositivos. Reconhece as duas formas ao carregar.
+  function normalizarAvp(dados) {
+    const dispositivos = dados.dispositivos ?? []
+    if (dados.avp && !dispositivos.includes('AVP')) {
+      return { ...dados, dispositivos: [...dispositivos, 'AVP'] }
+    }
+    return dados
+  }
+
   function continuarRascunho() {
-    setPassagem({ ...PASSAGEM_VAZIA, ...rascunhoEncontrado.dados })
+    // "dados" é o formato antigo do rascunho (só a passagem, sem identificação) —
+    // continua sendo aceito pra não quebrar um rascunho salvo antes desta mudança.
+    const dadosPassagem = rascunhoEncontrado.passagem ?? rascunhoEncontrado.dados ?? {}
+    setPassagem({ ...PASSAGEM_VAZIA, ...dadosPassagem })
+    if (rascunhoEncontrado.identificacao) {
+      setIdentificacao((prev) => ({ ...prev, ...rascunhoEncontrado.identificacao }))
+    }
     setSujo(true)
     setRascunhoEncontrado(null)
   }
@@ -143,7 +180,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
       .maybeSingle()
 
     if (atual) {
-      setPassagem({ ...PASSAGEM_VAZIA, ...atual })
+      setPassagem(normalizarAvp({ ...PASSAGEM_VAZIA, ...atual }))
       setCarregando(false)
       return
     }
@@ -158,7 +195,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
       .maybeSingle()
 
     if (anterior) {
-      setPassagem({ ...PASSAGEM_VAZIA, ...anterior })
+      setPassagem(normalizarAvp({ ...PASSAGEM_VAZIA, ...anterior }))
       setOrigemCopia(anterior.criado_em)
     }
     setCarregando(false)
@@ -173,13 +210,22 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
       .limit(1)
       .maybeSingle()
     if (anterior) {
-      setPassagem({ ...PASSAGEM_VAZIA, ...anterior })
+      setPassagem(normalizarAvp({ ...PASSAGEM_VAZIA, ...anterior }))
       setOrigemCopia(anterior.criado_em)
     }
   }
 
   function set(campo, valor) {
     setPassagem((prev) => ({ ...prev, [campo]: valor }))
+    setSalvo(false)
+    setSujo(true)
+  }
+
+  // Antes, editar nome/diagnóstico/idade etc. não marcava o formulário como "sujo" —
+  // ou seja, não entrava no rascunho automático nem avisava antes de sair da página.
+  // Uma alteração perdida aqui não aparecia nem no aviso, nem na recuperação.
+  function setId(campo, valor) {
+    setIdentificacao((prev) => ({ ...prev, [campo]: valor }))
     setSalvo(false)
     setSujo(true)
   }
@@ -196,7 +242,36 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     setSalvo(false)
   }
 
+  // Campos clínicos que, uma vez que a pergunta principal foi respondida "sim"
+  // ou preenchida, precisam de data pra virar informação útil (ex: sem a hora
+  // do AVP não dá pra alertar a troca das 96h).
+  function validarObrigatorios() {
+    const faltando = []
+    if (passagem.dispositivos?.includes('AVP') && (!passagem.avp_data_insercao || !passagem.avp_hora_insercao)) {
+      faltando.push('Data e hora de inserção do AVP')
+    }
+    if (passagem.exame_status === 'A realizar' && (!passagem.exame_a_realizar_data || !passagem.exame_a_realizar_hora)) {
+      faltando.push('Data e hora do exame agendado')
+    }
+    if ((passagem.sorologias?.trim() || passagem.sorologia_status) && !passagem.sorologia_data_notificacao) {
+      faltando.push('Data da notificação de sorologia/agravo')
+    }
+    if (passagem.hemo_solicitado === true && !passagem.hemo_data_solicitacao) {
+      faltando.push('Data da solicitação de hemoterapia')
+    }
+    if (passagem.regulacao_flag === true && !passagem.regulacao_data_cadastro) {
+      faltando.push('Data de cadastro da regulação')
+    }
+    return faltando
+  }
+
   async function salvar() {
+    const faltando = validarObrigatorios()
+    if (faltando.length > 0) {
+      setCamposFaltando(faltando)
+      return
+    }
+    setCamposFaltando([])
     setSalvando(true)
     setErroSalvar('')
 
@@ -342,19 +417,19 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           <div className="form-grid">
             <div className="form-field span-2">
               <label>Nome</label>
-              <input type="text" value={identificacao.nome} onChange={(e) => setIdentificacao((p) => ({ ...p, nome: e.target.value }))} />
+              <input type="text" value={identificacao.nome} onChange={(e) => setId('nome', e.target.value)} />
             </div>
             <div className="form-field span-2">
               <label>Diagnóstico</label>
-              <input type="text" value={identificacao.diagnostico} onChange={(e) => setIdentificacao((p) => ({ ...p, diagnostico: e.target.value }))} />
+              <input type="text" value={identificacao.diagnostico} onChange={(e) => setId('diagnostico', e.target.value)} />
             </div>
             <div className="form-field">
               <label>Idade</label>
-              <input type="number" value={identificacao.idade} onChange={(e) => setIdentificacao((p) => ({ ...p, idade: e.target.value }))} />
+              <input type="number" value={identificacao.idade} onChange={(e) => setId('idade', e.target.value)} />
             </div>
             <div className="form-field">
               <label>Sexo</label>
-              <select value={identificacao.sexo} onChange={(e) => setIdentificacao((p) => ({ ...p, sexo: e.target.value }))}>
+              <select value={identificacao.sexo} onChange={(e) => setId('sexo', e.target.value)}>
                 <option value="">—</option>
                 <option value="F">Feminino</option>
                 <option value="M">Masculino</option>
@@ -371,14 +446,14 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
                   <button
                     type="button"
                     className={`toggle-btn ${identificacao.status_internacao === 'Em observação' ? 'on' : ''}`}
-                    onClick={() => setIdentificacao((p) => ({ ...p, status_internacao: 'Em observação' }))}
+                    onClick={() => setId('status_internacao', 'Em observação')}
                   >
                     Em observação
                   </button>
                   <button
                     type="button"
                     className={`toggle-btn ${identificacao.status_internacao === 'Internado' ? 'on' : ''}`}
-                    onClick={() => setIdentificacao((p) => ({ ...p, status_internacao: 'Internado' }))}
+                    onClick={() => setId('status_internacao', 'Internado')}
                   >
                     Internado
                   </button>
@@ -387,19 +462,19 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
             </div>
             <div className="form-field span-2">
               <label>Data de admissão</label>
-              <input type="date" value={identificacao.data_admissao} onChange={(e) => setIdentificacao((p) => ({ ...p, data_admissao: e.target.value }))} />
+              <input type="date" value={identificacao.data_admissao} onChange={(e) => setId('data_admissao', e.target.value)} />
             </div>
             <div className="form-field">
               <label>Alergias</label>
               <div className="toggle-group">
-                <button type="button" className={`toggle-btn ${identificacao.alergias === false ? 'on' : ''}`} onClick={() => setIdentificacao((p) => ({ ...p, alergias: false }))}>Não</button>
-                <button type="button" className={`toggle-btn ${identificacao.alergias === true ? 'on danger' : ''}`} onClick={() => setIdentificacao((p) => ({ ...p, alergias: true }))}>Sim</button>
+                <button type="button" className={`toggle-btn ${identificacao.alergias === false ? 'on' : ''}`} onClick={() => setId('alergias', false)}>Não</button>
+                <button type="button" className={`toggle-btn ${identificacao.alergias === true ? 'on danger' : ''}`} onClick={() => setId('alergias', true)}>Sim</button>
               </div>
             </div>
             {identificacao.alergias && (
               <div className="form-field span-3">
                 <label>Quais alergias</label>
-                <input type="text" value={identificacao.alergias_obs} onChange={(e) => setIdentificacao((p) => ({ ...p, alergias_obs: e.target.value }))} />
+                <input type="text" value={identificacao.alergias_obs} onChange={(e) => setId('alergias_obs', e.target.value)} />
               </div>
             )}
           </div>
@@ -414,28 +489,14 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
               <SimNao valor={passagem.curativo_realizado} onChange={(v) => set('curativo_realizado', v)} />
             </div>
             <div className="form-field">
-              <label>AVP</label>
-              <SimNao valor={passagem.avp} onChange={(v) => set('avp', v)} />
-            </div>
-            {passagem.avp && (
-              <div className="form-field span-2">
-                <label>Data de inserção do AVP</label>
-                <input type="date" value={passagem.avp_data_insercao ?? ''} onChange={(e) => set('avp_data_insercao', e.target.value)} />
-              </div>
-            )}
-            <div className="form-field">
               <label>Nível de consciência</label>
               <select value={passagem.nivel_consciencia ?? ''} onChange={(e) => set('nivel_consciencia', e.target.value)}>
                 <option value="">—</option>
                 {NIVEIS_CONSCIENCIA.map((n) => <option key={n} value={n}>{n}</option>)}
               </select>
             </div>
-            <div className="form-field">
-              <label>Acompanhante presente</label>
-              <SimNao valor={passagem.acompanhante} onChange={(v) => set('acompanhante', v)} />
-            </div>
             <div className="form-field span-3">
-              <label>Dispositivos invasivos (além do AVP)</label>
+              <label>Dispositivos invasivos</label>
               <div className="chip-group">
                 {DISPOSITIVOS_OPCOES.map((d) => (
                   <button
@@ -449,9 +510,24 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
                 ))}
               </div>
             </div>
+            {passagem.dispositivos?.includes('AVP') && (
+              <>
+                <div className="form-field">
+                  <label>Data de inserção do AVP *</label>
+                  <input type="date" value={passagem.avp_data_insercao ?? ''} onChange={(e) => set('avp_data_insercao', e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label>Hora de inserção *</label>
+                  <input type="time" value={passagem.avp_hora_insercao ?? ''} onChange={(e) => set('avp_hora_insercao', e.target.value)} />
+                </div>
+                <div className="form-field span-3">
+                  <p style={{ fontSize: 11.5, color: 'var(--color-text-muted)', margin: 0 }}>Usado para alertar a troca do AVP nas 96h.</p>
+                </div>
+              </>
+            )}
             {passagem.dispositivos?.length > 0 && (
               <div className="form-field span-3">
-                <label>Detalhe do dispositivo (nº, tamanho)</label>
+                <label>Detalhe dos dispositivos (nº, tamanho)</label>
                 <input
                   type="text"
                   placeholder="ex: SVD Nº16, TOT 7,5"
@@ -460,6 +536,10 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
                 />
               </div>
             )}
+            <div className="form-field span-3">
+              <label>Acompanhante presente</label>
+              <SimNao valor={passagem.acompanhante} onChange={(v) => set('acompanhante', v)} />
+            </div>
           </div>
         </div>
 
@@ -495,11 +575,11 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
             {passagem.exame_status === 'A realizar' && (
               <>
                 <div className="form-field">
-                  <label>Data agendada</label>
+                  <label>Data agendada *</label>
                   <input type="date" value={passagem.exame_a_realizar_data ?? ''} onChange={(e) => set('exame_a_realizar_data', e.target.value)} />
                 </div>
                 <div className="form-field">
-                  <label>Hora</label>
+                  <label>Hora *</label>
                   <input type="time" value={passagem.exame_a_realizar_hora ?? ''} onChange={(e) => set('exame_a_realizar_hora', e.target.value)} />
                 </div>
                 <div className="form-field">
@@ -546,7 +626,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
               />
             </div>
             <div className="form-field">
-              <label>Data da notificação</label>
+              <label>Data da notificação *</label>
               <input type="date" value={passagem.sorologia_data_notificacao ?? ''} onChange={(e) => set('sorologia_data_notificacao', e.target.value)} />
             </div>
             <div className="form-field">
@@ -596,7 +676,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
             </div>
             {passagem.hemo_solicitado === true && (
               <div className="form-field">
-                <label>Data da solicitação</label>
+                <label>Data da solicitação *</label>
                 <input type="date" value={passagem.hemo_data_solicitacao ?? ''} onChange={(e) => set('hemo_data_solicitacao', e.target.value)} />
               </div>
             )}
@@ -643,7 +723,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
                   </div>
                 </div>
                 <div className="form-field">
-                  <label>Data de cadastro</label>
+                  <label>Data de cadastro *</label>
                   <input type="date" value={passagem.regulacao_data_cadastro ?? ''} onChange={(e) => set('regulacao_data_cadastro', e.target.value)} />
                 </div>
               </>
@@ -703,6 +783,11 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           </button>
         </div>
         {salvo && <div className="save-flag">Salvo com sucesso.</div>}
+        {camposFaltando.length > 0 && (
+          <div className="error-box" style={{ marginTop: 10 }}>
+            ⚠ Preencha antes de salvar: <b>{camposFaltando.join(', ')}</b>
+          </div>
+        )}
         {erroSalvar && <div className="error-box" style={{ marginTop: 10 }}>{erroSalvar}</div>}
       </div>
 
