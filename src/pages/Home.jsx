@@ -7,6 +7,7 @@ import Painel from './Painel'
 import PrintView from './PrintView'
 import Historico from './Historico'
 import Ajuda from './Ajuda'
+import MinhaConta from './MinhaConta'
 import AltasRecentes from './AltasRecentes'
 import Pendencias from './Pendencias'
 import CompartilharPlantao from './CompartilharPlantao'
@@ -61,7 +62,7 @@ function calcularCorte(plantao) {
 
 // Guarda em qual tela a pessoa estava, pra voltar pro mesmo lugar se o app recarregar sozinho
 // (comum no celular). Expira depois de um tempo, pra nunca reabrir num lugar "velho" demais.
-const TELAS_VALIDAS = ['painel', 'print1', 'print2', 'historico', 'altas', 'pendencias', 'ajuda']
+const TELAS_VALIDAS = ['painel', 'print1', 'print2', 'historico', 'altas', 'pendencias', 'ajuda', 'conta']
 const LIMITE_HORAS_TELA_SALVA = 4
 
 function lerTelaSalva() {
@@ -100,6 +101,7 @@ export default function Home() {
   const [verificandoRetomada, setVerificandoRetomada] = useState(true)
   const [encerrando, setEncerrando] = useState(false)
   const [menuAberto, setMenuAberto] = useState(false)
+  const [contaMenuAberto, setContaMenuAberto] = useState(false)
   const [avisoEncerradoAutomatico, setAvisoEncerradoAutomatico] = useState(null)
   const [minutosParaCorte, setMinutosParaCorte] = useState(null)
   const [modalConfirmar, setModalConfirmar] = useState(null)
@@ -328,11 +330,21 @@ export default function Home() {
           </div>
 
           <div className="topbar-group">
-            <span className="topbar-nome">
-              {enfermeiro?.nome_exibicao || enfermeiro?.nome}
-              {isAdmin && <span className="admin-badge">ADMIN</span>}
-            </span>
-            <button onClick={logout}>Sair</button>
+            <div className="topbar-menu">
+              <button className="topbar-conta-btn" onClick={() => setContaMenuAberto((v) => !v)}>
+                <span className="topbar-nome">
+                  {enfermeiro?.nome_exibicao || enfermeiro?.nome}
+                  {isAdmin && <span className="admin-badge">ADMIN</span>}
+                </span>
+                <span aria-hidden="true">▾</span>
+              </button>
+              {contaMenuAberto && (
+                <div className="topbar-menu-panel topbar-menu-panel-conta" onClick={() => setContaMenuAberto(false)}>
+                  <button onClick={() => setTela('conta')}>Minha conta</button>
+                  <button onClick={logout} className="topbar-menu-danger">Sair</button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -354,6 +366,8 @@ export default function Home() {
 
       {tela === 'ajuda' ? (
         <Ajuda onVoltar={() => setTela('painel')} />
+      ) : tela === 'conta' ? (
+        <MinhaConta onVoltar={() => setTela('painel')} />
       ) : (
         <>
           {!plantao && <AberturaPlantao onPlantaoAberto={aoAbrirPlantao} />}

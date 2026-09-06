@@ -93,6 +93,22 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut()
   }
 
+  // Corrige o nome de exibição depois do cadastro — hoje só era perguntado uma vez,
+  // sem jeito nenhum de editar depois sem mexer direto no banco.
+  async function atualizarNomeExibicao(nomeExibicao) {
+    if (!session?.user) return { error: new Error('Sem sessão ativa') }
+    const valor = nomeExibicao.trim()
+    if (!valor) return { error: new Error('Nome não pode ficar vazio') }
+    const { error } = await supabase.from('enfermeiros').update({ nome_exibicao: valor }).eq('id', session.user.id)
+    if (!error) setEnfermeiro((prev) => (prev ? { ...prev, nome_exibicao: valor } : prev))
+    return { error }
+  }
+
+  async function trocarSenha(novaSenha) {
+    const { error } = await supabase.auth.updateUser({ password: novaSenha })
+    return { error }
+  }
+
   const value = {
     session,
     enfermeiro,
@@ -103,6 +119,8 @@ export function AuthProvider({ children }) {
     logout,
     completarPerfil,
     marcarIntroducaoVista,
+    atualizarNomeExibicao,
+    trocarSenha,
   }
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
