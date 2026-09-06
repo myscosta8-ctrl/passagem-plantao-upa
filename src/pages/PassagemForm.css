@@ -76,9 +76,9 @@
 }
 
 .form-toolbar .btn-excluir {
-  border-color: #8a1f1f;
-  color: #8a1f1f;
-  background: #fdf0f0;
+  border-color: var(--c-danger-strong);
+  color: var(--c-danger-strong);
+  background: var(--c-danger-strong-light);
 }
 
 .form-section {

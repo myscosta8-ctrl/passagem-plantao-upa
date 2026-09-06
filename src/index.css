@@ -7,11 +7,11 @@
    ===================================================================== */
 
 :root {
-  /* PALETA PRINCIPAL (Cores do Projeto Antigo) */
-  --c-primary:        #14507d;   /* --azul */
-  --c-primary-dark:   #0d3a5c;   /* --azul-escuro */
-  --c-primary-mid:    #14507d;   
-  --c-primary-light:  #eaf2f8;   /* --azul-claro */
+  /* PALETA PRINCIPAL — 3 papéis de azul (era 5 tons soltos) */
+  --c-primary:        #14507d;   /* mid — links, foco, textos de destaque */
+  --c-primary-dark:   #0a1f33;   /* ink — topbar, cabeçalhos, hover forte */
+  --c-primary-mid:    #14507d;
+  --c-primary-light:  #eaf2f8;   /* soft — fundos claros, chips, hover */
   --c-primary-border: #b8d0e8;
 
   /* SUPERFÍCIES */
@@ -31,15 +31,22 @@
   --c-border-light:   #eef1f3;
   --c-border-dark:    #a8b8c8;
 
-  /* ESTADO / SEMÂNTICA */
-  --c-success:        #1f8a5f;   /* --verde */
-  --c-success-light:  #e8f5ee;
-  --c-warning:        #b8860b;   /* --amarelo */
-  --c-warning-light:  #fdecea;
-  --c-danger:         #c0392b;   /* --vermelho */
+  /* ESTADO / SEMÂNTICA — valores unificados com o que já era mais usado nas telas */
+  --c-success:        #15803d;   /* --verde */
+  --c-success-light:  #dcfce7;
+  --c-success-border: #86efac;
+  --c-warning:        #92400e;   /* --amarelo (era mapeado para um tom de vermelho por engano) */
+  --c-warning-light:  #fef3c7;
+  --c-warning-border: #fcd34d;
+  --c-danger:         #b91c1c;   /* --vermelho */
   --c-danger-light:   #fee2e2;
+  --c-danger-border:  #fca5a5;
+  --c-danger-strong:      #8a1f1f;  /* ações destrutivas/irreversíveis (excluir) */
+  --c-danger-strong-light: #fdf0f0;
   --c-info:           #0369a1;
   --c-info-light:     #e0f2fe;
+  --c-info-border:    #bae6fd;
+  --c-acao-light:     #f0fdfb;   /* hover/fundo claro da cor de ação (teal) */
 
   /* TIPOGRAFIA */
   --font-ui:          'Inter', system-ui, -apple-system, sans-serif;
