@@ -1,0 +1,83 @@
+.indicadores-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.indicador {
+  position: relative;
+}
+
+.indicador-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: var(--tom-bg);
+  color: var(--tom-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: filter 0.15s ease;
+}
+
+.indicador-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.indicador-btn:hover {
+  filter: brightness(0.94);
+}
+
+.indicador.piscando .indicador-btn {
+  animation: piscarIndicador 2s infinite;
+}
+
+@keyframes piscarIndicador {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.indicador-popover {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 0;
+  z-index: 30;
+  min-width: 180px;
+  max-width: 240px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  padding: 8px 10px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--c-text-primary);
+  flex-direction: column;
+  gap: 2px;
+  cursor: default;
+}
+
+.indicador-popover b {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--tom-fg);
+}
+
+.indicador.aberto .indicador-popover {
+  display: flex;
+}
+
+/* Em telas com mouse de verdade, hover também abre — toque continua sendo o método principal. */
+@media (hover: hover) and (pointer: fine) {
+  .indicador:hover .indicador-popover {
+    display: flex;
+  }
+}
