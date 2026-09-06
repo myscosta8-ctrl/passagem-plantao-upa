@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
 import PassagemForm from './PassagemForm'
 import RealocarModal from './RealocarModal'
 import ConfirmModal from './ConfirmModal'
+import IndicadoresClinicos from '../components/IndicadoresClinicos'
 import './Painel.css'
 
 export default function Painel({ plantao, setoresIds }) {
@@ -18,10 +19,53 @@ export default function Painel({ plantao, setoresIds }) {
   const [modalPassagem, setModalPassagem] = useState(null) // { paciente, leito }
   const [modalRealocar, setModalRealocar] = useState(null) // { paciente, leitoOrigem }
   const [carregando, setCarregando] = useState(true)
+  const restauradoRef = useRef(false)
+  const chaveModalAberto = `modal_passagem_aberto_${plantao.id}`
 
   useEffect(() => {
     carregarTudo()
   }, [])
+
+  // Reabre sozinho o card que a pessoa estava vendo/preenchendo se o app recarregar
+  // (celular minimizado, PWA derrubada da memória) — sem isso, ela some de volta
+  // pro painel em branco e perde de vista o paciente que estava olhando.
+  function abrirPassagem(paciente, leito) {
+    setModalPassagem({ paciente, leito })
+    try {
+      localStorage.setItem(chaveModalAberto, JSON.stringify({ pacienteId: paciente.id, leitoId: leito.id, quando: Date.now() }))
+    } catch {
+      // localStorage indisponível — só não persiste, não é crítico
+    }
+  }
+
+  function fecharPassagem() {
+    setModalPassagem(null)
+    try {
+      localStorage.removeItem(chaveModalAberto)
+    } catch {
+      // idem
+    }
+  }
+
+  function restaurarModalSalvo(mapaAtual, listaLeitosAtual) {
+    if (restauradoRef.current) return
+    restauradoRef.current = true
+    try {
+      const bruto = localStorage.getItem(chaveModalAberto)
+      if (!bruto) return
+      const salvo = JSON.parse(bruto)
+      const horasPassadas = (Date.now() - salvo.quando) / 3_600_000
+      const paciente = mapaAtual[salvo.leitoId]
+      const leito = listaLeitosAtual.find((l) => l.id === salvo.leitoId)
+      if (horasPassadas <= 4 && paciente?.id === salvo.pacienteId && leito) {
+        setModalPassagem({ paciente, leito })
+      } else {
+        localStorage.removeItem(chaveModalAberto)
+      }
+    } catch {
+      localStorage.removeItem(chaveModalAberto)
+    }
+  }
 
   async function carregarTudo() {
     setCarregando(true)
@@ -43,6 +87,7 @@ export default function Painel({ plantao, setoresIds }) {
       if (p.leito_atual_id) mapa[p.leito_atual_id] = p
     }
     setPacientesPorLeito(mapa)
+    restaurarModalSalvo(mapa, listaLeitos ?? [])
 
     const ids = (listaPacientes ?? []).map((p) => p.id)
     if (ids.length > 0) {
@@ -146,7 +191,7 @@ export default function Painel({ plantao, setoresIds }) {
                   <div
                     key={leito.id}
                     className={`leito-card ${paciente ? '' : 'vazio'}`}
-                    onClick={() => (paciente ? setModalPassagem({ paciente, leito }) : setModalLeito(leito))}
+                    onClick={() => (paciente ? abrirPassagem(paciente, leito) : setModalLeito(leito))}
                   >
                     <span className={`leito-numero ${leito.tipo === 'extra' ? 'extra' : ''}`}>
                       Leito {leito.numero}
@@ -167,9 +212,7 @@ export default function Painel({ plantao, setoresIds }) {
                           {paciente.sexo === 'F' ? 'Feminino' : paciente.sexo === 'M' ? 'Masculino' : null}
                           {paciente.data_admissao ? ` · Admissão: ${new Date(paciente.data_admissao + 'T00:00:00').toLocaleDateString('pt-BR')}` : null}
                         </div>
-                        {p?.dispositivos?.length > 0 && (
-                          <div className="leito-paciente-extra">Dispositivos: {p.dispositivos.join(', ')}</div>
-                        )}
+                        <IndicadoresClinicos passagem={p} />
                         {p?.pendencias && (
                           <div className="leito-paciente-pendencia">{p.pendencias}</div>
                         )}
@@ -213,10 +256,10 @@ export default function Painel({ plantao, setoresIds }) {
           setorNome={setores.find((s) => s.id === modalPassagem.leito.setor_id)?.nome}
           plantaoId={plantao.id}
           enfermeiroId={enfermeiro?.id}
-          onFechar={() => setModalPassagem(null)}
+          onFechar={fecharPassagem}
           onSalvo={carregarTudo}
           onRealocar={(paciente, leito) => {
-            setModalPassagem(null)
+            fecharPassagem()
             setModalRealocar({ paciente, leitoOrigem: leito })
           }}
         />
