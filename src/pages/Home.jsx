@@ -9,6 +9,7 @@ import Historico from './Historico'
 import Ajuda from './Ajuda'
 import AltasRecentes from './AltasRecentes'
 import Pendencias from './Pendencias'
+import CompartilharPlantao from './CompartilharPlantao'
 import ConfirmModal from './ConfirmModal'
 import PainelEquipe from './PainelEquipe'
 import './AberturaPlantao.css'
@@ -304,6 +305,7 @@ export default function Home() {
                     <button onClick={() => setTela('historico')}>Histórico</button>
                     <button onClick={() => setTela('altas')}>Desfechos (7 dias)</button>
                     <button onClick={() => setTela('pendencias')}>Pendências</button>
+                    <button onClick={() => setTela('compartilhar')}>Compartilhar plantão</button>
                     {podeEncerrarQualquerPlantonista && (
                       <button onClick={() => setTela('equipe')} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
                         Encerrar plantonista (ADM)
@@ -368,6 +370,7 @@ export default function Home() {
           {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
+          {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
         </>
       )}
