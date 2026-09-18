@@ -7,12 +7,13 @@
    ===================================================================== */
 
 :root {
-  /* PALETA PRINCIPAL — 3 papéis de azul (era 5 tons soltos) */
-  --c-primary:        #14507d;   /* mid — links, foco, textos de destaque */
-  --c-primary-dark:   #0a1f33;   /* ink — topbar, cabeçalhos, hover forte */
-  --c-primary-mid:    #14507d;
-  --c-primary-light:  #eaf2f8;   /* soft — fundos claros, chips, hover */
-  --c-primary-border: #b8d0e8;
+  /* PALETA PRINCIPAL — verde-teal único (18/09: unifica marca + ação, que
+     antes eram duas cores competindo — azul de marca e teal de botão) */
+  --c-primary:        #0B6E63;   /* mid — links, foco, textos de destaque */
+  --c-primary-dark:   #0B2620;   /* ink — topbar, cabeçalhos, hover forte */
+  --c-primary-mid:    #0B6E63;
+  --c-primary-light:  #E3F2EF;   /* soft — fundos claros, chips, hover */
+  --c-primary-border: #BFE0D8;
 
   /* SUPERFÍCIES */
   --c-bg:             #f4f6f8;   /* --cinza-fundo */
@@ -100,8 +101,8 @@
   --color-warning:        var(--c-warning);
   --color-accent:         var(--c-danger);
   --color-accent-light:   var(--c-danger-light);
-  --color-acao:           #0D9488;
-  --color-acao-hover:     #0f766e;
+  --color-acao:           #0B6E63;
+  --color-acao-hover:     #094F47;
   --radius:               var(--r-md);
   --shadow-md:            var(--shadow-md, 0 4px 12px rgba(0,0,0,0.10));
 }
@@ -143,8 +144,8 @@ a:hover { text-decoration: underline; }
 }
 
 /* ===================== SELEÇÃO DE TEXTO ===================== */
-::selection      { background: #1e5f8a; color: #fff; }
-::-moz-selection { background: #1e5f8a; color: #fff; }
+::selection      { background: var(--c-primary); color: #fff; }
+::-moz-selection { background: var(--c-primary); color: #fff; }
 
 /* ===================== SCROLLBAR ===================== */
 ::-webkit-scrollbar        { width: 6px; height: 6px; }
@@ -178,7 +179,7 @@ a:hover { text-decoration: underline; }
   outline: none !important;
   box-sizing: border-box !important;
   transition: border-color var(--ease), box-shadow var(--ease) !important;
-  caret-color: #0D9488 !important;
+  caret-color: var(--color-acao) !important;
 }
 
 /* FOCO */
@@ -191,8 +192,8 @@ a:hover { text-decoration: underline; }
 .pep-modal-content input:focus,
 .pep-modal-content select:focus,
 .pep-modal-content textarea:focus {
-  border-color: #0D9488 !important;
-  box-shadow: 0 0 0 2px rgba(13,148,136,0.18) !important;
+  border-color: var(--color-acao) !important;
+  box-shadow: 0 0 0 2px rgba(11,110,99,0.18) !important;
   background-color: #f0fdfa !important;
   color: #0f172a !important;
 }

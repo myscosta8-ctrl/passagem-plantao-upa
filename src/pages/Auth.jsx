@@ -39,9 +39,6 @@ export default function Auth() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        <div className="auth-brand">
-          <span className="auth-brand-mark">UPA</span>
-        </div>
         <h1 className="auth-title">Passagem de Plantão</h1>
         <p className="auth-subtitle">
           {modo === 'login' ? 'Entre com seu usuário de enfermagem' : 'Cadastro de novo enfermeiro'}
