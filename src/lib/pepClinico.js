@@ -64,3 +64,124 @@ export async function registrarSinaisVitais({ atendimentoId, registradoPor, dado
     .select()
     .single()
 }
+
+export async function listarEvolucoes(atendimentoId) {
+  const { data } = await supabase
+    .from('evolucoes')
+    .select('*, enfermeiros(nome_exibicao, nome)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarEvolucao({ atendimentoId, autorId, texto }) {
+  return supabase
+    .from('evolucoes')
+    .insert({ atendimento_id: atendimentoId, autor_id: autorId, autor_tipo: 'enfermagem', tipo: 'enfermagem', texto })
+    .select()
+    .single()
+}
+
+export async function listarDispositivos(atendimentoId) {
+  const { data } = await supabase
+    .from('dispositivos_invasivos')
+    .select('*')
+    .eq('atendimento_id', atendimentoId)
+    .order('inserido_em', { ascending: false })
+  return data ?? []
+}
+
+export async function inserirDispositivo({ atendimentoId, tipo, localInsercao, trocaPrevistaEm }) {
+  return supabase
+    .from('dispositivos_invasivos')
+    .insert({
+      atendimento_id: atendimentoId,
+      tipo,
+      local_insercao: localInsercao || null,
+      troca_prevista_em: trocaPrevistaEm || null,
+    })
+    .select()
+    .single()
+}
+
+export async function removerDispositivo({ id, motivo }) {
+  return supabase
+    .from('dispositivos_invasivos')
+    .update({ removido_em: new Date().toISOString(), motivo_remocao: motivo || null })
+    .eq('id', id)
+    .select()
+    .single()
+}
+
+export async function listarBalancoHidrico(atendimentoId) {
+  const { data } = await supabase
+    .from('balanco_hidrico')
+    .select('*')
+    .eq('atendimento_id', atendimentoId)
+    .order('registrado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarBalancoHidrico({ atendimentoId, registradoPor, tipo, via, volumeMl, observacao }) {
+  return supabase
+    .from('balanco_hidrico')
+    .insert({
+      atendimento_id: atendimentoId,
+      registrado_por: registradoPor,
+      tipo,
+      via,
+      volume_ml: Number(volumeMl),
+      observacao: observacao || null,
+    })
+    .select()
+    .single()
+}
+
+export async function listarEscalas(atendimentoId) {
+  const { data } = await supabase
+    .from('escalas_enfermagem')
+    .select('*')
+    .eq('atendimento_id', atendimentoId)
+    .order('avaliado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarEscala({ atendimentoId, tipo, pontuacao, nivelRisco, detalhes }) {
+  return supabase
+    .from('escalas_enfermagem')
+    .insert({ atendimento_id: atendimentoId, tipo, pontuacao, nivel_risco: nivelRisco, detalhes })
+    .select()
+    .single()
+}
+
+// Resumo compacto pro card de status no topo da Ficha Clínica — último
+// sinal vital, escala mais recente de cada tipo, dispositivos ainda
+// ativos e balanço hídrico só de hoje.
+export async function buscarResumoPaciente(atendimentoId) {
+  const [sinaisVitais, escalas, dispositivos, balanco] = await Promise.all([
+    listarSinaisVitais(atendimentoId),
+    listarEscalas(atendimentoId),
+    listarDispositivos(atendimentoId),
+    listarBalancoHidrico(atendimentoId),
+  ])
+
+  const escalaPorTipo = {}
+  for (const e of escalas) {
+    if (!escalaPorTipo[e.tipo]) escalaPorTipo[e.tipo] = e
+  }
+
+  const dispositivosAtivos = dispositivos.filter((d) => !d.removido_em)
+
+  const hojeISO = new Date().toISOString().slice(0, 10)
+  const balancoHoje = balanco.filter((b) => (b.registrado_em || '').slice(0, 10) === hojeISO)
+  const entradasHoje = balancoHoje.filter((b) => b.tipo === 'entrada').reduce((s, b) => s + Number(b.volume_ml), 0)
+  const saidasHoje = balancoHoje.filter((b) => b.tipo === 'saida').reduce((s, b) => s + Number(b.volume_ml), 0)
+
+  return {
+    ultimoSv: sinaisVitais[0] || null,
+    escalaPorTipo,
+    dispositivosAtivos,
+    entradasHoje,
+    saidasHoje,
+  }
+}

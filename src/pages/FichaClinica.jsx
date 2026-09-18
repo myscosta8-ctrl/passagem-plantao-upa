@@ -3,6 +3,11 @@ import { useAuth } from '../lib/AuthContext'
 import {
   buscarAdmissao, salvarAdmissao,
   listarSinaisVitais, registrarSinaisVitais,
+  listarEvolucoes, registrarEvolucao,
+  listarDispositivos, inserirDispositivo, removerDispositivo,
+  listarBalancoHidrico, registrarBalancoHidrico,
+  listarEscalas, registrarEscala,
+  buscarResumoPaciente,
 } from '../lib/pepClinico'
 import './PassagemForm.css'
 
@@ -85,17 +90,108 @@ export default function FichaClinica({ atendimento, onFechar }) {
           <button className="form-header-close" onClick={onFechar}>×</button>
         </div>
 
+        <ResumoPaciente atendimento={atendimento} />
+
         <div className="form-toolbar">
           <button className={aba === 'admissao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('admissao')}>Admissão</button>
           <button className={aba === 'sinaisVitais' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sinaisVitais')}>Sinais Vitais</button>
+          <button className={aba === 'evolucao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('evolucao')}>Evolução</button>
+          <button className={aba === 'dispositivos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('dispositivos')}>Dispositivos</button>
+          <button className={aba === 'balanco' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('balanco')}>Balanço Hídrico</button>
+          <button className={aba === 'escalas' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('escalas')}>Escalas</button>
         </div>
 
         {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}
         {aba === 'sinaisVitais' && <AbaSinaisVitais atendimento={atendimento} autorId={enfermeiro?.id} />}
+        {aba === 'evolucao' && <AbaEvolucao atendimento={atendimento} autorId={enfermeiro?.id} />}
+        {aba === 'dispositivos' && <AbaDispositivos atendimento={atendimento} />}
+        {aba === 'balanco' && <AbaBalancoHidrico atendimento={atendimento} autorId={enfermeiro?.id} />}
+        {aba === 'escalas' && <AbaEscalas atendimento={atendimento} />}
 
         <div className="form-footer">
           <button className="btn-fechar" onClick={onFechar}>Fechar</button>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function formatarRelativo(iso) {
+  if (!iso) return ''
+  const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000)
+  if (min < 1) return 'agora'
+  if (min < 60) return `há ${min} min`
+  const h = Math.round(min / 60)
+  if (h < 24) return `há ${h}h`
+  return new Date(iso).toLocaleDateString('pt-BR')
+}
+
+function riscoClasse(nivel) {
+  const n = (nivel || '').toLowerCase()
+  if (n.includes('muito alto') || n.includes('risco alto')) return 'danger'
+  if (n.includes('moderado') || n.includes('médio')) return 'warn'
+  return 'ok'
+}
+
+// Painel de status no topo da ficha — mostra o essencial de cada aba num
+// relance, antes de entrar em qualquer uma delas (proposta de redesign
+// aprovada na conversa).
+function ResumoPaciente({ atendimento }) {
+  const [resumo, setResumo] = useState(null)
+
+  useEffect(() => {
+    let vivo = true
+    buscarResumoPaciente(atendimento.atendimento_id).then((r) => { if (vivo) setResumo(r) })
+    return () => { vivo = false }
+  }, [atendimento.atendimento_id])
+
+  if (!resumo) return null
+
+  const { ultimoSv, escalaPorTipo, dispositivosAtivos, entradasHoje, saidasHoje } = resumo
+  const temEscalas = Object.keys(escalaPorTipo).length > 0
+  const temAlgumDado = ultimoSv || temEscalas || dispositivosAtivos.length > 0 || entradasHoje || saidasHoje
+  if (!temAlgumDado) return null
+
+  return (
+    <div className="resumo-paciente">
+      <div className="resumo-bloco">
+        <div className="resumo-bloco-titulo">Sinais vitais</div>
+        {ultimoSv ? (
+          <>
+            <div className="resumo-bloco-valor">
+              PA {ultimoSv.pa_sistolica ?? '—'}/{ultimoSv.pa_diastolica ?? '—'} · FC {ultimoSv.fc ?? '—'}<br />
+              FR {ultimoSv.fr ?? '—'} · SpO2 {ultimoSv.spo2 ?? '—'}{ultimoSv.temperatura ? ` · ${ultimoSv.temperatura}°C` : ''}
+            </div>
+            <div className="resumo-bloco-nota">{formatarRelativo(ultimoSv.registrado_em)}</div>
+          </>
+        ) : <div className="resumo-bloco-vazio">Sem registro</div>}
+      </div>
+
+      <div className="resumo-bloco">
+        <div className="resumo-bloco-titulo">Escalas</div>
+        {temEscalas ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            {Object.values(escalaPorTipo).map((e) => (
+              <div key={e.tipo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <span style={{ textTransform: 'capitalize', fontSize: 11.5 }}>{e.tipo}</span>
+                <span className={`resumo-badge ${riscoClasse(e.nivel_risco)}`}>{e.pontuacao} · {e.nivel_risco}</span>
+              </div>
+            ))}
+          </div>
+        ) : <div className="resumo-bloco-vazio">Sem avaliação</div>}
+      </div>
+
+      <div className="resumo-bloco">
+        <div className="resumo-bloco-titulo">Dispositivos ativos</div>
+        {dispositivosAtivos.length > 0 ? (
+          <div className="resumo-bloco-valor">{dispositivosAtivos.map((d) => d.tipo).join(', ')}</div>
+        ) : <div className="resumo-bloco-vazio">Nenhum ativo</div>}
+      </div>
+
+      <div className="resumo-bloco">
+        <div className="resumo-bloco-titulo">Balanço hídrico · hoje</div>
+        <div className="resumo-bloco-valor">Entradas {entradasHoje} mL · Saídas {saidasHoje} mL</div>
+        <div className="resumo-bloco-saldo">Saldo {entradasHoje - saidasHoje >= 0 ? '+' : ''}{entradasHoje - saidasHoje} mL</div>
       </div>
     </div>
   )
@@ -423,18 +519,490 @@ function AbaSinaisVitais({ atendimento, autorId }) {
       ) : historico.length === 0 ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhum registro ainda.</p>
       ) : (
-        historico.map((sv) => (
-          <div key={sv.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 12.5 }}>
-            <span style={{ fontFamily: 'var(--font-mono)' }}>
-              PA {sv.pa_sistolica ?? '—'}/{sv.pa_diastolica ?? '—'} · FC {sv.fc ?? '—'} · FR {sv.fr ?? '—'} · SpO2 {sv.spo2 ?? '—'}
-              {sv.temperatura ? ` · ${sv.temperatura}°C` : ''}
-              {sv.dor_escala !== null && sv.dor_escala !== undefined ? ` · dor ${sv.dor_escala}` : ''}
-            </span>
-            <span style={{ color: 'var(--c-text-muted)', fontSize: 11, flexShrink: 0, marginLeft: 10 }}>
-              {new Date(sv.registrado_em).toLocaleString('pt-BR')}
-            </span>
+        <div className="hist-tabela-wrap">
+          <table className="hist-tabela">
+            <thead>
+              <tr>
+                <th>Data/hora</th><th>PA</th><th>FC</th><th>FR</th><th>SpO2</th><th>Temp.</th><th>Glicemia</th><th>Dor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {historico.map((sv) => (
+                <tr key={sv.id}>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(sv.registrado_em).toLocaleString('pt-BR')}</td>
+                  <td>{sv.pa_sistolica ?? '—'}/{sv.pa_diastolica ?? '—'}</td>
+                  <td>{sv.fc ?? '—'}</td>
+                  <td>{sv.fr ?? '—'}</td>
+                  <td>{sv.spo2 ?? '—'}</td>
+                  <td>{sv.temperatura ? `${sv.temperatura}°C` : '—'}</td>
+                  <td>{sv.glicemia ?? '—'}</td>
+                  <td>{sv.dor_escala ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function AbaEvolucao({ atendimento, autorId }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [texto, setTexto] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setHistorico(await listarEvolucoes(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  async function registrar() {
+    if (!texto.trim()) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await registrarEvolucao({ atendimentoId: atendimento.atendimento_id, autorId, texto: texto.trim() })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setTexto('')
+    carregar()
+  }
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Nova evolução</div>
+      <div className="form-field" style={{ marginBottom: 14 }}>
+        <textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={4} placeholder="Descreva a evolução do paciente..." />
+      </div>
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !texto.trim()}>
+        {salvando ? 'Registrando...' : 'Registrar evolução'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : historico.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma evolução registrada ainda.</p>
+      ) : (
+        <div className="hist-tabela-wrap">
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Data/hora</th><th>Autor</th><th>Evolução</th></tr>
+            </thead>
+            <tbody>
+              {historico.map((ev) => (
+                <tr key={ev.id}>
+                  <td style={{ color: 'var(--c-text-muted)', verticalAlign: 'top' }}>{new Date(ev.criado_em).toLocaleString('pt-BR')}</td>
+                  <td style={{ color: 'var(--c-primary)', fontWeight: 600, verticalAlign: 'top' }}>
+                    {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}
+                  </td>
+                  <td className="col-larga" style={{ whiteSpace: 'pre-wrap' }}>{ev.texto}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const TIPOS_DISPOSITIVO = ['AVP', 'SVD', 'SNE', 'Dreno', 'CVC', 'Traqueostomia', 'O2']
+
+function AbaDispositivos({ atendimento }) {
+  const [lista, setLista] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [tipo, setTipo] = useState('')
+  const [localInsercao, setLocalInsercao] = useState('')
+  const [trocaPrevista, setTrocaPrevista] = useState('')
+  const [motivos, setMotivos] = useState({})
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setLista(await listarDispositivos(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  async function inserir() {
+    if (!tipo) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await inserirDispositivo({
+      atendimentoId: atendimento.atendimento_id,
+      tipo,
+      localInsercao,
+      trocaPrevistaEm: trocaPrevista ? new Date(trocaPrevista).toISOString() : null,
+    })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar o dispositivo. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setTipo('')
+    setLocalInsercao('')
+    setTrocaPrevista('')
+    carregar()
+  }
+
+  async function remover(id) {
+    await removerDispositivo({ id, motivo: motivos[id] || '' })
+    carregar()
+  }
+
+  const ativos = lista.filter((d) => !d.removido_em)
+  const removidos = lista.filter((d) => d.removido_em)
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Novo dispositivo</div>
+      <div className="form-grid" style={{ marginBottom: 16 }}>
+        <div className="form-field">
+          <label>Tipo</label>
+          <div className="chip-group">
+            {TIPOS_DISPOSITIVO.map((t) => (
+              <button key={t} type="button" className={`chip ${tipo === t ? 'on' : ''}`} onClick={() => setTipo(tipo === t ? '' : t)}>{t}</button>
+            ))}
           </div>
-        ))
+        </div>
+        <div className="form-field"><label>Local de inserção</label><input type="text" value={localInsercao} onChange={(e) => setLocalInsercao(e.target.value)} /></div>
+        <div className="form-field"><label>Troca prevista</label><input type="date" value={trocaPrevista} onChange={(e) => setTrocaPrevista(e.target.value)} /></div>
+      </div>
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={inserir} disabled={salvando || !tipo}>
+        {salvando ? 'Registrando...' : 'Registrar dispositivo'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Ativos</div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : ativos.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhum dispositivo ativo.</p>
+      ) : (
+        <div className="hist-tabela-wrap" style={{ marginBottom: 4 }}>
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Tipo</th><th>Local</th><th>Inserido em</th><th>Troca prevista</th><th className="col-larga">Motivo da remoção</th><th></th></tr>
+            </thead>
+            <tbody>
+              {ativos.map((d) => (
+                <tr key={d.id}>
+                  <td style={{ fontWeight: 600 }}>{d.tipo}</td>
+                  <td>{d.local_insercao || '—'}</td>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(d.inserido_em).toLocaleString('pt-BR')}</td>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{d.troca_prevista_em ? new Date(d.troca_prevista_em).toLocaleDateString('pt-BR') : '—'}</td>
+                  <td className="col-larga">
+                    <input
+                      type="text"
+                      placeholder="Opcional"
+                      value={motivos[d.id] || ''}
+                      onChange={(e) => setMotivos((p) => ({ ...p, [d.id]: e.target.value }))}
+                      style={{ width: '100%' }}
+                    />
+                  </td>
+                  <td><button type="button" className="btn-fechar" onClick={() => remover(d.id)}>Remover</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {removidos.length > 0 && (
+        <>
+          <div className="form-section-title" style={{ marginTop: 24 }}>Removidos</div>
+          <div className="hist-tabela-wrap">
+            <table className="hist-tabela">
+              <thead>
+                <tr><th>Tipo</th><th>Local</th><th>Removido em</th><th className="col-larga">Motivo</th></tr>
+              </thead>
+              <tbody>
+                {removidos.map((d) => (
+                  <tr key={d.id}>
+                    <td>{d.tipo}</td>
+                    <td>{d.local_insercao || '—'}</td>
+                    <td style={{ color: 'var(--c-text-muted)' }}>{new Date(d.removido_em).toLocaleString('pt-BR')}</td>
+                    <td className="col-larga" style={{ color: 'var(--c-text-muted)' }}>{d.motivo_remocao || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+const VIAS_ENTRADA = ['Oral', 'Dieta enteral', 'EV', 'Outra']
+const VIAS_SAIDA = ['Diurese', 'Vômito', 'Dreno', 'Evacuação', 'Outra']
+
+function AbaBalancoHidrico({ atendimento, autorId }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [tipo, setTipo] = useState('entrada')
+  const [via, setVia] = useState('')
+  const [volume, setVolume] = useState('')
+  const [observacao, setObservacao] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setHistorico(await listarBalancoHidrico(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  async function registrar() {
+    if (!via || !volume) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await registrarBalancoHidrico({
+      atendimentoId: atendimento.atendimento_id, registradoPor: autorId, tipo, via, volumeMl: volume, observacao,
+    })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setVia('')
+    setVolume('')
+    setObservacao('')
+    carregar()
+  }
+
+  const totalEntradas = historico.filter((h) => h.tipo === 'entrada').reduce((s, h) => s + Number(h.volume_ml), 0)
+  const totalSaidas = historico.filter((h) => h.tipo === 'saida').reduce((s, h) => s + Number(h.volume_ml), 0)
+  const opcoesVia = tipo === 'entrada' ? VIAS_ENTRADA : VIAS_SAIDA
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Novo registro</div>
+      <div className="form-grid" style={{ marginBottom: 16 }}>
+        <div className="form-field">
+          <label>Tipo</label>
+          <div className="toggle-group">
+            <button type="button" className={`toggle-btn ${tipo === 'entrada' ? 'on' : ''}`} onClick={() => { setTipo('entrada'); setVia('') }}>Entrada</button>
+            <button type="button" className={`toggle-btn ${tipo === 'saida' ? 'on' : ''}`} onClick={() => { setTipo('saida'); setVia('') }}>Saída</button>
+          </div>
+        </div>
+        <div className="form-field">
+          <label>Via</label>
+          <div className="chip-group">
+            {opcoesVia.map((v) => (
+              <button key={v} type="button" className={`chip ${via === v ? 'on' : ''}`} onClick={() => setVia(v)}>{v}</button>
+            ))}
+          </div>
+        </div>
+        <div className="form-field"><label>Volume (mL)</label><input type="number" value={volume} onChange={(e) => setVolume(e.target.value)} /></div>
+        <div className="form-field span-2"><label>Observação</label><input type="text" value={observacao} onChange={(e) => setObservacao(e.target.value)} /></div>
+      </div>
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !via || !volume}>
+        {salvando ? 'Registrando...' : 'Registrar'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>
+        Totais — Entradas {totalEntradas} mL · Saídas {totalSaidas} mL · Saldo {totalEntradas - totalSaidas} mL
+      </div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : historico.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhum registro ainda.</p>
+      ) : (
+        <div className="hist-tabela-wrap">
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Data/hora</th><th>Tipo</th><th>Via</th><th>Volume</th><th className="col-larga">Observação</th></tr>
+            </thead>
+            <tbody>
+              {historico.map((h) => (
+                <tr key={h.id}>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(h.registrado_em).toLocaleString('pt-BR')}</td>
+                  <td style={{ color: h.tipo === 'entrada' ? 'var(--c-primary)' : 'var(--c-danger)', fontWeight: 600 }}>
+                    {h.tipo === 'entrada' ? 'Entrada' : 'Saída'}
+                  </td>
+                  <td>{h.via}</td>
+                  <td>{h.tipo === 'entrada' ? '+' : '−'}{h.volume_ml} mL</td>
+                  <td className="col-larga" style={{ color: 'var(--c-text-muted)' }}>{h.observacao || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const BRADEN_CAMPOS = [
+  { chave: 'percepcao_sensorial', rotulo: 'Percepção sensorial', opcoes: [
+    { v: 1, t: 'Completamente limitada' }, { v: 2, t: 'Muito limitada' }, { v: 3, t: 'Levemente limitada' }, { v: 4, t: 'Nenhuma limitação' },
+  ] },
+  { chave: 'umidade', rotulo: 'Umidade', opcoes: [
+    { v: 1, t: 'Completamente molhada' }, { v: 2, t: 'Muito molhada' }, { v: 3, t: 'Ocasionalmente molhada' }, { v: 4, t: 'Raramente molhada' },
+  ] },
+  { chave: 'atividade', rotulo: 'Atividade', opcoes: [
+    { v: 1, t: 'Acamado' }, { v: 2, t: 'Confinado à cadeira' }, { v: 3, t: 'Anda ocasionalmente' }, { v: 4, t: 'Anda frequentemente' },
+  ] },
+  { chave: 'mobilidade', rotulo: 'Mobilidade', opcoes: [
+    { v: 1, t: 'Completamente imóvel' }, { v: 2, t: 'Muito limitada' }, { v: 3, t: 'Levemente limitada' }, { v: 4, t: 'Nenhuma limitação' },
+  ] },
+  { chave: 'nutricao', rotulo: 'Nutrição', opcoes: [
+    { v: 1, t: 'Muito pobre' }, { v: 2, t: 'Provavelmente inadequada' }, { v: 3, t: 'Adequada' }, { v: 4, t: 'Excelente' },
+  ] },
+  { chave: 'friccao_cisalhamento', rotulo: 'Fricção e cisalhamento', opcoes: [
+    { v: 1, t: 'Problema' }, { v: 2, t: 'Problema em potencial' }, { v: 3, t: 'Nenhum problema' },
+  ] },
+]
+
+function riscoBraden(total) {
+  if (total <= 9) return 'Risco muito alto'
+  if (total <= 12) return 'Risco alto'
+  if (total <= 14) return 'Risco moderado'
+  if (total <= 18) return 'Risco baixo'
+  return 'Sem risco'
+}
+
+const MORSE_CAMPOS = [
+  { chave: 'historico_quedas', rotulo: 'Histórico de quedas', opcoes: [{ v: 0, t: 'Não' }, { v: 25, t: 'Sim' }] },
+  { chave: 'diagnostico_secundario', rotulo: 'Diagnóstico secundário', opcoes: [{ v: 0, t: 'Não' }, { v: 15, t: 'Sim' }] },
+  { chave: 'auxilio_locomocao', rotulo: 'Auxílio de locomoção', opcoes: [
+    { v: 0, t: 'Nenhum / leito / cadeira de rodas / enfermeiro' }, { v: 15, t: 'Muletas / bengala / andador' }, { v: 30, t: 'Apoia-se em móveis' },
+  ] },
+  { chave: 'terapia_ev', rotulo: 'Terapia endovenosa', opcoes: [{ v: 0, t: 'Não' }, { v: 20, t: 'Sim' }] },
+  { chave: 'marcha', rotulo: 'Marcha', opcoes: [{ v: 0, t: 'Normal / leito / imóvel' }, { v: 10, t: 'Fraca' }, { v: 20, t: 'Comprometida' }] },
+  { chave: 'estado_mental', rotulo: 'Estado mental', opcoes: [
+    { v: 0, t: 'Orienta-se quanto à própria capacidade' }, { v: 15, t: 'Superestima capacidade / esquece limitações' },
+  ] },
+]
+
+function riscoMorse(total) {
+  if (total <= 24) return 'Risco baixo'
+  if (total <= 50) return 'Risco médio'
+  return 'Risco alto'
+}
+
+function AbaEscalas({ atendimento }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [tipo, setTipo] = useState('braden')
+  const [respostas, setRespostas] = useState({})
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setHistorico(await listarEscalas(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  const campos = tipo === 'braden' ? BRADEN_CAMPOS : MORSE_CAMPOS
+  const completo = campos.every((c) => respostas[c.chave] !== undefined)
+  const total = campos.reduce((s, c) => s + (respostas[c.chave] ?? 0), 0)
+  const risco = tipo === 'braden' ? riscoBraden(total) : riscoMorse(total)
+
+  function trocarTipo(t) {
+    setTipo(t)
+    setRespostas({})
+  }
+
+  async function registrar() {
+    if (!completo) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await registrarEscala({
+      atendimentoId: atendimento.atendimento_id, tipo, pontuacao: total, nivelRisco: risco, detalhes: respostas,
+    })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setRespostas({})
+    carregar()
+  }
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Nova avaliação</div>
+      <div className="form-field" style={{ marginBottom: 16, maxWidth: 260 }}>
+        <div className="toggle-group">
+          <button type="button" className={`toggle-btn ${tipo === 'braden' ? 'on' : ''}`} onClick={() => trocarTipo('braden')}>Braden</button>
+          <button type="button" className={`toggle-btn ${tipo === 'morse' ? 'on' : ''}`} onClick={() => trocarTipo('morse')}>Morse</button>
+        </div>
+      </div>
+
+      {campos.map((c) => (
+        <div className="form-field span-3" key={c.chave} style={{ marginBottom: 14 }}>
+          <label>{c.rotulo}</label>
+          <div className="chip-group">
+            {c.opcoes.map((o) => (
+              <button
+                key={o.v}
+                type="button"
+                className={`chip ${respostas[c.chave] === o.v ? 'on' : ''}`}
+                onClick={() => setRespostas((p) => ({ ...p, [c.chave]: o.v }))}
+              >
+                {o.t} ({o.v})
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <p style={{ fontSize: 13, fontWeight: 600, margin: '10px 0' }}>
+        Pontuação: {total} — {risco}
+      </p>
+
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !completo}>
+        {salvando ? 'Registrando...' : 'Registrar avaliação'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : historico.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma avaliação registrada ainda.</p>
+      ) : (
+        <div className="hist-tabela-wrap">
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Data/hora</th><th>Escala</th><th>Pontuação</th><th>Risco</th></tr>
+            </thead>
+            <tbody>
+              {historico.map((e) => (
+                <tr key={e.id}>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(e.avaliado_em).toLocaleString('pt-BR')}</td>
+                  <td style={{ textTransform: 'capitalize', fontWeight: 600 }}>{e.tipo}</td>
+                  <td>{e.pontuacao}</td>
+                  <td><span className={`resumo-badge ${riscoClasse(e.nivel_risco)}`}>{e.nivel_risco}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )
