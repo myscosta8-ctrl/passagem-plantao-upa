@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import ConfirmModal from './ConfirmModal'
+import { pepEstaAtivo } from '../lib/pepConfig'
+import {
+  buscarPassagemAtualPep,
+  buscarUltimaPassagemPep,
+  salvarPassagemPep,
+  salvarIdentificacaoPep,
+  registrarDesfechoPep,
+  excluirAtendimentoPep,
+} from '../lib/pepAtendimentos'
 import './PassagemForm.css'
 
 const DISPOSITIVOS_OPCOES = ['AVP', 'SVD', 'SNE', 'Dreno', 'O2']
@@ -77,6 +86,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   const [rascunhoEncontrado, setRascunhoEncontrado] = useState(null)
   const [confirmandoFechar, setConfirmandoFechar] = useState(false)
   const [origemCopia, setOrigemCopia] = useState(null)
+  const [pepAtivo, setPepAtivo] = useState(false)
 
   useEffect(() => {
     carregar()
@@ -157,6 +167,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
 
   async function carregar() {
     setCarregando(true)
+    const pep = await pepEstaAtivo(enfermeiroId)
+    setPepAtivo(pep)
 
     // Existe um rascunho não salvo (de uma interrupção anterior: tela recarregou, app fechou)?
     const rascunhoBruto = localStorage.getItem(chaveRascunho())
@@ -172,12 +184,14 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     }
 
     // 1. Já existe passagem preenchida NESTE plantão para esse paciente?
-    const { data: atual } = await supabase
-      .from('passagens')
-      .select('*')
-      .eq('plantao_id', plantaoId)
-      .eq('paciente_id', paciente.id)
-      .maybeSingle()
+    const atual = pep
+      ? await buscarPassagemAtualPep(plantaoId, paciente.id)
+      : (await supabase
+          .from('passagens')
+          .select('*')
+          .eq('plantao_id', plantaoId)
+          .eq('paciente_id', paciente.id)
+          .maybeSingle()).data
 
     if (atual) {
       setPassagem(normalizarAvp({ ...PASSAGEM_VAZIA, ...atual }))
@@ -186,13 +200,15 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     }
 
     // 2. Senão, copia automaticamente da última passagem desse paciente (outro plantão)
-    const { data: anterior } = await supabase
-      .from('passagens')
-      .select('*')
-      .eq('paciente_id', paciente.id)
-      .order('criado_em', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    const anterior = pep
+      ? await buscarUltimaPassagemPep(paciente.id)
+      : (await supabase
+          .from('passagens')
+          .select('*')
+          .eq('paciente_id', paciente.id)
+          .order('criado_em', { ascending: false })
+          .limit(1)
+          .maybeSingle()).data
 
     if (anterior) {
       setPassagem(normalizarAvp({ ...PASSAGEM_VAZIA, ...anterior }))
@@ -202,13 +218,15 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   }
 
   async function copiarNovamente() {
-    const { data: anterior } = await supabase
-      .from('passagens')
-      .select('*')
-      .eq('paciente_id', paciente.id)
-      .order('criado_em', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    const anterior = pepAtivo
+      ? await buscarUltimaPassagemPep(paciente.id)
+      : (await supabase
+          .from('passagens')
+          .select('*')
+          .eq('paciente_id', paciente.id)
+          .order('criado_em', { ascending: false })
+          .limit(1)
+          .maybeSingle()).data
     if (anterior) {
       setPassagem(normalizarAvp({ ...PASSAGEM_VAZIA, ...anterior }))
       setOrigemCopia(anterior.criado_em)
@@ -275,41 +293,67 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     setSalvando(true)
     setErroSalvar('')
 
-    await supabase
-      .from('pacientes')
-      .update({
-        nome: identificacao.nome,
-        diagnostico: identificacao.diagnostico,
-        idade: identificacao.idade || null,
-        sexo: identificacao.sexo || null,
-        data_admissao: identificacao.data_admissao || null,
-        alergias: identificacao.alergias,
-        alergias_obs: identificacao.alergias_obs,
-        status_internacao: statusTravado ? 'Internado' : identificacao.status_internacao,
-        updated_at: new Date().toISOString(),
-        ultima_alteracao_por: enfermeiroId,
-        ultima_alteracao_em: new Date().toISOString(),
+    let error
+    if (pepAtivo) {
+      const statusFinal = statusTravado ? 'Internado' : identificacao.status_internacao
+      const { error: erroId } = await salvarIdentificacaoPep({
+        atendimentoId: paciente.id,
+        pessoaId: paciente.pessoa_id,
+        identificacao: { ...identificacao, status_internacao: statusFinal },
       })
-      .eq('id', paciente.id)
+      if (erroId) {
+        error = erroId
+      } else {
+        const payload = {
+          plantao_id: plantaoId,
+          atendimento_id: paciente.id,
+          leito_id: leito.id,
+          setor_id: leito.setor_id,
+          criado_por: enfermeiroId,
+          atualizado_em: new Date().toISOString(),
+          ...passagem,
+        }
+        const resultado = await salvarPassagemPep(payload)
+        error = resultado.error
+      }
+    } else {
+      await supabase
+        .from('pacientes')
+        .update({
+          nome: identificacao.nome,
+          diagnostico: identificacao.diagnostico,
+          idade: identificacao.idade || null,
+          sexo: identificacao.sexo || null,
+          data_admissao: identificacao.data_admissao || null,
+          alergias: identificacao.alergias,
+          alergias_obs: identificacao.alergias_obs,
+          status_internacao: statusTravado ? 'Internado' : identificacao.status_internacao,
+          updated_at: new Date().toISOString(),
+          ultima_alteracao_por: enfermeiroId,
+          ultima_alteracao_em: new Date().toISOString(),
+        })
+        .eq('id', paciente.id)
 
-    const payload = {
-      plantao_id: plantaoId,
-      paciente_id: paciente.id,
-      leito_id: leito.id,
-      setor_id: leito.setor_id,
-      criado_por: enfermeiroId,
-      atualizado_em: new Date().toISOString(),
-      ...passagem,
-    }
-    // Qualquer campo de texto vazio vira NULL — evita que campos com valores
-    // restritos (nivel_consciencia, exame_status, etc) travem a gravação no banco.
-    for (const chave in payload) {
-      if (payload[chave] === '') payload[chave] = null
-    }
+      const payload = {
+        plantao_id: plantaoId,
+        paciente_id: paciente.id,
+        leito_id: leito.id,
+        setor_id: leito.setor_id,
+        criado_por: enfermeiroId,
+        atualizado_em: new Date().toISOString(),
+        ...passagem,
+      }
+      // Qualquer campo de texto vazio vira NULL — evita que campos com valores
+      // restritos (nivel_consciencia, exame_status, etc) travem a gravação no banco.
+      for (const chave in payload) {
+        if (payload[chave] === '') payload[chave] = null
+      }
 
-    const { error } = await supabase
-      .from('passagens')
-      .upsert(payload, { onConflict: 'plantao_id,paciente_id' })
+      const resultado = await supabase
+        .from('passagens')
+        .upsert(payload, { onConflict: 'plantao_id,paciente_id' })
+      error = resultado.error
+    }
 
     setSalvando(false)
     if (!error) {
@@ -326,17 +370,19 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
 
   async function registrarDesfecho(tipo, detalhe) {
     setProcessando(true)
-    const { error } = await supabase
-      .from('pacientes')
-      .update({
-        status: 'alta',
-        tipo_desfecho: tipo,
-        desfecho_detalhe: detalhe || null,
-        data_desfecho: new Date().toISOString(),
-        ultima_alteracao_por: enfermeiroId,
-        ultima_alteracao_em: new Date().toISOString(),
-      })
-      .eq('id', paciente.id)
+    const { error } = pepAtivo
+      ? await registrarDesfechoPep({ atendimentoId: paciente.id, leitoId: leito.id, tipo, detalhe })
+      : await supabase
+          .from('pacientes')
+          .update({
+            status: 'alta',
+            tipo_desfecho: tipo,
+            desfecho_detalhe: detalhe || null,
+            data_desfecho: new Date().toISOString(),
+            ultima_alteracao_por: enfermeiroId,
+            ultima_alteracao_em: new Date().toISOString(),
+          })
+          .eq('id', paciente.id)
     setProcessando(false)
     if (!error) {
       onSalvo?.()
@@ -355,7 +401,9 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   async function confirmarExclusao() {
     setModalExcluir(false)
     setProcessando(true)
-    const { error } = await supabase.from('pacientes').delete().eq('id', paciente.id)
+    const { error } = pepAtivo
+      ? await excluirAtendimentoPep(paciente.id, paciente.pessoa_id)
+      : await supabase.from('pacientes').delete().eq('id', paciente.id)
     setProcessando(false)
     if (!error) {
       onSalvo?.()
