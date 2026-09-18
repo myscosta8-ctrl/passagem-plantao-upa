@@ -13,6 +13,8 @@ import Pendencias from './Pendencias'
 import CompartilharPlantao from './CompartilharPlantao'
 import ConfirmModal from './ConfirmModal'
 import PainelEquipe from './PainelEquipe'
+import GerenciarProfissionais from './GerenciarProfissionais'
+import PainelMedico from './PainelMedico'
 import './AberturaPlantao.css'
 
 async function purgarHistoricoAntigo() {
@@ -62,7 +64,7 @@ function calcularCorte(plantao) {
 
 // Guarda em qual tela a pessoa estava, pra voltar pro mesmo lugar se o app recarregar sozinho
 // (comum no celular). Expira depois de um tempo, pra nunca reabrir num lugar "velho" demais.
-const TELAS_VALIDAS = ['painel', 'print1', 'print2', 'historico', 'altas', 'pendencias', 'ajuda', 'conta']
+const TELAS_VALIDAS = ['painel', 'print1', 'print2', 'historico', 'altas', 'pendencias', 'ajuda', 'conta', 'profissionais']
 const LIMITE_HORAS_TELA_SALVA = 4
 
 function lerTelaSalva() {
@@ -82,6 +84,9 @@ function lerTelaSalva() {
 export default function Home() {
   const { enfermeiro, logout } = useAuth()
   const isAdmin = enfermeiro?.role === 'admin'
+  // Médico não participa do fluxo de plantão de enfermagem (abertura/setores) —
+  // vai direto pro painel dele, sobre a estrutura nova (atendimentos/leito_ocupacoes).
+  const ehMedico = enfermeiro?.tipo === 'medico'
   // "Encerrar plantonista" é destrutivo demais pra qualquer conta admin — só o Marcus.
   const ID_MARCUS_ADMIN = '66901c7a-d3b9-435a-932c-276659210f69'
   const podeEncerrarQualquerPlantonista = enfermeiro?.id === ID_MARCUS_ADMIN
@@ -108,6 +113,10 @@ export default function Home() {
   const intervaloRef = useRef(null)
 
   useEffect(() => {
+    if (ehMedico) {
+      setVerificandoRetomada(false)
+      return
+    }
     purgarHistoricoAntigo()
     limparLeitosExtrasNaoUsados()
     if (isAdmin) {
@@ -279,6 +288,36 @@ export default function Home() {
     )
   }
 
+  if (ehMedico) {
+    return (
+      <div className="shell">
+        <div className="topbar no-print">
+          <div className="topbar-brand">
+            <span className="topbar-mark">UPA</span>
+            <span className="topbar-title">Passagem de Plantão</span>
+          </div>
+          <div className="topbar-user">
+            <div className="topbar-group">
+              <div className="topbar-menu">
+                <button className="topbar-conta-btn" onClick={() => setContaMenuAberto((v) => !v)}>
+                  <span className="topbar-nome">{enfermeiro?.nome_exibicao || enfermeiro?.nome}</span>
+                  <span aria-hidden="true">▾</span>
+                </button>
+                {contaMenuAberto && (
+                  <div className="topbar-menu-panel topbar-menu-panel-conta" onClick={() => setContaMenuAberto(false)}>
+                    <button onClick={() => setTela('conta')}>Minha conta</button>
+                    <button onClick={logout} className="topbar-menu-danger">Sair</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} /> : <PainelMedico />}
+      </div>
+    )
+  }
+
   return (
     <div className="shell">
       <div className="topbar no-print">
@@ -311,6 +350,11 @@ export default function Home() {
                     {podeEncerrarQualquerPlantonista && (
                       <button onClick={() => setTela('equipe')} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
                         Encerrar plantonista (ADM)
+                      </button>
+                    )}
+                    {podeEncerrarQualquerPlantonista && (
+                      <button onClick={() => setTela('profissionais')} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                        Gerenciar profissionais (ADM)
                       </button>
                     )}
                     <button onClick={() => setTela('ajuda')}>Ajuda</button>
@@ -386,6 +430,7 @@ export default function Home() {
           {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
+          {plantao && setoresIds && tela === 'profissionais' && podeEncerrarQualquerPlantonista && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
         </>
       )}
 
