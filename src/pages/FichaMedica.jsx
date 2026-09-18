@@ -5,6 +5,7 @@ import {
   listarConsultas, criarConsulta,
   listarPrescricoes, criarPrescricao, cancelarPrescricao,
   listarAih, criarAih,
+  listarCatalogoMedicamentos,
 } from '../lib/pepMedico'
 import FichaMedicaPrint from './FichaMedicaPrint'
 import './PassagemForm.css'
@@ -174,6 +175,45 @@ function AbaConsulta({ atendimento, medicoId, onImprimir }) {
   )
 }
 
+function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar }) {
+  const [aberto, setAberto] = useState(false)
+  const termo = valor.trim().toLowerCase()
+  const sugestoes = termo.length >= 2
+    ? catalogo.filter((m) => m.nome.toLowerCase().includes(termo)).slice(0, 8)
+    : []
+
+  return (
+    <div className="autocomplete-wrap">
+      <input
+        type="text"
+        value={valor}
+        onChange={(e) => { onChange(e.target.value); setAberto(true) }}
+        onFocus={() => setAberto(true)}
+        onBlur={() => setAberto(false)}
+        autoComplete="off"
+      />
+      {aberto && sugestoes.length > 0 && (
+        <div className="autocomplete-lista">
+          {sugestoes.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              className="autocomplete-item"
+              onMouseDown={(e) => { e.preventDefault(); onSelecionar(m); setAberto(false) }}
+            >
+              <span className="autocomplete-item-nome">{m.nome}</span>
+              <span className="autocomplete-item-sub">
+                {m.forma_farmaceutica}
+                {m.classe_controlada ? ` · ${m.classe_controlada}` : ''}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -181,8 +221,10 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
   const [itens, setItens] = useState([{ medicamento_nome: '', dose: '', dose_unidade: '', via: 'VO', frequencia: '', duracao: '', instrucoes: '' }])
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
+  const [catalogo, setCatalogo] = useState([])
 
   useEffect(() => { carregar() }, [])
+  useEffect(() => { listarCatalogoMedicamentos().then(setCatalogo) }, [])
 
   async function carregar() {
     setCarregando(true)
@@ -192,6 +234,10 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
 
   function setItem(i, campo, valor) {
     setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, [campo]: valor } : it)))
+  }
+
+  function selecionarMedicamento(i, m) {
+    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, medicamento_nome: m.nome, via: m.via_padrao || it.via } : it)))
   }
 
   function adicionarItem() {
@@ -239,7 +285,12 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
         <div key={i} className="form-grid" style={{ marginBottom: 10, paddingBottom: 10, borderBottom: '1px dashed var(--color-border)' }}>
           <div className="form-field span-2">
             <label>Medicamento</label>
-            <input type="text" value={it.medicamento_nome} onChange={(e) => setItem(i, 'medicamento_nome', e.target.value)} />
+            <AutocompleteMedicamento
+              catalogo={catalogo}
+              valor={it.medicamento_nome}
+              onChange={(v) => setItem(i, 'medicamento_nome', v)}
+              onSelecionar={(m) => selecionarMedicamento(i, m)}
+            />
           </div>
           <div className="form-field">
             <label>Dose</label>

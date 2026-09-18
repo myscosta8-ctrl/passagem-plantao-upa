@@ -134,3 +134,15 @@ export async function criarAih({ atendimentoId, pessoaId, solicitanteId, dados }
     ...dados,
   }).select().single()
 }
+
+// Catálogo básico de medicamentos — carregado uma vez (tabela pequena) e
+// filtrado no cliente pra dar sugestão instantânea ao digitar, sem round-trip
+// por tecla. Ver AutocompleteMedicamento em FichaMedica.jsx.
+export async function listarCatalogoMedicamentos() {
+  const { data } = await supabase
+    .from('catalogo_medicamentos')
+    .select('*')
+    .eq('ativo', true)
+    .order('nome')
+  return data ?? []
+}
