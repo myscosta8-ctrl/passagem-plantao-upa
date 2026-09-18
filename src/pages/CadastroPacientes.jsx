@@ -27,7 +27,7 @@ export default function CadastroPacientes() {
   return (
     <div className="page" style={{ maxWidth: 900 }}>
       <h1 className="page-title">Cadastro de pacientes</h1>
-      <p className="page-subtitle">Ficha de Identificação do Paciente — dados completos, uma vez, pra alimentar o resto do sistema (AIH, documentos, prontuário).</p>
+      <p className="page-subtitle">Ficha de Identificação do Paciente — dados completos, uma vez, pra alimentar o resto do sistema (AIH, documentos, prontuário). Piloto começando pela Observação/Internação — setor já vem marcado, mas pode trocar se precisar.</p>
 
       <div className="form-toolbar" style={{ maxWidth: 320 }}>
         <button className={aba === 'novo' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('novo')}>Novo cadastro</button>
@@ -188,7 +188,13 @@ function FormNovoCadastro({ enfermeiroId, onCadastrado }) {
   const [sucesso, setSucesso] = useState(null)
 
   useEffect(() => {
-    supabase.from('setores').select('*').order('ordem').then(({ data }) => setSetores(data ?? []))
+    supabase.from('setores').select('*').order('ordem').then(({ data }) => {
+      setSetores(data ?? [])
+      // Piloto da recepção começa pela Observação (mais leitos/volume, maioria
+      // segue pra internação de lá) — pré-marcado, mas continua trocável.
+      const observacao = (data ?? []).find((s) => s.nome.includes('Observação'))
+      if (observacao) setAtd((prev) => ({ ...prev, setor_id: String(observacao.id) }))
+    })
   }, [])
 
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
@@ -262,7 +268,11 @@ function Busca({ enfermeiroId, onAtendimentoAberto }) {
   const [sucesso, setSucesso] = useState(null)
 
   useEffect(() => {
-    supabase.from('setores').select('*').order('ordem').then(({ data }) => setSetores(data ?? []))
+    supabase.from('setores').select('*').order('ordem').then(({ data }) => {
+      setSetores(data ?? [])
+      const observacao = (data ?? []).find((s) => s.nome.includes('Observação'))
+      if (observacao) setAtd((prev) => ({ ...prev, setor_id: String(observacao.id) }))
+    })
   }, [])
 
   async function buscar(e) {
