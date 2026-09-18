@@ -3,6 +3,10 @@ import { useAuth } from '../lib/AuthContext'
 import {
   buscarAdmissao, salvarAdmissao,
   listarSinaisVitais, registrarSinaisVitais,
+  listarEvolucoes, registrarEvolucao,
+  listarDispositivos, inserirDispositivo, removerDispositivo,
+  listarBalancoHidrico, registrarBalancoHidrico,
+  listarEscalas, registrarEscala,
 } from '../lib/pepClinico'
 import './PassagemForm.css'
 
@@ -88,10 +92,18 @@ export default function FichaClinica({ atendimento, onFechar }) {
         <div className="form-toolbar">
           <button className={aba === 'admissao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('admissao')}>Admissão</button>
           <button className={aba === 'sinaisVitais' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sinaisVitais')}>Sinais Vitais</button>
+          <button className={aba === 'evolucao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('evolucao')}>Evolução</button>
+          <button className={aba === 'dispositivos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('dispositivos')}>Dispositivos</button>
+          <button className={aba === 'balanco' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('balanco')}>Balanço Hídrico</button>
+          <button className={aba === 'escalas' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('escalas')}>Escalas</button>
         </div>
 
         {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}
         {aba === 'sinaisVitais' && <AbaSinaisVitais atendimento={atendimento} autorId={enfermeiro?.id} />}
+        {aba === 'evolucao' && <AbaEvolucao atendimento={atendimento} autorId={enfermeiro?.id} />}
+        {aba === 'dispositivos' && <AbaDispositivos atendimento={atendimento} />}
+        {aba === 'balanco' && <AbaBalancoHidrico atendimento={atendimento} autorId={enfermeiro?.id} />}
+        {aba === 'escalas' && <AbaEscalas atendimento={atendimento} />}
 
         <div className="form-footer">
           <button className="btn-fechar" onClick={onFechar}>Fechar</button>
@@ -432,6 +444,430 @@ function AbaSinaisVitais({ atendimento, autorId }) {
             </span>
             <span style={{ color: 'var(--c-text-muted)', fontSize: 11, flexShrink: 0, marginLeft: 10 }}>
               {new Date(sv.registrado_em).toLocaleString('pt-BR')}
+            </span>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
+
+function AbaEvolucao({ atendimento, autorId }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [texto, setTexto] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setHistorico(await listarEvolucoes(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  async function registrar() {
+    if (!texto.trim()) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await registrarEvolucao({ atendimentoId: atendimento.atendimento_id, autorId, texto: texto.trim() })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setTexto('')
+    carregar()
+  }
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Nova evolução</div>
+      <div className="form-field" style={{ marginBottom: 14 }}>
+        <textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={4} placeholder="Descreva a evolução do paciente..." />
+      </div>
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !texto.trim()}>
+        {salvando ? 'Registrando...' : 'Registrar evolução'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : historico.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma evolução registrada ainda.</p>
+      ) : (
+        historico.map((ev) => (
+          <div key={ev.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--c-border-light)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--c-primary)' }}>
+                {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}
+              </span>
+              <span style={{ color: 'var(--c-text-muted)', fontSize: 11 }}>
+                {new Date(ev.criado_em).toLocaleString('pt-BR')}
+              </span>
+            </div>
+            <p style={{ fontSize: 13, whiteSpace: 'pre-wrap', margin: 0 }}>{ev.texto}</p>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
+
+const TIPOS_DISPOSITIVO = ['AVP', 'SVD', 'SNE', 'Dreno', 'CVC', 'Traqueostomia', 'O2']
+
+function AbaDispositivos({ atendimento }) {
+  const [lista, setLista] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [tipo, setTipo] = useState('')
+  const [localInsercao, setLocalInsercao] = useState('')
+  const [trocaPrevista, setTrocaPrevista] = useState('')
+  const [motivos, setMotivos] = useState({})
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setLista(await listarDispositivos(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  async function inserir() {
+    if (!tipo) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await inserirDispositivo({
+      atendimentoId: atendimento.atendimento_id,
+      tipo,
+      localInsercao,
+      trocaPrevistaEm: trocaPrevista ? new Date(trocaPrevista).toISOString() : null,
+    })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar o dispositivo. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setTipo('')
+    setLocalInsercao('')
+    setTrocaPrevista('')
+    carregar()
+  }
+
+  async function remover(id) {
+    await removerDispositivo({ id, motivo: motivos[id] || '' })
+    carregar()
+  }
+
+  const ativos = lista.filter((d) => !d.removido_em)
+  const removidos = lista.filter((d) => d.removido_em)
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Novo dispositivo</div>
+      <div className="form-grid" style={{ marginBottom: 16 }}>
+        <div className="form-field">
+          <label>Tipo</label>
+          <div className="chip-group">
+            {TIPOS_DISPOSITIVO.map((t) => (
+              <button key={t} type="button" className={`chip ${tipo === t ? 'on' : ''}`} onClick={() => setTipo(tipo === t ? '' : t)}>{t}</button>
+            ))}
+          </div>
+        </div>
+        <div className="form-field"><label>Local de inserção</label><input type="text" value={localInsercao} onChange={(e) => setLocalInsercao(e.target.value)} /></div>
+        <div className="form-field"><label>Troca prevista</label><input type="date" value={trocaPrevista} onChange={(e) => setTrocaPrevista(e.target.value)} /></div>
+      </div>
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={inserir} disabled={salvando || !tipo}>
+        {salvando ? 'Registrando...' : 'Registrar dispositivo'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Ativos</div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : ativos.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhum dispositivo ativo.</p>
+      ) : (
+        ativos.map((d) => (
+          <div key={d.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--c-border-light)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>
+                {d.tipo}{d.local_insercao ? ` · ${d.local_insercao}` : ''}
+              </span>
+              <span style={{ color: 'var(--c-text-muted)', fontSize: 11 }}>
+                Inserido {new Date(d.inserido_em).toLocaleString('pt-BR')}
+                {d.troca_prevista_em ? ` · troca prevista ${new Date(d.troca_prevista_em).toLocaleDateString('pt-BR')}` : ''}
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                placeholder="Motivo da remoção (opcional)"
+                value={motivos[d.id] || ''}
+                onChange={(e) => setMotivos((p) => ({ ...p, [d.id]: e.target.value }))}
+                style={{ flex: 1 }}
+              />
+              <button type="button" className="btn-fechar" onClick={() => remover(d.id)}>Remover</button>
+            </div>
+          </div>
+        ))
+      )}
+
+      {removidos.length > 0 && (
+        <>
+          <div className="form-section-title" style={{ marginTop: 24 }}>Removidos</div>
+          {removidos.map((d) => (
+            <div key={d.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 12.5, color: 'var(--c-text-muted)' }}>
+              {d.tipo}{d.local_insercao ? ` · ${d.local_insercao}` : ''} — removido em {new Date(d.removido_em).toLocaleString('pt-BR')}
+              {d.motivo_remocao ? ` (${d.motivo_remocao})` : ''}
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  )
+}
+
+const VIAS_ENTRADA = ['Oral', 'Dieta enteral', 'EV', 'Outra']
+const VIAS_SAIDA = ['Diurese', 'Vômito', 'Dreno', 'Evacuação', 'Outra']
+
+function AbaBalancoHidrico({ atendimento, autorId }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [tipo, setTipo] = useState('entrada')
+  const [via, setVia] = useState('')
+  const [volume, setVolume] = useState('')
+  const [observacao, setObservacao] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setHistorico(await listarBalancoHidrico(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  async function registrar() {
+    if (!via || !volume) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await registrarBalancoHidrico({
+      atendimentoId: atendimento.atendimento_id, registradoPor: autorId, tipo, via, volumeMl: volume, observacao,
+    })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setVia('')
+    setVolume('')
+    setObservacao('')
+    carregar()
+  }
+
+  const totalEntradas = historico.filter((h) => h.tipo === 'entrada').reduce((s, h) => s + Number(h.volume_ml), 0)
+  const totalSaidas = historico.filter((h) => h.tipo === 'saida').reduce((s, h) => s + Number(h.volume_ml), 0)
+  const opcoesVia = tipo === 'entrada' ? VIAS_ENTRADA : VIAS_SAIDA
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Novo registro</div>
+      <div className="form-grid" style={{ marginBottom: 16 }}>
+        <div className="form-field">
+          <label>Tipo</label>
+          <div className="toggle-group">
+            <button type="button" className={`toggle-btn ${tipo === 'entrada' ? 'on' : ''}`} onClick={() => { setTipo('entrada'); setVia('') }}>Entrada</button>
+            <button type="button" className={`toggle-btn ${tipo === 'saida' ? 'on' : ''}`} onClick={() => { setTipo('saida'); setVia('') }}>Saída</button>
+          </div>
+        </div>
+        <div className="form-field">
+          <label>Via</label>
+          <div className="chip-group">
+            {opcoesVia.map((v) => (
+              <button key={v} type="button" className={`chip ${via === v ? 'on' : ''}`} onClick={() => setVia(v)}>{v}</button>
+            ))}
+          </div>
+        </div>
+        <div className="form-field"><label>Volume (mL)</label><input type="number" value={volume} onChange={(e) => setVolume(e.target.value)} /></div>
+        <div className="form-field span-2"><label>Observação</label><input type="text" value={observacao} onChange={(e) => setObservacao(e.target.value)} /></div>
+      </div>
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !via || !volume}>
+        {salvando ? 'Registrando...' : 'Registrar'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>
+        Totais — Entradas {totalEntradas} mL · Saídas {totalSaidas} mL · Saldo {totalEntradas - totalSaidas} mL
+      </div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : historico.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhum registro ainda.</p>
+      ) : (
+        historico.map((h) => (
+          <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 12.5 }}>
+            <span style={{ fontFamily: 'var(--font-mono)' }}>
+              {h.tipo === 'entrada' ? '+' : '−'}{h.volume_ml} mL · {h.via}{h.observacao ? ` · ${h.observacao}` : ''}
+            </span>
+            <span style={{ color: 'var(--c-text-muted)', fontSize: 11, flexShrink: 0, marginLeft: 10 }}>
+              {new Date(h.registrado_em).toLocaleString('pt-BR')}
+            </span>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
+
+const BRADEN_CAMPOS = [
+  { chave: 'percepcao_sensorial', rotulo: 'Percepção sensorial', opcoes: [
+    { v: 1, t: 'Completamente limitada' }, { v: 2, t: 'Muito limitada' }, { v: 3, t: 'Levemente limitada' }, { v: 4, t: 'Nenhuma limitação' },
+  ] },
+  { chave: 'umidade', rotulo: 'Umidade', opcoes: [
+    { v: 1, t: 'Completamente molhada' }, { v: 2, t: 'Muito molhada' }, { v: 3, t: 'Ocasionalmente molhada' }, { v: 4, t: 'Raramente molhada' },
+  ] },
+  { chave: 'atividade', rotulo: 'Atividade', opcoes: [
+    { v: 1, t: 'Acamado' }, { v: 2, t: 'Confinado à cadeira' }, { v: 3, t: 'Anda ocasionalmente' }, { v: 4, t: 'Anda frequentemente' },
+  ] },
+  { chave: 'mobilidade', rotulo: 'Mobilidade', opcoes: [
+    { v: 1, t: 'Completamente imóvel' }, { v: 2, t: 'Muito limitada' }, { v: 3, t: 'Levemente limitada' }, { v: 4, t: 'Nenhuma limitação' },
+  ] },
+  { chave: 'nutricao', rotulo: 'Nutrição', opcoes: [
+    { v: 1, t: 'Muito pobre' }, { v: 2, t: 'Provavelmente inadequada' }, { v: 3, t: 'Adequada' }, { v: 4, t: 'Excelente' },
+  ] },
+  { chave: 'friccao_cisalhamento', rotulo: 'Fricção e cisalhamento', opcoes: [
+    { v: 1, t: 'Problema' }, { v: 2, t: 'Problema em potencial' }, { v: 3, t: 'Nenhum problema' },
+  ] },
+]
+
+function riscoBraden(total) {
+  if (total <= 9) return 'Risco muito alto'
+  if (total <= 12) return 'Risco alto'
+  if (total <= 14) return 'Risco moderado'
+  if (total <= 18) return 'Risco baixo'
+  return 'Sem risco'
+}
+
+const MORSE_CAMPOS = [
+  { chave: 'historico_quedas', rotulo: 'Histórico de quedas', opcoes: [{ v: 0, t: 'Não' }, { v: 25, t: 'Sim' }] },
+  { chave: 'diagnostico_secundario', rotulo: 'Diagnóstico secundário', opcoes: [{ v: 0, t: 'Não' }, { v: 15, t: 'Sim' }] },
+  { chave: 'auxilio_locomocao', rotulo: 'Auxílio de locomoção', opcoes: [
+    { v: 0, t: 'Nenhum / leito / cadeira de rodas / enfermeiro' }, { v: 15, t: 'Muletas / bengala / andador' }, { v: 30, t: 'Apoia-se em móveis' },
+  ] },
+  { chave: 'terapia_ev', rotulo: 'Terapia endovenosa', opcoes: [{ v: 0, t: 'Não' }, { v: 20, t: 'Sim' }] },
+  { chave: 'marcha', rotulo: 'Marcha', opcoes: [{ v: 0, t: 'Normal / leito / imóvel' }, { v: 10, t: 'Fraca' }, { v: 20, t: 'Comprometida' }] },
+  { chave: 'estado_mental', rotulo: 'Estado mental', opcoes: [
+    { v: 0, t: 'Orienta-se quanto à própria capacidade' }, { v: 15, t: 'Superestima capacidade / esquece limitações' },
+  ] },
+]
+
+function riscoMorse(total) {
+  if (total <= 24) return 'Risco baixo'
+  if (total <= 50) return 'Risco médio'
+  return 'Risco alto'
+}
+
+function AbaEscalas({ atendimento }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [tipo, setTipo] = useState('braden')
+  const [respostas, setRespostas] = useState({})
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setHistorico(await listarEscalas(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  const campos = tipo === 'braden' ? BRADEN_CAMPOS : MORSE_CAMPOS
+  const completo = campos.every((c) => respostas[c.chave] !== undefined)
+  const total = campos.reduce((s, c) => s + (respostas[c.chave] ?? 0), 0)
+  const risco = tipo === 'braden' ? riscoBraden(total) : riscoMorse(total)
+
+  function trocarTipo(t) {
+    setTipo(t)
+    setRespostas({})
+  }
+
+  async function registrar() {
+    if (!completo) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await registrarEscala({
+      atendimentoId: atendimento.atendimento_id, tipo, pontuacao: total, nivelRisco: risco, detalhes: respostas,
+    })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setRespostas({})
+    carregar()
+  }
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Nova avaliação</div>
+      <div className="form-field" style={{ marginBottom: 16, maxWidth: 260 }}>
+        <div className="toggle-group">
+          <button type="button" className={`toggle-btn ${tipo === 'braden' ? 'on' : ''}`} onClick={() => trocarTipo('braden')}>Braden</button>
+          <button type="button" className={`toggle-btn ${tipo === 'morse' ? 'on' : ''}`} onClick={() => trocarTipo('morse')}>Morse</button>
+        </div>
+      </div>
+
+      {campos.map((c) => (
+        <div className="form-field span-3" key={c.chave} style={{ marginBottom: 14 }}>
+          <label>{c.rotulo}</label>
+          <div className="chip-group">
+            {c.opcoes.map((o) => (
+              <button
+                key={o.v}
+                type="button"
+                className={`chip ${respostas[c.chave] === o.v ? 'on' : ''}`}
+                onClick={() => setRespostas((p) => ({ ...p, [c.chave]: o.v }))}
+              >
+                {o.t} ({o.v})
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <p style={{ fontSize: 13, fontWeight: 600, margin: '10px 0' }}>
+        Pontuação: {total} — {risco}
+      </p>
+
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !completo}>
+        {salvando ? 'Registrando...' : 'Registrar avaliação'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : historico.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma avaliação registrada ainda.</p>
+      ) : (
+        historico.map((e) => (
+          <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 12.5 }}>
+            <span>
+              <strong style={{ textTransform: 'capitalize' }}>{e.tipo}</strong> — {e.pontuacao} pts · {e.nivel_risco}
+            </span>
+            <span style={{ color: 'var(--c-text-muted)', fontSize: 11, flexShrink: 0, marginLeft: 10 }}>
+              {new Date(e.avaliado_em).toLocaleString('pt-BR')}
             </span>
           </div>
         ))
