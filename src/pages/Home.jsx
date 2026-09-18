@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import AberturaPlantao from './AberturaPlantao'
-import SelecaoSetores from './SelecaoSetores'
 import Painel from './Painel'
 import PrintView from './PrintView'
 import Historico from './Historico'
@@ -150,9 +149,13 @@ export default function Home() {
     return () => clearInterval(intervaloRef.current)
   }, [plantao, corteEm])
 
-  async function entrarComoAdmin() {
+  async function carregarTodosSetoresIds() {
     const { data: setores } = await supabase.from('setores').select('id')
-    setSetoresIds((setores ?? []).map((s) => s.id))
+    return (setores ?? []).map((s) => s.id)
+  }
+
+  async function entrarComoAdmin() {
+    setSetoresIds(await carregarTodosSetoresIds())
 
     const hoje = hojeISOLocal()
     const horaAtual = Number(
@@ -188,7 +191,7 @@ export default function Home() {
 
     const { data: abertos } = await supabase
       .from('plantao_profissionais')
-      .select('setores_ids, plantoes!inner(id, data, turno, status, created_at)')
+      .select('plantoes!inner(id, data, turno, status, created_at)')
       .eq('profissional_id', enfermeiro.id)
       .eq('encerrado', false)
       .order('created_at', { foreignTable: 'plantoes', ascending: false })
@@ -219,26 +222,16 @@ export default function Home() {
     if (paraRetomar) {
       setPlantao(paraRetomar.plantoes)
       setCorteEm(calcularCorte(paraRetomar.plantoes))
-      if (paraRetomar.setores_ids?.length) setSetoresIds(paraRetomar.setores_ids)
+      setSetoresIds(await carregarTodosSetoresIds())
     }
     setVerificandoRetomada(false)
   }
 
-  async function confirmarSetores(ids) {
-    setSetoresIds(ids)
-    if (plantao?.id && enfermeiro?.id) {
-      await supabase
-        .from('plantao_profissionais')
-        .update({ setores_ids: ids })
-        .eq('plantao_id', plantao.id)
-        .eq('profissional_id', enfermeiro.id)
-    }
-  }
-
-  function aoAbrirPlantao(p) {
+  async function aoAbrirPlantao(p) {
     setPlantao(p)
     setCorteEm(calcularCorte(p))
     setMinutosParaCorte(null)
+    setSetoresIds(await carregarTodosSetoresIds())
   }
 
   async function encerrarPlantao() {
@@ -333,7 +326,6 @@ export default function Home() {
         plantaoAberto={Boolean(plantao && setoresIds)}
         telaAtual={tela}
         onNavegar={setTela}
-        onTrocarSetores={() => setSetoresIds(null)}
         onEncerrarPlantao={encerrarPlantao}
         encerrandoPlantao={encerrando}
         onLogout={logout}
@@ -377,8 +369,6 @@ export default function Home() {
       ) : (
         <>
           {!plantao && <AberturaPlantao onPlantaoAberto={aoAbrirPlantao} />}
-
-          {plantao && !setoresIds && <SelecaoSetores onConfirmar={confirmarSetores} />}
 
           {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
           {plantao && setoresIds && tela === 'print1' && (
