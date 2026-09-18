@@ -140,9 +140,10 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
                   type="button"
                   onClick={abrirLeitoExtra}
                   style={{
-                    padding: '8px 14px', border: '1px dashed var(--color-primary)',
-                    background: 'var(--color-primary-light)', color: 'var(--color-primary-dark)',
-                    borderRadius: 8, fontSize: 13, fontWeight: 600,
+                    padding: '8px 14px', border: '1px dashed var(--c-primary)',
+                    background: 'transparent', color: 'var(--c-primary)',
+                    fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '.03em',
+                    borderRadius: 'var(--r-sm)', fontSize: 11, fontWeight: 600,
                   }}
                 >
                   + Abrir leito extra neste setor

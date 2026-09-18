@@ -62,16 +62,16 @@ export default function Historico({ onVoltar }) {
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 className="add-profissional-btn"
-                style={{ padding: '7px 12px', border: '1px solid var(--color-border)', borderRadius: 7, fontSize: 12.5, background: 'var(--color-surface)' }}
+                style={{ padding: '7px 12px', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', fontFamily: 'var(--font-mono)', fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.03em', color: 'var(--color-text-secondary)', background: 'transparent' }}
                 onClick={() => setSelecionado({ plantao: p, grupo: 'grupo1' })}
               >
-                Ver Vermelha + Internação
+                Vermelha + Internação
               </button>
               <button
-                style={{ padding: '7px 12px', border: '1px solid var(--color-border)', borderRadius: 7, fontSize: 12.5, background: 'var(--color-surface)' }}
+                style={{ padding: '7px 12px', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', fontFamily: 'var(--font-mono)', fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.03em', color: 'var(--color-text-secondary)', background: 'transparent' }}
                 onClick={() => setSelecionado({ plantao: p, grupo: 'grupo2' })}
               >
-                Ver Pediátrico + Observação
+                Pediátrico + Observação
               </button>
             </div>
           </div>

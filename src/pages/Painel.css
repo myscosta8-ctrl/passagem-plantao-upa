@@ -1,162 +1,145 @@
 .setor-secao {
-  margin-bottom: 34px;
+  margin-bottom: 30px;
 }
 
 .setor-secao-titulo {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--c-primary-dark);
-  border-bottom: 2px solid var(--color-acao);
-  padding-bottom: 8px;
-  margin-bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-primary);
+  border-bottom: 1px solid var(--c-border);
+  padding-bottom: 9px;
+  margin-bottom: 2px;
 }
 
 .setor-secao-titulo .count {
-  font-family: var(--font-mono, monospace);
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   font-weight: 600;
-  color: var(--c-text-secondary);
-  background: var(--c-border-light);
-  border-radius: 10px;
-  padding: 2px 9px;
+  color: var(--c-text-muted);
 }
 
 .leitos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
 }
 
 .leito-card {
   background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  padding: 16px;
-  min-height: 120px;
+  border: none;
+  border-bottom: 1px solid var(--c-border-light);
+  border-radius: 0;
+  padding: 12px 6px;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.1s ease;
   position: relative;
-  overflow: hidden;
 }
 
 .leito-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border-color: var(--color-acao);
+  background: var(--c-surface-inset);
 }
 
 .leito-card.vazio {
-  border-style: dashed;
-  background: transparent;
-}
-.leito-card.vazio:hover {
-  background: var(--c-acao-light);
+  color: var(--c-text-muted);
 }
 
 .leito-numero {
-  font-family: var(--font-mono, monospace);
-  font-weight: 700;
-  font-size: 12px;
-  color: var(--c-primary-dark);
-  background: var(--c-border-light);
-  border-radius: 4px;
-  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 10.5px;
+  color: var(--c-text-muted);
+  letter-spacing: 0.03em;
   align-self: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .leito-numero.extra {
   color: var(--c-danger);
-  background: var(--c-danger-light);
 }
 
 .leito-paciente-nome {
-  font-weight: 700;
-  font-size: 14.5px;
-  color: var(--c-primary);
-  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--c-text-primary);
+  margin-bottom: 3px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .status-badge {
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  padding: 2px 7px;
-  border-radius: 3px;
-  display: inline-block;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border-radius: 0;
+  background: none !important;
+  border: none !important;
 }
 
-.status-badge.internado {
-  background: var(--c-success-light);
-  color: var(--c-success);
-  border: 1px solid var(--c-success-border);
+.status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.status-badge.observacao {
-  background: var(--c-warning-light);
-  color: var(--c-warning);
-  border: 1px solid var(--c-warning-border);
+.status-badge.internado { color: var(--c-primary); }
+.status-badge.internado::before { background: var(--c-primary); }
+
+.status-badge.observacao { color: var(--c-warning); }
+.status-badge.observacao::before { background: var(--c-warning); }
+
+.status-badge.presc-hoje { color: var(--c-info); }
+.status-badge.presc-hoje::before { background: var(--c-info); }
+
+.status-badge.presc-amanha { color: var(--c-danger); }
+.status-badge.presc-amanha::before { background: var(--c-danger); animation: pulseDot 1.4s infinite; }
+
+@keyframes pulseDot {
+  0% { opacity: 1; }
+  50% { opacity: 0.35; }
+  100% { opacity: 1; }
 }
 
-.status-badge.presc-hoje {
-  background: var(--c-info-light);
-  color: var(--c-info);
-  border: 1px solid var(--c-info-border);
-}
-
-.status-badge.presc-amanha {
-  background: var(--c-danger-light);
-  color: var(--c-danger);
-  border: 1px solid var(--c-danger-border);
-  animation: pulsePrescAmanha 2s infinite;
-}
-
-@keyframes pulsePrescAmanha {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.status-badge.alerta {
-  background: var(--c-danger-light);
-  color: var(--c-danger);
-  border: 1px solid var(--c-danger-border);
-}
+.status-badge.alerta { color: var(--c-danger); }
+.status-badge.alerta::before { background: var(--c-danger); }
 
 .leito-paciente-extra {
-  font-size: 11px;
-  color: var(--c-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--c-text-muted);
   margin-top: 4px;
 }
 
 .leito-paciente-pendencia {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--c-warning);
-  background: var(--c-warning-light);
-  border-radius: 4px;
-  padding: 6px 8px;
+  border-left: 2px solid var(--c-warning);
+  padding: 4px 0 4px 8px;
   margin-top: 8px;
   line-height: 1.4;
-  border: 1px solid var(--c-warning-border);
 }
 
 .leito-ultima-alteracao {
-  font-size: 10px;
-  color: var(--c-text-secondary);
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid var(--c-border-light);
-  opacity: 0.9;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--c-text-muted);
+  margin-top: 8px;
 }
 
 .leito-paciente-diag {
@@ -167,37 +150,39 @@
 }
 
 .leito-vazio-texto {
-  color: var(--c-text-secondary);
+  color: var(--c-text-muted);
   font-size: 12px;
-  margin-top: auto;
-  font-weight: 600;
+  margin-top: 2px;
 }
 
 .leito-add-extra {
   border: 1px dashed var(--c-border);
-  border-radius: 6px;
-  min-height: 120px;
+  border-radius: var(--r-sm);
+  padding: 10px;
+  margin-top: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--c-text-secondary);
+  color: var(--c-text-muted);
+  font-family: var(--font-mono);
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   background: none;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .leito-add-extra:hover {
-  border-color: var(--color-acao);
-  color: var(--color-acao);
-  background: var(--c-acao-light);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(10, 31, 51, 0.6);
+  background: rgba(10, 20, 18, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,29 +192,24 @@
 
 .modal-card {
   background: var(--c-surface);
-  border-radius: 8px;
-  padding: 24px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  padding: 22px;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 .modal-title {
-  font-size: 16px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--c-primary);
-  margin: 0 0 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.modal-title::before {
-  content: '';
-  display: inline-block;
-  width: 3px;
-  height: 16px;
-  background: var(--color-acao);
-  border-radius: 2px;
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .modal-actions {
@@ -240,37 +220,43 @@
 
 .modal-actions button {
   flex: 1;
-  padding: 8px 14px;
-  border-radius: 5px;
+  padding: 9px 14px;
+  border-radius: var(--r-md);
+  font-family: var(--font-mono);
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .modal-btn-primary {
   border: none;
-  background: var(--color-acao);
+  background: var(--c-primary);
   color: white;
 }
 .modal-btn-primary:hover:not(:disabled) { background: var(--color-acao-hover); }
-.modal-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.modal-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .modal-btn-secondary {
   border: 1px solid var(--c-border);
-  background: var(--c-surface);
+  background: transparent;
   color: var(--c-text-secondary);
 }
 .modal-btn-secondary:hover { background: var(--c-surface-inset); }
 
 .leito-btn-prontuario {
-  background: var(--c-surface);
+  background: transparent;
   border: 1px solid var(--c-border);
   color: var(--c-primary);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 5px 10px;
+  border-radius: var(--r-sm);
   cursor: pointer;
   transition: all 0.15s ease;
   display: inline-flex;
@@ -280,13 +266,6 @@
 
 .leito-btn-prontuario:hover {
   background: var(--c-surface-inset);
-  border-color: var(--c-border-dark);
-}
-
-@media (max-width: 640px) {
-  .leitos-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .error-box {
@@ -294,8 +273,8 @@
   color: var(--c-danger);
   font-size: 13px;
   padding: 10px 12px;
-  border-radius: 5px;
+  border-radius: var(--r-sm);
   margin-bottom: 18px;
-  border: 1px solid var(--c-danger-border);
+  border-left: 3px solid var(--c-danger);
   font-weight: 500;
 }
