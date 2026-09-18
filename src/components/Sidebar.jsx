@@ -8,7 +8,6 @@ const iconProps = {
 }
 
 const IconPainel = (p) => <svg {...iconProps} {...p}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" /></svg>
-const IconSetores = (p) => <svg {...iconProps} {...p}><path d="M7 7h13l-3-3M17 17H4l3 3" /></svg>
 const IconPendencias = (p) => <svg {...iconProps} {...p}><rect x="5" y="4" width="14" height="17" rx="2" /><path d="M9 2h6v3H9zM8 11h8M8 15h5" /></svg>
 const IconCompartilhar = (p) => <svg {...iconProps} {...p}><circle cx="18" cy="5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="19" r="2.5" /><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4" /></svg>
 const IconEncerrarParticipacao = (p) => <svg {...iconProps} {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
@@ -33,7 +32,6 @@ export default function Sidebar({
   plantaoAberto,
   telaAtual,
   onNavegar,
-  onTrocarSetores,
   onEncerrarPlantao,
   encerrandoPlantao,
   onLogout,
@@ -68,11 +66,6 @@ export default function Sidebar({
               <button className={`sidebar-item ${telaAtual === 'painel' ? 'ativo' : ''}`} onClick={() => navegarE('painel')}>
                 <IconPainel />Painel
               </button>
-              {!isAdmin && (
-                <button className="sidebar-item" onClick={() => { onTrocarSetores(); onFecharNav() }}>
-                  <IconSetores />Setores
-                </button>
-              )}
               <button className={`sidebar-item ${telaAtual === 'pendencias' ? 'ativo' : ''}`} onClick={() => navegarE('pendencias')}>
                 <IconPendencias />Pendências
               </button>
