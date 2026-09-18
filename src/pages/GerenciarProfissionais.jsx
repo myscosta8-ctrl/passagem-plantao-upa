@@ -4,7 +4,8 @@ import ConfirmModal from './ConfirmModal'
 
 const TIPOS = [
   { valor: 'medico', rotulo: 'Médico' },
-  { valor: 'farmaceutico', rotulo: 'Farmacêutico' },
+  { valor: 'enfermagem', rotulo: 'Enfermeiro' },
+  { valor: 'recepcao', rotulo: 'Recepção' },
 ]
 
 export default function GerenciarProfissionais({ onVoltar }) {
@@ -29,10 +30,13 @@ export default function GerenciarProfissionais({ onVoltar }) {
 
   async function carregar() {
     setCarregando(true)
+    // Enfermeiro criado por aqui (institucional) some da lista depois que troca a
+    // senha padrão — vira indistinguível de um cadastro próprio (Auth.jsx). Os
+    // outros tipos (médico/recepção) sempre aparecem, já que não têm esse caminho.
     const { data } = await supabase
       .from('enfermeiros')
       .select('id, nome, nome_exibicao, tipo, crm, role, deve_trocar_senha')
-      .neq('tipo', 'enfermagem')
+      .or('tipo.neq.enfermagem,deve_trocar_senha.eq.true')
       .order('nome')
     setProfissionais(data ?? [])
     setCarregando(false)
@@ -149,7 +153,7 @@ export default function GerenciarProfissionais({ onVoltar }) {
         {carregando ? (
           <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
         ) : profissionais.length === 0 ? (
-          <p style={{ color: 'var(--color-text-muted)' }}>Nenhum médico ou farmacêutico cadastrado ainda.</p>
+          <p style={{ color: 'var(--color-text-muted)' }}>Nenhum login institucional criado ainda.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {profissionais.map((p) => (
@@ -157,7 +161,7 @@ export default function GerenciarProfissionais({ onVoltar }) {
                 <div>
                   <div style={{ fontWeight: 600 }}>{p.nome_exibicao || p.nome}</div>
                   <div style={{ fontSize: 12.5, color: 'var(--color-text-muted)' }}>
-                    {p.tipo === 'medico' ? 'Médico' : 'Farmacêutico'}
+                    {TIPOS.find((t) => t.valor === p.tipo)?.rotulo || p.tipo}
                     {p.crm ? ` · CRM ${p.crm}` : ''}
                     {p.deve_trocar_senha ? ' · aguardando troca de senha' : ''}
                   </div>
