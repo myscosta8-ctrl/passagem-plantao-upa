@@ -153,3 +153,35 @@ export async function registrarEscala({ atendimentoId, tipo, pontuacao, nivelRis
     .select()
     .single()
 }
+
+// Resumo compacto pro card de status no topo da Ficha Clínica — último
+// sinal vital, escala mais recente de cada tipo, dispositivos ainda
+// ativos e balanço hídrico só de hoje.
+export async function buscarResumoPaciente(atendimentoId) {
+  const [sinaisVitais, escalas, dispositivos, balanco] = await Promise.all([
+    listarSinaisVitais(atendimentoId),
+    listarEscalas(atendimentoId),
+    listarDispositivos(atendimentoId),
+    listarBalancoHidrico(atendimentoId),
+  ])
+
+  const escalaPorTipo = {}
+  for (const e of escalas) {
+    if (!escalaPorTipo[e.tipo]) escalaPorTipo[e.tipo] = e
+  }
+
+  const dispositivosAtivos = dispositivos.filter((d) => !d.removido_em)
+
+  const hojeISO = new Date().toISOString().slice(0, 10)
+  const balancoHoje = balanco.filter((b) => (b.registrado_em || '').slice(0, 10) === hojeISO)
+  const entradasHoje = balancoHoje.filter((b) => b.tipo === 'entrada').reduce((s, b) => s + Number(b.volume_ml), 0)
+  const saidasHoje = balancoHoje.filter((b) => b.tipo === 'saida').reduce((s, b) => s + Number(b.volume_ml), 0)
+
+  return {
+    ultimoSv: sinaisVitais[0] || null,
+    escalaPorTipo,
+    dispositivosAtivos,
+    entradasHoje,
+    saidasHoje,
+  }
+}
