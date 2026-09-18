@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { pepEstaAtivo } from '../lib/pepConfig'
+import { leitosOcupadosIdsPep, realocarAtendimentoPep } from '../lib/pepAtendimentos'
 
 export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onFechar, onRealocado }) {
   const [setores, setSetores] = useState([])
@@ -8,16 +10,20 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
   const [leitoDestinoId, setLeitoDestinoId] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
+  const [pepAtivo, setPepAtivo] = useState(false)
 
   useEffect(() => {
     carregar()
   }, [])
 
   async function carregar() {
+    const pep = await pepEstaAtivo(enfermeiroId)
+    setPepAtivo(pep)
     const { data: listaSetores } = await supabase.from('setores').select('*').order('ordem')
     const { data: todosLeitos } = await supabase.from('leitos').select('*').eq('ativo', true)
-    const { data: internados } = await supabase.from('pacientes').select('leito_atual_id').eq('status', 'internado')
-    const ocupados = new Set((internados ?? []).map((p) => p.leito_atual_id))
+    const ocupados = pep
+      ? await leitosOcupadosIdsPep()
+      : new Set(((await supabase.from('pacientes').select('leito_atual_id').eq('status', 'internado')).data ?? []).map((p) => p.leito_atual_id))
     setSetores(listaSetores ?? [])
     setLeitosVazios((todosLeitos ?? []).filter((l) => !ocupados.has(l.id) && l.id !== leitoOrigem.id))
   }
@@ -33,15 +39,22 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
     }
     setSalvando(true)
 
-    const { error: erroUpdate } = await supabase
-      .from('pacientes')
-      .update({
-        leito_atual_id: Number(leitoDestinoId),
-        updated_at: new Date().toISOString(),
-        ultima_alteracao_por: enfermeiroId,
-        ultima_alteracao_em: new Date().toISOString(),
-      })
-      .eq('id', paciente.id)
+    const { error: erroUpdate } = pepAtivo
+      ? await realocarAtendimentoPep({
+          atendimentoId: paciente.id,
+          leitoOrigemId: leitoOrigem.id,
+          leitoDestinoId: Number(leitoDestinoId),
+          setorDestinoId: Number(setorDestinoId),
+        })
+      : await supabase
+          .from('pacientes')
+          .update({
+            leito_atual_id: Number(leitoDestinoId),
+            updated_at: new Date().toISOString(),
+            ultima_alteracao_por: enfermeiroId,
+            ultima_alteracao_em: new Date().toISOString(),
+          })
+          .eq('id', paciente.id)
 
     if (erroUpdate) {
       setErro('Não foi possível realocar o paciente.')
