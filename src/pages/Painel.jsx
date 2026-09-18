@@ -5,6 +5,8 @@ import PassagemForm from './PassagemForm'
 import RealocarModal from './RealocarModal'
 import ConfirmModal from './ConfirmModal'
 import IndicadoresClinicos from '../components/IndicadoresClinicos'
+import { pepEstaAtivo } from '../lib/pepConfig'
+import { carregarLeitosOcupadosPep, internarPacientePep } from '../lib/pepAtendimentos'
 import './Painel.css'
 
 export default function Painel({ plantao, setoresIds }) {
@@ -20,6 +22,7 @@ export default function Painel({ plantao, setoresIds }) {
   const [modalRealocar, setModalRealocar] = useState(null) // { paciente, leitoOrigem }
   const [carregando, setCarregando] = useState(true)
   const restauradoRef = useRef(false)
+  const pepAtivoRef = useRef(false)
   const chaveModalAberto = `modal_passagem_aberto_${plantao.id}`
 
   useEffect(() => {
@@ -69,19 +72,33 @@ export default function Painel({ plantao, setoresIds }) {
 
   async function carregarTudo() {
     setCarregando(true)
+    const pepAtivo = await pepEstaAtivo(enfermeiro?.id)
+    pepAtivoRef.current = pepAtivo
+
     const { data: listaSetores } = await supabase.from('setores').select('*').order('ordem')
     const { data: listaLeitos } = await supabase
       .from('leitos')
       .select('*')
       .eq('ativo', true)
       .order('numero')
+
+    setSetores(listaSetores ?? [])
+    setLeitos(listaLeitos ?? [])
+
+    if (pepAtivo) {
+      const { pacientesPorLeito: mapa, passagemPorPaciente } = await carregarLeitosOcupadosPep()
+      setPacientesPorLeito(mapa)
+      setPassagemPorPaciente(passagemPorPaciente)
+      restaurarModalSalvo(mapa, listaLeitos ?? [])
+      setCarregando(false)
+      return
+    }
+
     const { data: listaPacientes } = await supabase
       .from('pacientes')
       .select('*, ultima_alteracao_por_enfermeiro:enfermeiros!ultima_alteracao_por(nome_exibicao, nome)')
       .eq('status', 'internado')
 
-    setSetores(listaSetores ?? [])
-    setLeitos(listaLeitos ?? [])
     const mapa = {}
     for (const p of listaPacientes ?? []) {
       if (p.leito_atual_id) mapa[p.leito_atual_id] = p
@@ -126,6 +143,19 @@ export default function Painel({ plantao, setoresIds }) {
 
   async function internarPaciente(leito, dados) {
     setErroInternar('')
+
+    if (pepAtivoRef.current) {
+      const { novo, error } = await internarPacientePep({ leito, dados, enfermeiroId: enfermeiro?.id })
+      if (!error) {
+        setPacientesPorLeito((prev) => ({ ...prev, [leito.id]: novo }))
+        setModalLeito(null)
+      } else {
+        setErroInternar('Não foi possível internar. Nada foi perdido do que estava preenchido — tente de novo, e se persistir, avise o suporte.')
+        console.error('Erro ao internar paciente (PEP):', error)
+      }
+      return
+    }
+
     const { data: novo, error } = await supabase
       .from('pacientes')
       .insert({
