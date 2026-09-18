@@ -181,6 +181,21 @@
   border-bottom: 2.5px solid transparent;
   white-space: nowrap;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ph-aba-topo svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.ph-aba-topo.ativa svg {
+  opacity: 1;
+  color: var(--c-primary);
 }
 
 .ph-aba-topo:hover {
@@ -211,6 +226,21 @@
   border-bottom: 2px solid transparent;
   white-space: nowrap;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ph-aba-sub svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.ph-aba-sub.ativa svg,
+.ph-aba-sub.perigo svg {
+  opacity: 1;
 }
 
 .ph-aba-sub:hover {

@@ -21,6 +21,10 @@ export default function Painel({ plantao, setoresIds }) {
   const [modalPassagem, setModalPassagem] = useState(null) // { paciente, leito }
   const [modalRealocar, setModalRealocar] = useState(null) // { paciente, leitoOrigem }
   const [carregando, setCarregando] = useState(true)
+  const [visualizacao, setVisualizacao] = useState('cards') // 'cards' | 'tabela'
+  const [buscaTabela, setBuscaTabela] = useState('')
+  const [setorFiltro, setSetorFiltro] = useState('')
+  const [statusFiltro, setStatusFiltro] = useState('')
   const restauradoRef = useRef(false)
   const pepAtivoRef = useRef(false)
   const chaveModalAberto = `modal_passagem_aberto_${plantao.id}`
@@ -187,8 +191,17 @@ export default function Painel({ plantao, setoresIds }) {
 
   return (
     <div className="page" style={{ maxWidth: 1400 }}>
-      <h1 className="page-title">Painel do plantão</h1>
-      <p className="page-subtitle">Selecione um leito para internar, editar ou realocar um paciente.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <h1 className="page-title">Painel do plantão</h1>
+          <p className="page-subtitle" style={{ marginBottom: 0, paddingBottom: 0, border: 'none' }}>Selecione um leito para internar, editar ou realocar um paciente.</p>
+        </div>
+        <div className="visualizacao-toggle">
+          <button className={visualizacao === 'cards' ? 'on' : ''} onClick={() => setVisualizacao('cards')}>Cards</button>
+          <button className={visualizacao === 'tabela' ? 'on' : ''} onClick={() => setVisualizacao('tabela')}>Lista</button>
+        </div>
+      </div>
+      <div style={{ borderBottom: '1px solid var(--c-border)', marginBottom: 20 }} />
 
       {erroGeral && (
         <div className="error-box" style={{ marginBottom: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -197,7 +210,25 @@ export default function Painel({ plantao, setoresIds }) {
         </div>
       )}
 
-      {setoresVisiveis.map((setor) => {
+      {visualizacao === 'tabela' && (
+        <PainelTabela
+          setoresVisiveis={setoresVisiveis}
+          leitos={leitos}
+          pacientesPorLeito={pacientesPorLeito}
+          busca={buscaTabela}
+          onBusca={setBuscaTabela}
+          setorFiltro={setorFiltro}
+          onSetorFiltro={setSetorFiltro}
+          statusFiltro={statusFiltro}
+          onStatusFiltro={setStatusFiltro}
+          onAbrirLeito={(leito) => {
+            const paciente = pacientesPorLeito[leito.id]
+            paciente ? abrirPassagem(paciente, leito) : setModalLeito(leito)
+          }}
+        />
+      )}
+
+      {visualizacao === 'cards' && setoresVisiveis.map((setor) => {
         const leitosDoSetor = leitos
           .filter((l) => l.setor_id === setor.id)
           .sort((a, b) => {
@@ -307,6 +338,100 @@ export default function Painel({ plantao, setoresIds }) {
           }}
         />
       )}
+    </div>
+  )
+}
+
+function PainelTabela({
+  setoresVisiveis, leitos, pacientesPorLeito, busca, onBusca,
+  setorFiltro, onSetorFiltro, statusFiltro, onStatusFiltro, onAbrirLeito,
+}) {
+  const buscaNorm = normalizarNome(busca || '')
+
+  const linhas = setoresVisiveis.flatMap((setor) => {
+    const leitosDoSetor = leitos
+      .filter((l) => l.setor_id === setor.id)
+      .sort((a, b) => {
+        if (a.tipo !== b.tipo) return a.tipo === 'extra' ? 1 : -1
+        return parseInt(a.numero, 10) - parseInt(b.numero, 10) || a.numero.localeCompare(b.numero)
+      })
+    return leitosDoSetor.map((leito) => ({ setor, leito, paciente: pacientesPorLeito[leito.id] || null }))
+  }).filter(({ setor, paciente }) => {
+    if (setorFiltro && setor.id !== setorFiltro) return false
+    if (statusFiltro === 'ocupado' && !paciente) return false
+    if (statusFiltro === 'vazio' && paciente) return false
+    if (statusFiltro === 'internado' && paciente?.status_internacao !== 'Internado') return false
+    if (statusFiltro === 'observacao' && paciente?.status_internacao !== 'Em observação') return false
+    if (buscaNorm && !(paciente && normalizarNome(paciente.nome).includes(buscaNorm))) return false
+    return true
+  })
+
+  const ocupados = linhas.filter((l) => l.paciente).length
+
+  return (
+    <div>
+      <div className="tabela-filtros">
+        <div className="tabela-filtro-campo">
+          <label>Setor</label>
+          <select value={setorFiltro} onChange={(e) => onSetorFiltro(e.target.value)}>
+            <option value="">Todos os setores</option>
+            {setoresVisiveis.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
+          </select>
+        </div>
+        <div className="tabela-filtro-campo">
+          <label>Status</label>
+          <select value={statusFiltro} onChange={(e) => onStatusFiltro(e.target.value)}>
+            <option value="">Todos</option>
+            <option value="ocupado">Ocupados</option>
+            <option value="vazio">Vazios</option>
+            <option value="internado">Internado</option>
+            <option value="observacao">Em observação</option>
+          </select>
+        </div>
+        <div className="tabela-filtro-campo" style={{ flexGrow: 1 }}>
+          <label>Buscar paciente</label>
+          <input type="text" placeholder="Nome do paciente..." value={busca} onChange={(e) => onBusca(e.target.value)} />
+        </div>
+      </div>
+
+      <div className="tabela-painel-wrap">
+        <table className="tabela-painel">
+          <thead>
+            <tr>
+              <th>Setor / Leito</th>
+              <th>Paciente</th>
+              <th>Status</th>
+              <th>HD</th>
+              <th>Admissão</th>
+            </tr>
+          </thead>
+          <tbody>
+            {linhas.length === 0 && (
+              <tr><td colSpan={5} style={{ color: 'var(--c-text-muted)', padding: '16px 14px' }}>Nenhum leito encontrado com esses filtros.</td></tr>
+            )}
+            {linhas.map(({ setor, leito, paciente }) => (
+              <tr key={leito.id} onClick={() => onAbrirLeito(leito)}>
+                <td>{setor.nome} · L{leito.numero}</td>
+                <td style={{ fontWeight: 600 }}>{paciente ? paciente.nome : <span style={{ color: 'var(--c-text-muted)', fontWeight: 400 }}>Leito vazio</span>}</td>
+                <td>
+                  {paciente && (
+                    <span className={`status-badge ${paciente.status_internacao === 'Internado' ? 'internado' : 'observacao'}`}>
+                      {paciente.status_internacao}
+                    </span>
+                  )}
+                </td>
+                <td style={{ color: 'var(--c-text-muted)' }}>{paciente?.diagnostico || '—'}</td>
+                <td style={{ color: 'var(--c-text-muted)' }}>
+                  {paciente?.data_admissao ? new Date(paciente.data_admissao + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="tabela-painel-rodape">
+          <span>{ocupados} leito(s) ocupado(s) de {linhas.length}</span>
+        </div>
+      </div>
     </div>
   )
 }

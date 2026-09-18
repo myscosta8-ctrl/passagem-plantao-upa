@@ -2,6 +2,31 @@ import { useState } from 'react'
 import { lerTemaSalvo, alternarTema } from '../lib/theme'
 import './Header.css'
 
+const iconProps = {
+  viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
+  strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+}
+
+const IconPainel = (p) => <svg {...iconProps} {...p}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" /></svg>
+const IconImprimir = (p) => <svg {...iconProps} {...p}><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-2M6 14h12v7H6z" /></svg>
+const IconHistorico = (p) => <svg {...iconProps} {...p}><path d="M4 19V9M11 19V4M18 19v-7" /></svg>
+const IconProfissionais = (p) => <svg {...iconProps} {...p}><circle cx="9" cy="8" r="3.5" /><path d="M3 20v-1.5A4 4 0 0 1 7 14.5h4a4 4 0 0 1 4 4V20M17 8h4M19 6v4" /></svg>
+const IconConta = (p) => <svg {...iconProps} {...p}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" /></svg>
+const IconPendencias = (p) => <svg {...iconProps} {...p}><rect x="5" y="4" width="14" height="17" rx="2" /><path d="M9 2h6v3H9zM8 11h8M8 15h5" /></svg>
+const IconCompartilhar = (p) => <svg {...iconProps} {...p}><circle cx="18" cy="5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="19" r="2.5" /><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4" /></svg>
+const IconDesfechos = (p) => <svg {...iconProps} {...p}><path d="M12 3l8 4v5c0 5-3.4 7.9-8 9-4.6-1.1-8-4-8-9V7l8-4Z" /><path d="M9 12l2 2 4-4" /></svg>
+const IconEncerrarPlantonista = (p) => <svg {...iconProps} {...p}><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0" /></svg>
+const IconAjuda = (p) => <svg {...iconProps} {...p}><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.9.4-1 1.1-1 1.7" /><circle cx="12" cy="17" r=".6" fill="currentColor" /></svg>
+
+const ICONE_GRUPO = { plantao: IconPainel, documentos: IconImprimir, indicadores: IconHistorico, administracao: IconProfissionais, conta: IconConta }
+const ICONE_SUB = {
+  painel: IconPainel, pendencias: IconPendencias, compartilhar: IconCompartilhar,
+  print1: IconImprimir, print2: IconImprimir,
+  historico: IconHistorico, altas: IconDesfechos,
+  profissionais: IconProfissionais, equipe: IconEncerrarPlantonista,
+  conta: IconConta, ajuda: IconAjuda,
+}
+
 // Mapa tela -> grupo, pra saber qual aba de topo fica destacada e qual
 // fileira de sub-abas mostrar quando a pessoa já está numa tela do grupo.
 const GRUPO_DA_TELA = {
@@ -130,30 +155,41 @@ export default function Header({
       </div>
 
       <nav className="ph-abas-topo">
-        {GRUPOS.map((g) => (
-          <button
-            key={g.chave}
-            className={`ph-aba-topo ${grupoAberto === g.chave ? 'ativa' : ''}`}
-            onClick={() => abrirGrupo(g)}
-          >
-            {g.rotulo}
-          </button>
-        ))}
+        {GRUPOS.map((g) => {
+          const Icone = ICONE_GRUPO[g.chave]
+          return (
+            <button
+              key={g.chave}
+              className={`ph-aba-topo ${grupoAberto === g.chave ? 'ativa' : ''}`}
+              onClick={() => abrirGrupo(g)}
+            >
+              <Icone />
+              {g.rotulo}
+            </button>
+          )
+        })}
       </nav>
 
       {SUB_ABAS[grupoAberto] && (
         <nav className="ph-abas-sub">
-          {SUB_ABAS[grupoAberto].map((s) => (
-            <button
-              key={s.tela}
-              className={`ph-aba-sub ${telaAtual === s.tela ? 'ativa' : ''}`}
-              onClick={() => irPara(s.tela)}
-            >
-              {s.rotulo}
-            </button>
-          ))}
+          {SUB_ABAS[grupoAberto].map((s) => {
+            const Icone = ICONE_SUB[s.tela]
+            return (
+              <button
+                key={s.tela}
+                className={`ph-aba-sub ${telaAtual === s.tela ? 'ativa' : ''}`}
+                onClick={() => irPara(s.tela)}
+              >
+                <Icone />
+                {s.rotulo}
+              </button>
+            )
+          })}
           {grupoAberto === 'conta' && (
-            <button className="ph-aba-sub perigo" onClick={onLogout}>Sair</button>
+            <button className="ph-aba-sub perigo" onClick={onLogout}>
+              <svg {...iconProps}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+              Sair
+            </button>
           )}
         </nav>
       )}
