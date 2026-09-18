@@ -106,7 +106,12 @@ export function AuthProvider({ children }) {
 
   async function trocarSenha(novaSenha) {
     const { error } = await supabase.auth.updateUser({ password: novaSenha })
-    return { error }
+    if (error) return { error }
+    if (!session?.user) return { error: null }
+    // Se a troca foi forçada (primeiro login ou reset da direção), destrava o acesso.
+    await supabase.from('enfermeiros').update({ deve_trocar_senha: false }).eq('id', session.user.id)
+    setEnfermeiro((prev) => (prev ? { ...prev, deve_trocar_senha: false } : prev))
+    return { error: null }
   }
 
   const value = {
