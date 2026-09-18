@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import ConfirmModal from './ConfirmModal'
 import { pepEstaAtivo } from '../lib/pepConfig'
+import FichaClinica from './FichaClinica'
 import {
   buscarPassagemAtualPep,
   buscarUltimaPassagemPep,
@@ -87,6 +88,10 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   const [confirmandoFechar, setConfirmandoFechar] = useState(false)
   const [origemCopia, setOrigemCopia] = useState(null)
   const [pepAtivo, setPepAtivo] = useState(false)
+  const [mostrarFichaClinica, setMostrarFichaClinica] = useState(false)
+  // Fase 2, piloto: só Observação/Internação ganha a ficha clínica contínua
+  // (admissão + sinais vitais), e só faz sentido sobre a estrutura nova.
+  const podeAbrirFichaClinica = pepAtivo && setorNome === 'Observação/Internação'
 
   useEffect(() => {
     carregar()
@@ -439,6 +444,15 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     )
   }
 
+  if (mostrarFichaClinica) {
+    return (
+      <FichaClinica
+        atendimento={{ atendimento_id: paciente.id, pessoa_id: paciente.pessoa_id, nome: paciente.nome }}
+        onFechar={() => setMostrarFichaClinica(false)}
+      />
+    )
+  }
+
   return (
     <div className="form-overlay">
       <div className="form-panel" onClick={(e) => e.stopPropagation()}>
@@ -450,6 +464,9 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         <div className="form-toolbar">
           <button className="btn-copiar" onClick={copiarNovamente}>↺ Copiar do plantão anterior</button>
           <button className="btn-realocar" onClick={() => onRealocar?.(paciente, leito)}>⇄ Realocar paciente</button>
+          {podeAbrirFichaClinica && (
+            <button className="btn-alta" onClick={() => setMostrarFichaClinica(true)}>📋 Ficha clínica</button>
+          )}
           <button className="btn-alta" onClick={() => setModalDesfecho(true)} disabled={processando}>✓ Registrar desfecho</button>
           <button className="btn-excluir" onClick={excluirPaciente} disabled={processando}>🗑 Excluir paciente</button>
         </div>
