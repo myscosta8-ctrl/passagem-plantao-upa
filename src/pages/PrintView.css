@@ -102,3 +102,94 @@
   font-style: italic;
   padding: 6px 0;
 }
+
+/* Documento único (ficha médica: consulta, prescrição, AIH) */
+.doc-page {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 12px;
+}
+
+.doc-cabecalho {
+  border: 1px solid #999;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px 14px;
+  font-size: 10.5px;
+}
+
+.doc-cabecalho .campo-largo {
+  grid-column: 1 / -1;
+}
+
+.doc-cabecalho .rotulo {
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.doc-titulo {
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+  margin: 4px 0 14px;
+  text-transform: uppercase;
+}
+
+.doc-secao {
+  margin-bottom: 12px;
+}
+
+.doc-secao .rotulo {
+  font-weight: 700;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  color: #444;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.doc-secao .valor {
+  white-space: pre-wrap;
+}
+
+.doc-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+
+.doc-tabela th,
+.doc-tabela td {
+  border: 1px solid #999;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+.doc-tabela th {
+  background: #eee;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.doc-assinatura {
+  margin-top: 48px;
+  text-align: center;
+  font-size: 11px;
+}
+
+.doc-assinatura .linha-assinatura {
+  border-top: 1px solid #333;
+  width: 320px;
+  margin: 0 auto 4px;
+}
+
+.doc-rodape-meta {
+  margin-top: 6px;
+  font-size: 9.5px;
+  color: #666;
+  text-align: right;
+}

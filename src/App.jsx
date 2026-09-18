@@ -3,6 +3,7 @@ import Auth from './pages/Auth'
 import Home from './pages/Home'
 import CompletarPerfil from './pages/CompletarPerfil'
 import BemVindoModal from './pages/BemVindoModal'
+import TrocaSenhaObrigatoria from './pages/TrocaSenhaObrigatoria'
 
 function Gate() {
   const { loading, session, enfermeiro, profileLoading } = useAuth()
@@ -26,6 +27,8 @@ function Gate() {
   }
 
   if (!enfermeiro) return <CompletarPerfil />
+
+  if (enfermeiro.deve_trocar_senha) return <TrocaSenhaObrigatoria />
 
   return (
     <>
