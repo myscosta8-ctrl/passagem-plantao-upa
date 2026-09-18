@@ -9,12 +9,12 @@
    ===================================================================== */
 
 :root {
-  /* PALETA — teal único (marca = ação, uma cor só, nunca duas competindo) */
-  --c-primary:        #0B6E63;
-  --c-primary-dark:   #06231D;
-  --c-primary-mid:    #0B6E63;
-  --c-primary-light:  #F0F7F6;
-  --c-primary-border: #BFE0D8;
+  /* PALETA — azul único (marca = ação, uma cor só, nunca duas competindo) */
+  --c-primary:        #14507D;
+  --c-primary-dark:   #0A1F33;
+  --c-primary-mid:    #14507D;
+  --c-primary-light:  #EAF2F8;
+  --c-primary-border: #B8D0E8;
 
   /* SUPERFÍCIES */
   --c-bg:             #F4F6F5;
@@ -48,7 +48,7 @@
   --c-info:           #0369a1;
   --c-info-light:     #e0f2fe;
   --c-info-border:    #bae6fd;
-  --c-acao-light:     #F0F7F6;
+  --c-acao-light:     #EAF2F8;
 
   /* TIPOGRAFIA — Plex Sans pro texto lido, Plex Mono pra tudo que é rótulo/dado/leito/hora */
   --font-ui:          'IBM Plex Sans', system-ui, -apple-system, sans-serif;
@@ -103,17 +103,17 @@
   --color-accent:         var(--c-danger);
   --color-accent-light:   var(--c-danger-light);
   --color-acao:           var(--c-primary);
-  --color-acao-hover:     #094F47;
+  --color-acao-hover:     #0F3C5C;
   --radius:               var(--r-md);
   --shadow-md:            var(--shadow-md);
 }
 
 /* ===================== TEMA ESCURO ===================== */
 :root[data-tema="escuro"] {
-  --c-primary:        #3FBBA8;
+  --c-primary:        #5B9BD5;
   --c-primary-dark:   #DCE6E2;
-  --c-primary-mid:    #3FBBA8;
-  --c-primary-light:  rgba(63, 187, 168, 0.14);
+  --c-primary-mid:    #5B9BD5;
+  --c-primary-light:  rgba(91, 155, 213, 0.14);
   --c-primary-border: #24322D;
 
   --c-bg:             #0C1210;
@@ -144,7 +144,7 @@
   --c-info:           #6AA3D6;
   --c-info-light:     rgba(106,163,214,0.14);
   --c-info-border:    #1B2622;
-  --c-acao-light:     rgba(63,187,168,0.14);
+  --c-acao-light:     rgba(91,155,213,0.14);
 
   --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
   --shadow-lg: 0 12px 32px rgba(0,0,0,0.45);

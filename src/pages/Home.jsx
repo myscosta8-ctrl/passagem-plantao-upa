@@ -15,7 +15,7 @@ import PainelEquipe from './PainelEquipe'
 import GerenciarProfissionais from './GerenciarProfissionais'
 import PainelMedico from './PainelMedico'
 import CadastroPacientes from './CadastroPacientes'
-import Sidebar from '../components/Sidebar'
+import Header from '../components/Header'
 import './AberturaPlantao.css'
 
 async function purgarHistoricoAntigo() {
@@ -109,7 +109,6 @@ export default function Home() {
 
   const [verificandoRetomada, setVerificandoRetomada] = useState(true)
   const [encerrando, setEncerrando] = useState(false)
-  const [navOpen, setNavOpen] = useState(false)
   const [contaMenuAberto, setContaMenuAberto] = useState(false)
   const [avisoEncerradoAutomatico, setAvisoEncerradoAutomatico] = useState(null)
   const [minutosParaCorte, setMinutosParaCorte] = useState(null)
@@ -317,13 +316,12 @@ export default function Home() {
 
   return (
     <div className="app-shell">
-      <Sidebar
-        navOpen={navOpen}
-        onFecharNav={() => setNavOpen(false)}
+      <Header
         enfermeiro={enfermeiro}
         isAdmin={isAdmin}
         podeAdministrar={podeEncerrarQualquerPlantonista}
         plantaoAberto={Boolean(plantao && setoresIds)}
+        plantao={plantao}
         telaAtual={tela}
         onNavegar={setTela}
         onEncerrarPlantao={encerrarPlantao}
@@ -331,22 +329,6 @@ export default function Home() {
         onLogout={logout}
       />
       <div className="app-shell-main shell">
-      <div className="topbar no-print">
-        <div className="topbar-brand">
-          <button className="topbar-nav-toggle" onClick={() => setNavOpen((v) => !v)} aria-label="Abrir menu">
-            <span /><span /><span />
-          </button>
-          <span className="topbar-title">Passagem de Plantão</span>
-        </div>
-        <div className="topbar-user">
-          {plantao && (
-            <span className="topbar-turno">
-              {plantao.turno} — {new Date(plantao.data + 'T00:00:00').toLocaleDateString('pt-BR')}
-            </span>
-          )}
-        </div>
-      </div>
-
       {avisoEncerradoAutomatico && (
         <div className="no-print" style={{ background: 'var(--c-warning-light)', color: 'var(--c-warning)', borderLeft: '3px solid var(--c-warning)', padding: '10px 20px', fontSize: 13.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>
