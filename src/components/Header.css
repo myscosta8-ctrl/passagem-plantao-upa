@@ -1,0 +1,282 @@
+/* Header — cabeçalho com gradiente + navegação em duas camadas de aba
+   (módulo → sub-aba), no lugar da sidebar-gaveta anterior. Ver proposta de
+   redesign aprovada na conversa (absorve o modelo do Salutem: identidade da
+   unidade no topo + duas camadas de aba), na paleta azul do projeto. */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.app-shell-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ph-header {
+  flex-shrink: 0;
+}
+
+.ph-topo {
+  /* Cor de marca fixa, independente do tema claro/escuro do conteúdo —
+     como a identidade visual do cabeçalho não deve "sumir" no escuro. */
+  background: linear-gradient(90deg, #0A1F33 0%, #14507D 100%);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ph-marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ph-marca-icone {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff;
+}
+
+.ph-marca-icone svg {
+  width: 15px;
+  height: 15px;
+}
+
+.ph-marca-t1 {
+  display: block;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+}
+
+.ph-marca-t2 {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.04em;
+}
+
+.ph-conta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ph-turno {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+
+.ph-encerrar-btn {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--r-sm);
+  padding: 5px 9px;
+  white-space: nowrap;
+}
+
+.ph-encerrar-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.ph-encerrar-btn:disabled {
+  opacity: 0.6;
+}
+
+.ph-tema-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.ph-tema-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.ph-usuario {
+  text-align: right;
+  line-height: 1.3;
+}
+
+.ph-usuario-nome {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.ph-badge-admin {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #0A1F33;
+  background: #ffffff;
+  border-radius: var(--r-sm);
+  padding: 1px 5px;
+  margin-left: 6px;
+}
+
+.ph-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ph-abas-topo {
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: 0 20px;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.ph-aba-topo {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 11px 14px;
+  color: var(--c-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  white-space: nowrap;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ph-aba-topo svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.ph-aba-topo.ativa svg {
+  opacity: 1;
+  color: var(--c-primary);
+}
+
+.ph-aba-topo:hover {
+  color: var(--c-text-primary);
+}
+
+.ph-aba-topo.ativa {
+  color: var(--c-text-primary);
+  border-bottom-color: var(--c-primary);
+}
+
+.ph-abas-sub {
+  background: var(--c-surface-raised);
+  border-bottom: 1px solid var(--c-border);
+  padding: 0 20px;
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+}
+
+.ph-aba-sub {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 8px 2px;
+  color: var(--c-text-secondary);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ph-aba-sub svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.ph-aba-sub.ativa svg,
+.ph-aba-sub.perigo svg {
+  opacity: 1;
+}
+
+.ph-aba-sub:hover {
+  color: var(--c-text-primary);
+}
+
+.ph-aba-sub.ativa {
+  color: var(--c-primary);
+  font-weight: 700;
+  border-bottom-color: var(--c-primary);
+}
+
+.ph-aba-sub.perigo {
+  color: var(--c-danger);
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .ph-marca-t2 {
+    display: none;
+  }
+
+  .ph-turno {
+    display: none;
+  }
+
+  .ph-usuario {
+    display: none;
+  }
+
+  .ph-topo {
+    padding: 9px 14px;
+  }
+
+  .ph-abas-topo,
+  .ph-abas-sub {
+    padding: 0 14px;
+  }
+}
