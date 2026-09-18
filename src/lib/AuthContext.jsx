@@ -22,8 +22,14 @@ export function AuthProvider({ children }) {
     return () => sub.subscription.unsubscribe()
   }, [])
 
+  // Depende só do id (não do objeto session inteiro): o Supabase entrega uma
+  // sessão NOVA (mesmo usuário) toda vez que a aba volta a ficar visível —
+  // renovação de token, não troca de conta. Se dependesse de `session`, isso
+  // recarregava o perfil do zero a cada troca de aba ("Carregando perfil...").
+  const enfermeiroId = session?.user?.id
+
   useEffect(() => {
-    if (!session?.user) {
+    if (!enfermeiroId) {
       setEnfermeiro(null)
       return
     }
@@ -31,13 +37,13 @@ export function AuthProvider({ children }) {
     supabase
       .from('enfermeiros')
       .select('*')
-      .eq('id', session.user.id)
+      .eq('id', enfermeiroId)
       .maybeSingle()
       .then(({ data }) => {
         setEnfermeiro(data ?? null)
         setProfileLoading(false)
       })
-  }, [session])
+  }, [enfermeiroId])
 
   async function completarPerfil(nome) {
     if (!session?.user) return { error: new Error('Sem sessão ativa') }

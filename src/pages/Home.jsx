@@ -352,11 +352,11 @@ export default function Home() {
       </div>
 
       {avisoEncerradoAutomatico && (
-        <div className="no-print" style={{ background: '#FFF3D6', color: '#8A5A00', padding: '10px 20px', fontSize: 13.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="no-print" style={{ background: 'var(--c-warning-light)', color: 'var(--c-warning)', borderLeft: '3px solid var(--c-warning)', padding: '10px 20px', fontSize: 13.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>
             ⚠ Sua participação no plantão de {new Date(avisoEncerradoAutomatico.data + 'T00:00:00').toLocaleDateString('pt-BR')} ({avisoEncerradoAutomatico.turno}) foi encerrada automaticamente por ter passado do horário.
           </span>
-          <button onClick={() => setAvisoEncerradoAutomatico(null)} style={{ background: 'none', border: 'none', color: '#8A5A00', fontWeight: 700, cursor: 'pointer' }}>✕</button>
+          <button onClick={() => setAvisoEncerradoAutomatico(null)} style={{ background: 'none', border: 'none', color: 'var(--c-warning)', fontWeight: 700, cursor: 'pointer' }}>✕</button>
         </div>
       )}
 
