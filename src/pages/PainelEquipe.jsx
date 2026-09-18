@@ -64,8 +64,9 @@ export default function PainelEquipe({ onVoltar }) {
             </div>
             <button
               style={{
-                padding: '8px 14px', fontSize: 12.5, fontWeight: 600, borderRadius: 8,
-                border: '1px solid #8a1f1f', color: '#8a1f1f', background: '#fdf0f0',
+                padding: '7px 12px', fontFamily: 'var(--font-mono)', fontSize: 10.5, fontWeight: 600,
+                textTransform: 'uppercase', letterSpacing: '.03em', borderRadius: 'var(--r-sm)',
+                border: '1px solid var(--c-danger)', color: 'var(--c-danger)', background: 'transparent',
               }}
               onClick={() => setAlvo(item)}
             >

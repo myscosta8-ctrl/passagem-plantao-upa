@@ -15,6 +15,7 @@ import ConfirmModal from './ConfirmModal'
 import PainelEquipe from './PainelEquipe'
 import GerenciarProfissionais from './GerenciarProfissionais'
 import PainelMedico from './PainelMedico'
+import Sidebar from '../components/Sidebar'
 import './AberturaPlantao.css'
 
 async function purgarHistoricoAntigo() {
@@ -105,7 +106,7 @@ export default function Home() {
 
   const [verificandoRetomada, setVerificandoRetomada] = useState(true)
   const [encerrando, setEncerrando] = useState(false)
-  const [menuAberto, setMenuAberto] = useState(false)
+  const [navOpen, setNavOpen] = useState(false)
   const [contaMenuAberto, setContaMenuAberto] = useState(false)
   const [avisoEncerradoAutomatico, setAvisoEncerradoAutomatico] = useState(null)
   const [minutosParaCorte, setMinutosParaCorte] = useState(null)
@@ -293,7 +294,6 @@ export default function Home() {
       <div className="shell">
         <div className="topbar no-print">
           <div className="topbar-brand">
-            <span className="topbar-mark">UPA</span>
             <span className="topbar-title">Passagem de Plantão</span>
           </div>
           <div className="topbar-user">
@@ -319,86 +319,44 @@ export default function Home() {
   }
 
   return (
-    <div className="shell">
+    <div className="app-shell">
+      <Sidebar
+        navOpen={navOpen}
+        onFecharNav={() => setNavOpen(false)}
+        enfermeiro={enfermeiro}
+        isAdmin={isAdmin}
+        podeAdministrar={podeEncerrarQualquerPlantonista}
+        plantaoAberto={Boolean(plantao && setoresIds)}
+        telaAtual={tela}
+        onNavegar={setTela}
+        onTrocarSetores={() => setSetoresIds(null)}
+        onEncerrarPlantao={encerrarPlantao}
+        encerrandoPlantao={encerrando}
+        onLogout={logout}
+      />
+      <div className="app-shell-main shell">
       <div className="topbar no-print">
         <div className="topbar-brand">
-          <span className="topbar-mark">UPA</span>
+          <button className="topbar-nav-toggle" onClick={() => setNavOpen((v) => !v)} aria-label="Abrir menu">
+            <span /><span /><span />
+          </button>
           <span className="topbar-title">Passagem de Plantão</span>
         </div>
         <div className="topbar-user">
-          <div className="topbar-group">
-            {plantao && (
-              <span className="topbar-turno">
-                {plantao.turno} — {new Date(plantao.data + 'T00:00:00').toLocaleDateString('pt-BR')}
-              </span>
-            )}
-
-            {plantao && setoresIds && tela === 'painel' && (
-              <div className="topbar-menu">
-                <button className="topbar-menu-btn" onClick={() => setMenuAberto((v) => !v)}>
-                  ☰ Menu
-                </button>
-                {menuAberto && (
-                  <div className="topbar-menu-panel" onClick={() => setMenuAberto(false)}>
-                    {!isAdmin && <button onClick={() => setSetoresIds(null)}>Trocar setores</button>}
-                    <button onClick={() => setTela('print1')}>Imprimir Vermelha+Internação</button>
-                    <button onClick={() => setTela('print2')}>Imprimir Pediátrico+Observação</button>
-                    <button onClick={() => setTela('historico')}>Histórico</button>
-                    <button onClick={() => setTela('altas')}>Desfechos (7 dias)</button>
-                    <button onClick={() => setTela('pendencias')}>Pendências</button>
-                    <button onClick={() => setTela('compartilhar')}>Compartilhar plantão</button>
-                    {podeEncerrarQualquerPlantonista && (
-                      <button onClick={() => setTela('equipe')} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                        Encerrar plantonista (ADM)
-                      </button>
-                    )}
-                    {podeEncerrarQualquerPlantonista && (
-                      <button onClick={() => setTela('profissionais')} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                        Gerenciar profissionais (ADM)
-                      </button>
-                    )}
-                    <button onClick={() => setTela('ajuda')}>Ajuda</button>
-                    {!isAdmin && (
-                      <button onClick={encerrarPlantao} disabled={encerrando} className="topbar-menu-danger">
-                        {encerrando ? 'Encerrando...' : 'Encerrar minha participação'}
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {!(plantao && setoresIds && tela === 'painel') && (
-              <button onClick={() => setTela('ajuda')}>Ajuda</button>
-            )}
-          </div>
-
-          <div className="topbar-group">
-            <div className="topbar-menu">
-              <button className="topbar-conta-btn" onClick={() => setContaMenuAberto((v) => !v)}>
-                <span className="topbar-nome">
-                  {enfermeiro?.nome_exibicao || enfermeiro?.nome}
-                  {isAdmin && <span className="admin-badge">ADMIN</span>}
-                </span>
-                <span aria-hidden="true">▾</span>
-              </button>
-              {contaMenuAberto && (
-                <div className="topbar-menu-panel topbar-menu-panel-conta" onClick={() => setContaMenuAberto(false)}>
-                  <button onClick={() => setTela('conta')}>Minha conta</button>
-                  <button onClick={logout} className="topbar-menu-danger">Sair</button>
-                </div>
-              )}
-            </div>
-          </div>
+          {plantao && (
+            <span className="topbar-turno">
+              {plantao.turno} — {new Date(plantao.data + 'T00:00:00').toLocaleDateString('pt-BR')}
+            </span>
+          )}
         </div>
       </div>
 
       {avisoEncerradoAutomatico && (
-        <div className="no-print" style={{ background: '#FFF3D6', color: '#8A5A00', padding: '10px 20px', fontSize: 13.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="no-print" style={{ background: 'var(--c-warning-light)', color: 'var(--c-warning)', borderLeft: '3px solid var(--c-warning)', padding: '10px 20px', fontSize: 13.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>
             ⚠ Sua participação no plantão de {new Date(avisoEncerradoAutomatico.data + 'T00:00:00').toLocaleDateString('pt-BR')} ({avisoEncerradoAutomatico.turno}) foi encerrada automaticamente por ter passado do horário.
           </span>
-          <button onClick={() => setAvisoEncerradoAutomatico(null)} style={{ background: 'none', border: 'none', color: '#8A5A00', fontWeight: 700, cursor: 'pointer' }}>✕</button>
+          <button onClick={() => setAvisoEncerradoAutomatico(null)} style={{ background: 'none', border: 'none', color: 'var(--c-warning)', fontWeight: 700, cursor: 'pointer' }}>✕</button>
         </div>
       )}
 
@@ -435,6 +393,7 @@ export default function Home() {
       )}
 
       {modalConfirmar && <ConfirmModal {...modalConfirmar} onCancelar={() => setModalConfirmar(null)} />}
+      </div>
     </div>
   )
 }

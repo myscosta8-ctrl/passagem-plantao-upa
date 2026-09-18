@@ -37,9 +37,6 @@ export default function TrocaSenhaObrigatoria() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        <div className="auth-brand">
-          <span className="auth-brand-mark">UPA</span>
-        </div>
         <h1 className="auth-title">Troca de senha obrigatória</h1>
         <p className="auth-subtitle">
           Este login está com a senha padrão. Escolha uma senha própria antes de continuar.

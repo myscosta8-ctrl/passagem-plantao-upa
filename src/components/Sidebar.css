@@ -1,0 +1,212 @@
+/* Sidebar — Direção A ("painel de controle"): sem pílula preenchida, sem
+   gradiente — item ativo marcado por uma borda fina, cor só como sinal
+   funcional. Usa os tokens de tema (claro padrão / escuro), então segue o
+   alternador de tema automaticamente. */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--c-surface);
+  border-right: 1px solid var(--c-border);
+  color: var(--c-text-secondary);
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 16px 14px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.sidebar-brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-primary);
+  flex-shrink: 0;
+}
+
+.sidebar-brand-t1 {
+  display: block;
+  color: var(--c-text-primary);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-brand-t2 {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--c-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-grupo {
+  padding: 0 8px;
+  margin-bottom: 10px;
+}
+
+.sidebar-grupo h4 {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+  padding: 0 10px;
+  margin: 0 0 5px;
+}
+
+.sidebar-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px 7px 8px;
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
+  margin-bottom: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.sidebar-item svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.sidebar-item:hover {
+  background: var(--c-surface-inset);
+  color: var(--c-text-primary);
+}
+
+.sidebar-item.ativo {
+  border-left-color: var(--c-primary);
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  font-weight: 600;
+}
+
+.sidebar-item.ativo svg {
+  opacity: 1;
+}
+
+.sidebar-item.perigo {
+  color: var(--c-danger);
+}
+
+.sidebar-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sidebar-rodape {
+  margin-top: auto;
+  padding: 12px 16px 0;
+  border-top: 1px solid var(--c-border);
+  font-size: 12px;
+}
+
+.sidebar-nome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--c-text-primary);
+  font-weight: 600;
+}
+
+.sidebar-badge-admin {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--c-text-inverse);
+  background: var(--c-primary);
+  border-radius: var(--r-sm);
+  padding: 1px 6px;
+}
+
+.sidebar-tema-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--c-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.sidebar-tema-btn:hover {
+  color: var(--c-text-primary);
+  border-color: var(--c-text-muted);
+}
+
+.sidebar-scrim {
+  display: none;
+}
+
+/* Desktop: sidebar sempre visível, empurra o conteúdo — sem overlay. */
+.app-shell {
+  display: flex;
+  min-height: 100%;
+}
+
+.app-shell-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Celular/tablet estreito: sidebar vira gaveta — mesmo gatilho ☰ de antes,
+   cara nova. Reaproveita o breakpoint já usado pelo resto do app. */
+@media (max-width: 860px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar.aberta {
+    transform: translateX(0);
+  }
+
+  .sidebar-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 20, 18, 0.45);
+    z-index: 55;
+  }
+}

@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
 const CORES_TIPO = {
-  Alta: { bg: 'var(--color-primary-light)', cor: 'var(--color-primary-dark)' },
-  Transferência: { bg: '#E6EEF0', cor: 'var(--color-primary-dark)' },
-  Evasão: { bg: '#FFF3D6', cor: '#8A5A00' },
-  Óbito: { bg: 'var(--color-accent-light)', cor: 'var(--color-accent)' },
+  Alta: { cor: 'var(--c-primary)' },
+  Transferência: { cor: 'var(--c-info)' },
+  Evasão: { cor: 'var(--c-warning)' },
+  Óbito: { cor: 'var(--c-danger)' },
 }
 
 export default function AltasRecentes({ onVoltar }) {
@@ -68,10 +68,10 @@ export default function AltasRecentes({ onVoltar }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span style={{ fontWeight: 600, fontSize: 14.5 }}>{p.nome}</span>
                 <span style={{
-                  fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
-                  background: cor.bg, color: cor.cor, borderRadius: 10, padding: '2px 9px',
+                  fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.04em',
+                  color: cor.cor,
                 }}>
-                  {p.tipo_desfecho || 'Alta'}
+                  ● {p.tipo_desfecho || 'Alta'}
                 </span>
               </div>
               <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 3 }}>

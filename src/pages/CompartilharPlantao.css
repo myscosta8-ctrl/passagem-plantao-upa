@@ -1,8 +1,11 @@
 .card-titulo {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 14px;
-  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+  color: var(--c-primary);
 }
 
 .compartilhar-opcoes {
@@ -12,37 +15,39 @@
   align-items: center;
   margin-bottom: 14px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--c-border);
 }
 
 .compartilhar-check {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13.5px;
-  color: var(--color-text);
+  font-size: 13px;
+  color: var(--c-text-primary);
 }
 
 .compartilhar-nota-extra {
   flex: 1;
   min-width: 220px;
-  padding: 8px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  padding: 7px 2px;
+  border: none;
+  border-bottom: 1.5px solid var(--c-border);
+  border-radius: 0;
+  background: transparent;
   font-size: 13.5px;
 }
 
 .compartilhar-preview {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  background: var(--c-surface-inset);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
   padding: 14px;
-  font-family: inherit;
-  font-size: 13.5px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
   white-space: pre-wrap;
   word-break: break-word;
   line-height: 1.5;
-  color: var(--color-text);
+  color: var(--c-text-primary);
   max-height: 400px;
   overflow-y: auto;
 }
@@ -57,11 +62,14 @@
   flex: 1;
   padding: 10px;
   border: none;
-  border-radius: var(--radius);
-  background: var(--color-acao);
+  border-radius: var(--r-md);
+  background: var(--c-primary);
   color: white;
-  font-weight: 600;
-  font-size: 13.5px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .compartilhar-acoes .btn-salvar:hover {
