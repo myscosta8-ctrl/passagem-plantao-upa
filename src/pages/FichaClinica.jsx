@@ -7,6 +7,7 @@ import {
   listarDispositivos, inserirDispositivo, removerDispositivo,
   listarBalancoHidrico, registrarBalancoHidrico,
   listarEscalas, registrarEscala,
+  buscarResumoPaciente,
 } from '../lib/pepClinico'
 import './PassagemForm.css'
 
@@ -89,6 +90,8 @@ export default function FichaClinica({ atendimento, onFechar }) {
           <button className="form-header-close" onClick={onFechar}>×</button>
         </div>
 
+        <ResumoPaciente atendimento={atendimento} />
+
         <div className="form-toolbar">
           <button className={aba === 'admissao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('admissao')}>Admissão</button>
           <button className={aba === 'sinaisVitais' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sinaisVitais')}>Sinais Vitais</button>
@@ -108,6 +111,87 @@ export default function FichaClinica({ atendimento, onFechar }) {
         <div className="form-footer">
           <button className="btn-fechar" onClick={onFechar}>Fechar</button>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function formatarRelativo(iso) {
+  if (!iso) return ''
+  const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000)
+  if (min < 1) return 'agora'
+  if (min < 60) return `há ${min} min`
+  const h = Math.round(min / 60)
+  if (h < 24) return `há ${h}h`
+  return new Date(iso).toLocaleDateString('pt-BR')
+}
+
+function riscoClasse(nivel) {
+  const n = (nivel || '').toLowerCase()
+  if (n.includes('muito alto') || n.includes('risco alto')) return 'danger'
+  if (n.includes('moderado') || n.includes('médio')) return 'warn'
+  return 'ok'
+}
+
+// Painel de status no topo da ficha — mostra o essencial de cada aba num
+// relance, antes de entrar em qualquer uma delas (proposta de redesign
+// aprovada na conversa).
+function ResumoPaciente({ atendimento }) {
+  const [resumo, setResumo] = useState(null)
+
+  useEffect(() => {
+    let vivo = true
+    buscarResumoPaciente(atendimento.atendimento_id).then((r) => { if (vivo) setResumo(r) })
+    return () => { vivo = false }
+  }, [atendimento.atendimento_id])
+
+  if (!resumo) return null
+
+  const { ultimoSv, escalaPorTipo, dispositivosAtivos, entradasHoje, saidasHoje } = resumo
+  const temEscalas = Object.keys(escalaPorTipo).length > 0
+  const temAlgumDado = ultimoSv || temEscalas || dispositivosAtivos.length > 0 || entradasHoje || saidasHoje
+  if (!temAlgumDado) return null
+
+  return (
+    <div className="resumo-paciente">
+      <div className="resumo-bloco">
+        <div className="resumo-bloco-titulo">Sinais vitais</div>
+        {ultimoSv ? (
+          <>
+            <div className="resumo-bloco-valor">
+              PA {ultimoSv.pa_sistolica ?? '—'}/{ultimoSv.pa_diastolica ?? '—'} · FC {ultimoSv.fc ?? '—'}<br />
+              FR {ultimoSv.fr ?? '—'} · SpO2 {ultimoSv.spo2 ?? '—'}{ultimoSv.temperatura ? ` · ${ultimoSv.temperatura}°C` : ''}
+            </div>
+            <div className="resumo-bloco-nota">{formatarRelativo(ultimoSv.registrado_em)}</div>
+          </>
+        ) : <div className="resumo-bloco-vazio">Sem registro</div>}
+      </div>
+
+      <div className="resumo-bloco">
+        <div className="resumo-bloco-titulo">Escalas</div>
+        {temEscalas ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            {Object.values(escalaPorTipo).map((e) => (
+              <div key={e.tipo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <span style={{ textTransform: 'capitalize', fontSize: 11.5 }}>{e.tipo}</span>
+                <span className={`resumo-badge ${riscoClasse(e.nivel_risco)}`}>{e.pontuacao} · {e.nivel_risco}</span>
+              </div>
+            ))}
+          </div>
+        ) : <div className="resumo-bloco-vazio">Sem avaliação</div>}
+      </div>
+
+      <div className="resumo-bloco">
+        <div className="resumo-bloco-titulo">Dispositivos ativos</div>
+        {dispositivosAtivos.length > 0 ? (
+          <div className="resumo-bloco-valor">{dispositivosAtivos.map((d) => d.tipo).join(', ')}</div>
+        ) : <div className="resumo-bloco-vazio">Nenhum ativo</div>}
+      </div>
+
+      <div className="resumo-bloco">
+        <div className="resumo-bloco-titulo">Balanço hídrico · hoje</div>
+        <div className="resumo-bloco-valor">Entradas {entradasHoje} mL · Saídas {saidasHoje} mL</div>
+        <div className="resumo-bloco-saldo">Saldo {entradasHoje - saidasHoje >= 0 ? '+' : ''}{entradasHoje - saidasHoje} mL</div>
       </div>
     </div>
   )
@@ -435,18 +519,29 @@ function AbaSinaisVitais({ atendimento, autorId }) {
       ) : historico.length === 0 ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhum registro ainda.</p>
       ) : (
-        historico.map((sv) => (
-          <div key={sv.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 12.5 }}>
-            <span style={{ fontFamily: 'var(--font-mono)' }}>
-              PA {sv.pa_sistolica ?? '—'}/{sv.pa_diastolica ?? '—'} · FC {sv.fc ?? '—'} · FR {sv.fr ?? '—'} · SpO2 {sv.spo2 ?? '—'}
-              {sv.temperatura ? ` · ${sv.temperatura}°C` : ''}
-              {sv.dor_escala !== null && sv.dor_escala !== undefined ? ` · dor ${sv.dor_escala}` : ''}
-            </span>
-            <span style={{ color: 'var(--c-text-muted)', fontSize: 11, flexShrink: 0, marginLeft: 10 }}>
-              {new Date(sv.registrado_em).toLocaleString('pt-BR')}
-            </span>
-          </div>
-        ))
+        <div className="hist-tabela-wrap">
+          <table className="hist-tabela">
+            <thead>
+              <tr>
+                <th>Data/hora</th><th>PA</th><th>FC</th><th>FR</th><th>SpO2</th><th>Temp.</th><th>Glicemia</th><th>Dor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {historico.map((sv) => (
+                <tr key={sv.id}>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(sv.registrado_em).toLocaleString('pt-BR')}</td>
+                  <td>{sv.pa_sistolica ?? '—'}/{sv.pa_diastolica ?? '—'}</td>
+                  <td>{sv.fc ?? '—'}</td>
+                  <td>{sv.fr ?? '—'}</td>
+                  <td>{sv.spo2 ?? '—'}</td>
+                  <td>{sv.temperatura ? `${sv.temperatura}°C` : '—'}</td>
+                  <td>{sv.glicemia ?? '—'}</td>
+                  <td>{sv.dor_escala ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )
@@ -499,19 +594,24 @@ function AbaEvolucao({ atendimento, autorId }) {
       ) : historico.length === 0 ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma evolução registrada ainda.</p>
       ) : (
-        historico.map((ev) => (
-          <div key={ev.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--c-border-light)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--c-primary)' }}>
-                {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}
-              </span>
-              <span style={{ color: 'var(--c-text-muted)', fontSize: 11 }}>
-                {new Date(ev.criado_em).toLocaleString('pt-BR')}
-              </span>
-            </div>
-            <p style={{ fontSize: 13, whiteSpace: 'pre-wrap', margin: 0 }}>{ev.texto}</p>
-          </div>
-        ))
+        <div className="hist-tabela-wrap">
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Data/hora</th><th>Autor</th><th>Evolução</th></tr>
+            </thead>
+            <tbody>
+              {historico.map((ev) => (
+                <tr key={ev.id}>
+                  <td style={{ color: 'var(--c-text-muted)', verticalAlign: 'top' }}>{new Date(ev.criado_em).toLocaleString('pt-BR')}</td>
+                  <td style={{ color: 'var(--c-primary)', fontWeight: 600, verticalAlign: 'top' }}>
+                    {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}
+                  </td>
+                  <td className="col-larga" style={{ whiteSpace: 'pre-wrap' }}>{ev.texto}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )
@@ -593,40 +693,55 @@ function AbaDispositivos({ atendimento }) {
       ) : ativos.length === 0 ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhum dispositivo ativo.</p>
       ) : (
-        ativos.map((d) => (
-          <div key={d.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--c-border-light)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>
-                {d.tipo}{d.local_insercao ? ` · ${d.local_insercao}` : ''}
-              </span>
-              <span style={{ color: 'var(--c-text-muted)', fontSize: 11 }}>
-                Inserido {new Date(d.inserido_em).toLocaleString('pt-BR')}
-                {d.troca_prevista_em ? ` · troca prevista ${new Date(d.troca_prevista_em).toLocaleDateString('pt-BR')}` : ''}
-              </span>
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                type="text"
-                placeholder="Motivo da remoção (opcional)"
-                value={motivos[d.id] || ''}
-                onChange={(e) => setMotivos((p) => ({ ...p, [d.id]: e.target.value }))}
-                style={{ flex: 1 }}
-              />
-              <button type="button" className="btn-fechar" onClick={() => remover(d.id)}>Remover</button>
-            </div>
-          </div>
-        ))
+        <div className="hist-tabela-wrap" style={{ marginBottom: 4 }}>
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Tipo</th><th>Local</th><th>Inserido em</th><th>Troca prevista</th><th className="col-larga">Motivo da remoção</th><th></th></tr>
+            </thead>
+            <tbody>
+              {ativos.map((d) => (
+                <tr key={d.id}>
+                  <td style={{ fontWeight: 600 }}>{d.tipo}</td>
+                  <td>{d.local_insercao || '—'}</td>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(d.inserido_em).toLocaleString('pt-BR')}</td>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{d.troca_prevista_em ? new Date(d.troca_prevista_em).toLocaleDateString('pt-BR') : '—'}</td>
+                  <td className="col-larga">
+                    <input
+                      type="text"
+                      placeholder="Opcional"
+                      value={motivos[d.id] || ''}
+                      onChange={(e) => setMotivos((p) => ({ ...p, [d.id]: e.target.value }))}
+                      style={{ width: '100%' }}
+                    />
+                  </td>
+                  <td><button type="button" className="btn-fechar" onClick={() => remover(d.id)}>Remover</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {removidos.length > 0 && (
         <>
           <div className="form-section-title" style={{ marginTop: 24 }}>Removidos</div>
-          {removidos.map((d) => (
-            <div key={d.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 12.5, color: 'var(--c-text-muted)' }}>
-              {d.tipo}{d.local_insercao ? ` · ${d.local_insercao}` : ''} — removido em {new Date(d.removido_em).toLocaleString('pt-BR')}
-              {d.motivo_remocao ? ` (${d.motivo_remocao})` : ''}
-            </div>
-          ))}
+          <div className="hist-tabela-wrap">
+            <table className="hist-tabela">
+              <thead>
+                <tr><th>Tipo</th><th>Local</th><th>Removido em</th><th className="col-larga">Motivo</th></tr>
+              </thead>
+              <tbody>
+                {removidos.map((d) => (
+                  <tr key={d.id}>
+                    <td>{d.tipo}</td>
+                    <td>{d.local_insercao || '—'}</td>
+                    <td style={{ color: 'var(--c-text-muted)' }}>{new Date(d.removido_em).toLocaleString('pt-BR')}</td>
+                    <td className="col-larga" style={{ color: 'var(--c-text-muted)' }}>{d.motivo_remocao || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>
@@ -712,16 +827,26 @@ function AbaBalancoHidrico({ atendimento, autorId }) {
       ) : historico.length === 0 ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhum registro ainda.</p>
       ) : (
-        historico.map((h) => (
-          <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 12.5 }}>
-            <span style={{ fontFamily: 'var(--font-mono)' }}>
-              {h.tipo === 'entrada' ? '+' : '−'}{h.volume_ml} mL · {h.via}{h.observacao ? ` · ${h.observacao}` : ''}
-            </span>
-            <span style={{ color: 'var(--c-text-muted)', fontSize: 11, flexShrink: 0, marginLeft: 10 }}>
-              {new Date(h.registrado_em).toLocaleString('pt-BR')}
-            </span>
-          </div>
-        ))
+        <div className="hist-tabela-wrap">
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Data/hora</th><th>Tipo</th><th>Via</th><th>Volume</th><th className="col-larga">Observação</th></tr>
+            </thead>
+            <tbody>
+              {historico.map((h) => (
+                <tr key={h.id}>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(h.registrado_em).toLocaleString('pt-BR')}</td>
+                  <td style={{ color: h.tipo === 'entrada' ? 'var(--c-primary)' : 'var(--c-danger)', fontWeight: 600 }}>
+                    {h.tipo === 'entrada' ? 'Entrada' : 'Saída'}
+                  </td>
+                  <td>{h.via}</td>
+                  <td>{h.tipo === 'entrada' ? '+' : '−'}{h.volume_ml} mL</td>
+                  <td className="col-larga" style={{ color: 'var(--c-text-muted)' }}>{h.observacao || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )
@@ -861,16 +986,23 @@ function AbaEscalas({ atendimento }) {
       ) : historico.length === 0 ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma avaliação registrada ainda.</p>
       ) : (
-        historico.map((e) => (
-          <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 12.5 }}>
-            <span>
-              <strong style={{ textTransform: 'capitalize' }}>{e.tipo}</strong> — {e.pontuacao} pts · {e.nivel_risco}
-            </span>
-            <span style={{ color: 'var(--c-text-muted)', fontSize: 11, flexShrink: 0, marginLeft: 10 }}>
-              {new Date(e.avaliado_em).toLocaleString('pt-BR')}
-            </span>
-          </div>
-        ))
+        <div className="hist-tabela-wrap">
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Data/hora</th><th>Escala</th><th>Pontuação</th><th>Risco</th></tr>
+            </thead>
+            <tbody>
+              {historico.map((e) => (
+                <tr key={e.id}>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(e.avaliado_em).toLocaleString('pt-BR')}</td>
+                  <td style={{ textTransform: 'capitalize', fontWeight: 600 }}>{e.tipo}</td>
+                  <td>{e.pontuacao}</td>
+                  <td><span className={`resumo-badge ${riscoClasse(e.nivel_risco)}`}>{e.nivel_risco}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )
