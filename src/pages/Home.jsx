@@ -15,6 +15,7 @@ import ConfirmModal from './ConfirmModal'
 import PainelEquipe from './PainelEquipe'
 import GerenciarProfissionais from './GerenciarProfissionais'
 import PainelMedico from './PainelMedico'
+import CadastroPacientes from './CadastroPacientes'
 import Sidebar from '../components/Sidebar'
 import './AberturaPlantao.css'
 
@@ -88,6 +89,9 @@ export default function Home() {
   // Médico não participa do fluxo de plantão de enfermagem (abertura/setores) —
   // vai direto pro painel dele, sobre a estrutura nova (atendimentos/leito_ocupacoes).
   const ehMedico = enfermeiro?.tipo === 'medico'
+  // Mesmo raciocínio do médico: recepção não abre plantão de enfermagem, vai
+  // direto pro cadastro de pacientes — trabalho dela é identidade, não leito.
+  const ehRecepcao = enfermeiro?.tipo === 'recepcao'
   // "Encerrar plantonista" é destrutivo demais pra qualquer conta admin — só o Marcus.
   const ID_MARCUS_ADMIN = '66901c7a-d3b9-435a-932c-276659210f69'
   const podeEncerrarQualquerPlantonista = enfermeiro?.id === ID_MARCUS_ADMIN
@@ -114,7 +118,7 @@ export default function Home() {
   const intervaloRef = useRef(null)
 
   useEffect(() => {
-    if (ehMedico) {
+    if (ehMedico || ehRecepcao) {
       setVerificandoRetomada(false)
       return
     }
@@ -289,7 +293,7 @@ export default function Home() {
     )
   }
 
-  if (ehMedico) {
+  if (ehMedico || ehRecepcao) {
     return (
       <div className="shell">
         <div className="topbar no-print">
@@ -313,7 +317,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} /> : <PainelMedico />}
+        {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} /> : ehMedico ? <PainelMedico /> : <CadastroPacientes />}
       </div>
     )
   }

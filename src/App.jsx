@@ -30,10 +30,15 @@ function Gate() {
 
   if (enfermeiro.deve_trocar_senha) return <TrocaSenhaObrigatoria />
 
+  // O guia de boas-vindas explica plantão/setores/impressão — fluxo de
+  // enfermagem. Médico e recepção têm telas próprias, bem mais simples; não
+  // faz sentido mostrar esse guia pra eles.
+  const mostrarBemVindo = enfermeiro.primeiro_acesso && !['medico', 'recepcao'].includes(enfermeiro.tipo)
+
   return (
     <>
       <Home />
-      {enfermeiro.primeiro_acesso && <BemVindoModal />}
+      {mostrarBemVindo && <BemVindoModal />}
     </>
   )
 }
