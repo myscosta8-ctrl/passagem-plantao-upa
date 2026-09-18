@@ -1,0 +1,183 @@
+/* Sidebar persistente — direção aprovada em 18/09 (referência: mockups do
+   Vitaloop no repositório-irmão, já com a marca "UPA Breves"). Paleta própria
+   (teal-navy escuro), deliberadamente diferente do azul do resto do app por
+   enquanto — a migração de paleta geral é uma fase futura separada. */
+.sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background: linear-gradient(185deg, #123a2f, #061814 75%);
+  color: #B9D0C9;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 16px 14px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-brand-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #3FBBA8;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-t1 {
+  display: block;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-brand-t2 {
+  display: block;
+  font-family: var(--font-mono, monospace);
+  font-size: 9.5px;
+  color: #7FA89D;
+  letter-spacing: 0.04em;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-grupo {
+  padding: 0 8px;
+  margin-bottom: 10px;
+}
+
+.sidebar-grupo h4 {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5F8377;
+  padding: 0 8px;
+  margin: 0 0 5px;
+}
+
+.sidebar-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #C7DAD3;
+  margin-bottom: 1px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.sidebar-item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-item.ativo {
+  background: #0B6E63;
+  color: #fff;
+}
+
+.sidebar-item.ativo svg {
+  opacity: 1;
+}
+
+.sidebar-item.perigo {
+  color: #E7998F;
+}
+
+.sidebar-item:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sidebar-rodape {
+  margin-top: auto;
+  padding: 12px 16px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+}
+
+.sidebar-nome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.sidebar-badge-admin {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  color: #061814;
+  background: #3FBBA8;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.sidebar-scrim {
+  display: none;
+}
+
+/* Desktop: sidebar sempre visível, empurra o conteúdo — sem overlay. */
+.app-shell {
+  display: flex;
+  min-height: 100%;
+}
+
+.app-shell-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Celular/tablet estreito: sidebar vira gaveta — mesmo gatilho ☰ de antes,
+   cara nova. Reaproveita o breakpoint já usado pelo resto do app. */
+@media (max-width: 860px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: 8px 0 28px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebar.aberta {
+    transform: translateX(0);
+  }
+
+  .sidebar-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 20, 18, 0.45);
+    z-index: 55;
+  }
+}
