@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { lerTemaSalvo, alternarTema } from '../lib/theme'
 import './Sidebar.css'
 
 const iconProps = {
@@ -36,9 +38,15 @@ export default function Sidebar({
   encerrandoPlantao,
   onLogout,
 }) {
+  const [tema, setTema] = useState(lerTemaSalvo)
+
   function navegarE(tela) {
     onNavegar(tela)
     onFecharNav()
+  }
+
+  function trocarTema() {
+    setTema(alternarTema())
   }
 
   return (
@@ -132,6 +140,9 @@ export default function Sidebar({
             {enfermeiro?.nome_exibicao || enfermeiro?.nome}
             {isAdmin && <span className="sidebar-badge-admin">ADMIN</span>}
           </span>
+          <button className="sidebar-tema-btn" onClick={trocarTema}>
+            {tema === 'escuro' ? '☾ Tema escuro' : '☀ Tema claro'}
+          </button>
         </div>
       </aside>
     </>
