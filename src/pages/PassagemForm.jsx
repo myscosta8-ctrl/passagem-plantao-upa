@@ -10,6 +10,7 @@ import {
   salvarIdentificacaoPep,
   registrarDesfechoPep,
   excluirAtendimentoPep,
+  obterOuCriarAtendimentoParaPaciente,
 } from '../lib/pepAtendimentos'
 import './PassagemForm.css'
 
@@ -88,10 +89,30 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   const [confirmandoFechar, setConfirmandoFechar] = useState(false)
   const [origemCopia, setOrigemCopia] = useState(null)
   const [pepAtivo, setPepAtivo] = useState(false)
-  const [mostrarFichaClinica, setMostrarFichaClinica] = useState(false)
+  const [fichaClinicaAlvo, setFichaClinicaAlvo] = useState(null) // { atendimento_id, pessoa_id, nome }
+  const [abrindoFichaClinica, setAbrindoFichaClinica] = useState(false)
   // Fase 2, piloto: só Observação/Internação ganha a ficha clínica contínua
   // (admissão + sinais vitais), e só faz sentido sobre a estrutura nova.
   const podeAbrirFichaClinica = pepAtivo && setorNome === 'Observação/Internação'
+
+  // paciente.id só é um atendimento de verdade quando pep_nativo (veio do caminho
+  // novo). Senão é um id da tabela antiga `pacientes` — precisa passar pela ponte
+  // antes de abrir qualquer tela do caminho novo, senão salva em lugar nenhum.
+  async function abrirFichaClinica() {
+    if (paciente.pep_nativo) {
+      setFichaClinicaAlvo({ atendimento_id: paciente.id, pessoa_id: paciente.pessoa_id, nome: paciente.nome })
+      return
+    }
+    setAbrindoFichaClinica(true)
+    const { atendimentoId, pessoaId, error } = await obterOuCriarAtendimentoParaPaciente(paciente.id)
+    setAbrindoFichaClinica(false)
+    if (error) {
+      setErroSalvar('Não foi possível abrir a ficha clínica. Tente de novo, e se persistir, avise o suporte.')
+      console.error('Erro ao abrir ficha clínica (ponte):', error)
+      return
+    }
+    setFichaClinicaAlvo({ atendimento_id: atendimentoId, pessoa_id: pessoaId, nome: paciente.nome })
+  }
 
   useEffect(() => {
     carregar()
@@ -444,13 +465,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     )
   }
 
-  if (mostrarFichaClinica) {
-    return (
-      <FichaClinica
-        atendimento={{ atendimento_id: paciente.id, pessoa_id: paciente.pessoa_id, nome: paciente.nome }}
-        onFechar={() => setMostrarFichaClinica(false)}
-      />
-    )
+  if (fichaClinicaAlvo) {
+    return <FichaClinica atendimento={fichaClinicaAlvo} onFechar={() => setFichaClinicaAlvo(null)} />
   }
 
   return (
@@ -465,7 +481,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           <button className="btn-copiar" onClick={copiarNovamente}>↺ Copiar do plantão anterior</button>
           <button className="btn-realocar" onClick={() => onRealocar?.(paciente, leito)}>⇄ Realocar paciente</button>
           {podeAbrirFichaClinica && (
-            <button className="btn-alta" onClick={() => setMostrarFichaClinica(true)}>📋 Ficha clínica</button>
+            <button className="btn-alta" onClick={abrirFichaClinica} disabled={abrindoFichaClinica}>📋 {abrindoFichaClinica ? 'Abrindo...' : 'Ficha clínica'}</button>
           )}
           <button className="btn-alta" onClick={() => setModalDesfecho(true)} disabled={processando}>✓ Registrar desfecho</button>
           <button className="btn-excluir" onClick={excluirPaciente} disabled={processando}>🗑 Excluir paciente</button>

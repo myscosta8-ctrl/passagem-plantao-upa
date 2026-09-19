@@ -67,6 +67,7 @@ export async function carregarLeitosOcupadosPep() {
     pacientesPorLeito[ocupacao.leito_id] = {
       id: atendimento.id, // o Painel trata isto como "paciente.id" — é o atendimento
       pessoa_id: pessoa.id,
+      pep_nativo: true, // id acima já é um atendimento de verdade — nunca passar pela ponte da seção 0
       nome: pessoa.nome,
       diagnostico: internacao?.diagnostico_admissao ?? '',
       idade: idadeExibida(pessoa),
@@ -137,6 +138,7 @@ export async function internarPacientePep({ leito, dados, enfermeiroId }) {
     novo: {
       id: atendimento.id,
       pessoa_id: pessoa.id,
+      pep_nativo: true,
       nome: pessoa.nome,
       diagnostico: dados.diagnostico,
       idade: null,
@@ -148,6 +150,74 @@ export async function internarPacientePep({ leito, dados, enfermeiroId }) {
       leito_atual_id: leito.id,
     },
   }
+}
+
+// Ponte entre o caminho antigo (tabela `pacientes`) e o novo (pessoas/atendimentos),
+// pra telas que só existem no caminho novo (Ficha Clínica, Ficha Médica) poderem
+// abrir sobre um paciente que ainda só existe no caminho antigo. Idempotente: se
+// já existe um atendimento (ou pessoa) migrado desse pacienteId, reaproveita — nunca
+// cria duplicata. NUNCA chamar isto com um id que já é `pep_nativo` (já é um
+// atendimento de verdade) — só serve pra ids da tabela `pacientes` antiga.
+export async function obterOuCriarAtendimentoParaPaciente(pacienteId) {
+  const { data: atendimentoExistente } = await supabase
+    .from('atendimentos')
+    .select('id, pessoa_id')
+    .eq('migrado_de_paciente_id', pacienteId)
+    .maybeSingle()
+  if (atendimentoExistente) {
+    return { atendimentoId: atendimentoExistente.id, pessoaId: atendimentoExistente.pessoa_id }
+  }
+
+  const { data: pacienteRow, error: erroPaciente } = await supabase
+    .from('pacientes')
+    .select('*')
+    .eq('id', pacienteId)
+    .maybeSingle()
+  if (erroPaciente || !pacienteRow) return { error: erroPaciente ?? new Error('Paciente não encontrado') }
+
+  let pessoaId
+  const { data: pessoaExistente } = await supabase
+    .from('pessoas')
+    .select('id')
+    .eq('migrado_de_paciente_id', pacienteId)
+    .maybeSingle()
+
+  if (pessoaExistente) {
+    pessoaId = pessoaExistente.id
+  } else {
+    const { data: pessoaCriada, error: erroPessoa } = await supabase
+      .from('pessoas')
+      .insert({
+        nome: pacienteRow.nome,
+        data_nascimento: pacienteRow.data_nascimento ?? null,
+        migrado_de_paciente_id: pacienteId,
+      })
+      .select('id')
+      .single()
+    if (erroPessoa) return { error: erroPessoa }
+    pessoaId = pessoaCriada.id
+  }
+
+  const { data: leito } = pacienteRow.leito_atual_id
+    ? await supabase.from('leitos').select('setor_id').eq('id', pacienteRow.leito_atual_id).maybeSingle()
+    : { data: null }
+
+  const { data: atendimentoCriado, error: erroAtendimento } = await supabase
+    .from('atendimentos')
+    .insert({
+      pessoa_id: pessoaId,
+      migrado_de_paciente_id: pacienteId,
+      setor_id: leito?.setor_id ?? null,
+      tipo: 'internacao',
+      status: 'internado',
+      status_internacao: pacienteRow.status_internacao ?? 'Em observação',
+      classificacao_risco_cor: pacienteRow.classificacao_manchester ?? null,
+    })
+    .select('id')
+    .single()
+  if (erroAtendimento) return { error: erroAtendimento }
+
+  return { atendimentoId: atendimentoCriado.id, pessoaId }
 }
 
 // Passagem do plantão atual pra esse atendimento, se já existir (equivalente ao
