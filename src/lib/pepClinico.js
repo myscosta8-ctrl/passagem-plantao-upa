@@ -158,12 +158,13 @@ export async function registrarEscala({ atendimentoId, tipo, pontuacao, nivelRis
 // sinal vital, escala mais recente de cada tipo, dispositivos ainda
 // ativos e balanço hídrico só de hoje.
 export async function buscarResumoPaciente(atendimentoId, pessoaId) {
-  const [sinaisVitais, escalas, dispositivos, balanco, alergias] = await Promise.all([
+  const [sinaisVitais, escalas, dispositivos, balanco, alergias, isolamentos] = await Promise.all([
     listarSinaisVitais(atendimentoId),
     listarEscalas(atendimentoId),
     listarDispositivos(atendimentoId),
     listarBalancoHidrico(atendimentoId),
     pessoaId ? listarAlergias(pessoaId) : Promise.resolve([]),
+    listarIsolamentos(atendimentoId),
   ])
 
   const escalaPorTipo = {}
@@ -185,6 +186,7 @@ export async function buscarResumoPaciente(atendimentoId, pessoaId) {
     entradasHoje,
     saidasHoje,
     alergiasAtivas: alergias.filter((a) => a.status === 'ativa'),
+    isolamentosAtivos: isolamentos.filter((i) => i.ativo),
   }
 }
 
@@ -210,4 +212,80 @@ export async function registrarAlergia({ pessoaId, substancia, reacao, gravidade
 
 export async function inativarAlergia(alergiaId) {
   return supabase.from('alergias').update({ status: 'inativa' }).eq('id', alergiaId)
+}
+
+// ===================== Isolamentos =====================
+// Formaliza o que só existia informalmente — precaução de contato,
+// gotículas ou aerossol, com motivo e patógeno suspeito.
+
+export async function listarIsolamentos(atendimentoId) {
+  const { data } = await supabase
+    .from('isolamentos')
+    .select('*, enfermeiros(nome_exibicao, nome)')
+    .eq('atendimento_id', atendimentoId)
+    .order('inicio_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarIsolamento({ atendimentoId, tipo, motivo, patogenoSuspeito, prescritoPor }) {
+  return supabase
+    .from('isolamentos')
+    .insert({
+      atendimento_id: atendimentoId, tipo, motivo: motivo || null, patogeno_suspeito: patogenoSuspeito || null,
+      prescrito_por: prescritoPor || null, inicio_em: new Date().toISOString(), ativo: true,
+    })
+    .select()
+    .single()
+}
+
+export async function encerrarIsolamento(id) {
+  return supabase.from('isolamentos').update({ ativo: false, fim_em: new Date().toISOString() }).eq('id', id)
+}
+
+// ===================== Transferência SBAR (handoff estruturado entre setores) =====================
+// Liga a leito_ocupacoes (a ocupação sendo encerrada pela transferência), não
+// direto ao atendimento — por isso busca o histórico de ocupações primeiro.
+
+export async function buscarOcupacaoAtiva(atendimentoId) {
+  const { data } = await supabase
+    .from('leito_ocupacoes')
+    .select('id, leito_id, leitos(numero, setor_id, setores(nome))')
+    .eq('atendimento_id', atendimentoId)
+    .eq('status', 'ativo')
+    .maybeSingle()
+  return data
+}
+
+export async function listarSetoresParaTransferencia() {
+  const { data } = await supabase.from('setores').select('id, nome').order('ordem')
+  return data ?? []
+}
+
+export async function listarEnfermeirosAtivos() {
+  const { data } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome').eq('ativo', true).eq('tipo', 'enfermagem').order('nome')
+  return data ?? []
+}
+
+export async function listarTransferenciasSbar(atendimentoId) {
+  const { data: ocupacoes } = await supabase.from('leito_ocupacoes').select('id').eq('atendimento_id', atendimentoId)
+  const ids = (ocupacoes ?? []).map((o) => o.id)
+  if (ids.length === 0) return []
+  const { data } = await supabase
+    .from('transferencias_sbar')
+    .select('*, setores(nome), entrega:enfermeiro_entrega(nome_exibicao, nome), recebe:enfermeiro_recebe(nome_exibicao, nome)')
+    .in('leito_ocupacao_id', ids)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestinoId, enfermeiroEntrega, enfermeiroRecebe, dados }) {
+  return supabase
+    .from('transferencias_sbar')
+    .insert({
+      leito_ocupacao_id: leitoOcupacaoId, setor_destino_id: setorDestinoId,
+      enfermeiro_entrega: enfermeiroEntrega, enfermeiro_recebe: enfermeiroRecebe || null,
+      ...dados,
+    })
+    .select()
+    .single()
 }
