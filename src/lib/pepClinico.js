@@ -158,12 +158,13 @@ export async function registrarEscala({ atendimentoId, tipo, pontuacao, nivelRis
 // sinal vital, escala mais recente de cada tipo, dispositivos ainda
 // ativos e balanço hídrico só de hoje.
 export async function buscarResumoPaciente(atendimentoId, pessoaId) {
-  const [sinaisVitais, escalas, dispositivos, balanco, alergias] = await Promise.all([
+  const [sinaisVitais, escalas, dispositivos, balanco, alergias, isolamentos] = await Promise.all([
     listarSinaisVitais(atendimentoId),
     listarEscalas(atendimentoId),
     listarDispositivos(atendimentoId),
     listarBalancoHidrico(atendimentoId),
     pessoaId ? listarAlergias(pessoaId) : Promise.resolve([]),
+    listarIsolamentos(atendimentoId),
   ])
 
   const escalaPorTipo = {}
@@ -185,6 +186,7 @@ export async function buscarResumoPaciente(atendimentoId, pessoaId) {
     entradasHoje,
     saidasHoje,
     alergiasAtivas: alergias.filter((a) => a.status === 'ativa'),
+    isolamentosAtivos: isolamentos.filter((i) => i.ativo),
   }
 }
 
@@ -210,4 +212,32 @@ export async function registrarAlergia({ pessoaId, substancia, reacao, gravidade
 
 export async function inativarAlergia(alergiaId) {
   return supabase.from('alergias').update({ status: 'inativa' }).eq('id', alergiaId)
+}
+
+// ===================== Isolamentos =====================
+// Formaliza o que só existia informalmente — precaução de contato,
+// gotículas ou aerossol, com motivo e patógeno suspeito.
+
+export async function listarIsolamentos(atendimentoId) {
+  const { data } = await supabase
+    .from('isolamentos')
+    .select('*, enfermeiros(nome_exibicao, nome)')
+    .eq('atendimento_id', atendimentoId)
+    .order('inicio_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarIsolamento({ atendimentoId, tipo, motivo, patogenoSuspeito, prescritoPor }) {
+  return supabase
+    .from('isolamentos')
+    .insert({
+      atendimento_id: atendimentoId, tipo, motivo: motivo || null, patogeno_suspeito: patogenoSuspeito || null,
+      prescrito_por: prescritoPor || null, inicio_em: new Date().toISOString(), ativo: true,
+    })
+    .select()
+    .single()
+}
+
+export async function encerrarIsolamento(id) {
+  return supabase.from('isolamentos').update({ ativo: false, fim_em: new Date().toISOString() }).eq('id', id)
 }

@@ -9,6 +9,7 @@ import {
   listarEscalas, registrarEscala,
   buscarResumoPaciente,
   listarAlergias, registrarAlergia, inativarAlergia,
+  listarIsolamentos, registrarIsolamento, encerrarIsolamento,
 } from '../lib/pepClinico'
 import './PassagemForm.css'
 
@@ -101,6 +102,7 @@ export default function FichaClinica({ atendimento, onFechar }) {
           <button className={aba === 'balanco' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('balanco')}>Balanço Hídrico</button>
           <button className={aba === 'escalas' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('escalas')}>Escalas</button>
           <button className={aba === 'alergias' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('alergias')}>Alergias</button>
+          <button className={aba === 'isolamento' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('isolamento')}>Isolamento</button>
         </div>
 
         {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}
@@ -110,6 +112,7 @@ export default function FichaClinica({ atendimento, onFechar }) {
         {aba === 'balanco' && <AbaBalancoHidrico atendimento={atendimento} autorId={enfermeiro?.id} />}
         {aba === 'escalas' && <AbaEscalas atendimento={atendimento} />}
         {aba === 'alergias' && <AbaAlergias atendimento={atendimento} />}
+        {aba === 'isolamento' && <AbaIsolamento atendimento={atendimento} autorId={enfermeiro?.id} />}
 
         <div className="form-footer">
           <button className="btn-fechar" onClick={onFechar}>Fechar</button>
@@ -150,13 +153,26 @@ function ResumoPaciente({ atendimento }) {
 
   if (!resumo) return null
 
-  const { ultimoSv, escalaPorTipo, dispositivosAtivos, entradasHoje, saidasHoje, alergiasAtivas } = resumo
+  const { ultimoSv, escalaPorTipo, dispositivosAtivos, entradasHoje, saidasHoje, alergiasAtivas, isolamentosAtivos } = resumo
   const temEscalas = Object.keys(escalaPorTipo).length > 0
-  const temAlgumDado = ultimoSv || temEscalas || dispositivosAtivos.length > 0 || entradasHoje || saidasHoje || alergiasAtivas.length > 0
+  const temAlgumDado = ultimoSv || temEscalas || dispositivosAtivos.length > 0 || entradasHoje || saidasHoje || alergiasAtivas.length > 0 || isolamentosAtivos.length > 0
   if (!temAlgumDado) return null
 
   return (
     <div className="resumo-paciente">
+      {isolamentosAtivos.length > 0 && (
+        <div className="resumo-bloco" style={{ gridColumn: '1 / -1' }}>
+          <div className="resumo-bloco-titulo">⚠ Isolamento</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {isolamentosAtivos.map((i) => (
+              <span key={i.id} className="resumo-badge warn">
+                {i.tipo}{i.patogeno_suspeito ? ` · ${i.patogeno_suspeito}` : ''}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {alergiasAtivas.length > 0 && (
         <div className="resumo-bloco" style={{ gridColumn: '1 / -1' }}>
           <div className="resumo-bloco-titulo">⚠ Alergias</div>
@@ -1127,6 +1143,122 @@ function AbaAlergias({ atendimento }) {
                     <td>{a.substancia}</td>
                     <td className="col-larga">{a.reacao || '—'}</td>
                     <td>{a.gravidade || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+const TIPOS_ISOLAMENTO = ['Contato', 'Gotículas', 'Aerossol']
+
+function AbaIsolamento({ atendimento, autorId }) {
+  const [lista, setLista] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [tipo, setTipo] = useState('')
+  const [motivo, setMotivo] = useState('')
+  const [patogeno, setPatogeno] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setLista(await listarIsolamentos(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  async function registrar() {
+    if (!tipo) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await registrarIsolamento({ atendimentoId: atendimento.atendimento_id, tipo, motivo, patogenoSuspeito: patogeno, prescritoPor: autorId })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setTipo('')
+    setMotivo('')
+    setPatogeno('')
+    carregar()
+  }
+
+  async function encerrar(id) {
+    await encerrarIsolamento(id)
+    carregar()
+  }
+
+  const ativos = lista.filter((i) => i.ativo)
+  const encerrados = lista.filter((i) => !i.ativo)
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Nova precaução de isolamento</div>
+      <div className="form-grid" style={{ marginBottom: 16 }}>
+        <div className="form-field">
+          <label>Tipo</label>
+          <div className="chip-group">
+            {TIPOS_ISOLAMENTO.map((t) => (
+              <button key={t} type="button" className={`chip ${tipo === t ? 'on' : ''}`} onClick={() => setTipo(tipo === t ? '' : t)}>{t}</button>
+            ))}
+          </div>
+        </div>
+        <div className="form-field"><label>Motivo</label><input type="text" value={motivo} onChange={(e) => setMotivo(e.target.value)} /></div>
+        <div className="form-field"><label>Patógeno suspeito</label><input type="text" value={patogeno} onChange={(e) => setPatogeno(e.target.value)} /></div>
+      </div>
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !tipo}>
+        {salvando ? 'Registrando...' : 'Registrar isolamento'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Ativos</div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : ativos.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhum isolamento ativo.</p>
+      ) : (
+        <div className="hist-tabela-wrap" style={{ marginBottom: 4 }}>
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Tipo</th><th>Motivo</th><th>Patógeno suspeito</th><th>Início</th><th></th></tr>
+            </thead>
+            <tbody>
+              {ativos.map((i) => (
+                <tr key={i.id}>
+                  <td style={{ fontWeight: 600 }}>{i.tipo}</td>
+                  <td className="col-larga">{i.motivo || '—'}</td>
+                  <td>{i.patogeno_suspeito || '—'}</td>
+                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(i.inicio_em).toLocaleString('pt-BR')}</td>
+                  <td><button type="button" className="btn-fechar" onClick={() => encerrar(i.id)}>Encerrar</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {encerrados.length > 0 && (
+        <>
+          <div className="form-section-title" style={{ marginTop: 24 }}>Encerrados</div>
+          <div className="hist-tabela-wrap">
+            <table className="hist-tabela">
+              <thead>
+                <tr><th>Tipo</th><th>Motivo</th><th>Início</th><th>Fim</th></tr>
+              </thead>
+              <tbody>
+                {encerrados.map((i) => (
+                  <tr key={i.id} style={{ color: 'var(--c-text-muted)' }}>
+                    <td>{i.tipo}</td>
+                    <td className="col-larga">{i.motivo || '—'}</td>
+                    <td>{new Date(i.inicio_em).toLocaleString('pt-BR')}</td>
+                    <td>{i.fim_em ? new Date(i.fim_em).toLocaleString('pt-BR') : '—'}</td>
                   </tr>
                 ))}
               </tbody>
