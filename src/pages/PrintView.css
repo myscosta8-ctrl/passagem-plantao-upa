@@ -24,6 +24,14 @@
 .print-page {
   font-family: 'Inter', Arial, sans-serif;
   color: #111;
+  /* Cobre a tela inteira — sem isso, quando aparece como conteúdo extra
+     (ex: FichaMedica dentro de PainelMedico), fica embaixo do que já
+     estava na página, em vez de substituir a visão inteira. */
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #fff;
+  overflow-y: auto;
 }
 
 .print-header {
