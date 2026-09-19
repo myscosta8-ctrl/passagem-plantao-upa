@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
-import PassagemForm from './PassagemForm'
+import EspacoPaciente from './EspacoPaciente'
 import RealocarModal from './RealocarModal'
 import ConfirmModal from './ConfirmModal'
 import IndicadoresClinicos from '../components/IndicadoresClinicos'
@@ -313,12 +313,13 @@ export default function Painel({ plantao, setoresIds }) {
       )}
 
       {modalPassagem && (
-        <PassagemForm
+        <EspacoPaciente
           paciente={modalPassagem.paciente}
           leito={modalPassagem.leito}
           setorNome={setores.find((s) => s.id === modalPassagem.leito.setor_id)?.nome}
           plantaoId={plantao.id}
           enfermeiroId={enfermeiro?.id}
+          enfermeiro={enfermeiro}
           onFechar={fecharPassagem}
           onSalvo={carregarTudo}
           onRealocar={(paciente, leito) => {
