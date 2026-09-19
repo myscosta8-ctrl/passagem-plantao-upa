@@ -261,12 +261,12 @@ export async function realocarAtendimentoPep({ atendimentoId, leitoOrigemId, lei
   return { error: erroEncerra || erroAbre || erroSetor }
 }
 
-export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detalhe, autorId }) {
+export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detalhe, autorId, dadosObito }) {
   const agora = new Date().toISOString()
   const [{ error: erroInternacao }, { error: erroAtendimento }, { error: erroLeito }] = await Promise.all([
     supabase
       .from('internacoes')
-      .update({ resumo_alta: detalhe || null, encerrado_em: agora })
+      .update({ resumo_alta: detalhe || null, encerrado_em: agora, dados_obito: dadosObito || null })
       .eq('atendimento_id', atendimentoId),
     supabase.from('atendimentos').update({ status: 'alta' }).eq('id', atendimentoId),
     supabase
