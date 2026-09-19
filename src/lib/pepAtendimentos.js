@@ -213,12 +213,16 @@ export async function salvarIdentificacaoPep({ atendimentoId, pessoaId, identifi
   }
 
   if (identificacao.alergias) {
-    const { data: existente } = await supabase
+    // limit(1) em vez de maybeSingle() — desde que a Ficha Clínica permite
+    // cadastrar várias alergias ativas por pessoa, mais de uma linha ativa
+    // é esperado, e maybeSingle() quebraria com "multiple rows returned".
+    const { data: existentes } = await supabase
       .from('alergias')
       .select('id')
       .eq('pessoa_id', pessoaId)
       .eq('status', 'ativa')
-      .maybeSingle()
+      .limit(1)
+    const existente = existentes?.[0]
     if (existente) {
       await supabase.from('alergias').update({ substancia: identificacao.alergias_obs || null }).eq('id', existente.id)
     } else {

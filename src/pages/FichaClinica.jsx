@@ -8,6 +8,7 @@ import {
   listarBalancoHidrico, registrarBalancoHidrico,
   listarEscalas, registrarEscala,
   buscarResumoPaciente,
+  listarAlergias, registrarAlergia, inativarAlergia,
 } from '../lib/pepClinico'
 import './PassagemForm.css'
 
@@ -99,6 +100,7 @@ export default function FichaClinica({ atendimento, onFechar }) {
           <button className={aba === 'dispositivos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('dispositivos')}>Dispositivos</button>
           <button className={aba === 'balanco' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('balanco')}>Balanço Hídrico</button>
           <button className={aba === 'escalas' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('escalas')}>Escalas</button>
+          <button className={aba === 'alergias' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('alergias')}>Alergias</button>
         </div>
 
         {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}
@@ -107,6 +109,7 @@ export default function FichaClinica({ atendimento, onFechar }) {
         {aba === 'dispositivos' && <AbaDispositivos atendimento={atendimento} />}
         {aba === 'balanco' && <AbaBalancoHidrico atendimento={atendimento} autorId={enfermeiro?.id} />}
         {aba === 'escalas' && <AbaEscalas atendimento={atendimento} />}
+        {aba === 'alergias' && <AbaAlergias atendimento={atendimento} />}
 
         <div className="form-footer">
           <button className="btn-fechar" onClick={onFechar}>Fechar</button>
@@ -141,19 +144,32 @@ function ResumoPaciente({ atendimento }) {
 
   useEffect(() => {
     let vivo = true
-    buscarResumoPaciente(atendimento.atendimento_id).then((r) => { if (vivo) setResumo(r) })
+    buscarResumoPaciente(atendimento.atendimento_id, atendimento.pessoa_id).then((r) => { if (vivo) setResumo(r) })
     return () => { vivo = false }
-  }, [atendimento.atendimento_id])
+  }, [atendimento.atendimento_id, atendimento.pessoa_id])
 
   if (!resumo) return null
 
-  const { ultimoSv, escalaPorTipo, dispositivosAtivos, entradasHoje, saidasHoje } = resumo
+  const { ultimoSv, escalaPorTipo, dispositivosAtivos, entradasHoje, saidasHoje, alergiasAtivas } = resumo
   const temEscalas = Object.keys(escalaPorTipo).length > 0
-  const temAlgumDado = ultimoSv || temEscalas || dispositivosAtivos.length > 0 || entradasHoje || saidasHoje
+  const temAlgumDado = ultimoSv || temEscalas || dispositivosAtivos.length > 0 || entradasHoje || saidasHoje || alergiasAtivas.length > 0
   if (!temAlgumDado) return null
 
   return (
     <div className="resumo-paciente">
+      {alergiasAtivas.length > 0 && (
+        <div className="resumo-bloco" style={{ gridColumn: '1 / -1' }}>
+          <div className="resumo-bloco-titulo">⚠ Alergias</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {alergiasAtivas.map((a) => (
+              <span key={a.id} className="resumo-badge danger">
+                {a.substancia}{a.gravidade ? ` · ${a.gravidade}` : ''}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="resumo-bloco">
         <div className="resumo-bloco-titulo">Sinais vitais</div>
         {ultimoSv ? (
@@ -1003,6 +1019,120 @@ function AbaEscalas({ atendimento }) {
             </tbody>
           </table>
         </div>
+      )}
+    </div>
+  )
+}
+
+const GRAVIDADES = ['Leve', 'Moderada', 'Grave']
+
+function AbaAlergias({ atendimento }) {
+  const [lista, setLista] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [substancia, setSubstancia] = useState('')
+  const [reacao, setReacao] = useState('')
+  const [gravidade, setGravidade] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setLista(await listarAlergias(atendimento.pessoa_id))
+    setCarregando(false)
+  }
+
+  async function registrar() {
+    if (!substancia.trim()) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await registrarAlergia({ pessoaId: atendimento.pessoa_id, substancia: substancia.trim(), reacao, gravidade })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setSubstancia('')
+    setReacao('')
+    setGravidade('')
+    carregar()
+  }
+
+  async function inativar(id) {
+    await inativarAlergia(id)
+    carregar()
+  }
+
+  const ativas = lista.filter((a) => a.status === 'ativa')
+  const inativas = lista.filter((a) => a.status !== 'ativa')
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Nova alergia</div>
+      <div className="form-grid" style={{ marginBottom: 16 }}>
+        <div className="form-field"><label>Substância</label><input type="text" value={substancia} onChange={(e) => setSubstancia(e.target.value)} /></div>
+        <div className="form-field"><label>Reação</label><input type="text" placeholder="ex: urticária, edema..." value={reacao} onChange={(e) => setReacao(e.target.value)} /></div>
+        <div className="form-field">
+          <label>Gravidade</label>
+          <div className="chip-group">
+            {GRAVIDADES.map((g) => (
+              <button key={g} type="button" className={`chip ${gravidade === g ? 'on' : ''}`} onClick={() => setGravidade(gravidade === g ? '' : g)}>{g}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
+      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !substancia.trim()}>
+        {salvando ? 'Registrando...' : 'Registrar alergia'}
+      </button>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Ativas</div>
+      {carregando ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : ativas.length === 0 ? (
+        <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma alergia ativa registrada.</p>
+      ) : (
+        <div className="hist-tabela-wrap" style={{ marginBottom: 4 }}>
+          <table className="hist-tabela">
+            <thead>
+              <tr><th>Substância</th><th>Reação</th><th>Gravidade</th><th></th></tr>
+            </thead>
+            <tbody>
+              {ativas.map((a) => (
+                <tr key={a.id}>
+                  <td style={{ fontWeight: 600 }}>{a.substancia}</td>
+                  <td className="col-larga">{a.reacao || '—'}</td>
+                  <td>{a.gravidade ? <span className={`resumo-badge ${a.gravidade === 'Grave' ? 'danger' : a.gravidade === 'Moderada' ? 'warn' : 'ok'}`}>{a.gravidade}</span> : '—'}</td>
+                  <td><button type="button" className="btn-fechar" onClick={() => inativar(a.id)}>Inativar</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {inativas.length > 0 && (
+        <>
+          <div className="form-section-title" style={{ marginTop: 24 }}>Inativas</div>
+          <div className="hist-tabela-wrap">
+            <table className="hist-tabela">
+              <thead>
+                <tr><th>Substância</th><th>Reação</th><th>Gravidade</th></tr>
+              </thead>
+              <tbody>
+                {inativas.map((a) => (
+                  <tr key={a.id} style={{ color: 'var(--c-text-muted)' }}>
+                    <td>{a.substancia}</td>
+                    <td className="col-larga">{a.reacao || '—'}</td>
+                    <td>{a.gravidade || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   )
