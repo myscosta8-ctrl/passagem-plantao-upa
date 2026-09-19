@@ -146,3 +146,152 @@ export async function listarCatalogoMedicamentos() {
     .order('nome')
   return data ?? []
 }
+
+export async function listarCatalogoCid() {
+  const { data } = await supabase.from('cid_catalog').select('codigo, descricao').order('codigo')
+  return data ?? []
+}
+
+// Diagnóstico principal codificado da internação (distinto do CID da AIH,
+// que é específico do procedimento solicitado).
+export async function buscarInternacao(atendimentoId) {
+  const { data } = await supabase
+    .from('internacoes')
+    .select('*, cid_catalog!internacoes_diagnostico_cid_fkey(codigo, descricao)')
+    .eq('atendimento_id', atendimentoId)
+    .maybeSingle()
+  return data
+}
+
+export async function atualizarDiagnosticoCid(atendimentoId, cid) {
+  return supabase.from('internacoes').update({ diagnostico_cid: cid || null }).eq('atendimento_id', atendimentoId)
+}
+
+// ===================== Exames / sorologias / hemoterapia (multi-item) =====================
+// Substituem os antigos campos únicos exame_nome/sorologias/hemo_tipo em
+// `passagens` — um atendimento pode ter vários em paralelo.
+
+export async function listarExames(atendimentoId) {
+  const { data } = await supabase.from('exames_solicitados').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarExame({ atendimentoId, nome, preparo, agendadoPara }) {
+  return supabase.from('exames_solicitados').insert({
+    atendimento_id: atendimentoId, nome, preparo: preparo || null,
+    agendado_para: agendadoPara || null, status: 'a_realizar',
+  }).select().single()
+}
+
+export async function atualizarExame(id, { status, resultado }) {
+  return supabase.from('exames_solicitados').update({ status, resultado: resultado || null }).eq('id', id)
+}
+
+export async function listarSorologias(atendimentoId) {
+  const { data } = await supabase.from('sorologias_notificaveis').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarSorologia({ atendimentoId, agravo, dataColeta }) {
+  return supabase.from('sorologias_notificaveis').insert({
+    atendimento_id: atendimentoId, agravo, data_coleta: dataColeta || null, status: 'coleta_pendente',
+  }).select().single()
+}
+
+export async function atualizarSorologia(id, { status, dataNotificacao }) {
+  return supabase.from('sorologias_notificaveis').update({ status, data_notificacao: dataNotificacao || null }).eq('id', id)
+}
+
+export async function listarHemoterapia(atendimentoId) {
+  const { data } = await supabase.from('solicitacoes_hemoterapia').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarHemoterapia({ atendimentoId, tipo, quantidade }) {
+  return supabase.from('solicitacoes_hemoterapia').insert({
+    atendimento_id: atendimentoId, tipo, quantidade: quantidade || null, solicitado_em: new Date().toISOString(),
+  }).select().single()
+}
+
+export async function marcarTransfundido(id) {
+  return supabase.from('solicitacoes_hemoterapia').update({ transfundido_em: new Date().toISOString() }).eq('id', id)
+}
+
+// ===================== Plano terapêutico (no máximo um por atendimento) =====================
+
+export async function buscarPlanoTerapeutico(atendimentoId) {
+  const { data } = await supabase
+    .from('planos_terapeuticos')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .maybeSingle()
+  return data
+}
+
+export async function salvarPlanoTerapeutico({ atendimentoId, criadoPor, dados }) {
+  const existente = await buscarPlanoTerapeutico(atendimentoId)
+  if (existente) {
+    return supabase.from('planos_terapeuticos').update(dados).eq('id', existente.id).select().single()
+  }
+  return supabase.from('planos_terapeuticos').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
+// ===================== APAC =====================
+
+export async function listarApac(atendimentoId) {
+  const { data } = await supabase
+    .from('apac_solicitacoes')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('solicitado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarApac({ atendimentoId, solicitanteId, dados }) {
+  return supabase.from('apac_solicitacoes').insert({ atendimento_id: atendimentoId, solicitado_por: solicitanteId, ...dados }).select().single()
+}
+
+// ===================== ATM (antibiótico de uso restrito) =====================
+
+export async function listarAtm(atendimentoId) {
+  const { data } = await supabase
+    .from('solicitacoes_atm')
+    .select('*, enfermeiros!solicitacoes_atm_solicitado_por_fkey(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarAtm({ atendimentoId, solicitanteId, dados }) {
+  return supabase.from('solicitacoes_atm').insert({ atendimento_id: atendimentoId, solicitado_por: solicitanteId, ...dados }).select().single()
+}
+
+// ===================== TFD (tratamento fora do domicílio) =====================
+
+export async function listarTfd(atendimentoId) {
+  const { data } = await supabase
+    .from('tfd_solicitacoes')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarTfd({ atendimentoId, profissionalResponsavel, dados }) {
+  return supabase.from('tfd_solicitacoes').insert({ atendimento_id: atendimentoId, profissional_responsavel: profissionalResponsavel, ...dados }).select().single()
+}
+
+// ===================== Atualizações de regulação (SER/SISREG) =====================
+
+export async function listarRegulacao(atendimentoId) {
+  const { data } = await supabase
+    .from('regulacao_atualizacoes')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('atualizado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarRegulacao({ atendimentoId, atualizadoPor, dados }) {
+  return supabase.from('regulacao_atualizacoes').insert({ atendimento_id: atendimentoId, atualizado_por: atualizadoPor, ...dados }).select().single()
+}
