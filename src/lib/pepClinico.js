@@ -157,12 +157,13 @@ export async function registrarEscala({ atendimentoId, tipo, pontuacao, nivelRis
 // Resumo compacto pro card de status no topo da Ficha Clínica — último
 // sinal vital, escala mais recente de cada tipo, dispositivos ainda
 // ativos e balanço hídrico só de hoje.
-export async function buscarResumoPaciente(atendimentoId) {
-  const [sinaisVitais, escalas, dispositivos, balanco] = await Promise.all([
+export async function buscarResumoPaciente(atendimentoId, pessoaId) {
+  const [sinaisVitais, escalas, dispositivos, balanco, alergias] = await Promise.all([
     listarSinaisVitais(atendimentoId),
     listarEscalas(atendimentoId),
     listarDispositivos(atendimentoId),
     listarBalancoHidrico(atendimentoId),
+    pessoaId ? listarAlergias(pessoaId) : Promise.resolve([]),
   ])
 
   const escalaPorTipo = {}
@@ -183,5 +184,30 @@ export async function buscarResumoPaciente(atendimentoId) {
     dispositivosAtivos,
     entradasHoje,
     saidasHoje,
+    alergiasAtivas: alergias.filter((a) => a.status === 'ativa'),
   }
+}
+
+// Alergias são da PESSOA (atravessam internações diferentes), não do
+// atendimento — igual medicações contínuas. Lista de verdade: várias por
+// pessoa, cada uma com substância/reação/gravidade, nunca um sim/não só.
+export async function listarAlergias(pessoaId) {
+  const { data } = await supabase
+    .from('alergias')
+    .select('*')
+    .eq('pessoa_id', pessoaId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarAlergia({ pessoaId, substancia, reacao, gravidade }) {
+  return supabase
+    .from('alergias')
+    .insert({ pessoa_id: pessoaId, substancia, reacao: reacao || null, gravidade: gravidade || null, status: 'ativa' })
+    .select()
+    .single()
+}
+
+export async function inativarAlergia(alergiaId) {
+  return supabase.from('alergias').update({ status: 'inativa' }).eq('id', alergiaId)
 }
