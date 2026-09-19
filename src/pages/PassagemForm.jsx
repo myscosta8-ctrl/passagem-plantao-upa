@@ -343,6 +343,11 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         error = resultado.error
       }
     } else {
+      const statusInternacaoNovo = statusTravado ? 'Internado' : identificacao.status_internacao
+      // Indicador clínico "tempo até conduta": marca o instante em que o paciente
+      // deixa de estar "Em observação", uma única vez (nunca reescreve depois).
+      const saiuDeObservacao = paciente.status_internacao === 'Em observação' && statusInternacaoNovo !== 'Em observação'
+
       await supabase
         .from('pacientes')
         .update({
@@ -353,7 +358,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           data_admissao: identificacao.data_admissao || null,
           alergias: identificacao.alergias,
           alergias_obs: identificacao.alergias_obs,
-          status_internacao: statusTravado ? 'Internado' : identificacao.status_internacao,
+          status_internacao: statusInternacaoNovo,
+          ...(saiuDeObservacao ? { data_conduta_definida: new Date().toISOString() } : {}),
           updated_at: new Date().toISOString(),
           ultima_alteracao_por: enfermeiroId,
           ultima_alteracao_em: new Date().toISOString(),
@@ -405,6 +411,9 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
             tipo_desfecho: tipo,
             desfecho_detalhe: detalhe || null,
             data_desfecho: new Date().toISOString(),
+            // Foi direto da observação pro desfecho, sem nunca internar — também
+            // conta como "saiu da observação" pro indicador de tempo até conduta.
+            ...(paciente.status_internacao === 'Em observação' ? { data_conduta_definida: new Date().toISOString() } : {}),
             ultima_alteracao_por: enfermeiroId,
             ultima_alteracao_em: new Date().toISOString(),
           })

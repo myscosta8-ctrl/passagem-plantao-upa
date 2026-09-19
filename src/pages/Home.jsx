@@ -8,6 +8,7 @@ import Ajuda from './Ajuda'
 import MinhaConta from './MinhaConta'
 import AltasRecentes from './AltasRecentes'
 import Pendencias from './Pendencias'
+import IndicadoresPainel from './IndicadoresPainel'
 import CompartilharPlantao from './CompartilharPlantao'
 import ConfirmModal from './ConfirmModal'
 import PainelEquipe from './PainelEquipe'
@@ -52,7 +53,7 @@ function hojeISOLocal() {
 
 // Guarda em qual tela a pessoa estava, pra voltar pro mesmo lugar se o app recarregar sozinho
 // (comum no celular). Expira depois de um tempo, pra nunca reabrir num lugar "velho" demais.
-const TELAS_VALIDAS = ['painel', 'print1', 'print2', 'historico', 'altas', 'pendencias', 'ajuda', 'conta', 'profissionais']
+const TELAS_VALIDAS = ['painel', 'print1', 'print2', 'historico', 'altas', 'indicadoresClinicos', 'pendencias', 'ajuda', 'conta', 'profissionais']
 const LIMITE_HORAS_TELA_SALVA = 4
 
 function lerTelaSalva() {
@@ -276,6 +277,7 @@ export default function Home() {
           )}
           {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
+          {plantao && setoresIds && tela === 'indicadoresClinicos' && <IndicadoresPainel onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
           {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}

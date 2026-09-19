@@ -258,6 +258,17 @@ export async function salvarPassagemPep(payload) {
 // internacoes (dados do episódio) e atendimentos (status_internacao) — e alergias
 // vira uma linha na tabela própria, não um campo solto.
 export async function salvarIdentificacaoPep({ atendimentoId, pessoaId, identificacao }) {
+  // Indicador clínico "tempo até conduta": marca o instante em que o atendimento
+  // deixa de estar "Em observação", uma única vez (nunca reescreve depois).
+  const { data: atendimentoAtual } = await supabase
+    .from('atendimentos')
+    .select('status_internacao, data_conduta_definida')
+    .eq('id', atendimentoId)
+    .maybeSingle()
+  const saiuDeObservacao = atendimentoAtual?.status_internacao === 'Em observação'
+    && identificacao.status_internacao !== 'Em observação'
+    && !atendimentoAtual?.data_conduta_definida
+
   const [{ error: erroPessoa }, { error: erroInternacao }, { error: erroAtendimento }] = await Promise.all([
     supabase
       .from('pessoas')
@@ -276,7 +287,10 @@ export async function salvarIdentificacaoPep({ atendimentoId, pessoaId, identifi
       .eq('atendimento_id', atendimentoId),
     supabase
       .from('atendimentos')
-      .update({ status_internacao: identificacao.status_internacao })
+      .update({
+        status_internacao: identificacao.status_internacao,
+        ...(saiuDeObservacao ? { data_conduta_definida: new Date().toISOString() } : {}),
+      })
       .eq('id', atendimentoId),
   ])
   if (erroPessoa || erroInternacao || erroAtendimento) {
@@ -334,12 +348,25 @@ export async function realocarAtendimentoPep({ atendimentoId, leitoOrigemId, lei
 
 export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detalhe, autorId, dadosObito }) {
   const agora = new Date().toISOString()
+
+  // Foi direto da observação pro desfecho, sem nunca internar — também conta
+  // como "saiu da observação" pro indicador de tempo até conduta.
+  const { data: atendimentoAtual } = await supabase
+    .from('atendimentos')
+    .select('status_internacao, data_conduta_definida')
+    .eq('id', atendimentoId)
+    .maybeSingle()
+  const saiuDeObservacao = atendimentoAtual?.status_internacao === 'Em observação' && !atendimentoAtual?.data_conduta_definida
+
   const [{ error: erroInternacao }, { error: erroAtendimento }, { error: erroLeito }] = await Promise.all([
     supabase
       .from('internacoes')
       .update({ resumo_alta: detalhe || null, encerrado_em: agora, dados_obito: dadosObito || null })
       .eq('atendimento_id', atendimentoId),
-    supabase.from('atendimentos').update({ status: 'alta' }).eq('id', atendimentoId),
+    supabase
+      .from('atendimentos')
+      .update({ status: 'alta', ...(saiuDeObservacao ? { data_conduta_definida: agora } : {}) })
+      .eq('id', atendimentoId),
     supabase
       .from('leito_ocupacoes')
       .update({ status: 'encerrado', liberado_em: agora, motivo_transferencia: tipo })
