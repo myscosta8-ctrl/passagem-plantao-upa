@@ -376,7 +376,7 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   async function registrarDesfecho(tipo, detalhe) {
     setProcessando(true)
     const { error } = pepAtivo
-      ? await registrarDesfechoPep({ atendimentoId: paciente.id, leitoId: leito.id, tipo, detalhe })
+      ? await registrarDesfechoPep({ atendimentoId: paciente.id, leitoId: leito.id, tipo, detalhe, autorId: enfermeiroId })
       : await supabase
           .from('pacientes')
           .update({

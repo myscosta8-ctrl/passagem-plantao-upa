@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient'
-import { calcularIdade } from './pepAtendimentos'
+import { calcularIdade, registrarEventoAuditoria } from './pepAtendimentos'
 
 // Camada de dados do módulo médico (Fase 1 do PEP). Só existe sobre a estrutura
 // nova (pessoas/atendimentos/leito_ocupacoes) — diferente do resto do app, não
@@ -163,8 +163,12 @@ export async function buscarInternacao(atendimentoId) {
   return data
 }
 
-export async function atualizarDiagnosticoCid(atendimentoId, cid) {
-  return supabase.from('internacoes').update({ diagnostico_cid: cid || null }).eq('atendimento_id', atendimentoId)
+export async function atualizarDiagnosticoCid(atendimentoId, cid, autorId) {
+  const resultado = await supabase.from('internacoes').update({ diagnostico_cid: cid || null }).eq('atendimento_id', atendimentoId)
+  if (!resultado.error) {
+    await registrarEventoAuditoria({ atendimentoId, autorId, acao: 'diagnostico_cid_atualizado', dados: { cid: cid || null } })
+  }
+  return resultado
 }
 
 // ===================== Exames / sorologias / hemoterapia (multi-item) =====================

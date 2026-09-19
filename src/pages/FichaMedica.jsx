@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
+import { listarEventosAuditoria } from '../lib/pepAtendimentos'
 import {
   listarConsultas, criarConsulta,
   listarPrescricoes, criarPrescricao, cancelarPrescricao,
@@ -32,6 +33,7 @@ const ABAS = [
   { chave: 'tfd', rotulo: 'TFD' },
   { chave: 'regulacao', rotulo: 'Regulação' },
   { chave: 'medicacoesContinuas', rotulo: 'Medicações Contínuas' },
+  { chave: 'auditoria', rotulo: 'Auditoria' },
 ]
 
 export default function FichaMedica({ atendimento, onFechar }) {
@@ -58,7 +60,7 @@ export default function FichaMedica({ atendimento, onFechar }) {
           <button className="form-header-close" onClick={onFechar}>×</button>
         </div>
 
-        <DiagnosticoPrincipal atendimento={atendimento} />
+        <DiagnosticoPrincipal atendimento={atendimento} medicoId={enfermeiro?.id} />
 
         <div className="form-toolbar">
           {ABAS.map((a) => (
@@ -82,6 +84,7 @@ export default function FichaMedica({ atendimento, onFechar }) {
         {aba === 'tfd' && <AbaTfd atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'tfd', registro })} />}
         {aba === 'regulacao' && <AbaRegulacao atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'regulacao', registro })} />}
         {aba === 'medicacoesContinuas' && <AbaMedicacoesContinuas atendimento={atendimento} medicoId={enfermeiro?.id} />}
+        {aba === 'auditoria' && <AbaAuditoria atendimento={atendimento} />}
 
         <div className="form-footer">
           <button className="btn-fechar" onClick={onFechar}>Fechar</button>
@@ -94,7 +97,7 @@ export default function FichaMedica({ atendimento, onFechar }) {
 // Diagnóstico principal codificado da internação — sempre visível,
 // independente da aba, porque alimenta o cabeçalho de qualquer documento
 // impresso (distinto do CID da AIH, que é do procedimento solicitado).
-function DiagnosticoPrincipal({ atendimento }) {
+function DiagnosticoPrincipal({ atendimento, medicoId }) {
   const [internacao, setInternacao] = useState(null)
   const [cids, setCids] = useState([])
   const [cid, setCid] = useState('')
@@ -107,7 +110,7 @@ function DiagnosticoPrincipal({ atendimento }) {
 
   async function salvar() {
     setSalvando(true)
-    await atualizarDiagnosticoCid(atendimento.atendimento_id, cid)
+    await atualizarDiagnosticoCid(atendimento.atendimento_id, cid, medicoId)
     setSalvando(false)
     buscarInternacao(atendimento.atendimento_id).then(setInternacao)
   }
@@ -1177,6 +1180,44 @@ function AbaMedicacoesContinuas({ atendimento, medicoId }) {
           ))}
         </>
       )}
+    </div>
+  )
+}
+
+const ACOES_AUDITORIA = {
+  diagnostico_cid_atualizado: 'Diagnóstico (CID-10) atualizado',
+  desfecho_registrado: 'Desfecho registrado',
+  duplicata_fundida: 'Cadastros duplicados fundidos',
+}
+
+function AbaAuditoria({ atendimento }) {
+  const [eventos, setEventos] = useState([])
+  const [carregando, setCarregando] = useState(true)
+
+  useEffect(() => {
+    listarEventosAuditoria(atendimento.atendimento_id).then((lista) => { setEventos(lista); setCarregando(false) })
+  }, [atendimento.atendimento_id])
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Trilha de auditoria</div>
+      <p style={{ fontSize: 11.5, color: 'var(--c-text-muted)', marginTop: -10, marginBottom: 14 }}>
+        Registro somente-leitura das ações mais sensíveis feitas neste atendimento — não cobre tudo, só os pontos de maior impacto (diagnóstico, desfecho, fusão de cadastro).
+      </p>
+      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : eventos.length === 0 ? (
+        <p style={{ color: 'var(--color-text-muted)' }}>Nenhum evento registrado ainda.</p>
+      ) : eventos.map((e) => (
+        <div key={e.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)', fontSize: 13 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <strong>{ACOES_AUDITORIA[e.acao] || e.acao}</strong>
+            <span style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>{new Date(e.ocorrido_em).toLocaleString('pt-BR')}</span>
+          </div>
+          <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
+            {e.enfermeiros?.nome_exibicao || e.enfermeiros?.nome || 'Autor desconhecido'}
+            {e.dados ? ` · ${JSON.stringify(e.dados)}` : ''}
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
