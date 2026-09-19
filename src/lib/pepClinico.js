@@ -289,3 +289,33 @@ export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestino
     .select()
     .single()
 }
+
+// ===================== Eventos adversos (notificação de incidentes) =====================
+// Relator pode registrar como anônimo — quando anonimo=true, a UI não mostra
+// o nome de quem relatou, mesmo que relator_id esteja preenchido no banco
+// (auditoria interna continua possível, só não é exposta na tela).
+
+export async function listarEventosAdversos(atendimentoId) {
+  const { data } = await supabase
+    .from('eventos_adversos')
+    .select('*, enfermeiros(nome_exibicao, nome)')
+    .eq('atendimento_id', atendimentoId)
+    .order('ocorrido_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarEventoAdverso({ atendimentoId, relatorId, anonimo, categoria, gravidade, descricao, acaoImediata }) {
+  return supabase
+    .from('eventos_adversos')
+    .insert({
+      atendimento_id: atendimentoId,
+      relator_id: anonimo ? null : relatorId,
+      anonimo: !!anonimo,
+      categoria,
+      gravidade,
+      descricao,
+      acao_imediata: acaoImediata || null,
+    })
+    .select()
+    .single()
+}
