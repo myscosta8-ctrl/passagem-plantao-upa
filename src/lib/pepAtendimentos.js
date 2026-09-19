@@ -100,11 +100,11 @@ export async function carregarLeitosOcupadosPep() {
 export async function internarPacientePep({ leito, dados, enfermeiroId }) {
   const { data: pessoa, error: erroPessoa } = await supabase
     .from('pessoas')
-    .insert({ nome: dados.nome })
+    .insert({ nome: dados.nome, data_nascimento: dados.dataNascimento || null })
     .select()
     .single()
   if (erroPessoa) return { error: erroPessoa }
-  detectarDuplicatas(pessoa.id, { nome: dados.nome })
+  detectarDuplicatas(pessoa.id, { nome: dados.nome, data_nascimento: dados.dataNascimento })
 
   const { data: atendimento, error: erroAtendimento } = await supabase
     .from('atendimentos')
@@ -114,6 +114,7 @@ export async function internarPacientePep({ leito, dados, enfermeiroId }) {
       tipo: 'internacao',
       status: 'internado',
       status_internacao: dados.status,
+      classificacao_risco_cor: dados.classificacaoManchester || null,
     })
     .select()
     .single()
