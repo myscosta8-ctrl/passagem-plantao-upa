@@ -295,3 +295,28 @@ export async function listarRegulacao(atendimentoId) {
 export async function registrarRegulacao({ atendimentoId, atualizadoPor, dados }) {
   return supabase.from('regulacao_atualizacoes').insert({ atendimento_id: atendimentoId, atualizado_por: atualizadoPor, ...dados }).select().single()
 }
+
+// ===================== Medicações contínuas =====================
+// Vive em `pessoas`, não no atendimento — uso contínuo em casa atravessa
+// internações diferentes (citado na Evolução Médica real).
+
+export async function listarMedicacoesContinuas(pessoaId) {
+  const { data } = await supabase
+    .from('medicacoes_continuas')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('pessoa_id', pessoaId)
+    .order('registrado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarMedicacaoContinua({ pessoaId, medicamento, dose, frequencia, registradoPor }) {
+  return supabase
+    .from('medicacoes_continuas')
+    .insert({ pessoa_id: pessoaId, medicamento, dose: dose || null, frequencia: frequencia || null, registrado_por: registradoPor, status: 'ativo' })
+    .select()
+    .single()
+}
+
+export async function suspenderMedicacaoContinua(id) {
+  return supabase.from('medicacoes_continuas').update({ status: 'suspenso' }).eq('id', id)
+}
