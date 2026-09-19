@@ -609,7 +609,9 @@ const ROTULO_STATUS_SOROLOGIA = { coleta_pendente: 'Coleta pendente', aguardando
 function SecaoSorologias({ atendimentoId }) {
   const [lista, setLista] = useState([])
   const [agravo, setAgravo] = useState('')
+  const [dataColeta, setDataColeta] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [pendenteNotificacao, setPendenteNotificacao] = useState(null) // id aguardando informar data_notificacao
 
   useEffect(() => { carregar() }, [])
   async function carregar() { setLista(await listarSorologias(atendimentoId)) }
@@ -617,33 +619,65 @@ function SecaoSorologias({ atendimentoId }) {
   async function adicionar() {
     if (!agravo.trim()) return
     setSalvando(true)
-    await criarSorologia({ atendimentoId, agravo: agravo.trim() })
+    await criarSorologia({ atendimentoId, agravo: agravo.trim(), dataColeta })
     setSalvando(false)
     setAgravo('')
+    setDataColeta('')
     carregar()
   }
 
   async function mudarStatus(id, status) {
+    // "Resultado disponível" é o gatilho pra notificação compulsória — pede a
+    // data antes de gravar, em vez de deixar a notificação sem data nenhuma.
+    if (status === 'resultado_disponivel') {
+      setPendenteNotificacao(id)
+      return
+    }
     await atualizarSorologia(id, { status })
+    carregar()
+  }
+
+  async function confirmarNotificacao(id, dataNotificacao) {
+    await atualizarSorologia(id, { status: 'resultado_disponivel', dataNotificacao: dataNotificacao || null })
+    setPendenteNotificacao(null)
     carregar()
   }
 
   return (
     <div style={{ marginBottom: 28 }}>
       <div className="form-section-title">Sorologias / notificação compulsória</div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <input type="text" placeholder="Agravo / sorologia" value={agravo} onChange={(e) => setAgravo(e.target.value)} style={{ flex: 1 }} />
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+        <input type="text" placeholder="Agravo / sorologia" value={agravo} onChange={(e) => setAgravo(e.target.value)} style={{ flex: 1, minWidth: 160 }} />
+        <input type="date" title="Data da coleta" value={dataColeta} onChange={(e) => setDataColeta(e.target.value)} />
         <button type="button" className="modal-btn-secondary" onClick={adicionar} disabled={salvando || !agravo.trim()}>+ Adicionar</button>
       </div>
       {lista.length === 0 ? (
         <p style={{ color: 'var(--color-text-muted)', fontSize: 12.5 }}>Nenhuma notificação registrada ainda.</p>
       ) : (
         lista.map((s) => (
-          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
-            <span>{s.agravo}</span>
-            <select value={s.status} onChange={(ev) => mudarStatus(s.id, ev.target.value)} style={{ fontSize: 11.5 }}>
-              {STATUS_SOROLOGIA.map((st) => <option key={st} value={st}>{ROTULO_STATUS_SOROLOGIA[st]}</option>)}
-            </select>
+          <div key={s.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{s.agravo}{s.data_coleta ? ` · coleta ${new Date(s.data_coleta + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}</span>
+              <select value={s.status} onChange={(ev) => mudarStatus(s.id, ev.target.value)} style={{ fontSize: 11.5 }}>
+                {STATUS_SOROLOGIA.map((st) => <option key={st} value={st}>{ROTULO_STATUS_SOROLOGIA[st]}</option>)}
+              </select>
+            </div>
+            {s.data_notificacao && (
+              <div style={{ fontSize: 11.5, color: 'var(--color-text-muted)', marginTop: 2 }}>
+                Notificado em {new Date(s.data_notificacao + 'T00:00:00').toLocaleDateString('pt-BR')}
+              </div>
+            )}
+            {pendenteNotificacao === s.id && (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6 }}>
+                <label style={{ fontSize: 11.5 }}>Data da notificação:</label>
+                <input
+                  type="date"
+                  autoFocus
+                  onChange={(e) => e.target.value && confirmarNotificacao(s.id, e.target.value)}
+                />
+                <button type="button" className="modal-btn-secondary" onClick={() => setPendenteNotificacao(null)}>Cancelar</button>
+              </div>
+            )}
           </div>
         ))
       )}
