@@ -1,0 +1,270 @@
+/* Menu Lateral Hambúrguer — PEP Seção 2 */
+
+.app-shell-sidebar-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--c-bg, #F4F6F5);
+}
+
+.sidebar {
+  width: 250px;
+  background: var(--c-primary-dark, #0A1F33);
+  color: #C7D6DF;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  z-index: 50;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar.fechado {
+  width: 64px;
+}
+
+/* Topo com botão de hambúrguer */
+.sidebar-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  height: 60px;
+}
+
+.sidebar-hamburguer {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.sidebar-hamburguer:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-marca {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-marca-titulo {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-marca-sub {
+  font-size: 10.5px;
+  color: #7B99AD;
+}
+
+/* Ocultar textos no modo recolhido */
+.sidebar.fechado .sidebar-marca,
+.sidebar.fechado .sidebar-grupo-label,
+.sidebar.fechado .sidebar-item-texto,
+.sidebar.fechado .sidebar-item-tag-novo,
+.sidebar.fechado .sidebar-user-detalhes,
+.sidebar.fechado .sidebar-btn-encerrar-texto {
+  display: none !important;
+}
+
+/* Corpo navegável */
+.sidebar-corpo {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 8px;
+}
+
+.sidebar-corpo::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-corpo::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.sidebar-grupo-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #5E7A8C;
+  padding: 14px 10px 6px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  color: #C7D6DF;
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.sidebar-item.ativo {
+  background: var(--c-primary, #14507D);
+  color: #fff;
+  font-weight: 600;
+}
+
+.sidebar-item-icone {
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 14.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-item-texto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-item-tag-novo {
+  font-size: 8.5px;
+  font-weight: 700;
+  background: #F0DCA8;
+  color: #5C3D00;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: auto;
+}
+
+/* Rodapé com Usuário e Ações */
+.sidebar-rodape {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 10px;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-user-bloco {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px;
+}
+
+.sidebar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--c-primary, #14507D);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sidebar-user-detalhes {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-user-nome {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-turno {
+  font-size: 10.5px;
+  color: #7B99AD;
+}
+
+.sidebar-botoes-rodape {
+  display: flex;
+  gap: 6px;
+}
+
+.sidebar-btn-acao {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #C7D6DF;
+  border-radius: 6px;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.sidebar-btn-acao:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* Área de conteúdo ao lado da sidebar */
+.app-shell-conteudo {
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--c-bg, #F4F6F5);
+  position: relative;
+}
+
+@media print {
+  .sidebar {
+    display: none !important;
+  }
+  .app-shell-sidebar-layout {
+    display: block;
+    height: auto;
+    width: auto;
+  }
+  .app-shell-conteudo {
+    overflow: visible;
+    height: auto;
+  }
+}

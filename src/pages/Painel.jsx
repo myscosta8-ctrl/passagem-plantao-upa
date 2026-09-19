@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
-import PassagemForm from './PassagemForm'
+import EspacoPaciente from './EspacoPaciente'
 import RealocarModal from './RealocarModal'
 import ConfirmModal from './ConfirmModal'
 import IndicadoresClinicos from '../components/IndicadoresClinicos'
@@ -166,6 +166,8 @@ export default function Painel({ plantao, setoresIds }) {
         nome: dados.nome,
         diagnostico: dados.diagnostico,
         data_admissao: dados.dataAdmissao,
+        data_nascimento: dados.dataNascimento,
+        classificacao_manchester: dados.classificacaoManchester,
         leito_atual_id: leito.id,
         status: 'internado',
         status_internacao: dados.status,
@@ -311,12 +313,13 @@ export default function Painel({ plantao, setoresIds }) {
       )}
 
       {modalPassagem && (
-        <PassagemForm
+        <EspacoPaciente
           paciente={modalPassagem.paciente}
           leito={modalPassagem.leito}
           setorNome={setores.find((s) => s.id === modalPassagem.leito.setor_id)?.nome}
           plantaoId={plantao.id}
           enfermeiroId={enfermeiro?.id}
+          enfermeiro={enfermeiro}
           onFechar={fecharPassagem}
           onSalvo={carregarTudo}
           onRealocar={(paciente, leito) => {
@@ -436,6 +439,16 @@ function PainelTabela({
   )
 }
 
+// Cores reais da classificação de risco Manchester — exceção deliberada à paleta
+// única do design system, porque aqui a cor É o dado clínico, não decoração.
+const MANCHESTER_CORES = [
+  { nome: 'Vermelho', cor: '#B3261E', texto: '#fff' },
+  { nome: 'Laranja', cor: '#C2670A', texto: '#fff' },
+  { nome: 'Amarelo', cor: '#C9A227', texto: '#3A2E00' },
+  { nome: 'Verde', cor: '#15803d', texto: '#fff' },
+  { nome: 'Azul', cor: '#14507D', texto: '#fff' },
+]
+
 function normalizarNome(s) {
   return s
     .normalize('NFD')
@@ -452,6 +465,8 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
   const [nome, setNome] = useState('')
   const [diagnostico, setDiagnostico] = useState('')
   const [dataAdmissao, setDataAdmissao] = useState('')
+  const [dataNascimento, setDataNascimento] = useState('')
+  const [classificacaoManchester, setClassificacaoManchester] = useState('')
   const [status, setStatus] = useState(travado ? 'Internado' : 'Em observação')
   const [confirmouDuplicata, setConfirmouDuplicata] = useState(false)
   const [camposFaltando, setCamposFaltando] = useState([])
@@ -474,6 +489,8 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
     setNome(rascunhoEncontrado.nome ?? '')
     setDiagnostico(rascunhoEncontrado.diagnostico ?? '')
     setDataAdmissao(rascunhoEncontrado.dataAdmissao ?? '')
+    setDataNascimento(rascunhoEncontrado.dataNascimento ?? '')
+    setClassificacaoManchester(rascunhoEncontrado.classificacaoManchester ?? '')
     setStatus(rascunhoEncontrado.status ?? (travado ? 'Internado' : 'Em observação'))
     setRascunhoEncontrado(null)
   }
@@ -486,12 +503,12 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
   useEffect(() => {
     if (!nome.trim() && !diagnostico.trim()) return
     const atraso = setTimeout(() => {
-      localStorage.setItem(chaveRascunho, JSON.stringify({ nome, diagnostico, dataAdmissao, status, quando: new Date().toISOString() }))
+      localStorage.setItem(chaveRascunho, JSON.stringify({ nome, diagnostico, dataAdmissao, dataNascimento, classificacaoManchester, status, quando: new Date().toISOString() }))
     }, 800)
     return () => clearTimeout(atraso)
-  }, [nome, diagnostico, dataAdmissao, status])
+  }, [nome, diagnostico, dataAdmissao, dataNascimento, classificacaoManchester, status])
 
-  const valido = nome.trim() && diagnostico.trim() && dataAdmissao
+  const valido = nome.trim() && diagnostico.trim() && dataAdmissao && dataNascimento && classificacaoManchester
 
   const duplicata = nome.trim()
     ? (pacientesExistentes ?? []).find((p) => normalizarNome(p.nome) === normalizarNome(nome))
@@ -507,6 +524,8 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
     if (!nome.trim()) faltando.push('Nome completo')
     if (!diagnostico.trim()) faltando.push('Diagnóstico')
     if (!dataAdmissao) faltando.push('Data de admissão')
+    if (!dataNascimento) faltando.push('Data de nascimento')
+    if (!classificacaoManchester) faltando.push('Classificação de Manchester')
     if (faltando.length > 0) {
       setCamposFaltando(faltando)
       return
@@ -518,7 +537,7 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
       return
     }
     localStorage.removeItem(chaveRascunho)
-    onConfirmar({ nome, diagnostico, dataAdmissao, status })
+    onConfirmar({ nome, diagnostico, dataAdmissao, dataNascimento, classificacaoManchester, status })
   }
 
   return (
@@ -556,6 +575,39 @@ function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onC
           <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 6 }}>
             Pode ser uma data anterior a hoje (internação retroativa).
           </p>
+        </div>
+        <div className="field" style={{ marginBottom: 14 }}>
+          <label>Data de nascimento *</label>
+          <input
+            type="date"
+            style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
+            value={dataNascimento}
+            onChange={(e) => { setDataNascimento(e.target.value); setCamposFaltando([]) }}
+          />
+        </div>
+        <div className="field" style={{ marginBottom: 14 }}>
+          <label>Classificação de Manchester *</label>
+          <div className="chip-group">
+            {MANCHESTER_CORES.map((c) => (
+              <button
+                type="button"
+                key={c.nome}
+                onClick={() => { setClassificacaoManchester(c.nome); setCamposFaltando([]) }}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 16,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  border: `1.5px solid ${c.cor}`,
+                  background: classificacaoManchester === c.nome ? c.cor : 'transparent',
+                  color: classificacaoManchester === c.nome ? c.texto : c.cor,
+                  cursor: 'pointer',
+                }}
+              >
+                {c.nome}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="field">
           <label>Status {travado && '(Internação Adulto — fixo)'}</label>
