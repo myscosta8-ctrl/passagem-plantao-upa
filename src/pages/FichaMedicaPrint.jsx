@@ -6,6 +6,11 @@ const TITULOS = {
   consulta: 'Ficha de Admissão Médica',
   prescricao: 'Prescrição Médica',
   aih: 'Solicitação de AIH',
+  apac: 'Solicitação de APAC',
+  atm: 'Solicitação de Autorização de Uso de Antimicrobiano (ATM)',
+  tfd: 'Laudo para Tratamento Fora do Domicílio (TFD)',
+  plano: 'Plano Terapêutico',
+  regulacao: 'Atualização de Quadro Clínico — Regulação (SER/SISREG)',
 }
 
 export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVoltar }) {
@@ -19,7 +24,7 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
 
   const { pessoa, atendimento, idade, leitoNumero, setorNome } = cabecalho
   const medico = registro.enfermeiros
-  const dataHora = new Date(registro.criado_em).toLocaleString('pt-BR')
+  const dataHora = new Date(registro.criado_em || registro.solicitado_em || registro.atualizado_em).toLocaleString('pt-BR')
 
   return (
     <div className="print-page">
@@ -55,6 +60,11 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
         {tipo === 'consulta' && <CorpoConsulta registro={registro} />}
         {tipo === 'prescricao' && <CorpoPrescricao registro={registro} />}
         {tipo === 'aih' && <CorpoAih registro={registro} />}
+        {tipo === 'apac' && <CorpoApac registro={registro} />}
+        {tipo === 'atm' && <CorpoAtm registro={registro} />}
+        {tipo === 'tfd' && <CorpoTfd registro={registro} />}
+        {tipo === 'plano' && <CorpoPlano registro={registro} />}
+        {tipo === 'regulacao' && <CorpoRegulacao registro={registro} />}
 
         <div className="doc-assinatura">
           <div className="linha-assinatura" />
@@ -135,6 +145,93 @@ function CorpoAih({ registro }) {
         <Secao rotulo="CID principal" valor={`${registro.cid_catalog.codigo} — ${registro.cid_catalog.descricao}`} />
       )}
       <Secao rotulo="Justificativa clínica" valor={registro.justificativa_clinica} />
+    </>
+  )
+}
+
+function CorpoApac({ registro }) {
+  return (
+    <>
+      <Secao rotulo="Procedimento" valor={`${registro.procedimento_nome}${registro.procedimento_codigo ? ` (${registro.procedimento_codigo})` : ''}`} />
+      <Secao rotulo="Quantidade" valor={registro.quantidade} />
+      <Secao rotulo="CID principal" valor={registro.cid_principal} />
+      <Secao rotulo="CID secundário" valor={registro.cid_secundario} />
+      <Secao rotulo="Justificativa clínica" valor={registro.justificativa} />
+      <Secao rotulo="Nº de autorização" valor={registro.numero_autorizacao} />
+      <Secao rotulo="Validade" valor={registro.validade_inicio ? `${new Date(registro.validade_inicio + 'T00:00:00').toLocaleDateString('pt-BR')} a ${registro.validade_fim ? new Date(registro.validade_fim + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}` : null} />
+    </>
+  )
+}
+
+function CorpoAtm({ registro }) {
+  return (
+    <>
+      <Secao rotulo="Medicamento" valor={registro.medicamento} />
+      <Secao rotulo="Dose" valor={registro.dose} />
+      <Secao rotulo="Posologia" valor={registro.posologia} />
+      <Secao rotulo="Intervalo" valor={registro.intervalo} />
+      <Secao rotulo="Tempo de uso previsto" valor={registro.tempo_uso_dias ? `${registro.tempo_uso_dias} dias` : null} />
+      <Secao rotulo="Justificativa clínica" valor={registro.justificativa_clinica} />
+      <div className="doc-secao" style={{ marginTop: 12 }}>
+        <span className="rotulo">Parecer da farmácia</span>
+        <span className="valor">Liberação avaliada e registrada manualmente pela farmácia — espaço reservado abaixo para parecer, assinatura e carimbo do farmacêutico responsável.</span>
+      </div>
+      <div className="doc-assinatura" style={{ marginTop: 24 }}>
+        <div className="linha-assinatura" />
+        Farmacêutico(a) responsável — parecer / assinatura / carimbo
+      </div>
+    </>
+  )
+}
+
+function CorpoTfd({ registro }) {
+  return (
+    <>
+      <Secao rotulo="História da doença atual" valor={registro.historia_doenca_atual} />
+      <Secao rotulo="Exame físico" valor={registro.exame_fisico} />
+      <Secao rotulo="Diagnóstico" valor={registro.diagnostico} />
+      <Secao rotulo="Exame complementar" valor={registro.exame_complementar} />
+      <Secao rotulo="Tratamento realizado" valor={registro.tratamento_realizado} />
+      <Secao rotulo="Tratamento indicado" valor={registro.tratamento_indicado} />
+      <Secao rotulo="Tempo provável de tratamento" valor={registro.tempo_provavel_dias ? `${registro.tempo_provavel_dias} dias` : null} />
+      <Secao rotulo="Acompanhante" valor={registro.acompanhante_nome ? `${registro.acompanhante_nome}${registro.acompanhante_relacao ? ` (${registro.acompanhante_relacao})` : ''}` : null} />
+    </>
+  )
+}
+
+function CorpoPlano({ registro }) {
+  return (
+    <>
+      <Secao rotulo="Motivo da internação" valor={registro.motivo_internacao} />
+      <Secao rotulo="Objetivos terapêuticos" valor={registro.objetivos_terapeuticos} />
+      <Secao rotulo="Protocolos institucionais elegíveis" valor={(registro.protocolos_elegiveis ?? []).join(', ')} />
+      <Secao rotulo="Tempo de internação previsto" valor={registro.tempo_internacao_previsto_dias ? `${registro.tempo_internacao_previsto_dias} dias` : null} />
+      <Secao rotulo="Equipe multidisciplinar envolvida" valor={(registro.equipe_multidisciplinar ?? []).join(', ')} />
+    </>
+  )
+}
+
+function CorpoRegulacao({ registro }) {
+  const sv = registro.sinais_vitais || {}
+  const svTexto = [
+    sv.pa_sistolica && sv.pa_diastolica ? `PA ${sv.pa_sistolica}x${sv.pa_diastolica}mmHg` : null,
+    sv.fc ? `FC ${sv.fc}bpm` : null,
+    sv.fr ? `FR ${sv.fr}irpm` : null,
+    sv.temperatura ? `T ${sv.temperatura}°C` : null,
+    sv.spo2 ? `SpO2 ${sv.spo2}%` : null,
+    sv.hgt ? `HGT ${sv.hgt}mg/dl` : null,
+  ].filter(Boolean).join(' · ')
+
+  return (
+    <>
+      <Secao rotulo="Sinais vitais" valor={svTexto || null} />
+      <Secao rotulo="Evolução" valor={registro.evolucao} />
+      <Secao rotulo="Pendências" valor={registro.pendencias} />
+      <Secao rotulo="Conduta" valor={registro.conduta} />
+      <Secao rotulo="Nº solicitação SER" valor={registro.numero_solicitacao_ser} />
+      {registro.mudanca_diagnostico && (
+        <Secao rotulo="Mudança de diagnóstico" valor={registro.novo_diagnostico_cid || 'Sim'} />
+      )}
     </>
   )
 }
