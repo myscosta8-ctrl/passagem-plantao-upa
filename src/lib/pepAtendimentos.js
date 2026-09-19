@@ -261,7 +261,7 @@ export async function realocarAtendimentoPep({ atendimentoId, leitoOrigemId, lei
   return { error: erroEncerra || erroAbre || erroSetor }
 }
 
-export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detalhe }) {
+export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detalhe, autorId }) {
   const agora = new Date().toISOString()
   const [{ error: erroInternacao }, { error: erroAtendimento }, { error: erroLeito }] = await Promise.all([
     supabase
@@ -276,6 +276,9 @@ export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detal
       .eq('atendimento_id', atendimentoId)
       .eq('status', 'ativo'),
   ])
+  if (!erroInternacao && !erroAtendimento && !erroLeito) {
+    await registrarEventoAuditoria({ atendimentoId, autorId, acao: 'desfecho_registrado', dados: { tipo, detalhe: detalhe || null } })
+  }
   return { error: erroInternacao || erroAtendimento || erroLeito }
 }
 
@@ -296,4 +299,27 @@ export async function excluirAtendimentoPep(atendimentoId, pessoaId) {
     await supabase.from('pessoas').delete().eq('id', pessoaId)
   }
   return { error: null }
+}
+
+// ===================== Trilha de auditoria =====================
+// Não instrumenta o app inteiro — cobre os pontos de maior risco/impacto
+// (diagnóstico, desfecho, fusão de cadastros). atendimento_id é opcional
+// porque algumas ações (ex: fusão de duplicatas) não têm um atendimento único.
+
+export async function registrarEventoAuditoria({ atendimentoId, autorId, acao, dados }) {
+  return supabase.from('eventos_auditoria').insert({
+    atendimento_id: atendimentoId || null,
+    autor_id: autorId || null,
+    acao,
+    dados: dados || null,
+  })
+}
+
+export async function listarEventosAuditoria(atendimentoId) {
+  const { data } = await supabase
+    .from('eventos_auditoria')
+    .select('*, enfermeiros(nome_exibicao, nome)')
+    .eq('atendimento_id', atendimentoId)
+    .order('ocorrido_em', { ascending: false })
+  return data ?? []
 }
