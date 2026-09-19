@@ -691,7 +691,9 @@ function SecaoHemoterapia({ atendimentoId }) {
   const [lista, setLista] = useState([])
   const [tipo, setTipo] = useState('')
   const [quantidade, setQuantidade] = useState('')
+  const [solicitadoEm, setSolicitadoEm] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [pendenteTransfusao, setPendenteTransfusao] = useState(null) // id aguardando informar data da transfusão
 
   useEffect(() => { carregar() }, [])
   async function carregar() { setLista(await listarHemoterapia(atendimentoId)) }
@@ -699,15 +701,17 @@ function SecaoHemoterapia({ atendimentoId }) {
   async function adicionar() {
     if (!tipo) return
     setSalvando(true)
-    await criarHemoterapia({ atendimentoId, tipo, quantidade })
+    await criarHemoterapia({ atendimentoId, tipo, quantidade, solicitadoEm })
     setSalvando(false)
     setTipo('')
     setQuantidade('')
+    setSolicitadoEm('')
     carregar()
   }
 
-  async function transfundir(id) {
-    await marcarTransfundido(id)
+  async function confirmarTransfusao(id, dataTransfusao) {
+    await marcarTransfundido(id, dataTransfusao)
+    setPendenteTransfusao(null)
     carregar()
   }
 
@@ -720,18 +724,32 @@ function SecaoHemoterapia({ atendimentoId }) {
           {TIPOS_HEMO.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
         <input type="text" placeholder="Quantidade" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} style={{ flex: 1, minWidth: 120 }} />
+        <input type="date" title="Data da solicitação (padrão: hoje)" value={solicitadoEm} onChange={(e) => setSolicitadoEm(e.target.value)} />
         <button type="button" className="modal-btn-secondary" onClick={adicionar} disabled={salvando || !tipo}>+ Adicionar</button>
       </div>
       {lista.length === 0 ? (
         <p style={{ color: 'var(--color-text-muted)', fontSize: 12.5 }}>Nenhum hemoderivado solicitado ainda.</p>
       ) : (
         lista.map((h) => (
-          <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
-            <span>{h.tipo}{h.quantidade ? ` · ${h.quantidade}` : ''}</span>
-            {h.transfundido_em ? (
-              <span style={{ fontSize: 11.5, color: 'var(--c-primary)' }}>Transfundido em {new Date(h.transfundido_em).toLocaleString('pt-BR')}</span>
-            ) : (
-              <button type="button" className="modal-btn-secondary" onClick={() => transfundir(h.id)}>Marcar transfundido</button>
+          <div key={h.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{h.tipo}{h.quantidade ? ` · ${h.quantidade}` : ''} · solicitado {new Date(h.solicitado_em).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
+              {h.transfundido_em ? (
+                <span style={{ fontSize: 11.5, color: 'var(--c-primary)' }}>Transfundido em {new Date(h.transfundido_em).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
+              ) : (
+                <button type="button" className="modal-btn-secondary" onClick={() => setPendenteTransfusao(h.id)}>Marcar transfundido</button>
+              )}
+            </div>
+            {pendenteTransfusao === h.id && (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6 }}>
+                <label style={{ fontSize: 11.5 }}>Data da transfusão:</label>
+                <input
+                  type="date"
+                  autoFocus
+                  onChange={(e) => e.target.value && confirmarTransfusao(h.id, e.target.value)}
+                />
+                <button type="button" className="modal-btn-secondary" onClick={() => setPendenteTransfusao(null)}>Cancelar</button>
+              </div>
             )}
           </div>
         ))

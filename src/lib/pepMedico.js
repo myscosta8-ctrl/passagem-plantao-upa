@@ -211,14 +211,17 @@ export async function listarHemoterapia(atendimentoId) {
   return data ?? []
 }
 
-export async function criarHemoterapia({ atendimentoId, tipo, quantidade }) {
+export async function criarHemoterapia({ atendimentoId, tipo, quantidade, solicitadoEm }) {
   return supabase.from('solicitacoes_hemoterapia').insert({
-    atendimento_id: atendimentoId, tipo, quantidade: quantidade || null, solicitado_em: new Date().toISOString(),
+    atendimento_id: atendimentoId, tipo, quantidade: quantidade || null,
+    solicitado_em: solicitadoEm ? `${solicitadoEm}T00:00:00` : new Date().toISOString(),
   }).select().single()
 }
 
-export async function marcarTransfundido(id) {
-  return supabase.from('solicitacoes_hemoterapia').update({ transfundido_em: new Date().toISOString() }).eq('id', id)
+export async function marcarTransfundido(id, transfundidoEm) {
+  return supabase.from('solicitacoes_hemoterapia').update({
+    transfundido_em: transfundidoEm ? `${transfundidoEm}T00:00:00` : new Date().toISOString(),
+  }).eq('id', id)
 }
 
 // ===================== Plano terapêutico (no máximo um por atendimento) =====================
