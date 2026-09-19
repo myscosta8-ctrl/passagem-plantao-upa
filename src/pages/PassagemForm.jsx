@@ -10,6 +10,7 @@ import {
   salvarIdentificacaoPep,
   registrarDesfechoPep,
   excluirAtendimentoPep,
+  obterOuCriarAtendimentoParaPaciente,
 } from '../lib/pepAtendimentos'
 import './PassagemForm.css'
 
@@ -62,7 +63,7 @@ const PASSAGEM_VAZIA = {
   pendencias: '',
 }
 
-export default function PassagemForm({ paciente, leito, setorNome, plantaoId, enfermeiroId, onFechar, onSalvo, onRealocar }) {
+export default function PassagemForm({ paciente, leito, setorNome, plantaoId, enfermeiroId, onFechar, onSalvo, onRealocar, embedded = false }) {
   const [processando, setProcessando] = useState(false)
   const [modalDesfecho, setModalDesfecho] = useState(false)
   const [modalExcluir, setModalExcluir] = useState(false)
@@ -88,10 +89,30 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   const [confirmandoFechar, setConfirmandoFechar] = useState(false)
   const [origemCopia, setOrigemCopia] = useState(null)
   const [pepAtivo, setPepAtivo] = useState(false)
-  const [mostrarFichaClinica, setMostrarFichaClinica] = useState(false)
+  const [fichaClinicaAlvo, setFichaClinicaAlvo] = useState(null) // { atendimento_id, pessoa_id, nome }
+  const [abrindoFichaClinica, setAbrindoFichaClinica] = useState(false)
   // Fase 2, piloto: só Observação/Internação ganha a ficha clínica contínua
   // (admissão + sinais vitais), e só faz sentido sobre a estrutura nova.
   const podeAbrirFichaClinica = pepAtivo && setorNome === 'Observação/Internação'
+
+  // paciente.id só é um atendimento de verdade quando pep_nativo (veio do caminho
+  // novo). Senão é um id da tabela antiga `pacientes` — precisa passar pela ponte
+  // antes de abrir qualquer tela do caminho novo, senão salva em lugar nenhum.
+  async function abrirFichaClinica() {
+    if (paciente.pep_nativo) {
+      setFichaClinicaAlvo({ atendimento_id: paciente.id, pessoa_id: paciente.pessoa_id, nome: paciente.nome })
+      return
+    }
+    setAbrindoFichaClinica(true)
+    const { atendimentoId, pessoaId, error } = await obterOuCriarAtendimentoParaPaciente(paciente.id)
+    setAbrindoFichaClinica(false)
+    if (error) {
+      setErroSalvar('Não foi possível abrir a ficha clínica. Tente de novo, e se persistir, avise o suporte.')
+      console.error('Erro ao abrir ficha clínica (ponte):', error)
+      return
+    }
+    setFichaClinicaAlvo({ atendimento_id: atendimentoId, pessoa_id: pessoaId, nome: paciente.nome })
+  }
 
   useEffect(() => {
     carregar()
@@ -322,6 +343,11 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         error = resultado.error
       }
     } else {
+      const statusInternacaoNovo = statusTravado ? 'Internado' : identificacao.status_internacao
+      // Indicador clínico "tempo até conduta": marca o instante em que o paciente
+      // deixa de estar "Em observação", uma única vez (nunca reescreve depois).
+      const saiuDeObservacao = paciente.status_internacao === 'Em observação' && statusInternacaoNovo !== 'Em observação'
+
       await supabase
         .from('pacientes')
         .update({
@@ -332,7 +358,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           data_admissao: identificacao.data_admissao || null,
           alergias: identificacao.alergias,
           alergias_obs: identificacao.alergias_obs,
-          status_internacao: statusTravado ? 'Internado' : identificacao.status_internacao,
+          status_internacao: statusInternacaoNovo,
+          ...(saiuDeObservacao ? { data_conduta_definida: new Date().toISOString() } : {}),
           updated_at: new Date().toISOString(),
           ultima_alteracao_por: enfermeiroId,
           ultima_alteracao_em: new Date().toISOString(),
@@ -384,6 +411,9 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
             tipo_desfecho: tipo,
             desfecho_detalhe: detalhe || null,
             data_desfecho: new Date().toISOString(),
+            // Foi direto da observação pro desfecho, sem nunca internar — também
+            // conta como "saiu da observação" pro indicador de tempo até conduta.
+            ...(paciente.status_internacao === 'Em observação' ? { data_conduta_definida: new Date().toISOString() } : {}),
             ultima_alteracao_por: enfermeiroId,
             ultima_alteracao_em: new Date().toISOString(),
           })
@@ -444,28 +474,25 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     )
   }
 
-  if (mostrarFichaClinica) {
-    return (
-      <FichaClinica
-        atendimento={{ atendimento_id: paciente.id, pessoa_id: paciente.pessoa_id, nome: paciente.nome }}
-        onFechar={() => setMostrarFichaClinica(false)}
-      />
-    )
+  if (fichaClinicaAlvo) {
+    return <FichaClinica atendimento={fichaClinicaAlvo} onFechar={() => setFichaClinicaAlvo(null)} />
   }
 
-  return (
-    <div className="form-overlay">
-      <div className="form-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="form-header">
-          <span className="form-leito-tag">Leito {leito.numero}</span>
-          <button className="form-header-close" onClick={fecharComConfirmacao}>×</button>
-        </div>
+  const conteudo = (
+    <>
+      <div className={embedded ? "form-panel form-panel-embedded" : "form-panel"} onClick={(e) => e.stopPropagation()}>
+        {!embedded && (
+          <div className="form-header">
+            <span className="form-leito-tag">Leito {leito.numero}</span>
+            <button className="form-header-close" onClick={fecharComConfirmacao}>×</button>
+          </div>
+        )}
 
         <div className="form-toolbar">
           <button className="btn-copiar" onClick={copiarNovamente}>↺ Copiar do plantão anterior</button>
           <button className="btn-realocar" onClick={() => onRealocar?.(paciente, leito)}>⇄ Realocar paciente</button>
           {podeAbrirFichaClinica && (
-            <button className="btn-alta" onClick={() => setMostrarFichaClinica(true)}>📋 Ficha clínica</button>
+            <button className="btn-alta" onClick={abrirFichaClinica} disabled={abrindoFichaClinica}>📋 {abrindoFichaClinica ? 'Abrindo...' : 'Ficha clínica'}</button>
           )}
           <button className="btn-alta" onClick={() => setModalDesfecho(true)} disabled={processando}>✓ Registrar desfecho</button>
           <button className="btn-excluir" onClick={excluirPaciente} disabled={processando}>🗑 Excluir paciente</button>
@@ -899,8 +926,11 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           onCancelar={() => setConfirmandoFechar(false)}
         />
       )}
-    </div>
+    </>
   )
+
+  if (embedded) return conteudo
+  return <div className="form-overlay">{conteudo}</div>
 }
 
 function SimNao({ valor, onChange }) {

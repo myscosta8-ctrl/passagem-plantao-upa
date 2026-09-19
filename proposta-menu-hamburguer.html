@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Proposta — Menu Lateral Hambúrguer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-primary: #14507D; --c-primary-dark: #0A1F33; --c-primary-light: #EAF2F8;
+  --c-bg: #F4F6F5; --c-surface: #fff; --c-surface-raised: #FAFBFA;
+  --c-text-primary: #101820; --c-text-secondary: #4A5A68; --c-text-muted: #8B98A0;
+  --c-border: #DCE2E2; --c-border-light: #EDF0EF;
+  --c-success: #15803d; --c-success-light: #dcfce7; --c-warning: #92640B; --c-warning-light: #FBF1DE;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+body { background: var(--c-bg); color: var(--c-text-primary); font-size: 13.5px; height:100vh; overflow:hidden; }
+.shell { display:flex; height:100vh; }
+
+.sidebar { width: 250px; background: var(--c-primary-dark); color: #C7D6DF; display:flex; flex-direction:column; transition: width .2s; }
+.sidebar.fechado { width: 60px; }
+.sidebar-topo { display:flex; align-items:center; gap:10px; padding:16px; border-bottom:1px solid rgba(255,255,255,.08); }
+.hamburguer { width:32px; height:32px; border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; flex-shrink:0; cursor:pointer; }
+.hamburguer:hover { background: rgba(255,255,255,.08); }
+.sidebar-marca { font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; }
+.sidebar.fechado .sidebar-marca, .sidebar.fechado .grupo-label, .sidebar.fechado .item-texto { display:none; }
+
+.sidebar-corpo { flex:1; overflow-y:auto; padding: 10px 8px; }
+.grupo-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#5E7A8C; padding:14px 10px 6px; }
+.item { display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:7px; cursor:pointer; margin-bottom:1px; white-space:nowrap; }
+.item:hover { background: rgba(255,255,255,.06); }
+.item.ativo { background: var(--c-primary); color:#fff; font-weight:600; }
+.item-icone { width:18px; text-align:center; flex-shrink:0; font-size:14px; }
+.item-tag-novo { font-size:8.5px; font-weight:700; background:#F0DCA8; color:#5C3D00; padding:1px 5px; border-radius:8px; margin-left:auto; }
+
+.conteudo { flex:1; overflow-y:auto; padding: 24px 32px; }
+.aviso { background: var(--c-warning-light); border:1px solid #F0DCA8; border-radius:10px; padding:14px 18px; font-size:12.5px; color:#5C3D00; line-height:1.6; max-width:640px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-topo">
+      <div class="hamburguer" onclick="document.getElementById('sidebar').classList.toggle('fechado')">☰</div>
+      <div class="sidebar-marca">Passagem de Plantão</div>
+    </div>
+    <nav class="sidebar-corpo">
+      <div class="grupo-label">Assistencial</div>
+      <div class="item ativo"><span class="item-icone">🛏️</span><span class="item-texto">Painel de Leitos</span></div>
+      <div class="item"><span class="item-icone">🚪</span><span class="item-texto">Recepção</span><span class="item-tag-novo">NOVO</span></div>
+      <div class="item"><span class="item-icone">⏮️</span><span class="item-texto">Histórico</span></div>
+      <div class="item"><span class="item-icone">✅</span><span class="item-texto">Desfechos</span></div>
+      <div class="item"><span class="item-icone">⏳</span><span class="item-texto">Pendências</span></div>
+
+      <div class="grupo-label">Indicadores</div>
+      <div class="item"><span class="item-icone">📊</span><span class="item-texto">Indicadores Clínicos</span><span class="item-tag-novo">NOVO</span></div>
+
+      <div class="grupo-label">Equipe</div>
+      <div class="item"><span class="item-icone">💬</span><span class="item-texto">Compartilhar Plantão</span></div>
+      <div class="item"><span class="item-icone">👥</span><span class="item-texto">Painel de Equipe</span></div>
+      <div class="item"><span class="item-icone">🧑‍⚕️</span><span class="item-texto">Gerenciar Profissionais</span></div>
+
+      <div class="grupo-label">Conta</div>
+      <div class="item"><span class="item-icone">⚙️</span><span class="item-texto">Minha Conta</span></div>
+      <div class="item"><span class="item-icone">❓</span><span class="item-texto">Ajuda</span></div>
+    </nav>
+  </aside>
+
+  <main class="conteudo">
+    <div class="aviso">
+      <b>2 itens marcados "NOVO" ainda não existem de verdade:</b><br><br>
+      • <b>Recepção</b> — só existe o arquivo de dados (<code>pepRecepcao.js</code>), sem tela ainda<br>
+      • <b>Indicadores Clínicos</b> — não achei nada parecido no Histórico/Desfechos hoje — preciso que você descreva quais indicadores quer (retorno em 72h? internações por diagnóstico? tempo médio de permanência?) antes de desenhar essa tela<br><br>
+      O resto do menu (Painel, Histórico, Desfechos, Pendências, Compartilhar, Equipe, Profissionais, Conta, Ajuda) é <b>só reorganização visual</b> do que já existe e já funciona — clicável, recolhe com o ícone ☰, sem perder espaço de tela quando fechado.
+    </div>
+  </main>
+</div>
+</body>
+</html>

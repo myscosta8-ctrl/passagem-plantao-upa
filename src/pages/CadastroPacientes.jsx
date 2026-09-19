@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
 import {
-  buscarPessoas, criarPessoaCompleta, abrirAtendimento, listarCadastrosRecentes,
+  buscarPessoas, criarPessoaCompleta, atualizarPessoaCompleta, abrirAtendimento, listarCadastrosRecentes,
   detectarDuplicatas, listarDuplicatasPendentes, descartarDuplicata, confirmarEFundirDuplicata,
 } from '../lib/pepRecepcao'
 import './PassagemForm.css'
@@ -18,7 +18,8 @@ const PESSOA_VAZIA = {
 // decide leito nem internação — isso é da equipe assistencial, em outra tela.
 export default function CadastroPacientes() {
   const { enfermeiro } = useAuth()
-  const [aba, setAba] = useState('novo') // novo | buscar | duplicatas
+  const [aba, setAba] = useState('buscar') // buscar (obrigatório primeiro) | novo | duplicatas
+  const [pessoaParaEditar, setPessoaParaEditar] = useState(null)
   const [recentes, setRecentes] = useState([])
   const [qtdDuplicatas, setQtdDuplicatas] = useState(0)
 
@@ -33,22 +34,54 @@ export default function CadastroPacientes() {
     setQtdDuplicatas((await listarDuplicatasPendentes()).length)
   }
 
+  function iniciarCompletarCadastro(pessoa) {
+    setPessoaParaEditar(pessoa)
+    setAba('novo')
+  }
+
   return (
     <div className="page" style={{ maxWidth: 900 }}>
-      <h1 className="page-title">Cadastro de pacientes</h1>
-      <p className="page-subtitle">Ficha de Identificação do Paciente — dados completos, uma vez, pra alimentar o resto do sistema (AIH, documentos, prontuário). Piloto começando pela Observação/Internação — setor já vem marcado, mas pode trocar se precisar.</p>
+      <h1 className="page-title">Recepção — Cadastro e Identificação</h1>
+      <p className="page-subtitle">Ficha de Identificação do Paciente — busque primeiro para evitar registros duplicados. Complete os documentos (CPF, CNS, endereço) de pacientes já abertos no leito ou inicie novo cadastro caso não exista.</p>
 
-      <div className="form-toolbar" style={{ maxWidth: 460 }}>
-        <button className={aba === 'novo' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('novo')}>Novo cadastro</button>
-        <button className={aba === 'buscar' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('buscar')}>Buscar existente</button>
-        <button className={aba === 'duplicatas' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('duplicatas')}>
+      <div className="form-toolbar" style={{ maxWidth: 520 }}>
+        <button
+          className={aba === 'buscar' ? 'btn-realocar' : 'btn-copiar'}
+          onClick={() => { setAba('buscar'); setPessoaParaEditar(null) }}
+        >
+          🔍 Buscar paciente (1º passo)
+        </button>
+        <button
+          className={aba === 'novo' ? 'btn-realocar' : 'btn-copiar'}
+          onClick={() => setAba('novo')}
+        >
+          {pessoaParaEditar ? 'Completar dados' : 'Novo cadastro'}
+        </button>
+        <button
+          className={aba === 'duplicatas' ? 'btn-realocar' : 'btn-copiar'}
+          onClick={() => { setAba('duplicatas'); setPessoaParaEditar(null) }}
+        >
           Duplicatas{qtdDuplicatas > 0 ? ` (${qtdDuplicatas})` : ''}
         </button>
       </div>
 
       <div style={{ marginTop: 22 }}>
-        {aba === 'novo' && <FormNovoCadastro enfermeiroId={enfermeiro?.id} onCadastrado={carregarRecentes} />}
-        {aba === 'buscar' && <Busca enfermeiroId={enfermeiro?.id} onAtendimentoAberto={carregarRecentes} />}
+        {aba === 'novo' && (
+          <FormNovoCadastro
+            enfermeiroId={enfermeiro?.id}
+            pessoaInicial={pessoaParaEditar}
+            onCancelarEdicao={() => { setPessoaParaEditar(null); setAba('buscar') }}
+            onCadastrado={() => { setPessoaParaEditar(null); carregarRecentes(); }}
+          />
+        )}
+        {aba === 'buscar' && (
+          <Busca
+            enfermeiroId={enfermeiro?.id}
+            onAtendimentoAberto={carregarRecentes}
+            onCompletarCadastro={iniciarCompletarCadastro}
+            onIrParaNovo={() => { setPessoaParaEditar(null); setAba('novo') }}
+          />
+        )}
         {aba === 'duplicatas' && <Duplicatas enfermeiroId={enfermeiro?.id} onResolvida={carregarQtdDuplicatas} />}
       </div>
 
@@ -323,23 +356,56 @@ function CamposAtendimento({ atd, set, setores }) {
   )
 }
 
-function FormNovoCadastro({ enfermeiroId, onCadastrado }) {
-  const [dados, setDados] = useState(PESSOA_VAZIA)
+function FormNovoCadastro({ enfermeiroId, pessoaInicial, onCancelarEdicao, onCadastrado }) {
+  const [dados, setDados] = useState(() => {
+    if (pessoaInicial) {
+      return {
+        nome: pessoaInicial.nome || '',
+        sexo: pessoaInicial.sexo || '',
+        data_nascimento: pessoaInicial.data_nascimento || '',
+        cns: pessoaInicial.cns || '',
+        rg: pessoaInicial.rg || '',
+        cpf: pessoaInicial.cpf || '',
+        numero_registro_nascimento: pessoaInicial.numero_registro_nascimento || '',
+        endereco: pessoaInicial.endereco || '',
+        endereco_numero: pessoaInicial.endereco_numero || '',
+        bairro: pessoaInicial.bairro || '',
+        cidade: pessoaInicial.cidade || '',
+        telefone: pessoaInicial.telefone || '',
+        nome_mae: pessoaInicial.nome_mae || '',
+        nome_pai: pessoaInicial.nome_pai || '',
+      }
+    }
+    return PESSOA_VAZIA
+  })
+
   const [atd, setAtd] = useState({ setor_id: '', medico: '', responsavelNome: '', responsavelRg: '', responsavelRelacao: '', responsavelEndereco: '' })
   const [setores, setSetores] = useState([])
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(null)
+  const [candidatosDuplicata, setCandidatosDuplicata] = useState([])
 
   useEffect(() => {
     supabase.from('setores').select('*').order('ordem').then(({ data }) => {
       setSetores(data ?? [])
-      // Piloto da recepção começa pela Observação (mais leitos/volume, maioria
-      // segue pra internação de lá) — pré-marcado, mas continua trocável.
       const observacao = (data ?? []).find((s) => s.nome.includes('Observação'))
       if (observacao) setAtd((prev) => ({ ...prev, setor_id: String(observacao.id) }))
     })
   }, [])
+
+  // Detecção preventiva contra duplicatas enquanto digita o nome (se for cadastro novo)
+  useEffect(() => {
+    if (pessoaInicial || !dados.nome || dados.nome.trim().length < 4) {
+      setCandidatosDuplicata([])
+      return
+    }
+    const timeout = setTimeout(async () => {
+      const encontrados = await buscarPessoas(dados.nome.trim())
+      setCandidatosDuplicata(encontrados.slice(0, 3))
+    }, 450)
+    return () => clearTimeout(timeout)
+  }, [dados.nome, pessoaInicial])
 
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
   function setA(campo, valor) { setAtd((prev) => ({ ...prev, [campo]: valor })) }
@@ -353,6 +419,25 @@ function FormNovoCadastro({ enfermeiroId, onCadastrado }) {
     setSucesso(null)
     setSalvando(true)
 
+    // Se estiver completando um cadastro existente
+    if (pessoaInicial) {
+      const { error: erroUpdate } = await atualizarPessoaCompleta(pessoaInicial.id, dados)
+      setSalvando(false)
+      if (erroUpdate) {
+        setErro('Não foi possível atualizar o cadastro. Tente de novo.')
+        console.error(erroUpdate)
+        return
+      }
+      setSucesso({
+        nome: dados.nome,
+        prontuario: pessoaInicial.prontuario_numero || '—',
+        atendimento: 'Atualizado com sucesso',
+      })
+      onCadastrado?.()
+      return
+    }
+
+    // Se for novo cadastro
     const { data: pessoa, error: erroPessoa } = await criarPessoaCompleta(dados)
     if (erroPessoa) {
       setSalvando(false)
@@ -384,27 +469,87 @@ function FormNovoCadastro({ enfermeiroId, onCadastrado }) {
 
   return (
     <div className="card">
+      {pessoaInicial && (
+        <div className="error-box" style={{ marginBottom: 18, background: 'var(--c-primary-light)', color: 'var(--c-primary)', borderLeftColor: 'var(--c-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            Você está completando os dados de <b>{pessoaInicial.nome}</b> (Prontuário: {pessoaInicial.prontuario_numero || 'Sem número'}).
+          </div>
+          <button type="button" className="modal-btn-secondary" onClick={onCancelarEdicao}>Cancelar edição</button>
+        </div>
+      )}
+
+      {/* Alerta de duplicata preventiva enquanto digita */}
+      {!pessoaInicial && candidatosDuplicata.length > 0 && (
+        <div className="error-box" style={{ marginBottom: 18, background: '#FFF8E6', color: '#8A5D00', borderLeftColor: '#F2A900' }}>
+          <div style={{ fontWeight: 600, marginBottom: 6 }}>⚠ Atenção: Já encontramos pacientes cadastrados com nome semelhante:</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {candidatosDuplicata.map((c) => (
+              <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '6px 10px', borderRadius: 6, border: '1px solid #ECD99F' }}>
+                <span style={{ fontSize: 13 }}>
+                  <b>{c.nome}</b> {c.prontuario_numero ? `· Prontuário: ${c.prontuario_numero}` : ''} {c.cpf ? `· CPF: ${c.cpf}` : ''}
+                </span>
+                <button
+                  type="button"
+                  className="modal-btn-secondary"
+                  style={{ fontSize: 11, padding: '4px 10px' }}
+                  onClick={() => {
+                    setDados({
+                      nome: c.nome || '',
+                      sexo: c.sexo || '',
+                      data_nascimento: c.data_nascimento || '',
+                      cns: c.cns || '',
+                      rg: c.rg || '',
+                      cpf: c.cpf || '',
+                      numero_registro_nascimento: c.numero_registro_nascimento || '',
+                      endereco: c.endereco || '',
+                      endereco_numero: c.endereco_numero || '',
+                      bairro: c.bairro || '',
+                      cidade: c.cidade || '',
+                      telefone: c.telefone || '',
+                      nome_mae: c.nome_mae || '',
+                      nome_pai: c.nome_pai || '',
+                    })
+                    setCandidatosDuplicata([])
+                  }}
+                >
+                  Usar este registro
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <CamposIdentidade dados={dados} set={set} />
-      <CamposAtendimento atd={atd} set={setA} setores={setores} />
+      {!pessoaInicial && <CamposAtendimento atd={atd} set={setA} setores={setores} />}
 
       {erro && <div className="error-box" style={{ marginTop: 16 }}>{erro}</div>}
       {sucesso && (
         <div className="error-box" style={{ marginTop: 16, background: 'var(--c-primary-light)', color: 'var(--c-primary)', borderLeftColor: 'var(--c-primary)' }}>
-          Cadastrado: <b>{sucesso.nome}</b> — prontuário {sucesso.prontuario}, atendimento {sucesso.atendimento}.
+          {pessoaInicial ? 'Cadastro atualizado: ' : 'Cadastrado: '}
+          <b>{sucesso.nome}</b> — prontuário {sucesso.prontuario} ({sucesso.atendimento}).
         </div>
       )}
 
-      <button className="submit-btn" style={{ marginTop: 20, maxWidth: 260 }} onClick={salvar} disabled={salvando}>
-        {salvando ? 'Salvando...' : 'Cadastrar paciente'}
-      </button>
+      <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+        {pessoaInicial && (
+          <button type="button" className="modal-btn-secondary" onClick={onCancelarEdicao}>
+            Cancelar
+          </button>
+        )}
+        <button className="submit-btn" style={{ maxWidth: 260 }} onClick={salvar} disabled={salvando}>
+          {salvando ? 'Salvando...' : pessoaInicial ? 'Salvar alterações' : 'Cadastrar paciente'}
+        </button>
+      </div>
     </div>
   )
 }
 
-function Busca({ enfermeiroId, onAtendimentoAberto }) {
+function Busca({ enfermeiroId, onAtendimentoAberto, onCompletarCadastro, onIrParaNovo }) {
   const [termo, setTermo] = useState('')
   const [resultados, setResultados] = useState([])
   const [buscando, setBuscando] = useState(false)
+  const [jaBuscou, setJaBuscou] = useState(false)
   const [selecionada, setSelecionada] = useState(null)
   const [atd, setAtd] = useState({ setor_id: '', medico: '', responsavelNome: '', responsavelRg: '', responsavelRelacao: '', responsavelEndereco: '' })
   const [setores, setSetores] = useState([])
@@ -422,7 +567,9 @@ function Busca({ enfermeiroId, onAtendimentoAberto }) {
 
   async function buscar(e) {
     e.preventDefault()
+    if (!termo.trim()) return
     setBuscando(true)
+    setJaBuscou(true)
     setResultados(await buscarPessoas(termo))
     setBuscando(false)
   }
@@ -455,8 +602,14 @@ function Busca({ enfermeiroId, onAtendimentoAberto }) {
   return (
     <div className="card">
       <form onSubmit={buscar} style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        <input type="text" placeholder="Nome, CPF, CNS ou nº de prontuário..." value={termo} onChange={(e) => setTermo(e.target.value)} />
-        <button type="submit" className="modal-btn-secondary" style={{ flexShrink: 0, padding: '0 16px' }} disabled={buscando}>
+        <input
+          type="text"
+          placeholder="Digite Nome, CPF, CNS ou nº de prontuário..."
+          value={termo}
+          onChange={(e) => setTermo(e.target.value)}
+          autoFocus
+        />
+        <button type="submit" className="submit-btn" style={{ flexShrink: 0, padding: '0 20px', maxWidth: 140 }} disabled={buscando}>
           {buscando ? 'Buscando...' : 'Buscar'}
         </button>
       </form>
@@ -467,15 +620,33 @@ function Busca({ enfermeiroId, onAtendimentoAberto }) {
         </div>
       )}
 
+      {jaBuscou && resultados.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '24px 16px', background: 'var(--c-surface-inset)', borderRadius: 8, margin: '14px 0' }}>
+          <p style={{ fontSize: 13.5, color: 'var(--c-text-secondary)', marginBottom: 12 }}>
+            Nenhum paciente encontrado para <b>"{termo}"</b>.
+          </p>
+          <button type="button" className="btn-realocar" onClick={onIrParaNovo}>
+            + Iniciar novo cadastro para este paciente
+          </button>
+        </div>
+      )}
+
       {!selecionada && resultados.map((p) => (
-        <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--c-border-light)' }}>
+        <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--c-border-light)' }}>
           <div>
             <div style={{ fontWeight: 600, fontSize: 13.5 }}>{p.nome}</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--c-text-muted)' }}>
-              {p.prontuario_numero} {p.cpf ? `· CPF ${p.cpf}` : ''} {p.cns ? `· CNS ${p.cns}` : ''}
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--c-text-muted)', marginTop: 2 }}>
+              Prontuário: {p.prontuario_numero || '—'} {p.cpf ? `· CPF: ${p.cpf}` : ''} {p.cns ? `· CNS: ${p.cns}` : ''} {p.data_nascimento ? `· Nasc: ${new Date(p.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}
             </div>
           </div>
-          <button className="modal-btn-secondary" onClick={() => setSelecionada(p)}>Abrir atendimento</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" className="modal-btn-secondary" style={{ fontSize: 12 }} onClick={() => onCompletarCadastro?.(p)}>
+              ✏️ Completar dados
+            </button>
+            <button type="button" className="btn-realocar" style={{ fontSize: 12 }} onClick={() => setSelecionada(p)}>
+              Abrir atendimento
+            </button>
+          </div>
         </div>
       ))}
 

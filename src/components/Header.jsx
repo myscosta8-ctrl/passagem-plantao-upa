@@ -17,12 +17,13 @@ const IconCompartilhar = (p) => <svg {...iconProps} {...p}><circle cx="18" cy="5
 const IconDesfechos = (p) => <svg {...iconProps} {...p}><path d="M12 3l8 4v5c0 5-3.4 7.9-8 9-4.6-1.1-8-4-8-9V7l8-4Z" /><path d="M9 12l2 2 4-4" /></svg>
 const IconEncerrarPlantonista = (p) => <svg {...iconProps} {...p}><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0" /></svg>
 const IconAjuda = (p) => <svg {...iconProps} {...p}><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.9.4-1 1.1-1 1.7" /><circle cx="12" cy="17" r=".6" fill="currentColor" /></svg>
+const IconIndicadoresClinicos = (p) => <svg {...iconProps} {...p}><path d="M4 20V10M10 20V4M16 20v-7M4 20h16" /></svg>
 
 const ICONE_GRUPO = { plantao: IconPainel, documentos: IconImprimir, indicadores: IconHistorico, administracao: IconProfissionais, conta: IconConta }
 const ICONE_SUB = {
   painel: IconPainel, pendencias: IconPendencias, compartilhar: IconCompartilhar,
   print1: IconImprimir, print2: IconImprimir,
-  historico: IconHistorico, altas: IconDesfechos,
+  historico: IconHistorico, altas: IconDesfechos, indicadoresClinicos: IconIndicadoresClinicos,
   profissionais: IconProfissionais, equipe: IconEncerrarPlantonista,
   conta: IconConta, ajuda: IconAjuda,
 }
@@ -37,6 +38,7 @@ const GRUPO_DA_TELA = {
   print2: 'documentos',
   historico: 'indicadores',
   altas: 'indicadores',
+  indicadoresClinicos: 'indicadores',
   profissionais: 'administracao',
   equipe: 'administracao',
   conta: 'conta',
@@ -104,6 +106,7 @@ export default function Header({
     indicadores: [
       { tela: 'historico', rotulo: 'Histórico de plantões' },
       { tela: 'altas', rotulo: 'Desfechos' },
+      { tela: 'indicadoresClinicos', rotulo: 'Indicadores Clínicos' },
     ],
     administracao: [
       { tela: 'profissionais', rotulo: 'Gerenciar profissionais' },

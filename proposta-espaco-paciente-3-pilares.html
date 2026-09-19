@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Proposta — Espaço do Paciente</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-primary: #14507D; --c-primary-dark: #0A1F33; --c-primary-light: #EAF2F8; --c-primary-border: #B8D0E8;
+  --c-bg: #F4F6F5; --c-surface: #fff; --c-surface-raised: #FAFBFA; --c-surface-inset: #F0F2F1;
+  --c-text-primary: #101820; --c-text-secondary: #4A5A68; --c-text-muted: #8B98A0;
+  --c-border: #DCE2E2; --c-border-light: #EDF0EF;
+  --c-success: #15803d; --c-success-light: #dcfce7;
+  --c-danger: #B3261E; --c-danger-light: #FBEAE8;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+body { background: var(--c-bg); color: var(--c-text-primary); font-size: 13.5px; }
+
+.topo-paciente { background: var(--c-primary-dark); color: #fff; padding: 16px 28px; }
+.topo-paciente .nome { font-size: 16px; font-weight: 700; }
+.topo-paciente .meta { font-size: 12px; color: #9DB4C4; margin-top: 3px; }
+
+.pilares { display: flex; gap: 2px; background: var(--c-surface); border-bottom: 1px solid var(--c-border); padding: 0 24px; }
+.pilar { padding: 14px 22px; cursor: pointer; border-bottom: 3px solid transparent; display: flex; flex-direction: column; gap: 2px; }
+.pilar:hover { background: var(--c-surface-raised); }
+.pilar.ativo { border-bottom-color: var(--c-primary); }
+.pilar-titulo { font-size: 13.5px; font-weight: 700; color: var(--c-text-secondary); display: flex; align-items: center; gap: 7px; }
+.pilar.ativo .pilar-titulo { color: var(--c-primary); }
+.pilar-sub { font-size: 10.5px; color: var(--c-text-muted); }
+
+.corpo { padding: 20px 28px 60px; }
+.sub-abas { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.sub-aba { padding: 6px 14px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 16px; font-size: 12px; color: var(--c-text-secondary); }
+.sub-aba.on { background: var(--c-primary); border-color: var(--c-primary); color: #fff; font-weight: 600; }
+
+.explicacao { background: var(--c-primary-light); border: 1px solid var(--c-primary-border); border-radius: 10px; padding: 14px 18px; font-size: 12.5px; color: var(--c-text-secondary); line-height: 1.6; }
+.explicacao b { color: var(--c-primary); }
+</style>
+</head>
+<body>
+<div class="topo-paciente">
+  <div class="nome">Raimundo Gonçalves Alves</div>
+  <div class="meta">Leito 02 · Sala Vermelha · Internado há 3 dias</div>
+</div>
+
+<div class="pilares">
+  <div class="pilar ativo">
+    <div class="pilar-titulo">📋 Passagem de Plantão</div>
+    <div class="pilar-sub">O modelo antigo, intacto</div>
+  </div>
+  <div class="pilar">
+    <div class="pilar-titulo">🩺 Prontuário de Enfermagem</div>
+    <div class="pilar-sub">10 seções (era a Ficha Clínica)</div>
+  </div>
+  <div class="pilar">
+    <div class="pilar-titulo">⚕️ Prontuário Médico</div>
+    <div class="pilar-sub">11 seções (era a Ficha Médica)</div>
+  </div>
+</div>
+
+<div class="corpo">
+  <div class="explicacao">
+    <b>O que mudou:</b> clicar no leito não abre mais direto o formulário antigo com um botão de "Ficha clínica" enfiado dentro. Abre esse espaço único do paciente, com <b>3 áreas do mesmo nível</b> — a Passagem de Plantão continua existindo exatamente como é hoje, só que agora ao lado do Prontuário, não escondendo ele.
+  </div>
+
+  <div style="margin-top:22px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--c-text-muted)">
+    Se estivesse na aba "Prontuário de Enfermagem", as 10 sub-abas reais seriam:
+  </div>
+  <div class="sub-abas" style="margin-top:10px">
+    <div class="sub-aba on">Admissão</div>
+    <div class="sub-aba">Sinais Vitais</div>
+    <div class="sub-aba">Evolução</div>
+    <div class="sub-aba">Dispositivos</div>
+    <div class="sub-aba">Balanço Hídrico</div>
+    <div class="sub-aba">Escalas</div>
+    <div class="sub-aba">Alergias</div>
+    <div class="sub-aba">Isolamento</div>
+    <div class="sub-aba">Transferência SBAR</div>
+    <div class="sub-aba">Eventos Adversos</div>
+  </div>
+
+  <div style="margin-top:22px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--c-text-muted)">
+    Se estivesse na aba "Prontuário Médico", as 11 sub-abas reais seriam:
+  </div>
+  <div class="sub-abas" style="margin-top:10px">
+    <div class="sub-aba">Consulta</div>
+    <div class="sub-aba">Prescrição</div>
+    <div class="sub-aba">AIH</div>
+    <div class="sub-aba">Exames</div>
+    <div class="sub-aba">Plano Terapêutico</div>
+    <div class="sub-aba">APAC</div>
+    <div class="sub-aba">ATM</div>
+    <div class="sub-aba">TFD</div>
+    <div class="sub-aba">Regulação</div>
+    <div class="sub-aba">Medicações Contínuas</div>
+    <div class="sub-aba">Auditoria</div>
+  </div>
+</div>
+</body>
+</html>

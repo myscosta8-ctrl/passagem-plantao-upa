@@ -16,6 +16,7 @@ import {
 } from '../lib/pepClinico'
 import FichaClinicaPrint from './FichaClinicaPrint'
 import './PassagemForm.css'
+import './FichaClinica.css'
 
 // Ficha clínica contínua (Fase 2, piloto Observação/Internação) — separada
 // da passagem de plantão (que é o resumo de handoff entre turnos). Admissão
@@ -84,7 +85,7 @@ const GRUPOS_EXAME = [
 const DOENCAS_INFANCIA_OPCOES = ['Catapora', 'Caxumba', 'Poliomielite', 'Sarampo']
 const DOENCAS_CRONICAS_OPCOES = ['Hipertensão Sistêmica Arterial', 'IRC']
 
-export default function FichaClinica({ atendimento, onFechar }) {
+export default function FichaClinica({ atendimento, onFechar, embedded = false }) {
   const { enfermeiro } = useAuth()
   const [aba, setAba] = useState('admissao')
   const [imprimindo, setImprimindo] = useState(null) // { tipo, registro }
@@ -100,46 +101,51 @@ export default function FichaClinica({ atendimento, onFechar }) {
     )
   }
 
-  return (
-    <div className="form-overlay">
-      <div className="form-panel" onClick={(e) => e.stopPropagation()}>
+  const corpo = (
+    <div className={embedded ? "ficha-clinica-embedded" : "form-panel"} onClick={(e) => e.stopPropagation()}>
+      {!embedded && (
         <div className="form-header">
           <span className="form-leito-tag">Ficha clínica — {atendimento.nome}</span>
           <button className="form-header-close" onClick={onFechar}>×</button>
         </div>
+      )}
 
-        <ResumoPaciente atendimento={atendimento} />
+      <ResumoPaciente atendimento={atendimento} />
 
-        <div className="form-toolbar">
-          <button className={aba === 'admissao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('admissao')}>Admissão</button>
-          <button className={aba === 'sinaisVitais' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sinaisVitais')}>Sinais Vitais</button>
-          <button className={aba === 'evolucao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('evolucao')}>Evolução</button>
-          <button className={aba === 'dispositivos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('dispositivos')}>Dispositivos</button>
-          <button className={aba === 'balanco' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('balanco')}>Balanço Hídrico</button>
-          <button className={aba === 'escalas' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('escalas')}>Escalas</button>
-          <button className={aba === 'alergias' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('alergias')}>Alergias</button>
-          <button className={aba === 'isolamento' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('isolamento')}>Isolamento</button>
-          <button className={aba === 'sbar' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sbar')}>Transferência SBAR</button>
-          <button className={aba === 'eventosAdversos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('eventosAdversos')}>Eventos Adversos</button>
-        </div>
+      <div className="form-toolbar">
+        <button className={aba === 'admissao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('admissao')}>Admissão</button>
+        <button className={aba === 'sinaisVitais' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sinaisVitais')}>Sinais Vitais</button>
+        <button className={aba === 'evolucao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('evolucao')}>Evolução</button>
+        <button className={aba === 'dispositivos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('dispositivos')}>Dispositivos</button>
+        <button className={aba === 'balanco' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('balanco')}>Balanço Hídrico</button>
+        <button className={aba === 'escalas' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('escalas')}>Escalas</button>
+        <button className={aba === 'alergias' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('alergias')}>Alergias</button>
+        <button className={aba === 'isolamento' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('isolamento')}>Isolamento</button>
+        <button className={aba === 'sbar' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sbar')}>Transferência SBAR</button>
+        <button className={aba === 'eventosAdversos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('eventosAdversos')}>Eventos Adversos</button>
+      </div>
 
-        {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}
-        {aba === 'sinaisVitais' && <AbaSinaisVitais atendimento={atendimento} autorId={enfermeiro?.id} />}
-        {aba === 'evolucao' && <AbaEvolucao atendimento={atendimento} autorId={enfermeiro?.id} />}
-        {aba === 'dispositivos' && <AbaDispositivos atendimento={atendimento} />}
-        {aba === 'balanco' && <AbaBalancoHidrico atendimento={atendimento} autorId={enfermeiro?.id} />}
-        {aba === 'escalas' && <AbaEscalas atendimento={atendimento} />}
-        {aba === 'alergias' && <AbaAlergias atendimento={atendimento} />}
-        {aba === 'isolamento' && <AbaIsolamento atendimento={atendimento} autorId={enfermeiro?.id} />}
-        {aba === 'sbar' && <AbaSbar atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'sbar', registro })} />}
-        {aba === 'eventosAdversos' && <AbaEventosAdversos atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'sinaisVitais' && <AbaSinaisVitais atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'evolucao' && <AbaEvolucao atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'dispositivos' && <AbaDispositivos atendimento={atendimento} />}
+      {aba === 'balanco' && <AbaBalancoHidrico atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'escalas' && <AbaEscalas atendimento={atendimento} />}
+      {aba === 'alergias' && <AbaAlergias atendimento={atendimento} />}
+      {aba === 'isolamento' && <AbaIsolamento atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'sbar' && <AbaSbar atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'sbar', registro })} />}
+      {aba === 'eventosAdversos' && <AbaEventosAdversos atendimento={atendimento} autorId={enfermeiro?.id} />}
 
+      {!embedded && (
         <div className="form-footer">
           <button className="btn-fechar" onClick={onFechar}>Fechar</button>
         </div>
-      </div>
+      )}
     </div>
   )
+
+  if (embedded) return corpo
+  return <div className="form-overlay">{corpo}</div>
 }
 
 function formatarRelativo(iso) {
@@ -249,45 +255,118 @@ function ResumoPaciente({ atendimento }) {
   )
 }
 
-function GrupoExame({ grupo, exame, onToggle, onExtra }) {
+function obterResumoExame(grupo, atual) {
+  if (!atual) return 'Não preenchido'
+  const partes = []
+  if (atual.itens?.length > 0) {
+    if (atual.itens.length <= 3) {
+      partes.push(atual.itens.join(', '))
+    } else {
+      partes.push(`${atual.itens.slice(0, 3).join(', ')} (+${atual.itens.length - 3})`)
+    }
+  }
+  if (grupo.extras) {
+    for (const ex of grupo.extras) {
+      const val = atual[ex.campo]
+      if (val !== undefined && val !== null && val !== '') {
+        partes.push(`${ex.rotulo}: ${val}`)
+      }
+    }
+  }
+  return partes.length > 0 ? partes.join(' · ') : 'Não preenchido'
+}
+
+function checarGrupoPreenchido(grupo, atual) {
+  if (!atual) return false
+  if (atual.itens?.length > 0) return true
+  if (grupo.extras?.some((ex) => {
+    const v = atual[ex.campo]
+    return v !== undefined && v !== null && v !== ''
+  })) return true
+  return false
+}
+
+function GrupoExameColapsavel({ grupo, exame, aberto, onToggleAberto, onToggle, onExtra }) {
   const atual = exame[grupo.chave] ?? {}
+  const preenchido = checarGrupoPreenchido(grupo, atual)
+  const resumo = obterResumoExame(grupo, atual)
+
   return (
-    <div className="form-field span-3" style={{ marginBottom: 16, paddingBottom: 14, borderBottom: '1px solid var(--c-border-light)' }}>
-      <label>{grupo.titulo}</label>
-      <div className="chip-group">
-        {grupo.itens.map((item) => (
-          <button
-            key={item}
-            type="button"
-            className={`chip ${(atual.itens || []).includes(item) ? 'on' : ''}`}
-            onClick={() => onToggle(grupo.chave, item)}
-          >
-            {item}
-          </button>
-        ))}
+    <div className={`secao-exame ${aberto ? 'aberta' : ''}`}>
+      <div className="secao-exame-cabecalho" onClick={onToggleAberto}>
+        <div className="secao-exame-titulo">
+          <span className={`secao-icone-status ${preenchido ? 'ok' : 'vazio'}`} />
+          <span>{grupo.titulo}</span>
+        </div>
+        <div className="secao-exame-direita">
+          <span className={`secao-resumo ${preenchido ? 'preenchido' : 'vazio'}`}>{resumo}</span>
+          <span className="secao-seta">▾</span>
+        </div>
       </div>
-      {grupo.extras?.length > 0 && (
-        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 10 }}>
-          {grupo.extras.map((ex) => (
-            <div key={ex.campo} style={{ minWidth: 130 }}>
-              <label style={{ fontSize: 9.5 }}>{ex.rotulo}</label>
-              {ex.tipo === 'text' && (
-                <input type="text" value={atual[ex.campo] || ''} onChange={(e) => onExtra(grupo.chave, ex.campo, e.target.value)} />
-              )}
-              {ex.tipo === 'select' && (
-                <select value={atual[ex.campo] || ''} onChange={(e) => onExtra(grupo.chave, ex.campo, e.target.value)}>
-                  <option value="">—</option>
-                  {ex.opcoes.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
-              )}
-              {ex.tipo === 'lado' && (
-                <div className="toggle-group" style={{ maxWidth: 110 }}>
-                  <button type="button" className={`toggle-btn ${atual[ex.campo] === 'D' ? 'on' : ''}`} onClick={() => onExtra(grupo.chave, ex.campo, atual[ex.campo] === 'D' ? '' : 'D')}>D</button>
-                  <button type="button" className={`toggle-btn ${atual[ex.campo] === 'E' ? 'on' : ''}`} onClick={() => onExtra(grupo.chave, ex.campo, atual[ex.campo] === 'E' ? '' : 'E')}>E</button>
+
+      {aberto && (
+        <div className="secao-exame-corpo">
+          <div className="chip-grade">
+            {grupo.itens.map((item) => {
+              const sel = (atual.itens || []).includes(item)
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  className={`chip-admissao ${sel ? 'sel' : ''}`}
+                  onClick={() => onToggle(grupo.chave, item)}
+                >
+                  {item}
+                </button>
+              )
+            })}
+          </div>
+
+          {grupo.extras?.length > 0 && (
+            <div className="extras-linha">
+              {grupo.extras.map((ex) => (
+                <div key={ex.campo} className="extra-campo">
+                  <label>{ex.rotulo}</label>
+                  {ex.tipo === 'text' && (
+                    <input
+                      type="text"
+                      value={atual[ex.campo] || ''}
+                      onChange={(e) => onExtra(grupo.chave, ex.campo, e.target.value)}
+                    />
+                  )}
+                  {ex.tipo === 'select' && (
+                    <select
+                      value={atual[ex.campo] || ''}
+                      onChange={(e) => onExtra(grupo.chave, ex.campo, e.target.value)}
+                    >
+                      <option value="">—</option>
+                      {ex.opcoes.map((o) => (
+                        <option key={o} value={o}>{o}</option>
+                      ))}
+                    </select>
+                  )}
+                  {ex.tipo === 'lado' && (
+                    <div className="toggle-group" style={{ maxWidth: 110 }}>
+                      <button
+                        type="button"
+                        className={`toggle-btn ${atual[ex.campo] === 'D' ? 'on' : ''}`}
+                        onClick={() => onExtra(grupo.chave, ex.campo, atual[ex.campo] === 'D' ? '' : 'D')}
+                      >
+                        D
+                      </button>
+                      <button
+                        type="button"
+                        className={`toggle-btn ${atual[ex.campo] === 'E' ? 'on' : ''}`}
+                        onClick={() => onExtra(grupo.chave, ex.campo, atual[ex.campo] === 'E' ? '' : 'E')}
+                      >
+                        E
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>
@@ -313,6 +392,7 @@ function AbaAdmissao({ atendimento, autorId }) {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(false)
+  const [grupoAberto, setGrupoAberto] = useState('neurologico')
 
   useEffect(() => { carregar() }, [])
 
@@ -417,10 +497,37 @@ function AbaAdmissao({ atendimento, autorId }) {
         <div className="form-field"><label>SpO2</label><input type="number" value={svAdmissao.spo2} onChange={(e) => setSvAdmissao((p) => ({ ...p, spo2: e.target.value }))} /></div>
       </div>
 
-      <div className="form-section-title">Exame físico</div>
-      <div className="form-grid">
+      <div className="form-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span>Exame físico (26 grupos)</span>
+      </div>
+
+      {(() => {
+        const qtdPreenchidos = GRUPOS_EXAME.filter((g) => checarGrupoPreenchido(g, exame[g.chave])).length
+        const pctPreenchido = Math.round((qtdPreenchidos / GRUPOS_EXAME.length) * 100)
+        return (
+          <div className="admissao-progresso-container">
+            <div className="admissao-progresso-info">
+              <span className="admissao-progresso-label">{qtdPreenchidos} de {GRUPOS_EXAME.length} grupos preenchidos</span>
+              <span className="admissao-progresso-pct">{pctPreenchido}%</span>
+            </div>
+            <div className="admissao-barra-trilho">
+              <div className="admissao-barra-fill" style={{ width: `${pctPreenchido}%` }} />
+            </div>
+          </div>
+        )
+      })()}
+
+      <div style={{ marginBottom: 20 }}>
         {GRUPOS_EXAME.map((g) => (
-          <GrupoExame key={g.chave} grupo={g} exame={exame} onToggle={toggleExame} onExtra={extraExame} />
+          <GrupoExameColapsavel
+            key={g.chave}
+            grupo={g}
+            exame={exame}
+            aberto={grupoAberto === g.chave}
+            onToggleAberto={() => setGrupoAberto((atual) => (atual === g.chave ? null : g.chave))}
+            onToggle={toggleExame}
+            onExtra={extraExame}
+          />
         ))}
       </div>
 

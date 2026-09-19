@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ficha Clínica — Proposta de Reorganização</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-primary: #14507D; --c-primary-dark: #0A1F33; --c-primary-light: #EAF2F8; --c-primary-border: #B8D0E8;
+  --c-bg: #F4F6F5; --c-surface: #fff; --c-surface-raised: #FAFBFA; --c-surface-inset: #F0F2F1;
+  --c-text-primary: #101820; --c-text-secondary: #4A5A68; --c-text-muted: #8B98A0;
+  --c-border: #DCE2E2; --c-border-light: #EDF0EF;
+  --c-success: #15803d; --c-success-light: #dcfce7;
+  --c-danger: #B3261E; --c-danger-light: #FBEAE8;
+  --c-warning: #92640B; --c-warning-light: #FBF1DE;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+body { background: var(--c-bg); color: var(--c-text-primary); font-size: 13.5px; }
+.shell { display:flex; height:100vh; }
+
+/* NAV LATERAL FIXA — em vez de rolar por 1500 linhas achatadas, salta direto pra seção */
+.nav-lateral { width: 220px; background: var(--c-surface); border-right: 1px solid var(--c-border); overflow-y: auto; flex-shrink: 0; }
+.nav-header { padding: 18px 16px 14px; border-bottom: 1px solid var(--c-border-light); }
+.nav-header .paciente-nome { font-size: 14px; font-weight: 700; }
+.nav-header .paciente-leito { font-size: 11.5px; color: var(--c-text-muted); margin-top: 2px; }
+.nav-secoes { padding: 10px 8px; }
+.nav-grupo-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--c-text-muted); padding: 12px 8px 6px; }
+.nav-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 6px; font-size: 12.5px; color: var(--c-text-secondary); cursor: pointer; margin-bottom: 1px; }
+.nav-item:hover { background: var(--c-surface-inset); }
+.nav-item.ativo { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+.nav-item .badge-preenchido { width: 6px; height: 6px; border-radius: 50%; background: var(--c-success); }
+.nav-item .badge-vazio { width: 6px; height: 6px; border-radius: 50%; background: var(--c-border); }
+
+.conteudo { flex: 1; overflow-y: auto; padding: 24px 32px 80px; max-width: 880px; }
+.topo-ficha { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.topo-ficha h1 { font-size: 18px; font-weight: 700; }
+.topo-ficha p { font-size: 12px; color: var(--c-text-muted); margin-top: 3px; }
+.progresso { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--c-text-secondary); }
+.progresso-barra { width: 90px; height: 5px; background: var(--c-border); border-radius: 3px; overflow: hidden; }
+.progresso-barra-fill { height: 100%; background: var(--c-primary); width: 42%; }
+
+/* SEÇÃO COLAPSÁVEL — cada um dos 24 grupos vira isto, em vez de tudo achatado */
+.secao { background: var(--c-surface); border: 1px solid var(--c-border-light); border-radius: 10px; margin-bottom: 10px; overflow: hidden; scroll-margin-top: 20px; }
+.secao-cabecalho { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; cursor: pointer; }
+.secao-cabecalho:hover { background: var(--c-surface-raised); }
+.secao-titulo { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; }
+.secao-icone-status { width: 7px; height: 7px; border-radius: 50%; background: var(--c-success); }
+.secao-icone-status.vazio { background: var(--c-border); }
+.secao-resumo { font-size: 11.5px; color: var(--c-text-muted); font-weight: 400; }
+.secao-seta { color: var(--c-text-muted); font-size: 11px; transition: transform .15s; }
+.secao.aberta .secao-seta { transform: rotate(180deg); }
+.secao-corpo { padding: 4px 16px 16px; display: none; }
+.secao.aberta .secao-corpo { display: block; }
+
+/* GRADE DE CHIPS — organizada, densa, com respiro — em vez de blocos soltos */
+.chip-grade { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip { padding: 6px 12px; border: 1.5px solid var(--c-border); border-radius: 16px; font-size: 12px; color: var(--c-text-secondary); background: var(--c-surface); cursor: pointer; }
+.chip:hover { border-color: var(--c-primary-border); }
+.chip.sel { background: var(--c-primary); border-color: var(--c-primary); color: #fff; font-weight: 600; }
+.chip.sel.alerta { background: var(--c-danger); border-color: var(--c-danger); }
+.extras-linha { display: flex; gap: 10px; margin-top: 6px; }
+.extra-campo { flex: 1; }
+.extra-campo label { display: block; font-size: 10.5px; font-weight: 600; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 4px; }
+.extra-campo input, .extra-campo select { width: 100%; padding: 7px 10px; border: 1px solid var(--c-border); border-radius: 6px; font-size: 12.5px; }
+
+.rodape-fixo { position: sticky; bottom: 0; background: var(--c-surface); border-top: 1px solid var(--c-border); padding: 12px 32px; display: flex; justify-content: flex-end; gap: 10px; margin: 0 -32px -80px; }
+.btn { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; }
+.btn-primario { background: var(--c-primary); color: #fff; }
+.btn-secundario { background: var(--c-surface); border: 1px solid var(--c-border); color: var(--c-text-secondary); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="nav-lateral">
+    <div class="nav-header">
+      <div class="paciente-nome">Raimundo Gonçalves Alves</div>
+      <div class="paciente-leito">Leito 02 · Sala Vermelha</div>
+    </div>
+    <div class="nav-secoes">
+      <div class="nav-grupo-label">Abas da ficha (reais, 10 no total)</div>
+      <div class="nav-item ativo">Admissão</div>
+      <div class="nav-item">Sinais Vitais</div>
+      <div class="nav-item">Evolução</div>
+      <div class="nav-item">Dispositivos</div>
+      <div class="nav-item">Balanço Hídrico</div>
+      <div class="nav-item">Escalas</div>
+      <div class="nav-item">Alergias</div>
+      <div class="nav-item">Isolamento</div>
+      <div class="nav-item">Transferência SBAR</div>
+      <div class="nav-item">Eventos Adversos</div>
+      <div class="nav-grupo-label">Dentro de "Admissão" (26 grupos reais)</div>
+      <div class="nav-item" style="font-size:11.5px">Avaliação neurológica <span class="badge-preenchido"></span></div>
+      <div class="nav-item" style="font-size:11.5px">Movimentação <span class="badge-preenchido"></span></div>
+      <div class="nav-item" style="font-size:11.5px">Pele / tecidos / hidratação <span class="badge-vazio"></span></div>
+      <div class="nav-item" style="font-size:11.5px">Cabeça / pescoço <span class="badge-vazio"></span></div>
+      <div class="nav-item" style="font-size:11.5px">Olhos <span class="badge-vazio"></span></div>
+      <div class="nav-item" style="font-size:11.5px">Pupilas <span class="badge-vazio"></span></div>
+      <div class="nav-item" style="font-size:11.5px">... +20 grupos (Ouvido, Narinas, Boca/faringe, Nutrição, Tosse, Respiração, Modo ventilatório, Simetria, Ausculta respiratória, Freq. cardíaca, Bulhas, Ritmo, Pulso, Abdome, Ruídos hidroaéreos, Sist. urinário, Genitália, Evacuação, Membros sup., Membros inf.)</div>
+    </div>
+  </aside>
+
+  <main class="conteudo">
+    <div class="topo-ficha">
+      <div><h1>Ficha Clínica — Exame Físico</h1><p>Admissão preenchida em 14/08 · 09:12 por Enf. Marcus</p></div>
+      <div class="progresso">
+        <span>3 de 26 grupos</span>
+        <div class="progresso-barra"><div class="progresso-barra-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="secao aberta">
+      <div class="secao-cabecalho">
+        <div class="secao-titulo"><span class="secao-icone-status"></span> Avaliação neurológica</div>
+        <div style="display:flex;align-items:center;gap:10px"><span class="secao-resumo">Consciente, Glasgow 15</span><span class="secao-seta">▾</span></div>
+      </div>
+      <div class="secao-corpo">
+        <div class="chip-grade">
+          <div class="chip sel">Consciente</div><div class="chip">Orientado</div><div class="chip">Vigil</div>
+          <div class="chip">Torporoso</div><div class="chip">Letárgico</div><div class="chip">Comatoso</div>
+          <div class="chip">Inconsciente</div><div class="chip">Desorientado</div><div class="chip">Obnubilado</div>
+          <div class="chip">Confuso</div><div class="chip">Sedado</div>
+        </div>
+        <div class="extras-linha">
+          <div class="extra-campo"><label>Glasgow</label><input value="15"></div>
+          <div class="extra-campo"><label>RASS</label><input placeholder="—"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-cabecalho">
+        <div class="secao-titulo"><span class="secao-icone-status"></span> Movimentação</div>
+        <div style="display:flex;align-items:center;gap:10px"><span class="secao-resumo">Restrito ao leito</span><span class="secao-seta">▾</span></div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-cabecalho">
+        <div class="secao-titulo"><span class="secao-icone-status vazio"></span> Pele / tecidos / hidratação</div>
+        <div style="display:flex;align-items:center;gap:10px"><span class="secao-resumo">Não preenchido</span><span class="secao-seta">▾</span></div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-cabecalho">
+        <div class="secao-titulo"><span class="secao-icone-status"></span> Respiração</div>
+        <div style="display:flex;align-items:center;gap:10px"><span class="secao-resumo">Eupnéico</span><span class="secao-seta">▾</span></div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-cabecalho">
+        <div class="secao-titulo"><span class="secao-icone-status vazio"></span> Ausculta respiratória</div>
+        <div style="display:flex;align-items:center;gap:10px"><span class="secao-resumo">Não preenchido</span><span class="secao-seta">▾</span></div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-cabecalho">
+        <div class="secao-titulo"><span class="secao-icone-status vazio"></span> Frequência cardíaca</div>
+        <div style="display:flex;align-items:center;gap:10px"><span class="secao-resumo">Não preenchido</span><span class="secao-seta">▾</span></div>
+      </div>
+    </div>
+
+    <div class="rodape-fixo">
+      <button class="btn btn-secundario">Salvar rascunho</button>
+      <button class="btn btn-primario">Concluir admissão</button>
+    </div>
+  </main>
+</div>
+</body>
+</html>

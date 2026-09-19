@@ -36,7 +36,7 @@ const ABAS = [
   { chave: 'auditoria', rotulo: 'Auditoria' },
 ]
 
-export default function FichaMedica({ atendimento, onFechar }) {
+export default function FichaMedica({ atendimento, onFechar, embedded = false }) {
   const { enfermeiro } = useAuth()
   const [aba, setAba] = useState('consulta')
   const [imprimindo, setImprimindo] = useState(null) // { tipo, registro }
@@ -52,13 +52,14 @@ export default function FichaMedica({ atendimento, onFechar }) {
     )
   }
 
-  return (
-    <div className="form-overlay">
-      <div className="form-panel" onClick={(e) => e.stopPropagation()}>
+  const corpo = (
+    <div className={embedded ? "ficha-clinica-embedded" : "form-panel"} onClick={(e) => e.stopPropagation()}>
+      {!embedded && (
         <div className="form-header">
           <span className="form-leito-tag">Leito {atendimento.leito_numero} — {atendimento.nome}</span>
           <button className="form-header-close" onClick={onFechar}>×</button>
         </div>
+      )}
 
         <DiagnosticoPrincipal atendimento={atendimento} medicoId={enfermeiro?.id} />
 
@@ -86,12 +87,16 @@ export default function FichaMedica({ atendimento, onFechar }) {
         {aba === 'medicacoesContinuas' && <AbaMedicacoesContinuas atendimento={atendimento} medicoId={enfermeiro?.id} />}
         {aba === 'auditoria' && <AbaAuditoria atendimento={atendimento} />}
 
-        <div className="form-footer">
-          <button className="btn-fechar" onClick={onFechar}>Fechar</button>
-        </div>
+        {!embedded && (
+          <div className="form-footer">
+            <button className="btn-fechar" onClick={onFechar}>Fechar</button>
+          </div>
+        )}
       </div>
-    </div>
   )
+
+  if (embedded) return corpo
+  return <div className="form-overlay">{corpo}</div>
 }
 
 // Diagnóstico principal codificado da internação — sempre visível,

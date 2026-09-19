@@ -67,6 +67,7 @@ export async function carregarLeitosOcupadosPep() {
     pacientesPorLeito[ocupacao.leito_id] = {
       id: atendimento.id, // o Painel trata isto como "paciente.id" — é o atendimento
       pessoa_id: pessoa.id,
+      pep_nativo: true, // id acima já é um atendimento de verdade — nunca passar pela ponte da seção 0
       nome: pessoa.nome,
       diagnostico: internacao?.diagnostico_admissao ?? '',
       idade: idadeExibida(pessoa),
@@ -99,11 +100,11 @@ export async function carregarLeitosOcupadosPep() {
 export async function internarPacientePep({ leito, dados, enfermeiroId }) {
   const { data: pessoa, error: erroPessoa } = await supabase
     .from('pessoas')
-    .insert({ nome: dados.nome })
+    .insert({ nome: dados.nome, data_nascimento: dados.dataNascimento || null })
     .select()
     .single()
   if (erroPessoa) return { error: erroPessoa }
-  detectarDuplicatas(pessoa.id, { nome: dados.nome })
+  detectarDuplicatas(pessoa.id, { nome: dados.nome, data_nascimento: dados.dataNascimento })
 
   const { data: atendimento, error: erroAtendimento } = await supabase
     .from('atendimentos')
@@ -113,6 +114,7 @@ export async function internarPacientePep({ leito, dados, enfermeiroId }) {
       tipo: 'internacao',
       status: 'internado',
       status_internacao: dados.status,
+      classificacao_risco_cor: dados.classificacaoManchester || null,
     })
     .select()
     .single()
@@ -137,6 +139,7 @@ export async function internarPacientePep({ leito, dados, enfermeiroId }) {
     novo: {
       id: atendimento.id,
       pessoa_id: pessoa.id,
+      pep_nativo: true,
       nome: pessoa.nome,
       diagnostico: dados.diagnostico,
       idade: null,
@@ -148,6 +151,74 @@ export async function internarPacientePep({ leito, dados, enfermeiroId }) {
       leito_atual_id: leito.id,
     },
   }
+}
+
+// Ponte entre o caminho antigo (tabela `pacientes`) e o novo (pessoas/atendimentos),
+// pra telas que só existem no caminho novo (Ficha Clínica, Ficha Médica) poderem
+// abrir sobre um paciente que ainda só existe no caminho antigo. Idempotente: se
+// já existe um atendimento (ou pessoa) migrado desse pacienteId, reaproveita — nunca
+// cria duplicata. NUNCA chamar isto com um id que já é `pep_nativo` (já é um
+// atendimento de verdade) — só serve pra ids da tabela `pacientes` antiga.
+export async function obterOuCriarAtendimentoParaPaciente(pacienteId) {
+  const { data: atendimentoExistente } = await supabase
+    .from('atendimentos')
+    .select('id, pessoa_id')
+    .eq('migrado_de_paciente_id', pacienteId)
+    .maybeSingle()
+  if (atendimentoExistente) {
+    return { atendimentoId: atendimentoExistente.id, pessoaId: atendimentoExistente.pessoa_id }
+  }
+
+  const { data: pacienteRow, error: erroPaciente } = await supabase
+    .from('pacientes')
+    .select('*')
+    .eq('id', pacienteId)
+    .maybeSingle()
+  if (erroPaciente || !pacienteRow) return { error: erroPaciente ?? new Error('Paciente não encontrado') }
+
+  let pessoaId
+  const { data: pessoaExistente } = await supabase
+    .from('pessoas')
+    .select('id')
+    .eq('migrado_de_paciente_id', pacienteId)
+    .maybeSingle()
+
+  if (pessoaExistente) {
+    pessoaId = pessoaExistente.id
+  } else {
+    const { data: pessoaCriada, error: erroPessoa } = await supabase
+      .from('pessoas')
+      .insert({
+        nome: pacienteRow.nome,
+        data_nascimento: pacienteRow.data_nascimento ?? null,
+        migrado_de_paciente_id: pacienteId,
+      })
+      .select('id')
+      .single()
+    if (erroPessoa) return { error: erroPessoa }
+    pessoaId = pessoaCriada.id
+  }
+
+  const { data: leito } = pacienteRow.leito_atual_id
+    ? await supabase.from('leitos').select('setor_id').eq('id', pacienteRow.leito_atual_id).maybeSingle()
+    : { data: null }
+
+  const { data: atendimentoCriado, error: erroAtendimento } = await supabase
+    .from('atendimentos')
+    .insert({
+      pessoa_id: pessoaId,
+      migrado_de_paciente_id: pacienteId,
+      setor_id: leito?.setor_id ?? null,
+      tipo: 'internacao',
+      status: 'internado',
+      status_internacao: pacienteRow.status_internacao ?? 'Em observação',
+      classificacao_risco_cor: pacienteRow.classificacao_manchester ?? null,
+    })
+    .select('id')
+    .single()
+  if (erroAtendimento) return { error: erroAtendimento }
+
+  return { atendimentoId: atendimentoCriado.id, pessoaId }
 }
 
 // Passagem do plantão atual pra esse atendimento, se já existir (equivalente ao
@@ -187,6 +258,17 @@ export async function salvarPassagemPep(payload) {
 // internacoes (dados do episódio) e atendimentos (status_internacao) — e alergias
 // vira uma linha na tabela própria, não um campo solto.
 export async function salvarIdentificacaoPep({ atendimentoId, pessoaId, identificacao }) {
+  // Indicador clínico "tempo até conduta": marca o instante em que o atendimento
+  // deixa de estar "Em observação", uma única vez (nunca reescreve depois).
+  const { data: atendimentoAtual } = await supabase
+    .from('atendimentos')
+    .select('status_internacao, data_conduta_definida')
+    .eq('id', atendimentoId)
+    .maybeSingle()
+  const saiuDeObservacao = atendimentoAtual?.status_internacao === 'Em observação'
+    && identificacao.status_internacao !== 'Em observação'
+    && !atendimentoAtual?.data_conduta_definida
+
   const [{ error: erroPessoa }, { error: erroInternacao }, { error: erroAtendimento }] = await Promise.all([
     supabase
       .from('pessoas')
@@ -205,7 +287,10 @@ export async function salvarIdentificacaoPep({ atendimentoId, pessoaId, identifi
       .eq('atendimento_id', atendimentoId),
     supabase
       .from('atendimentos')
-      .update({ status_internacao: identificacao.status_internacao })
+      .update({
+        status_internacao: identificacao.status_internacao,
+        ...(saiuDeObservacao ? { data_conduta_definida: new Date().toISOString() } : {}),
+      })
       .eq('id', atendimentoId),
   ])
   if (erroPessoa || erroInternacao || erroAtendimento) {
@@ -263,12 +348,25 @@ export async function realocarAtendimentoPep({ atendimentoId, leitoOrigemId, lei
 
 export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detalhe, autorId, dadosObito }) {
   const agora = new Date().toISOString()
+
+  // Foi direto da observação pro desfecho, sem nunca internar — também conta
+  // como "saiu da observação" pro indicador de tempo até conduta.
+  const { data: atendimentoAtual } = await supabase
+    .from('atendimentos')
+    .select('status_internacao, data_conduta_definida')
+    .eq('id', atendimentoId)
+    .maybeSingle()
+  const saiuDeObservacao = atendimentoAtual?.status_internacao === 'Em observação' && !atendimentoAtual?.data_conduta_definida
+
   const [{ error: erroInternacao }, { error: erroAtendimento }, { error: erroLeito }] = await Promise.all([
     supabase
       .from('internacoes')
       .update({ resumo_alta: detalhe || null, encerrado_em: agora, dados_obito: dadosObito || null })
       .eq('atendimento_id', atendimentoId),
-    supabase.from('atendimentos').update({ status: 'alta' }).eq('id', atendimentoId),
+    supabase
+      .from('atendimentos')
+      .update({ status: 'alta', ...(saiuDeObservacao ? { data_conduta_definida: agora } : {}) })
+      .eq('id', atendimentoId),
     supabase
       .from('leito_ocupacoes')
       .update({ status: 'encerrado', liberado_em: agora, motivo_transferencia: tipo })
