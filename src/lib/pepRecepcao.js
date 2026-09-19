@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient'
+import { registrarEventoAuditoria } from './pepAtendimentos'
 
 // Camada de dados da Recepção (Fase 1b do PEP) — cadastro de identidade
 // completo (Ficha de Identificação do Paciente, UPA Breves) + abertura do
@@ -181,7 +182,7 @@ export async function confirmarEFundirDuplicata({ duplicataId, pessoaMantidaId, 
     .eq('id', duplicataId)
   if (erroDuplicata) return { error: erroDuplicata }
 
-  return supabase.from('pessoas_fusoes').insert({
+  const resultado = await supabase.from('pessoas_fusoes').insert({
     duplicata_id: duplicataId,
     pessoa_mantida_id: pessoaMantidaId,
     pessoa_removida_id: pessoaRemovidaId,
@@ -191,4 +192,12 @@ export async function confirmarEFundirDuplicata({ duplicataId, pessoaMantidaId, 
     executado_por: executadoPor,
     executado_em: agora,
   })
+  if (!resultado.error) {
+    await registrarEventoAuditoria({
+      autorId: executadoPor,
+      acao: 'duplicata_fundida',
+      dados: { pessoaMantidaId, pessoaRemovidaId, motivo: motivo || null },
+    })
+  }
+  return resultado
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
+import { listarEventosAuditoria } from '../lib/pepAtendimentos'
 import {
   listarConsultas, criarConsulta,
   listarPrescricoes, criarPrescricao, cancelarPrescricao,
@@ -15,6 +16,7 @@ import {
   listarAtm, criarAtm,
   listarTfd, criarTfd,
   listarRegulacao, registrarRegulacao,
+  listarMedicacoesContinuas, registrarMedicacaoContinua, suspenderMedicacaoContinua,
 } from '../lib/pepMedico'
 import FichaMedicaPrint from './FichaMedicaPrint'
 import './PassagemForm.css'
@@ -30,6 +32,8 @@ const ABAS = [
   { chave: 'atm', rotulo: 'ATM' },
   { chave: 'tfd', rotulo: 'TFD' },
   { chave: 'regulacao', rotulo: 'Regulação' },
+  { chave: 'medicacoesContinuas', rotulo: 'Medicações Contínuas' },
+  { chave: 'auditoria', rotulo: 'Auditoria' },
 ]
 
 export default function FichaMedica({ atendimento, onFechar }) {
@@ -56,7 +60,7 @@ export default function FichaMedica({ atendimento, onFechar }) {
           <button className="form-header-close" onClick={onFechar}>×</button>
         </div>
 
-        <DiagnosticoPrincipal atendimento={atendimento} />
+        <DiagnosticoPrincipal atendimento={atendimento} medicoId={enfermeiro?.id} />
 
         <div className="form-toolbar">
           {ABAS.map((a) => (
@@ -79,6 +83,8 @@ export default function FichaMedica({ atendimento, onFechar }) {
         {aba === 'atm' && <AbaAtm atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'atm', registro })} />}
         {aba === 'tfd' && <AbaTfd atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'tfd', registro })} />}
         {aba === 'regulacao' && <AbaRegulacao atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'regulacao', registro })} />}
+        {aba === 'medicacoesContinuas' && <AbaMedicacoesContinuas atendimento={atendimento} medicoId={enfermeiro?.id} />}
+        {aba === 'auditoria' && <AbaAuditoria atendimento={atendimento} />}
 
         <div className="form-footer">
           <button className="btn-fechar" onClick={onFechar}>Fechar</button>
@@ -91,7 +97,7 @@ export default function FichaMedica({ atendimento, onFechar }) {
 // Diagnóstico principal codificado da internação — sempre visível,
 // independente da aba, porque alimenta o cabeçalho de qualquer documento
 // impresso (distinto do CID da AIH, que é do procedimento solicitado).
-function DiagnosticoPrincipal({ atendimento }) {
+function DiagnosticoPrincipal({ atendimento, medicoId }) {
   const [internacao, setInternacao] = useState(null)
   const [cids, setCids] = useState([])
   const [cid, setCid] = useState('')
@@ -104,7 +110,7 @@ function DiagnosticoPrincipal({ atendimento }) {
 
   async function salvar() {
     setSalvando(true)
-    await atualizarDiagnosticoCid(atendimento.atendimento_id, cid)
+    await atualizarDiagnosticoCid(atendimento.atendimento_id, cid, medicoId)
     setSalvando(false)
     buscarInternacao(atendimento.atendimento_id).then(setInternacao)
   }
@@ -1089,6 +1095,126 @@ function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
               {r.enfermeiros?.nome_exibicao || r.enfermeiros?.nome} · {new Date(r.atualizado_em).toLocaleString('pt-BR')}
             </div>
             <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(r)}>Imprimir</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function AbaMedicacoesContinuas({ atendimento, medicoId }) {
+  const [lista, setLista] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [medicamento, setMedicamento] = useState('')
+  const [dose, setDose] = useState('')
+  const [frequencia, setFrequencia] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+
+  async function carregar() {
+    setCarregando(true)
+    setLista(await listarMedicacoesContinuas(atendimento.pessoa_id))
+    setCarregando(false)
+  }
+
+  async function adicionar() {
+    if (!medicamento.trim()) return
+    setErro('')
+    setSalvando(true)
+    const { error } = await registrarMedicacaoContinua({ pessoaId: atendimento.pessoa_id, medicamento: medicamento.trim(), dose, frequencia, registradoPor: medicoId })
+    setSalvando(false)
+    if (error) {
+      setErro('Não foi possível registrar. Tente de novo.')
+      console.error(error)
+      return
+    }
+    setMedicamento('')
+    setDose('')
+    setFrequencia('')
+    carregar()
+  }
+
+  async function suspender(id) {
+    await suspenderMedicacaoContinua(id)
+    carregar()
+  }
+
+  const ativas = lista.filter((m) => m.status === 'ativo')
+  const suspensas = lista.filter((m) => m.status !== 'ativo')
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Nova medicação de uso contínuo</div>
+      <p style={{ fontSize: 11.5, color: 'var(--c-text-muted)', marginTop: -10, marginBottom: 14 }}>
+        Uso contínuo em casa (reconciliação medicamentosa) — fica ligado à pessoa, não só a este atendimento, e continua valendo em internações futuras até ser suspenso.
+      </p>
+      <div className="form-grid" style={{ marginBottom: 16 }}>
+        <div className="form-field span-2"><label>Medicamento *</label><input type="text" value={medicamento} onChange={(e) => setMedicamento(e.target.value)} /></div>
+        <div className="form-field"><label>Dose</label><input type="text" value={dose} onChange={(e) => setDose(e.target.value)} /></div>
+        <div className="form-field"><label>Frequência</label><input type="text" placeholder="ex: 1x/dia" value={frequencia} onChange={(e) => setFrequencia(e.target.value)} /></div>
+      </div>
+      {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
+      <div className="modal-actions" style={{ marginTop: 14 }}>
+        <button className="modal-btn-primary" onClick={adicionar} disabled={salvando || !medicamento.trim()}>{salvando ? 'Salvando...' : '+ Adicionar'}</button>
+      </div>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Ativas</div>
+      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : ativas.length === 0 ? (
+        <p style={{ color: 'var(--color-text-muted)' }}>Nenhuma medicação contínua ativa.</p>
+      ) : ativas.map((m) => (
+        <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--color-border)', fontSize: 13 }}>
+          <span>{m.medicamento}{m.dose ? ` · ${m.dose}` : ''}{m.frequencia ? ` · ${m.frequencia}` : ''}</span>
+          <button type="button" className="modal-btn-secondary" onClick={() => suspender(m.id)}>Suspender</button>
+        </div>
+      ))}
+
+      {suspensas.length > 0 && (
+        <>
+          <div className="form-section-title" style={{ marginTop: 24 }}>Suspensas</div>
+          {suspensas.map((m) => (
+            <div key={m.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)', fontSize: 12.5, color: 'var(--color-text-muted)' }}>
+              {m.medicamento}{m.dose ? ` · ${m.dose}` : ''}{m.frequencia ? ` · ${m.frequencia}` : ''}
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  )
+}
+
+const ACOES_AUDITORIA = {
+  diagnostico_cid_atualizado: 'Diagnóstico (CID-10) atualizado',
+  desfecho_registrado: 'Desfecho registrado',
+  duplicata_fundida: 'Cadastros duplicados fundidos',
+}
+
+function AbaAuditoria({ atendimento }) {
+  const [eventos, setEventos] = useState([])
+  const [carregando, setCarregando] = useState(true)
+
+  useEffect(() => {
+    listarEventosAuditoria(atendimento.atendimento_id).then((lista) => { setEventos(lista); setCarregando(false) })
+  }, [atendimento.atendimento_id])
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Trilha de auditoria</div>
+      <p style={{ fontSize: 11.5, color: 'var(--c-text-muted)', marginTop: -10, marginBottom: 14 }}>
+        Registro somente-leitura das ações mais sensíveis feitas neste atendimento — não cobre tudo, só os pontos de maior impacto (diagnóstico, desfecho, fusão de cadastro).
+      </p>
+      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : eventos.length === 0 ? (
+        <p style={{ color: 'var(--color-text-muted)' }}>Nenhum evento registrado ainda.</p>
+      ) : eventos.map((e) => (
+        <div key={e.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)', fontSize: 13 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <strong>{ACOES_AUDITORIA[e.acao] || e.acao}</strong>
+            <span style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>{new Date(e.ocorrido_em).toLocaleString('pt-BR')}</span>
+          </div>
+          <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
+            {e.enfermeiros?.nome_exibicao || e.enfermeiros?.nome || 'Autor desconhecido'}
+            {e.dados ? ` · ${JSON.stringify(e.dados)}` : ''}
           </div>
         </div>
       ))}

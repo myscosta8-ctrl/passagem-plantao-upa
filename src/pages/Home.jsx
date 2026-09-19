@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
-import AberturaPlantao from './AberturaPlantao'
 import Painel from './Painel'
 import PrintView from './PrintView'
 import Historico from './Historico'
@@ -118,35 +117,37 @@ export default function Home() {
     return (setores ?? []).map((s) => s.id)
   }
 
-  async function entrarComoAdmin() {
-    setSetoresIds(await carregarTodosSetoresIds())
-
-    const hoje = hojeISOLocal()
+  function turnoAtualPorHora() {
     const horaAtual = Number(
       new Intl.DateTimeFormat('en-US', { timeZone: 'America/Belem', hour: 'numeric', hour12: false }).format(new Date())
     )
-    const turno = horaAtual >= 7 && horaAtual < 19 ? 'Diurno' : 'Noturno'
+    return horaAtual >= 7 && horaAtual < 19 ? 'Diurno' : 'Noturno'
+  }
 
+  async function buscarOuAbrirPlantao(hoje, turno) {
     const { data: existente } = await supabase
       .from('plantoes')
       .select('id, data, turno, status, created_at')
       .eq('data', hoje)
       .eq('turno', turno)
       .maybeSingle()
+    if (existente) return existente
 
-    if (existente) {
-      setPlantao(existente)
-    } else {
-      const { data: criado } = await supabase
-        .from('plantoes')
-        .insert({ data: hoje, turno })
-        .select()
-        .single()
-      if (criado) setPlantao(criado)
-    }
+    const { data: criado } = await supabase.from('plantoes').insert({ data: hoje, turno }).select().single()
+    return criado
+  }
+
+  async function entrarComoAdmin() {
+    setSetoresIds(await carregarTodosSetoresIds())
+    const plantao = await buscarOuAbrirPlantao(hojeISOLocal(), turnoAtualPorHora())
+    if (plantao) setPlantao(plantao)
     setVerificandoRetomada(false)
   }
 
+  // Sem tela de "abrir plantão" — a data/turno são detectados automaticamente
+  // (turno pelo horário atual) e a participação é registrada em silêncio.
+  // Se já existe uma participação aberta (não encerrada), retoma ela em vez
+  // de entrar num plantão novo, mesmo que o turno "natural" já tenha virado.
   async function retomarPlantaoAtivo() {
     if (!enfermeiro?.id) {
       setVerificandoRetomada(false)
@@ -161,17 +162,19 @@ export default function Home() {
       .order('created_at', { foreignTable: 'plantoes', ascending: false })
       .limit(1)
 
-    const paraRetomar = abertos?.[0]
-    if (paraRetomar) {
-      setPlantao(paraRetomar.plantoes)
+    const paraRetomar = abertos?.[0]?.plantoes
+    const plantao = paraRetomar || await buscarOuAbrirPlantao(hojeISOLocal(), turnoAtualPorHora())
+
+    if (plantao) {
+      if (!paraRetomar) {
+        await supabase
+          .from('plantao_profissionais')
+          .upsert({ plantao_id: plantao.id, profissional_id: enfermeiro.id, encerrado: false }, { onConflict: 'plantao_id,profissional_id' })
+      }
+      setPlantao(plantao)
       setSetoresIds(await carregarTodosSetoresIds())
     }
     setVerificandoRetomada(false)
-  }
-
-  async function aoAbrirPlantao(p) {
-    setPlantao(p)
-    setSetoresIds(await carregarTodosSetoresIds())
   }
 
   async function encerrarPlantao() {
@@ -192,6 +195,10 @@ export default function Home() {
         setPlantao(null)
         setSetoresIds(null)
         setTela('painel')
+        // Sem tela manual de "abrir plantão" pra voltar — reabre sozinho,
+        // igual ao que aconteceria se a página fosse recarregada agora.
+        setVerificandoRetomada(true)
+        await retomarPlantaoAtivo()
       },
     })
   }
@@ -254,7 +261,11 @@ export default function Home() {
         <MinhaConta onVoltar={() => setTela('painel')} />
       ) : (
         <>
-          {!plantao && <AberturaPlantao onPlantaoAberto={aoAbrirPlantao} />}
+          {!plantao && (
+            <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+              Não foi possível abrir o plantão. Verifique a conexão e recarregue a página.
+            </div>
+          )}
 
           {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
           {plantao && setoresIds && tela === 'print1' && (

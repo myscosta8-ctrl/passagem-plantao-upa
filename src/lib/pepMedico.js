@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient'
-import { calcularIdade } from './pepAtendimentos'
+import { calcularIdade, registrarEventoAuditoria } from './pepAtendimentos'
 
 // Camada de dados do módulo médico (Fase 1 do PEP). Só existe sobre a estrutura
 // nova (pessoas/atendimentos/leito_ocupacoes) — diferente do resto do app, não
@@ -163,8 +163,12 @@ export async function buscarInternacao(atendimentoId) {
   return data
 }
 
-export async function atualizarDiagnosticoCid(atendimentoId, cid) {
-  return supabase.from('internacoes').update({ diagnostico_cid: cid || null }).eq('atendimento_id', atendimentoId)
+export async function atualizarDiagnosticoCid(atendimentoId, cid, autorId) {
+  const resultado = await supabase.from('internacoes').update({ diagnostico_cid: cid || null }).eq('atendimento_id', atendimentoId)
+  if (!resultado.error) {
+    await registrarEventoAuditoria({ atendimentoId, autorId, acao: 'diagnostico_cid_atualizado', dados: { cid: cid || null } })
+  }
+  return resultado
 }
 
 // ===================== Exames / sorologias / hemoterapia (multi-item) =====================
@@ -294,4 +298,29 @@ export async function listarRegulacao(atendimentoId) {
 
 export async function registrarRegulacao({ atendimentoId, atualizadoPor, dados }) {
   return supabase.from('regulacao_atualizacoes').insert({ atendimento_id: atendimentoId, atualizado_por: atualizadoPor, ...dados }).select().single()
+}
+
+// ===================== Medicações contínuas =====================
+// Vive em `pessoas`, não no atendimento — uso contínuo em casa atravessa
+// internações diferentes (citado na Evolução Médica real).
+
+export async function listarMedicacoesContinuas(pessoaId) {
+  const { data } = await supabase
+    .from('medicacoes_continuas')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('pessoa_id', pessoaId)
+    .order('registrado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarMedicacaoContinua({ pessoaId, medicamento, dose, frequencia, registradoPor }) {
+  return supabase
+    .from('medicacoes_continuas')
+    .insert({ pessoa_id: pessoaId, medicamento, dose: dose || null, frequencia: frequencia || null, registrado_por: registradoPor, status: 'ativo' })
+    .select()
+    .single()
+}
+
+export async function suspenderMedicacaoContinua(id) {
+  return supabase.from('medicacoes_continuas').update({ status: 'suspenso' }).eq('id', id)
 }
