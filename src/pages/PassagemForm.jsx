@@ -63,7 +63,7 @@ const PASSAGEM_VAZIA = {
   pendencias: '',
 }
 
-export default function PassagemForm({ paciente, leito, setorNome, plantaoId, enfermeiroId, onFechar, onSalvo, onRealocar }) {
+export default function PassagemForm({ paciente, leito, setorNome, plantaoId, enfermeiroId, onFechar, onSalvo, onRealocar, embedded = false }) {
   const [processando, setProcessando] = useState(false)
   const [modalDesfecho, setModalDesfecho] = useState(false)
   const [modalExcluir, setModalExcluir] = useState(false)
@@ -478,13 +478,15 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     return <FichaClinica atendimento={fichaClinicaAlvo} onFechar={() => setFichaClinicaAlvo(null)} />
   }
 
-  return (
-    <div className="form-overlay">
-      <div className="form-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="form-header">
-          <span className="form-leito-tag">Leito {leito.numero}</span>
-          <button className="form-header-close" onClick={fecharComConfirmacao}>×</button>
-        </div>
+  const conteudo = (
+    <>
+      <div className={embedded ? "form-panel form-panel-embedded" : "form-panel"} onClick={(e) => e.stopPropagation()}>
+        {!embedded && (
+          <div className="form-header">
+            <span className="form-leito-tag">Leito {leito.numero}</span>
+            <button className="form-header-close" onClick={fecharComConfirmacao}>×</button>
+          </div>
+        )}
 
         <div className="form-toolbar">
           <button className="btn-copiar" onClick={copiarNovamente}>↺ Copiar do plantão anterior</button>
@@ -924,8 +926,11 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           onCancelar={() => setConfirmandoFechar(false)}
         />
       )}
-    </div>
+    </>
   )
+
+  if (embedded) return conteudo
+  return <div className="form-overlay">{conteudo}</div>
 }
 
 function SimNao({ valor, onChange }) {

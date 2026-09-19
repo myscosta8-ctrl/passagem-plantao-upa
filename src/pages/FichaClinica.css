@@ -1,0 +1,213 @@
+/* Estilos específicos da Ficha Clínica — Reorganização PEP Seção 1 */
+
+.ficha-clinica-embedded {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px 24px 60px;
+}
+
+/* Barra de progresso de preenchimento dos grupos da Admissão */
+.admissao-progresso-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--r-md, 8px);
+  padding: 10px 16px;
+  margin-bottom: 14px;
+}
+
+.admissao-progresso-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admissao-progresso-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text-secondary);
+}
+
+.admissao-progresso-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-primary);
+  background: var(--c-primary-light);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.admissao-barra-trilho {
+  width: 120px;
+  height: 6px;
+  background: var(--c-border, #DCE2E2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.admissao-barra-fill {
+  height: 100%;
+  background: var(--c-primary);
+  border-radius: 3px;
+  transition: width 0.25s ease;
+}
+
+/* Seção colapsável de Exame Físico */
+.secao-exame {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--r-md, 8px);
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.secao-exame:hover {
+  border-color: var(--c-primary-border);
+}
+
+.secao-exame.aberta {
+  border-color: var(--c-primary-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.secao-exame-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--c-surface);
+  transition: background 0.15s ease;
+}
+
+.secao-exame-cabecalho:hover {
+  background: var(--c-surface-raised, #FAFBFA);
+}
+
+.secao-exame-titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--c-text-primary);
+}
+
+.secao-icone-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #15803d;
+  flex-shrink: 0;
+}
+
+.secao-icone-status.vazio {
+  background: var(--c-border, #DCE2E2);
+}
+
+.secao-exame-direita {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.secao-resumo {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  font-weight: 400;
+  max-width: 420px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.secao-resumo.preenchido {
+  color: var(--c-primary);
+  font-weight: 500;
+}
+
+.secao-seta {
+  color: var(--c-text-muted);
+  font-size: 11px;
+  transition: transform 0.18s ease;
+}
+
+.secao-exame.aberta .secao-seta {
+  transform: rotate(180deg);
+  color: var(--c-primary);
+}
+
+.secao-exame-corpo {
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--c-border-light);
+  background: var(--c-surface);
+}
+
+/* Chips de marcação */
+.chip-grade {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.chip-admissao {
+  padding: 6px 13px;
+  border: 1.5px solid var(--c-border);
+  border-radius: 16px;
+  font-size: 12px;
+  color: var(--c-text-secondary);
+  background: var(--c-surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chip-admissao:hover {
+  border-color: var(--c-primary-border);
+  background: var(--c-surface-raised, #FAFBFA);
+}
+
+.chip-admissao.sel {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.extras-linha {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.extra-campo {
+  flex: 1;
+  min-width: 140px;
+}
+
+.extra-campo label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.extra-campo input,
+.extra-campo select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  font-size: 12.5px;
+  background: var(--c-surface);
+  color: var(--c-text-primary);
+}

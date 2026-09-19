@@ -15,7 +15,7 @@ import PainelEquipe from './PainelEquipe'
 import GerenciarProfissionais from './GerenciarProfissionais'
 import PainelMedico from './PainelMedico'
 import CadastroPacientes from './CadastroPacientes'
-import Header from '../components/Header'
+import Sidebar from '../components/Sidebar'
 import './AberturaPlantao.css'
 
 async function purgarHistoricoAntigo() {
@@ -53,7 +53,11 @@ function hojeISOLocal() {
 
 // Guarda em qual tela a pessoa estava, pra voltar pro mesmo lugar se o app recarregar sozinho
 // (comum no celular). Expira depois de um tempo, pra nunca reabrir num lugar "velho" demais.
-const TELAS_VALIDAS = ['painel', 'print1', 'print2', 'historico', 'altas', 'indicadoresClinicos', 'pendencias', 'ajuda', 'conta', 'profissionais']
+const TELAS_VALIDAS = [
+  'painel', 'recepcao', 'print1', 'print2', 'historico', 'altas',
+  'indicadoresClinicos', 'pendencias', 'compartilhar', 'equipe',
+  'ajuda', 'conta', 'profissionais',
+]
 const LIMITE_HORAS_TELA_SALVA = 4
 
 function lerTelaSalva() {
@@ -242,8 +246,8 @@ export default function Home() {
   }
 
   return (
-    <div className="app-shell">
-      <Header
+    <div className="app-shell-sidebar-layout">
+      <Sidebar
         enfermeiro={enfermeiro}
         isAdmin={isAdmin}
         podeAdministrar={podeEncerrarQualquerPlantonista}
@@ -255,38 +259,40 @@ export default function Home() {
         encerrandoPlantao={encerrando}
         onLogout={logout}
       />
-      <div className="app-shell-main shell">
-      {tela === 'ajuda' ? (
-        <Ajuda onVoltar={() => setTela('painel')} />
-      ) : tela === 'conta' ? (
-        <MinhaConta onVoltar={() => setTela('painel')} />
-      ) : (
-        <>
-          {!plantao && (
-            <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
-              Não foi possível abrir o plantão. Verifique a conexão e recarregue a página.
-            </div>
-          )}
+      <main className="app-shell-conteudo shell">
+        {tela === 'ajuda' ? (
+          <Ajuda onVoltar={() => setTela('painel')} />
+        ) : tela === 'conta' ? (
+          <MinhaConta onVoltar={() => setTela('painel')} />
+        ) : tela === 'recepcao' ? (
+          <CadastroPacientes onVoltar={() => setTela('painel')} />
+        ) : (
+          <>
+            {!plantao && (
+              <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+                Não foi possível abrir o plantão. Verifique a conexão e recarregue a página.
+              </div>
+            )}
 
-          {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
-          {plantao && setoresIds && tela === 'print1' && (
-            <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('painel')} />
-          )}
-          {plantao && setoresIds && tela === 'print2' && (
-            <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('painel')} />
-          )}
-          {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
-          {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
-          {plantao && setoresIds && tela === 'indicadoresClinicos' && <IndicadoresPainel onVoltar={() => setTela('painel')} />}
-          {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
-          {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
-          {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
-          {plantao && setoresIds && tela === 'profissionais' && podeEncerrarQualquerPlantonista && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
-        </>
-      )}
+            {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
+            {plantao && setoresIds && tela === 'print1' && (
+              <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('painel')} />
+            )}
+            {plantao && setoresIds && tela === 'print2' && (
+              <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('painel')} />
+            )}
+            {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
+            {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
+            {plantao && setoresIds && tela === 'indicadoresClinicos' && <IndicadoresPainel onVoltar={() => setTela('painel')} />}
+            {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
+            {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
+            {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
+            {plantao && setoresIds && tela === 'profissionais' && podeEncerrarQualquerPlantonista && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
+          </>
+        )}
 
-      {modalConfirmar && <ConfirmModal {...modalConfirmar} onCancelar={() => setModalConfirmar(null)} />}
-      </div>
+        {modalConfirmar && <ConfirmModal {...modalConfirmar} onCancelar={() => setModalConfirmar(null)} />}
+      </main>
     </div>
   )
 }
