@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import AberturaPlantao from './AberturaPlantao'
@@ -51,18 +51,6 @@ function hojeISOLocal() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Belem', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 }
 
-// Horário fixo de corte de cada turno, baseado na data do plantão (não em quando a pessoa logou)
-function calcularCorte(plantao) {
-  const [ano, mes, dia] = plantao.data.split('-').map(Number)
-  // America/Belém é sempre UTC-3, sem horário de verão — calculado direto em UTC
-  // pra nunca depender do fuso configurado no aparelho de quem está usando.
-  if (plantao.turno === 'Diurno') {
-    return new Date(Date.UTC(ano, mes - 1, dia, 19 + 3, 20, 0))
-  }
-  // Noturno: corte é 07h20 da manhã seguinte
-  return new Date(Date.UTC(ano, mes - 1, dia + 1, 7 + 3, 20, 0))
-}
-
 // Guarda em qual tela a pessoa estava, pra voltar pro mesmo lugar se o app recarregar sozinho
 // (comum no celular). Expira depois de um tempo, pra nunca reabrir num lugar "velho" demais.
 const TELAS_VALIDAS = ['painel', 'print1', 'print2', 'historico', 'altas', 'pendencias', 'ajuda', 'conta', 'profissionais']
@@ -95,7 +83,6 @@ export default function Home() {
   const ID_MARCUS_ADMIN = '66901c7a-d3b9-435a-932c-276659210f69'
   const podeEncerrarQualquerPlantonista = enfermeiro?.id === ID_MARCUS_ADMIN
   const [plantao, setPlantao] = useState(null)
-  const [corteEm, setCorteEm] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
 
@@ -110,10 +97,7 @@ export default function Home() {
   const [verificandoRetomada, setVerificandoRetomada] = useState(true)
   const [encerrando, setEncerrando] = useState(false)
   const [contaMenuAberto, setContaMenuAberto] = useState(false)
-  const [avisoEncerradoAutomatico, setAvisoEncerradoAutomatico] = useState(null)
-  const [minutosParaCorte, setMinutosParaCorte] = useState(null)
   const [modalConfirmar, setModalConfirmar] = useState(null)
-  const intervaloRef = useRef(null)
 
   useEffect(() => {
     if (ehMedico || ehRecepcao) {
@@ -127,26 +111,7 @@ export default function Home() {
     } else {
       retomarPlantaoAtivo()
     }
-    return () => clearInterval(intervaloRef.current)
   }, [])
-
-  // Fica de olho no relógio enquanto a pessoa está com um plantão aberto
-  useEffect(() => {
-    clearInterval(intervaloRef.current)
-    if (!plantao || !corteEm || isAdmin) return
-
-    intervaloRef.current = setInterval(() => {
-      const agora = new Date()
-      const diffMin = Math.round((corteEm.getTime() - agora.getTime()) / 60000)
-      if (diffMin <= 0) {
-        encerrarPorSistema()
-      } else if (diffMin <= 20) {
-        setMinutosParaCorte(diffMin)
-      }
-    }, 30000)
-
-    return () => clearInterval(intervaloRef.current)
-  }, [plantao, corteEm])
 
   async function carregarTodosSetoresIds() {
     const { data: setores } = await supabase.from('setores').select('id')
@@ -194,33 +159,11 @@ export default function Home() {
       .eq('profissional_id', enfermeiro.id)
       .eq('encerrado', false)
       .order('created_at', { foreignTable: 'plantoes', ascending: false })
+      .limit(1)
 
-    const agora = new Date()
-    let paraRetomar = null
-    let algumEncerradoAgora = null
-
-    for (const item of abertos ?? []) {
-      const corte = calcularCorte(item.plantoes)
-      if (agora >= corte) {
-        // passou do horário — encerra automaticamente, não retoma
-        await supabase
-          .from('plantao_profissionais')
-          .update({ encerrado: true, encerrado_em: agora.toISOString(), encerrado_por_sistema: true })
-          .eq('plantao_id', item.plantoes.id)
-          .eq('profissional_id', enfermeiro.id)
-        if (!algumEncerradoAgora) algumEncerradoAgora = item.plantoes
-      } else if (!paraRetomar) {
-        paraRetomar = item
-      }
-    }
-
-    if (algumEncerradoAgora) {
-      setAvisoEncerradoAutomatico(algumEncerradoAgora)
-    }
-
+    const paraRetomar = abertos?.[0]
     if (paraRetomar) {
       setPlantao(paraRetomar.plantoes)
-      setCorteEm(calcularCorte(paraRetomar.plantoes))
       setSetoresIds(await carregarTodosSetoresIds())
     }
     setVerificandoRetomada(false)
@@ -228,8 +171,6 @@ export default function Home() {
 
   async function aoAbrirPlantao(p) {
     setPlantao(p)
-    setCorteEm(calcularCorte(p))
-    setMinutosParaCorte(null)
     setSetoresIds(await carregarTodosSetoresIds())
   }
 
@@ -249,31 +190,9 @@ export default function Home() {
           .eq('profissional_id', enfermeiro?.id)
         setEncerrando(false)
         setPlantao(null)
-        setCorteEm(null)
         setSetoresIds(null)
         setTela('painel')
       },
-    })
-  }
-
-  async function encerrarPorSistema() {
-    if (!plantao?.id) return
-    await supabase
-      .from('plantao_profissionais')
-      .update({ encerrado: true, encerrado_em: new Date().toISOString(), encerrado_por_sistema: true })
-      .eq('plantao_id', plantao.id)
-      .eq('profissional_id', enfermeiro?.id)
-    setPlantao(null)
-    setCorteEm(null)
-    setSetoresIds(null)
-    setTela('painel')
-    setMinutosParaCorte(null)
-    setModalConfirmar({
-      titulo: 'Horário do plantão encerrado',
-      mensagem: 'O horário deste plantão terminou e sua participação foi encerrada automaticamente. Se ainda estiver trabalhando, abra o plantão novamente.',
-      confirmarTexto: 'Entendi',
-      somenteAviso: true,
-      onConfirmar: () => setModalConfirmar(null),
     })
   }
 
@@ -329,21 +248,6 @@ export default function Home() {
         onLogout={logout}
       />
       <div className="app-shell-main shell">
-      {avisoEncerradoAutomatico && (
-        <div className="no-print" style={{ background: 'var(--c-warning-light)', color: 'var(--c-warning)', borderLeft: '3px solid var(--c-warning)', padding: '10px 20px', fontSize: 13.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>
-            ⚠ Sua participação no plantão de {new Date(avisoEncerradoAutomatico.data + 'T00:00:00').toLocaleDateString('pt-BR')} ({avisoEncerradoAutomatico.turno}) foi encerrada automaticamente por ter passado do horário.
-          </span>
-          <button onClick={() => setAvisoEncerradoAutomatico(null)} style={{ background: 'none', border: 'none', color: 'var(--c-warning)', fontWeight: 700, cursor: 'pointer' }}>✕</button>
-        </div>
-      )}
-
-      {minutosParaCorte !== null && plantao && (
-        <div className="no-print" style={{ background: 'var(--color-accent-light)', color: 'var(--color-accent)', padding: '10px 20px', fontSize: 13.5, fontWeight: 600 }}>
-          ⏰ Seu acesso a este plantão encerra em {minutosParaCorte} minuto(s) — finalize suas edições ou clique em "Encerrar minha participação".
-        </div>
-      )}
-
       {tela === 'ajuda' ? (
         <Ajuda onVoltar={() => setTela('painel')} />
       ) : tela === 'conta' ? (
