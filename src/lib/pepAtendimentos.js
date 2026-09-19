@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient'
+import { detectarDuplicatas } from './pepRecepcao'
 
 // Etapa H da Fase 0 do PEP — caminho novo de leitura/escrita, usado só quando
 // configuracoes.pep_ativo = true (ver pepConfig.js). Produz objetos com o MESMO
@@ -102,6 +103,7 @@ export async function internarPacientePep({ leito, dados, enfermeiroId }) {
     .select()
     .single()
   if (erroPessoa) return { error: erroPessoa }
+  detectarDuplicatas(pessoa.id, { nome: dados.nome })
 
   const { data: atendimento, error: erroAtendimento } = await supabase
     .from('atendimentos')
