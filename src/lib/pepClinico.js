@@ -241,3 +241,51 @@ export async function registrarIsolamento({ atendimentoId, tipo, motivo, patogen
 export async function encerrarIsolamento(id) {
   return supabase.from('isolamentos').update({ ativo: false, fim_em: new Date().toISOString() }).eq('id', id)
 }
+
+// ===================== Transferência SBAR (handoff estruturado entre setores) =====================
+// Liga a leito_ocupacoes (a ocupação sendo encerrada pela transferência), não
+// direto ao atendimento — por isso busca o histórico de ocupações primeiro.
+
+export async function buscarOcupacaoAtiva(atendimentoId) {
+  const { data } = await supabase
+    .from('leito_ocupacoes')
+    .select('id, leito_id, leitos(numero, setor_id, setores(nome))')
+    .eq('atendimento_id', atendimentoId)
+    .eq('status', 'ativo')
+    .maybeSingle()
+  return data
+}
+
+export async function listarSetoresParaTransferencia() {
+  const { data } = await supabase.from('setores').select('id, nome').order('ordem')
+  return data ?? []
+}
+
+export async function listarEnfermeirosAtivos() {
+  const { data } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome').eq('ativo', true).eq('tipo', 'enfermagem').order('nome')
+  return data ?? []
+}
+
+export async function listarTransferenciasSbar(atendimentoId) {
+  const { data: ocupacoes } = await supabase.from('leito_ocupacoes').select('id').eq('atendimento_id', atendimentoId)
+  const ids = (ocupacoes ?? []).map((o) => o.id)
+  if (ids.length === 0) return []
+  const { data } = await supabase
+    .from('transferencias_sbar')
+    .select('*, setores(nome), entrega:enfermeiro_entrega(nome_exibicao, nome), recebe:enfermeiro_recebe(nome_exibicao, nome)')
+    .in('leito_ocupacao_id', ids)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestinoId, enfermeiroEntrega, enfermeiroRecebe, dados }) {
+  return supabase
+    .from('transferencias_sbar')
+    .insert({
+      leito_ocupacao_id: leitoOcupacaoId, setor_destino_id: setorDestinoId,
+      enfermeiro_entrega: enfermeiroEntrega, enfermeiro_recebe: enfermeiroRecebe || null,
+      ...dados,
+    })
+    .select()
+    .single()
+}
