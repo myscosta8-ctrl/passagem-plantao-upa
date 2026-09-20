@@ -39,7 +39,6 @@ export default function EspacoPaciente({
   const [resolvendo, setResolvendo] = useState(false)
   const [erroPonte, setErroPonte] = useState('')
 
-  const ehMedico = enfermeiro?.tipo === 'medico'
   const permanencia = calcularPermanencia(paciente?.data_admissao)
 
   // Pré-resolve ou prepara atendimento quando necessário
@@ -137,18 +136,16 @@ export default function EspacoPaciente({
             <div className="espaco-paciente-pilar-sub">10 seções (Ficha Clínica)</div>
           </div>
 
-          {ehMedico && (
-            <div
-              className={`espaco-paciente-pilar ${pilarAtivo === 'medico' ? 'ativo' : ''}`}
-              onClick={() => trocarPilar('medico')}
-            >
-              <div className="espaco-paciente-pilar-titulo">
-                <span>⚕️</span>
-                <span>Prontuário Médico</span>
-              </div>
-              <div className="espaco-paciente-pilar-sub">11 seções (Ficha Médica)</div>
+          <div
+            className={`espaco-paciente-pilar ${pilarAtivo === 'medico' ? 'ativo' : ''}`}
+            onClick={() => trocarPilar('medico')}
+          >
+            <div className="espaco-paciente-pilar-titulo">
+              <span>⚕️</span>
+              <span>Prontuário Médico</span>
             </div>
-          )}
+            <div className="espaco-paciente-pilar-sub">11 seções (Ficha Médica)</div>
+          </div>
         </div>
 
         {/* Mensagem de erro se a ponte falhar */}
