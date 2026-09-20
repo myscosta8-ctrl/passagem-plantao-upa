@@ -893,3 +893,54 @@
   margin-top: 8px;
 }
 
+/* Prescrição Médica — réplica do modelo aprovado (papel A4 paisagem) */
+@media print {
+  .pr-page {
+    page: prescricao;
+  }
+}
+@page prescricao {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+.pr-page {
+  width: 277mm;
+  max-width: 277mm;
+  margin: 0 auto;
+  padding: 14px 20px 10px;
+  font-size: 9.5px;
+  color: #111;
+  box-sizing: border-box;
+}
+
+.pr-topo { display: flex; align-items: center; gap: 16px; }
+.pr-topo-texto { flex: 1; }
+.pr-topo-texto .nome { font-weight: 700; font-size: 10.5px; }
+.pr-topo-texto .sub { font-size: 9px; }
+.pr-topo-logos { display: flex; align-items: center; gap: 10px; }
+.pr-topo-logos img { height: 38px; width: auto; object-fit: contain; }
+.pr-topo hr { border: none; border-top: 1px solid #000; margin: 4px 0 0; }
+
+.pr-titulo { text-align: center; font-size: 13px; font-weight: 700; letter-spacing: .04em; margin: 4px 0 6px; }
+
+table.pr-info { width: 100%; border-collapse: collapse; border: 1px solid #999; margin-bottom: 0; }
+table.pr-info td { border: 1px solid #ccc; padding: 2px 6px; font-size: 9px; vertical-align: top; }
+table.pr-info td b { font-weight: 700; }
+
+.pr-secao-titulo { background: #d9d9d9; border: 1px solid #999; border-top: none; font-weight: 700; font-size: 9.5px; padding: 2px 8px; text-transform: uppercase; }
+
+table.pr-tabela { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+table.pr-tabela th { background: #eee; border: 1px solid #999; font-size: 8.5px; text-align: left; padding: 2px 6px; text-transform: uppercase; }
+table.pr-tabela td { border-left: 1px solid #999; border-right: 1px solid #999; border-bottom: 1px solid #ccc; font-size: 9px; padding: 6px 6px; vertical-align: top; height: 26px; box-sizing: border-box; }
+table.pr-tabela td.qtd, table.pr-tabela td.via, table.pr-tabela td.freq, table.pr-tabela td.horario { white-space: nowrap; }
+.pr-nota { font-style: italic; color: #333; font-size: 8.5px; display: block; margin-top: 1px; }
+
+.pr-caixa { border: 1px solid #999; border-top: none; padding: 4px 8px; min-height: 16px; font-size: 9px; }
+
+.pr-assinaturas { display: flex; justify-content: space-between; gap: 14px; margin-top: 70px; }
+.pr-assinaturas .bloco { flex: 1; text-align: center; font-size: 9px; }
+.pr-assinaturas .bloco .nome-medico { font-weight: 700; font-size: 9.5px; display: block; }
+.pr-assinaturas .linha { border-top: 1px solid #333; margin-bottom: 4px; padding-top: 8px; }
+
+.pr-rodape { display: flex; justify-content: space-between; font-size: 8px; color: #333; margin-top: 6px; border-top: 1px solid #999; padding-top: 3px; }

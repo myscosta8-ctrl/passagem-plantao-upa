@@ -22,7 +22,7 @@ import {
 import FichaMedicaPrint from './FichaMedicaPrint'
 import './PassagemForm.css'
 
-const VIAS = ['VO', 'EV', 'IM', 'SC', 'SL', 'Inalatória', 'Tópica', 'Outra']
+const VIAS = ['VO', 'EV', 'IM', 'SC', 'SL', 'INAL', 'TOP', 'RET', 'VAG', 'OFT', 'IN', 'IO', 'Outra']
 const ABAS = [
   { chave: 'consulta', rotulo: 'Consulta' },
   { chave: 'prescricao', rotulo: 'Prescrição' },
@@ -489,11 +489,18 @@ function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar }) {
   )
 }
 
+const ITEM_VAZIO = { medicamento_nome: '', dose: '', dose_unidade: '', via: 'VO', frequencia: '', duracao: '', instrucoes: '', sn_aplic: false, horario_aplicacao: '', diluicao: '' }
+const ORIENTACAO_VAZIA = { texto: '', frequencia: '' }
+
 function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [observacoes, setObservacoes] = useState('')
-  const [itens, setItens] = useState([{ medicamento_nome: '', dose: '', dose_unidade: '', via: 'VO', frequencia: '', duracao: '', instrucoes: '' }])
+  const [dieta, setDieta] = useState('')
+  const [itens, setItens] = useState([{ ...ITEM_VAZIO }])
+  const [orientacaoEnfermagem, setOrientacaoEnfermagem] = useState([{ ...ORIENTACAO_VAZIA }])
+  const [avaliacaoMultidisciplinar, setAvaliacaoMultidisciplinar] = useState('')
+  const [hemocomponente, setHemocomponente] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
@@ -516,11 +523,23 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
   }
 
   function adicionarItem() {
-    setItens((prev) => [...prev, { medicamento_nome: '', dose: '', dose_unidade: '', via: 'VO', frequencia: '', duracao: '', instrucoes: '' }])
+    setItens((prev) => [...prev, { ...ITEM_VAZIO }])
   }
 
   function removerItem(i) {
     setItens((prev) => prev.filter((_, idx) => idx !== i))
+  }
+
+  function setOrientacao(i, campo, valor) {
+    setOrientacaoEnfermagem((prev) => prev.map((o, idx) => (idx === i ? { ...o, [campo]: valor } : o)))
+  }
+
+  function adicionarOrientacao() {
+    setOrientacaoEnfermagem((prev) => [...prev, { ...ORIENTACAO_VAZIA }])
+  }
+
+  function removerOrientacao(i) {
+    setOrientacaoEnfermagem((prev) => prev.filter((_, idx) => idx !== i))
   }
 
   async function salvar() {
@@ -537,6 +556,12 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
       medicoId,
       observacoes,
       itens: validos.map((it) => ({ ...it, dose: it.dose ? Number(it.dose) : null })),
+      camposPrescricao: {
+        dieta: dieta || null,
+        orientacao_enfermagem: orientacaoEnfermagem.filter((o) => o.texto.trim()),
+        avaliacao_multidisciplinar: avaliacaoMultidisciplinar || null,
+        hemocomponente: hemocomponente || null,
+      },
     })
     setSalvando(false)
     if (error) {
@@ -544,7 +569,11 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
       return
     }
     setObservacoes('')
-    setItens([{ medicamento_nome: '', dose: '', dose_unidade: '', via: 'VO', frequencia: '', duracao: '', instrucoes: '' }])
+    setDieta('')
+    setItens([{ ...ITEM_VAZIO }])
+    setOrientacaoEnfermagem([{ ...ORIENTACAO_VAZIA }])
+    setAvaliacaoMultidisciplinar('')
+    setHemocomponente('')
     carregar()
   }
 
@@ -556,6 +585,13 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
   return (
     <div className="form-section">
       <div className="form-section-title">Nova prescrição</div>
+
+      <div className="form-field span-3">
+        <label>Dieta</label>
+        <input type="text" placeholder="ex: Dieta oral livre, Dieta enteral padrão..." value={dieta} onChange={(e) => setDieta(e.target.value)} />
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 13, marginTop: 16 }}>Medicamentos</div>
       {itens.map((it, i) => (
         <div key={i} className="form-grid" style={{ marginBottom: 10, paddingBottom: 10, borderBottom: '1px dashed var(--color-border)' }}>
           <div className="form-field span-2">
@@ -589,8 +625,16 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
             <label>Duração</label>
             <input type="text" placeholder="ex: 7 dias" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
           </div>
+          <div className="form-field" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <input type="checkbox" id={`sn-${i}`} checked={it.sn_aplic} onChange={(e) => setItem(i, 'sn_aplic', e.target.checked)} />
+            <label htmlFor={`sn-${i}`} style={{ margin: 0 }}>Se necessário (SN)</label>
+          </div>
           <div className="form-field span-2">
-            <label>Instruções</label>
+            <label>Instruções / diluição</label>
+            <input type="text" placeholder="ex: Diluir em 100mL SF 0,9% e correr em 30 minutos" value={it.diluicao} onChange={(e) => setItem(i, 'diluicao', e.target.value)} />
+          </div>
+          <div className="form-field span-2">
+            <label>Instruções gerais</label>
             <input type="text" value={it.instrucoes} onChange={(e) => setItem(i, 'instrucoes', e.target.value)} />
           </div>
           {itens.length > 1 && (
@@ -601,6 +645,36 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
         </div>
       ))}
       <button type="button" className="btn-copiar" onClick={adicionarItem}>+ Adicionar medicamento</button>
+
+      <div className="form-section-title" style={{ fontSize: 13, marginTop: 16 }}>Orientação enfermagem</div>
+      {orientacaoEnfermagem.map((o, i) => (
+        <div key={i} className="form-grid" style={{ marginBottom: 6 }}>
+          <div className="form-field span-2">
+            <label>Orientação</label>
+            <input type="text" placeholder="ex: Monitorização contínua" value={o.texto} onChange={(e) => setOrientacao(i, 'texto', e.target.value)} />
+          </div>
+          <div className="form-field">
+            <label>Frequência</label>
+            <input type="text" placeholder="ex: 6/6h, Contínuo..." value={o.frequencia} onChange={(e) => setOrientacao(i, 'frequencia', e.target.value)} />
+          </div>
+          {orientacaoEnfermagem.length > 1 && (
+            <div className="form-field" style={{ alignSelf: 'flex-end' }}>
+              <button type="button" className="modal-btn-secondary" onClick={() => removerOrientacao(i)}>Remover</button>
+            </div>
+          )}
+        </div>
+      ))}
+      <button type="button" className="btn-copiar" onClick={adicionarOrientacao}>+ Adicionar orientação</button>
+
+      <div className="form-field span-3" style={{ marginTop: 14 }}>
+        <label>Avaliação multidisciplinar</label>
+        <textarea value={avaliacaoMultidisciplinar} onChange={(e) => setAvaliacaoMultidisciplinar(e.target.value)} />
+      </div>
+
+      <div className="form-field span-3">
+        <label>Hemocomponente</label>
+        <textarea value={hemocomponente} onChange={(e) => setHemocomponente(e.target.value)} />
+      </div>
 
       <div className="form-field span-3" style={{ marginTop: 14 }}>
         <label>Observações</label>
@@ -647,7 +721,6 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
     </div>
   )
 }
-
 
 const AIH_VAZIA = {
   // 1-4 · Identificação do estabelecimento de saúde

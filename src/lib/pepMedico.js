@@ -91,7 +91,7 @@ export async function listarPrescricoes(atendimentoId) {
   return data ?? []
 }
 
-export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens }) {
+export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao }) {
   const { data: prescricao, error } = await supabase
     .from('prescricoes_medicas')
     .insert({
@@ -100,6 +100,7 @@ export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consu
       medico_id: medicoId,
       consulta_id: consultaId || null,
       observacoes: observacoes || null,
+      campos_prescricao: camposPrescricao || {},
     })
     .select()
     .single()

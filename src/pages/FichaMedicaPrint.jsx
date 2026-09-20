@@ -54,6 +54,20 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
     )
   }
 
+  if (tipo === 'prescricao') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoPrescricaoOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="print-page">
       <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
@@ -85,7 +99,6 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
           <div className="campo-largo"><span className="rotulo">Leito/Setor:</span>{leitoNumero ? `Leito ${leitoNumero} — ${setorNome}` : '—'}</div>
         </div>
 
-        {tipo === 'prescricao' && <CorpoPrescricao registro={registro} />}
         {tipo === 'apac' && <CorpoApac registro={registro} />}
         {tipo === 'atm' && <CorpoAtm registro={registro} />}
         {tipo === 'tfd' && <CorpoTfd registro={registro} />}
@@ -428,40 +441,165 @@ function CorpoConsultaOficial({ registro, pessoa, atendimento, idade, leitoNumer
   )
 }
 
-function CorpoPrescricao({ registro }) {
+// Réplica fiel do modelo de Prescrição aprovado (papel A4 paisagem, timbre
+// UPA 24h Breves/SEMSA) — ver pdfs_exemplo/prescricao_preview.html.
+function CorpoPrescricaoOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  const cf = registro.campos_prescricao || {}
+  const itens = registro.prescricao_itens || []
+  const orientacoes = cf.orientacao_enfermagem || []
+  const nascimento = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '—'
+
   return (
-    <>
-      <table className="doc-tabela">
+    <div className="pr-page">
+      <div className="pr-topo">
+        <div className="pr-topo-texto">
+          <div className="nome">PREFEITURA MUNICIPAL DE BREVES — UPA 24H BREVES</div>
+          <div className="sub">SECRETARIA MUNICIPAL DE SAÚDE (SEMSA)</div>
+          <div className="sub">TRAVESSA CASTILHOS FRANÇA, S/N — BREVES/PA — CEP 68.800-000 — CNPJ: 02.967.963/0001-11 — FONE/FAX: (91) 3783-1279</div>
+        </div>
+        <div className="pr-topo-logos">
+          <img src="./logos/brasao-breves.jpg" alt="Prefeitura de Breves" />
+          <img src="./logos/semsa.jpg" alt="SEMSA" />
+          <img src="./logos/upa24h.jpg" alt="UPA 24h" />
+        </div>
+      </div>
+      <hr />
+
+      <div className="pr-titulo">PRESCRIÇÃO</div>
+
+      <table className="pr-info">
+        <tbody>
+          <tr>
+            <td style={{ width: '14%' }}><b>PRONTUÁRIO:</b> {pessoa.prontuario_numero || '—'}</td>
+            <td style={{ width: '10%' }}><b>REGISTRO:</b> {atendimento?.numero_atendimento || '—'}</td>
+            <td style={{ width: '22%' }}><b>RECEPÇÃO:</b> {atendimento?.tipo_entrada || '—'}</td>
+            <td style={{ width: '22%' }}><b>DATA INTERNAÇÃO:</b> {atendimento?.criado_em ? new Date(atendimento.criado_em).toLocaleString('pt-BR') : '—'}</td>
+            <td><b>DATA ALTA:</b> {atendimento?.encerrado_em ? new Date(atendimento.encerrado_em).toLocaleString('pt-BR') : '—'}</td>
+          </tr>
+          <tr>
+            <td colSpan={3}><b>PACIENTE:</b> {pessoa.nome}</td>
+            <td><b>CARÁTER:</b> {atendimento?.carater || 'Urgência'}</td>
+            <td><b>CONVÊNIO:</b> {atendimento?.convenio || 'SUS'}</td>
+          </tr>
+          <tr>
+            <td colSpan={3}><b>MÃE:</b> {pessoa.nome_mae || '—'} &nbsp;&nbsp; <b>SEXO:</b> {pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : '—'}</td>
+            <td><b>NACIONALIDADE:</b> Brasil</td>
+            <td><b>RAÇA:</b> —</td>
+          </tr>
+          <tr>
+            <td><b>R.G.:</b> —</td>
+            <td colSpan={2}><b>C.P.F.:</b> {pessoa.cpf || '—'} &nbsp;&nbsp; <b>C.N.S.:</b> {pessoa.cns || '—'}</td>
+            <td><b>DATA NASC.:</b> {nascimento}</td>
+            <td><b>IDADE:</b> {idade ? `${idade} anos` : '—'}</td>
+          </tr>
+          <tr>
+            <td colSpan={4}><b>ENDEREÇO:</b> {[pessoa.endereco, pessoa.endereco_numero, pessoa.bairro, pessoa.cidade].filter(Boolean).join(', ') || '—'}</td>
+            <td><b>TELEFONE:</b> {pessoa.telefone || '—'}</td>
+          </tr>
+          <tr>
+            <td><b>PRESCRIÇÃO:</b> {registro.id ? registro.id.slice(0, 8).toUpperCase() : '—'}</td>
+            <td colSpan={2}><b>DATA DOCUMENTO:</b> {dataHora}</td>
+            <td colSpan={2}><b>INÍCIO DA VALIDADE:</b> {dataHora}</td>
+          </tr>
+          <tr>
+            <td colSpan={3}><b>CENTRO DE CUSTO:</b> —</td>
+            <td colSpan={2}><b>ESPECIALIDADE:</b> Clínica Médica</td>
+          </tr>
+          <tr>
+            <td colSpan={3}><b>MÉDICO RESPONSÁVEL:</b> {medico?.nome_exibicao || medico?.nome} &nbsp; <b>CRM:</b> {medico?.crm || '—'}</td>
+            <td colSpan={2}><b>ALERGIA:</b> Nenhuma informada</td>
+          </tr>
+          <tr>
+            <td><b>LEITO:</b> {leitoNumero || '—'}</td>
+            <td><b>QUARTO:</b> {setorNome || '—'}</td>
+            <td><b>UNIDADE:</b> UPA 24h Breves</td>
+            <td colSpan={2}><b>PESO:</b> —</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="pr-secao-titulo">Dieta</div>
+      <div className="pr-caixa">{cf.dieta || ' '}</div>
+
+      <div className="pr-secao-titulo">Medicamentos</div>
+      <table className="pr-tabela">
         <thead>
           <tr>
-            <th>Medicamento</th>
-            <th>Dose</th>
-            <th>Via</th>
-            <th>Frequência</th>
-            <th>Duração</th>
-            <th>Instruções</th>
+            <th style={{ width: '48%' }}>Medicamentos</th>
+            <th style={{ width: '6%' }}>Qtd/Und</th>
+            <th style={{ width: '5%' }}>Via</th>
+            <th style={{ width: '7%' }}>Frequência</th>
+            <th style={{ width: '34%' }}>Horário de aplicação</th>
           </tr>
         </thead>
         <tbody>
-          {(registro.prescricao_itens ?? []).map((it) => (
-            <tr key={it.id}>
-              <td>{it.medicamento_nome}</td>
-              <td>{it.dose ? `${it.dose} ${it.dose_unidade || ''}` : '—'}</td>
-              <td>{it.via || '—'}</td>
-              <td>{it.frequencia || '—'}</td>
-              <td>{it.duracao || '—'}</td>
-              <td>{it.instrucoes || '—'}</td>
+          {itens.length === 0 ? (
+            <tr><td colSpan={5} style={{ textAlign: 'center', color: '#666' }}>Nenhum medicamento prescrito.</td></tr>
+          ) : itens.map((it, i) => (
+            <tr key={it.id || i}>
+              <td>
+                {i + 1} — {it.medicamento_nome}{it.sn_aplic ? ' (Se necessário)' : ''}
+                {(it.diluicao || it.instrucoes) && (
+                  <span className="pr-nota">{[it.diluicao, it.instrucoes].filter(Boolean).join(' — ')}</span>
+                )}
+              </td>
+              <td className="qtd">{it.dose ? `${it.dose} ${it.dose_unidade || ''}` : '—'}</td>
+              <td className="via">{it.via || '—'}</td>
+              <td className="freq">{it.frequencia || '—'}{it.duracao ? ` · ${it.duracao}` : ''}</td>
+              <td className="horario">{it.horario_aplicacao || ''}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <Secao rotulo="Observações" valor={registro.observacoes} />
+
+      <div className="pr-secao-titulo">Orientação enfermagem</div>
+      <table className="pr-tabela">
+        <thead><tr><th style={{ width: '80%' }}>Orientação</th><th>Frequência</th></tr></thead>
+        <tbody>
+          {orientacoes.length === 0 ? (
+            <tr><td colSpan={2} style={{ textAlign: 'center', color: '#666' }}>Nenhuma orientação registrada.</td></tr>
+          ) : orientacoes.map((o, i) => (
+            <tr key={i}><td>{i + 1} — {o.texto}</td><td className="freq">{o.frequencia || '—'}</td></tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="pr-secao-titulo">Avaliação multidisciplinar</div>
+      <div className="pr-caixa">{cf.avaliacao_multidisciplinar || ' '}</div>
+
+      <div className="pr-secao-titulo">Hemocomponente</div>
+      <div className="pr-caixa">{cf.hemocomponente || ' '}</div>
+
+      {registro.observacoes && (
+        <>
+          <div className="pr-secao-titulo">Observações</div>
+          <div className="pr-caixa">{registro.observacoes}</div>
+        </>
+      )}
+
       {registro.status === 'cancelada' && (
-        <div className="doc-secao" style={{ color: '#8A5A00', fontWeight: 700 }}>
+        <div className="pr-caixa" style={{ marginTop: 10, borderTop: '1px solid #999', color: '#8A5A00', fontWeight: 700 }}>
           PRESCRIÇÃO CANCELADA{registro.motivo_cancelamento ? ` — ${registro.motivo_cancelamento}` : ''}
         </div>
       )}
-    </>
+
+      <div className="pr-assinaturas">
+        <div className="bloco"><div className="linha" />Técnico Tarde</div>
+        <div className="bloco"><div className="linha" />Técnico Noite</div>
+        <div className="bloco"><div className="linha" />Técnico Manhã</div>
+        <div className="bloco"><div className="linha" />Enfermeiro</div>
+        <div className="bloco">
+          <div className="linha" />
+          <span className="nome-medico">{medico?.nome_exibicao || medico?.nome}</span>
+          CRM: {medico?.crm || '—'}
+        </div>
+      </div>
+
+      <div className="pr-rodape">
+        <span>PEP — Prontuário Eletrônico do Paciente</span>
+        <span>Gerado em {dataHora}</span>
+      </div>
+    </div>
   )
 }
 
