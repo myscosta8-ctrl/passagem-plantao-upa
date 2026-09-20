@@ -142,8 +142,97 @@ function DiagnosticoPrincipal({ atendimento, medicoId }) {
 }
 
 const CONSULTA_VAZIA = {
+  // 1-17 · igual ao modelo de Admissão Médica — nada removido do que já
+  // existia (7 campos originais), só adicionado tudo que faltava.
   queixa_principal: '', historia_doenca_atual: '', antecedentes: '',
   revisao_sistemas: '', exame_geral: '', hipotese_diagnostica: '', conduta_inicial: '',
+  tipo_atendimento: { espontanea: false, samu: false, encaminhamento: false, transferencia: false, retorno: false },
+  nome_social: '', acompanhante: '', parentesco: '',
+  inicio_sintomas: '', duracao_sintomas: '', evolucao_sintomas: '', motivo_procura: '',
+  possui_alergia: '', alergias: [],
+  medicamentos_uso: [],
+  antecedentes_check: { has: false, dm: false, cardiovascular: false, respiratoria: false, renal: false, hepatica: false, neurologica: false, psiquiatrica: false, neoplasia: false, cirurgias_previas: false, internacoes_anteriores: false },
+  antecedentes_outros: '',
+  sv: { pa: '', fc: '', fr: '', spo2: '', temp: '', glicemia: '', dor: '', peso: '', altura: '', glasgow: '' },
+  sv_registrado_por: '', sv_hora: '',
+  exame_estado_geral: '', exame_consciencia: '', exame_pele: '', exame_hidratacao: '',
+  exame_cardiovascular: '', exame_respiratorio: '', exame_abdome: '', exame_extremidades: '', exame_neurologico: '', exame_outros_achados: '',
+  hipoteses_cid: [],
+  diagnostico_avaliacao: '',
+  conduta_check: { observacao: false, medicacao: false, hidratacao: false, oxigenoterapia: false, exames_lab: false, exames_imagem: false, ecg: false, procedimento: false, avaliacao_especialista: false, regulacao: false, internacao: false, transferencia: false },
+  conduta_outros: '',
+  prescricao_inicial: [],
+  exames_solicitados_tipo: { laboratoriais: false, imagem: false, cardiologicos: false, outros: false },
+  exames_solicitados_texto: '',
+  classificacao_risco: '', prioridade: '', tempo_alvo: '', classificacao_datahora: '', classificacao_profissional: '',
+  destino: { observacao: false, sala_medicacao: false, leito: false, transferencia: false, alta: false, regulacao: false, obito: false },
+}
+
+const ANTECEDENTES_OPCOES = [
+  ['has', 'Hipertensão arterial'], ['neurologica', 'Doença neurológica'],
+  ['dm', 'Diabetes mellitus'], ['psiquiatrica', 'Doença psiquiátrica'],
+  ['cardiovascular', 'Doença cardiovascular'], ['neoplasia', 'Neoplasia'],
+  ['respiratoria', 'Doença respiratória'], ['cirurgias_previas', 'Cirurgias prévias'],
+  ['renal', 'Doença renal'], ['internacoes_anteriores', 'Internações anteriores'],
+  ['hepatica', 'Doença hepática'],
+]
+
+const CONDUTA_OPCOES = [
+  ['observacao', 'Observação'], ['oxigenoterapia', 'Oxigenoterapia'],
+  ['medicacao', 'Medicação'], ['avaliacao_especialista', 'Avaliação de especialista'],
+  ['hidratacao', 'Hidratação'], ['regulacao', 'Regulação'],
+  ['exames_lab', 'Exames laboratoriais'], ['internacao', 'Internação'],
+  ['exames_imagem', 'Exames de imagem'], ['transferencia', 'Transferência'],
+  ['ecg', 'ECG'], ['procedimento', 'Procedimento'],
+]
+
+const DESTINO_OPCOES = [
+  ['observacao', 'Observação'], ['sala_medicacao', 'Sala de medicação'], ['leito', 'Leito'],
+  ['transferencia', 'Transferência'], ['alta', 'Alta'], ['regulacao', 'Regulação'], ['obito', 'Óbito'],
+]
+
+function LinhaCheck({ opcoes, valores, onChange }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
+      {opcoes.map(([chave, rotulo]) => (
+        <label key={chave} style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400 }}>
+          <input type="checkbox" checked={!!valores[chave]} onChange={(e) => onChange({ ...valores, [chave]: e.target.checked })} />
+          {rotulo}
+        </label>
+      ))}
+    </div>
+  )
+}
+
+function TabelaEditavel({ colunas, linhas, onChange, novaLinhaVazia }) {
+  function set(i, campo, valor) {
+    onChange(linhas.map((l, idx) => (idx === i ? { ...l, [campo]: valor } : l)))
+  }
+  function adicionar() {
+    onChange([...linhas, { ...novaLinhaVazia }])
+  }
+  function remover(i) {
+    onChange(linhas.filter((_, idx) => idx !== i))
+  }
+  return (
+    <div style={{ marginTop: 6 }}>
+      {linhas.map((linha, i) => (
+        <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 4, alignItems: 'center' }}>
+          {colunas.map(([chave, rotulo, tipo]) => (
+            tipo === 'checkbox' ? (
+              <label key={chave} style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 3 }}>
+                <input type="checkbox" checked={!!linha[chave]} onChange={(e) => set(i, chave, e.target.checked)} />{rotulo}
+              </label>
+            ) : (
+              <input key={chave} type="text" placeholder={rotulo} value={linha[chave] || ''} onChange={(e) => set(i, chave, e.target.value)} style={{ flex: 1, minWidth: 0 }} />
+            )
+          ))}
+          <button type="button" className="modal-btn-secondary" onClick={() => remover(i)} style={{ flexShrink: 0 }}>Remover</button>
+        </div>
+      ))}
+      <button type="button" className="modal-btn-secondary" onClick={adicionar}>+ Adicionar linha</button>
+    </div>
+  )
 }
 
 function AbaConsulta({ atendimento, medicoId, onImprimir }) {
@@ -189,37 +278,147 @@ function AbaConsulta({ atendimento, medicoId, onImprimir }) {
 
   return (
     <div className="form-section">
-      <div className="form-section-title">Nova consulta</div>
+      <div className="form-section-title">Nova consulta (Admissão Médica)</div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 4 }}>1. Identificação do atendimento</div>
+      <div style={{ marginBottom: 6 }}>
+        <LinhaCheck
+          opcoes={[['espontanea', 'Demanda espontânea'], ['samu', 'SAMU'], ['encaminhamento', 'Encaminhamento'], ['transferencia', 'Transferência'], ['retorno', 'Retorno']]}
+          valores={dados.tipo_atendimento}
+          onChange={(v) => set('tipo_atendimento', v)}
+        />
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>2. Identificação do paciente (complemento)</div>
+      <div className="form-grid">
+        <div className="form-field"><label>Nome social</label><input type="text" value={dados.nome_social} onChange={(e) => set('nome_social', e.target.value)} /></div>
+        <div className="form-field"><label>Acompanhante</label><input type="text" value={dados.acompanhante} onChange={(e) => set('acompanhante', e.target.value)} /></div>
+        <div className="form-field"><label>Parentesco</label><input type="text" value={dados.parentesco} onChange={(e) => set('parentesco', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>3. Queixa principal</div>
       <div className="form-grid">
         <div className="form-field span-3">
           <label>Queixa principal *</label>
           <input type="text" value={dados.queixa_principal} onChange={(e) => set('queixa_principal', e.target.value)} />
         </div>
-        <div className="form-field span-3">
-          <label>História da doença atual</label>
-          <textarea value={dados.historia_doenca_atual} onChange={(e) => set('historia_doenca_atual', e.target.value)} />
-        </div>
-        <div className="form-field span-3">
-          <label>Antecedentes</label>
-          <input type="text" value={dados.antecedentes} onChange={(e) => set('antecedentes', e.target.value)} />
-        </div>
-        <div className="form-field span-3">
-          <label>Revisão de sistemas</label>
-          <input type="text" value={dados.revisao_sistemas} onChange={(e) => set('revisao_sistemas', e.target.value)} />
-        </div>
-        <div className="form-field span-3">
-          <label>Exame físico geral</label>
-          <textarea value={dados.exame_geral} onChange={(e) => set('exame_geral', e.target.value)} />
-        </div>
-        <div className="form-field span-3">
-          <label>Hipótese diagnóstica *</label>
-          <input type="text" value={dados.hipotese_diagnostica} onChange={(e) => set('hipotese_diagnostica', e.target.value)} />
-        </div>
-        <div className="form-field span-3">
-          <label>Conduta inicial</label>
-          <textarea value={dados.conduta_inicial} onChange={(e) => set('conduta_inicial', e.target.value)} />
-        </div>
+        <div className="form-field"><label>Início dos sintomas</label><input type="datetime-local" value={dados.inicio_sintomas} onChange={(e) => set('inicio_sintomas', e.target.value)} /></div>
+        <div className="form-field"><label>Duração</label><input type="text" value={dados.duracao_sintomas} onChange={(e) => set('duracao_sintomas', e.target.value)} /></div>
+        <div className="form-field"><label>Evolução</label><input type="text" value={dados.evolucao_sintomas} onChange={(e) => set('evolucao_sintomas', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Motivo da procura</label><input type="text" value={dados.motivo_procura} onChange={(e) => set('motivo_procura', e.target.value)} /></div>
       </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>6. Alergias</div>
+      <div className="toggle-group" style={{ maxWidth: 260, marginBottom: 6 }}>
+        {[['sim', 'Sim'], ['nao', 'Não'], ['ignorado', 'Ignorado']].map(([v, r]) => (
+          <button key={v} type="button" className={`toggle-btn ${dados.possui_alergia === v ? 'on' : ''}`} onClick={() => set('possui_alergia', v)}>{r}</button>
+        ))}
+      </div>
+      <TabelaEditavel
+        colunas={[['substancia', 'Substância'], ['reacao', 'Reação'], ['gravidade', 'Gravidade']]}
+        linhas={dados.alergias}
+        onChange={(v) => set('alergias', v)}
+        novaLinhaVazia={{ substancia: '', reacao: '', gravidade: '' }}
+      />
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>4. História da doença atual (HDA)</div>
+      <div className="form-grid">
+        <div className="form-field span-3"><textarea value={dados.historia_doenca_atual} onChange={(e) => set('historia_doenca_atual', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>7. Medicamentos em uso</div>
+      <TabelaEditavel
+        colunas={[['medicamento', 'Medicamento'], ['dose', 'Dose'], ['via', 'Via'], ['frequencia', 'Frequência'], ['ultima_dose', 'Última dose']]}
+        linhas={dados.medicamentos_uso}
+        onChange={(v) => set('medicamentos_uso', v)}
+        novaLinhaVazia={{ medicamento: '', dose: '', via: '', frequencia: '', ultima_dose: '' }}
+      />
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>5. Antecedentes</div>
+      <LinhaCheck opcoes={ANTECEDENTES_OPCOES} valores={dados.antecedentes_check} onChange={(v) => set('antecedentes_check', v)} />
+      <div className="form-grid" style={{ marginTop: 6 }}>
+        <div className="form-field span-3"><label>Outros antecedentes</label><input type="text" value={dados.antecedentes_outros} onChange={(e) => set('antecedentes_outros', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Antecedentes (texto livre)</label><input type="text" value={dados.antecedentes} onChange={(e) => set('antecedentes', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Revisão de sistemas</label><input type="text" value={dados.revisao_sistemas} onChange={(e) => set('revisao_sistemas', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>8. Sinais vitais</div>
+      <div className="form-grid">
+        {[['pa', 'PA (mmHg)'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO2 (%)'], ['temp', 'Temp. (°C)'], ['glicemia', 'Glicemia (mg/dL)'], ['dor', 'Dor (0-10)'], ['peso', 'Peso (kg)'], ['altura', 'Altura (m)'], ['glasgow', 'Glasgow']].map(([k, r]) => (
+          <div className="form-field" key={k}><label>{r}</label><input type="text" value={dados.sv[k]} onChange={(e) => set('sv', { ...dados.sv, [k]: e.target.value })} /></div>
+        ))}
+        <div className="form-field"><label>Registrado por</label><input type="text" value={dados.sv_registrado_por} onChange={(e) => set('sv_registrado_por', e.target.value)} /></div>
+        <div className="form-field"><label>Hora</label><input type="datetime-local" value={dados.sv_hora} onChange={(e) => set('sv_hora', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>9. Exame físico</div>
+      <div className="form-grid">
+        <div className="form-field"><label>Estado geral</label><input type="text" value={dados.exame_estado_geral} onChange={(e) => set('exame_estado_geral', e.target.value)} /></div>
+        <div className="form-field"><label>Consciência</label><input type="text" value={dados.exame_consciencia} onChange={(e) => set('exame_consciencia', e.target.value)} /></div>
+        <div className="form-field"><label>Pele</label><input type="text" value={dados.exame_pele} onChange={(e) => set('exame_pele', e.target.value)} /></div>
+        <div className="form-field"><label>Hidratação</label><input type="text" value={dados.exame_hidratacao} onChange={(e) => set('exame_hidratacao', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Cardiovascular</label><input type="text" value={dados.exame_cardiovascular} onChange={(e) => set('exame_cardiovascular', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Respiratório</label><input type="text" value={dados.exame_respiratorio} onChange={(e) => set('exame_respiratorio', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Abdome</label><input type="text" value={dados.exame_abdome} onChange={(e) => set('exame_abdome', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Extremidades</label><input type="text" value={dados.exame_extremidades} onChange={(e) => set('exame_extremidades', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Neurológico</label><input type="text" value={dados.exame_neurologico} onChange={(e) => set('exame_neurologico', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Outros achados</label><input type="text" value={dados.exame_outros_achados} onChange={(e) => set('exame_outros_achados', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Exame físico geral</label><textarea value={dados.exame_geral} onChange={(e) => set('exame_geral', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>10. Hipóteses diagnósticas (CID-10)</div>
+      <TabelaEditavel
+        colunas={[['cid', 'CID-10'], ['descricao', 'Descrição'], ['principal', 'Principal?', 'checkbox']]}
+        linhas={dados.hipoteses_cid}
+        onChange={(v) => set('hipoteses_cid', v)}
+        novaLinhaVazia={{ cid: '', descricao: '', principal: false }}
+      />
+      <div className="form-grid" style={{ marginTop: 6 }}>
+        <div className="form-field span-3"><label>Hipótese diagnóstica (texto livre) *</label><input type="text" value={dados.hipotese_diagnostica} onChange={(e) => set('hipotese_diagnostica', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>11. Diagnóstico / Avaliação médica</div>
+      <div className="form-grid">
+        <div className="form-field span-3"><textarea value={dados.diagnostico_avaliacao} onChange={(e) => set('diagnostico_avaliacao', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>12. Conduta</div>
+      <LinhaCheck opcoes={CONDUTA_OPCOES} valores={dados.conduta_check} onChange={(v) => set('conduta_check', v)} />
+      <div className="form-grid" style={{ marginTop: 6 }}>
+        <div className="form-field span-3"><label>Outros</label><input type="text" value={dados.conduta_outros} onChange={(e) => set('conduta_outros', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Plano terapêutico / conduta detalhada</label><textarea value={dados.conduta_inicial} onChange={(e) => set('conduta_inicial', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>13. Prescrição médica (inicial)</div>
+      <TabelaEditavel
+        colunas={[['medicamento', 'Medicamento'], ['dose', 'Dose'], ['via', 'Via'], ['frequencia', 'Frequência'], ['duracao', 'Duração']]}
+        linhas={dados.prescricao_inicial}
+        onChange={(v) => set('prescricao_inicial', v)}
+        novaLinhaVazia={{ medicamento: '', dose: '', via: '', frequencia: '', duracao: '' }}
+      />
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>14. Exames solicitados</div>
+      <LinhaCheck
+        opcoes={[['laboratoriais', 'Laboratoriais'], ['imagem', 'Imagem'], ['cardiologicos', 'Cardiológicos'], ['outros', 'Outros']]}
+        valores={dados.exames_solicitados_tipo}
+        onChange={(v) => set('exames_solicitados_tipo', v)}
+      />
+      <div className="form-grid" style={{ marginTop: 6 }}>
+        <div className="form-field span-3"><label>Solicitações</label><textarea value={dados.exames_solicitados_texto} onChange={(e) => set('exames_solicitados_texto', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>15. Classificação de risco</div>
+      <div className="form-grid">
+        <div className="form-field"><label>Classificação</label><input type="text" value={dados.classificacao_risco} onChange={(e) => set('classificacao_risco', e.target.value)} /></div>
+        <div className="form-field"><label>Prioridade</label><input type="text" value={dados.prioridade} onChange={(e) => set('prioridade', e.target.value)} /></div>
+        <div className="form-field"><label>Tempo-alvo</label><input type="text" value={dados.tempo_alvo} onChange={(e) => set('tempo_alvo', e.target.value)} /></div>
+        <div className="form-field"><label>Data/hora</label><input type="datetime-local" value={dados.classificacao_datahora} onChange={(e) => set('classificacao_datahora', e.target.value)} /></div>
+        <div className="form-field"><label>Profissional</label><input type="text" value={dados.classificacao_profissional} onChange={(e) => set('classificacao_profissional', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>16. Destino após avaliação</div>
+      <LinhaCheck opcoes={DESTINO_OPCOES} valores={dados.destino} onChange={(v) => set('destino', v)} />
+
       {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
       <div className="modal-actions" style={{ marginTop: 14 }}>
         <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>
@@ -449,7 +648,38 @@ function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
   )
 }
 
-const AIH_VAZIA = { procedimento_principal_nome: '', procedimento_principal_codigo: '', cid_principal: '', justificativa_clinica: '' }
+
+const AIH_VAZIA = {
+  // 1-4 · Identificação do estabelecimento de saúde
+  estabelecimento_solicitante_nome: 'UPA 24H BREVES', estabelecimento_solicitante_cnes: '',
+  estabelecimento_executante_nome: 'UPA 24H BREVES', estabelecimento_executante_cnes: '',
+  // 10.1 / 13-19 · Identificação do paciente — campos que NÃO existem no cadastro da pessoa
+  etnia: '', nome_responsavel: '', municipio_residencia_uf: '', municipio_residencia_cep: '', municipio_residencia_ibge: '',
+  // 20-22 · Justificativa da internação
+  sinais_sintomas_clinicos: '', condicoes_justificam_internacao: '', resultados_provas_diagnosticas: '',
+  // 23-26 · Diagnóstico
+  diagnostico_inicial_texto: '', cid_principal: '', cid_secundario: '', cid_causas_associadas: '',
+  // 27-35 · Procedimento solicitado
+  procedimento_principal_nome: '', procedimento_principal_codigo: '', procedimento_secundario_codigo: '',
+  clinica: '', carater_internacao: 'URGENCIA', profissional_documento_tipo: 'CNS', profissional_documento_numero: '',
+  // 36-45 · Preencher em caso de causas externas
+  causa_externa_transito: false, causa_externa_trabalho_tipico: false, causa_externa_trabalho_trajeto: false,
+  cnpj_seguradora: '', numero_bilhete: '', serie_bilhete: '', cnpj_empresa: '', cnae_empresa: '', cbor: '',
+  vinculo_previdencia: '',
+  // 46-52 · Autorização (preenchido pelo regulador/auditor, não pelo médico solicitante — mas o
+  // campo continua no formulário pra ser preenchido manualmente depois)
+  autorizador_nome: '', autorizador_codigo_orgao_emissor: '', autorizador_documento_tipo: 'CNS',
+  autorizador_documento_numero: '', numero_autorizacao: '', data_autorizacao: '',
+}
+
+const VINCULO_PREVIDENCIA_OPCOES = [
+  { valor: 'empregado', rotulo: 'Empregado' },
+  { valor: 'empregador', rotulo: 'Empregador' },
+  { valor: 'autonomo', rotulo: 'Autônomo' },
+  { valor: 'desempregado', rotulo: 'Desempregado' },
+  { valor: 'aposentado', rotulo: 'Aposentado' },
+  { valor: 'nao_segurado', rotulo: 'Não segurado' },
+]
 
 function AbaAih({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])
@@ -477,8 +707,8 @@ function AbaAih({ atendimento, medicoId, onImprimir }) {
   }
 
   async function salvar() {
-    if (!dados.procedimento_principal_nome.trim() || !dados.justificativa_clinica.trim()) {
-      setErro('Preencha ao menos o procedimento e a justificativa clínica.')
+    if (!dados.procedimento_principal_nome.trim() || !dados.sinais_sintomas_clinicos.trim() || !dados.diagnostico_inicial_texto.trim()) {
+      setErro('Preencha ao menos o procedimento, os sinais/sintomas clínicos e o diagnóstico inicial.')
       return
     }
     setErro('')
@@ -487,7 +717,7 @@ function AbaAih({ atendimento, medicoId, onImprimir }) {
       atendimentoId: atendimento.atendimento_id,
       pessoaId: atendimento.pessoa_id,
       solicitanteId: medicoId,
-      dados: { ...dados, cid_principal: dados.cid_principal || null },
+      dados,
     })
     setSalvando(false)
     if (error) {
@@ -502,24 +732,212 @@ function AbaAih({ atendimento, medicoId, onImprimir }) {
     <div className="form-section">
       <div className="form-section-title">Nova solicitação de AIH</div>
       <div className="form-grid">
+        <div style={{ gridColumn: '1 / -1', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Identificação do estabelecimento de saúde</div>
         <div className="form-field span-2">
-          <label>Procedimento principal *</label>
+          <label>Estabelecimento solicitante</label>
+          <input type="text" value={dados.estabelecimento_solicitante_nome} onChange={(e) => set('estabelecimento_solicitante_nome', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>CNES solicitante</label>
+          <input type="text" value={dados.estabelecimento_solicitante_cnes} onChange={(e) => set('estabelecimento_solicitante_cnes', e.target.value)} />
+        </div>
+        <div className="form-field span-2">
+          <label>Estabelecimento executante</label>
+          <input type="text" value={dados.estabelecimento_executante_nome} onChange={(e) => set('estabelecimento_executante_nome', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>CNES executante</label>
+          <input type="text" value={dados.estabelecimento_executante_cnes} onChange={(e) => set('estabelecimento_executante_cnes', e.target.value)} />
+        </div>
+
+        <div style={{ gridColumn: '1 / -1', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: 8 }}>Identificação do paciente — complemento</div>
+        <div className="form-field">
+          <label>Etnia (se indígena)</label>
+          <input type="text" value={dados.etnia} onChange={(e) => set('etnia', e.target.value)} />
+        </div>
+        <div className="form-field span-2">
+          <label>Nome do responsável</label>
+          <input type="text" value={dados.nome_responsavel} onChange={(e) => set('nome_responsavel', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>UF de residência</label>
+          <input type="text" maxLength={2} value={dados.municipio_residencia_uf} onChange={(e) => set('municipio_residencia_uf', e.target.value.toUpperCase())} />
+        </div>
+        <div className="form-field">
+          <label>CEP</label>
+          <input type="text" value={dados.municipio_residencia_cep} onChange={(e) => set('municipio_residencia_cep', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>Cód. IBGE do município</label>
+          <input type="text" value={dados.municipio_residencia_ibge} onChange={(e) => set('municipio_residencia_ibge', e.target.value)} />
+        </div>
+
+        <div style={{ gridColumn: '1 / -1', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: 8 }}>Procedimento solicitado</div>
+        <div className="form-field span-2">
+          <label>Procedimento solicitado *</label>
           <input type="text" value={dados.procedimento_principal_nome} onChange={(e) => set('procedimento_principal_nome', e.target.value)} />
         </div>
         <div className="form-field">
-          <label>Código</label>
+          <label>Código do procedimento</label>
           <input type="text" value={dados.procedimento_principal_codigo} onChange={(e) => set('procedimento_principal_codigo', e.target.value)} />
         </div>
+        <div className="form-field">
+          <label>Clínica</label>
+          <input type="text" placeholder="ex: UTI Adulto, Clínica Médica" value={dados.clinica} onChange={(e) => set('clinica', e.target.value)} />
+        </div>
+        <div className="form-field span-2">
+          <label>Caráter da internação</label>
+          <div className="toggle-group" style={{ maxWidth: 220 }}>
+            {['URGENCIA', 'ELETIVA'].map((op) => (
+              <button
+                key={op}
+                type="button"
+                className={`toggle-btn ${dados.carater_internacao === op ? 'on' : ''}`}
+                onClick={() => set('carater_internacao', op)}
+              >
+                {op === 'URGENCIA' ? 'Urgência' : 'Eletiva'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="form-field">
+          <label>Documento do solicitante</label>
+          <select value={dados.profissional_documento_tipo} onChange={(e) => set('profissional_documento_tipo', e.target.value)}>
+            <option value="CNS">CNS</option>
+            <option value="CPF">CPF</option>
+          </select>
+        </div>
+        <div className="form-field span-2">
+          <label>Nº do documento</label>
+          <input type="text" value={dados.profissional_documento_numero} onChange={(e) => set('profissional_documento_numero', e.target.value)} />
+        </div>
+
         <div className="form-field span-3">
+          <label>Principais sinais e sintomas clínicos *</label>
+          <textarea value={dados.sinais_sintomas_clinicos} onChange={(e) => set('sinais_sintomas_clinicos', e.target.value)} />
+        </div>
+        <div className="form-field span-3">
+          <label>Condições que justificam a internação</label>
+          <textarea value={dados.condicoes_justificam_internacao} onChange={(e) => set('condicoes_justificam_internacao', e.target.value)} />
+        </div>
+        <div className="form-field span-3">
+          <label>Principais resultados de provas diagnósticas</label>
+          <textarea value={dados.resultados_provas_diagnosticas} onChange={(e) => set('resultados_provas_diagnosticas', e.target.value)} />
+        </div>
+
+        <div className="form-field span-3">
+          <label>Diagnóstico inicial *</label>
+          <input type="text" value={dados.diagnostico_inicial_texto} onChange={(e) => set('diagnostico_inicial_texto', e.target.value)} />
+        </div>
+        <div className="form-field">
           <label>CID principal</label>
           <select value={dados.cid_principal} onChange={(e) => set('cid_principal', e.target.value)}>
             <option value="">—</option>
             {cids.map((c) => <option key={c.codigo} value={c.codigo}>{c.codigo} — {c.descricao}</option>)}
           </select>
         </div>
+        <div className="form-field">
+          <label>CID secundário</label>
+          <select value={dados.cid_secundario} onChange={(e) => set('cid_secundario', e.target.value)}>
+            <option value="">—</option>
+            {cids.map((c) => <option key={c.codigo} value={c.codigo}>{c.codigo} — {c.descricao}</option>)}
+          </select>
+        </div>
+        <div className="form-field">
+          <label>CID causas associadas</label>
+          <select value={dados.cid_causas_associadas} onChange={(e) => set('cid_causas_associadas', e.target.value)}>
+            <option value="">—</option>
+            {cids.map((c) => <option key={c.codigo} value={c.codigo}>{c.codigo} — {c.descricao}</option>)}
+          </select>
+        </div>
+
+        <div style={{ gridColumn: '1 / -1', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: 8 }}>Preencher em caso de causas externas</div>
         <div className="form-field span-3">
-          <label>Justificativa clínica *</label>
-          <textarea value={dados.justificativa_clinica} onChange={(e) => set('justificativa_clinica', e.target.value)} />
+          <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400 }}>
+              <input type="checkbox" checked={dados.causa_externa_transito} onChange={(e) => set('causa_externa_transito', e.target.checked)} />
+              Acidente de trânsito
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400 }}>
+              <input type="checkbox" checked={dados.causa_externa_trabalho_tipico} onChange={(e) => set('causa_externa_trabalho_tipico', e.target.checked)} />
+              Acidente trabalho típico
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400 }}>
+              <input type="checkbox" checked={dados.causa_externa_trabalho_trajeto} onChange={(e) => set('causa_externa_trabalho_trajeto', e.target.checked)} />
+              Acidente trabalho trajeto
+            </label>
+          </div>
+        </div>
+        <div className="form-field">
+          <label>CNPJ da seguradora</label>
+          <input type="text" value={dados.cnpj_seguradora} onChange={(e) => set('cnpj_seguradora', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>Nº do bilhete</label>
+          <input type="text" value={dados.numero_bilhete} onChange={(e) => set('numero_bilhete', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>Série</label>
+          <input type="text" value={dados.serie_bilhete} onChange={(e) => set('serie_bilhete', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>CNPJ da empresa</label>
+          <input type="text" value={dados.cnpj_empresa} onChange={(e) => set('cnpj_empresa', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>CNAE da empresa</label>
+          <input type="text" value={dados.cnae_empresa} onChange={(e) => set('cnae_empresa', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>CBOR</label>
+          <input type="text" value={dados.cbor} onChange={(e) => set('cbor', e.target.value)} />
+        </div>
+        <div className="form-field span-3">
+          <label>Vínculo com a previdência</label>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {VINCULO_PREVIDENCIA_OPCOES.map((op) => (
+              <button
+                key={op.valor}
+                type="button"
+                className={`toggle-btn ${dados.vinculo_previdencia === op.valor ? 'on' : ''}`}
+                style={{ flex: '0 0 auto' }}
+                onClick={() => set('vinculo_previdencia', dados.vinculo_previdencia === op.valor ? '' : op.valor)}
+              >
+                {op.rotulo}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ gridColumn: '1 / -1', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: 8 }}>
+          Autorização (preenchido pelo regulador/auditor)
+        </div>
+        <div className="form-field span-2">
+          <label>Nome do profissional autorizador</label>
+          <input type="text" value={dados.autorizador_nome} onChange={(e) => set('autorizador_nome', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>Cód. órgão emissor</label>
+          <input type="text" value={dados.autorizador_codigo_orgao_emissor} onChange={(e) => set('autorizador_codigo_orgao_emissor', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>Documento</label>
+          <select value={dados.autorizador_documento_tipo} onChange={(e) => set('autorizador_documento_tipo', e.target.value)}>
+            <option value="CNS">CNS</option>
+            <option value="CPF">CPF</option>
+          </select>
+        </div>
+        <div className="form-field">
+          <label>Nº do documento</label>
+          <input type="text" value={dados.autorizador_documento_numero} onChange={(e) => set('autorizador_documento_numero', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>Nº da autorização de internação</label>
+          <input type="text" value={dados.numero_autorizacao} onChange={(e) => set('numero_autorizacao', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>Data da autorização</label>
+          <input type="date" value={dados.data_autorizacao} onChange={(e) => set('data_autorizacao', e.target.value)} />
         </div>
       </div>
       {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}

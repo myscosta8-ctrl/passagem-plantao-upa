@@ -53,20 +53,41 @@ export async function listarConsultas(atendimentoId) {
 }
 
 export async function criarConsulta({ atendimentoId, pessoaId, medicoId, dados }) {
+  // Só os 6 campos originais vivem como coluna própria — o restante do
+  // formulário de Admissão Médica (identificação do atendimento, alergias,
+  // medicamentos em uso, antecedentes, sinais vitais, exame físico
+  // estruturado, hipóteses CID-10, conduta, exames, classificação de risco,
+  // destino) fica em campos_admissao (jsonb), mesmo padrão da AIH.
+  const {
+    queixa_principal, historia_doenca_atual, antecedentes,
+    revisao_sistemas, exame_geral, hipotese_diagnostica, conduta_inicial,
+    ...extras
+  } = dados
   return supabase.from('consultas_medicas').insert({
     atendimento_id: atendimentoId,
     pessoa_id: pessoaId,
     medico_id: medicoId,
-    ...dados,
+    queixa_principal: queixa_principal || null,
+    historia_doenca_atual: historia_doenca_atual || null,
+    antecedentes: antecedentes || null,
+    revisao_sistemas: revisao_sistemas || null,
+    exame_geral: exame_geral || null,
+    hipotese_diagnostica: hipotese_diagnostica || null,
+    conduta_inicial: conduta_inicial || null,
+    campos_admissao: extras,
   }).select().single()
 }
 
 export async function listarPrescricoes(atendimentoId) {
-  const { data } = await supabase
+  // prescricoes_medicas tem 2 FKs pra enfermeiros (medico_id e cancelado_por) —
+  // precisa do hint explícito, senão o PostgREST recusa o embed por ambiguidade
+  // e a consulta inteira falha (silenciosamente, porque só usamos `data ?? []`).
+  const { data, error } = await supabase
     .from('prescricoes_medicas')
-    .select('*, enfermeiros(nome_exibicao, nome, crm), prescricao_itens(*)')
+    .select('*, enfermeiros!prescricoes_medicas_medico_id_fkey(nome_exibicao, nome, crm), prescricao_itens(*)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (error) console.error('Erro ao listar prescrições:', error)
   return data ?? []
 }
 
@@ -99,11 +120,14 @@ export async function cancelarPrescricao(prescricaoId, medicoId, motivo) {
 }
 
 export async function listarAih(atendimentoId) {
-  const { data } = await supabase
+  // aih_solicitacoes tem 2 FKs pra enfermeiros (solicitante_id e encerrado_por) —
+  // mesmo problema de listarPrescricoes, precisa do hint explícito.
+  const { data, error } = await supabase
     .from('aih_solicitacoes')
-    .select('*, enfermeiros(nome_exibicao, nome, crm), cid_catalog!aih_solicitacoes_cid_principal_fkey(codigo, descricao)')
+    .select('*, enfermeiros!aih_solicitacoes_solicitante_id_fkey(nome_exibicao, nome, crm), cid_catalog!aih_solicitacoes_cid_principal_fkey(codigo, descricao)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (error) console.error('Erro ao listar AIH:', error)
   return data ?? []
 }
 
@@ -127,11 +151,25 @@ export async function buscarCabecalhoImpressao(atendimentoId) {
 }
 
 export async function criarAih({ atendimentoId, pessoaId, solicitanteId, dados }) {
+  // Só procedimento/CID vivem como coluna própria — o resto dos campos do
+  // formulário oficial do SUS (sinais clínicos, diagnóstico inicial, clínica,
+  // caráter da internação etc.) fica em campos_formulario (jsonb) pra não
+  // precisar de migration a cada campo novo do laudo.
+  const {
+    procedimento_principal_nome, procedimento_principal_codigo, procedimento_secundario_codigo,
+    cid_principal, cid_secundario,
+    ...extras
+  } = dados
   return supabase.from('aih_solicitacoes').insert({
     atendimento_id: atendimentoId,
     pessoa_id: pessoaId,
     solicitante_id: solicitanteId,
-    ...dados,
+    procedimento_principal_nome: procedimento_principal_nome || null,
+    procedimento_principal_codigo: procedimento_principal_codigo || null,
+    procedimento_secundario_codigo: procedimento_secundario_codigo || null,
+    cid_principal: cid_principal || null,
+    cid_secundario: cid_secundario || null,
+    campos_formulario: extras,
   }).select().single()
 }
 

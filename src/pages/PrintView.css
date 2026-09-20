@@ -201,3 +201,695 @@
   color: #666;
   text-align: right;
 }
+
+/* Formulário oficial SUS (AIH) — réplica do "Laudo para Solicitação de
+   Autorização de Internação Hospitalar" campo a campo: uma única caixa
+   contínua do estabelecimento até o procedimento (igual ao documento físico
+   real — não uma caixa por seção), linhas divisórias verticais entre campos
+   que dividem a mesma linha, e caixas de dígito individuais (CNES, CNS, CPF,
+   telefone, CEP, IBGE) — não texto solto. Layout de caixas burocráticas
+   padrão nacional, bem diferente do estilo de documento livre do resto do PEP. */
+.sus-page {
+  max-width: 780px;
+  margin: 0 auto;
+  font-size: 10px;
+  line-height: 1.15;
+  color: #111;
+}
+
+/* Cabeçalho institucional da UPA (Prefeitura de Breves / SEMSA / UPA 24h) —
+   acima do formulário oficial do SUS, igual ao letterhead do hospital no
+   documento de referência (nome + logos). */
+.sus-letterhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 3px;
+}
+
+.sus-letterhead-texto {
+  font-size: 8px;
+  line-height: 1.2;
+}
+
+.sus-letterhead-texto .nome {
+  font-weight: 800;
+  font-size: 9.5px;
+}
+
+.sus-letterhead-logos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sus-letterhead-logos img {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+}
+
+.sus-header {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #000;
+  margin-bottom: 0;
+}
+
+.sus-header-badge {
+  flex: 0 0 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #000;
+  padding: 4px;
+}
+
+.sus-header-badge .sigla {
+  font-size: 22px;
+  font-weight: 800;
+  font-style: italic;
+  color: #0b5fa5;
+}
+
+.sus-header-coluna {
+  flex: 0 0 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-right: 1px solid #000;
+  padding: 2px 4px;
+  font-size: 8.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sus-header-titulo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* Caixa contínua única — estabelecimento, paciente, justificativa,
+   diagnóstico e procedimento moram todos dentro dela, sem quebra. */
+.sus-corpo {
+  border: 1px solid #000;
+  border-top: none;
+}
+
+.sus-secao {
+  padding: 2px 6px 3px;
+}
+
+.sus-secao + .sus-secao {
+  border-top: 1px solid #000;
+}
+
+/* Título pequeno, alinhado à esquerda, com um traço à direita — usado só nas
+   duas primeiras seções (Identificação do Estabelecimento / do Paciente). */
+.sus-secao-titulo {
+  font-size: 9px;
+  font-weight: 700;
+  margin: 0 0 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sus-secao-titulo::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid #000;
+}
+
+/* Título centralizado, maiúsculo, com traço dos dois lados — usado nas
+   seções maiores (Justificativa, Procedimento, Causas Externas, Autorização),
+   igual ao "———— TÍTULO ————" do formulário oficial. */
+.sus-secao-titulo-central {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 1px 0 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sus-secao-titulo-central::before,
+.sus-secao-titulo-central::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid #000;
+}
+
+/* Caixa isolada (Causas Externas, Autorização) — separada da caixa contínua,
+   com espaço entre elas, igual ao documento original. */
+.sus-box-solo {
+  border: 1px solid #000;
+  padding: 2px 6px 3px;
+  margin-top: 5px;
+}
+
+.sus-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.sus-field {
+  min-width: 0;
+  padding: 1px 6px;
+  flex: 1 1 0;
+}
+
+.sus-field:not(:first-child) {
+  border-left: 1px solid #000;
+}
+
+.sus-field.full {
+  flex-basis: 100%;
+}
+
+.sus-field .cap {
+  font-size: 7.5px;
+  color: #333;
+  display: block;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.sus-field .val {
+  font-size: 10px;
+  min-height: 11px;
+  padding-top: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+/* Campo numérico codificado (CNES, CNS, CPF, telefone, CEP, IBGE) — cada
+   dígito na sua própria caixinha, igual ao formulário físico. */
+.sus-comb {
+  display: flex;
+  gap: 0;
+  margin-top: 1px;
+  flex-wrap: nowrap;
+}
+
+.sus-comb .digito {
+  width: 11px;
+  height: 12px;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-family: var(--font-mono, monospace);
+}
+
+.sus-comb .digito + .digito {
+  border-left: none;
+}
+
+/* Checkbox estilo "(  )" / "( X )" — como no formulário oficial, não
+   quadradinho preenchido. */
+.sus-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 12px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.sus-checkbox .caixa {
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+}
+
+/* Campo de data com barras (dd / mm / aaaa) — 3 grupos de caixinhas. */
+.sus-data {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 1px;
+}
+
+.sus-data .barra {
+  font-size: 9px;
+  padding: 0 1px;
+}
+
+/* Bloco DDD + número de telefone, com sub-rótulos próprios. */
+.sus-tel {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin-top: 1px;
+}
+
+.sus-tel .grupo .subcap {
+  font-size: 6.5px;
+  color: #555;
+  display: block;
+}
+
+/* Sexo — código de dígito único (Masc. 1 / Fem. 3), igual ao original. */
+.sus-sexo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1px;
+  font-size: 9px;
+}
+
+.sus-sexo .digito {
+  width: 11px;
+  height: 12px;
+  border: 1px solid #000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  margin-left: 3px;
+}
+
+/* Linha de duas colunas (usada em Causas Externas e Autorização, onde um
+   campo largo à esquerda convive com campos empilhados à direita). */
+.sus-duas-colunas {
+  display: flex;
+}
+
+.sus-duas-colunas > .col {
+  flex: 1;
+}
+
+.sus-duas-colunas > .col:not(:first-child) {
+  border-left: 1px solid #000;
+}
+
+.sus-duas-colunas > .col > .sus-field + .sus-field {
+  border-top: 1px solid #000;
+}
+
+.sus-rodape-legal {
+  text-align: center;
+  font-size: 9.5px;
+  margin-top: 10px;
+}
+
+/* Réplica da "Ficha de Admissão" real da UPA Breves (papel timbrado simples:
+   nome do paciente, duas datas, caixas de rótulo-no-canto para cada campo
+   clínico, assinatura) — bem diferente do layout burocrático da AIH. */
+.doc2-page {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 11px;
+  color: #111;
+}
+
+.doc2-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.doc2-header img {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+}
+
+.doc2-header-texto {
+  text-align: center;
+}
+
+.doc2-header-texto .orgao {
+  font-size: 11px;
+}
+
+.doc2-header-titulo {
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  margin-top: 2px;
+}
+
+.doc2-nome-box {
+  border: 1px solid #000;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px;
+  margin-bottom: 4px;
+}
+
+.doc2-datas {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.doc2-datas > div {
+  border: 1px solid #000;
+  flex: 1;
+  padding: 3px 8px 5px;
+  position: relative;
+}
+
+.doc2-datas .rotulo {
+  font-size: 8.5px;
+  color: #333;
+  display: block;
+}
+
+.doc2-datas .valor {
+  font-size: 12px;
+}
+
+/* Linha com 2 caixas lado a lado — usada pra agrupar campos de resposta
+   curta (Queixa Principal, Antecedentes, Revisão de Sistemas, Hipótese
+   Diagnóstica), pra não empilhar tudo em largura total sem necessidade. */
+.doc2-linha-dupla {
+  display: flex;
+  gap: 10px;
+}
+
+.doc2-linha-dupla > .doc2-caixa {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Caixa com rótulo no canto superior esquerdo + linha à direita — igual ao
+   "HISTORIA DA DOENÇA ATUAL" / "CONDUTA" do papel real. */
+.doc2-caixa {
+  border: 1px solid #000;
+  padding: 5px 8px 8px;
+  margin-bottom: 10px;
+}
+
+.doc2-caixa .doc2-caixa-titulo {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.doc2-caixa .doc2-caixa-titulo::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid #000;
+}
+
+.doc2-caixa .doc2-caixa-valor {
+  font-size: 11px;
+  white-space: pre-wrap;
+  min-height: 20px;
+  line-height: 1.35;
+}
+
+.doc2-caixa.grande .doc2-caixa-valor {
+  min-height: 70px;
+}
+
+.doc2-assinatura {
+  text-align: right;
+  margin-top: 30px;
+  font-size: 10.5px;
+}
+
+.doc2-assinatura .linha {
+  border-top: 1px solid #333;
+  width: 260px;
+  margin: 0 0 4px auto;
+}
+
+.doc2-rodape {
+  text-align: center;
+  font-size: 9px;
+  color: #444;
+  margin-top: 14px;
+}
+
+/* Admissão Médica — modelo completo (17 seções, cabeçalhos azuis, tabelas,
+   grade de checkboxes), bem mais rico que o .doc2-* (papel timbrado simples).
+   Layout de prontuário eletrônico moderno, não de formulário em papel. */
+.adm-page {
+  max-width: 900px;
+  margin: 0 auto;
+  font-size: 10.5px;
+  color: #1a1a1a;
+}
+
+.adm-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #1a56db;
+  margin-bottom: 10px;
+}
+
+.adm-topo img {
+  height: 46px;
+  width: auto;
+  object-fit: contain;
+}
+
+.adm-topo-centro {
+  flex: 1;
+  text-align: center;
+}
+
+.adm-topo-centro h1 {
+  font-size: 16px;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.adm-topo-centro .sub {
+  font-size: 9px;
+  color: #555;
+  margin-top: 1px;
+}
+
+.adm-titulo-barra {
+  background: #1a56db;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+
+.adm-titulo-barra h2 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+}
+
+.adm-titulo-barra .atendimento {
+  text-align: right;
+  font-size: 9px;
+}
+
+.adm-titulo-barra .atendimento b {
+  font-size: 11px;
+  display: block;
+}
+
+.adm-secao {
+  border: 1px solid #b8c4d9;
+  border-radius: 3px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.adm-secao-titulo {
+  background: #eef2fb;
+  color: #1a3a7a;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-bottom: 1px solid #b8c4d9;
+  text-transform: uppercase;
+}
+
+.adm-secao-corpo {
+  padding: 6px 10px 8px;
+}
+
+.adm-duas-colunas {
+  display: flex;
+  gap: 0;
+}
+
+.adm-duas-colunas > .adm-secao {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.adm-duas-colunas > .adm-secao:first-child {
+  border-radius: 3px 0 0 3px;
+  border-right: none;
+}
+
+.adm-duas-colunas > .adm-secao:last-child {
+  border-radius: 0 3px 3px 0;
+}
+
+.adm-linha-campos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-bottom: 4px;
+}
+
+.adm-campo {
+  min-width: 0;
+}
+
+.adm-campo .cap {
+  font-size: 8px;
+  color: #555;
+  display: block;
+}
+
+.adm-campo .val {
+  font-size: 10.5px;
+  border-bottom: 1px solid #ccc;
+  min-height: 13px;
+  padding-bottom: 1px;
+}
+
+.adm-campo.texto-livre {
+  flex-basis: 100%;
+}
+
+.adm-campo.texto-livre .val {
+  border-bottom: none;
+  white-space: pre-wrap;
+  line-height: 1.35;
+  min-height: 18px;
+}
+
+/* Checkbox estilo caixa preenchida (☑), igual ao mockup moderno — diferente
+   do "(  )" usado na AIH oficial do SUS. */
+.adm-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9.5px;
+  margin-right: 14px;
+  white-space: nowrap;
+}
+
+.adm-check .box {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #555;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  line-height: 1;
+  border-radius: 2px;
+}
+
+.adm-check.marcado .box {
+  background: #1a56db;
+  border-color: #1a56db;
+  color: #fff;
+  font-weight: 800;
+}
+
+.adm-grid-check {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 10px;
+}
+
+.adm-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5px;
+  margin-top: 2px;
+}
+
+.adm-tabela th,
+.adm-tabela td {
+  border: 1px solid #d7deec;
+  padding: 3px 6px;
+  text-align: left;
+}
+
+.adm-tabela th {
+  background: #f4f6fb;
+  font-size: 8.5px;
+  text-transform: uppercase;
+  color: #444;
+}
+
+/* Um único bloco de assinatura (não dois lado a lado) — espaço de verdade
+   pra assinar E carimbar por cima, com legenda clara embaixo. */
+.adm-assinatura-v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 10px;
+  font-size: 9.5px;
+}
+
+.adm-assinatura-v2 .data {
+  padding-bottom: 4px;
+}
+
+.adm-assinatura-v2 .bloco {
+  width: 300px;
+  text-align: center;
+}
+
+.adm-assinatura-v2 .espaco-carimbo {
+  min-height: 80px;
+}
+
+.adm-assinatura-v2 .linha {
+  border-top: 1px solid #333;
+}
+
+.adm-assinatura-v2 .legenda {
+  font-size: 10px;
+  font-weight: 600;
+  color: #333;
+  margin-top: 4px;
+}
+
+.adm-rodape {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #777;
+  border-top: 1px solid #ddd;
+  padding-top: 4px;
+  margin-top: 8px;
+}
+
