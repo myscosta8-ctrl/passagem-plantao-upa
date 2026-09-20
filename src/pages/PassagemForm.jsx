@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import ConfirmModal from './ConfirmModal'
 import { pepEstaAtivo } from '../lib/pepConfig'
-import FichaClinica from './FichaClinica'
 import {
   buscarPassagemAtualPep,
   buscarUltimaPassagemPep,
@@ -12,13 +11,11 @@ import {
   excluirAtendimentoPep,
   obterOuCriarAtendimentoParaPaciente,
 } from '../lib/pepAtendimentos'
+import { listarExames, listarSorologias, listarHemoterapia, buscarAberturaRegulacao } from '../lib/pepMedico'
 import './PassagemForm.css'
 
 const DISPOSITIVOS_OPCOES = ['AVP', 'SVD', 'SNE', 'Dreno', 'O2']
 const NIVEIS_CONSCIENCIA = ['Consciente', 'Confuso', 'Sonolento', 'Sedado', 'Torporoso', 'Agitado', 'Inconsciente']
-const EXAME_STATUS_OPCOES = ['A realizar', 'Aguardando laudo', 'Resultado disponível']
-const SOROLOGIA_STATUS_OPCOES = ['Coleta pendente', 'Aguardando resultado', 'Resultado disponível']
-const REGULACAO_TIPO_OPCOES = ['SER', 'SISREG']
 
 const PASSAGEM_VAZIA = {
   curativo_realizado: null,
@@ -28,30 +25,6 @@ const PASSAGEM_VAZIA = {
   dispositivos: [],
   dispositivos_detalhe: '',
   acompanhante: null,
-
-  exame_nome: '',
-  exame_status: '',
-  exame_a_realizar_data: '',
-  exame_a_realizar_hora: '',
-  exame_a_realizar_local: '',
-  preparo_exame: '',
-  exame_resultado: '',
-
-  sorologias: '',
-  sorologia_status: '',
-  sorologia_data_coleta: '',
-  sorologia_data_notificacao: '',
-
-  hemo_tipo: '',
-  hemo_solicitado: null,
-  hemo_transfundido: null,
-  hemo_data_solicitacao: '',
-  hemo_data_transfusao: '',
-  hemo_quantidade: '',
-
-  regulacao_flag: null,
-  regulacao_tipo: '',
-  regulacao_data_cadastro: '',
 
   leito_liberado_outro_hospital: null,
   leito_liberado_hospital: '',
@@ -89,30 +62,6 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   const [confirmandoFechar, setConfirmandoFechar] = useState(false)
   const [origemCopia, setOrigemCopia] = useState(null)
   const [pepAtivo, setPepAtivo] = useState(false)
-  const [fichaClinicaAlvo, setFichaClinicaAlvo] = useState(null) // { atendimento_id, pessoa_id, nome }
-  const [abrindoFichaClinica, setAbrindoFichaClinica] = useState(false)
-  // Fase 2, piloto: só Observação/Internação ganha a ficha clínica contínua
-  // (admissão + sinais vitais), e só faz sentido sobre a estrutura nova.
-  const podeAbrirFichaClinica = pepAtivo && setorNome === 'Observação/Internação'
-
-  // paciente.id só é um atendimento de verdade quando pep_nativo (veio do caminho
-  // novo). Senão é um id da tabela antiga `pacientes` — precisa passar pela ponte
-  // antes de abrir qualquer tela do caminho novo, senão salva em lugar nenhum.
-  async function abrirFichaClinica() {
-    if (paciente.pep_nativo) {
-      setFichaClinicaAlvo({ atendimento_id: paciente.id, pessoa_id: paciente.pessoa_id, nome: paciente.nome })
-      return
-    }
-    setAbrindoFichaClinica(true)
-    const { atendimentoId, pessoaId, error } = await obterOuCriarAtendimentoParaPaciente(paciente.id)
-    setAbrindoFichaClinica(false)
-    if (error) {
-      setErroSalvar('Não foi possível abrir a ficha clínica. Tente de novo, e se persistir, avise o suporte.')
-      console.error('Erro ao abrir ficha clínica (ponte):', error)
-      return
-    }
-    setFichaClinicaAlvo({ atendimento_id: atendimentoId, pessoa_id: pessoaId, nome: paciente.nome })
-  }
 
   useEffect(() => {
     carregar()
@@ -294,18 +243,6 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     if (passagem.dispositivos?.includes('AVP') && (!passagem.avp_data_insercao || !passagem.avp_hora_insercao)) {
       faltando.push('Data e hora de inserção do AVP')
     }
-    if (passagem.exame_status === 'A realizar' && (!passagem.exame_a_realizar_data || !passagem.exame_a_realizar_hora)) {
-      faltando.push('Data e hora do exame agendado')
-    }
-    if ((passagem.sorologias?.trim() || passagem.sorologia_status) && !passagem.sorologia_data_notificacao) {
-      faltando.push('Data da notificação de sorologia/agravo')
-    }
-    if (passagem.hemo_solicitado === true && !passagem.hemo_data_solicitacao) {
-      faltando.push('Data da solicitação de hemoterapia')
-    }
-    if (passagem.regulacao_flag === true && !passagem.regulacao_data_cadastro) {
-      faltando.push('Data de cadastro da regulação')
-    }
     return faltando
   }
 
@@ -474,10 +411,6 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
     )
   }
 
-  if (fichaClinicaAlvo) {
-    return <FichaClinica atendimento={fichaClinicaAlvo} onFechar={() => setFichaClinicaAlvo(null)} />
-  }
-
   const conteudo = (
     <>
       <div className={embedded ? "form-panel form-panel-embedded" : "form-panel"} onClick={(e) => e.stopPropagation()}>
@@ -491,9 +424,6 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         <div className="form-toolbar">
           <button className="btn-copiar" onClick={copiarNovamente}>↺ Copiar do plantão anterior</button>
           <button className="btn-realocar" onClick={() => onRealocar?.(paciente, leito)}>⇄ Realocar paciente</button>
-          {podeAbrirFichaClinica && (
-            <button className="btn-alta" onClick={abrirFichaClinica} disabled={abrindoFichaClinica}>📋 {abrindoFichaClinica ? 'Abrindo...' : 'Ficha clínica'}</button>
-          )}
           <button className="btn-alta" onClick={() => setModalDesfecho(true)} disabled={processando}>✓ Registrar desfecho</button>
           <button className="btn-excluir" onClick={excluirPaciente} disabled={processando}>🗑 Excluir paciente</button>
         </div>
@@ -635,191 +565,17 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
           </div>
         </div>
 
-        {/* EXAMES */}
+        {/* RESUMO DO PRONTUÁRIO — somente leitura, puxado direto do Prontuário
+            Médico. Exames/Sorologias/Hemoterapia/Regulação deixaram de ser
+            digitados aqui pra não duplicar com o que já existe lá (Divisão
+            Passagem/Prontuário, Etapa 4) — quem quiser editar, abre o pilar
+            Prontuário Médico no Espaço do Paciente. */}
+        <ResumoProntuario paciente={paciente} />
+
+        {/* TRANSFERÊNCIA */}
         <div className="form-section">
-          <div className="form-section-title">Exames</div>
+          <div className="form-section-title">Transferência</div>
           <div className="form-grid">
-            <div className="form-field span-2">
-              <label>Qual exame</label>
-              <input
-                type="text"
-                placeholder="ex: USG abdominal total"
-                value={passagem.exame_nome ?? ''}
-                onChange={(e) => set('exame_nome', e.target.value)}
-              />
-            </div>
-            <div className="form-field span-3">
-              <label>Situação do exame</label>
-              <div className="chip-group">
-                {EXAME_STATUS_OPCOES.map((op) => (
-                  <button
-                    type="button"
-                    key={op}
-                    className={`chip ${passagem.exame_status === op ? 'on' : ''}`}
-                    onClick={() => set('exame_status', passagem.exame_status === op ? '' : op)}
-                  >
-                    {op}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {passagem.exame_status === 'A realizar' && (
-              <>
-                <div className="form-field">
-                  <label>Data agendada *</label>
-                  <input type="date" value={passagem.exame_a_realizar_data ?? ''} onChange={(e) => set('exame_a_realizar_data', e.target.value)} />
-                </div>
-                <div className="form-field">
-                  <label>Hora *</label>
-                  <input type="time" value={passagem.exame_a_realizar_hora ?? ''} onChange={(e) => set('exame_a_realizar_hora', e.target.value)} />
-                </div>
-                <div className="form-field">
-                  <label>Local</label>
-                  <input type="text" value={passagem.exame_a_realizar_local ?? ''} onChange={(e) => set('exame_a_realizar_local', e.target.value)} />
-                </div>
-                <div className="form-field span-3">
-                  <label>Preparo específico</label>
-                  <input
-                    type="text"
-                    placeholder="ex: jejum 8h, contraste, suspender medicação X"
-                    value={passagem.preparo_exame ?? ''}
-                    onChange={(e) => set('preparo_exame', e.target.value)}
-                  />
-                </div>
-              </>
-            )}
-
-            {(passagem.exame_status === 'Aguardando laudo' || passagem.exame_status === 'Resultado disponível') && (
-              <div className="form-field span-3">
-                <label>{passagem.exame_status === 'Resultado disponível' ? 'Resultado / laudo' : 'Observação sobre o laudo'}</label>
-                <input
-                  type="text"
-                  placeholder={passagem.exame_status === 'Resultado disponível' ? 'ex: sem alterações, aguardando avaliação médica' : 'ex: realizado em 30/07, aguardando laudo'}
-                  value={passagem.exame_resultado ?? ''}
-                  onChange={(e) => set('exame_resultado', e.target.value)}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* SOROLOGIA / NOTIFICAÇÃO COMPULSÓRIA */}
-        <div className="form-section">
-          <div className="form-section-title">Sorologia / Notificação compulsória</div>
-          <div className="form-grid">
-            <div className="form-field span-2">
-              <label>Qual agravo / sorologia</label>
-              <input
-                type="text"
-                placeholder="ex: Malária, Chagas, Ofidismo, SRAG, HIV, HBV, HCV"
-                value={passagem.sorologias ?? ''}
-                onChange={(e) => set('sorologias', e.target.value)}
-              />
-            </div>
-            <div className="form-field">
-              <label>Data da notificação *</label>
-              <input type="date" value={passagem.sorologia_data_notificacao ?? ''} onChange={(e) => set('sorologia_data_notificacao', e.target.value)} />
-            </div>
-            <div className="form-field">
-              <label>Data da coleta</label>
-              <input type="date" value={passagem.sorologia_data_coleta ?? ''} onChange={(e) => set('sorologia_data_coleta', e.target.value)} />
-            </div>
-            <div className="form-field span-3">
-              <label>Situação</label>
-              <div className="chip-group">
-                {SOROLOGIA_STATUS_OPCOES.map((op) => (
-                  <button
-                    type="button"
-                    key={op}
-                    className={`chip ${passagem.sorologia_status === op ? 'on' : ''}`}
-                    onClick={() => set('sorologia_status', passagem.sorologia_status === op ? '' : op)}
-                  >
-                    {op}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* HEMOTERAPIA */}
-        <div className="form-section">
-          <div className="form-section-title">Hemoterapia</div>
-          <div className="form-grid">
-            <div className="form-field span-2">
-              <label>Tipo</label>
-              <div className="chip-group">
-                {['CH', 'PFC', 'CP', 'Crioprecipitado'].map((t) => (
-                  <button
-                    type="button"
-                    key={t}
-                    className={`chip ${passagem.hemo_tipo === t ? 'on' : ''}`}
-                    onClick={() => set('hemo_tipo', passagem.hemo_tipo === t ? '' : t)}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="form-field">
-              <label>Solicitado</label>
-              <SimNao valor={passagem.hemo_solicitado} onChange={(v) => set('hemo_solicitado', v)} />
-            </div>
-            {passagem.hemo_solicitado === true && (
-              <div className="form-field">
-                <label>Data da solicitação *</label>
-                <input type="date" value={passagem.hemo_data_solicitacao ?? ''} onChange={(e) => set('hemo_data_solicitacao', e.target.value)} />
-              </div>
-            )}
-            <div className="form-field">
-              <label>Transfundido</label>
-              <SimNao valor={passagem.hemo_transfundido} onChange={(v) => set('hemo_transfundido', v)} />
-            </div>
-            {passagem.hemo_transfundido === true && (
-              <div className="form-field">
-                <label>Data da transfusão</label>
-                <input type="date" value={passagem.hemo_data_transfusao ?? ''} onChange={(e) => set('hemo_data_transfusao', e.target.value)} />
-              </div>
-            )}
-            <div className="form-field span-2">
-              <label>Quantidade</label>
-              <input type="text" value={passagem.hemo_quantidade ?? ''} onChange={(e) => set('hemo_quantidade', e.target.value)} />
-            </div>
-          </div>
-        </div>
-
-        {/* REGULAÇÃO E TRANSFERÊNCIA */}
-        <div className="form-section">
-          <div className="form-section-title">Regulação e transferência</div>
-          <div className="form-grid">
-            <div className="form-field">
-              <label>Paciente regulado</label>
-              <SimNao valor={passagem.regulacao_flag} onChange={(v) => set('regulacao_flag', v)} />
-            </div>
-            {passagem.regulacao_flag === true && (
-              <>
-                <div className="form-field span-2">
-                  <label>Tipo</label>
-                  <div className="chip-group">
-                    {REGULACAO_TIPO_OPCOES.map((t) => (
-                      <button
-                        type="button"
-                        key={t}
-                        className={`chip ${passagem.regulacao_tipo === t ? 'on' : ''}`}
-                        onClick={() => set('regulacao_tipo', passagem.regulacao_tipo === t ? '' : t)}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="form-field">
-                  <label>Data de cadastro *</label>
-                  <input type="date" value={passagem.regulacao_data_cadastro ?? ''} onChange={(e) => set('regulacao_data_cadastro', e.target.value)} />
-                </div>
-              </>
-            )}
             <div className="form-field">
               <label>Leito liberado p/ outro hospital</label>
               <SimNao valor={passagem.leito_liberado_outro_hospital} onChange={(v) => set('leito_liberado_outro_hospital', v)} />
@@ -932,6 +688,82 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   if (embedded) return conteudo
   return <div className="form-overlay">{conteudo}</div>
 }
+
+// Resumo somente-leitura do Prontuário Médico (Exames/Sorologias/Hemoterapia/
+// Regulação) — resolve o atendimento real (ponte da Seção 0, se o paciente
+// ainda não tiver um) e carrega uma vez; não edita nada aqui, só mostra.
+function ResumoProntuario({ paciente }) {
+  const [dados, setDados] = useState(null)
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState(false)
+
+  useEffect(() => {
+    let cancelado = false
+    async function carregar() {
+      setCarregando(true)
+      setErro(false)
+      let atendimentoId = paciente.pep_nativo ? paciente.id : null
+      if (!atendimentoId) {
+        const { atendimentoId: id, error } = await obterOuCriarAtendimentoParaPaciente(paciente.id)
+        if (error) {
+          if (!cancelado) { setErro(true); setCarregando(false) }
+          console.error('Erro ao resolver atendimento pro resumo do prontuário:', error)
+          return
+        }
+        atendimentoId = id
+      }
+      const [exames, sorologias, hemoterapia, regulacao] = await Promise.all([
+        listarExames(atendimentoId),
+        listarSorologias(atendimentoId),
+        listarHemoterapia(atendimentoId),
+        buscarAberturaRegulacao(atendimentoId),
+      ])
+      if (!cancelado) {
+        setDados({ exames, sorologias, hemoterapia, regulacao })
+        setCarregando(false)
+      }
+    }
+    carregar()
+    return () => { cancelado = true }
+  }, [paciente.id])
+
+  const vazio = dados && dados.exames.length === 0 && dados.sorologias.length === 0
+    && dados.hemoterapia.length === 0 && !dados.regulacao?.regulacao_flag
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Resumo do Prontuário (Exames / Sorologias / Hemoterapia / Regulação)</div>
+      <p style={{ fontSize: 11.5, color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 14 }}>
+        Somente leitura — pra editar, abra o pilar "Prontuário Médico" no Espaço do Paciente.
+      </p>
+      {carregando ? (
+        <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Carregando...</p>
+      ) : erro ? (
+        <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Não foi possível carregar o resumo do prontuário.</p>
+      ) : vazio ? (
+        <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Nada registrado ainda no Prontuário.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
+          {dados.exames.map((e) => (
+            <div key={e.id}>Exame: {e.nome}{e.local ? ` · ${e.local}` : ''} · {ROTULO_STATUS_EXAME[e.status] || e.status}</div>
+          ))}
+          {dados.sorologias.map((s) => (
+            <div key={s.id}>Sorologia: {s.agravo} · {ROTULO_STATUS_SOROLOGIA[s.status] || s.status}</div>
+          ))}
+          {dados.hemoterapia.map((h) => (
+            <div key={h.id}>Hemoterapia: {h.tipo}{h.quantidade ? ` · ${h.quantidade}` : ''} · {h.transfundido_em ? 'transfundido' : 'aguardando transfusão'}</div>
+          ))}
+          {dados.regulacao?.regulacao_flag && (
+            <div>Regulação: aberta · {dados.regulacao.regulacao_tipo}</div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const ROTULO_STATUS_EXAME = { a_realizar: 'A realizar', aguardando_laudo: 'Aguardando laudo', resultado_disponivel: 'Resultado disponível' }
+const ROTULO_STATUS_SOROLOGIA = { coleta_pendente: 'Coleta pendente', aguardando_resultado: 'Aguardando resultado', resultado_disponivel: 'Resultado disponível' }
 
 function SimNao({ valor, onChange }) {
   return (

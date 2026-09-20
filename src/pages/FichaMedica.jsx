@@ -16,6 +16,7 @@ import {
   listarAtm, criarAtm,
   listarTfd, criarTfd,
   listarRegulacao, registrarRegulacao,
+  buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao,
   listarMedicacoesContinuas, registrarMedicacaoContinua, suspenderMedicacaoContinua,
 } from '../lib/pepMedico'
 import FichaMedicaPrint from './FichaMedicaPrint'
@@ -559,6 +560,7 @@ function SecaoExames({ atendimentoId }) {
   const [lista, setLista] = useState([])
   const [nome, setNome] = useState('')
   const [preparo, setPreparo] = useState('')
+  const [local, setLocal] = useState('')
   const [salvando, setSalvando] = useState(false)
 
   useEffect(() => { carregar() }, [])
@@ -567,10 +569,11 @@ function SecaoExames({ atendimentoId }) {
   async function adicionar() {
     if (!nome.trim()) return
     setSalvando(true)
-    await criarExame({ atendimentoId, nome: nome.trim(), preparo })
+    await criarExame({ atendimentoId, nome: nome.trim(), preparo, local })
     setSalvando(false)
     setNome('')
     setPreparo('')
+    setLocal('')
     carregar()
   }
 
@@ -585,6 +588,7 @@ function SecaoExames({ atendimentoId }) {
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
         <input type="text" placeholder="Nome do exame" value={nome} onChange={(e) => setNome(e.target.value)} style={{ flex: 2, minWidth: 160 }} />
         <input type="text" placeholder="Preparo (opcional)" value={preparo} onChange={(e) => setPreparo(e.target.value)} style={{ flex: 2, minWidth: 160 }} />
+        <input type="text" placeholder="Local (ex: HRPM, lab. externo)" value={local} onChange={(e) => setLocal(e.target.value)} style={{ flex: 2, minWidth: 160 }} />
         <button type="button" className="modal-btn-secondary" onClick={adicionar} disabled={salvando || !nome.trim()}>+ Adicionar</button>
       </div>
       {lista.length === 0 ? (
@@ -592,7 +596,7 @@ function SecaoExames({ atendimentoId }) {
       ) : (
         lista.map((e) => (
           <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
-            <span>{e.nome}{e.preparo ? ` · ${e.preparo}` : ''}</span>
+            <span>{e.nome}{e.preparo ? ` · ${e.preparo}` : ''}{e.local ? ` · ${e.local}` : ''}</span>
             <select value={e.status} onChange={(ev) => mudarStatus(e.id, ev.target.value)} style={{ fontSize: 11.5 }}>
               {STATUS_EXAME.map((s) => <option key={s} value={s}>{ROTULO_STATUS_EXAME[s]}</option>)}
             </select>
@@ -609,7 +613,9 @@ const ROTULO_STATUS_SOROLOGIA = { coleta_pendente: 'Coleta pendente', aguardando
 function SecaoSorologias({ atendimentoId }) {
   const [lista, setLista] = useState([])
   const [agravo, setAgravo] = useState('')
+  const [dataColeta, setDataColeta] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [pendenteNotificacao, setPendenteNotificacao] = useState(null) // id aguardando informar data_notificacao
 
   useEffect(() => { carregar() }, [])
   async function carregar() { setLista(await listarSorologias(atendimentoId)) }
@@ -617,33 +623,65 @@ function SecaoSorologias({ atendimentoId }) {
   async function adicionar() {
     if (!agravo.trim()) return
     setSalvando(true)
-    await criarSorologia({ atendimentoId, agravo: agravo.trim() })
+    await criarSorologia({ atendimentoId, agravo: agravo.trim(), dataColeta })
     setSalvando(false)
     setAgravo('')
+    setDataColeta('')
     carregar()
   }
 
   async function mudarStatus(id, status) {
+    // "Resultado disponível" é o gatilho pra notificação compulsória — pede a
+    // data antes de gravar, em vez de deixar a notificação sem data nenhuma.
+    if (status === 'resultado_disponivel') {
+      setPendenteNotificacao(id)
+      return
+    }
     await atualizarSorologia(id, { status })
+    carregar()
+  }
+
+  async function confirmarNotificacao(id, dataNotificacao) {
+    await atualizarSorologia(id, { status: 'resultado_disponivel', dataNotificacao: dataNotificacao || null })
+    setPendenteNotificacao(null)
     carregar()
   }
 
   return (
     <div style={{ marginBottom: 28 }}>
       <div className="form-section-title">Sorologias / notificação compulsória</div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <input type="text" placeholder="Agravo / sorologia" value={agravo} onChange={(e) => setAgravo(e.target.value)} style={{ flex: 1 }} />
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+        <input type="text" placeholder="Agravo / sorologia" value={agravo} onChange={(e) => setAgravo(e.target.value)} style={{ flex: 1, minWidth: 160 }} />
+        <input type="date" title="Data da coleta" value={dataColeta} onChange={(e) => setDataColeta(e.target.value)} />
         <button type="button" className="modal-btn-secondary" onClick={adicionar} disabled={salvando || !agravo.trim()}>+ Adicionar</button>
       </div>
       {lista.length === 0 ? (
         <p style={{ color: 'var(--color-text-muted)', fontSize: 12.5 }}>Nenhuma notificação registrada ainda.</p>
       ) : (
         lista.map((s) => (
-          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
-            <span>{s.agravo}</span>
-            <select value={s.status} onChange={(ev) => mudarStatus(s.id, ev.target.value)} style={{ fontSize: 11.5 }}>
-              {STATUS_SOROLOGIA.map((st) => <option key={st} value={st}>{ROTULO_STATUS_SOROLOGIA[st]}</option>)}
-            </select>
+          <div key={s.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{s.agravo}{s.data_coleta ? ` · coleta ${new Date(s.data_coleta + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}</span>
+              <select value={s.status} onChange={(ev) => mudarStatus(s.id, ev.target.value)} style={{ fontSize: 11.5 }}>
+                {STATUS_SOROLOGIA.map((st) => <option key={st} value={st}>{ROTULO_STATUS_SOROLOGIA[st]}</option>)}
+              </select>
+            </div>
+            {s.data_notificacao && (
+              <div style={{ fontSize: 11.5, color: 'var(--color-text-muted)', marginTop: 2 }}>
+                Notificado em {new Date(s.data_notificacao + 'T00:00:00').toLocaleDateString('pt-BR')}
+              </div>
+            )}
+            {pendenteNotificacao === s.id && (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6 }}>
+                <label style={{ fontSize: 11.5 }}>Data da notificação:</label>
+                <input
+                  type="date"
+                  autoFocus
+                  onChange={(e) => e.target.value && confirmarNotificacao(s.id, e.target.value)}
+                />
+                <button type="button" className="modal-btn-secondary" onClick={() => setPendenteNotificacao(null)}>Cancelar</button>
+              </div>
+            )}
           </div>
         ))
       )}
@@ -657,7 +695,9 @@ function SecaoHemoterapia({ atendimentoId }) {
   const [lista, setLista] = useState([])
   const [tipo, setTipo] = useState('')
   const [quantidade, setQuantidade] = useState('')
+  const [solicitadoEm, setSolicitadoEm] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [pendenteTransfusao, setPendenteTransfusao] = useState(null) // id aguardando informar data da transfusão
 
   useEffect(() => { carregar() }, [])
   async function carregar() { setLista(await listarHemoterapia(atendimentoId)) }
@@ -665,15 +705,17 @@ function SecaoHemoterapia({ atendimentoId }) {
   async function adicionar() {
     if (!tipo) return
     setSalvando(true)
-    await criarHemoterapia({ atendimentoId, tipo, quantidade })
+    await criarHemoterapia({ atendimentoId, tipo, quantidade, solicitadoEm })
     setSalvando(false)
     setTipo('')
     setQuantidade('')
+    setSolicitadoEm('')
     carregar()
   }
 
-  async function transfundir(id) {
-    await marcarTransfundido(id)
+  async function confirmarTransfusao(id, dataTransfusao) {
+    await marcarTransfundido(id, dataTransfusao)
+    setPendenteTransfusao(null)
     carregar()
   }
 
@@ -686,18 +728,32 @@ function SecaoHemoterapia({ atendimentoId }) {
           {TIPOS_HEMO.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
         <input type="text" placeholder="Quantidade" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} style={{ flex: 1, minWidth: 120 }} />
+        <input type="date" title="Data da solicitação (padrão: hoje)" value={solicitadoEm} onChange={(e) => setSolicitadoEm(e.target.value)} />
         <button type="button" className="modal-btn-secondary" onClick={adicionar} disabled={salvando || !tipo}>+ Adicionar</button>
       </div>
       {lista.length === 0 ? (
         <p style={{ color: 'var(--color-text-muted)', fontSize: 12.5 }}>Nenhum hemoderivado solicitado ainda.</p>
       ) : (
         lista.map((h) => (
-          <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
-            <span>{h.tipo}{h.quantidade ? ` · ${h.quantidade}` : ''}</span>
-            {h.transfundido_em ? (
-              <span style={{ fontSize: 11.5, color: 'var(--c-primary)' }}>Transfundido em {new Date(h.transfundido_em).toLocaleString('pt-BR')}</span>
-            ) : (
-              <button type="button" className="modal-btn-secondary" onClick={() => transfundir(h.id)}>Marcar transfundido</button>
+          <div key={h.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{h.tipo}{h.quantidade ? ` · ${h.quantidade}` : ''} · solicitado {new Date(h.solicitado_em).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
+              {h.transfundido_em ? (
+                <span style={{ fontSize: 11.5, color: 'var(--c-primary)' }}>Transfundido em {new Date(h.transfundido_em).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
+              ) : (
+                <button type="button" className="modal-btn-secondary" onClick={() => setPendenteTransfusao(h.id)}>Marcar transfundido</button>
+              )}
+            </div>
+            {pendenteTransfusao === h.id && (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6 }}>
+                <label style={{ fontSize: 11.5 }}>Data da transfusão:</label>
+                <input
+                  type="date"
+                  autoFocus
+                  onChange={(e) => e.target.value && confirmarTransfusao(h.id, e.target.value)}
+                />
+                <button type="button" className="modal-btn-secondary" onClick={() => setPendenteTransfusao(null)}>Cancelar</button>
+              </div>
             )}
           </div>
         ))
@@ -1037,6 +1093,9 @@ function AbaTfd({ atendimento, medicoId, onImprimir }) {
 function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
+  const [abertura, setAbertura] = useState(null)
+  const [tipoAbertura, setTipoAbertura] = useState('SER')
+  const [abrindo, setAbrindo] = useState(false)
   const [evolucao, setEvolucao] = useState('')
   const [pendencias, setPendencias] = useState('')
   const [conduta, setConduta] = useState('')
@@ -1050,7 +1109,26 @@ function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
   const [salvando, setSalvando] = useState(false)
 
   useEffect(() => { carregar() }, [])
-  async function carregar() { setCarregando(true); setHistorico(await listarRegulacao(atendimento.atendimento_id)); setCarregando(false) }
+  async function carregar() {
+    setCarregando(true)
+    setHistorico(await listarRegulacao(atendimento.atendimento_id))
+    setAbertura(await buscarAberturaRegulacao(atendimento.atendimento_id))
+    setCarregando(false)
+  }
+
+  async function confirmarAbertura() {
+    setAbrindo(true)
+    await abrirRegulacao(atendimento.atendimento_id, tipoAbertura)
+    setAbrindo(false)
+    carregar()
+  }
+
+  async function confirmarEncerramento() {
+    setAbrindo(true)
+    await encerrarRegulacao(atendimento.atendimento_id)
+    setAbrindo(false)
+    carregar()
+  }
 
   async function registrar() {
     if (!evolucao.trim()) return
@@ -1071,6 +1149,32 @@ function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
 
   return (
     <div className="form-section">
+      <div className="form-section-title">Regulação</div>
+      {carregando ? (
+        <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
+      ) : abertura?.regulacao_flag ? (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, padding: '10px 0', borderBottom: '1px solid var(--color-border)' }}>
+          <span style={{ fontSize: 13 }}>
+            Regulação aberta · <b>{abertura.regulacao_tipo}</b>
+            {abertura.regulacao_aberta_em && ` · desde ${new Date(abertura.regulacao_aberta_em).toLocaleDateString('pt-BR')}`}
+          </span>
+          <button type="button" className="modal-btn-secondary" onClick={confirmarEncerramento} disabled={abrindo}>
+            {abrindo ? 'Encerrando...' : 'Encerrar regulação'}
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, padding: '10px 0', borderBottom: '1px solid var(--color-border)' }}>
+          <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Regulação não aberta.</span>
+          <div className="toggle-group" style={{ maxWidth: 160 }}>
+            <button type="button" className={`toggle-btn ${tipoAbertura === 'SER' ? 'on' : ''}`} onClick={() => setTipoAbertura('SER')}>SER</button>
+            <button type="button" className={`toggle-btn ${tipoAbertura === 'SISREG' ? 'on' : ''}`} onClick={() => setTipoAbertura('SISREG')}>SISREG</button>
+          </div>
+          <button type="button" className="modal-btn-primary" onClick={confirmarAbertura} disabled={abrindo}>
+            {abrindo ? 'Abrindo...' : 'Abrir regulação'}
+          </button>
+        </div>
+      )}
+
       <div className="form-section-title">Nova atualização de quadro clínico (SER/SISREG)</div>
       <div className="form-grid">
         <div className="form-field"><label>PA sistólica</label><input type="number" value={pa.pas} onChange={(e) => setPa((p) => ({ ...p, pas: e.target.value }))} /></div>

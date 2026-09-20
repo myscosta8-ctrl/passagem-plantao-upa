@@ -180,10 +180,10 @@ export async function listarExames(atendimentoId) {
   return data ?? []
 }
 
-export async function criarExame({ atendimentoId, nome, preparo, agendadoPara }) {
+export async function criarExame({ atendimentoId, nome, preparo, agendadoPara, local }) {
   return supabase.from('exames_solicitados').insert({
     atendimento_id: atendimentoId, nome, preparo: preparo || null,
-    agendado_para: agendadoPara || null, status: 'a_realizar',
+    agendado_para: agendadoPara || null, local: local || null, status: 'a_realizar',
   }).select().single()
 }
 
@@ -211,14 +211,17 @@ export async function listarHemoterapia(atendimentoId) {
   return data ?? []
 }
 
-export async function criarHemoterapia({ atendimentoId, tipo, quantidade }) {
+export async function criarHemoterapia({ atendimentoId, tipo, quantidade, solicitadoEm }) {
   return supabase.from('solicitacoes_hemoterapia').insert({
-    atendimento_id: atendimentoId, tipo, quantidade: quantidade || null, solicitado_em: new Date().toISOString(),
+    atendimento_id: atendimentoId, tipo, quantidade: quantidade || null,
+    solicitado_em: solicitadoEm ? `${solicitadoEm}T00:00:00` : new Date().toISOString(),
   }).select().single()
 }
 
-export async function marcarTransfundido(id) {
-  return supabase.from('solicitacoes_hemoterapia').update({ transfundido_em: new Date().toISOString() }).eq('id', id)
+export async function marcarTransfundido(id, transfundidoEm) {
+  return supabase.from('solicitacoes_hemoterapia').update({
+    transfundido_em: transfundidoEm ? `${transfundidoEm}T00:00:00` : new Date().toISOString(),
+  }).eq('id', id)
 }
 
 // ===================== Plano terapêutico (no máximo um por atendimento) =====================
@@ -298,6 +301,30 @@ export async function listarRegulacao(atendimentoId) {
 
 export async function registrarRegulacao({ atendimentoId, atualizadoPor, dados }) {
   return supabase.from('regulacao_atualizacoes').insert({ atendimento_id: atendimentoId, atualizado_por: atualizadoPor, ...dados }).select().single()
+}
+
+// Abertura da regulação (flag + tipo + data) vive em `atendimentos`, separada
+// do histórico de atualizações em `regulacao_atualizacoes` — é um status do
+// episódio, não uma entrada de log (mesmo padrão de status_internacao e
+// classificacao_risco_cor, que também vivem em atendimentos).
+export async function buscarAberturaRegulacao(atendimentoId) {
+  const { data } = await supabase
+    .from('atendimentos')
+    .select('regulacao_flag, regulacao_tipo, regulacao_aberta_em')
+    .eq('id', atendimentoId)
+    .maybeSingle()
+  return data
+}
+
+export async function abrirRegulacao(atendimentoId, tipo) {
+  return supabase
+    .from('atendimentos')
+    .update({ regulacao_flag: true, regulacao_tipo: tipo, regulacao_aberta_em: new Date().toISOString() })
+    .eq('id', atendimentoId)
+}
+
+export async function encerrarRegulacao(atendimentoId) {
+  return supabase.from('atendimentos').update({ regulacao_flag: false }).eq('id', atendimentoId)
 }
 
 // ===================== Medicações contínuas =====================
