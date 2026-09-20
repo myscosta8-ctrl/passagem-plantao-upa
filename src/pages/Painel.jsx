@@ -20,6 +20,7 @@ export default function Painel({ plantao, setoresIds }) {
   const [erroGeral, setErroGeral] = useState('')
   const [modalPassagem, setModalPassagem] = useState(null) // { paciente, leito }
   const [modalRealocar, setModalRealocar] = useState(null) // { paciente, leitoOrigem }
+  const [menuAcoesLeitoId, setMenuAcoesLeitoId] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [visualizacao, setVisualizacao] = useState('cards') // 'cards' | 'tabela'
   const [buscaTabela, setBuscaTabela] = useState('')
@@ -259,6 +260,31 @@ export default function Painel({ plantao, setoresIds }) {
                     <span className={`leito-numero ${leito.tipo === 'extra' ? 'extra' : ''}`}>
                       Leito {leito.numero}
                     </span>
+                    {paciente && (
+                      <div className="leito-menu-acoes no-print" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          className="leito-menu-botao"
+                          title="Mais ações"
+                          onClick={() => setMenuAcoesLeitoId(menuAcoesLeitoId === leito.id ? null : leito.id)}
+                        >
+                          ⋮
+                        </button>
+                        {menuAcoesLeitoId === leito.id && (
+                          <div className="leito-menu-dropdown">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMenuAcoesLeitoId(null)
+                                setModalRealocar({ paciente, leitoOrigem: leito })
+                              }}
+                            >
+                              ⇄ Realocar paciente
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     {paciente ? (
                       <>
                         <div className="leito-paciente-nome">

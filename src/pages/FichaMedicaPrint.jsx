@@ -48,7 +48,7 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
           <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
         </div>
         <div className="print-area">
-          <CorpoConsultaOficial registro={registro} pessoa={pessoa} dataHora={dataHora} medico={medico} />
+          <CorpoConsultaOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} dataHora={dataHora} medico={medico} />
         </div>
       </div>
     )
@@ -182,261 +182,142 @@ function CaixaDoc2({ titulo, valor, grande, children }) {
 // exame físico estruturado, hipóteses CID-10, classificação de risco etc.)
 function CorpoConsultaOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const cf = registro.campos_admissao || {}
-  const ta = cf.tipo_atendimento || {}
-  const ac = cf.antecedentes_check || {}
   const sv = cf.sv || {}
-  const cc = cf.conduta_check || {}
-  const et = cf.exames_solicitados_tipo || {}
-  const de = cf.destino || {}
-  const alergias = cf.alergias || []
-  const medicamentosUso = cf.medicamentos_uso || []
-  const hipotesesCid = cf.hipoteses_cid || []
-  const prescricaoInicial = cf.prescricao_inicial || []
   const nascimento2 = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '—'
-  const imc = sv.peso && sv.altura ? (Number(sv.peso) / (Number(sv.altura) ** 2)).toFixed(1) : ''
+
+  const dataAssinaturaExtenso = (() => {
+    const iso = cf.data_assinatura ? cf.data_assinatura + 'T00:00:00' : (registro.criado_em || registro.atualizado_em)
+    const d = iso ? new Date(iso) : null
+    return d && !isNaN(d) ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : dataHora.split(',')[0]
+  })()
 
   return (
-    <div className="adm-page">
-      <div className="adm-topo">
-        <img src="./logos/upa24h.jpg" alt="UPA 24h" />
-        <div className="adm-topo-centro">
-          <h1>UNIDADE DE PRONTO ATENDIMENTO</h1>
-          <div className="sub">Prefeitura Municipal de Breves — Secretaria Municipal de Saúde (SEMSA)</div>
-          <div className="sub">Travessa Castilhos França — Breves/PA — CEP 68.800-000 — Fone/Fax (91) 3783-1279</div>
+    <div className="admf-document">
+      <header className="admf-header">
+        {/* Camada 1 — identidade institucional: fina, sem caixa, só a
+            logomarca e o timbre, igual ao padrão já usado na Prescrição. */}
+        <div className="admf-topo">
+          <div className="admf-topo-texto">
+            <div className="nome">PREFEITURA MUNICIPAL DE BREVES — UPA 24H BREVES</div>
+            <div className="sub">SECRETARIA MUNICIPAL DE SAÚDE (SEMSA)</div>
+          </div>
+          <div className="admf-topo-logos">
+            <img src="./logos/brasao-breves.jpg" alt="Prefeitura de Breves" />
+            <img src="./logos/semsa.jpg" alt="SEMSA" />
+            <img src="./logos/upa24h.jpg" alt="UPA 24h" />
+          </div>
         </div>
-        <img src="./logos/semsa.jpg" alt="SEMSA" />
+
+        {/* Camada 2 — título do documento. */}
+        <div className="admf-titulo">
+          <h1>ADMISSÃO MÉDICA</h1>
+        </div>
+
+        {/* Camada 3 — paciente em destaque: o que mais importa pra quem
+            pega o papel, com o resto (RG em branco, CNPJ etc.) rebaixado
+            pra camada 4. */}
+        <div className="admf-paciente">
+          <div className="admf-paciente-nome">{pessoa.nome}</div>
+          <div className="admf-paciente-tags">
+            <span><b>Prontuário:</b> {String(pessoa.prontuario_numero || '—').replace(/^PEP-?/i, '')}</span>
+            <span><b>Atendimento:</b> {String(atendimento?.numero_atendimento || '—').replace(/^AT-?/i, '')}</span>
+            <span><b>Leito:</b> {leitoNumero || '—'}</span>
+            <span><b>Setor:</b> {setorNome || '—'}</span>
+          </div>
+        </div>
+
+        {/* Camada 4 — dados administrativos secundários: densos, porém
+            discretos (fonte menor, cor neutra), sem monoespaçada. */}
+        <div className="admf-meta">
+          <div className="admf-mi"><b>Recepção</b> {atendimento?.tipo_entrada || '—'}</div>
+          <div className="admf-mi"><b>Data internação</b> {atendimento?.criado_em ? new Date(atendimento.criado_em).toLocaleString('pt-BR') : '—'}</div>
+          <div className="admf-mi"><b>Data alta</b> {atendimento?.encerrado_em ? new Date(atendimento.encerrado_em).toLocaleString('pt-BR') : '—'}</div>
+          <div className="admf-mi"><b>Caráter</b> {atendimento?.carater || 'Urgência'}</div>
+
+          <div className="admf-mi"><b>Mãe</b> {pessoa.nome_mae || '—'}</div>
+          <div className="admf-mi"><b>Data nasc.</b> {nascimento2}</div>
+          <div className="admf-mi"><b>Idade</b> {idade ? `${idade} anos` : '—'}</div>
+          <div className="admf-mi"><b>Sexo</b> {pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : '—'}</div>
+
+          <div className="admf-mi"><b>CPF</b> {pessoa.cpf || '—'}</div>
+          <div className="admf-mi"><b>CNS</b> {pessoa.cns || '—'}</div>
+          <div className="admf-mi"><b>RG</b> —</div>
+          <div className="admf-mi"><b>Nacionalidade</b> Brasil</div>
+
+          <div className="admf-mi"><b>Raça</b> —</div>
+          <div className="admf-mi"><b>Telefone</b> {pessoa.telefone || '—'}</div>
+          <div className="admf-mi"><b>Convênio</b> {atendimento?.convenio || 'SUS'}</div>
+          <div className="admf-mi"><b>Alergia</b> —</div>
+
+          <div className="admf-mi"><b>Médico responsável</b> {medico?.nome_exibicao || medico?.nome} {medico?.crm ? `— CRM ${medico.crm}` : ''}</div>
+          <div className="admf-mi"><b>Unidade</b> UPA 24h Breves</div>
+          <div className="admf-mi"><b>Centro de custo</b> —</div>
+          <div className="admf-mi"><b>Nº documento</b> {registro.id ? registro.id.slice(0, 8).toUpperCase() : '—'}</div>
+          <div className="admf-mi"><b>Data documento</b> {dataHora}</div>
+
+          <div className="admf-mi admf-mi-full"><b>Endereço</b> {[pessoa.endereco, pessoa.endereco_numero, pessoa.bairro, pessoa.cidade].filter(Boolean).join(', ') || '—'}</div>
+        </div>
+      </header>
+
+      <section className="admf-section">
+        <div className="admf-section-title">QUEIXA PRINCIPAL E HISTÓRIA DA DOENÇA ATUAL (HDA)</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-hda">{registro.queixa_principal || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">ANTECEDENTES RELEVANTES</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-ante">{registro.antecedentes || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">EXAME FÍSICO E SINAIS VITAIS</div>
+        <div className="admf-section-body admf-clinical-grid">
+          <div className="admf-textbox admf-exam">{cf.exame_geral || registro.exame_geral || ''}</div>
+
+          <div className="admf-vitals">
+            <div className="admf-vitals-title">Sinais vitais (na admissão)</div>
+            <div className="admf-vgrid">
+              <div className="admf-vfield"><b>PA:</b><span className="admf-vval">{sv.pa || ''}</span><span className="admf-unit">mmHg</span></div>
+              <div className="admf-vfield"><b>FC:</b><span className="admf-vval">{sv.fc || ''}</span><span className="admf-unit">bpm</span></div>
+              <div className="admf-vfield"><b>FR:</b><span className="admf-vval">{sv.fr || ''}</span><span className="admf-unit">irpm</span></div>
+              <div className="admf-vfield"><b>SpO₂:</b><span className="admf-vval">{sv.spo2 || ''}</span><span className="admf-unit">%</span></div>
+              <div className="admf-vfield"><b>Temp.:</b><span className="admf-vval">{sv.temp || ''}</span><span className="admf-unit">°C</span></div>
+              <div className="admf-vfield"><b>Dor (0-10):</b><span className="admf-vval">{sv.dor || ''}</span></div>
+            </div>
+            <div className="admf-reg">
+              <b>Registrado por:</b>
+              <span className="admf-vval admf-vval-wide">{cf.sv_registrado_por || ''}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">IMPRESSÃO DIAGNÓSTICA E CONDUTA</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-plan">{registro.hipotese_diagnostica || ''}</div>
+        </div>
+      </section>
+
+      <div className="admf-assinatura">
+        <div className="admf-assinatura-texto">
+          {cf.cidade_uf || 'Breves/PA'}, {dataAssinaturaExtenso}.
+        </div>
+        <div className="admf-assinatura-caixa">
+          <div className="admf-sigline" />
+          <div className="admf-sig-caption">{medico?.nome_exibicao || medico?.nome || 'Assinatura Médica'}</div>
+          <div className="admf-sig-crm">CRM/UF: {medico?.crm ? `${medico.crm}/PA` : '—'}</div>
+        </div>
       </div>
 
-      <div className="adm-titulo-barra">
-        <h2>ADMISSÃO MÉDICA</h2>
-        <div className="atendimento">
-          Nº ATENDIMENTO
-          <b>{atendimento?.numero_atendimento || pessoa.prontuario_numero || '—'}</b>
-        </div>
-      </div>
-
-      <SecaoAdm titulo="1. Identificação do Atendimento">
-        <div className="adm-linha-campos">
-          <CampoAdm cap="Data da admissão" val={dataHora.split(',')[0]} />
-          <CampoAdm cap="Unidade" val="UPA 24h Breves" />
-          <CampoAdm cap="Setor" val={setorNome} />
-          <CampoAdm cap="Leito/Poltrona" val={leitoNumero || '—'} />
-          <CampoAdm cap="Médico responsável" val={medico?.nome_exibicao || medico?.nome} />
-          <CampoAdm cap="CRM/UF" val={medico?.crm ? `${medico.crm}/PA` : '—'} />
-        </div>
-        <div className="adm-linha-campos" style={{ marginTop: 4 }}>
-          <span className="cap" style={{ fontSize: 8, color: '#555', width: '100%' }}>Tipo de atendimento</span>
-          <CheckAdm marcado={ta.espontanea}>Demanda espontânea</CheckAdm>
-          <CheckAdm marcado={ta.samu}>SAMU</CheckAdm>
-          <CheckAdm marcado={ta.encaminhamento}>Encaminhamento</CheckAdm>
-          <CheckAdm marcado={ta.transferencia}>Transferência</CheckAdm>
-          <CheckAdm marcado={ta.retorno}>Retorno</CheckAdm>
-        </div>
-      </SecaoAdm>
-
-      <SecaoAdm titulo="2. Identificação do Paciente">
-        <div className="adm-linha-campos">
-          <CampoAdm cap="Nome completo" val={pessoa.nome} />
-          <CampoAdm cap="Nome social" val={cf.nome_social} />
-          <CampoAdm cap="Data de nascimento" val={nascimento2} />
-          <CampoAdm cap="Idade" val={idade ? `${idade} anos` : '—'} />
-          <CampoAdm cap="Sexo" val={pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : '—'} />
-        </div>
-        <div className="adm-linha-campos">
-          <CampoAdm cap="CPF" val={pessoa.cpf} />
-          <CampoAdm cap="CNS" val={pessoa.cns} />
-          <CampoAdm cap="Telefone" val={pessoa.telefone} />
-          <CampoAdm cap="Endereço" val={[pessoa.endereco, pessoa.endereco_numero, pessoa.bairro, pessoa.cidade].filter(Boolean).join(', ')} />
-          <CampoAdm cap="Acompanhante" val={cf.acompanhante} />
-          <CampoAdm cap="Parentesco" val={cf.parentesco} />
-        </div>
-      </SecaoAdm>
-
-      <div className="adm-duas-colunas">
-        <SecaoAdm titulo="3. Queixa Principal">
-          <CampoAdm livre val={registro.queixa_principal} />
-          <div className="adm-linha-campos" style={{ marginTop: 6 }}>
-            <CampoAdm cap="Início dos sintomas" val={fmtDataHora(cf.inicio_sintomas)} />
-            <CampoAdm cap="Duração" val={cf.duracao_sintomas} />
-            <CampoAdm cap="Evolução" val={cf.evolucao_sintomas} />
-            <CampoAdm cap="Motivo da procura" val={cf.motivo_procura} />
-          </div>
-        </SecaoAdm>
-        <SecaoAdm titulo="6. Alergias">
-          <div className="adm-linha-campos">
-            <span className="cap" style={{ fontSize: 8, color: '#555' }}>Possui alergia?</span>
-            <CheckAdm marcado={cf.possui_alergia === 'sim'}>Sim</CheckAdm>
-            <CheckAdm marcado={cf.possui_alergia === 'nao'}>Não</CheckAdm>
-            <CheckAdm marcado={cf.possui_alergia === 'ignorado'}>Ignorado</CheckAdm>
-          </div>
-          {alergias.length > 0 && (
-            <table className="adm-tabela">
-              <thead><tr><th>Substância</th><th>Reação</th><th>Gravidade</th></tr></thead>
-              <tbody>{alergias.map((a, i) => <tr key={i}><td>{a.substancia}</td><td>{a.reacao}</td><td>{a.gravidade}</td></tr>)}</tbody>
-            </table>
-          )}
-        </SecaoAdm>
-      </div>
-
-      <SecaoAdm titulo="4. História da Doença Atual (HDA)">
-        <CampoAdm livre val={registro.historia_doenca_atual} />
-      </SecaoAdm>
-
-      <div className="adm-duas-colunas">
-        <SecaoAdm titulo="5. Antecedentes">
-          <div className="adm-grid-check">
-            <CheckAdm marcado={ac.has}>Hipertensão arterial</CheckAdm>
-            <CheckAdm marcado={ac.neurologica}>Doença neurológica</CheckAdm>
-            <CheckAdm marcado={ac.dm}>Diabetes mellitus</CheckAdm>
-            <CheckAdm marcado={ac.psiquiatrica}>Doença psiquiátrica</CheckAdm>
-            <CheckAdm marcado={ac.cardiovascular}>Doença cardiovascular</CheckAdm>
-            <CheckAdm marcado={ac.neoplasia}>Neoplasia</CheckAdm>
-            <CheckAdm marcado={ac.respiratoria}>Doença respiratória</CheckAdm>
-            <CheckAdm marcado={ac.cirurgias_previas}>Cirurgias prévias</CheckAdm>
-            <CheckAdm marcado={ac.renal}>Doença renal</CheckAdm>
-            <CheckAdm marcado={ac.internacoes_anteriores}>Internações anteriores</CheckAdm>
-            <CheckAdm marcado={ac.hepatica}>Doença hepática</CheckAdm>
-            <CheckAdm marcado={!!cf.antecedentes_outros}>Outros: {cf.antecedentes_outros}</CheckAdm>
-          </div>
-          {registro.antecedentes && <div style={{ marginTop: 6 }}><CampoAdm cap="Antecedentes (texto livre)" val={registro.antecedentes} livre /></div>}
-          {registro.revisao_sistemas && <div style={{ marginTop: 6 }}><CampoAdm cap="Revisão de sistemas" val={registro.revisao_sistemas} livre /></div>}
-        </SecaoAdm>
-        <SecaoAdm titulo="7. Medicamentos em Uso">
-          {medicamentosUso.length > 0 ? (
-            <table className="adm-tabela">
-              <thead><tr><th>Medicamento</th><th>Dose</th><th>Via</th><th>Frequência</th><th>Última dose</th></tr></thead>
-              <tbody>{medicamentosUso.map((m, i) => <tr key={i}><td>{m.medicamento}</td><td>{m.dose}</td><td>{m.via}</td><td>{m.frequencia}</td><td>{m.ultima_dose}</td></tr>)}</tbody>
-            </table>
-          ) : <span className="cap">Nenhum medicamento em uso informado.</span>}
-        </SecaoAdm>
-      </div>
-
-      <SecaoAdm titulo="8. Sinais Vitais">
-        <div className="adm-linha-campos">
-          <CampoAdm cap="PA (mmHg)" val={sv.pa} />
-          <CampoAdm cap="FC (bpm)" val={sv.fc} />
-          <CampoAdm cap="FR (irpm)" val={sv.fr} />
-          <CampoAdm cap="SpO2 (%)" val={sv.spo2} />
-          <CampoAdm cap="Temp. (°C)" val={sv.temp} />
-        </div>
-        <div className="adm-linha-campos">
-          <CampoAdm cap="Glicemia (mg/dL)" val={sv.glicemia} />
-          <CampoAdm cap="Dor (0-10)" val={sv.dor} />
-          <CampoAdm cap="Peso (kg)" val={sv.peso} />
-          <CampoAdm cap="Altura (m)" val={sv.altura} />
-          <CampoAdm cap="IMC" val={imc} />
-          <CampoAdm cap="Glasgow" val={sv.glasgow} />
-        </div>
-        <span className="cap">Registrado por: {cf.sv_registrado_por || '—'} · {fmtDataHora(cf.sv_hora)}</span>
-      </SecaoAdm>
-
-      <div className="adm-duas-colunas">
-        <SecaoAdm titulo="9. Exame Físico">
-          <div className="adm-linha-campos">
-            <CampoAdm cap="Estado geral" val={cf.exame_estado_geral} />
-            <CampoAdm cap="Consciência" val={cf.exame_consciencia} />
-            <CampoAdm cap="Pele" val={cf.exame_pele} />
-            <CampoAdm cap="Hidratação" val={cf.exame_hidratacao} />
-          </div>
-          <CampoAdm cap="Cardiovascular" val={cf.exame_cardiovascular} livre />
-          <CampoAdm cap="Respiratório" val={cf.exame_respiratorio} livre />
-          <CampoAdm cap="Abdome" val={cf.exame_abdome} livre />
-          <CampoAdm cap="Extremidades" val={cf.exame_extremidades} livre />
-          <CampoAdm cap="Neurológico" val={cf.exame_neurologico} livre />
-          <CampoAdm cap="Outros achados / Exame físico geral" val={[cf.exame_outros_achados, registro.exame_geral].filter(Boolean).join(' — ')} livre />
-        </SecaoAdm>
-        <SecaoAdm titulo="10. Hipóteses Diagnósticas">
-          {hipotesesCid.length > 0 ? (
-            <table className="adm-tabela">
-              <thead><tr><th>CID-10</th><th>Descrição</th><th>Principal?</th></tr></thead>
-              <tbody>{hipotesesCid.map((h, i) => <tr key={i}><td>{h.cid}</td><td>{h.descricao}</td><td>{h.principal ? 'Sim' : 'Não'}</td></tr>)}</tbody>
-            </table>
-          ) : <span className="cap">Nenhuma hipótese estruturada informada.</span>}
-          {registro.hipotese_diagnostica && <div style={{ marginTop: 6 }}><CampoAdm cap="Hipótese diagnóstica (texto livre)" val={registro.hipotese_diagnostica} livre /></div>}
-        </SecaoAdm>
-      </div>
-
-      <SecaoAdm titulo="11. Diagnóstico / Avaliação Médica">
-        <CampoAdm livre val={cf.diagnostico_avaliacao} />
-      </SecaoAdm>
-
-      <SecaoAdm titulo="12. Conduta">
-        <div className="adm-grid-check">
-          <CheckAdm marcado={cc.observacao}>Observação</CheckAdm>
-          <CheckAdm marcado={cc.oxigenoterapia}>Oxigenoterapia</CheckAdm>
-          <CheckAdm marcado={cc.medicacao}>Medicação</CheckAdm>
-          <CheckAdm marcado={cc.avaliacao_especialista}>Avaliação de especialista</CheckAdm>
-          <CheckAdm marcado={cc.hidratacao}>Hidratação</CheckAdm>
-          <CheckAdm marcado={cc.regulacao}>Regulação</CheckAdm>
-          <CheckAdm marcado={cc.exames_lab}>Exames laboratoriais</CheckAdm>
-          <CheckAdm marcado={cc.internacao}>Internação</CheckAdm>
-          <CheckAdm marcado={cc.exames_imagem}>Exames de imagem</CheckAdm>
-          <CheckAdm marcado={cc.transferencia}>Transferência</CheckAdm>
-          <CheckAdm marcado={cc.ecg}>ECG</CheckAdm>
-          <CheckAdm marcado={cc.procedimento}>Procedimento</CheckAdm>
-        </div>
-        {cf.conduta_outros && <div style={{ marginTop: 4 }}><CampoAdm cap="Outros" val={cf.conduta_outros} /></div>}
-        <div style={{ marginTop: 6 }}><CampoAdm cap="Plano terapêutico / conduta detalhada" val={registro.conduta_inicial} livre /></div>
-      </SecaoAdm>
-
-      <SecaoAdm titulo="13. Prescrição Médica (Inicial)">
-        {prescricaoInicial.length > 0 ? (
-          <table className="adm-tabela">
-            <thead><tr><th>Medicamento</th><th>Dose</th><th>Via</th><th>Frequência</th><th>Duração</th></tr></thead>
-            <tbody>{prescricaoInicial.map((p, i) => <tr key={i}><td>{p.medicamento}</td><td>{p.dose}</td><td>{p.via}</td><td>{p.frequencia}</td><td>{p.duracao}</td></tr>)}</tbody>
-          </table>
-        ) : <span className="cap">Nenhuma prescrição inicial registrada nesta ficha — ver aba Prescrição.</span>}
-      </SecaoAdm>
-
-      <div className="adm-duas-colunas">
-        <SecaoAdm titulo="14. Exames Solicitados">
-          <div className="adm-linha-campos">
-            <CheckAdm marcado={et.laboratoriais}>Laboratoriais</CheckAdm>
-            <CheckAdm marcado={et.imagem}>Imagem</CheckAdm>
-            <CheckAdm marcado={et.cardiologicos}>Cardiológicos</CheckAdm>
-            <CheckAdm marcado={et.outros}>Outros</CheckAdm>
-          </div>
-          <CampoAdm cap="Solicitações" val={cf.exames_solicitados_texto} livre />
-        </SecaoAdm>
-        <SecaoAdm titulo="15. Classificação de Risco">
-          <div className="adm-linha-campos">
-            <CampoAdm cap="Classificação" val={cf.classificacao_risco} />
-            <CampoAdm cap="Prioridade" val={cf.prioridade} />
-            <CampoAdm cap="Tempo-alvo" val={cf.tempo_alvo} />
-            <CampoAdm cap="Data/hora" val={fmtDataHora(cf.classificacao_datahora)} />
-            <CampoAdm cap="Profissional" val={cf.classificacao_profissional} />
-          </div>
-        </SecaoAdm>
-      </div>
-
-      <SecaoAdm titulo="16. Destino Após Avaliação">
-        <div className="adm-grid-check">
-          <CheckAdm marcado={de.observacao}>Observação</CheckAdm>
-          <CheckAdm marcado={de.sala_medicacao}>Sala de medicação</CheckAdm>
-          <CheckAdm marcado={de.leito}>Leito</CheckAdm>
-          <CheckAdm marcado={de.transferencia}>Transferência</CheckAdm>
-          <CheckAdm marcado={de.alta}>Alta</CheckAdm>
-          <CheckAdm marcado={de.regulacao}>Regulação</CheckAdm>
-          <CheckAdm marcado={de.obito}>Óbito</CheckAdm>
-        </div>
-      </SecaoAdm>
-
-      <SecaoAdm titulo="17. Assinatura">
-        <div className="adm-assinatura-v2">
-          <span className="data">Breves/PA, {dataHora.split(',')[0]}.</span>
-          <div className="bloco">
-            <div className="espaco-carimbo" />
-            <div className="linha" />
-            <div className="legenda">Assinatura Médica</div>
-          </div>
-        </div>
-      </SecaoAdm>
-
-      <div className="adm-rodape">
-        <span>PEP — Prontuário Eletrônico do Paciente</span>
-        <span>Este documento faz parte do registro eletrônico do paciente.</span>
+      <footer className="admf-footer">
+        <span>PEP - Prontuário Eletrônico do Paciente</span>
         <span>Registrado em {dataHora}</span>
-      </div>
+      </footer>
     </div>
   )
 }

@@ -141,98 +141,16 @@ function DiagnosticoPrincipal({ atendimento, medicoId }) {
   )
 }
 
+// Modelo simplificado — segue à risca a referência oficial (5 blocos de
+// texto livre + sinais vitais + assinatura), sem checkboxes nem tabelas.
 const CONSULTA_VAZIA = {
-  // 1-17 · igual ao modelo de Admissão Médica — nada removido do que já
-  // existia (7 campos originais), só adicionado tudo que faltava.
-  queixa_principal: '', historia_doenca_atual: '', antecedentes: '',
-  revisao_sistemas: '', exame_geral: '', hipotese_diagnostica: '', conduta_inicial: '',
-  tipo_atendimento: { espontanea: false, samu: false, encaminhamento: false, transferencia: false, retorno: false },
-  nome_social: '', acompanhante: '', parentesco: '',
-  inicio_sintomas: '', duracao_sintomas: '', evolucao_sintomas: '', motivo_procura: '',
-  possui_alergia: '', alergias: [],
-  medicamentos_uso: [],
-  antecedentes_check: { has: false, dm: false, cardiovascular: false, respiratoria: false, renal: false, hepatica: false, neurologica: false, psiquiatrica: false, neoplasia: false, cirurgias_previas: false, internacoes_anteriores: false },
-  antecedentes_outros: '',
-  sv: { pa: '', fc: '', fr: '', spo2: '', temp: '', glicemia: '', dor: '', peso: '', altura: '', glasgow: '' },
-  sv_registrado_por: '', sv_hora: '',
-  exame_estado_geral: '', exame_consciencia: '', exame_pele: '', exame_hidratacao: '',
-  exame_cardiovascular: '', exame_respiratorio: '', exame_abdome: '', exame_extremidades: '', exame_neurologico: '', exame_outros_achados: '',
-  hipoteses_cid: [],
-  diagnostico_avaliacao: '',
-  conduta_check: { observacao: false, medicacao: false, hidratacao: false, oxigenoterapia: false, exames_lab: false, exames_imagem: false, ecg: false, procedimento: false, avaliacao_especialista: false, regulacao: false, internacao: false, transferencia: false },
-  conduta_outros: '',
-  prescricao_inicial: [],
-  exames_solicitados_tipo: { laboratoriais: false, imagem: false, cardiologicos: false, outros: false },
-  exames_solicitados_texto: '',
-  classificacao_risco: '', prioridade: '', tempo_alvo: '', classificacao_datahora: '', classificacao_profissional: '',
-  destino: { observacao: false, sala_medicacao: false, leito: false, transferencia: false, alta: false, regulacao: false, obito: false },
-}
-
-const ANTECEDENTES_OPCOES = [
-  ['has', 'Hipertensão arterial'], ['neurologica', 'Doença neurológica'],
-  ['dm', 'Diabetes mellitus'], ['psiquiatrica', 'Doença psiquiátrica'],
-  ['cardiovascular', 'Doença cardiovascular'], ['neoplasia', 'Neoplasia'],
-  ['respiratoria', 'Doença respiratória'], ['cirurgias_previas', 'Cirurgias prévias'],
-  ['renal', 'Doença renal'], ['internacoes_anteriores', 'Internações anteriores'],
-  ['hepatica', 'Doença hepática'],
-]
-
-const CONDUTA_OPCOES = [
-  ['observacao', 'Observação'], ['oxigenoterapia', 'Oxigenoterapia'],
-  ['medicacao', 'Medicação'], ['avaliacao_especialista', 'Avaliação de especialista'],
-  ['hidratacao', 'Hidratação'], ['regulacao', 'Regulação'],
-  ['exames_lab', 'Exames laboratoriais'], ['internacao', 'Internação'],
-  ['exames_imagem', 'Exames de imagem'], ['transferencia', 'Transferência'],
-  ['ecg', 'ECG'], ['procedimento', 'Procedimento'],
-]
-
-const DESTINO_OPCOES = [
-  ['observacao', 'Observação'], ['sala_medicacao', 'Sala de medicação'], ['leito', 'Leito'],
-  ['transferencia', 'Transferência'], ['alta', 'Alta'], ['regulacao', 'Regulação'], ['obito', 'Óbito'],
-]
-
-function LinhaCheck({ opcoes, valores, onChange }) {
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
-      {opcoes.map(([chave, rotulo]) => (
-        <label key={chave} style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400 }}>
-          <input type="checkbox" checked={!!valores[chave]} onChange={(e) => onChange({ ...valores, [chave]: e.target.checked })} />
-          {rotulo}
-        </label>
-      ))}
-    </div>
-  )
-}
-
-function TabelaEditavel({ colunas, linhas, onChange, novaLinhaVazia }) {
-  function set(i, campo, valor) {
-    onChange(linhas.map((l, idx) => (idx === i ? { ...l, [campo]: valor } : l)))
-  }
-  function adicionar() {
-    onChange([...linhas, { ...novaLinhaVazia }])
-  }
-  function remover(i) {
-    onChange(linhas.filter((_, idx) => idx !== i))
-  }
-  return (
-    <div style={{ marginTop: 6 }}>
-      {linhas.map((linha, i) => (
-        <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 4, alignItems: 'center' }}>
-          {colunas.map(([chave, rotulo, tipo]) => (
-            tipo === 'checkbox' ? (
-              <label key={chave} style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 3 }}>
-                <input type="checkbox" checked={!!linha[chave]} onChange={(e) => set(i, chave, e.target.checked)} />{rotulo}
-              </label>
-            ) : (
-              <input key={chave} type="text" placeholder={rotulo} value={linha[chave] || ''} onChange={(e) => set(i, chave, e.target.value)} style={{ flex: 1, minWidth: 0 }} />
-            )
-          ))}
-          <button type="button" className="modal-btn-secondary" onClick={() => remover(i)} style={{ flexShrink: 0 }}>Remover</button>
-        </div>
-      ))}
-      <button type="button" className="modal-btn-secondary" onClick={adicionar}>+ Adicionar linha</button>
-    </div>
-  )
+  queixa_principal: '',
+  antecedentes: '',
+  exame_geral: '',
+  sv: { pa: '', fc: '', fr: '', spo2: '', temp: '', dor: '' },
+  sv_registrado_por: '',
+  hipotese_diagnostica: '',
+  cidade_uf: '', data_assinatura: '',
 }
 
 function AbaConsulta({ atendimento, medicoId, onImprimir }) {
@@ -280,144 +198,47 @@ function AbaConsulta({ atendimento, medicoId, onImprimir }) {
     <div className="form-section">
       <div className="form-section-title">Nova consulta (Admissão Médica)</div>
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 4 }}>1. Identificação do atendimento</div>
-      <div style={{ marginBottom: 6 }}>
-        <LinhaCheck
-          opcoes={[['espontanea', 'Demanda espontânea'], ['samu', 'SAMU'], ['encaminhamento', 'Encaminhamento'], ['transferencia', 'Transferência'], ['retorno', 'Retorno']]}
-          valores={dados.tipo_atendimento}
-          onChange={(v) => set('tipo_atendimento', v)}
-        />
-      </div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>2. Identificação do paciente (complemento)</div>
-      <div className="form-grid">
-        <div className="form-field"><label>Nome social</label><input type="text" value={dados.nome_social} onChange={(e) => set('nome_social', e.target.value)} /></div>
-        <div className="form-field"><label>Acompanhante</label><input type="text" value={dados.acompanhante} onChange={(e) => set('acompanhante', e.target.value)} /></div>
-        <div className="form-field"><label>Parentesco</label><input type="text" value={dados.parentesco} onChange={(e) => set('parentesco', e.target.value)} /></div>
-      </div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>3. Queixa principal</div>
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 4 }}>Queixa principal e história da doença atual (HDA)</div>
       <div className="form-grid">
         <div className="form-field span-3">
-          <label>Queixa principal *</label>
-          <input type="text" value={dados.queixa_principal} onChange={(e) => set('queixa_principal', e.target.value)} />
+          <label>Queixa principal, início, evolução, características e informações clínicas relevantes *</label>
+          <textarea value={dados.queixa_principal} onChange={(e) => set('queixa_principal', e.target.value)} />
         </div>
-        <div className="form-field"><label>Início dos sintomas</label><input type="datetime-local" value={dados.inicio_sintomas} onChange={(e) => set('inicio_sintomas', e.target.value)} /></div>
-        <div className="form-field"><label>Duração</label><input type="text" value={dados.duracao_sintomas} onChange={(e) => set('duracao_sintomas', e.target.value)} /></div>
-        <div className="form-field"><label>Evolução</label><input type="text" value={dados.evolucao_sintomas} onChange={(e) => set('evolucao_sintomas', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Motivo da procura</label><input type="text" value={dados.motivo_procura} onChange={(e) => set('motivo_procura', e.target.value)} /></div>
       </div>
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>6. Alergias</div>
-      <div className="toggle-group" style={{ maxWidth: 260, marginBottom: 6 }}>
-        {[['sim', 'Sim'], ['nao', 'Não'], ['ignorado', 'Ignorado']].map(([v, r]) => (
-          <button key={v} type="button" className={`toggle-btn ${dados.possui_alergia === v ? 'on' : ''}`} onClick={() => set('possui_alergia', v)}>{r}</button>
-        ))}
-      </div>
-      <TabelaEditavel
-        colunas={[['substancia', 'Substância'], ['reacao', 'Reação'], ['gravidade', 'Gravidade']]}
-        linhas={dados.alergias}
-        onChange={(v) => set('alergias', v)}
-        novaLinhaVazia={{ substancia: '', reacao: '', gravidade: '' }}
-      />
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>4. História da doença atual (HDA)</div>
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>Antecedentes relevantes</div>
       <div className="form-grid">
-        <div className="form-field span-3"><textarea value={dados.historia_doenca_atual} onChange={(e) => set('historia_doenca_atual', e.target.value)} /></div>
+        <div className="form-field span-3">
+          <label>Doenças prévias, cirurgias, internações, alergias e medicamentos em uso</label>
+          <textarea value={dados.antecedentes} onChange={(e) => set('antecedentes', e.target.value)} />
+        </div>
       </div>
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>7. Medicamentos em uso</div>
-      <TabelaEditavel
-        colunas={[['medicamento', 'Medicamento'], ['dose', 'Dose'], ['via', 'Via'], ['frequencia', 'Frequência'], ['ultima_dose', 'Última dose']]}
-        linhas={dados.medicamentos_uso}
-        onChange={(v) => set('medicamentos_uso', v)}
-        novaLinhaVazia={{ medicamento: '', dose: '', via: '', frequencia: '', ultima_dose: '' }}
-      />
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>5. Antecedentes</div>
-      <LinhaCheck opcoes={ANTECEDENTES_OPCOES} valores={dados.antecedentes_check} onChange={(v) => set('antecedentes_check', v)} />
-      <div className="form-grid" style={{ marginTop: 6 }}>
-        <div className="form-field span-3"><label>Outros antecedentes</label><input type="text" value={dados.antecedentes_outros} onChange={(e) => set('antecedentes_outros', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Antecedentes (texto livre)</label><input type="text" value={dados.antecedentes} onChange={(e) => set('antecedentes', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Revisão de sistemas</label><input type="text" value={dados.revisao_sistemas} onChange={(e) => set('revisao_sistemas', e.target.value)} /></div>
-      </div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>8. Sinais vitais</div>
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>Exame físico e sinais vitais</div>
       <div className="form-grid">
-        {[['pa', 'PA (mmHg)'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO2 (%)'], ['temp', 'Temp. (°C)'], ['glicemia', 'Glicemia (mg/dL)'], ['dor', 'Dor (0-10)'], ['peso', 'Peso (kg)'], ['altura', 'Altura (m)'], ['glasgow', 'Glasgow']].map(([k, r]) => (
+        <div className="form-field span-3"><label>Exame físico</label><textarea value={dados.exame_geral} onChange={(e) => set('exame_geral', e.target.value)} /></div>
+        {[['pa', 'PA (mmHg)'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO2 (%)'], ['temp', 'Temp. (°C)'], ['dor', 'Dor (0-10)']].map(([k, r]) => (
           <div className="form-field" key={k}><label>{r}</label><input type="text" value={dados.sv[k]} onChange={(e) => set('sv', { ...dados.sv, [k]: e.target.value })} /></div>
         ))}
         <div className="form-field"><label>Registrado por</label><input type="text" value={dados.sv_registrado_por} onChange={(e) => set('sv_registrado_por', e.target.value)} /></div>
-        <div className="form-field"><label>Hora</label><input type="datetime-local" value={dados.sv_hora} onChange={(e) => set('sv_hora', e.target.value)} /></div>
       </div>
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>9. Exame físico</div>
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>Impressão diagnóstica e conduta</div>
       <div className="form-grid">
-        <div className="form-field"><label>Estado geral</label><input type="text" value={dados.exame_estado_geral} onChange={(e) => set('exame_estado_geral', e.target.value)} /></div>
-        <div className="form-field"><label>Consciência</label><input type="text" value={dados.exame_consciencia} onChange={(e) => set('exame_consciencia', e.target.value)} /></div>
-        <div className="form-field"><label>Pele</label><input type="text" value={dados.exame_pele} onChange={(e) => set('exame_pele', e.target.value)} /></div>
-        <div className="form-field"><label>Hidratação</label><input type="text" value={dados.exame_hidratacao} onChange={(e) => set('exame_hidratacao', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Cardiovascular</label><input type="text" value={dados.exame_cardiovascular} onChange={(e) => set('exame_cardiovascular', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Respiratório</label><input type="text" value={dados.exame_respiratorio} onChange={(e) => set('exame_respiratorio', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Abdome</label><input type="text" value={dados.exame_abdome} onChange={(e) => set('exame_abdome', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Extremidades</label><input type="text" value={dados.exame_extremidades} onChange={(e) => set('exame_extremidades', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Neurológico</label><input type="text" value={dados.exame_neurologico} onChange={(e) => set('exame_neurologico', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Outros achados</label><input type="text" value={dados.exame_outros_achados} onChange={(e) => set('exame_outros_achados', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Exame físico geral</label><textarea value={dados.exame_geral} onChange={(e) => set('exame_geral', e.target.value)} /></div>
+        <div className="form-field span-3">
+          <label>Hipótese/avaliação diagnóstica, conduta inicial, medicamentos, exames, observação e orientações *</label>
+          <textarea value={dados.hipotese_diagnostica} onChange={(e) => set('hipotese_diagnostica', e.target.value)} />
+        </div>
       </div>
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>10. Hipóteses diagnósticas (CID-10)</div>
-      <TabelaEditavel
-        colunas={[['cid', 'CID-10'], ['descricao', 'Descrição'], ['principal', 'Principal?', 'checkbox']]}
-        linhas={dados.hipoteses_cid}
-        onChange={(v) => set('hipoteses_cid', v)}
-        novaLinhaVazia={{ cid: '', descricao: '', principal: false }}
-      />
-      <div className="form-grid" style={{ marginTop: 6 }}>
-        <div className="form-field span-3"><label>Hipótese diagnóstica (texto livre) *</label><input type="text" value={dados.hipotese_diagnostica} onChange={(e) => set('hipotese_diagnostica', e.target.value)} /></div>
-      </div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>11. Diagnóstico / Avaliação médica</div>
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>Assinatura médica</div>
       <div className="form-grid">
-        <div className="form-field span-3"><textarea value={dados.diagnostico_avaliacao} onChange={(e) => set('diagnostico_avaliacao', e.target.value)} /></div>
+        <div className="form-field"><label>Cidade/UF</label><input type="text" value={dados.cidade_uf} onChange={(e) => set('cidade_uf', e.target.value)} /></div>
+        <div className="form-field"><label>Data</label><input type="date" value={dados.data_assinatura} onChange={(e) => set('data_assinatura', e.target.value)} /></div>
       </div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>12. Conduta</div>
-      <LinhaCheck opcoes={CONDUTA_OPCOES} valores={dados.conduta_check} onChange={(v) => set('conduta_check', v)} />
-      <div className="form-grid" style={{ marginTop: 6 }}>
-        <div className="form-field span-3"><label>Outros</label><input type="text" value={dados.conduta_outros} onChange={(e) => set('conduta_outros', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Plano terapêutico / conduta detalhada</label><textarea value={dados.conduta_inicial} onChange={(e) => set('conduta_inicial', e.target.value)} /></div>
-      </div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>13. Prescrição médica (inicial)</div>
-      <TabelaEditavel
-        colunas={[['medicamento', 'Medicamento'], ['dose', 'Dose'], ['via', 'Via'], ['frequencia', 'Frequência'], ['duracao', 'Duração']]}
-        linhas={dados.prescricao_inicial}
-        onChange={(v) => set('prescricao_inicial', v)}
-        novaLinhaVazia={{ medicamento: '', dose: '', via: '', frequencia: '', duracao: '' }}
-      />
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>14. Exames solicitados</div>
-      <LinhaCheck
-        opcoes={[['laboratoriais', 'Laboratoriais'], ['imagem', 'Imagem'], ['cardiologicos', 'Cardiológicos'], ['outros', 'Outros']]}
-        valores={dados.exames_solicitados_tipo}
-        onChange={(v) => set('exames_solicitados_tipo', v)}
-      />
-      <div className="form-grid" style={{ marginTop: 6 }}>
-        <div className="form-field span-3"><label>Solicitações</label><textarea value={dados.exames_solicitados_texto} onChange={(e) => set('exames_solicitados_texto', e.target.value)} /></div>
-      </div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>15. Classificação de risco</div>
-      <div className="form-grid">
-        <div className="form-field"><label>Classificação</label><input type="text" value={dados.classificacao_risco} onChange={(e) => set('classificacao_risco', e.target.value)} /></div>
-        <div className="form-field"><label>Prioridade</label><input type="text" value={dados.prioridade} onChange={(e) => set('prioridade', e.target.value)} /></div>
-        <div className="form-field"><label>Tempo-alvo</label><input type="text" value={dados.tempo_alvo} onChange={(e) => set('tempo_alvo', e.target.value)} /></div>
-        <div className="form-field"><label>Data/hora</label><input type="datetime-local" value={dados.classificacao_datahora} onChange={(e) => set('classificacao_datahora', e.target.value)} /></div>
-        <div className="form-field"><label>Profissional</label><input type="text" value={dados.classificacao_profissional} onChange={(e) => set('classificacao_profissional', e.target.value)} /></div>
-      </div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 12 }}>16. Destino após avaliação</div>
-      <LinhaCheck opcoes={DESTINO_OPCOES} valores={dados.destino} onChange={(v) => set('destino', v)} />
+      <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 4 }}>
+        Nome e CRM/UF do médico são preenchidos automaticamente pelo cadastro no impresso — só fica o espaço para assinatura/carimbo manual.
+      </p>
 
       {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
       <div className="modal-actions" style={{ marginTop: 14 }}>

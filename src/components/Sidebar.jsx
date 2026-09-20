@@ -28,6 +28,7 @@ export default function Sidebar({
       return false
     }
   })
+  const [abertoMobile, setAbertoMobile] = useState(false)
 
   function toggleSidebar() {
     setFechado((prev) => {
@@ -39,6 +40,7 @@ export default function Sidebar({
     })
   }
 
+
   function trocarTema() {
     setTema(alternarTema())
   }
@@ -46,13 +48,28 @@ export default function Sidebar({
   const nome = enfermeiro?.nome_exibicao || enfermeiro?.nome || 'Profissional'
 
   return (
-    <aside className={`sidebar ${fechado ? 'fechado' : ''}`} id="sidebar">
+    <>
+      {/* Hambúrguer fixo — em telas pequenas é o único elemento do menu
+          visível por padrão; a sidebar inteira fica escondida até abrir. */}
+      <button
+        type="button"
+        className="sidebar-hamburguer-mobile"
+        onClick={() => setAbertoMobile(true)}
+        title="Abrir menu"
+        aria-label="Abrir menu"
+      >
+        ☰
+      </button>
+
+      {abertoMobile && <div className="sidebar-backdrop-mobile" onClick={() => setAbertoMobile(false)} />}
+
+      <aside className={`sidebar ${fechado ? 'fechado' : ''} ${abertoMobile ? 'aberto-mobile' : ''}`} id="sidebar">
       {/* Topo com botão hambúrguer */}
       <div className="sidebar-topo">
         <button
           type="button"
           className="sidebar-hamburguer"
-          onClick={toggleSidebar}
+          onClick={() => (abertoMobile ? setAbertoMobile(false) : toggleSidebar())}
           title={fechado ? 'Expandir menu' : 'Recolher menu'}
           aria-label="Alternar menu"
         >
@@ -65,7 +82,7 @@ export default function Sidebar({
       </div>
 
       {/* Corpo de Navegação */}
-      <nav className="sidebar-corpo">
+      <nav className="sidebar-corpo" onClick={() => setAbertoMobile(false)}>
         {/* GRUPO ASSISTENCIAL */}
         <div className="sidebar-grupo-label">Assistencial</div>
         <button
@@ -268,6 +285,7 @@ export default function Sidebar({
           </button>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   )
 }

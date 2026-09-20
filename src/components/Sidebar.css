@@ -148,6 +148,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: grayscale(1);
 }
 
 .sidebar-item-texto {
@@ -239,6 +240,10 @@
   font-family: inherit;
 }
 
+.sidebar-btn-acao span:first-child {
+  filter: grayscale(1);
+}
+
 .sidebar-btn-acao:hover {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
@@ -252,6 +257,84 @@
   overflow-x: hidden;
   background: var(--c-bg, #F4F6F5);
   position: relative;
+}
+
+/* Hambúrguer fixo (só existe/aparece em telas pequenas — ver media query
+   abaixo). Fica sempre visível, mesmo com a sidebar inteira escondida. */
+.sidebar-hamburguer-mobile {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 19px;
+  border: none;
+  background: var(--c-primary-dark, #0A1F33);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  z-index: 210;
+}
+
+.sidebar-backdrop-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar-hamburguer-mobile {
+    display: flex;
+  }
+
+  /* Some completamente da tela por padrão — sem faixa de ícones ocupando
+     espaço, como pedido. Só reaparece como painel flutuante ao abrir. */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    z-index: 220;
+  }
+
+  .sidebar.fechado {
+    width: 260px;
+  }
+
+  .sidebar.aberto-mobile {
+    transform: translateX(0);
+  }
+
+  .sidebar.aberto-mobile .sidebar-marca,
+  .sidebar.aberto-mobile .sidebar-grupo-label,
+  .sidebar.aberto-mobile .sidebar-item-texto,
+  .sidebar.aberto-mobile .sidebar-item-tag-novo,
+  .sidebar.aberto-mobile .sidebar-user-detalhes,
+  .sidebar.aberto-mobile .sidebar-btn-encerrar-texto {
+    display: revert !important;
+  }
+
+  .sidebar-backdrop-mobile {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 215;
+  }
+
+  .app-shell-sidebar-layout {
+    display: block;
+  }
+
+  .app-shell-conteudo {
+    width: 100vw;
+    padding-top: 54px;
+  }
 }
 
 @media print {

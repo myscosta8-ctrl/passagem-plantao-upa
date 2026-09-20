@@ -647,250 +647,179 @@
   margin-top: 14px;
 }
 
-/* Admissão Médica — modelo completo (17 seções, cabeçalhos azuis, tabelas,
-   grade de checkboxes), bem mais rico que o .doc2-* (papel timbrado simples).
-   Layout de prontuário eletrônico moderno, não de formulário em papel. */
-.adm-page {
-  max-width: 900px;
+/* Admissão Médica — réplica fiel do modelo de referência aprovado
+   (admissao_medica_pep_A4.html): caixa única de dados administrativos,
+   4 blocos de texto livre e assinatura, sem checkboxes nem tabelas. */
+@media print {
+  .admf-document { page: admissao; }
+}
+@page admissao {
+  size: A4;
+  margin: 10mm 12mm 9mm;
+}
+
+.admf-document {
+  --admf-ice: #e9edf0;
+  --admf-ice2: #f4f6f7;
+  --admf-border: #aeb6bc;
+  --admf-dark: #263238;
+  --admf-mid: #5f6b72;
+  width: 100%;
+  max-width: 210mm;
   margin: 0 auto;
-  font-size: 10.5px;
-  color: #1a1a1a;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  color: var(--admf-dark);
 }
 
-.adm-topo {
+.admf-header { margin-bottom: 4mm; }
+
+/* Camada 1 — identidade institucional: timbre fino, sem caixa, mesmo
+   padrão já validado na Prescrição Médica. */
+.admf-topo { display: flex; align-items: center; gap: 6mm; padding-bottom: 2mm; border-bottom: 1.5px solid var(--admf-dark); }
+.admf-topo-texto { flex: 1; }
+.admf-topo-texto .nome { font-weight: 700; font-size: 9px; }
+.admf-topo-texto .sub { font-size: 7.5px; color: var(--admf-mid); margin-top: .5mm; }
+.admf-topo-logos { display: flex; align-items: center; gap: 5mm; }
+.admf-topo-logos img { height: 7mm; width: auto; object-fit: contain; }
+
+/* Camada 2 — título do documento, isolado e centralizado. */
+.admf-titulo { display: flex; align-items: baseline; justify-content: center; margin: 2.5mm 0; }
+.admf-titulo h1 { font-size: 14px; letter-spacing: .3px; margin: 0; font-weight: 700; }
+
+/* Camada 3 — paciente em destaque: nome grande + os 4 dados que
+   qualquer profissional precisa achar em 1 segundo. */
+.admf-paciente {
+  background: var(--admf-ice2);
+  border: 1px solid var(--admf-border);
+  border-radius: 3px;
+  padding: 2.2mm 4mm;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #1a56db;
-  margin-bottom: 10px;
+  gap: 4mm;
+  margin-bottom: 2.5mm;
+}
+.admf-paciente-nome { font-size: 11.5px; font-weight: 700; }
+.admf-paciente-tags { display: flex; gap: 6mm; flex-wrap: wrap; font-size: 8px; align-items: baseline; }
+.admf-paciente-tags b { font-weight: 700; color: var(--admf-mid); text-transform: uppercase; letter-spacing: .02em; margin-right: 1.2mm; }
+
+/* Camada 4 — dados administrativos secundários: densos, discretos,
+   rebaixados visualmente (fonte menor, cor neutra) em relação à
+   camada 3, mas nenhum campo do modelo de referência foi removido. */
+.admf-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 5mm;
+  row-gap: 1.6mm;
+  font-size: 7.3px;
+  color: var(--admf-mid);
+  line-height: 1.3;
 }
 
-.adm-topo img {
-  height: 46px;
-  width: auto;
-  object-fit: contain;
-}
+.admf-mi { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admf-mi b { font-weight: 700; color: var(--admf-dark); margin-right: 1mm; }
+.admf-mi-full { grid-column: 1 / -1; white-space: normal; }
 
-.adm-topo-centro {
-  flex: 1;
-  text-align: center;
-}
-
-.adm-topo-centro h1 {
-  font-size: 16px;
-  margin: 0;
-  color: #1a1a1a;
-}
-
-.adm-topo-centro .sub {
-  font-size: 9px;
-  color: #555;
-  margin-top: 1px;
-}
-
-.adm-titulo-barra {
-  background: #1a56db;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px;
+.admf-section {
+  border: 1px solid var(--admf-border);
   border-radius: 3px;
-  margin-bottom: 10px;
-}
-
-.adm-titulo-barra h2 {
-  margin: 0;
-  font-size: 15px;
-  letter-spacing: 0.03em;
-}
-
-.adm-titulo-barra .atendimento {
-  text-align: right;
-  font-size: 9px;
-}
-
-.adm-titulo-barra .atendimento b {
-  font-size: 11px;
-  display: block;
-}
-
-.adm-secao {
-  border: 1px solid #b8c4d9;
-  border-radius: 3px;
-  margin-bottom: 8px;
+  background: #fff;
+  margin-bottom: 4mm;
   overflow: hidden;
 }
 
-.adm-secao-titulo {
-  background: #eef2fb;
-  color: #1a3a7a;
-  font-size: 10px;
+.admf-section-title {
+  background: var(--admf-ice);
   font-weight: 700;
-  padding: 4px 10px;
-  border-bottom: 1px solid #b8c4d9;
-  text-transform: uppercase;
-}
-
-.adm-secao-corpo {
-  padding: 6px 10px 8px;
-}
-
-.adm-duas-colunas {
-  display: flex;
-  gap: 0;
-}
-
-.adm-duas-colunas > .adm-secao {
-  flex: 1;
-  margin-bottom: 0;
-}
-
-.adm-duas-colunas > .adm-secao:first-child {
-  border-radius: 3px 0 0 3px;
-  border-right: none;
-}
-
-.adm-duas-colunas > .adm-secao:last-child {
-  border-radius: 0 3px 3px 0;
-}
-
-.adm-linha-campos {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-  margin-bottom: 4px;
-}
-
-.adm-campo {
-  min-width: 0;
-}
-
-.adm-campo .cap {
-  font-size: 8px;
-  color: #555;
-  display: block;
-}
-
-.adm-campo .val {
-  font-size: 10.5px;
-  border-bottom: 1px solid #ccc;
-  min-height: 13px;
-  padding-bottom: 1px;
-}
-
-.adm-campo.texto-livre {
-  flex-basis: 100%;
-}
-
-.adm-campo.texto-livre .val {
-  border-bottom: none;
-  white-space: pre-wrap;
-  line-height: 1.35;
-  min-height: 18px;
-}
-
-/* Checkbox estilo caixa preenchida (☑), igual ao mockup moderno — diferente
-   do "(  )" usado na AIH oficial do SUS. */
-.adm-check {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
   font-size: 9.5px;
-  margin-right: 14px;
-  white-space: nowrap;
+  padding: 2.1mm 3mm;
+  letter-spacing: .05px;
 }
 
-.adm-check .box {
-  width: 10px;
-  height: 10px;
-  border: 1px solid #555;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8px;
-  line-height: 1;
-  border-radius: 2px;
-}
+.admf-section-body { padding: 3mm; }
 
-.adm-check.marcado .box {
-  background: #1a56db;
-  border-color: #1a56db;
-  color: #fff;
-  font-weight: 800;
-}
-
-.adm-grid-check {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px 10px;
-}
-
-.adm-tabela {
+.admf-textbox {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 9.5px;
-  margin-top: 2px;
+  font: inherit;
+  color: var(--admf-dark);
+  background: #fff;
+  border: 1px solid var(--admf-border);
+  border-radius: 2px;
+  padding: 2mm;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  box-sizing: border-box;
 }
 
-.adm-tabela th,
-.adm-tabela td {
-  border: 1px solid #d7deec;
-  padding: 3px 6px;
-  text-align: left;
+.admf-hda { min-height: 31mm; }
+.admf-ante { min-height: 24mm; }
+.admf-exam { min-height: 32mm; }
+.admf-plan { min-height: 31mm; }
+
+.admf-clinical-grid { display: grid; grid-template-columns: 59% 41%; gap: 3mm; }
+
+.admf-vitals {
+  background: var(--admf-ice2);
+  border: 1px solid #d4dade;
+  border-radius: 2px;
+  padding: 3mm;
 }
 
-.adm-tabela th {
-  background: #f4f6fb;
-  font-size: 8.5px;
-  text-transform: uppercase;
-  color: #444;
+.admf-vitals-title { font-weight: 700; font-size: 8.5px; margin-bottom: 3mm; }
+.admf-vgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2mm 3mm; font-size: 8px; }
+.admf-vfield { display: flex; align-items: baseline; gap: 1mm; }
+.admf-vfield > b { white-space: nowrap; }
+.admf-vval {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 1px solid var(--admf-dark);
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
+.admf-unit { font-size: 7px; }
 
-/* Um único bloco de assinatura (não dois lado a lado) — espaço de verdade
-   pra assinar E carimbar por cima, com legenda clara embaixo. */
-.adm-assinatura-v2 {
+.admf-reg { margin-top: 3mm; display: flex; align-items: baseline; gap: 1.5mm; font-size: 8px; }
+.admf-vval-wide { flex: 1; min-width: 0; }
+
+/* Bloco final — texto "Cidade/UF, [data] por extenso." à esquerda e caixa
+   de assinatura com espaço pra carimbar à direita, igual ao modelo em PDF. */
+.admf-assinatura {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-top: 10px;
-  font-size: 9.5px;
+  margin-top: 8mm;
+  font-size: 9px;
 }
 
-.adm-assinatura-v2 .data {
-  padding-bottom: 4px;
-}
+.admf-assinatura-texto { padding-bottom: 2mm; }
 
-.adm-assinatura-v2 .bloco {
-  width: 300px;
+.admf-assinatura-caixa {
+  border: 1px solid var(--admf-border);
+  border-radius: 3px;
+  padding: 4mm;
+  width: 70mm;
+  min-height: 26mm;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-.adm-assinatura-v2 .espaco-carimbo {
-  min-height: 80px;
-}
+.admf-sigline { border-bottom: 1px solid var(--admf-dark); height: 9mm; }
+.admf-sig-caption { text-align: center; font-size: 8px; margin-top: 1.2mm; }
+.admf-sig-crm { text-align: center; font-size: 7.5px; color: var(--admf-mid); margin-top: 2mm; }
 
-.adm-assinatura-v2 .linha {
-  border-top: 1px solid #333;
-}
-
-.adm-assinatura-v2 .legenda {
-  font-size: 10px;
-  font-weight: 600;
-  color: #333;
-  margin-top: 4px;
-}
-
-.adm-rodape {
+.admf-footer {
+  border-top: 1px solid var(--admf-border);
+  margin-top: 4mm;
+  padding-top: 2mm;
   display: flex;
   justify-content: space-between;
-  font-size: 8px;
-  color: #777;
-  border-top: 1px solid #ddd;
-  padding-top: 4px;
-  margin-top: 8px;
+  color: var(--admf-mid);
+  font-size: 7px;
 }
 
 /* Prescrição Médica — réplica do modelo aprovado (papel A4 paisagem) */

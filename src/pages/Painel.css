@@ -64,6 +64,56 @@
   color: var(--c-danger);
 }
 
+.leito-menu-acoes {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+}
+
+.leito-menu-botao {
+  background: none;
+  border: none;
+  color: var(--c-text-muted);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.leito-menu-botao:hover {
+  background: var(--c-surface-inset);
+}
+
+.leito-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  min-width: 168px;
+  overflow: hidden;
+}
+
+.leito-menu-dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--c-text);
+  cursor: pointer;
+}
+
+.leito-menu-dropdown button:hover {
+  background: var(--c-surface-inset);
+}
+
 .leito-paciente-nome {
   font-weight: 600;
   font-size: 14px;
