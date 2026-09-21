@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { buscarCabecalhoImpressao } from '../lib/pepMedico'
+import { CorpoHistoricoEnfermagemFiel, CorpoHistoricoEnfermagemProjeto } from './CorpoHistoricoEnfermagem'
 import './PrintView.css'
 
 const TITULOS = {
   sbar: 'Transferência de Paciente — Formato SBAR',
+  historico_enfermagem_fiel: 'Admissão de Enfermagem',
+  historico_enfermagem_projeto: 'Admissão de Enfermagem',
 }
 
 export default function FichaClinicaPrint({ atendimentoId, tipo, registro, onVoltar }) {
@@ -16,7 +19,23 @@ export default function FichaClinicaPrint({ atendimentoId, tipo, registro, onVol
   if (!cabecalho) return null
 
   const { pessoa, atendimento, idade, leitoNumero, setorNome } = cabecalho
+  const medico = registro.enfermeiros
   const dataHora = new Date(registro.criado_em).toLocaleString('pt-BR')
+
+  if (tipo === 'historico_enfermagem_fiel' || tipo === 'historico_enfermagem_projeto') {
+    const Corpo = tipo === 'historico_enfermagem_projeto' ? CorpoHistoricoEnfermagemProjeto : CorpoHistoricoEnfermagemFiel
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <Corpo registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="print-page">

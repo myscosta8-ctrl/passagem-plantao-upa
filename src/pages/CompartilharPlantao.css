@@ -24,6 +24,12 @@
   gap: 6px;
   font-size: 13px;
   color: var(--c-text-primary);
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.compartilhar-check input[type="checkbox"] {
+  flex-shrink: 0;
 }
 
 .compartilhar-nota-extra {

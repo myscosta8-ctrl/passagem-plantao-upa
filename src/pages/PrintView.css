@@ -687,6 +687,30 @@
 .admf-titulo { display: flex; align-items: baseline; justify-content: center; margin: 2.5mm 0; }
 .admf-titulo h1 { font-size: 14px; letter-spacing: .3px; margin: 0; font-weight: 700; }
 
+/* Variante empilhada (título + tag PEP centralizados um sob o outro),
+   usada quando o documento mantém a etiqueta "PEP — ..." junto ao título. */
+.admf-titulo-empilhado { flex-direction: column; align-items: center; gap: 1mm; text-align: center; }
+.admf-titulo-empilhado .admf-pep { font-size: 7.5px; color: var(--admf-mid); text-transform: uppercase; letter-spacing: .03em; }
+
+/* Cabeçalho padrão UPA — reutilizável em documentos que não usam
+   .admf-document (ex.: TFD, Atualização de Quadro Clínico), mantendo o
+   corpo do documento na fonte/estilo próprios (serifada, bureaucrática).
+   Define as mesmas variáveis de cor localmente para reaproveitar
+   .admf-topo / .admf-titulo sem depender do restante do sistema admf-*.
+   Exceção: APAC, Solicitação de Sangue (hemoterápico), SINAN e AIH mantêm
+   o cabeçalho bureaucrático original — não usam esta classe. */
+.doc-cabecalho-upa {
+  --admf-ice: #e9edf0;
+  --admf-ice2: #f4f6f7;
+  --admf-border: #aeb6bc;
+  --admf-dark: #263238;
+  --admf-mid: #5f6b72;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--admf-dark);
+  margin-bottom: 4mm;
+}
+.doc-cabecalho-upa .admf-titulo-numero { text-align: right; font-size: 8px; color: var(--admf-mid); margin-top: -1.5mm; }
+
 /* Camada 3 — paciente em destaque: nome grande + os 4 dados que
    qualquer profissional precisa achar em 1 segundo. */
 .admf-paciente {
@@ -822,6 +846,75 @@
   font-size: 7px;
 }
 
+/* Plano Terapêutico — listas "sem quadrados" (item marcado = negrito + ✓,
+   não-marcado = cinza claro, sem checkbox) e tabela de problemas ativos. */
+.admf-lista-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.8mm 6mm;
+  font-size: 8.5px;
+  padding-left: 2mm;
+  border-left: 2px solid var(--admf-ice);
+}
+
+.admf-planejamento-grid { display: grid; grid-template-columns: 20mm 1fr; gap: 4mm; align-items: start; }
+
+.admf-tempo-previsto {
+  background: var(--admf-ice2);
+  border: 1px solid #d4dade;
+  border-radius: 2px;
+  padding: 1.5mm 1mm;
+  text-align: center;
+}
+
+.admf-tempo-valor { font-size: 11px; font-weight: 700; margin-top: 0.5mm; color: var(--admf-dark); }
+.admf-tempo-valor small { font-size: 6.5px; font-weight: 400; color: var(--admf-mid); margin-left: 0.5mm; }
+
+/* Plano Terapêutico — versão "compacta" do modelo: caixas de texto rasas
+   (o documento precisa caber numa folha A4, não sobrar espaço em branco). */
+.admf-textbox-plano { min-height: 9mm; padding: 1.5mm 2mm; }
+
+/* Sumário de Alta — resumo clínico ganha uma caixa mais alta que as
+   demais (é o campo mais longo do documento). */
+.admf-textbox-alta { min-height: 40mm; padding: 2mm; }
+
+/* Escopo só do Plano Terapêutico — reduz respiro entre seções sem afetar
+   os outros documentos que reaproveitam as mesmas classes admf-*. */
+.admf-document-compacto .admf-section { margin-bottom: 2.5mm; }
+.admf-document-compacto .admf-section-title { padding: 1.4mm 3mm; font-size: 8.5px; }
+.admf-document-compacto .admf-section-body { padding: 2mm 3mm; }
+.admf-document-compacto .admf-header { margin-bottom: 2.5mm; }
+.admf-document-compacto .cap { font-size: 7.5px; }
+.admf-document-compacto .admf-assinatura { margin-top: 3mm; }
+.admf-document-compacto .admf-assinatura-caixa {
+  border: none;
+  background: none;
+  padding: 0;
+  min-height: 0;
+  width: 55mm;
+}
+.admf-document-compacto .admf-sigline { height: 6mm; }
+
+table.admf-tabela-problemas {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5px;
+}
+
+table.admf-tabela-problemas th,
+table.admf-tabela-problemas td {
+  border: 1px solid var(--admf-border);
+  padding: 2mm 3mm;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.admf-tabela-problemas th {
+  background: var(--admf-ice);
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
 /* Prescrição Médica — réplica do modelo aprovado (papel A4 paisagem) */
 @media print {
   .pr-page {
@@ -843,19 +936,37 @@
   box-sizing: border-box;
 }
 
-.pr-topo { display: flex; align-items: center; gap: 16px; }
+/* Fonte fixa (sans-serif) independente do documento que hospeda este
+   cabeçalho — TFD/SER usam Times New Roman no corpo, mas o cabeçalho
+   padrão UPA deve ficar sempre igual, não herdar a fonte do documento. */
+.pr-topo, .pr-titulo, .pr-info { font-family: 'Inter', Arial, Helvetica, sans-serif; }
+.pr-topo { display: flex; align-items: center; gap: 8px; }
 .pr-topo-texto { flex: 1; }
-.pr-topo-texto .nome { font-weight: 700; font-size: 10.5px; }
-.pr-topo-texto .sub { font-size: 9px; }
-.pr-topo-logos { display: flex; align-items: center; gap: 10px; }
-.pr-topo-logos img { height: 38px; width: auto; object-fit: contain; }
-.pr-topo hr { border: none; border-top: 1px solid #000; margin: 4px 0 0; }
+.pr-topo-texto .nome { font-weight: 700; font-size: 7.5px; }
+.pr-topo-texto .sub { font-size: 6px; }
+.pr-topo-logos { display: flex; align-items: center; gap: 4px; }
+.pr-topo-logos img { height: 18px; width: auto; object-fit: contain; }
+.pr-topo hr { border: none; border-top: 1px solid #000; margin: 3px 0 0; }
 
-.pr-titulo { text-align: center; font-size: 13px; font-weight: 700; letter-spacing: .04em; margin: 4px 0 6px; }
+.pr-titulo { text-align: center; font-size: 10px; font-weight: 700; letter-spacing: .03em; margin: 3px 0 4px; }
 
-table.pr-info { width: 100%; border-collapse: collapse; border: 1px solid #999; margin-bottom: 0; }
-table.pr-info td { border: 1px solid #ccc; padding: 2px 6px; font-size: 9px; vertical-align: top; }
-table.pr-info td b { font-weight: 700; }
+/* Grade de identificação (substitui a antiga <table>): cada linha soma
+   100% em larguras dimensionadas ao conteúdo real do campo — evita que
+   campos como PESO fiquem enormes e vazios enquanto CPF/CNS/MÃE+SEXO
+   ficam espremidos e estourem a linha. */
+.pr-info { width: 100%; border: 1px solid #999; }
+.pr-linha { display: flex; }
+.pr-linha + .pr-linha { border-top: 1px solid #ccc; }
+.pr-campo {
+  border-left: 1px solid #ccc;
+  padding: 1px 4px;
+  font-size: 6.5px;
+  line-height: 1.35;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}
+.pr-campo:first-child { border-left: none; }
+.pr-campo b { font-weight: 700; }
 
 .pr-secao-titulo { background: #d9d9d9; border: 1px solid #999; border-top: none; font-weight: 700; font-size: 9.5px; padding: 2px 8px; text-transform: uppercase; }
 
@@ -873,3 +984,256 @@ table.pr-tabela td.qtd, table.pr-tabela td.via, table.pr-tabela td.freq, table.p
 .pr-assinaturas .linha { border-top: 1px solid #333; margin-bottom: 4px; padding-top: 8px; }
 
 .pr-rodape { display: flex; justify-content: space-between; font-size: 8px; color: #333; margin-top: 6px; border-top: 1px solid #999; padding-top: 3px; }
+
+/* Solicitação de Sangue, Componentes e Derivados — réplica fiel do formulário
+   oficial da Fundação Hemopa: bordas finas uniformes, "( )" pra marcar em
+   vez de checkbox preenchido, tabelas com grade real. */
+.sg-page {
+  width: 190mm;
+  max-width: 190mm;
+  margin: 0 auto;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: #000;
+}
+
+.sg-topo { display: flex; align-items: flex-start; gap: 4mm; margin-bottom: 2mm; }
+.sg-topo-logo img { height: 15mm; width: auto; object-fit: contain; }
+.sg-topo-texto { flex: 1; text-align: center; font-size: 7.5px; line-height: 1.3; }
+.sg-topo-texto .nome { font-weight: 700; }
+.sg-topo-aviso { font-size: 6.8px; font-style: italic; text-align: right; width: 55mm; line-height: 1.25; }
+.sg-topo-aviso b { font-style: normal; display: block; margin-top: 1mm; }
+
+.sg-caixa { border: 1px solid #000; margin-bottom: 2mm; }
+
+.sg-titulo {
+  text-align: center;
+  font-weight: 700;
+  font-size: 10.5px;
+  padding: 1.2mm;
+  border-bottom: 1px solid #000;
+}
+
+.sg-linha {
+  padding: 0.5mm 2mm;
+  border-bottom: 1px solid #000;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4mm;
+}
+
+.sg-linha:last-child { border-bottom: none; }
+.sg-linha b { font-weight: 700; margin-right: 0.5mm; }
+.sg-linha i { font-style: normal; font-weight: 700; }
+
+.sg-check { white-space: nowrap; }
+
+table.sg-tabela { width: 100%; border-collapse: collapse; font-size: 9px; }
+table.sg-tabela td { border-top: 1px solid #000; padding: 0.6mm 2mm; }
+table.sg-tabela tr:first-child td { border-top: none; }
+table.sg-tabela td.qtd { width: 20mm; text-align: center; border-left: 1px solid #000; }
+
+table.sg-tabela-hemopa { font-size: 7.5px; }
+table.sg-tabela-hemopa th,
+table.sg-tabela-hemopa td {
+  border: 1px solid #000;
+  padding: 1mm;
+  text-align: center;
+  height: 5mm;
+}
+table.sg-tabela-hemopa th { font-weight: 700; }
+
+.sg-nota { font-size: 9px; margin: 1mm 0; }
+
+.sg-assinatura { display: flex; gap: 6mm; margin: 3mm 0 0; align-items: flex-end; }
+.sg-assinatura-linha { flex: 1; border-bottom: 1px solid #000; padding-bottom: 0.5mm; }
+.sg-assinatura-legenda { text-align: center; font-weight: 700; font-size: 8.5px; margin-bottom: 3mm; }
+
+.sg-opcoes p { margin: 0.8mm 0; }
+
+.sg-linha-solta { margin: 2mm 0; }
+
+/* Formulário Antimicrobiano (ATM) — réplica fiel do modelo oficial da UPA
+   Breves: pilha de caixas com borda fina, rótulo em negrito na frente do
+   valor, igual ao papel timbrado. */
+.atmf-page {
+  width: 190mm;
+  max-width: 190mm;
+  margin: 0 auto;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #000;
+}
+
+.atmf-caixa { border: 1px solid #000; padding: 1.5mm 2.5mm; margin-bottom: 2.5mm; }
+.atmf-caixa b { font-weight: 700; }
+
+.atmf-linha-dupla { display: flex; justify-content: space-between; gap: 6mm; }
+.atmf-col-direita { display: flex; flex-direction: column; gap: 0.5mm; }
+
+.atmf-alta { min-height: 18mm; }
+
+.atmf-tratamento { display: flex; justify-content: space-between; gap: 6mm; align-items: flex-end; }
+.atmf-tratamento-campos { flex: 1; display: flex; flex-direction: column; gap: 1.5mm; }
+.atmf-linha-tripla { display: flex; gap: 6mm; }
+.atmf-forte { font-weight: 700; font-size: 11px; }
+.atmf-forte-italico { font-weight: 700; font-style: italic; }
+
+.atmf-assinatura-medico { width: 40mm; text-align: center; }
+.atmf-sigline { display: block; border-bottom: 1px solid #000; height: 6mm; }
+.atmf-assinatura-medico i { font-size: 9px; }
+
+.atmf-antibioticos { margin-top: 1mm; display: flex; flex-direction: column; gap: 2mm; }
+.atmf-antibioticos-linha { display: flex; gap: 20mm; font-weight: 700; font-style: italic; }
+
+/* Laudo TFD (LM/TFD) — réplica fiel: caixa única externa com sub-seções
+   cujo rótulo fica "grudado" na borda superior, igual ao papel timbrado. */
+.tfdf-page {
+  width: 190mm;
+  max-width: 190mm;
+  margin: 0 auto;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: #000;
+}
+
+/* Bloco 1: dados do paciente + história/exame/diagnóstico — uma única
+   moldura fechada nos 4 lados. */
+.tfdf-doc { border: 1.2px solid #000; }
+
+.tfdf-linha { display: flex; border-bottom: 1px solid #000; }
+.tfdf-campo { flex: 1; padding: 0.8mm 2mm; }
+.tfdf-campo-borda { border-left: 1px solid #000; flex: 0 0 auto; min-width: 32mm; }
+.tfdf-linha-3 .tfdf-campo:first-child { flex: 1 1 auto; }
+.tfdf-linha b { font-weight: 700; }
+
+.tfdf-secao { border-bottom: 1px solid #000; position: relative; margin-top: 3.5mm; padding: 2mm 2mm 1.5mm; }
+.tfdf-secao-ultima { border-bottom: none; }
+.tfdf-secao-titulo {
+  position: absolute;
+  top: -2mm;
+  left: 2mm;
+  background: #fff;
+  padding: 0 1mm;
+  font-weight: 700;
+  font-size: 8.5px;
+}
+.tfdf-secao-corpo { white-space: pre-wrap; }
+.tfdf-secao-grande .tfdf-secao-corpo { min-height: 34mm; }
+.tfdf-secao-media .tfdf-secao-corpo { min-height: 20mm; }
+.tfdf-secao-pequena .tfdf-secao-corpo { min-height: 6mm; }
+
+/* Bloco 2: exame complementar / tratamento / tempo provável — moldura
+   própria, separada do bloco 1 por um respiro, como no modelo oficial. */
+.tfdf-tabela { border: 1.2px solid #000; margin-top: 3.5mm; }
+.tfdf-tabela-linha { display: flex; border-top: 1px solid #000; }
+.tfdf-tabela-linha:first-child { border-top: none; }
+.tfdf-tabela-rotulo { flex: 0 0 42mm; font-weight: 700; padding: 1mm 2mm; border-right: 1px solid #000; }
+.tfdf-tabela-valor { flex: 1; padding: 1mm 2mm; }
+
+/* Bloco 3: profissional responsável — moldura própria. */
+.tfdf-profissional { border: 1.2px solid #000; margin-top: 3.5mm; padding: 2mm 2mm 4mm; position: relative; }
+.tfdf-profissional-titulo {
+  position: absolute; top: -2mm; left: 2mm; background: #fff; padding: 0 1mm;
+  font-weight: 700; font-size: 8.5px;
+}
+.tfdf-profissional-linha { display: flex; align-items: flex-end; justify-content: space-between; gap: 10mm; padding-top: 8mm; }
+.tfdf-assinatura-campo { flex: 0 0 auto; width: 75mm; text-align: center; }
+.tfdf-sigline { border-bottom: 1px solid #000; height: 6mm; }
+.tfdf-assinatura-campo span { font-size: 8px; font-weight: 700; }
+.tfdf-forte { font-weight: 700; font-size: 9px; margin-top: 1mm; }
+.tfdf-assinatura-data { font-size: 9px; white-space: nowrap; padding-bottom: 1mm; }
+
+/* Atualização de Quadro Clínico — SER/SISREG */
+.serf-page { width: 190mm; max-width: 190mm; margin: 0 auto; font-family: 'Times New Roman', Times, serif; font-size: 9.5px; line-height: 1.4; color: #000; }
+
+
+/* Caixas NOME/DATA: rótulo em "aba" flutuando sobre o canto superior
+   esquerdo da borda, valor centralizado dentro — igual ao papel timbrado. */
+.serf-caixa-nome, .serf-caixa-data { border: 1px solid #000; margin-top: 3mm; margin-bottom: 1.5mm; padding: 1.5mm 2mm 1.2mm; position: relative; }
+.serf-tab {
+  position: absolute; top: -2.4mm; left: 2mm; background: #fff; padding: 0 1mm;
+  font-weight: 700; font-size: 7.5px;
+}
+.serf-caixa-nome-valor { font-size: 12px; font-weight: 700; text-align: center; }
+.serf-caixa-data { width: 40mm; }
+.serf-caixa-data-valor { font-size: 9.5px; text-align: center; }
+
+.serf-linha { padding: 0.6mm 0; }
+.serf-linha b { font-weight: 700; }
+
+/* Sinais vitais: campo com caixa fechada nos 4 lados. */
+.serf-vitais { display: flex; gap: 4mm; margin: 4mm 0 3mm; flex-wrap: wrap; }
+.serf-vital { display: flex; flex-direction: column; align-items: stretch; flex: 0 0 auto; }
+.serf-vital-rotulo { font-size: 7.5px; font-weight: 700; margin-bottom: 0.8mm; }
+.serf-vital-caixa {
+  min-width: 17mm; min-height: 5mm; padding: 1mm 2mm;
+  border: 1px solid #000;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 9px;
+}
+
+.serf-secao { margin-top: 3mm; }
+.serf-secao-titulo { font-size: 9px; font-weight: 700; border-bottom: 1px solid #000; padding-bottom: 0.6mm; margin-bottom: 1.5mm; }
+.serf-secao-corpo { min-height: 14mm; white-space: pre-wrap; padding-bottom: 1mm; }
+
+/* Assinatura sempre à direita — nunca à esquerda. */
+.serf-assinatura { margin-top: 12mm; width: 75mm; margin-left: auto; margin-right: 0; text-align: center; }
+.serf-sigline { border-bottom: 1px solid #000; height: 8mm; }
+.serf-assinatura span { font-size: 8.5px; font-weight: 700; }
+
+/* Receituário Médico — página em modo paisagem, com 2 vias lado a lado
+   (paciente/farmácia). Cada via carrega o cabeçalho padrão completo (com
+   logos) mais o título "RECEITA", paciente, itens e assinatura. */
+@media print {
+  .rxf-page { page: receituario; }
+}
+@page receituario {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+.rxf-page {
+  width: 277mm;
+  max-width: 277mm;
+  margin: 0 auto;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  color: #263238;
+}
+
+.rxf-duas-vias { display: flex; gap: 10mm; align-items: stretch; }
+.rxf-coluna { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-right: 0; }
+.rxf-duas-vias .rxf-coluna:first-child { border-right: 1px dashed #999; padding-right: 10mm; }
+
+.rxf-itens { flex: 1; min-height: 60mm; margin-top: 4mm; }
+.rxf-item { margin-bottom: 3mm; font-size: 10px; }
+.rxf-item-nome { font-weight: 700; }
+.rxf-item-instrucao { margin-top: 0.5mm; }
+.rxf-assinatura { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #000; padding-top: 2mm; font-size: 9px; font-weight: 700; }
+
+.rxf-rodape { display: flex; justify-content: space-between; margin-top: 4mm; padding-top: 2mm; border-top: 1px solid #aeb6bc; font-size: 7.5px; color: #5f6b72; }
+
+/* Admissão de Enfermagem — réplica fiel (checkboxes ☒/☐ burocráticos,
+   igual ao modelo "HISTÓRICO DE ENFERMAGEM" original). */
+.hef-page { width: 190mm; max-width: 190mm; margin: 0 auto; font-family: Arial, Helvetica, sans-serif; font-size: 8.5px; line-height: 1.5; color: #000; }
+.hef-secao-titulo { background: #ddd; border: 1px solid #000; border-top: none; font-weight: 700; text-align: center; font-size: 9px; padding: 1mm; }
+.hef-caixa { border: 1px solid #000; border-top: none; padding: 1.5mm 2mm; }
+.hef-caixa-titulo { background: #ddd; font-weight: 700; text-align: center; font-size: 8.5px; padding: 0.8mm; margin: -1.5mm -2mm 1mm; border-bottom: 1px solid #000; }
+.hef-par { display: flex; border: 1px solid #000; }
+.hef-par .hef-caixa { border: none; border-right: 1px solid #000; }
+.hef-par .hef-caixa:last-child { border-right: none; }
+.hef-linha-check { display: flex; flex-wrap: wrap; column-gap: 4mm; row-gap: 0.6mm; align-items: baseline; margin: 0.6mm 0; }
+.hef-opcao { white-space: nowrap; }
+.hef-campo-label { font-weight: 700; }
+.hef-extra { border-bottom: 1px solid #000; padding: 0 1mm; min-width: 25mm; display: inline-block; }
+.hef-extra-largo { min-width: 100mm; }
+.hef-tabela-med { width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 8px; }
+.hef-tabela-med th, .hef-tabela-med td { border: 1px solid #000; padding: 1mm 1.5mm; text-align: left; }
+.hef-tabela-med th { background: #eee; }
+.hef-rodape { display: flex; justify-content: space-between; margin-top: 6mm; font-size: 8.5px; font-weight: 700; }
+

@@ -12,9 +12,14 @@ import {
   listarSorologias, criarSorologia, atualizarSorologia,
   listarHemoterapia, criarHemoterapia, marcarTransfundido,
   buscarPlanoTerapeutico, salvarPlanoTerapeutico,
+  buscarSumarioAlta, salvarSumarioAlta,
   listarApac, criarApac,
   listarAtm, criarAtm,
   listarTfd, criarTfd,
+  listarEvolucoesMedicas, criarEvolucaoMedica,
+  listarNotasIntercorrenciaMedica, criarNotaIntercorrenciaMedica,
+  listarReceitasMedicas, criarReceitaMedica,
+  listarSolicitacoesSangue, criarSolicitacaoSangue,
   listarRegulacao, registrarRegulacao,
   buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao,
   listarMedicacoesContinuas, registrarMedicacaoContinua, suspenderMedicacaoContinua,
@@ -29,11 +34,16 @@ const ABAS = [
   { chave: 'aih', rotulo: 'AIH' },
   { chave: 'exames', rotulo: 'Exames' },
   { chave: 'plano', rotulo: 'Plano Terapêutico' },
+  { chave: 'evolucao', rotulo: 'Evolução Médica Diária' },
+  { chave: 'intercorrencia', rotulo: 'Nota de Intercorrência Médica' },
+  { chave: 'receituario', rotulo: 'Receituário Médico' },
   { chave: 'apac', rotulo: 'APAC' },
   { chave: 'atm', rotulo: 'ATM' },
   { chave: 'tfd', rotulo: 'TFD' },
   { chave: 'regulacao', rotulo: 'Regulação' },
+  { chave: 'sangue', rotulo: 'Solicitação de Sangue' },
   { chave: 'medicacoesContinuas', rotulo: 'Medicações Contínuas' },
+  { chave: 'alta', rotulo: 'Sumário de Alta' },
   { chave: 'auditoria', rotulo: 'Auditoria' },
 ]
 
@@ -81,10 +91,15 @@ export default function FichaMedica({ atendimento, onFechar, embedded = false })
         {aba === 'aih' && <AbaAih atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'aih', registro })} />}
         {aba === 'exames' && <AbaExames atendimento={atendimento} />}
         {aba === 'plano' && <AbaPlanoTerapeutico atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'plano', registro })} />}
+        {aba === 'evolucao' && <AbaEvolucaoMedica atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'evolucao', registro })} />}
+        {aba === 'intercorrencia' && <AbaNotaIntercorrenciaMedica atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'intercorrencia', registro })} />}
+        {aba === 'receituario' && <AbaReceituarioMedico atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'receituario', registro })} />}
+        {aba === 'alta' && <AbaSumarioAlta atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'alta', registro })} />}
         {aba === 'apac' && <AbaApac atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'apac', registro })} />}
         {aba === 'atm' && <AbaAtm atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'atm', registro })} />}
         {aba === 'tfd' && <AbaTfd atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'tfd', registro })} />}
         {aba === 'regulacao' && <AbaRegulacao atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'regulacao', registro })} />}
+        {aba === 'sangue' && <AbaSangue atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'sangue', registro })} />}
         {aba === 'medicacoesContinuas' && <AbaMedicacoesContinuas atendimento={atendimento} medicoId={enfermeiro?.id} />}
         {aba === 'auditoria' && <AbaAuditoria atendimento={atendimento} />}
 
@@ -748,16 +763,16 @@ function AbaAih({ atendimento, medicoId, onImprimir }) {
         <div style={{ gridColumn: '1 / -1', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: 8 }}>Preencher em caso de causas externas</div>
         <div className="form-field span-3">
           <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400 }}>
-              <input type="checkbox" checked={dados.causa_externa_transito} onChange={(e) => set('causa_externa_transito', e.target.checked)} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400, flex: '0 0 auto', whiteSpace: 'nowrap' }}>
+              <input type="checkbox" checked={dados.causa_externa_transito} onChange={(e) => set('causa_externa_transito', e.target.checked)} style={{ flexShrink: 0 }} />
               Acidente de trânsito
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400 }}>
-              <input type="checkbox" checked={dados.causa_externa_trabalho_tipico} onChange={(e) => set('causa_externa_trabalho_tipico', e.target.checked)} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400, flex: '0 0 auto', whiteSpace: 'nowrap' }}>
+              <input type="checkbox" checked={dados.causa_externa_trabalho_tipico} onChange={(e) => set('causa_externa_trabalho_tipico', e.target.checked)} style={{ flexShrink: 0 }} />
               Acidente trabalho típico
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400 }}>
-              <input type="checkbox" checked={dados.causa_externa_trabalho_trajeto} onChange={(e) => set('causa_externa_trabalho_trajeto', e.target.checked)} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400, flex: '0 0 auto', whiteSpace: 'nowrap' }}>
+              <input type="checkbox" checked={dados.causa_externa_trabalho_trajeto} onChange={(e) => set('causa_externa_trabalho_trajeto', e.target.checked)} style={{ flexShrink: 0 }} />
               Acidente trabalho trajeto
             </label>
           </div>
@@ -1084,13 +1099,31 @@ function AbaExames({ atendimento }) {
   )
 }
 
-const PROTOCOLOS_OPCOES = ['Prevenção de queda', 'Prevenção de LPP', 'Prevenção de TEV', 'Sepse', 'AVC']
-const EQUIPE_OPCOES = ['Enfermagem', 'Fisioterapia', 'Nutrição', 'Psicologia', 'Serviço Social', 'Farmácia']
+// Alinhado ao modelo de referência (plano_terapeutico_upa_breves_modelo_compacto) —
+// mesma lista fixa de protocolos e de equipe do documento oficial.
+const PROTOCOLOS_OPCOES = [
+  'TEV — Tromboembolismo Venoso', 'Dor torácica / Síndrome Coronariana Aguda',
+  'AVC — Acidente Vascular Cerebral', 'SEPSE / Choque Séptico',
+  'Anafilaxia', 'Insuficiência Respiratória / Via Aérea',
+  'Emergências glicêmicas',
+]
+const EQUIPE_OPCOES = ['Enfermagem', 'Fisioterapia', 'Nutrição', 'Serviço Social', 'Psicologia']
 
+const PROBLEMA_VAZIO = { descricao: '', meta: '', conduta: '', prazo: '' }
+
+// Estrutura orientada por problema (POPE/SOAP — Lawrence Weed) + a regra
+// prática de que todo plano só se sustenta se responder 4 perguntas: aonde
+// queremos chegar (meta), por quais meios (conduta), em quanto tempo
+// (prazo) e como saberemos que chegou (critério de alta). Nada do que já
+// existia foi removido — só adicionado o que faltava pra isso funcionar
+// como plano de verdade, não uma lista solta de campos.
 function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir }) {
   const [dados, setDados] = useState({
-    motivo_internacao: '', objetivos_terapeuticos: '', protocolos_elegiveis: [],
-    tempo_internacao_previsto_dias: '', equipe_multidisciplinar: [],
+    diagnostico_principal_cid: '', diagnosticos_texto: '', motivo_internacao: '', objetivos_terapeuticos: '', protocolos_elegiveis: [],
+    protocolo_outro: '', medidas_seguranca_texto: '',
+    tempo_internacao_previsto_dias: '', equipe_multidisciplinar: [], equipe_outros: '',
+    problemas_ativos: [], comorbidades_antecedentes: '', medicacoes_uso_continuo: '',
+    criterios_alta: '', data_reavaliacao_prevista: '', feedback_equipe: '',
   })
   const [salvo, setSalvo] = useState(null)
   const [carregando, setCarregando] = useState(true)
@@ -1100,10 +1133,21 @@ function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir }) {
   useEffect(() => {
     buscarPlanoTerapeutico(atendimento.atendimento_id).then((p) => {
       if (p) {
+        const extra = p.campos_extra || {}
         setDados({
+          diagnostico_principal_cid: p.diagnostico_principal_cid || '',
+          diagnosticos_texto: extra.diagnosticos_texto || '',
           motivo_internacao: p.motivo_internacao || '', objetivos_terapeuticos: p.objetivos_terapeuticos || '',
-          protocolos_elegiveis: p.protocolos_elegiveis || [], tempo_internacao_previsto_dias: p.tempo_internacao_previsto_dias || '',
-          equipe_multidisciplinar: p.equipe_multidisciplinar || [],
+          protocolos_elegiveis: p.protocolos_elegiveis || [], protocolo_outro: extra.protocolo_outro || '',
+          medidas_seguranca_texto: extra.medidas_seguranca_texto || '',
+          tempo_internacao_previsto_dias: p.tempo_internacao_previsto_dias || '',
+          equipe_multidisciplinar: p.equipe_multidisciplinar || [], equipe_outros: extra.equipe_outros || '',
+          problemas_ativos: extra.problemas_ativos || [],
+          comorbidades_antecedentes: extra.comorbidades_antecedentes || '',
+          medicacoes_uso_continuo: extra.medicacoes_uso_continuo || '',
+          criterios_alta: extra.criterios_alta || '',
+          data_reavaliacao_prevista: extra.data_reavaliacao_prevista || '',
+          feedback_equipe: extra.feedback_equipe || '',
         })
         setSalvo(p)
       }
@@ -1119,11 +1163,31 @@ function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir }) {
     }))
   }
 
+  function setProblema(i, campo, valor) {
+    setDados((prev) => ({ ...prev, problemas_ativos: prev.problemas_ativos.map((p, idx) => (idx === i ? { ...p, [campo]: valor } : p)) }))
+  }
+  function adicionarProblema() {
+    setDados((prev) => ({ ...prev, problemas_ativos: [...prev.problemas_ativos, { ...PROBLEMA_VAZIO }] }))
+  }
+  function removerProblema(i) {
+    setDados((prev) => ({ ...prev, problemas_ativos: prev.problemas_ativos.filter((_, idx) => idx !== i) }))
+  }
+
   async function salvar() {
     setSalvando(true)
+    const {
+      diagnostico_principal_cid, motivo_internacao, objetivos_terapeuticos, protocolos_elegiveis,
+      tempo_internacao_previsto_dias, equipe_multidisciplinar, ...extra
+    } = dados
     const { data } = await salvarPlanoTerapeutico({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
-      dados: { ...dados, tempo_internacao_previsto_dias: dados.tempo_internacao_previsto_dias ? Number(dados.tempo_internacao_previsto_dias) : null },
+      dados: {
+        diagnostico_principal_cid: diagnostico_principal_cid || null,
+        motivo_internacao, objetivos_terapeuticos, protocolos_elegiveis,
+        tempo_internacao_previsto_dias: tempo_internacao_previsto_dias ? Number(tempo_internacao_previsto_dias) : null,
+        equipe_multidisciplinar,
+        campos_extra: extra,
+      },
     })
     setSalvando(false)
     setSucesso(true)
@@ -1136,21 +1200,64 @@ function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir }) {
     <div className="form-section">
       <div className="form-section-title">Plano terapêutico</div>
       <div className="form-grid">
+        <div className="form-field">
+          <label>Diagnóstico principal (CID-10)</label>
+          <input type="text" placeholder="Ex: J18.9" value={dados.diagnostico_principal_cid} onChange={(e) => set('diagnostico_principal_cid', e.target.value)} />
+        </div>
+        <div className="form-field span-2">
+          <label>Diagnósticos (descrição livre)</label>
+          <input type="text" value={dados.diagnosticos_texto} onChange={(e) => set('diagnosticos_texto', e.target.value)} />
+        </div>
         <div className="form-field span-3">
           <label>Motivo da internação</label>
           <textarea value={dados.motivo_internacao} onChange={(e) => set('motivo_internacao', e.target.value)} />
         </div>
         <div className="form-field span-3">
-          <label>Objetivos terapêuticos</label>
-          <textarea value={dados.objetivos_terapeuticos} onChange={(e) => set('objetivos_terapeuticos', e.target.value)} />
+          <label>Comorbidades / antecedentes relevantes</label>
+          <textarea value={dados.comorbidades_antecedentes} onChange={(e) => set('comorbidades_antecedentes', e.target.value)} />
         </div>
         <div className="form-field span-3">
-          <label>Protocolos institucionais elegíveis</label>
+          <label>Medicações em uso contínuo</label>
+          <textarea value={dados.medicacoes_uso_continuo} onChange={(e) => set('medicacoes_uso_continuo', e.target.value)} />
+        </div>
+        <div className="form-field span-3">
+          <label>Objetivos terapêuticos gerais — aonde queremos chegar</label>
+          <textarea value={dados.objetivos_terapeuticos} onChange={(e) => set('objetivos_terapeuticos', e.target.value)} />
+        </div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>
+        Problemas ativos — por quais meios e em quanto tempo
+      </div>
+      {dados.problemas_ativos.map((p, i) => (
+        <div key={i} style={{ border: '1px solid var(--color-border)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
+          <div className="form-grid">
+            <div className="form-field span-3"><label>Problema / diagnóstico</label><input type="text" value={p.descricao} onChange={(e) => setProblema(i, 'descricao', e.target.value)} /></div>
+            <div className="form-field span-2"><label>Meta</label><input type="text" value={p.meta} onChange={(e) => setProblema(i, 'meta', e.target.value)} /></div>
+            <div className="form-field"><label>Prazo</label><input type="text" placeholder="Ex: 48h" value={p.prazo} onChange={(e) => setProblema(i, 'prazo', e.target.value)} /></div>
+            <div className="form-field span-3"><label>Conduta / meios</label><input type="text" value={p.conduta} onChange={(e) => setProblema(i, 'conduta', e.target.value)} /></div>
+          </div>
+          <button type="button" className="modal-btn-secondary" onClick={() => removerProblema(i)} style={{ marginTop: 6 }}>Remover</button>
+        </div>
+      ))}
+      <button type="button" className="modal-btn-secondary" onClick={adicionarProblema}>+ Adicionar problema</button>
+
+      <div className="form-grid" style={{ marginTop: 16 }}>
+        <div className="form-field span-3">
+          <label>Protocolos clínicos aplicáveis</label>
           <div className="chip-group">
             {PROTOCOLOS_OPCOES.map((p) => (
               <button key={p} type="button" className={`chip ${dados.protocolos_elegiveis.includes(p) ? 'on' : ''}`} onClick={() => toggleLista('protocolos_elegiveis', p)}>{p}</button>
             ))}
           </div>
+        </div>
+        <div className="form-field span-3">
+          <label>Outro protocolo institucional</label>
+          <input type="text" value={dados.protocolo_outro} onChange={(e) => set('protocolo_outro', e.target.value)} />
+        </div>
+        <div className="form-field span-3">
+          <label>Medidas de segurança assistencial — aplicadas / pertinentes</label>
+          <textarea value={dados.medidas_seguranca_texto} onChange={(e) => set('medidas_seguranca_texto', e.target.value)} />
         </div>
         <div className="form-field">
           <label>Tempo de internação previsto (dias)</label>
@@ -1164,10 +1271,97 @@ function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir }) {
             ))}
           </div>
         </div>
+        <div className="form-field span-3">
+          <label>Outros profissionais envolvidos</label>
+          <input type="text" value={dados.equipe_outros} onChange={(e) => set('equipe_outros', e.target.value)} />
+        </div>
+        <div className="form-field span-3">
+          <label>Critérios de alta — como saberemos que chegou</label>
+          <textarea value={dados.criterios_alta} onChange={(e) => set('criterios_alta', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label>Reavaliação prevista</label>
+          <input type="date" value={dados.data_reavaliacao_prevista} onChange={(e) => set('data_reavaliacao_prevista', e.target.value)} />
+        </div>
+        <div className="form-field span-3">
+          <label>Feedback da equipe multiprofissional</label>
+          <textarea value={dados.feedback_equipe} onChange={(e) => set('feedback_equipe', e.target.value)} />
+        </div>
       </div>
+
       {sucesso && <p style={{ fontSize: 12, color: 'var(--c-primary)', marginTop: 14 }}>Plano terapêutico salvo.</p>}
       <div className="modal-actions" style={{ marginTop: 14 }}>
         <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar plano'}</button>
+        {salvo && <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(salvo)}>Imprimir</button>}
+      </div>
+    </div>
+  )
+}
+
+function AbaSumarioAlta({ atendimento, medicoId, onImprimir }) {
+  const [dados, setDados] = useState({
+    data_internacao: '', data_alta: '',
+    diagnostico_internacao: '', cid_internacao: '',
+    diagnostico_alta: '', cid_alta: '',
+    resumo_clinico: '', orientacoes_continuidade: '',
+  })
+  const [salvo, setSalvo] = useState(null)
+  const [carregando, setCarregando] = useState(true)
+  const [salvando, setSalvando] = useState(false)
+  const [sucesso, setSucesso] = useState(false)
+
+  useEffect(() => {
+    buscarSumarioAlta(atendimento.atendimento_id).then((s) => {
+      if (s) {
+        setDados({
+          data_internacao: s.data_internacao || '', data_alta: s.data_alta || '',
+          diagnostico_internacao: s.diagnostico_internacao || '', cid_internacao: s.cid_internacao || '',
+          diagnostico_alta: s.diagnostico_alta || '', cid_alta: s.cid_alta || '',
+          resumo_clinico: s.resumo_clinico || '', orientacoes_continuidade: s.orientacoes_continuidade || '',
+        })
+        setSalvo(s)
+      }
+      setCarregando(false)
+    })
+  }, [atendimento.atendimento_id])
+
+  function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
+
+  async function salvar() {
+    setSalvando(true)
+    const { data } = await salvarSumarioAlta({
+      atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
+      dados: {
+        data_internacao: dados.data_internacao || null, data_alta: dados.data_alta || null,
+        diagnostico_internacao: dados.diagnostico_internacao || null, cid_internacao: dados.cid_internacao || null,
+        diagnostico_alta: dados.diagnostico_alta || null, cid_alta: dados.cid_alta || null,
+        resumo_clinico: dados.resumo_clinico || null, orientacoes_continuidade: dados.orientacoes_continuidade || null,
+      },
+    })
+    setSalvando(false)
+    setSucesso(true)
+    setSalvo(data)
+  }
+
+  if (carregando) return <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Sumário de alta</div>
+      <div className="form-grid">
+        <div className="form-field"><label>Data de internação</label><input type="date" value={dados.data_internacao} onChange={(e) => set('data_internacao', e.target.value)} /></div>
+        <div className="form-field"><label>Data da alta</label><input type="date" value={dados.data_alta} onChange={(e) => set('data_alta', e.target.value)} /></div>
+        <div className="form-field span-2"><label>Diagnóstico de internação</label><input type="text" value={dados.diagnostico_internacao} onChange={(e) => set('diagnostico_internacao', e.target.value)} /></div>
+        <div className="form-field"><label>CID</label><input type="text" placeholder="Ex: J18.9" value={dados.cid_internacao} onChange={(e) => set('cid_internacao', e.target.value)} /></div>
+        <div className="form-field span-2"><label>Diagnóstico de alta</label><input type="text" value={dados.diagnostico_alta} onChange={(e) => set('diagnostico_alta', e.target.value)} /></div>
+        <div className="form-field"><label>CID</label><input type="text" placeholder="Ex: J18.9" value={dados.cid_alta} onChange={(e) => set('cid_alta', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Resumo clínico</label><textarea value={dados.resumo_clinico} onChange={(e) => set('resumo_clinico', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Orientações para continuidade do tratamento</label><textarea value={dados.orientacoes_continuidade} onChange={(e) => set('orientacoes_continuidade', e.target.value)} /></div>
+      </div>
+
+      {sucesso && <p style={{ fontSize: 12, color: 'var(--c-primary)', marginTop: 14 }}>Sumário de alta salvo.</p>}
+      <div className="modal-actions" style={{ marginTop: 14 }}>
+        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar sumário'}</button>
         {salvo && <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(salvo)}>Imprimir</button>}
       </div>
     </div>
@@ -1261,7 +1455,11 @@ function AbaApac({ atendimento, medicoId, onImprimir }) {
   )
 }
 
-const ATM_VAZIA = { medicamento: '', posologia: '', dose: '', intervalo: '', tempo_uso_dias: '', justificativa_clinica: '' }
+const ATM_VAZIA = {
+  medicamento: '', posologia: '', dose: '', intervalo: '', tempo_uso_dias: '', justificativa_clinica: '',
+  diagnostico: '', data_internacao: '', tratamento_pretendido: '',
+  dxixt: '', ampolas: '', frasco_ampolas: '', bolsas: '',
+}
 
 function AbaAtm({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])
@@ -1281,9 +1479,16 @@ function AbaAtm({ atendimento, medicoId, onImprimir }) {
     }
     setErro('')
     setSalvando(true)
+    const {
+      medicamento, posologia, dose, intervalo, tempo_uso_dias, justificativa_clinica, ...extra
+    } = dados
     const { error } = await criarAtm({
       atendimentoId: atendimento.atendimento_id, solicitanteId: medicoId,
-      dados: { ...dados, tempo_uso_dias: dados.tempo_uso_dias ? Number(dados.tempo_uso_dias) : null },
+      dados: {
+        medicamento, posologia, dose, intervalo, justificativa_clinica,
+        tempo_uso_dias: tempo_uso_dias ? Number(tempo_uso_dias) : null,
+        campos_extra: extra,
+      },
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
@@ -1298,11 +1503,18 @@ function AbaAtm({ atendimento, medicoId, onImprimir }) {
         Liberação de antibiótico de uso restrito — o parecer da farmácia é dado manualmente, fora do sistema. Aqui só registra a solicitação e gera o documento completo pra impressão, parecer, assinatura e carimbo do farmacêutico.
       </p>
       <div className="form-grid">
+        <div className="form-field span-2"><label>Diagnóstico</label><input type="text" value={dados.diagnostico} onChange={(e) => set('diagnostico', e.target.value)} /></div>
+        <div className="form-field"><label>Data de internação</label><input type="date" value={dados.data_internacao} onChange={(e) => set('data_internacao', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Tratamento pretendido</label><input type="text" value={dados.tratamento_pretendido} onChange={(e) => set('tratamento_pretendido', e.target.value)} /></div>
         <div className="form-field span-2"><label>Medicamento *</label><input type="text" value={dados.medicamento} onChange={(e) => set('medicamento', e.target.value)} /></div>
         <div className="form-field"><label>Dose</label><input type="text" value={dados.dose} onChange={(e) => set('dose', e.target.value)} /></div>
         <div className="form-field"><label>Posologia</label><input type="text" value={dados.posologia} onChange={(e) => set('posologia', e.target.value)} /></div>
         <div className="form-field"><label>Intervalo</label><input type="text" placeholder="ex: 8/8h" value={dados.intervalo} onChange={(e) => set('intervalo', e.target.value)} /></div>
         <div className="form-field"><label>Tempo de uso (dias)</label><input type="number" value={dados.tempo_uso_dias} onChange={(e) => set('tempo_uso_dias', e.target.value)} /></div>
+        <div className="form-field"><label>DxIxT</label><input type="text" value={dados.dxixt} onChange={(e) => set('dxixt', e.target.value)} /></div>
+        <div className="form-field"><label>Ampolas</label><input type="text" value={dados.ampolas} onChange={(e) => set('ampolas', e.target.value)} /></div>
+        <div className="form-field"><label>Frasco-ampolas</label><input type="text" value={dados.frasco_ampolas} onChange={(e) => set('frasco_ampolas', e.target.value)} /></div>
+        <div className="form-field"><label>Bolsas</label><input type="text" value={dados.bolsas} onChange={(e) => set('bolsas', e.target.value)} /></div>
         <div className="form-field span-3"><label>Justificativa clínica *</label><textarea value={dados.justificativa_clinica} onChange={(e) => set('justificativa_clinica', e.target.value)} /></div>
       </div>
       {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
@@ -1333,7 +1545,10 @@ function AbaAtm({ atendimento, medicoId, onImprimir }) {
   )
 }
 
-const TFD_VAZIA = { historia_doenca_atual: '', exame_fisico: '', diagnostico: '', exame_complementar: '', tratamento_realizado: '', tratamento_indicado: '', tempo_provavel_dias: '', acompanhante_nome: '', acompanhante_relacao: '' }
+const TFD_VAZIA = {
+  historia_doenca_atual: '', exame_fisico: '', diagnostico: '', exame_complementar: '', tratamento_realizado: '', tratamento_indicado: '', tempo_provavel_dias: '', acompanhante_nome: '', acompanhante_relacao: '',
+  identidade: '', profissao: '', numero_laudo: '',
+}
 
 function AbaTfd({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])
@@ -1353,9 +1568,20 @@ function AbaTfd({ atendimento, medicoId, onImprimir }) {
     }
     setErro('')
     setSalvando(true)
+    const {
+      historia_doenca_atual, exame_fisico, diagnostico, exame_complementar,
+      tratamento_realizado, tratamento_indicado, tempo_provavel_dias,
+      acompanhante_nome, acompanhante_relacao, ...extra
+    } = dados
     const { error } = await criarTfd({
       atendimentoId: atendimento.atendimento_id, profissionalResponsavel: medicoId,
-      dados: { ...dados, tempo_provavel_dias: dados.tempo_provavel_dias ? Number(dados.tempo_provavel_dias) : null },
+      dados: {
+        historia_doenca_atual, exame_fisico, diagnostico, exame_complementar,
+        tratamento_realizado, tratamento_indicado,
+        tempo_provavel_dias: tempo_provavel_dias ? Number(tempo_provavel_dias) : null,
+        acompanhante_nome, acompanhante_relacao,
+        campos_extra: extra,
+      },
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
@@ -1367,6 +1593,9 @@ function AbaTfd({ atendimento, medicoId, onImprimir }) {
     <div className="form-section">
       <div className="form-section-title">Novo laudo de TFD</div>
       <div className="form-grid">
+        <div className="form-field"><label>Nº do laudo</label><input type="text" value={dados.numero_laudo} onChange={(e) => set('numero_laudo', e.target.value)} /></div>
+        <div className="form-field"><label>Identidade (RG)</label><input type="text" value={dados.identidade} onChange={(e) => set('identidade', e.target.value)} /></div>
+        <div className="form-field"><label>Profissão</label><input type="text" value={dados.profissao} onChange={(e) => set('profissao', e.target.value)} /></div>
         <div className="form-field span-3"><label>História da doença atual</label><textarea value={dados.historia_doenca_atual} onChange={(e) => set('historia_doenca_atual', e.target.value)} /></div>
         <div className="form-field span-3"><label>Exame físico</label><textarea value={dados.exame_fisico} onChange={(e) => set('exame_fisico', e.target.value)} /></div>
         <div className="form-field span-3"><label>Diagnóstico *</label><input type="text" value={dados.diagnostico} onChange={(e) => set('diagnostico', e.target.value)} /></div>
@@ -1402,6 +1631,460 @@ function AbaTfd({ atendimento, medicoId, onImprimir }) {
   )
 }
 
+const RISCO_TEV_OPCOES = ['Baixo risco', 'Moderado risco', 'Alto risco']
+
+const EVOLUCAO_VAZIA = {
+  diagnosticos: '', historia_doenca_atual: '',
+  comorbidades: false, comorbidades_texto: '',
+  reconciliacao_medicamentosa: false, reconciliacao_texto: '',
+  alergias: false, alergias_texto: '',
+  risco_tev: '', criterios_sepse: false, antibioticoterapia: '',
+  evolucao_dia: '', exame_fisico: '', plano_terapeutico: '',
+  exames_laboratorio: '', aguarda_exames: false, aguarda_exames_texto: '',
+  data_prevista_alta: '', conduta_medica: '',
+}
+
+function CampoSimNao({ label, valor, onChange }) {
+  return (
+    <div className="form-field">
+      <label>{label}</label>
+      <div className="toggle-group" style={{ maxWidth: 160 }}>
+        <button type="button" className={`toggle-btn ${!valor ? 'on' : ''}`} onClick={() => onChange(false)}>Não</button>
+        <button type="button" className={`toggle-btn ${valor ? 'on' : ''}`} onClick={() => onChange(true)}>Sim</button>
+      </div>
+    </div>
+  )
+}
+
+function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [dados, setDados] = useState(EVOLUCAO_VAZIA)
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+  async function carregar() { setCarregando(true); setHistorico(await listarEvolucoesMedicas(atendimento.atendimento_id)); setCarregando(false) }
+  function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
+
+  async function salvar() {
+    if (!dados.evolucao_dia.trim() || !dados.exame_fisico.trim()) {
+      setErro('Preencha ao menos a evolução do dia e o exame físico.')
+      return
+    }
+    setErro('')
+    setSalvando(true)
+    const { error } = await criarEvolucaoMedica({
+      atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
+      dados: {
+        diagnosticos: dados.diagnosticos || null, historia_doenca_atual: dados.historia_doenca_atual || null,
+        comorbidades: dados.comorbidades, comorbidades_texto: dados.comorbidades ? (dados.comorbidades_texto || null) : null,
+        reconciliacao_medicamentosa: dados.reconciliacao_medicamentosa, reconciliacao_texto: dados.reconciliacao_medicamentosa ? (dados.reconciliacao_texto || null) : null,
+        alergias: dados.alergias, alergias_texto: dados.alergias ? (dados.alergias_texto || null) : null,
+        risco_tev: dados.risco_tev || null, criterios_sepse: dados.criterios_sepse,
+        antibioticoterapia: dados.antibioticoterapia || null,
+        evolucao_dia: dados.evolucao_dia, exame_fisico: dados.exame_fisico,
+        plano_terapeutico: dados.plano_terapeutico || null,
+        exames_laboratorio: dados.exames_laboratorio || null,
+        aguarda_exames: dados.aguarda_exames, aguarda_exames_texto: dados.aguarda_exames ? (dados.aguarda_exames_texto || null) : null,
+        data_prevista_alta: dados.data_prevista_alta || null,
+        conduta_medica: dados.conduta_medica || null,
+      },
+    })
+    setSalvando(false)
+    if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    setDados(EVOLUCAO_VAZIA)
+    carregar()
+  }
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Nova evolução médica diária</div>
+      <div className="form-grid">
+        <div className="form-field span-3"><label>Diagnósticos (incluir todos, o principal na primeira linha)</label><textarea value={dados.diagnosticos} onChange={(e) => set('diagnosticos', e.target.value)} /></div>
+        <div className="form-field span-3"><label>História da doença atual</label><textarea value={dados.historia_doenca_atual} onChange={(e) => set('historia_doenca_atual', e.target.value)} /></div>
+
+        <CampoSimNao label="Comorbidades?" valor={dados.comorbidades} onChange={(v) => set('comorbidades', v)} />
+        {dados.comorbidades && <div className="form-field span-2"><label>Especificar comorbidades</label><input type="text" value={dados.comorbidades_texto} onChange={(e) => set('comorbidades_texto', e.target.value)} /></div>}
+
+        <CampoSimNao label="Reconciliação medicamentosa?" valor={dados.reconciliacao_medicamentosa} onChange={(v) => set('reconciliacao_medicamentosa', v)} />
+        {dados.reconciliacao_medicamentosa && <div className="form-field span-2"><label>Itens reconciliados em prescrição</label><input type="text" value={dados.reconciliacao_texto} onChange={(e) => set('reconciliacao_texto', e.target.value)} /></div>}
+
+        <CampoSimNao label="Alergias?" valor={dados.alergias} onChange={(v) => set('alergias', v)} />
+        {dados.alergias && <div className="form-field span-2"><label>Qual medicação</label><input type="text" value={dados.alergias_texto} onChange={(e) => set('alergias_texto', e.target.value)} /></div>}
+
+        <div className="form-field">
+          <label>Risco para TEV</label>
+          <select value={dados.risco_tev} onChange={(e) => set('risco_tev', e.target.value)}>
+            <option value="">—</option>
+            {RISCO_TEV_OPCOES.map((r) => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </div>
+        <CampoSimNao label="2 critérios para protocolo de sepse?" valor={dados.criterios_sepse} onChange={(v) => set('criterios_sepse', v)} />
+        <div className="form-field"><label>Antibioticoterapia atual (nome, início, duração)</label><input type="text" value={dados.antibioticoterapia} onChange={(e) => set('antibioticoterapia', e.target.value)} /></div>
+
+        <div className="form-field span-3"><label>Evolução do dia *</label><textarea value={dados.evolucao_dia} onChange={(e) => set('evolucao_dia', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Exame físico *</label><textarea value={dados.exame_fisico} onChange={(e) => set('exame_fisico', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Plano terapêutico (objetivos da terapêutica, atualizados)</label><textarea value={dados.plano_terapeutico} onChange={(e) => set('plano_terapeutico', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Laboratório / cultura / exames de imagem</label><textarea value={dados.exames_laboratorio} onChange={(e) => set('exames_laboratorio', e.target.value)} /></div>
+
+        <CampoSimNao label="Aguarda exames?" valor={dados.aguarda_exames} onChange={(v) => set('aguarda_exames', v)} />
+        {dados.aguarda_exames && <div className="form-field span-2"><label>Especificar</label><input type="text" value={dados.aguarda_exames_texto} onChange={(e) => set('aguarda_exames_texto', e.target.value)} /></div>}
+
+        <div className="form-field"><label>Data prevista da alta hospitalar</label><input type="date" value={dados.data_prevista_alta} onChange={(e) => set('data_prevista_alta', e.target.value)} /></div>
+        <div className="form-field span-3"><label>Conduta médica</label><textarea value={dados.conduta_medica} onChange={(e) => set('conduta_medica', e.target.value)} /></div>
+      </div>
+      {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
+      <div className="modal-actions" style={{ marginTop: 14 }}>
+        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Registrar evolução'}</button>
+      </div>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
+      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : historico.length === 0 ? (
+        <p style={{ color: 'var(--color-text-muted)' }}>Nenhuma evolução registrada ainda.</p>
+      ) : historico.map((e) => (
+        <div key={e.id} style={{ borderBottom: '1px solid var(--color-border)', padding: '10px 0', fontSize: 13 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <p style={{ margin: '0 0 4px', whiteSpace: 'pre-wrap' }}>{e.evolucao_dia}</p>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
+                {e.enfermeiros?.nome_exibicao || e.enfermeiros?.nome} · {new Date(e.criado_em).toLocaleString('pt-BR')}
+              </div>
+            </div>
+            <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(e)}>Imprimir</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onImprimir }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [notas, setNotas] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+  async function carregar() { setCarregando(true); setHistorico(await listarNotasIntercorrenciaMedica(atendimento.atendimento_id)); setCarregando(false) }
+
+  async function salvar() {
+    if (!notas.trim()) { setErro('Preencha a nota.'); return }
+    setErro('')
+    setSalvando(true)
+    const { error } = await criarNotaIntercorrenciaMedica({
+      atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
+      dados: { notas: notas.trim() },
+    })
+    setSalvando(false)
+    if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    setNotas('')
+    carregar()
+  }
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Nova nota de intercorrência médica</div>
+      <div className="form-grid">
+        <div className="form-field span-3"><label>Notas *</label><textarea rows={6} value={notas} onChange={(e) => setNotas(e.target.value)} /></div>
+      </div>
+      {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
+      <div className="modal-actions" style={{ marginTop: 14 }}>
+        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Registrar nota'}</button>
+      </div>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
+      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : historico.length === 0 ? (
+        <p style={{ color: 'var(--color-text-muted)' }}>Nenhuma nota registrada ainda.</p>
+      ) : historico.map((n) => (
+        <div key={n.id} style={{ borderBottom: '1px solid var(--color-border)', padding: '10px 0', fontSize: 13 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <p style={{ margin: '0 0 4px', whiteSpace: 'pre-wrap' }}>{n.notas}</p>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
+                {n.enfermeiros?.nome_exibicao || n.enfermeiros?.nome} · {new Date(n.criado_em).toLocaleString('pt-BR')}
+              </div>
+            </div>
+            <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(n)}>Imprimir</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const RECEITA_ITEM_VAZIO = { medicamento: '', instrucao: '' }
+
+function AbaReceituarioMedico({ atendimento, medicoId, onImprimir }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [itens, setItens] = useState([{ ...RECEITA_ITEM_VAZIO }])
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+  async function carregar() { setCarregando(true); setHistorico(await listarReceitasMedicas(atendimento.atendimento_id)); setCarregando(false) }
+
+  function setItem(i, campo, valor) {
+    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, [campo]: valor } : it)))
+  }
+  function adicionarItem() { setItens((prev) => [...prev, { ...RECEITA_ITEM_VAZIO }]) }
+  function removerItem(i) { setItens((prev) => prev.filter((_, idx) => idx !== i)) }
+
+  async function salvar() {
+    const validos = itens.filter((it) => it.medicamento.trim())
+    if (validos.length === 0) { setErro('Adicione ao menos um medicamento.'); return }
+    setErro('')
+    setSalvando(true)
+    const { error } = await criarReceitaMedica({
+      atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
+      dados: { itens: validos },
+    })
+    setSalvando(false)
+    if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    setItens([{ ...RECEITA_ITEM_VAZIO }])
+    carregar()
+  }
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Novo receituário</div>
+      {itens.map((it, i) => (
+        <div key={i} style={{ border: '1px solid var(--color-border)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
+          <div className="form-grid">
+            <div className="form-field span-3"><label>{i + 1}) Medicamento</label><input type="text" placeholder="Ex: Dipirona 1g" value={it.medicamento} onChange={(e) => setItem(i, 'medicamento', e.target.value)} /></div>
+            <div className="form-field span-3"><label>Instrução de uso</label><input type="text" placeholder="Ex: Tomar 1 comprimido ao dia" value={it.instrucao} onChange={(e) => setItem(i, 'instrucao', e.target.value)} /></div>
+          </div>
+          {itens.length > 1 && <button type="button" className="modal-btn-secondary" onClick={() => removerItem(i)}>Remover</button>}
+        </div>
+      ))}
+      <button type="button" className="modal-btn-secondary" onClick={adicionarItem}>+ Adicionar medicamento</button>
+
+      {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
+      <div className="modal-actions" style={{ marginTop: 14 }}>
+        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Registrar receituário'}</button>
+      </div>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
+      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : historico.length === 0 ? (
+        <p style={{ color: 'var(--color-text-muted)' }}>Nenhum receituário registrado ainda.</p>
+      ) : historico.map((r) => (
+        <div key={r.id} style={{ borderBottom: '1px solid var(--color-border)', padding: '10px 0', fontSize: 13 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <p style={{ margin: '0 0 4px' }}>{(r.itens || []).map((it) => it.medicamento).join(', ')}</p>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
+                {r.enfermeiros?.nome_exibicao || r.enfermeiros?.nome} · {new Date(r.criado_em).toLocaleString('pt-BR')}
+              </div>
+            </div>
+            <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(r)}>Imprimir</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Lista fiel ao formulário oficial (Fundação Hemopa) — mesma ordem e texto
+// exatos do modelo em papel.
+const HEMOCOMPONENTES_OPCOES = [
+  'Concentrado de hemácias pobre em leucócitos(+ 300 ml/unid)',
+  'Concentrado de hemácias (+ 300 ml/unid)',
+  'Concentrado de hemácias pobre em leucócitos irradiado(+ 300 ml/unid)',
+  'Plasma fresco congelado (+ 200ml/unid)',
+  'Concentrado de plaquetas pobre em leucócitos(+ 60 ml/unid)',
+  'Concentrado de plaquetas pobre em leucócitos irradiado(+ 60 ml/unid)',
+  'Concentrado de plaquetas por aférese (+ 300 ml/unid)',
+  'Crioprecipitado (+ 20 ml/unid)',
+]
+
+const URGENCIA_OPCOES = [
+  ['urgencia', 'Urgência, a realizar dentro de 3 horas'],
+  ['rotina', 'Não urgente (rotina), a realizar dentro de 24h'],
+  ['cirurgia', 'Programada — cirurgia eletiva'],
+  ['ambulatorial', 'Programada — transfusão em regime ambulatorial'],
+  ['residencia', 'Transfusão em residência (Termo de Responsabilidade obrigatório)'],
+  ['auto', 'Auto-transfusão'],
+]
+
+const SANGUE_VAZIA = {
+  indicacao_clinica: '',
+  peso: '', hb_ht: '', apt: '', enf_leito: '', registro_hospitalar: '', categoria: '',
+  recebeu_transfusao: '', quando: '', onde: '',
+  antecedentes_anticorpo: '', solicitou_doadores: '',
+  hemocomponentes: {}, outros_hemocomponentes: '',
+  urgencia: '', cirurgia_data: '', cirurgia_hora: '', ambulatorial_data: '', ambulatorial_hora: '',
+  extrema_urgencia: false, extrema_urgencia_data: '', extrema_urgencia_hora: '',
+  coletado_por: '', coletado_data: '', coletado_hora: '',
+  pai_i: '', pai_ii: '', ac: '', cd: '', responsavel_hemopa: '', hemopa_data: '', hemopa_hora: '',
+}
+
+function AbaSangue({ atendimento, medicoId, onImprimir }) {
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [dados, setDados] = useState(SANGUE_VAZIA)
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => { carregar() }, [])
+  async function carregar() { setCarregando(true); setHistorico(await listarSolicitacoesSangue(atendimento.atendimento_id)); setCarregando(false) }
+  function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
+  function setHemo(item, campo, valor) {
+    setDados((prev) => ({ ...prev, hemocomponentes: { ...prev.hemocomponentes, [item]: { ...prev.hemocomponentes[item], [campo]: valor } } }))
+  }
+
+  async function salvar() {
+    if (!dados.indicacao_clinica.trim()) {
+      setErro('Preencha ao menos a indicação clínica.')
+      return
+    }
+    setErro('')
+    setSalvando(true)
+    const { indicacao_clinica, ...extra } = dados
+    const { error } = await criarSolicitacaoSangue({
+      atendimentoId: atendimento.atendimento_id, solicitadoPor: medicoId,
+      dados: { indicacao_clinica, campos_extra: extra },
+    })
+    setSalvando(false)
+    if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    setDados(SANGUE_VAZIA)
+    carregar()
+  }
+
+  return (
+    <div className="form-section">
+      <div className="form-section-title">Solicitação de Sangue, Componentes e Derivados</div>
+      <div className="form-grid">
+        <div className="form-field"><label>Peso</label><input type="text" value={dados.peso} onChange={(e) => set('peso', e.target.value)} /></div>
+        <div className="form-field"><label>HB/HT</label><input type="text" placeholder="Ex: 6,4/20,9" value={dados.hb_ht} onChange={(e) => set('hb_ht', e.target.value)} /></div>
+        <div className="form-field"><label>APT</label><input type="text" value={dados.apt} onChange={(e) => set('apt', e.target.value)} /></div>
+        <div className="form-field"><label>ENFª/Leito</label><input type="text" value={dados.enf_leito} onChange={(e) => set('enf_leito', e.target.value)} /></div>
+        <div className="form-field"><label>Registro hospitalar</label><input type="text" value={dados.registro_hospitalar} onChange={(e) => set('registro_hospitalar', e.target.value)} /></div>
+        <div className="form-field"><label>Categoria</label><input type="text" value={dados.categoria} onChange={(e) => set('categoria', e.target.value)} /></div>
+
+        <div className="form-field">
+          <label>Recebeu transfusão?</label>
+          <div className="toggle-group">
+            {[['sim', 'Sim'], ['nao', 'Não']].map(([v, r]) => (
+              <button key={v} type="button" className={`toggle-btn ${dados.recebeu_transfusao === v ? 'on' : ''}`} onClick={() => set('recebeu_transfusao', v)}>{r}</button>
+            ))}
+          </div>
+        </div>
+        <div className="form-field"><label>Quando</label><input type="date" value={dados.quando} onChange={(e) => set('quando', e.target.value)} /></div>
+        <div className="form-field"><label>Onde</label><input type="text" value={dados.onde} onChange={(e) => set('onde', e.target.value)} /></div>
+
+        <div className="form-field">
+          <label>Antecedentes de anticorpo irregular?</label>
+          <div className="toggle-group">
+            {[['sim', 'Sim'], ['nao', 'Não']].map(([v, r]) => (
+              <button key={v} type="button" className={`toggle-btn ${dados.antecedentes_anticorpo === v ? 'on' : ''}`} onClick={() => set('antecedentes_anticorpo', v)}>{r}</button>
+            ))}
+          </div>
+        </div>
+        <div className="form-field span-2"><label>Solicitou doadores?</label><input type="text" value={dados.solicitou_doadores} onChange={(e) => set('solicitou_doadores', e.target.value)} /></div>
+
+        <div className="form-field span-3"><label>Indicação clínica / cirurgia proposta *</label><textarea value={dados.indicacao_clinica} onChange={(e) => set('indicacao_clinica', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Hemocomponentes / hemoderivados</div>
+      {HEMOCOMPONENTES_OPCOES.map((item) => (
+        <div key={item} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+          <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+            <input
+              type="checkbox"
+              checked={!!dados.hemocomponentes[item]?.marcado}
+              onChange={(e) => setHemo(item, 'marcado', e.target.checked)}
+            />
+            {item}
+          </label>
+          <input
+            type="text"
+            placeholder="Qtd/unid"
+            style={{ width: 100 }}
+            value={dados.hemocomponentes[item]?.quantidade || ''}
+            onChange={(e) => setHemo(item, 'quantidade', e.target.value)}
+          />
+        </div>
+      ))}
+      <div className="form-grid" style={{ marginTop: 6 }}>
+        <div className="form-field span-3"><label>Outros</label><input type="text" value={dados.outros_hemocomponentes} onChange={(e) => set('outros_hemocomponentes', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Urgência da solicitação</div>
+      <div className="chip-group">
+        {URGENCIA_OPCOES.map(([v, r]) => (
+          <button key={v} type="button" className={`chip ${dados.urgencia === v ? 'on' : ''}`} onClick={() => set('urgencia', dados.urgencia === v ? '' : v)}>{r}</button>
+        ))}
+      </div>
+      {dados.urgencia === 'cirurgia' && (
+        <div className="form-grid" style={{ marginTop: 6 }}>
+          <div className="form-field"><label>Data da cirurgia</label><input type="date" value={dados.cirurgia_data} onChange={(e) => set('cirurgia_data', e.target.value)} /></div>
+          <div className="form-field"><label>Hora</label><input type="time" value={dados.cirurgia_hora} onChange={(e) => set('cirurgia_hora', e.target.value)} /></div>
+        </div>
+      )}
+      {dados.urgencia === 'ambulatorial' && (
+        <div className="form-grid" style={{ marginTop: 6 }}>
+          <div className="form-field"><label>Data da transfusão ambulatorial</label><input type="date" value={dados.ambulatorial_data} onChange={(e) => set('ambulatorial_data', e.target.value)} /></div>
+          <div className="form-field"><label>Hora</label><input type="time" value={dados.ambulatorial_hora} onChange={(e) => set('ambulatorial_hora', e.target.value)} /></div>
+        </div>
+      )}
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Transfusão de extrema urgência</div>
+      <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        <input type="checkbox" checked={dados.extrema_urgencia} onChange={(e) => set('extrema_urgencia', e.target.checked)} />
+        Autorizo a transfusão sem testes pré-transfusionais, por risco de vida
+      </label>
+      {dados.extrema_urgencia && (
+        <div className="form-grid">
+          <div className="form-field"><label>Data</label><input type="date" value={dados.extrema_urgencia_data} onChange={(e) => set('extrema_urgencia_data', e.target.value)} /></div>
+          <div className="form-field"><label>Hora</label><input type="time" value={dados.extrema_urgencia_hora} onChange={(e) => set('extrema_urgencia_hora', e.target.value)} /></div>
+        </div>
+      )}
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Coleta</div>
+      <div className="form-grid">
+        <div className="form-field span-2"><label>Coletado por</label><input type="text" value={dados.coletado_por} onChange={(e) => set('coletado_por', e.target.value)} /></div>
+        <div className="form-field"><label>Data</label><input type="date" value={dados.coletado_data} onChange={(e) => set('coletado_data', e.target.value)} /></div>
+        <div className="form-field"><label>Hora</label><input type="time" value={dados.coletado_hora} onChange={(e) => set('coletado_hora', e.target.value)} /></div>
+      </div>
+
+      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Uso exclusivo da Fundação Hemopa</div>
+      <div className="form-grid">
+        <div className="form-field"><label>PAI I</label><input type="text" value={dados.pai_i} onChange={(e) => set('pai_i', e.target.value)} /></div>
+        <div className="form-field"><label>PAI II</label><input type="text" value={dados.pai_ii} onChange={(e) => set('pai_ii', e.target.value)} /></div>
+        <div className="form-field"><label>AC</label><input type="text" value={dados.ac} onChange={(e) => set('ac', e.target.value)} /></div>
+        <div className="form-field"><label>CD</label><input type="text" value={dados.cd} onChange={(e) => set('cd', e.target.value)} /></div>
+        <div className="form-field span-2"><label>Responsável</label><input type="text" value={dados.responsavel_hemopa} onChange={(e) => set('responsavel_hemopa', e.target.value)} /></div>
+        <div className="form-field"><label>Data</label><input type="date" value={dados.hemopa_data} onChange={(e) => set('hemopa_data', e.target.value)} /></div>
+        <div className="form-field"><label>Hora</label><input type="time" value={dados.hemopa_hora} onChange={(e) => set('hemopa_hora', e.target.value)} /></div>
+      </div>
+
+      {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
+      <div className="modal-actions" style={{ marginTop: 14 }}>
+        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Registrar solicitação'}</button>
+      </div>
+
+      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
+      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : historico.length === 0 ? (
+        <p style={{ color: 'var(--color-text-muted)' }}>Nenhuma solicitação registrada ainda.</p>
+      ) : historico.map((s) => (
+        <div key={s.id} style={{ borderBottom: '1px solid var(--color-border)', padding: '10px 0', fontSize: 13 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontWeight: 600 }}>{s.indicacao_clinica}</div>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
+                {s.enfermeiros?.nome_exibicao || s.enfermeiros?.nome} · {new Date(s.criado_em).toLocaleString('pt-BR')}
+              </div>
+            </div>
+            <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(s)}>Imprimir</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -1412,6 +2095,10 @@ function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
   const [pendencias, setPendencias] = useState('')
   const [conduta, setConduta] = useState('')
   const [numeroSer, setNumeroSer] = useState('')
+  const [diagnosticoRegulado, setDiagnosticoRegulado] = useState('')
+  const [mudancaDiagnostico, setMudancaDiagnostico] = useState(false)
+  const [novoDiagnostico, setNovoDiagnostico] = useState('')
+  const [cids, setCids] = useState([])
   const [pa, setPa] = useState({ pas: '', pad: '' })
   const [fc, setFc] = useState('')
   const [fr, setFr] = useState('')
@@ -1419,8 +2106,9 @@ function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
   const [spo2, setSpo2] = useState('')
   const [hgt, setHgt] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
 
-  useEffect(() => { carregar() }, [])
+  useEffect(() => { carregar(); listarCatalogoCid().then(setCids) }, [])
   async function carregar() {
     setCarregando(true)
     setHistorico(await listarRegulacao(atendimento.atendimento_id))
@@ -1444,17 +2132,23 @@ function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
 
   async function registrar() {
     if (!evolucao.trim()) return
+    setErro('')
     setSalvando(true)
-    await registrarRegulacao({
+    const { error } = await registrarRegulacao({
       atendimentoId: atendimento.atendimento_id, atualizadoPor: medicoId,
       dados: {
         evolucao: evolucao.trim(), pendencias: pendencias || null, conduta: conduta || null,
         numero_solicitacao_ser: numeroSer || null,
+        diagnostico_regulado: diagnosticoRegulado || null,
+        mudanca_diagnostico: mudancaDiagnostico,
+        novo_diagnostico_cid: mudancaDiagnostico ? (novoDiagnostico || null) : null,
         sinais_vitais: { pa_sistolica: pa.pas || null, pa_diastolica: pa.pad || null, fc: fc || null, fr: fr || null, temperatura: temp || null, spo2: spo2 || null, hgt: hgt || null },
       },
     })
     setSalvando(false)
+    if (error) { setErro('Não foi possível registrar a atualização.'); return }
     setEvolucao(''); setPendencias(''); setConduta(''); setNumeroSer('')
+    setDiagnosticoRegulado(''); setMudancaDiagnostico(false); setNovoDiagnostico('')
     setPa({ pas: '', pad: '' }); setFc(''); setFr(''); setTemp(''); setSpo2(''); setHgt('')
     carregar()
   }
@@ -1489,6 +2183,22 @@ function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
 
       <div className="form-section-title">Nova atualização de quadro clínico (SER/SISREG)</div>
       <div className="form-grid">
+        <div className="form-field span-3"><label>Diagnóstico regulado</label><input type="text" value={diagnosticoRegulado} onChange={(e) => setDiagnosticoRegulado(e.target.value)} /></div>
+        <div className="form-field"><label>Mudança de diagnóstico?</label>
+          <div className="toggle-group">
+            <button type="button" className={`toggle-btn ${!mudancaDiagnostico ? 'on' : ''}`} onClick={() => setMudancaDiagnostico(false)}>Não</button>
+            <button type="button" className={`toggle-btn ${mudancaDiagnostico ? 'on' : ''}`} onClick={() => setMudancaDiagnostico(true)}>Sim</button>
+          </div>
+        </div>
+        {mudancaDiagnostico && (
+          <div className="form-field span-2"><label>Para (novo diagnóstico/CID)</label>
+            <select value={novoDiagnostico} onChange={(e) => setNovoDiagnostico(e.target.value)}>
+              <option value="">—</option>
+              {cids.map((c) => <option key={c.codigo} value={c.codigo}>{c.codigo} — {c.descricao}</option>)}
+            </select>
+          </div>
+        )}
+        <div className="form-field"><label>Nº solicitação SER</label><input type="text" value={numeroSer} onChange={(e) => setNumeroSer(e.target.value)} /></div>
         <div className="form-field"><label>PA sistólica</label><input type="number" value={pa.pas} onChange={(e) => setPa((p) => ({ ...p, pas: e.target.value }))} /></div>
         <div className="form-field"><label>PA diastólica</label><input type="number" value={pa.pad} onChange={(e) => setPa((p) => ({ ...p, pad: e.target.value }))} /></div>
         <div className="form-field"><label>FC</label><input type="number" value={fc} onChange={(e) => setFc(e.target.value)} /></div>
@@ -1496,11 +2206,11 @@ function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
         <div className="form-field"><label>Temperatura</label><input type="number" step="0.1" value={temp} onChange={(e) => setTemp(e.target.value)} /></div>
         <div className="form-field"><label>SpO2</label><input type="number" value={spo2} onChange={(e) => setSpo2(e.target.value)} /></div>
         <div className="form-field"><label>HGT</label><input type="number" value={hgt} onChange={(e) => setHgt(e.target.value)} /></div>
-        <div className="form-field"><label>Nº solicitação SER</label><input type="text" value={numeroSer} onChange={(e) => setNumeroSer(e.target.value)} /></div>
         <div className="form-field span-3"><label>Evolução *</label><textarea value={evolucao} onChange={(e) => setEvolucao(e.target.value)} /></div>
         <div className="form-field span-3"><label>Pendências</label><input type="text" value={pendencias} onChange={(e) => setPendencias(e.target.value)} /></div>
         <div className="form-field span-3"><label>Conduta</label><input type="text" value={conduta} onChange={(e) => setConduta(e.target.value)} /></div>
       </div>
+      {erro && <p style={{ color: 'var(--color-danger, #c0392b)', fontSize: 13 }}>{erro}</p>}
       <div className="modal-actions" style={{ marginTop: 14 }}>
         <button className="modal-btn-primary" onClick={registrar} disabled={salvando || !evolucao.trim()}>{salvando ? 'Registrando...' : 'Registrar atualização'}</button>
       </div>

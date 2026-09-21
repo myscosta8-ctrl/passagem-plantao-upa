@@ -15,6 +15,7 @@ import {
   listarEventosAdversos, registrarEventoAdverso,
 } from '../lib/pepClinico'
 import FichaClinicaPrint from './FichaClinicaPrint'
+import AbaHistoricoEnfermagem from './AbaHistoricoEnfermagem'
 import './PassagemForm.css'
 import './FichaClinica.css'
 
@@ -114,6 +115,7 @@ export default function FichaClinica({ atendimento, onFechar, embedded = false }
 
       <div className="form-toolbar">
         <button className={aba === 'admissao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('admissao')}>Admissão</button>
+        <button className={aba === 'admissaoEnfermagem' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('admissaoEnfermagem')}>Admissão de Enfermagem</button>
         <button className={aba === 'sinaisVitais' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sinaisVitais')}>Sinais Vitais</button>
         <button className={aba === 'evolucao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('evolucao')}>Evolução</button>
         <button className={aba === 'dispositivos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('dispositivos')}>Dispositivos</button>
@@ -126,6 +128,7 @@ export default function FichaClinica({ atendimento, onFechar, embedded = false }
       </div>
 
       {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'admissaoEnfermagem' && <AbaHistoricoEnfermagem atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: registro._variante === 'projeto' ? 'historico_enfermagem_projeto' : 'historico_enfermagem_fiel', registro })} />}
       {aba === 'sinaisVitais' && <AbaSinaisVitais atendimento={atendimento} autorId={enfermeiro?.id} />}
       {aba === 'evolucao' && <AbaEvolucao atendimento={atendimento} autorId={enfermeiro?.id} />}
       {aba === 'dispositivos' && <AbaDispositivos atendimento={atendimento} />}

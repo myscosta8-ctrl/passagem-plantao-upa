@@ -282,6 +282,25 @@ export async function salvarPlanoTerapeutico({ atendimentoId, criadoPor, dados }
   return supabase.from('planos_terapeuticos').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
 }
 
+// ===================== Sumário de alta (no máximo um por atendimento) =====================
+
+export async function buscarSumarioAlta(atendimentoId) {
+  const { data } = await supabase
+    .from('sumarios_alta')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .maybeSingle()
+  return data
+}
+
+export async function salvarSumarioAlta({ atendimentoId, criadoPor, dados }) {
+  const existente = await buscarSumarioAlta(atendimentoId)
+  if (existente) {
+    return supabase.from('sumarios_alta').update({ ...dados, atualizado_em: new Date().toISOString() }).eq('id', existente.id).select().single()
+  }
+  return supabase.from('sumarios_alta').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
 // ===================== APAC =====================
 
 export async function listarApac(atendimentoId) {
@@ -325,6 +344,85 @@ export async function listarTfd(atendimentoId) {
 
 export async function criarTfd({ atendimentoId, profissionalResponsavel, dados }) {
   return supabase.from('tfd_solicitacoes').insert({ atendimento_id: atendimentoId, profissional_responsavel: profissionalResponsavel, ...dados }).select().single()
+}
+
+// ===================== Evolução Médica Diária =====================
+
+export async function listarEvolucoesMedicas(atendimentoId) {
+  const { data } = await supabase
+    .from('evolucoes_medicas')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarEvolucaoMedica({ atendimentoId, criadoPor, dados }) {
+  return supabase.from('evolucoes_medicas').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
+// ===================== Admissão de Enfermagem (Histórico de Enfermagem) — no máximo um por atendimento =====================
+
+export async function buscarHistoricoEnfermagem(atendimentoId) {
+  const { data } = await supabase
+    .from('historico_enfermagem')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .maybeSingle()
+  return data
+}
+
+export async function salvarHistoricoEnfermagem({ atendimentoId, criadoPor, dados }) {
+  const existente = await buscarHistoricoEnfermagem(atendimentoId)
+  if (existente) {
+    return supabase.from('historico_enfermagem').update({ ...dados, atualizado_em: new Date().toISOString() }).eq('id', existente.id).select().single()
+  }
+  return supabase.from('historico_enfermagem').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
+// ===================== Nota de Intercorrência Médica =====================
+
+export async function listarNotasIntercorrenciaMedica(atendimentoId) {
+  const { data } = await supabase
+    .from('notas_intercorrencia_medica')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarNotaIntercorrenciaMedica({ atendimentoId, criadoPor, dados }) {
+  return supabase.from('notas_intercorrencia_medica').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
+// ===================== Receituário Médico =====================
+
+export async function listarReceitasMedicas(atendimentoId) {
+  const { data } = await supabase
+    .from('receitas_medicas')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarReceitaMedica({ atendimentoId, criadoPor, dados }) {
+  return supabase.from('receitas_medicas').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
+// ===================== Solicitação de Sangue, Componentes e Derivados (Hemopa) =====================
+
+export async function listarSolicitacoesSangue(atendimentoId) {
+  const { data } = await supabase
+    .from('solicitacoes_sangue')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarSolicitacaoSangue({ atendimentoId, solicitadoPor, dados }) {
+  return supabase.from('solicitacoes_sangue').insert({ atendimento_id: atendimentoId, solicitado_por: solicitadoPor, ...dados }).select().single()
 }
 
 // ===================== Atualizações de regulação (SER/SISREG) =====================

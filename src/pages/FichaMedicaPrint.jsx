@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { buscarCabecalhoImpressao } from '../lib/pepMedico'
+import CabecalhoPadraoUPA from './CabecalhoPadraoUPA'
 import './PrintView.css'
 
 const TITULOS = {
@@ -11,6 +12,10 @@ const TITULOS = {
   tfd: 'Laudo para Tratamento Fora do Domicílio (TFD)',
   plano: 'Plano Terapêutico',
   regulacao: 'Atualização de Quadro Clínico — Regulação (SER/SISREG)',
+  alta: 'Sumário de Alta',
+  evolucao: 'Evolução Médica Diária',
+  intercorrencia: 'Nota de Intercorrência Médica',
+  receituario: 'Receituário Médico',
 }
 
 export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVoltar }) {
@@ -68,6 +73,132 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
     )
   }
 
+  if (tipo === 'plano') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoPlanoOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
+  if (tipo === 'atm') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoAtmOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
+  if (tipo === 'tfd') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoTfdOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
+  if (tipo === 'regulacao') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoRegulacaoOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
+  if (tipo === 'sangue') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoSangueOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
+  if (tipo === 'alta') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoSumarioAltaOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
+  if (tipo === 'evolucao') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoEvolucaoMedicaOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
+  if (tipo === 'intercorrencia') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoNotaIntercorrenciaOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
+  if (tipo === 'receituario') {
+    return (
+      <div className="print-page">
+        <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
+          <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
+          <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+        </div>
+        <div className="print-area">
+          <CorpoReceituarioOficial registro={registro} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="print-page">
       <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
@@ -88,22 +219,18 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
 
         <div className="doc-cabecalho">
           <div><span className="rotulo">Nome:</span>{pessoa.nome}</div>
-          <div><span className="rotulo">Prontuário:</span>{pessoa.prontuario_numero || '—'}</div>
-          <div><span className="rotulo">Atendimento:</span>{atendimento.numero_atendimento || '—'}</div>
-          <div><span className="rotulo">Nascimento:</span>{pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}{idade ? ` (${idade} anos)` : ''}</div>
-          <div><span className="rotulo">Sexo:</span>{pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : '—'}</div>
-          <div><span className="rotulo">Mãe:</span>{pessoa.nome_mae || '—'}</div>
-          <div><span className="rotulo">CNS:</span>{pessoa.cns || '—'}</div>
-          <div><span className="rotulo">CPF:</span>{pessoa.cpf || '—'}</div>
+          <div><span className="rotulo">Prontuário:</span>{limparPrefixo(pessoa.prontuario_numero)}</div>
+          <div><span className="rotulo">Atendimento:</span>{limparPrefixo(atendimento.numero_atendimento)}</div>
+          <div><span className="rotulo">Nascimento:</span>{pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''}{idade ? ` (${idade} anos)` : ''}</div>
+          <div><span className="rotulo">Sexo:</span>{pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : ''}</div>
+          <div><span className="rotulo">Mãe:</span>{pessoa.nome_mae || ''}</div>
+          <div><span className="rotulo">CNS:</span>{pessoa.cns || ''}</div>
+          <div><span className="rotulo">CPF:</span>{pessoa.cpf || ''}</div>
           <div><span className="rotulo">Convênio:</span>{atendimento.convenio || 'SUS'}</div>
-          <div className="campo-largo"><span className="rotulo">Leito/Setor:</span>{leitoNumero ? `Leito ${leitoNumero} — ${setorNome}` : '—'}</div>
+          <div className="campo-largo"><span className="rotulo">Leito/Setor:</span>{leitoNumero ? `Leito ${leitoNumero} — ${setorNome}` : ''}</div>
         </div>
 
         {tipo === 'apac' && <CorpoApac registro={registro} />}
-        {tipo === 'atm' && <CorpoAtm registro={registro} />}
-        {tipo === 'tfd' && <CorpoTfd registro={registro} />}
-        {tipo === 'plano' && <CorpoPlano registro={registro} />}
-        {tipo === 'regulacao' && <CorpoRegulacao registro={registro} />}
 
         <div className="doc-assinatura">
           <div className="linha-assinatura" />
@@ -154,7 +281,7 @@ function SecaoAdm({ titulo, children }) {
 }
 
 function fmtDataHora(iso) {
-  if (!iso) return '—'
+  if (!iso) return ''
   const d = new Date(iso)
   return isNaN(d) ? iso : d.toLocaleString('pt-BR')
 }
@@ -183,7 +310,6 @@ function CaixaDoc2({ titulo, valor, grande, children }) {
 function CorpoConsultaOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const cf = registro.campos_admissao || {}
   const sv = cf.sv || {}
-  const nascimento2 = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '—'
 
   const dataAssinaturaExtenso = (() => {
     const iso = cf.data_assinatura ? cf.data_assinatura + 'T00:00:00' : (registro.criado_em || registro.atualizado_em)
@@ -194,69 +320,10 @@ function CorpoConsultaOficial({ registro, pessoa, atendimento, idade, leitoNumer
   return (
     <div className="admf-document">
       <header className="admf-header">
-        {/* Camada 1 — identidade institucional: fina, sem caixa, só a
-            logomarca e o timbre, igual ao padrão já usado na Prescrição. */}
-        <div className="admf-topo">
-          <div className="admf-topo-texto">
-            <div className="nome">PREFEITURA MUNICIPAL DE BREVES — UPA 24H BREVES</div>
-            <div className="sub">SECRETARIA MUNICIPAL DE SAÚDE (SEMSA)</div>
-          </div>
-          <div className="admf-topo-logos">
-            <img src="./logos/brasao-breves.jpg" alt="Prefeitura de Breves" />
-            <img src="./logos/semsa.jpg" alt="SEMSA" />
-            <img src="./logos/upa24h.jpg" alt="UPA 24h" />
-          </div>
-        </div>
-
-        {/* Camada 2 — título do documento. */}
-        <div className="admf-titulo">
-          <h1>ADMISSÃO MÉDICA</h1>
-        </div>
-
-        {/* Camada 3 — paciente em destaque: o que mais importa pra quem
-            pega o papel, com o resto (RG em branco, CNPJ etc.) rebaixado
-            pra camada 4. */}
-        <div className="admf-paciente">
-          <div className="admf-paciente-nome">{pessoa.nome}</div>
-          <div className="admf-paciente-tags">
-            <span><b>Prontuário:</b> {String(pessoa.prontuario_numero || '—').replace(/^PEP-?/i, '')}</span>
-            <span><b>Atendimento:</b> {String(atendimento?.numero_atendimento || '—').replace(/^AT-?/i, '')}</span>
-            <span><b>Leito:</b> {leitoNumero || '—'}</span>
-            <span><b>Setor:</b> {setorNome || '—'}</span>
-          </div>
-        </div>
-
-        {/* Camada 4 — dados administrativos secundários: densos, porém
-            discretos (fonte menor, cor neutra), sem monoespaçada. */}
-        <div className="admf-meta">
-          <div className="admf-mi"><b>Recepção</b> {atendimento?.tipo_entrada || '—'}</div>
-          <div className="admf-mi"><b>Data internação</b> {atendimento?.criado_em ? new Date(atendimento.criado_em).toLocaleString('pt-BR') : '—'}</div>
-          <div className="admf-mi"><b>Data alta</b> {atendimento?.encerrado_em ? new Date(atendimento.encerrado_em).toLocaleString('pt-BR') : '—'}</div>
-          <div className="admf-mi"><b>Caráter</b> {atendimento?.carater || 'Urgência'}</div>
-
-          <div className="admf-mi"><b>Mãe</b> {pessoa.nome_mae || '—'}</div>
-          <div className="admf-mi"><b>Data nasc.</b> {nascimento2}</div>
-          <div className="admf-mi"><b>Idade</b> {idade ? `${idade} anos` : '—'}</div>
-          <div className="admf-mi"><b>Sexo</b> {pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : '—'}</div>
-
-          <div className="admf-mi"><b>CPF</b> {pessoa.cpf || '—'}</div>
-          <div className="admf-mi"><b>CNS</b> {pessoa.cns || '—'}</div>
-          <div className="admf-mi"><b>RG</b> —</div>
-          <div className="admf-mi"><b>Nacionalidade</b> Brasil</div>
-
-          <div className="admf-mi"><b>Raça</b> —</div>
-          <div className="admf-mi"><b>Telefone</b> {pessoa.telefone || '—'}</div>
-          <div className="admf-mi"><b>Convênio</b> {atendimento?.convenio || 'SUS'}</div>
-          <div className="admf-mi"><b>Alergia</b> —</div>
-
-          <div className="admf-mi"><b>Médico responsável</b> {medico?.nome_exibicao || medico?.nome} {medico?.crm ? `— CRM ${medico.crm}` : ''}</div>
-          <div className="admf-mi"><b>Unidade</b> UPA 24h Breves</div>
-          <div className="admf-mi"><b>Centro de custo</b> —</div>
-          <div className="admf-mi"><b>Nº documento</b> {registro.id ? registro.id.slice(0, 8).toUpperCase() : '—'}</div>
-          <div className="admf-mi"><b>Data documento</b> {dataHora}</div>
-
-          <div className="admf-mi admf-mi-full"><b>Endereço</b> {[pessoa.endereco, pessoa.endereco_numero, pessoa.bairro, pessoa.cidade].filter(Boolean).join(', ') || '—'}</div>
-        </div>
+        <CabecalhoPadraoUPA
+          titulo="ADMISSÃO MÉDICA"
+          pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+        />
       </header>
 
       <section className="admf-section">
@@ -310,7 +377,7 @@ function CorpoConsultaOficial({ registro, pessoa, atendimento, idade, leitoNumer
         <div className="admf-assinatura-caixa">
           <div className="admf-sigline" />
           <div className="admf-sig-caption">{medico?.nome_exibicao || medico?.nome || 'Assinatura Médica'}</div>
-          <div className="admf-sig-crm">CRM/UF: {medico?.crm ? `${medico.crm}/PA` : '—'}</div>
+          <div className="admf-sig-crm">CRM/UF: {medico?.crm ? `${medico.crm}/PA` : ''}</div>
         </div>
       </div>
 
@@ -328,7 +395,7 @@ function CorpoPrescricaoOficial({ registro, pessoa, atendimento, idade, leitoNum
   const cf = registro.campos_prescricao || {}
   const itens = registro.prescricao_itens || []
   const orientacoes = cf.orientacao_enfermagem || []
-  const nascimento = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '—'
+  const nascimento = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''
 
   return (
     <div className="pr-page">
@@ -348,56 +415,51 @@ function CorpoPrescricaoOficial({ registro, pessoa, atendimento, idade, leitoNum
 
       <div className="pr-titulo">PRESCRIÇÃO</div>
 
-      <table className="pr-info">
-        <tbody>
-          <tr>
-            <td style={{ width: '14%' }}><b>PRONTUÁRIO:</b> {pessoa.prontuario_numero || '—'}</td>
-            <td style={{ width: '10%' }}><b>REGISTRO:</b> {atendimento?.numero_atendimento || '—'}</td>
-            <td style={{ width: '22%' }}><b>RECEPÇÃO:</b> {atendimento?.tipo_entrada || '—'}</td>
-            <td style={{ width: '22%' }}><b>DATA INTERNAÇÃO:</b> {atendimento?.criado_em ? new Date(atendimento.criado_em).toLocaleString('pt-BR') : '—'}</td>
-            <td><b>DATA ALTA:</b> {atendimento?.encerrado_em ? new Date(atendimento.encerrado_em).toLocaleString('pt-BR') : '—'}</td>
-          </tr>
-          <tr>
-            <td colSpan={3}><b>PACIENTE:</b> {pessoa.nome}</td>
-            <td><b>CARÁTER:</b> {atendimento?.carater || 'Urgência'}</td>
-            <td><b>CONVÊNIO:</b> {atendimento?.convenio || 'SUS'}</td>
-          </tr>
-          <tr>
-            <td colSpan={3}><b>MÃE:</b> {pessoa.nome_mae || '—'} &nbsp;&nbsp; <b>SEXO:</b> {pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : '—'}</td>
-            <td><b>NACIONALIDADE:</b> Brasil</td>
-            <td><b>RAÇA:</b> —</td>
-          </tr>
-          <tr>
-            <td><b>R.G.:</b> —</td>
-            <td colSpan={2}><b>C.P.F.:</b> {pessoa.cpf || '—'} &nbsp;&nbsp; <b>C.N.S.:</b> {pessoa.cns || '—'}</td>
-            <td><b>DATA NASC.:</b> {nascimento}</td>
-            <td><b>IDADE:</b> {idade ? `${idade} anos` : '—'}</td>
-          </tr>
-          <tr>
-            <td colSpan={4}><b>ENDEREÇO:</b> {[pessoa.endereco, pessoa.endereco_numero, pessoa.bairro, pessoa.cidade].filter(Boolean).join(', ') || '—'}</td>
-            <td><b>TELEFONE:</b> {pessoa.telefone || '—'}</td>
-          </tr>
-          <tr>
-            <td><b>PRESCRIÇÃO:</b> {registro.id ? registro.id.slice(0, 8).toUpperCase() : '—'}</td>
-            <td colSpan={2}><b>DATA DOCUMENTO:</b> {dataHora}</td>
-            <td colSpan={2}><b>INÍCIO DA VALIDADE:</b> {dataHora}</td>
-          </tr>
-          <tr>
-            <td colSpan={3}><b>CENTRO DE CUSTO:</b> —</td>
-            <td colSpan={2}><b>ESPECIALIDADE:</b> Clínica Médica</td>
-          </tr>
-          <tr>
-            <td colSpan={3}><b>MÉDICO RESPONSÁVEL:</b> {medico?.nome_exibicao || medico?.nome} &nbsp; <b>CRM:</b> {medico?.crm || '—'}</td>
-            <td colSpan={2}><b>ALERGIA:</b> Nenhuma informada</td>
-          </tr>
-          <tr>
-            <td><b>LEITO:</b> {leitoNumero || '—'}</td>
-            <td><b>QUARTO:</b> {setorNome || '—'}</td>
-            <td><b>UNIDADE:</b> UPA 24h Breves</td>
-            <td colSpan={2}><b>PESO:</b> —</td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="pr-info">
+        <div className="pr-linha">
+          <div className="pr-campo" style={{ flexBasis: '12%' }}><b>PRONTUÁRIO:</b> {limparPrefixo(pessoa.prontuario_numero)}</div>
+          <div className="pr-campo" style={{ flexBasis: '10%' }}><b>REGISTRO:</b> {limparPrefixo(atendimento?.numero_atendimento)}</div>
+          <div className="pr-campo" style={{ flexBasis: '19%' }}><b>RECEPÇÃO:</b> {atendimento?.tipo_entrada || ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '29%' }}><b>DATA INTERNAÇÃO:</b> {atendimento?.criado_em ? new Date(atendimento.criado_em).toLocaleString('pt-BR') : ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '30%' }}><b>DATA ALTA:</b> {atendimento?.encerrado_em ? new Date(atendimento.encerrado_em).toLocaleString('pt-BR') : ''}</div>
+        </div>
+        <div className="pr-linha">
+          <div className="pr-campo" style={{ flexBasis: '50%' }}><b>PACIENTE:</b> {pessoa.nome}</div>
+          <div className="pr-campo" style={{ flexBasis: '25%' }}><b>CARÁTER:</b> {atendimento?.carater || 'Urgência'}</div>
+          <div className="pr-campo" style={{ flexBasis: '25%' }}><b>CONVÊNIO:</b> {atendimento?.convenio || 'SUS'}</div>
+        </div>
+        <div className="pr-linha">
+          <div className="pr-campo" style={{ flexBasis: '42%' }}><b>MÃE:</b> {pessoa.nome_mae || ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '13%' }}><b>SEXO:</b> {pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '25%' }}><b>NACIONALIDADE:</b> Brasil</div>
+          <div className="pr-campo" style={{ flexBasis: '20%' }}><b>RAÇA:</b> </div>
+        </div>
+        <div className="pr-linha">
+          <div className="pr-campo" style={{ flexBasis: '17%' }}><b>R.G.:</b> </div>
+          <div className="pr-campo" style={{ flexBasis: '23%' }}><b>C.P.F.:</b> {pessoa.cpf || ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '30%' }}><b>C.N.S.:</b> {pessoa.cns || ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '15%' }}><b>DATA NASC.:</b> {nascimento}</div>
+          <div className="pr-campo" style={{ flexBasis: '15%' }}><b>IDADE:</b> {idade ? `${idade} anos` : ''}</div>
+        </div>
+        <div className="pr-linha">
+          <div className="pr-campo" style={{ flexBasis: '75%' }}><b>ENDEREÇO:</b> {[pessoa.endereco, pessoa.endereco_numero, pessoa.bairro, pessoa.cidade].filter(Boolean).join(', ')}</div>
+          <div className="pr-campo" style={{ flexBasis: '25%' }}><b>TELEFONE:</b> {pessoa.telefone || ''}</div>
+        </div>
+        <div className="pr-linha">
+          <div className="pr-campo" style={{ flexBasis: '35%' }}><b>CENTRO DE CUSTO:</b> </div>
+          <div className="pr-campo" style={{ flexBasis: '65%' }}><b>ESPECIALIDADE:</b> Clínica Médica</div>
+        </div>
+        <div className="pr-linha">
+          <div className="pr-campo" style={{ flexBasis: '65%' }}><b>MÉDICO RESPONSÁVEL:</b> {medico?.nome_exibicao || medico?.nome} &nbsp; <b>CRM:</b> {medico?.crm || ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '35%' }}><b>ALERGIA:</b> Nenhuma informada</div>
+        </div>
+        <div className="pr-linha">
+          <div className="pr-campo" style={{ flexBasis: '15%' }}><b>LEITO:</b> {leitoNumero || ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '25%' }}><b>SETOR:</b> {setorNome || ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '40%' }}><b>UNIDADE:</b> UPA 24h Breves</div>
+          <div className="pr-campo" style={{ flexBasis: '20%' }}><b>PESO:</b> </div>
+        </div>
+      </div>
 
       <div className="pr-secao-titulo">Dieta</div>
       <div className="pr-caixa">{cf.dieta || ' '}</div>
@@ -424,9 +486,9 @@ function CorpoPrescricaoOficial({ registro, pessoa, atendimento, idade, leitoNum
                   <span className="pr-nota">{[it.diluicao, it.instrucoes].filter(Boolean).join(' — ')}</span>
                 )}
               </td>
-              <td className="qtd">{it.dose ? `${it.dose} ${it.dose_unidade || ''}` : '—'}</td>
-              <td className="via">{it.via || '—'}</td>
-              <td className="freq">{it.frequencia || '—'}{it.duracao ? ` · ${it.duracao}` : ''}</td>
+              <td className="qtd">{it.dose ? `${it.dose} ${it.dose_unidade || ''}` : ''}</td>
+              <td className="via">{it.via || ''}</td>
+              <td className="freq">{it.frequencia || ''}{it.duracao ? ` · ${it.duracao}` : ''}</td>
               <td className="horario">{it.horario_aplicacao || ''}</td>
             </tr>
           ))}
@@ -440,7 +502,7 @@ function CorpoPrescricaoOficial({ registro, pessoa, atendimento, idade, leitoNum
           {orientacoes.length === 0 ? (
             <tr><td colSpan={2} style={{ textAlign: 'center', color: '#666' }}>Nenhuma orientação registrada.</td></tr>
           ) : orientacoes.map((o, i) => (
-            <tr key={i}><td>{i + 1} — {o.texto}</td><td className="freq">{o.frequencia || '—'}</td></tr>
+            <tr key={i}><td>{i + 1} — {o.texto}</td><td className="freq">{o.frequencia || ''}</td></tr>
           ))}
         </tbody>
       </table>
@@ -472,7 +534,7 @@ function CorpoPrescricaoOficial({ registro, pessoa, atendimento, idade, leitoNum
         <div className="bloco">
           <div className="linha" />
           <span className="nome-medico">{medico?.nome_exibicao || medico?.nome}</span>
-          CRM: {medico?.crm || '—'}
+          CRM: {medico?.crm || ''}
         </div>
       </div>
 
@@ -763,80 +825,829 @@ function CorpoApac({ registro }) {
       <Secao rotulo="CID secundário" valor={registro.cid_secundario} />
       <Secao rotulo="Justificativa clínica" valor={registro.justificativa} />
       <Secao rotulo="Nº de autorização" valor={registro.numero_autorizacao} />
-      <Secao rotulo="Validade" valor={registro.validade_inicio ? `${new Date(registro.validade_inicio + 'T00:00:00').toLocaleDateString('pt-BR')} a ${registro.validade_fim ? new Date(registro.validade_fim + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}` : null} />
+      <Secao rotulo="Validade" valor={registro.validade_inicio ? `${new Date(registro.validade_inicio + 'T00:00:00').toLocaleDateString('pt-BR')}${registro.validade_fim ? ` a ${new Date(registro.validade_fim + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}` : null} />
     </>
   )
 }
 
-function CorpoAtm({ registro }) {
+// Réplica fiel do "FORMULÁRIO ANTIMICROBIANO - ATM" oficial (UPA Breves) —
+// mesma grade de caixas, ordem dos campos e lista de antibióticos de uso
+// restrito. O parecer do farmacêutico fica em branco no impresso de propósito
+// (é preenchido manualmente no papel, fora do sistema — decisão de produto
+// já tomada antes: "liberação avaliada e registrada manualmente").
+const ATMF_ANTIBIOTICOS = [
+  ['CEFEPIME', 'MEROPENEM'],
+  ['CIPROFLOXACINO', 'METRONIDAZOL'],
+  ['CLINDAMICINA', 'PIPERACILINA + TAZOBACTAM'],
+  ['LEVOFLOXACINO', 'VANCOMICINA'],
+]
+
+function CorpoAtmOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  const cf = registro.campos_extra || {}
+
   return (
-    <>
-      <Secao rotulo="Medicamento" valor={registro.medicamento} />
-      <Secao rotulo="Dose" valor={registro.dose} />
-      <Secao rotulo="Posologia" valor={registro.posologia} />
-      <Secao rotulo="Intervalo" valor={registro.intervalo} />
-      <Secao rotulo="Tempo de uso previsto" valor={registro.tempo_uso_dias ? `${registro.tempo_uso_dias} dias` : null} />
-      <Secao rotulo="Justificativa clínica" valor={registro.justificativa_clinica} />
-      <div className="doc-secao" style={{ marginTop: 12 }}>
-        <span className="rotulo">Parecer da farmácia</span>
-        <span className="valor">Liberação avaliada e registrada manualmente pela farmácia — espaço reservado abaixo para parecer, assinatura e carimbo do farmacêutico responsável.</span>
+    <div className="atmf-page">
+      <CabecalhoPadraoUPA
+        titulo="SOLICITAÇÃO DE AUTORIZAÇÃO DE USO DE ANTIMICROBIANO (ATM)"
+        pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+      />
+
+      <div className="atmf-caixa atmf-linha-dupla">
+        <div><b>NOME DO PACIENTE:</b> {pessoa.nome}</div>
+        <div className="atmf-col-direita">
+          <div><b>IDADE:</b> {idade ? `${idade} anos` : ''}</div>
+          <div><b>LEITO:</b> {leitoNumero || ''}</div>
+        </div>
       </div>
-      <div className="doc-assinatura" style={{ marginTop: 24 }}>
-        <div className="linha-assinatura" />
-        Farmacêutico(a) responsável — parecer / assinatura / carimbo
+
+      <div className="atmf-caixa atmf-linha-dupla">
+        <div><b>DIAGNÓSTICO:</b> {cf.diagnostico}</div>
+        <div><b>DATA DE INTERNAÇÃO:</b> {cf.data_internacao ? new Date(cf.data_internacao + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</div>
       </div>
-    </>
+
+      <div className="atmf-caixa atmf-alta">
+        <b>JUSTIFICATIVA:</b> {registro.justificativa_clinica}
+      </div>
+
+      <div className="atmf-caixa atmf-tratamento">
+        <div className="atmf-tratamento-campos">
+          <div><b>TRATAMENTO PRETENDIDO:</b> {cf.tratamento_pretendido}</div>
+          <div><b>MEDICAMENTO:</b> <span className="atmf-forte">{registro.medicamento}</span></div>
+          <div><b>POSOLOGIA:</b> {registro.posologia}</div>
+          <div className="atmf-linha-tripla">
+            <span><b>DOSE:</b> {registro.dose}</span>
+            <span><b>INTERVALO:</b> {registro.intervalo}</span>
+            <span><b>TEMPO DE USO:</b> {registro.tempo_uso_dias ? `${registro.tempo_uso_dias} DIAS` : ''}</span>
+          </div>
+        </div>
+        <div className="atmf-assinatura-medico">
+          <div className="atmf-sigline" />
+          <i>MÉDICO</i>
+        </div>
+      </div>
+
+      <div className="atmf-caixa atmf-linha-dupla">
+        <div>
+          <div className="atmf-forte-italico">TOTAL DO TRATAMENTO</div>
+          <div style={{ marginTop: '4mm' }}><b>DxIxT:</b> {cf.dxixt}</div>
+        </div>
+        <div className="atmf-col-direita">
+          <div><i><b>AMPOLAS:</b></i> {cf.ampolas}</div>
+          <div><i><b>FRASCO - AMPOLAS:</b></i> {cf.frasco_ampolas}</div>
+          <div><i><b>BOLSAS:</b></i> {cf.bolsas}</div>
+        </div>
+      </div>
+
+      <div className="atmf-caixa">
+        <b>PARECER DO FARMACÊUTICO</b>
+        <div className="atmf-linha-dupla" style={{ marginTop: '1mm' }}>
+          <span>DE ACORDO&nbsp;&nbsp;( &nbsp;&nbsp; )&nbsp;&nbsp;&nbsp;&nbsp;CONTRÁRIO&nbsp;&nbsp;( &nbsp;&nbsp; )</span>
+          <span className="atmf-sigline" />
+        </div>
+        <div style={{ marginTop: '1mm' }}>JUSTIFICATIVA:</div>
+        <div>( &nbsp;&nbsp; ) Há disponível em estoque quantidade que contemple o tratamento proposto.</div>
+        <div>( &nbsp;&nbsp; ) Há disponível em estoque somente quantidade para garantia parcial do tratamento proposto.</div>
+        <div>( &nbsp;&nbsp; ) Não há disponível em estoque quantidade que contemple o tratamento proposto.</div>
+        <div>OUTROS:</div>
+        <div>DATA:</div>
+      </div>
+
+      <div className="atmf-caixa">
+        <b>ANTIBIÓTICOS DE USO RESTRITO:</b>
+        <div className="atmf-antibioticos">
+          {ATMF_ANTIBIOTICOS.map(([a, b]) => (
+            <div key={a} className="atmf-antibioticos-linha">
+              <span>{a}</span>
+              <span>{b}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="doc-rodape-meta" style={{ marginTop: '3mm' }}>Registrado em {dataHora}</div>
+    </div>
   )
 }
 
-function CorpoTfd({ registro }) {
+// Réplica fiel do "LAUDO MÉDICO - LM/TFD" oficial (UPA Breves) — caixa única
+// externa, seções com rótulo sobreposto à borda superior, igual ao papel.
+function TfdSecao({ titulo, valor, tamanho, ultima }) {
   return (
-    <>
-      <Secao rotulo="História da doença atual" valor={registro.historia_doenca_atual} />
-      <Secao rotulo="Exame físico" valor={registro.exame_fisico} />
-      <Secao rotulo="Diagnóstico" valor={registro.diagnostico} />
-      <Secao rotulo="Exame complementar" valor={registro.exame_complementar} />
-      <Secao rotulo="Tratamento realizado" valor={registro.tratamento_realizado} />
-      <Secao rotulo="Tratamento indicado" valor={registro.tratamento_indicado} />
-      <Secao rotulo="Tempo provável de tratamento" valor={registro.tempo_provavel_dias ? `${registro.tempo_provavel_dias} dias` : null} />
-      <Secao rotulo="Acompanhante" valor={registro.acompanhante_nome ? `${registro.acompanhante_nome}${registro.acompanhante_relacao ? ` (${registro.acompanhante_relacao})` : ''}` : null} />
-    </>
+    <div className={`tfdf-secao tfdf-secao-${tamanho} ${ultima ? 'tfdf-secao-ultima' : ''}`}>
+      <div className="tfdf-secao-titulo">{titulo}</div>
+      <div className="tfdf-secao-corpo">{valor}</div>
+    </div>
   )
 }
 
-function CorpoPlano({ registro }) {
+function TfdLinhaTabela({ rotulo, valor }) {
   return (
-    <>
-      <Secao rotulo="Motivo da internação" valor={registro.motivo_internacao} />
-      <Secao rotulo="Objetivos terapêuticos" valor={registro.objetivos_terapeuticos} />
-      <Secao rotulo="Protocolos institucionais elegíveis" valor={(registro.protocolos_elegiveis ?? []).join(', ')} />
-      <Secao rotulo="Tempo de internação previsto" valor={registro.tempo_internacao_previsto_dias ? `${registro.tempo_internacao_previsto_dias} dias` : null} />
-      <Secao rotulo="Equipe multidisciplinar envolvida" valor={(registro.equipe_multidisciplinar ?? []).join(', ')} />
-    </>
+    <div className="tfdf-tabela-linha">
+      <div className="tfdf-tabela-rotulo">{rotulo}</div>
+      <div className="tfdf-tabela-valor">{valor}</div>
+    </div>
   )
 }
 
-function CorpoRegulacao({ registro }) {
-  const sv = registro.sinais_vitais || {}
-  const svTexto = [
-    sv.pa_sistolica && sv.pa_diastolica ? `PA ${sv.pa_sistolica}x${sv.pa_diastolica}mmHg` : null,
-    sv.fc ? `FC ${sv.fc}bpm` : null,
-    sv.fr ? `FR ${sv.fr}irpm` : null,
-    sv.temperatura ? `T ${sv.temperatura}°C` : null,
-    sv.spo2 ? `SpO2 ${sv.spo2}%` : null,
-    sv.hgt ? `HGT ${sv.hgt}mg/dl` : null,
-  ].filter(Boolean).join(' · ')
+function CorpoTfdOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  const cf = registro.campos_extra || {}
+  const nascimento = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''
 
   return (
-    <>
-      <Secao rotulo="Sinais vitais" valor={svTexto || null} />
-      <Secao rotulo="Evolução" valor={registro.evolucao} />
-      <Secao rotulo="Pendências" valor={registro.pendencias} />
-      <Secao rotulo="Conduta" valor={registro.conduta} />
-      <Secao rotulo="Nº solicitação SER" valor={registro.numero_solicitacao_ser} />
-      {registro.mudanca_diagnostico && (
-        <Secao rotulo="Mudança de diagnóstico" valor={registro.novo_diagnostico_cid || 'Sim'} />
+    <div className="tfdf-page">
+      <CabecalhoPadraoUPA
+        titulo="TRATAMENTO FORA DE DOMICÍLIO — LAUDO MÉDICO (LM/TFD)"
+        pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+      />
+
+      <div className="tfdf-doc">
+        <div className="tfdf-linha tfdf-linha-3">
+          <div className="tfdf-campo"><b>NOME:</b> {pessoa.nome}</div>
+          <div className="tfdf-campo tfdf-campo-borda"><b>SEXO:</b> {pessoa.sexo === 'F' ? 'FEMININO' : pessoa.sexo === 'M' ? 'MASCULINO' : ''}</div>
+          <div className="tfdf-campo tfdf-campo-borda"><b>IDADE:</b> {idade ? `${idade} anos` : ''}</div>
+        </div>
+        <div className="tfdf-linha">
+          <div className="tfdf-campo"><b>Nº DO LAUDO:</b> {cf.numero_laudo || ''}</div>
+        </div>
+        <div className="tfdf-linha">
+          <div className="tfdf-campo"><b>ENDEREÇO:</b> {[pessoa.endereco, pessoa.endereco_numero, pessoa.bairro, pessoa.cidade].filter(Boolean).join(', ')}</div>
+        </div>
+        <div className="tfdf-linha tfdf-linha-3">
+          <div className="tfdf-campo"><b>DATA DE NASCIMENTO:</b> {nascimento}</div>
+          <div className="tfdf-campo tfdf-campo-borda"><b>IDENTIDADE:</b> {cf.identidade}</div>
+          <div className="tfdf-campo tfdf-campo-borda"><b>PROFISSÃO:</b> {cf.profissao}</div>
+        </div>
+        <div className="tfdf-linha tfdf-linha-2">
+          <div className="tfdf-campo"><b>ACOMPANHANTE:</b> {registro.acompanhante_nome}</div>
+          <div className="tfdf-campo tfdf-campo-borda"><b>RELAÇÃO:</b> {registro.acompanhante_relacao}</div>
+        </div>
+
+        <TfdSecao titulo="HISTÓRIA DA DOENÇA ATUAL" valor={registro.historia_doenca_atual} tamanho="grande" />
+        <TfdSecao titulo="EXAME FÍSICO" valor={registro.exame_fisico} tamanho="media" />
+        <TfdSecao titulo="DIAGNÓSTICO" valor={registro.diagnostico} tamanho="pequena" ultima />
+      </div>
+
+      <div className="tfdf-tabela">
+        <TfdLinhaTabela rotulo="EXAME COMPLEMENTAR:" valor={registro.exame_complementar} />
+        <TfdLinhaTabela rotulo="TRATAMENTO REALIZADO:" valor={registro.tratamento_realizado} />
+        <TfdLinhaTabela rotulo="TRATAMENTO INDICADO:" valor={registro.tratamento_indicado} />
+        <TfdLinhaTabela rotulo="TEMPO PROVÁVEL:" valor={registro.tempo_provavel_dias} />
+      </div>
+
+      <div className="tfdf-profissional">
+        <div className="tfdf-profissional-titulo">PROFISSIONAL RESPONSÁVEL</div>
+        <div className="tfdf-profissional-linha">
+          <div className="tfdf-assinatura-data">{dataHora.split(',')[0]}</div>
+          <div className="tfdf-assinatura-campo">
+            <div className="tfdf-sigline" />
+            <span>NOME - CARIMBO</span>
+            <div className="tfdf-forte">{medico?.nome_exibicao || medico?.nome}{medico?.crm ? ` — CRM ${medico.crm}` : ''}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Lista fixa igual à referência (plano_terapeutico_upa_breves_modelo_compacto)
+// — sem quadrados de marcar: item selecionado aparece em negrito com "✓",
+// os demais em cinza claro, só pra contexto de quais existem no catálogo.
+const PLANO_PROTOCOLOS_LISTA = [
+  'TEV — Tromboembolismo Venoso', 'Dor torácica / Síndrome Coronariana Aguda',
+  'AVC — Acidente Vascular Cerebral', 'SEPSE / Choque Séptico',
+  'Anafilaxia', 'Insuficiência Respiratória / Via Aérea',
+  'Emergências glicêmicas',
+]
+const PLANO_EQUIPE_LISTA = ['Enfermagem', 'Fisioterapia', 'Nutrição', 'Serviço Social', 'Psicologia']
+
+function ItemLista({ marcado, children }) {
+  return (
+    <div style={{ fontWeight: marcado ? 700 : 400, color: marcado ? '#1a1a1a' : '#999' }}>
+      {marcado ? '✓ ' : '— '}{children}
+    </div>
+  )
+}
+
+function CorpoPlanoOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  const extra = registro.campos_extra || {}
+  const problemas = extra.problemas_ativos || []
+  const protocolosSelecionados = registro.protocolos_elegiveis || []
+  const equipeSelecionada = registro.equipe_multidisciplinar || []
+
+  return (
+    <div className="admf-document admf-document-compacto">
+      <header className="admf-header">
+        <CabecalhoPadraoUPA
+          titulo="PLANO TERAPÊUTICO"
+          pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+        />
+      </header>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Diagnósticos</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">{[registro.diagnostico_principal_cid, extra.diagnosticos_texto].filter(Boolean).join(' — ')}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Motivo da permanência / observação</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">{registro.motivo_internacao || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Objetivos da terapêutica</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">{registro.objetivos_terapeuticos || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Protocolos clínicos aplicáveis</div>
+        <div className="admf-section-body admf-lista-2col">
+          {PLANO_PROTOCOLOS_LISTA.map((p) => (
+            <ItemLista key={p} marcado={protocolosSelecionados.includes(p)}>{p}</ItemLista>
+          ))}
+          <ItemLista marcado={!!extra.protocolo_outro}>Outro protocolo institucional{extra.protocolo_outro ? `: ${extra.protocolo_outro}` : ''}</ItemLista>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Medidas de segurança assistencial</div>
+        <div className="admf-section-body">
+          <span className="cap">Medidas aplicadas / pertinentes:</span>
+          <div className="admf-textbox admf-textbox-plano">{extra.medidas_seguranca_texto || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Planejamento da permanência e equipe multidisciplinar</div>
+        <div className="admf-section-body admf-planejamento-grid">
+          <div className="admf-tempo-previsto">
+            <span className="cap">Tempo previsto</span>
+            <div className="admf-tempo-valor">
+              {registro.tempo_internacao_previsto_dias || ''}
+              {registro.tempo_internacao_previsto_dias ? <small> dias</small> : null}
+            </div>
+          </div>
+          <div>
+            <span className="cap">Equipe / profissionais envolvidos</span>
+            <div className="admf-lista-2col" style={{ marginTop: '1mm' }}>
+              {PLANO_EQUIPE_LISTA.map((e) => (
+                <ItemLista key={e} marcado={equipeSelecionada.includes(e)}>{e}</ItemLista>
+              ))}
+              <ItemLista marcado={!!extra.equipe_outros}>Outros{extra.equipe_outros ? `: ${extra.equipe_outros}` : ''}</ItemLista>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {(extra.comorbidades_antecedentes || extra.medicacoes_uso_continuo) && (
+        <section className="admf-section">
+          <div className="admf-section-title">Comorbidades e medicações em uso</div>
+          <div className="admf-section-body">
+            <Secao rotulo="Comorbidades / antecedentes relevantes" valor={extra.comorbidades_antecedentes} />
+            <Secao rotulo="Medicações em uso contínuo" valor={extra.medicacoes_uso_continuo} />
+          </div>
+        </section>
       )}
-    </>
+
+      {problemas.length > 0 && (
+        <section className="admf-section">
+          <div className="admf-section-title">Problemas ativos</div>
+          <div className="admf-section-body">
+            <table className="admf-tabela-problemas">
+              <thead>
+                <tr><th>Problema</th><th>Meta</th><th>Conduta</th><th>Prazo</th></tr>
+              </thead>
+              <tbody>
+                {problemas.map((p, i) => (
+                  <tr key={i}><td>{p.descricao}</td><td>{p.meta}</td><td>{p.conduta}</td><td>{p.prazo}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {(extra.criterios_alta || extra.data_reavaliacao_prevista || extra.feedback_equipe) && (
+        <section className="admf-section">
+          <div className="admf-section-title">Critérios de alta e reavaliação</div>
+          <div className="admf-section-body">
+            <Secao rotulo="Critérios de alta" valor={extra.criterios_alta} />
+            <Secao rotulo="Reavaliação prevista" valor={extra.data_reavaliacao_prevista ? new Date(extra.data_reavaliacao_prevista + 'T00:00:00').toLocaleDateString('pt-BR') : null} />
+            <Secao rotulo="Feedback da equipe multiprofissional" valor={extra.feedback_equipe} />
+          </div>
+        </section>
+      )}
+
+      <div className="admf-assinatura">
+        <div className="admf-assinatura-texto">
+          Breves/PA, {dataHora.split(',')[0]}.
+        </div>
+        <div className="admf-assinatura-caixa">
+          <div className="admf-sigline" />
+          <div className="admf-sig-caption">{medico?.nome_exibicao || medico?.nome || 'Responsável pelo Plano Terapêutico'}</div>
+          <div className="admf-sig-crm">CRM/UF: {medico?.crm ? `${medico.crm}/PA` : ''}</div>
+        </div>
+      </div>
+
+      <footer className="admf-footer">
+        <span>PEP - Prontuário Eletrônico do Paciente</span>
+        <span>Registrado em {dataHora}</span>
+      </footer>
+    </div>
+  )
+}
+
+// Réplica fiel do formulário oficial da Fundação Hemopa (SOLICITAÇÃO DE
+// SANGUE, COMPONENTES E DERIVADOS) — mesmo texto, ordem e agrupamento em
+// caixas do modelo em papel. Estilo próprio (prefixo "sg-"), já que este
+// documento segue a estética de formulário burocrático clássico (bordas
+// finas uniformes, "( )" em vez de checkbox preenchido), não o layout
+// moderno em camadas usado pela Admissão/Plano Terapêutico.
+const SG_HEMOCOMPONENTES = [
+  'Concentrado de hemácias pobre em leucócitos(+ 300 ml/unid)',
+  'Concentrado de hemácias (+ 300 ml/unid)',
+  'Concentrado de hemácias pobre em leucócitos irradiado(+ 300 ml/unid)',
+  'Plasma fresco congelado (+ 200ml/unid)',
+  'Concentrado de plaquetas pobre em leucócitos(+ 60 ml/unid)',
+  'Concentrado de plaquetas pobre em leucócitos irradiado(+ 60 ml/unid)',
+  'Concentrado de plaquetas por aférese (+ 300 ml/unid)',
+  'Crioprecipitado (+ 20 ml/unid)',
+]
+
+function SgCheck({ marcado, children }) {
+  return <span className="sg-check">( {marcado ? 'X' : ' '} ) {children}</span>
+}
+
+function CorpoSangueOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  const cf = registro.campos_extra || {}
+  const hemo = cf.hemocomponentes || {}
+  const nascimento = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''
+  const fmtData = (iso) => (iso ? new Date(iso + 'T00:00:00').toLocaleDateString('pt-BR').split('/').join(' / ') : '____/____/____')
+
+  return (
+    <div className="sg-page">
+      <div className="sg-topo">
+        <div className="sg-topo-logo"><img src="./logos/upa24h.jpg" alt="UPA 24h" /></div>
+        <div className="sg-topo-texto">
+          <div className="nome">PREFEITURA MUNICIPAL DE BREVES</div>
+          <div>SECRETARIA MUNICIPAL DE SAÚDE - SEMSA</div>
+          <div>Travessa Castilhos França - Aeroporto - CNPJ 02.967.963/0001-11</div>
+          <div>Breves - Pará - CEP 68.800-000</div>
+        </div>
+        <div className="sg-topo-aviso">
+          Solicitação incompleta, inadequada ou ilegível, não será aceita pelo Serviço de Hemoterapia,
+          conforme legislação vigente do Ministério da Saúde.
+          <b>Hemopa adicionado às ______________ horas</b>
+        </div>
+      </div>
+
+      <div className="sg-caixa">
+        <div className="sg-titulo">SOLICITAÇÃO DE SANGUE, COMPONENTES E DERIVADOS</div>
+        <div className="sg-linha"><b>PACIENTE:</b> <i>{pessoa.nome}</i></div>
+        <div className="sg-linha">
+          <span><b>DATA NASC.:</b> <i>{nascimento}</i></span>
+          <span><b>SEXO:</b> <i>{pessoa.sexo === 'F' ? 'FEMININO' : pessoa.sexo === 'M' ? 'MASCULINO' : ''}</i></span>
+          <span><b>PESO:</b> {cf.peso}</span>
+          <span><b>HB/HT:</b> <i>{cf.hb_ht}</i></span>
+        </div>
+        <div className="sg-linha">
+          <span><b>HOSPITAL:</b> <i>UPA 24h Breves</i></span>
+          <span><b>APT:</b> {cf.apt}</span>
+          <span><b>ENFª/LEITO:</b> {cf.enf_leito || leitoNumero}</span>
+        </div>
+        <div className="sg-linha">
+          <span><b>REGISTRO HOSPITALAR:</b> {cf.registro_hospitalar || atendimento?.numero_atendimento}</span>
+          <span><b>CATEGORIA:</b> {cf.categoria}</span>
+        </div>
+        <div className="sg-linha">
+          <span><b>RECEBEU TRANSFUSÃO:</b> <i>{cf.recebeu_transfusao === 'sim' ? 'SIM' : cf.recebeu_transfusao === 'nao' ? 'NÃO' : ''}</i></span>
+          <span><b>QUANDO:</b> {cf.quando ? new Date(cf.quando + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
+          <span><b>ONDE:</b> {cf.onde}</span>
+        </div>
+        <div className="sg-linha">
+          <span><b>ANTECEDENTES DE ANTICORPO IRREGULAR?</b> <SgCheck marcado={cf.antecedentes_anticorpo === 'sim'}>SIM</SgCheck> <SgCheck marcado={cf.antecedentes_anticorpo === 'nao'}>NÃO</SgCheck></span>
+          <span><b>SOLICITOU DOADORES?</b> {cf.solicitou_doadores}</span>
+        </div>
+        <div className="sg-linha"><b>INDICAÇÃO CLÍNICA / CIRURGIA PROPOSTA:</b> <i>{registro.indicacao_clinica}</i></div>
+      </div>
+
+      <div className="sg-caixa">
+        <div className="sg-titulo">HEMOCOMPONENTES / HEMODERIVADOS</div>
+        <table className="sg-tabela">
+          <tbody>
+            {SG_HEMOCOMPONENTES.map((item) => (
+              <tr key={item}>
+                <td>{item}</td>
+                <td className="qtd">{hemo[item]?.marcado ? (hemo[item]?.quantidade || 'X') : ''}</td>
+              </tr>
+            ))}
+            <tr><td>Outros: {cf.outros_hemocomponentes}</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p className="sg-nota">Obrigatório prescrição do produto no prontuário médico do paciente.</p>
+      <p className="sg-nota">Devolver até 48h, o(s) produto(s) não transfundido(s).</p>
+
+      <div className="sg-assinatura">
+        <span className="sg-assinatura-linha">Médico solicitante: {medico?.nome_exibicao || medico?.nome}</span>
+        <span>Data: {dataHora.split(',')[0]}</span>
+        <span>Hora: {dataHora.split(', ')[1] || ''}</span>
+      </div>
+      <div className="sg-assinatura-legenda">Médico / CRM {medico?.crm ? `— ${medico.crm}` : ''}</div>
+
+      <div className="sg-opcoes">
+        <p><SgCheck marcado={cf.urgencia === 'urgencia'}>Urgência, a realizar dentro de 3 horas.</SgCheck></p>
+        <p><SgCheck marcado={cf.urgencia === 'rotina'}>Não urgente (rotina), a realizar dentro de 24 horas.</SgCheck></p>
+        <p>
+          <SgCheck marcado={cf.urgencia === 'cirurgia'}>Programada:</SgCheck> - Para cirurgia eletiva em {fmtData(cf.cirurgia_data)}, às {cf.cirurgia_hora || '_______'} horas com possível transfusão.
+        </p>
+        <p style={{ paddingLeft: '10mm' }}>Para transfusão em regime ambulatorial, dia {fmtData(cf.ambulatorial_data)}, às {cf.ambulatorial_hora || '_____'} horas.</p>
+        <p style={{ paddingLeft: '10mm', fontWeight: 700 }}>OBS.: Encaminhar paciente à Fundação Hemopa com antecedência de 3 (três) dias úteis.</p>
+        <p>A não observação deste item cancela automaticamente esta solicitação.</p>
+        <p><SgCheck marcado={cf.urgencia === 'residencia'}>Transfusão em residência - Obrigatório preenchimento de Termo de Responsabilidade.</SgCheck></p>
+        <p><SgCheck marcado={cf.urgencia === 'auto'}>Auto-transfusão</SgCheck></p>
+      </div>
+
+      <div className="sg-caixa">
+        <div className="sg-titulo">TRANSFUSÃO DE EXTREMA URGÊNCIA</div>
+        <p className="sg-nota" style={{ padding: '1mm 2mm' }}>Autorizo a transfusão de sangue sem testes pré-transfusionais exigidos por se tratar de risco de vida.</p>
+        <div className="sg-linha">
+          <span>Médico solicitante: {cf.extrema_urgencia ? (medico?.nome_exibicao || medico?.nome) : ''}</span>
+          <span>Data: {fmtData(cf.extrema_urgencia_data)}</span>
+          <span>Hora: {cf.extrema_urgencia_hora || '________'}</span>
+        </div>
+      </div>
+
+      <div className="sg-linha-solta">
+        Coletado por: {cf.coletado_por} &nbsp;&nbsp; Data: {fmtData(cf.coletado_data)} &nbsp;&nbsp; Hora: {cf.coletado_hora || '________'}
+      </div>
+
+      <div className="sg-caixa">
+        <div className="sg-titulo">ESPAÇO RESERVADO EXCLUSIVAMENTE PARA USO DA FUNDAÇÃO HEMOPA</div>
+        <table className="sg-tabela sg-tabela-hemopa">
+          <thead>
+            <tr>
+              <th>DATA</th><th>PRODUTO</th><th>G.S.</th><th>VOLUME</th><th>COLETA</th><th>TUBO</th><th>RESULTADO</th><th>HORA</th><th>TÉCNICO</th><th>SOLICITAÇÃO</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <tr key={i}>{Array.from({ length: 10 }).map((_, j) => <td key={j}>&nbsp;</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="sg-linha-solta">
+        PAI: I {cf.pai_i} &nbsp; II {cf.pai_ii} &nbsp; AC: {cf.ac} &nbsp; CD: {cf.cd} &nbsp; RESPONSÁVEL: {cf.responsavel_hemopa} &nbsp; DATA: {fmtData(cf.hemopa_data)} &nbsp; HORA: {cf.hemopa_hora || '_____'}
+      </div>
+    </div>
+  )
+}
+
+function SerCampoVital({ rotulo, valor }) {
+  return (
+    <div className="serf-vital">
+      <div className="serf-vital-rotulo">{rotulo}:</div>
+      <div className="serf-vital-caixa">{valor || ''}</div>
+    </div>
+  )
+}
+
+function CorpoRegulacaoOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  const sv = registro.sinais_vitais || {}
+  const nascimento = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''
+  const dataCadastro = dataHora.split(',')[0]
+
+  return (
+    <div className="serf-page">
+      <CabecalhoPadraoUPA
+        titulo="ATUALIZAÇÃO DE QUADRO CLÍNICO DE PACIENTE REGULADO"
+        pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+      />
+
+      <div className="serf-caixa-nome">
+        <span className="serf-tab">NOME:</span>
+        <div className="serf-caixa-nome-valor">{pessoa.nome}</div>
+      </div>
+      <div className="serf-caixa-data">
+        <span className="serf-tab">DATA:</span>
+        <div className="serf-caixa-data-valor">{dataCadastro}</div>
+      </div>
+
+      <div className="serf-linha"><b>DATA DE NASCIMENTO:</b> {nascimento}</div>
+      <div className="serf-linha"><b>MUNICÍPIO DE ORIGEM:</b> {pessoa.cidade || ''}</div>
+      <div className="serf-linha"><b>NOME DA MÃE:</b> {pessoa.nome_mae || ''}</div>
+
+      <div className="serf-linha"><b>DATA DO CADASTRO:</b> {dataCadastro}</div>
+      <div className="serf-linha"><b>DIAGNÓSTICO REGULADO:</b> {registro.diagnostico_regulado || ''}</div>
+      <div className="serf-linha">
+        <b>MUDANÇA DE DIAGNÓSTICO?</b> SIM (<SerCheck marcado={registro.mudanca_diagnostico} />) NÃO (<SerCheck marcado={!registro.mudanca_diagnostico} />)
+        &nbsp;&nbsp;PARA: {registro.mudanca_diagnostico ? (registro.novo_diagnostico_cid || '') : ''}
+      </div>
+      <div className="serf-linha"><b>Nº DA SOLICITAÇÃO NO SER:</b> {registro.numero_solicitacao_ser || ''}</div>
+
+      <div className="serf-vitais">
+        <SerCampoVital rotulo="PA" valor={sv.pa_sistolica && sv.pa_diastolica ? `${sv.pa_sistolica}x${sv.pa_diastolica}` : ''} />
+        <SerCampoVital rotulo="FC" valor={sv.fc} />
+        <SerCampoVital rotulo="FR" valor={sv.fr} />
+        <SerCampoVital rotulo="T°" valor={sv.temperatura} />
+        <SerCampoVital rotulo="SPO²" valor={sv.spo2} />
+        <SerCampoVital rotulo="HGT" valor={sv.hgt} />
+      </div>
+
+      <div className="serf-secao">
+        <div className="serf-secao-titulo">1 – EVOLUÇÃO DIÁRIA</div>
+        <div className="serf-secao-corpo">{registro.evolucao}</div>
+      </div>
+      <div className="serf-secao">
+        <div className="serf-secao-titulo">3 – PENDÊNCIAS</div>
+        <div className="serf-secao-corpo">{registro.pendencias}</div>
+      </div>
+      <div className="serf-secao">
+        <div className="serf-secao-titulo">4 – CONDUTA</div>
+        <div className="serf-secao-corpo">{registro.conduta}</div>
+      </div>
+
+      <div className="serf-assinatura">
+        <div className="serf-sigline" />
+        <span>{(medico?.nome_exibicao || medico?.nome) ? `${medico.nome_exibicao || medico.nome}${medico.crm ? ` / CRM ${medico.crm}` : ''}` : 'MÉDICO / CRM'}</span>
+      </div>
+    </div>
+  )
+}
+
+function SerCheck({ marcado }) {
+  return <span style={{ fontWeight: 700 }}>{marcado ? 'X' : ' '}</span>
+}
+
+function fmtDataAlta(data) {
+  if (!data) return null
+  return new Date(`${data}T00:00:00`).toLocaleDateString('pt-BR')
+}
+
+function CorpoSumarioAltaOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  return (
+    <div className="admf-document admf-document-compacto">
+      <header className="admf-header">
+        <CabecalhoPadraoUPA
+          titulo="SUMÁRIO DE ALTA"
+          pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+        />
+      </header>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Datas do episódio (informadas neste sumário)</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">
+            Internação: {fmtDataAlta(registro.data_internacao) || ''} — Alta: {fmtDataAlta(registro.data_alta) || ''}
+          </div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Diagnóstico de internação</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">
+            {[registro.diagnostico_internacao, registro.cid_internacao].filter(Boolean).join(' — ')}
+          </div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Diagnóstico de alta</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">
+            {[registro.diagnostico_alta, registro.cid_alta].filter(Boolean).join(' — ')}
+          </div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Resumo clínico</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-alta">{registro.resumo_clinico || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Orientações para continuidade do tratamento</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">{registro.orientacoes_continuidade || ''}</div>
+        </div>
+      </section>
+
+      <div className="admf-assinatura">
+        <div className="admf-assinatura-texto">
+          Breves/PA, {dataHora.split(',')[0]}.
+        </div>
+        <div className="admf-assinatura-caixa">
+          <div className="admf-sigline" />
+          <div className="admf-sig-caption">{medico?.nome_exibicao || medico?.nome || 'Médico responsável'}</div>
+          <div className="admf-sig-crm">CRM/UF: {medico?.crm ? `${medico.crm}/PA` : ''}</div>
+        </div>
+      </div>
+
+      <footer className="admf-footer">
+        <span>Sumário de Alta</span>
+        <span>Registrado em {dataHora}</span>
+      </footer>
+    </div>
+  )
+}
+
+function EvolucaoSimNao({ rotulo, valor, textoSe }) {
+  return (
+    <div className="admf-textbox admf-textbox-plano" style={{ marginBottom: '2mm' }}>
+      <b>{rotulo}</b> {valor ? `SIM${textoSe ? ` — ${textoSe}` : ''}` : 'NÃO'}
+    </div>
+  )
+}
+
+function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  return (
+    <div className="admf-document admf-document-compacto">
+      <header className="admf-header">
+        <CabecalhoPadraoUPA
+          titulo="EVOLUÇÃO MÉDICA DIÁRIA DE ENFERMARIA CLÍNICA"
+          pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+        />
+      </header>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Diagnósticos (o principal na primeira linha)</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">{registro.diagnosticos || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">História da doença atual</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-alta">{registro.historia_doenca_atual || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Comorbidades, reconciliação medicamentosa e alergias</div>
+        <div className="admf-section-body">
+          <EvolucaoSimNao rotulo="Comorbidades:" valor={registro.comorbidades} textoSe={registro.comorbidades_texto} />
+          <EvolucaoSimNao rotulo="Reconciliação medicamentosa:" valor={registro.reconciliacao_medicamentosa} textoSe={registro.reconciliacao_texto} />
+          <EvolucaoSimNao rotulo="Alergias:" valor={registro.alergias} textoSe={registro.alergias_texto} />
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Risco de TEV, sepse e antibioticoterapia</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano" style={{ marginBottom: '2mm' }}><b>Risco para TEV:</b> {registro.risco_tev || ''}</div>
+          <EvolucaoSimNao rotulo="2 critérios para protocolo de sepse:" valor={registro.criterios_sepse} />
+          <div className="admf-textbox admf-textbox-plano"><b>Antibioticoterapia atual:</b> {registro.antibioticoterapia || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Evolução do dia</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-alta">{registro.evolucao_dia}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Exame físico</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-alta">{registro.exame_fisico}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Plano terapêutico</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">{registro.plano_terapeutico || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Laboratório / cultura / exames de imagem</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-plano">{registro.exames_laboratorio || ''}</div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Exames pendentes e previsão de alta</div>
+        <div className="admf-section-body">
+          <EvolucaoSimNao rotulo="Aguarda exames:" valor={registro.aguarda_exames} textoSe={registro.aguarda_exames_texto} />
+          <div className="admf-textbox admf-textbox-plano">
+            <b>Data prevista da alta hospitalar:</b> {registro.data_prevista_alta ? new Date(registro.data_prevista_alta + 'T00:00:00').toLocaleDateString('pt-BR') : ''}
+          </div>
+        </div>
+      </section>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Conduta médica</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-alta">{registro.conduta_medica || ''}</div>
+        </div>
+      </section>
+
+      <div className="admf-assinatura">
+        <div className="admf-assinatura-texto">
+          Breves/PA, {dataHora.split(',')[0]}.
+        </div>
+        <div className="admf-assinatura-caixa">
+          <div className="admf-sigline" />
+          <div className="admf-sig-caption">{medico?.nome_exibicao || medico?.nome || 'Médico responsável'}</div>
+          <div className="admf-sig-crm">CRM/UF: {medico?.crm ? `${medico.crm}/PA` : ''}</div>
+        </div>
+      </div>
+
+      <footer className="admf-footer">
+        <span>Evolução Médica Diária</span>
+        <span>Registrado em {dataHora}</span>
+      </footer>
+    </div>
+  )
+}
+
+function CorpoNotaIntercorrenciaOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  return (
+    <div className="admf-document admf-document-compacto">
+      <header className="admf-header">
+        <CabecalhoPadraoUPA
+          titulo="NOTAS-INTERCORRÊNCIAS"
+          pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+        />
+      </header>
+
+      <section className="admf-section">
+        <div className="admf-section-title">Notas</div>
+        <div className="admf-section-body">
+          <div className="admf-textbox admf-textbox-alta">{registro.notas}</div>
+        </div>
+      </section>
+
+      <div className="admf-assinatura">
+        <div className="admf-assinatura-texto">
+          Breves/PA, {dataHora.split(',')[0]}.
+        </div>
+        <div className="admf-assinatura-caixa">
+          <div className="admf-sigline" />
+          <div className="admf-sig-caption">{medico?.nome_exibicao || medico?.nome || 'Médico responsável'}</div>
+          <div className="admf-sig-crm">CRM/UF: {medico?.crm ? `${medico.crm}/PA` : ''}</div>
+        </div>
+      </div>
+
+      <footer className="admf-footer">
+        <span>Nota de Intercorrência Médica</span>
+        <span>Registrado em {dataHora}</span>
+      </footer>
+    </div>
+  )
+}
+
+function ReceitaColuna({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  const itens = registro.itens || []
+  return (
+    <div className="rxf-coluna">
+      <CabecalhoPadraoUPA
+        titulo="RECEITUÁRIO MÉDICO"
+        pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+      />
+
+      <div className="rxf-itens">
+        {itens.map((it, i) => (
+          <div key={i} className="rxf-item">
+            <div className="rxf-item-nome">{i + 1}) {it.medicamento}</div>
+            {it.instrucao && <div className="rxf-item-instrucao">{it.instrucao}</div>}
+          </div>
+        ))}
+      </div>
+      <div className="rxf-assinatura">
+        <span>{dataHora.split(',')[0]}</span>
+        <span>{(medico?.nome_exibicao || medico?.nome) ? `${medico.nome_exibicao || medico.nome}${medico.crm ? ` — CRM ${medico.crm}` : ''}` : 'MÉDICO / CRM'}</span>
+      </div>
+    </div>
+  )
+}
+
+function CorpoReceituarioOficial(props) {
+  return (
+    <div className="rxf-page">
+      <div className="rxf-duas-vias">
+        <ReceitaColuna {...props} />
+        <ReceitaColuna {...props} />
+      </div>
+      <div className="rxf-rodape">
+        <span>Receituário Médico</span>
+        <span>Registrado em {props.dataHora}</span>
+      </div>
+    </div>
   )
 }
