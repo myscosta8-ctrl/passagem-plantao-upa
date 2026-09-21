@@ -4,6 +4,38 @@ Contexto para retomada pelo IDE. Sessão anterior rodou no Claude Code (chat), s
 interativo — todo teste foi feito via browser automatizado. Este arquivo existe só para
 handoff; pode ser apagado depois que a continuação for absorvida.
 
+## Por onde começar
+
+1. **Leia este arquivo inteiro antes de tocar em código.** Ele substitui o histórico de
+   chat que você não tem acesso.
+2. **Confira o estado real do git**, não confie só neste texto:
+   ```
+   git log --oneline -6
+   git show --stat HEAD
+   git status
+   ```
+   O commit mais recente deve ser o que começa com "Admissão de Enfermagem: formulário
+   completo, realocado para Prontuário de Enfermagem...". Se `git status` mostrar algo
+   modificado além do arquivo solto `proposta-design-system-vitaloop.html` (não
+   relacionado, ver item 4 de "O que falta"), pare e investigue antes de prosseguir — pode
+   ser edição feita fora desta sessão.
+3. **Rode o projeto e abra o app** (`npm run dev`, ou o comando configurado no
+   `.claude/launch.json` se existir). Entre em qualquer paciente → aba "Prontuário de
+   Enfermagem" → "Admissão de Enfermagem". Se essa aba não existir ali, ou existir dentro
+   de "Prontuário Médico" em vez de "Prontuário de Enfermagem", a realocação descrita na
+   seção 2 abaixo não está no estado esperado — comece por aí.
+4. **Leia os 4 arquivos novos nesta ordem** para entender a arquitetura antes de mexer:
+   `src/pages/historicoEnfermagemConfig.js` (dados/config) →
+   `src/pages/AbaHistoricoEnfermagem.jsx` (formulário) →
+   `src/pages/CabecalhoPadraoUPA.jsx` (cabeçalho compartilhado) →
+   `src/pages/CorpoHistoricoEnfermagem.jsx` (impressão).
+5. **Trate a seção "O que falta" abaixo como o backlog imediato**, na ordem em que está
+   listada. Não inicie os documentos de enfermagem do item 3 sem confirmar com o usuário —
+   é a mesma regra que valeu a sessão inteira ("um documento de cada vez", só com ok
+   explícito).
+6. Se o usuário disser algo como "continua de onde parou" sem mais contexto, o próximo
+   passo concreto é o item 1 de "O que falta" (revisão do `somenteSe`).
+
 ## O que foi feito
 
 ### 1. Formulário "Admissão de Enfermagem" (config-driven, ~150 campos de marcação)
