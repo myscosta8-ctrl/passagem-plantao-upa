@@ -27,7 +27,7 @@ export const EXAME_FISICO_CONFIG = [
   { secao: 'torax_respiratorio', secaoTitulo: 'Tórax/Respiratório', observacao: true, campos: [
     { id: 'torax', label: 'Tórax', opcoes: ['Sem alteração', 'Assimétrico', 'Fratura'], extras: [{ key: 'drenos', label: 'Drenos' }, { key: 'cateter_central', label: 'Cateter central' }] },
     { id: 'mamas', label: 'Mamas', opcoes: ['Sem alteração', 'Presença de nódulos', 'Mastectomia', 'Aumento das mamas'] },
-    { id: 'padrao_respiratorio', label: 'Padrão respiratório', opcoes: ['Espontâneo', 'Ventilação mecânica', 'Traqueostomizado', 'Cateter O2', 'Máscara', 'Eupneico', 'Dispneico', 'Taquipneico', 'Bradipneico', 'Tosse'], extras: [{ key: 'expectoracao', label: 'Expectoração — cor/aspecto' }] },
+    { id: 'padrao_respiratorio', label: 'Padrão respiratório', opcoes: ['Espontâneo', 'Ventilação mecânica', 'Traqueostomizado', 'Cateter O2', 'Máscara', 'Eupneico', 'Dispneico', 'Taquipneico', 'Bradipneico', 'Tosse'], extras: [{ key: 'expectoracao', label: 'Expectoração — cor/aspecto', somenteSe: ['Tosse', 'Traqueostomizado', 'Ventilação mecânica'] }] },
     { id: 'ruidos_adventicios', label: 'Ruídos adventícios', opcoes: ['Pulmões livres', 'Roncos', 'Sibilos', 'Estertores'] },
   ] },
   { secao: 'cardiovascular', secaoTitulo: 'Cardiovascular', observacao: true, campos: [
@@ -37,9 +37,9 @@ export const EXAME_FISICO_CONFIG = [
   ] },
   { secao: 'gastrointestinal', secaoTitulo: 'Gastrointestinal', observacao: true, campos: [
     { id: 'abdome', label: 'Abdome', opcoes: ['Plano', 'Distendido', 'Globoso', 'Timpânico', 'RHA presente', 'Doloroso'] },
-    { id: 'abdome_2', label: '', opcoes: ['Vômitos', 'Hematêmese', 'Gastrotomia', 'Jejunostomia', 'Colostomia', 'SNG', 'SNE'], extras: [{ key: 'vomitos_dia', label: 'Vômitos / dia' }] },
+    { id: 'abdome_2', label: '', opcoes: ['Vômitos', 'Hematêmese', 'Gastrotomia', 'Jejunostomia', 'Colostomia', 'SNG', 'SNE'], extras: [{ key: 'vomitos_dia', label: 'Vômitos / dia', somenteSe: ['Vômitos', 'Hematêmese'] }] },
     { id: 'drenos_gi', label: 'Drenos', opcoes: [], extras: [{ key: 'drenos', label: 'Drenos' }, { key: 'obs', label: 'Obs' }] },
-    { id: 'habito_intestinal', label: 'Hábito intestinal', opcoes: ['Flatulência', 'Obstipação', 'Diarreia', 'Melena'], extras: [{ key: 'frequencia_dia', label: 'Frequência / dia' }, { key: 'uso_medicamentos', label: 'Uso de medicamentos' }, { key: 'diarreia_dia', label: 'Diarreia / dia' }] },
+    { id: 'habito_intestinal', label: 'Hábito intestinal', opcoes: ['Flatulência', 'Obstipação', 'Diarreia', 'Melena'], extras: [{ key: 'frequencia_dia', label: 'Frequência / dia' }, { key: 'uso_medicamentos', label: 'Uso de medicamentos' }, { key: 'diarreia_dia', label: 'Diarreia / dia', somenteSe: 'Diarreia' }] },
   ] },
   { secao: 'urinario', secaoTitulo: 'Urinário', observacao: true, campos: [
     { id: 'urinario', label: '', opcoes: ['Sem alteração', 'Disúria', 'Hematúria', 'Nictúria', 'Poliúria', 'Oligúria', 'Polaciúria', 'Urgência miccional', 'Incontinência', 'SVD'] },

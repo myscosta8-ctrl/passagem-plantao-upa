@@ -10,8 +10,12 @@ function limparPrefixo(valor) {
   return valor ? String(valor).replace(/^(PEP|AT)-?/i, '') : ''
 }
 
-export default function CabecalhoPadraoUPA({ titulo, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+export default function CabecalhoPadraoUPA({ titulo, pessoa = {}, atendimento = {}, idade, leitoNumero, setorNome, medico, profissional, profissionalRotulo, dataHora }) {
   const nascimento = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''
+  const prof = profissional || medico
+  const rotuloProf = profissionalRotulo || (medico ? 'MÉDICO RESPONSÁVEL:' : 'PROFISSIONAL RESPONSÁVEL:')
+  const docConselho = prof?.crm ? `CRM: ${prof.crm}` : (prof?.coren ? `COREN: ${prof.coren}` : '')
+
   return (
     <>
       <div className="pr-topo">
@@ -26,7 +30,7 @@ export default function CabecalhoPadraoUPA({ titulo, pessoa, atendimento, idade,
           <img src="./logos/upa24h.jpg" alt="UPA 24h" />
         </div>
       </div>
-      <hr />
+      <hr className="pr-topo-hr" />
 
       <div className="pr-titulo">{titulo}</div>
 
@@ -61,18 +65,16 @@ export default function CabecalhoPadraoUPA({ titulo, pessoa, atendimento, idade,
           <div className="pr-campo" style={{ flexBasis: '25%' }}><b>TELEFONE:</b> {pessoa.telefone || ''}</div>
         </div>
         <div className="pr-linha">
-          <div className="pr-campo" style={{ flexBasis: '35%' }}><b>CENTRO DE CUSTO:</b> </div>
-          <div className="pr-campo" style={{ flexBasis: '65%' }}><b>ESPECIALIDADE:</b> Clínica Médica</div>
-        </div>
-        <div className="pr-linha">
-          <div className="pr-campo" style={{ flexBasis: '65%' }}><b>MÉDICO RESPONSÁVEL:</b> {medico?.nome_exibicao || medico?.nome} &nbsp; <b>CRM:</b> {medico?.crm || ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '65%' }}>
+            <b>{rotuloProf}</b> {prof?.nome_exibicao || prof?.nome || ''} {docConselho ? <>&nbsp; <b>{docConselho}</b></> : ''}
+          </div>
           <div className="pr-campo" style={{ flexBasis: '35%' }}><b>ALERGIA:</b> Nenhuma informada</div>
         </div>
         <div className="pr-linha">
           <div className="pr-campo" style={{ flexBasis: '15%' }}><b>LEITO:</b> {leitoNumero || ''}</div>
-          <div className="pr-campo" style={{ flexBasis: '25%' }}><b>SETOR:</b> {setorNome || ''}</div>
-          <div className="pr-campo" style={{ flexBasis: '40%' }}><b>UNIDADE:</b> UPA 24h Breves</div>
-          <div className="pr-campo" style={{ flexBasis: '20%' }}><b>PESO:</b> </div>
+          <div className="pr-campo" style={{ flexBasis: '35%' }}><b>SETOR:</b> {setorNome || ''}</div>
+          <div className="pr-campo" style={{ flexBasis: '35%' }}><b>UNIDADE:</b> UPA 24h Breves</div>
+          <div className="pr-campo" style={{ flexBasis: '15%' }}><b>PESO:</b> </div>
         </div>
       </div>
     </>

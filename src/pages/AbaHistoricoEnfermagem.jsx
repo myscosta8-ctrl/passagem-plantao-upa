@@ -78,7 +78,13 @@ function CampoExameFisico({ campo, valor, onChange }) {
       {campo.label && <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{campo.label}</div>}
       {campo.opcoes.length > 0 && <ChipMultiEscolha opcoes={campo.opcoes} valor={v.opcoes} onChange={setOpcoes} />}
       {(campo.extras || [])
-        .filter((ex) => !ex.somenteSe || opcoesSelecionadas.includes(ex.somenteSe))
+        .filter((ex) => {
+          if (!ex.somenteSe) return true
+          if (Array.isArray(ex.somenteSe)) {
+            return ex.somenteSe.some((s) => opcoesSelecionadas.includes(s))
+          }
+          return opcoesSelecionadas.includes(ex.somenteSe)
+        })
         .map((ex) => (
           <div key={ex.key} style={{ marginTop: 6 }}>
             <input type="text" placeholder={ex.label} value={v.extra?.[ex.key] || ''} onChange={(e) => setExtra(ex.key, e.target.value)} style={{ width: '100%' }} />

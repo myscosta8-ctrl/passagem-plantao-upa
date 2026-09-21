@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo Oficial de Impressos — UPA 24h Breves</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      padding: 30px 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 25px;
+    }
+    header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #94a3b8;
+      font-size: 14px;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+    .secao-titulo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin: 30px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge-count {
+      background: #0284c7;
+      color: #fff;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .grid-docs {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .doc-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+    .doc-card:hover {
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+    }
+    .doc-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .doc-tipo-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .badge-enf { background: #065f46; color: #6ee7b7; }
+    .badge-med { background: #1e3a8a; color: #93c5fd; }
+    .doc-formato {
+      font-size: 11px;
+      color: #94a3b8;
+      background: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .doc-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .doc-card p {
+      font-size: 12.5px;
+      color: #94a3b8;
+      line-height: 1.45;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+    .btn-abrir {
+      display: inline-block;
+      text-align: center;
+      background: #0284c7;
+      color: #fff;
+      font-weight: 600;
+      font-size: 12.5px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-abrir:hover {
+      background: #0369a1;
+    }
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid #334155;
+      color: #64748b;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Galeria Oficial de Impressos — UPA 24h Breves</h1>
+      <p>Catálogo completo de modelos padronizados em HTML com Cabeçalho Universal Institucional (3 brasões oficiais), tipografia legível ampliada, encaixe em 1 página A4 e rodapé externo com assinaturas.</p>
+    </header>
+
+    <div class="secao-titulo">
+      <span>🩺 Prontuário de Enfermagem</span>
+      <span class="badge-count">5 Modelos</span>
+    </div>
+
+    <div class="grid-docs">
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-enf">Enfermagem</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>01. Admissão de Enfermagem</h3>
+          <p>Histórico completo de admissão do paciente com queixa, antecedentes, medicamentos em uso domiciliar, exame físico e parecer inicial do enfermeiro.</p>
+        </div>
+        <a href="01-admissao-enfermagem.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-enf">Enfermagem</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>02. Evolução de Enfermagem (SAE)</h3>
+          <p>Sistematização da Assistência de Enfermagem com 4 mini cards superiores, exame físico céfalo-caudal, tabela de dispositivos e prescrições de enfermagem.</p>
+        </div>
+        <a href="02-evolucao-enfermagem-sae.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-enf">Enfermagem</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>03. Transferência de Paciente (SBAR)</h3>
+          <p>Comunicação padronizada de passagem de caso em 4 etapas (Situação, Background, Avaliação com sinais vitais e Recomendações) e dupla assinatura.</p>
+        </div>
+        <a href="03-transferencia-paciente-sbar.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-enf">Enfermagem</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>04. Nota de Intercorrência de Enfermagem</h3>
+          <p>Registro de eventos adversos ou alterações agudas com horário de notificação médica, sinais vitais do evento, condutas tomadas e desfecho.</p>
+        </div>
+        <a href="04-nota-intercorrencia-enfermagem.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-enf">Enfermagem</span>
+            <span class="doc-formato" style="color: #38bdf8; font-weight: 700;">A4 Paisagem</span>
+          </div>
+          <h3>05. Balanço Hídrico 24 Horas</h3>
+          <p>Grade horizontal completa de 24 horas (turno diurno + turno noturno + subtotais + saldo final) expandida verticalmente para controle de entradas e perdas.</p>
+        </div>
+        <a href="05-balanco-hidrico-24h.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+    </div>
+
+    <div class="secao-titulo">
+      <span>🩺 Prontuário Médico</span>
+      <span class="badge-count">9 Modelos</span>
+    </div>
+
+    <div class="grid-docs">
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-med">Médico</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>06. Prescrição Médica Hospitalar</h3>
+          <p>Prescrição padrão com dieta, cuidados de enfermagem, tabela de medicamentos com horários e 5 linhas de assinaturas sem quebra de página.</p>
+        </div>
+        <a href="06-prescricao-medica.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-med">Médico</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>07. Evolução Médica Diária</h3>
+          <p>Evolução diária em enfermaria com diagnósticos ativos CID-10, história atual, exame físico, avaliação de exames e conduta terapêutica.</p>
+        </div>
+        <a href="07-evolucao-medica-diaria.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-med">Médico</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>08. Sumário de Alta Médica</h3>
+          <p>Fechamento do episódio com período de internação, diagnóstico definitivo, resumo clínico, prescrição para casa e orientações de alerta.</p>
+        </div>
+        <a href="08-sumario-de-alta.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-med">Médico</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>09. Nota de Intercorrência Médica</h3>
+          <p>Registro de avaliação de emergência intra-hospitalar com queixa aguda, exame dirigido, medicações prescritas no momento e reavaliação.</p>
+        </div>
+        <a href="09-nota-intercorrencia-medica.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-med">Médico</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>10. Ficha de Admissão Médica</h3>
+          <p>Consulta médica de entrada com anamnese, exame físico completo, hipóteses diagnósticas e plano terapêutico inicial.</p>
+        </div>
+        <a href="10-consulta-admissao-medica.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-med">Médico / CCIH</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>11. Formulário Antimicrobiano (ATM)</h3>
+          <p>Solicitação de autorização de uso de antimicrobianos restritos com justificativa clínica, cálculo DxIxT, parecer farmacêutico/CCIH e catálogo de controle.</p>
+        </div>
+        <a href="11-formulario-antimicrobiano-atm.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-med">Médico</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>12. Plano Terapêutico Hospitalar</h3>
+          <p>Planejamento multidisciplinar da permanência com diagnósticos, motivos da internação, metas clínicas com prazos, protocolos aplicáveis e equipe assistencial.</p>
+        </div>
+        <a href="12-plano-terapeutico.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-med">Médico / Regulação</span>
+            <span class="doc-formato">A4 Retrato</span>
+          </div>
+          <h3>13. Tratamento Fora de Domicílio (LM/TFD)</h3>
+          <p>Laudo médico oficial para encaminhamento de pacientes a serviços terciários fora de Breves, com HDA detalhada, exame dirigido, justificativa e dados do transporte.</p>
+        </div>
+        <a href="13-tratamento-fora-domicilio-tfd.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+
+      <div class="doc-card">
+        <div>
+          <div class="doc-topo">
+            <span class="doc-tipo-badge badge-med">Médico</span>
+            <span class="doc-formato" style="color: #38bdf8; font-weight: 700;">A4 Paisagem</span>
+          </div>
+          <h3>14. Receituário Médico (2 Vias)</h3>
+          <p>Prescrição ambulatorial dividida em duas vias na mesma página (Paciente e Farmácia), com orientações completas, alertas e rodapés ancorados.</p>
+        </div>
+        <a href="14-receituario-medico-2vias.html" class="btn-abrir" target="_blank">Visualizar Modelo ↗</a>
+      </div>
+    </div>
+
+    <footer>
+      Prefeitura Municipal de Breves · Secretaria Municipal de Saúde (SEMSA) · UPA 24h Breves / PA<br />
+      Todos os dados exibidos nos modelos são 100% fictícios e em estrita conformidade com a LGPD.
+    </footer>
+  </div>
+</body>
+</html>

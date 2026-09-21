@@ -659,16 +659,16 @@
 }
 
 .admf-document {
-  --admf-ice: #e9edf0;
-  --admf-ice2: #f4f6f7;
-  --admf-border: #aeb6bc;
-  --admf-dark: #263238;
-  --admf-mid: #5f6b72;
+  --admf-ice: #e2e8f0;
+  --admf-ice2: #f1f5f9;
+  --admf-border: #94a3b8;
+  --admf-dark: #0f172a;
+  --admf-mid: #475569;
   width: 100%;
   max-width: 210mm;
   margin: 0 auto;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 10px;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9.5px;
   color: var(--admf-dark);
 }
 
@@ -814,36 +814,36 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-top: 8mm;
-  font-size: 9px;
+  margin-top: 6mm;
+  font-size: 9.5px;
 }
 
-.admf-assinatura-texto { padding-bottom: 2mm; }
+.admf-assinatura-texto {
+  padding-bottom: 2mm;
+  font-weight: 600;
+  font-size: 10px;
+}
 
 .admf-assinatura-caixa {
-  border: 1px solid var(--admf-border);
-  border-radius: 3px;
-  padding: 4mm;
-  width: 70mm;
-  min-height: 26mm;
+  min-width: 65mm;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
-.admf-sigline { border-bottom: 1px solid var(--admf-dark); height: 9mm; }
-.admf-sig-caption { text-align: center; font-size: 8px; margin-top: 1.2mm; }
-.admf-sig-crm { text-align: center; font-size: 7.5px; color: var(--admf-mid); margin-top: 2mm; }
+.admf-sigline { border-bottom: 1px solid #000; height: 8mm; margin-bottom: 3px; }
+.admf-sig-caption { text-align: center; font-size: 10px; font-weight: 700; color: #000; }
+.admf-sig-crm { text-align: center; font-size: 8.8px; color: #333; margin-top: 1px; }
 
 .admf-footer {
-  border-top: 1px solid var(--admf-border);
+  border-top: 1px solid #888;
   margin-top: 4mm;
   padding-top: 2mm;
   display: flex;
   justify-content: space-between;
-  color: var(--admf-mid);
-  font-size: 7px;
+  color: #444;
+  font-size: 8px;
 }
 
 /* Plano Terapêutico — listas "sem quadrados" (item marcado = negrito + ✓,
@@ -929,61 +929,195 @@ table.admf-tabela-problemas th {
 .pr-page {
   width: 277mm;
   max-width: 277mm;
+  min-height: 190mm;
   margin: 0 auto;
-  padding: 14px 20px 10px;
-  font-size: 9.5px;
+  padding: 8px 14px 6px;
+  font-size: 8.8px;
   color: #111;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* Fonte fixa (sans-serif) independente do documento que hospeda este
    cabeçalho — TFD/SER usam Times New Roman no corpo, mas o cabeçalho
    padrão UPA deve ficar sempre igual, não herdar a fonte do documento. */
 .pr-topo, .pr-titulo, .pr-info { font-family: 'Inter', Arial, Helvetica, sans-serif; }
-.pr-topo { display: flex; align-items: center; gap: 8px; }
+.pr-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pr-topo-texto { flex: 1; }
-.pr-topo-texto .nome { font-weight: 700; font-size: 7.5px; }
-.pr-topo-texto .sub { font-size: 6px; }
-.pr-topo-logos { display: flex; align-items: center; gap: 4px; }
-.pr-topo-logos img { height: 18px; width: auto; object-fit: contain; }
-.pr-topo hr { border: none; border-top: 1px solid #000; margin: 3px 0 0; }
+.pr-topo-texto .nome { font-weight: 700; font-size: 10px; color: #000; letter-spacing: 0.2px; }
+.pr-topo-texto .sub { font-size: 8px; color: #333; line-height: 1.25; margin-top: 1px; }
+.pr-topo-logos { display: flex; align-items: center; gap: 6px; }
+.pr-topo-logos img { height: 25px; width: auto; object-fit: contain; }
+.pr-topo hr, .pr-topo-hr { border: none; border-top: 1px solid #000; margin: 3.5px 0 3px; }
 
-.pr-titulo { text-align: center; font-size: 10px; font-weight: 700; letter-spacing: .03em; margin: 3px 0 4px; }
+.pr-titulo { text-align: center; font-size: 13px; font-weight: 700; letter-spacing: .04em; margin: 2px 0 4px; text-transform: uppercase; color: #000; }
 
-/* Grade de identificação (substitui a antiga <table>): cada linha soma
-   100% em larguras dimensionadas ao conteúdo real do campo — evita que
-   campos como PESO fiquem enormes e vazios enquanto CPF/CNS/MÃE+SEXO
-   ficam espremidos e estourem a linha. */
-.pr-info { width: 100%; border: 1px solid #999; }
+/* Grade de identificação universal UPA Breves */
+.pr-info { width: 100%; border: 1px solid #777; margin-bottom: 5px; }
 .pr-linha { display: flex; }
-.pr-linha + .pr-linha { border-top: 1px solid #ccc; }
+.pr-linha + .pr-linha { border-top: 1px solid #bbb; }
 .pr-campo {
-  border-left: 1px solid #ccc;
-  padding: 1px 4px;
-  font-size: 6.5px;
-  line-height: 1.35;
+  border-left: 1px solid #bbb;
+  padding: 2px 5px;
+  font-size: 8.5px;
+  line-height: 1.3;
   box-sizing: border-box;
   overflow-wrap: break-word;
 }
 .pr-campo:first-child { border-left: none; }
-.pr-campo b { font-weight: 700; }
+.pr-campo b { font-weight: 700; color: #000; }
 
-.pr-secao-titulo { background: #d9d9d9; border: 1px solid #999; border-top: none; font-weight: 700; font-size: 9.5px; padding: 2px 8px; text-transform: uppercase; }
+.pr-secao-titulo {
+  background: #e2e8f0;
+  border: 1px solid #888;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.5px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+}
 
 table.pr-tabela { width: 100%; border-collapse: collapse; margin-bottom: 0; }
-table.pr-tabela th { background: #eee; border: 1px solid #999; font-size: 8.5px; text-align: left; padding: 2px 6px; text-transform: uppercase; }
-table.pr-tabela td { border-left: 1px solid #999; border-right: 1px solid #999; border-bottom: 1px solid #ccc; font-size: 9px; padding: 6px 6px; vertical-align: top; height: 26px; box-sizing: border-box; }
+table.pr-tabela th { background: #f1f5f9; border: 1px solid #94a3b8; font-size: 8.5px; text-align: left; padding: 2.5px 6px; text-transform: uppercase; font-weight: 700; }
+table.pr-tabela td { border-left: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; font-size: 9px; padding: 4px 6px; vertical-align: top; }
 table.pr-tabela td.qtd, table.pr-tabela td.via, table.pr-tabela td.freq, table.pr-tabela td.horario { white-space: nowrap; }
 .pr-nota { font-style: italic; color: #333; font-size: 8.5px; display: block; margin-top: 1px; }
 
-.pr-caixa { border: 1px solid #999; border-top: none; padding: 4px 8px; min-height: 16px; font-size: 9px; }
+table.pr-tabela-salutem td {
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid #cbd5e1;
+}
 
-.pr-assinaturas { display: flex; justify-content: space-between; gap: 14px; margin-top: 70px; }
-.pr-assinaturas .bloco { flex: 1; text-align: center; font-size: 9px; }
-.pr-assinaturas .bloco .nome-medico { font-weight: 700; font-size: 9.5px; display: block; }
-.pr-assinaturas .linha { border-top: 1px solid #333; margin-bottom: 4px; padding-top: 8px; }
+.pr-caixa { border: 1px solid #888; border-top: none; padding: 5px 8px; min-height: 18px; font-size: 9.2px; line-height: 1.4; background: #fff; }
+
+.pr-assinaturas { display: flex; justify-content: space-between; gap: 14px; margin-top: 25px; }
+.pr-assinaturas .bloco { flex: 1; text-align: center; font-size: 9.5px; }
+.pr-assinaturas .bloco .nome-medico { font-weight: 700; font-size: 10px; display: block; }
+.pr-assinaturas .linha { border-top: 1px solid #333; margin-bottom: 4px; padding-top: 6px; }
+
+.pr-assinaturas-5 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+  padding: 0 4px;
+}
+.pr-assinaturas-5 .bloco {
+  flex: 1;
+  text-align: center;
+  font-size: 8px;
+  line-height: 1.25;
+}
+.pr-assinaturas-5 .bloco .linha {
+  border-top: 1px solid #000;
+  margin-bottom: 2.5px;
+  width: 100%;
+}
+.pr-assinaturas-5 .bloco-medico {
+  flex: 1.4;
+  text-align: center;
+  font-size: 8px;
+  line-height: 1.25;
+}
+.pr-assinaturas-5 .bloco-medico .linha {
+  border-top: 1px solid #000;
+  margin-bottom: 2.5px;
+  width: 100%;
+}
 
 .pr-rodape { display: flex; justify-content: space-between; font-size: 8px; color: #333; margin-top: 6px; border-top: 1px solid #999; padding-top: 3px; }
+
+/* ==============================================================
+   RODAPÉ EXTERNO UNIVERSAL UPA BREVES (FORA DA CAIXA DE CONTEÚDO)
+   Data e Hora no canto esquerdo & Assinatura no canto direito
+   ============================================================== */
+.doc-corpo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.doc-rodape-container {
+  margin-top: auto;
+  width: 100%;
+}
+.doc-rodape-externo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 8px 4px 0 4px;
+  margin-top: 6px;
+}
+.doc-bloco-datahora {
+  font-size: 9.5px;
+  color: #111;
+  line-height: 1.4;
+}
+.doc-bloco-datahora .cidade-data {
+  font-weight: 600;
+  font-size: 10px;
+}
+.doc-bloco-datahora .hora-envio {
+  color: #333;
+  font-size: 9px;
+}
+.doc-bloco-assinatura {
+  text-align: center;
+  min-width: 240px;
+}
+.doc-bloco-assinatura .linha-sig {
+  border-top: 1px solid #000;
+  margin-bottom: 3px;
+}
+.doc-bloco-assinatura .nome-sig {
+  font-weight: 700;
+  font-size: 10px;
+  color: #000;
+}
+.doc-bloco-assinatura .coren-sig,
+.doc-bloco-assinatura .crm-sig {
+  font-size: 8.8px;
+  color: #333;
+}
+.doc-bloco-assinatura .cargo-sig {
+  font-size: 8px;
+  color: #475569;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.doc-rodape-sistema {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #888;
+  padding-top: 2.5px;
+  margin-top: 5px;
+  font-size: 8px;
+  color: #444;
+}
+
+/* Checkboxes fiéis e padronizados */
+.check-box-fiel {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 1px solid #000;
+  text-align: center;
+  line-height: 10px;
+  font-weight: bold;
+  font-size: 8.5px;
+  margin-right: 4px;
+  vertical-align: middle;
+  background: #fff;
+}
+.check-item {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 12px;
+  font-size: 9px;
+}
 
 /* Solicitação de Sangue, Componentes e Derivados — réplica fiel do formulário
    oficial da Fundação Hemopa: bordas finas uniformes, "( )" pra marcar em
@@ -1054,169 +1188,511 @@ table.sg-tabela-hemopa th { font-weight: 700; }
 
 .sg-linha-solta { margin: 2mm 0; }
 
-/* Formulário Antimicrobiano (ATM) — réplica fiel do modelo oficial da UPA
-   Breves: pilha de caixas com borda fina, rótulo em negrito na frente do
-   valor, igual ao papel timbrado. */
-.atmf-page {
-  width: 190mm;
-  max-width: 190mm;
-  margin: 0 auto;
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 10px;
-  line-height: 1.4;
-  color: #000;
+.med-secao, .notm-secao, .alta-secao, .cons-secao {
+  border: 1px solid #888;
+  border-radius: 2px;
+  margin-bottom: 3.5px;
+  overflow: hidden;
+}
+.med-secao-header, .notm-secao-header, .alta-secao-header, .cons-secao-header {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9px;
+  padding: 2.2px 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+}
+.med-secao-body, .notm-secao-body, .alta-secao-body, .cons-secao-body {
+  padding: 4px 7px;
+  font-size: 8.8px;
+  line-height: 1.35;
+  background: #fff;
+}
+.med-secao-expansivel, .notm-secao-expansivel, .alta-secao-expansivel, .cons-secao-expansivel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.med-secao-expansivel .med-secao-body,
+.notm-secao-expansivel .notm-secao-body,
+.alta-secao-expansivel .alta-secao-body,
+.cons-secao-expansivel .cons-secao-body {
+  flex: 1;
 }
 
-.atmf-caixa { border: 1px solid #000; padding: 1.5mm 2.5mm; margin-bottom: 2.5mm; }
-.atmf-caixa b { font-weight: 700; }
+.notm-page, .evol-page, .alta-page, .cons-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
+.med-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: #f8fafc;
+  padding: 3px 6px;
+  border-radius: 3px;
+  border: 1px solid #cbd5e1;
+  font-size: 8.5px;
+}
+
+.alta-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 12px;
+  font-size: 8.8px;
+}
+
+/* Formulário Antimicrobiano (ATM) — Padrão UPA 24h Breves */
+.atmf-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 5mm 8mm 4mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.grid-tratamento {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: 2px;
+  padding: 3px 0;
+  border-top: 1px dashed #cbd5e1;
+}
+.grid-dxixt {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 4px 8px;
+  border-radius: 3px;
+  margin-top: 2px;
+}
+.parecer-box {
+  border: 1px solid #94a3b8;
+  background: #f8fafc;
+  padding: 5px 8px;
+  border-radius: 3px;
+  margin-top: 2px;
+}
+.parecer-opcoes {
+  display: flex;
+  gap: 25px;
+  font-size: 9.5px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #cbd5e1;
+}
+.atb-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px 14px;
+  font-size: 8.5px;
+  padding: 2px 4px;
+}
+.atb-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1e293b;
+}
+.atb-bullet {
+  color: #b91c1c;
+  font-weight: 800;
+  font-size: 10px;
+}
+
+.atmf-caixa { border: 1px solid #888; padding: 1.5mm 2.5mm; margin-bottom: 2.5mm; }
+.atmf-caixa b { font-weight: 700; }
 .atmf-linha-dupla { display: flex; justify-content: space-between; gap: 6mm; }
 .atmf-col-direita { display: flex; flex-direction: column; gap: 0.5mm; }
-
 .atmf-alta { min-height: 18mm; }
-
 .atmf-tratamento { display: flex; justify-content: space-between; gap: 6mm; align-items: flex-end; }
 .atmf-tratamento-campos { flex: 1; display: flex; flex-direction: column; gap: 1.5mm; }
 .atmf-linha-tripla { display: flex; gap: 6mm; }
-.atmf-forte { font-weight: 700; font-size: 11px; }
+.atmf-forte { font-weight: 700; font-size: 10.5px; }
 .atmf-forte-italico { font-weight: 700; font-style: italic; }
-
 .atmf-assinatura-medico { width: 40mm; text-align: center; }
 .atmf-sigline { display: block; border-bottom: 1px solid #000; height: 6mm; }
 .atmf-assinatura-medico i { font-size: 9px; }
-
 .atmf-antibioticos { margin-top: 1mm; display: flex; flex-direction: column; gap: 2mm; }
 .atmf-antibioticos-linha { display: flex; gap: 20mm; font-weight: 700; font-style: italic; }
 
-/* Laudo TFD (LM/TFD) — réplica fiel: caixa única externa com sub-seções
-   cujo rótulo fica "grudado" na borda superior, igual ao papel timbrado. */
+/* Tratamento Fora de Domicílio (TFD / LM-TFD) — Padrão UPA 24h Breves */
 .tfdf-page {
-  width: 190mm;
-  max-width: 190mm;
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
   margin: 0 auto;
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 9.5px;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
   line-height: 1.35;
-  color: #000;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/* Bloco 1: dados do paciente + história/exame/diagnóstico — uma única
-   moldura fechada nos 4 lados. */
-.tfdf-doc { border: 1.2px solid #000; }
-
-.tfdf-linha { display: flex; border-bottom: 1px solid #000; }
-.tfdf-campo { flex: 1; padding: 0.8mm 2mm; }
-.tfdf-campo-borda { border-left: 1px solid #000; flex: 0 0 auto; min-width: 32mm; }
-.tfdf-linha-3 .tfdf-campo:first-child { flex: 1 1 auto; }
-.tfdf-linha b { font-weight: 700; }
-
-.tfdf-secao { border-bottom: 1px solid #000; position: relative; margin-top: 3.5mm; padding: 2mm 2mm 1.5mm; }
-.tfdf-secao-ultima { border-bottom: none; }
-.tfdf-secao-titulo {
-  position: absolute;
-  top: -2mm;
-  left: 2mm;
-  background: #fff;
-  padding: 0 1mm;
+.laudo-badge {
+  display: inline-block;
+  background: #0f172a;
+  color: #fff;
   font-weight: 700;
+  font-size: 9.5px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.tabela-tfd {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2px;
+}
+.tabela-tfd td {
+  border: 1px solid #cbd5e1;
+  padding: 3px 6px;
   font-size: 8.5px;
+  line-height: 1.35;
 }
-.tfdf-secao-corpo { white-space: pre-wrap; }
-.tfdf-secao-grande .tfdf-secao-corpo { min-height: 34mm; }
-.tfdf-secao-media .tfdf-secao-corpo { min-height: 20mm; }
-.tfdf-secao-pequena .tfdf-secao-corpo { min-height: 6mm; }
-
-/* Bloco 2: exame complementar / tratamento / tempo provável — moldura
-   própria, separada do bloco 1 por um respiro, como no modelo oficial. */
-.tfdf-tabela { border: 1.2px solid #000; margin-top: 3.5mm; }
-.tfdf-tabela-linha { display: flex; border-top: 1px solid #000; }
-.tfdf-tabela-linha:first-child { border-top: none; }
-.tfdf-tabela-rotulo { flex: 0 0 42mm; font-weight: 700; padding: 1mm 2mm; border-right: 1px solid #000; }
-.tfdf-tabela-valor { flex: 1; padding: 1mm 2mm; }
-
-/* Bloco 3: profissional responsável — moldura própria. */
-.tfdf-profissional { border: 1.2px solid #000; margin-top: 3.5mm; padding: 2mm 2mm 4mm; position: relative; }
-.tfdf-profissional-titulo {
-  position: absolute; top: -2mm; left: 2mm; background: #fff; padding: 0 1mm;
-  font-weight: 700; font-size: 8.5px;
+.tabela-tfd td.rotulo {
+  width: 27%;
+  font-weight: 700;
+  background: #f8fafc;
+  color: #0f172a;
+  text-transform: uppercase;
+  font-size: 8.2px;
 }
-.tfdf-profissional-linha { display: flex; align-items: flex-end; justify-content: space-between; gap: 10mm; padding-top: 8mm; }
-.tfdf-assinatura-campo { flex: 0 0 auto; width: 75mm; text-align: center; }
-.tfdf-sigline { border-bottom: 1px solid #000; height: 6mm; }
-.tfdf-assinatura-campo span { font-size: 8px; font-weight: 700; }
-.tfdf-forte { font-weight: 700; font-size: 9px; margin-top: 1mm; }
-.tfdf-assinatura-data { font-size: 9px; white-space: nowrap; padding-bottom: 1mm; }
+
+.grid-sinais-tfd {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 3px 6px;
+  border-radius: 3px;
+  margin: 3px 0;
+  font-size: 8.5px;
+  border: 1px solid #cbd5e1;
+  text-align: center;
+}
+
+/* Plano Terapêutico Hospitalar — Padrão UPA 24h Breves */
+.plano-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.proto-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5px 12px;
+  font-size: 8.5px;
+  padding: 2px 2px;
+}
+.proto-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.proto-item.ativo {
+  font-weight: 700;
+  color: #0f172a;
+}
+.proto-item.inativo {
+  color: #64748b;
+}
+
+.metas-lista {
+  font-size: 8.5px;
+  line-height: 1.4;
+}
+.metas-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed #e2e8f0;
+  padding: 1.5px 0;
+}
+.metas-item:last-child {
+  border-bottom: none;
+}
+
+.grid-equipe-tempo {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+}
+.box-destaque-tempo {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  padding: 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.box-destaque-tempo .num {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0284c7;
+  line-height: 1.1;
+}
+.box-destaque-tempo .sub {
+  font-size: 7.8px;
+  color: #475569;
+  text-transform: uppercase;
+  font-weight: 600;
+}
 
 /* Atualização de Quadro Clínico — SER/SISREG */
-.serf-page { width: 190mm; max-width: 190mm; margin: 0 auto; font-family: 'Times New Roman', Times, serif; font-size: 9.5px; line-height: 1.4; color: #000; }
+.serf-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-
-/* Caixas NOME/DATA: rótulo em "aba" flutuando sobre o canto superior
-   esquerdo da borda, valor centralizado dentro — igual ao papel timbrado. */
-.serf-caixa-nome, .serf-caixa-data { border: 1px solid #000; margin-top: 3mm; margin-bottom: 1.5mm; padding: 1.5mm 2mm 1.2mm; position: relative; }
+.serf-caixa-nome, .serf-caixa-data { border: 1px solid #888; margin-top: 2mm; margin-bottom: 1.5mm; padding: 1.5mm 2mm 1.2mm; position: relative; }
 .serf-tab {
   position: absolute; top: -2.4mm; left: 2mm; background: #fff; padding: 0 1mm;
   font-weight: 700; font-size: 7.5px;
 }
-.serf-caixa-nome-valor { font-size: 12px; font-weight: 700; text-align: center; }
+.serf-caixa-nome-valor { font-size: 11px; font-weight: 700; text-align: center; }
 .serf-caixa-data { width: 40mm; }
 .serf-caixa-data-valor { font-size: 9.5px; text-align: center; }
 
-.serf-linha { padding: 0.6mm 0; }
+.serf-linha { padding: 0.6mm 0; font-size: 8.8px; }
 .serf-linha b { font-weight: 700; }
 
 /* Sinais vitais: campo com caixa fechada nos 4 lados. */
-.serf-vitais { display: flex; gap: 4mm; margin: 4mm 0 3mm; flex-wrap: wrap; }
+.serf-vitais { display: flex; gap: 4mm; margin: 2mm 0; flex-wrap: wrap; }
 .serf-vital { display: flex; flex-direction: column; align-items: stretch; flex: 0 0 auto; }
 .serf-vital-rotulo { font-size: 7.5px; font-weight: 700; margin-bottom: 0.8mm; }
 .serf-vital-caixa {
   min-width: 17mm; min-height: 5mm; padding: 1mm 2mm;
-  border: 1px solid #000;
+  border: 1px solid #888;
+  border-radius: 2px;
   box-sizing: border-box;
   text-align: center;
   font-size: 9px;
+  background: #f8fafc;
 }
 
-.serf-secao { margin-top: 3mm; }
-.serf-secao-titulo { font-size: 9px; font-weight: 700; border-bottom: 1px solid #000; padding-bottom: 0.6mm; margin-bottom: 1.5mm; }
-.serf-secao-corpo { min-height: 14mm; white-space: pre-wrap; padding-bottom: 1mm; }
+.serf-secao { margin-top: 2.5mm; border: 1px solid #888; border-radius: 2px; overflow: hidden; }
+.serf-secao-titulo { font-size: 8.8px; font-weight: 700; background: #e2e8f0; border-bottom: 1px solid #888; padding: 2px 6px; text-transform: uppercase; }
+.serf-secao-corpo { min-height: 18mm; white-space: pre-wrap; padding: 3px 6px; font-size: 8.8px; background: #fff; }
 
-/* Assinatura sempre à direita — nunca à esquerda. */
-.serf-assinatura { margin-top: 12mm; width: 75mm; margin-left: auto; margin-right: 0; text-align: center; }
-.serf-sigline { border-bottom: 1px solid #000; height: 8mm; }
-.serf-assinatura span { font-size: 8.5px; font-weight: 700; }
-
-/* Receituário Médico — página em modo paisagem, com 2 vias lado a lado
-   (paciente/farmácia). Cada via carrega o cabeçalho padrão completo (com
-   logos) mais o título "RECEITA", paciente, itens e assinatura. */
+/* Receituário Médico — Página em Modo Paisagem com 2 Vias lado a lado (Paciente / Farmácia) */
 @media print {
   .rxf-page { page: receituario; }
 }
 @page receituario {
   size: A4 landscape;
-  margin: 10mm;
+  margin: 5mm 6mm;
 }
 
 .rxf-page {
-  width: 277mm;
-  max-width: 277mm;
+  width: 285mm;
+  max-width: 285mm;
+  min-height: 195mm;
   margin: 0 auto;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 10px;
-  color: #263238;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 8.8px;
+  line-height: 1.35;
+  color: #111;
 }
 
-.rxf-duas-vias { display: flex; gap: 10mm; align-items: stretch; }
-.rxf-coluna { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-right: 0; }
-.rxf-duas-vias .rxf-coluna:first-child { border-right: 1px dashed #999; padding-right: 10mm; }
+.rxf-duas-vias {
+  display: flex;
+  gap: 7mm;
+  flex: 1;
+  align-items: stretch;
+}
 
-.rxf-itens { flex: 1; min-height: 60mm; margin-top: 4mm; }
-.rxf-item { margin-bottom: 3mm; font-size: 10px; }
-.rxf-item-nome { font-weight: 700; }
-.rxf-item-instrucao { margin-top: 0.5mm; }
-.rxf-assinatura { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #000; padding-top: 2mm; font-size: 9px; font-weight: 700; }
+.rxf-coluna {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
 
-.rxf-rodape { display: flex; justify-content: space-between; margin-top: 4mm; padding-top: 2mm; border-top: 1px solid #aeb6bc; font-size: 7.5px; color: #5f6b72; }
+.rxf-duas-vias .rxf-coluna:first-child {
+  border-right: 1.5px dashed #94a3b8;
+  padding-right: 7mm;
+}
+
+/* Escala e proporção de cada via do cabeçalho */
+.rxf-coluna .pr-topo {
+  gap: 5px;
+}
+.rxf-coluna .pr-topo-texto .nome {
+  font-size: 8px;
+}
+.rxf-coluna .pr-topo-texto .sub {
+  font-size: 6.5px;
+  line-height: 1.2;
+}
+.rxf-coluna .pr-topo-logos img {
+  height: 17px;
+}
+.rxf-coluna .pr-topo-hr {
+  margin: 2px 0 2px;
+}
+.rxf-coluna .pr-titulo {
+  font-size: 10.5px;
+  margin: 1px 0 2px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  width: 100%;
+}
+.rxf-coluna .pr-info {
+  margin-bottom: 3px;
+}
+.rxf-coluna .pr-campo {
+  font-size: 7px;
+  padding: 1.5px 3px;
+  line-height: 1.2;
+}
+
+.rxf-via-faixa {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  padding: 1.5px 5px;
+  margin-bottom: 3px;
+  font-size: 7.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.rxf-via-badge {
+  background: #0284c7;
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 7.5px;
+  letter-spacing: 0.2px;
+}
+
+.rxf-corpo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #888;
+  border-radius: 2px;
+  background: #fff;
+  padding: 4px 6px;
+  margin-bottom: 3px;
+}
+
+.rxf-secao-titulo {
+  font-size: 8px;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  border-bottom: 1px solid #cbd5e1;
+  padding-bottom: 1.5px;
+  margin-bottom: 3px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.rxf-itens-lista {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rxf-item-box {
+  border-left: 2px solid #0284c7;
+  padding-left: 4px;
+  margin-bottom: 2px;
+}
+
+.rxf-item-titulo {
+  font-size: 9px;
+  font-weight: 700;
+  color: #000;
+}
+
+.rxf-item-instrucao {
+  font-size: 8.2px;
+  color: #334155;
+  margin-top: 0.5px;
+  line-height: 1.3;
+}
+
+.rxf-linhas-vazias {
+  flex: 1;
+  min-height: 20mm;
+  background-image: repeating-linear-gradient(transparent, transparent 16px, #e2e8f0 16px, #e2e8f0 17px);
+  margin-top: 3px;
+}
+
+.rxf-orientacao-alerta {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 2px;
+  padding: 2.5px 5px;
+  font-size: 7.2px;
+  color: #475569;
+  margin-top: auto;
+}
 
 /* Admissão de Enfermagem — réplica fiel (checkboxes ☒/☐ burocráticos,
    igual ao modelo "HISTÓRICO DE ENFERMAGEM" original). */
@@ -1236,4 +1712,511 @@ table.sg-tabela-hemopa th { font-weight: 700; }
 .hef-tabela-med th, .hef-tabela-med td { border: 1px solid #000; padding: 1mm 1.5mm; text-align: left; }
 .hef-tabela-med th { background: #eee; }
 .hef-rodape { display: flex; justify-content: space-between; margin-top: 6mm; font-size: 8.5px; font-weight: 700; }
+
+/* ==============================================================
+   PRONTUÁRIO DE ENFERMAGEM — PADRÃO VISUAL UNIVERSAL (SBAR / SAE / NOTA / BALANÇO)
+   ============================================================== */
+
+/* SBAR */
+.sbar-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.sbar-badge {
+  display: inline-block;
+  background: #0f172a;
+  color: #fff;
+  font-weight: 700;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-right: 5px;
+  text-transform: uppercase;
+}
+.sbar-secao {
+  border: 1px solid #888;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4.5px;
+}
+.sbar-secao-header {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.5px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+  display: flex;
+  align-items: center;
+}
+.sbar-secao-body {
+  padding: 5px 8px;
+  font-size: 9.2px;
+  line-height: 1.42;
+  background: #fff;
+}
+.sbar-grid-3 {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1.2fr;
+  gap: 6px;
+}
+.sbar-card-mini {
+  border: 1px solid #94a3b8;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.sbar-card-mini .card-header {
+  background: #f1f5f9;
+  font-weight: 700;
+  font-size: 9px;
+  padding: 2px 5px;
+  color: #0f172a;
+  text-transform: uppercase;
+  border-bottom: 1px solid #cbd5e1;
+}
+.sbar-card-mini .card-body {
+  padding: 4px 6px;
+  font-size: 9px;
+  background: #fff;
+}
+.sbar-tabela-sv {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 3px;
+}
+.sbar-tabela-sv th {
+  background: #f1f5f9;
+  border: 1px solid #94a3b8;
+  padding: 2.5px 4px;
+  font-weight: 700;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+.sbar-tabela-sv td {
+  border: 1px solid #cbd5e1;
+  padding: 3.5px 4px;
+  font-size: 9.2px;
+  font-weight: 600;
+}
+
+/* SAE */
+.sae-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.sae-bloco-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.sae-card-mini {
+  border: 1px solid #888;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.sae-card-mini .card-header {
+  background: #e2e8f0;
+  font-weight: 700;
+  font-size: 9px;
+  padding: 1.5px 4px;
+  color: #0f172a;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+}
+.sae-card-mini .card-body {
+  padding: 3px 6px;
+  font-size: 9px;
+  background: #fff;
+}
+.sae-secao {
+  border: 1px solid #888;
+  border-radius: 2px;
+  margin-bottom: 4px;
+  overflow: hidden;
+}
+.sae-secao-header {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.5px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sae-secao-body {
+  padding: 5px 8px;
+  font-size: 9.2px;
+  line-height: 1.42;
+  text-align: justify;
+  background: #fff;
+}
+.sae-tabela-dispositivos {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.8px;
+}
+.sae-tabela-dispositivos th {
+  background: #f1f5f9;
+  border: 1px solid #94a3b8;
+  padding: 2.5px 5px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+.sae-tabela-dispositivos td {
+  border: 1px solid #cbd5e1;
+  padding: 3px 4px;
+  vertical-align: middle;
+}
+.sae-plano-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.sae-item-diagnostico {
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  padding: 3px 6px;
+  background: #f8fafc;
+  font-size: 8.8px;
+}
+.sae-item-diagnostico b {
+  color: #0284c7;
+  font-size: 9px;
+}
+
+/* Intercorrência de Enfermagem */
+.not-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.not-secao {
+  border: 1px solid #888;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+.not-secao-header {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.5px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.not-secao-body {
+  padding: 6px 8px;
+  font-size: 9.2px;
+  line-height: 1.45;
+  text-align: justify;
+  background: #fff;
+}
+.not-grid-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.not-card-mini {
+  border: 1px solid #94a3b8;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.not-card-mini .card-header {
+  background: #f1f5f9;
+  font-weight: 700;
+  font-size: 9px;
+  padding: 2px 5px;
+  color: #0f172a;
+  text-transform: uppercase;
+  border-bottom: 1px solid #cbd5e1;
+}
+.not-card-mini .card-body {
+  padding: 4px 6px;
+  font-size: 9px;
+  background: #fff;
+}
+.not-tabela-sv {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 3px;
+}
+.not-tabela-sv th {
+  background: #f1f5f9;
+  border: 1px solid #94a3b8;
+  padding: 2.5px 4px;
+  font-weight: 700;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+.not-tabela-sv td {
+  border: 1px solid #cbd5e1;
+  padding: 3.5px 4px;
+  font-size: 9.2px;
+  font-weight: 600;
+}
+
+/* Balanço Hídrico 24h */
+@media print {
+  .bh-landscape { page: balanco; }
+}
+@page balanco {
+  size: A4 landscape;
+  margin: 5mm 6mm;
+}
+
+.bh-page {
+  width: 285mm;
+  max-width: 285mm;
+  min-height: 195mm;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  color: #111;
+}
+.bh-tabela-container {
+  width: 100%;
+  margin-bottom: 5px;
+  border: 1px solid #666;
+  border-radius: 2px;
+  overflow: hidden;
+}
+table.bh-grade {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9px;
+}
+table.bh-grade th, table.bh-grade td {
+  border: 1px solid #cbd5e1;
+  padding: 3px 2px;
+  text-align: center;
+  vertical-align: middle;
+}
+table.bh-grade th {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+table.bh-grade th.col-item {
+  text-align: left;
+  padding-left: 6px;
+  width: 18%;
+  font-size: 9.2px;
+}
+table.bh-grade td.col-item {
+  text-align: left;
+  padding-left: 6px;
+  font-weight: 600;
+  font-size: 9.2px;
+  color: #1e293b;
+}
+table.bh-grade th.th-subtotal, table.bh-grade td.td-subtotal {
+  background: #e2e8f0;
+  font-weight: 700;
+  font-size: 9px;
+  width: 5.5%;
+  border-left: 1.5px solid #64748b;
+  border-right: 1.5px solid #64748b;
+}
+table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
+  background: #cbd5e1;
+  font-weight: 700;
+  font-size: 9.5px;
+  width: 6.5%;
+  border-left: 2px solid #334155;
+  color: #0f172a;
+}
+.tr-secao-ganho {
+  background: #f0fdf4;
+  font-weight: 700;
+  color: #166534;
+  text-transform: uppercase;
+  font-size: 9px;
+  text-align: left;
+  height: 18px;
+}
+.tr-secao-perda {
+  background: #fef2f2;
+  font-weight: 700;
+  color: #991b1b;
+  text-transform: uppercase;
+  font-size: 9px;
+  text-align: left;
+  height: 18px;
+}
+.tr-total-ganho {
+  background: #dcfce7;
+  font-weight: 700;
+  color: #15803d;
+  font-size: 9.2px;
+}
+.tr-total-perda {
+  background: #fee2e2;
+  font-weight: 700;
+  color: #b91c1c;
+  font-size: 9.2px;
+}
+.tr-balanco-final {
+  background: #e0f2fe;
+  font-weight: 700;
+  color: #0369a1;
+  font-size: 10.5px;
+  border-top: 2px solid #0284c7;
+  height: 22px;
+}
+
+/* Admissão de Enfermagem — Padrão UPA 24h Breves */
+.enf-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.enf-secao {
+  border: 1px solid #888;
+  border-radius: 2px;
+  margin-bottom: 3.5px;
+  overflow: hidden;
+}
+
+.enf-secao-header {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.2px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+}
+
+.enf-secao-body {
+  padding: 4px 7px;
+  font-size: 9px;
+  line-height: 1.38;
+  background: #fff;
+}
+
+.enf-secao-expansivel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.enf-secao-expansivel .enf-secao-body {
+  flex: 1;
+}
+
+.enf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+}
+
+.enf-tabela-med {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.8px;
+}
+
+.enf-tabela-med th {
+  background: #f1f5f9;
+  border: 1px solid #94a3b8;
+  padding: 2.5px 5px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+
+.enf-tabela-med td {
+  border: 1px solid #cbd5e1;
+  padding: 3px 5px;
+  vertical-align: middle;
+}
+
+/* Evolução de Enfermagem SAE — Padrão UPA 24h Breves */
+.sae-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Transferência SBAR — Padrão UPA 24h Breves */
+.sbar-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Nota de Intercorrência de Enfermagem — Padrão UPA 24h Breves */
+.note-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
 

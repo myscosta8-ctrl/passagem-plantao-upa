@@ -130,14 +130,14 @@ export default function FichaClinica({ atendimento, onFechar, embedded = false }
       {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}
       {aba === 'admissaoEnfermagem' && <AbaHistoricoEnfermagem atendimento={atendimento} medicoId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: registro._variante === 'projeto' ? 'historico_enfermagem_projeto' : 'historico_enfermagem_fiel', registro })} />}
       {aba === 'sinaisVitais' && <AbaSinaisVitais atendimento={atendimento} autorId={enfermeiro?.id} />}
-      {aba === 'evolucao' && <AbaEvolucao atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'evolucao' && <AbaEvolucao atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'evolucao_sae', registro })} />}
       {aba === 'dispositivos' && <AbaDispositivos atendimento={atendimento} />}
-      {aba === 'balanco' && <AbaBalancoHidrico atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'balanco' && <AbaBalancoHidrico atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'balanco', registro })} />}
       {aba === 'escalas' && <AbaEscalas atendimento={atendimento} />}
       {aba === 'alergias' && <AbaAlergias atendimento={atendimento} />}
       {aba === 'isolamento' && <AbaIsolamento atendimento={atendimento} autorId={enfermeiro?.id} />}
       {aba === 'sbar' && <AbaSbar atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'sbar', registro })} />}
-      {aba === 'eventosAdversos' && <AbaEventosAdversos atendimento={atendimento} autorId={enfermeiro?.id} />}
+      {aba === 'eventosAdversos' && <AbaEventosAdversos atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'intercorrencia', registro })} />}
 
       {!embedded && (
         <div className="form-footer">
@@ -709,7 +709,7 @@ function AbaSinaisVitais({ atendimento, autorId }) {
   )
 }
 
-function AbaEvolucao({ atendimento, autorId }) {
+function AbaEvolucao({ atendimento, autorId, onImprimir }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [texto, setTexto] = useState('')
@@ -759,7 +759,7 @@ function AbaEvolucao({ atendimento, autorId }) {
         <div className="hist-tabela-wrap">
           <table className="hist-tabela">
             <thead>
-              <tr><th>Data/hora</th><th>Autor</th><th>Evolução</th></tr>
+              <tr><th>Data/hora</th><th>Autor</th><th>Evolução</th><th>Ações</th></tr>
             </thead>
             <tbody>
               {historico.map((ev) => (
@@ -769,6 +769,18 @@ function AbaEvolucao({ atendimento, autorId }) {
                     {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}
                   </td>
                   <td className="col-larga" style={{ whiteSpace: 'pre-wrap' }}>{ev.texto}</td>
+                  <td style={{ verticalAlign: 'top', whiteSpace: 'nowrap' }}>
+                    {onImprimir && (
+                      <button
+                        type="button"
+                        className="btn-copiar"
+                        style={{ padding: '3px 8px', fontSize: 11 }}
+                        onClick={() => onImprimir(ev)}
+                      >
+                        🖨️ Imprimir (SAE)
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -913,7 +925,7 @@ function AbaDispositivos({ atendimento }) {
 const VIAS_ENTRADA = ['Oral', 'Dieta enteral', 'EV', 'Outra']
 const VIAS_SAIDA = ['Diurese', 'Vômito', 'Dreno', 'Evacuação', 'Outra']
 
-function AbaBalancoHidrico({ atendimento, autorId }) {
+function AbaBalancoHidrico({ atendimento, autorId, onImprimir }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [tipo, setTipo] = useState('entrada')
@@ -981,8 +993,20 @@ function AbaBalancoHidrico({ atendimento, autorId }) {
         {salvando ? 'Registrando...' : 'Registrar'}
       </button>
 
-      <div className="form-section-title" style={{ marginTop: 24 }}>
-        Totais — Entradas {totalEntradas} mL · Saídas {totalSaidas} mL · Saldo {totalEntradas - totalSaidas} mL
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 10 }}>
+        <div className="form-section-title" style={{ margin: 0 }}>
+          Totais — Entradas {totalEntradas} mL · Saídas {totalSaidas} mL · Saldo {totalEntradas - totalSaidas} mL
+        </div>
+        {onImprimir && (
+          <button
+            type="button"
+            className="submit-btn"
+            style={{ maxWidth: 220, padding: '6px 12px', fontSize: 11.5 }}
+            onClick={() => onImprimir({ historico, totalEntradas, totalSaidas, saldo: totalEntradas - totalSaidas })}
+          >
+            🖨️ Imprimir Balanço 24h
+          </button>
+        )}
       </div>
       {carregando ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
@@ -1572,7 +1596,7 @@ function AbaSbar({ atendimento, autorId, onImprimir }) {
 const CATEGORIAS_EVENTO_ADVERSO = ['Queda', 'Erro de medicação', 'Reação adversa a medicamento', 'Falha de equipamento', 'Quase erro (near miss)', 'Outro']
 const GRAVIDADES_EVENTO_ADVERSO = ['Leve', 'Moderada', 'Grave', 'Óbito']
 
-function AbaEventosAdversos({ atendimento, autorId }) {
+function AbaEventosAdversos({ atendimento, autorId, onImprimir }) {
   const [lista, setLista] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [categoria, setCategoria] = useState('')
@@ -1654,9 +1678,27 @@ function AbaEventosAdversos({ atendimento, autorId }) {
       ) : (
         lista.map((e) => (
           <div key={e.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <strong>{e.categoria} · {e.gravidade}</strong>
-              <span style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>{new Date(e.ocorrido_em).toLocaleString('pt-BR')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>{new Date(e.ocorrido_em).toLocaleString('pt-BR')}</span>
+                {onImprimir && (
+                  <button
+                    type="button"
+                    className="btn-copiar"
+                    style={{ padding: '3px 8px', fontSize: 11 }}
+                    onClick={() => onImprimir({
+                      classificacao: `${e.categoria} (${e.gravidade})`,
+                      descricao: e.descricao,
+                      conduta: e.acao_imediata || 'Ações imediatas adotadas conforme protocolo institucional.',
+                      desfecho: 'Paciente sob observação contínua da equipe de enfermagem.',
+                      criado_em: e.ocorrido_em,
+                    })}
+                  >
+                    🖨️ Imprimir
+                  </button>
+                )}
+              </div>
             </div>
             <div style={{ marginTop: 4 }}>{e.descricao}</div>
             {e.acao_imediata && <div style={{ color: 'var(--c-text-muted)', fontSize: 12.5, marginTop: 2 }}>Ação imediata: {e.acao_imediata}</div>}

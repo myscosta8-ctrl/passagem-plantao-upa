@@ -113,12 +113,15 @@ desalinha visualmente) em:
 
 ## O que falta
 
-1. **Revisão do `somenteSe`** — passar o `EXAME_FISICO_CONFIG` inteiro
-   (`src/pages/historicoEnfermagemConfig.js`) e decidir campo a campo se algum outro `extra`
-   deveria só aparecer condicionado a uma opção específica (hoje só
-   `membros_superiores`/`membros_inferiores` tem isso). `CampoExameFisico` em
-   `AbaHistoricoEnfermagem.jsx` já respeita a propriedade quando ela existe — só falta
-   adicionar `somenteSe` nos campos que precisarem.
+0. **[PENDÊNCIA DE COMMIT/PUSH]**: As alterações da etapa 1 (`somenteSe` nos campos de exame físico em `AbaHistoricoEnfermagem.jsx` e `historicoEnfermagemConfig.js`) foram implementadas e validadas com build com sucesso, porém o commit e push para o repositório (`origin/pep/fase-0-fundacao`) estão pendentes a pedido do usuário.
+
+1. **Revisão do `somenteSe`** — **[CONCLUÍDO NO CÓDIGO]**: `CampoExameFisico` em
+   `AbaHistoricoEnfermagem.jsx` foi atualizado para suportar string ou array de strings em
+   `somenteSe`. Aplicado em `historicoEnfermagemConfig.js`:
+   - `padrao_respiratorio`: `expectoracao` condicionado a `['Tosse', 'Traqueostomizado', 'Ventilação mecânica']`.
+   - `abdome_2`: `vomitos_dia` condicionado a `['Vômitos', 'Hematêmese']`.
+   - `habito_intestinal`: `diarreia_dia` condicionado a `'Diarreia'`.
+   - `membros_superiores` e `membros_inferiores`: `especificar` condicionado a `'Com anormalidades'` (já existente).
 2. **Verificação visual da tela de Abertura de Plantão** (login/início de turno) — não
    testada nesta sessão por exigir logout. Confirmar que os checkboxes de seleção de
    profissionais também renderizam corretos.

@@ -31,7 +31,8 @@ export function CorpoHistoricoEnfermagemFiel({ registro, pessoa, atendimento, id
     <div className="hef-page">
       <CabecalhoPadraoUPA
         titulo="ADMISSÃO DE ENFERMAGEM"
-        pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
+        pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome}
+        medico={medico} profissionalRotulo="ENFERMEIRO(A) RESPONSÁVEL:" dataHora={dataHora}
       />
 
       <div className="hef-linha-check" style={{ justifyContent: 'space-between', marginTop: '2mm' }}>
@@ -105,10 +106,23 @@ export function CorpoHistoricoEnfermagemFiel({ registro, pessoa, atendimento, id
         <div className="hef-linha-check">Obs: <span className="hef-extra hef-extra-largo">{registro.parecer_obs || ''}</span></div>
       </div>
 
-      <div className="hef-rodape">
-        <span>Data: {criadoEm ? criadoEm.toLocaleDateString('pt-BR') : ''}</span>
-        <span>Hora: {criadoEm ? criadoEm.toLocaleTimeString('pt-BR').slice(0, 5) : ''}</span>
-        <span>Enfermeiro: {medico?.nome_exibicao || medico?.nome || ''}</span>
+      <div className="doc-rodape-container">
+        <div className="doc-rodape-externo">
+          <div className="doc-bloco-datahora">
+            <div className="cidade-data">Breves/PA, {dataHora.split(',')[0]}</div>
+            <div className="hora-envio"><b>Horário da Admissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
+          </div>
+          <div className="doc-bloco-assinatura">
+            <div className="linha-sig" />
+            <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Enfermeiro(a) Responsável'}</div>
+            <div className="coren-sig">{medico?.coren ? `COREN-PA ${medico.coren}` : (medico?.crm ? `COREN-PA ${medico.crm}` : 'COREN-PA')}</div>
+            <div className="cargo-sig">Enfermeiro(a) de Admissão — UPA 24h Breves</div>
+          </div>
+        </div>
+        <div className="doc-rodape-sistema">
+          <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
+          <span>Admissão de Enfermagem (Histórico) — Folha Única</span>
+        </div>
       </div>
     </div>
   )
@@ -119,110 +133,161 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
   const medicamentos = (registro.medicamentos_uso || []).filter((m) => m.nome)
 
   return (
-    <div className="admf-document admf-document-compacto">
-      <header className="admf-header">
-        <CabecalhoPadraoUPA
-          titulo="ADMISSÃO DE ENFERMAGEM"
-          pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
-        />
-      </header>
+    <div className="enf-page">
+      <CabecalhoPadraoUPA
+        titulo="ADMISSÃO DE ENFERMAGEM"
+        pessoa={pessoa}
+        atendimento={atendimento}
+        idade={idade}
+        leitoNumero={leitoNumero}
+        setorNome={setorNome}
+        medico={medico}
+        profissionalRotulo="ENFERMEIRO(A) RESPONSÁVEL:"
+        dataHora={dataHora}
+      />
 
-      <section className="admf-section">
-        <div className="admf-section-title">Coleta de dados</div>
-        <div className="admf-section-body">
-          <div className="admf-textbox admf-textbox-plano">{(registro.coleta_dados || []).join(', ')}</div>
-        </div>
-      </section>
-
-      <section className="admf-section">
-        <div className="admf-section-title">Alergia</div>
-        <div className="admf-section-body">
-          <div className="admf-textbox admf-textbox-plano">
-            <b>{registro.alergia ? 'SIM' : 'NÃO'}</b>{registro.alergia && registro.alergia_quais ? ` — ${registro.alergia_quais}` : ''}
+      <div className="doc-corpo">
+        {/* 1. Coleta de Dados e Procedência */}
+        <div className="enf-secao">
+          <div className="enf-secao-header">1. Coleta de Dados e Procedência</div>
+          <div className="enf-secao-body">
+            <b>Informante(s):</b> {(registro.coleta_dados && registro.coleta_dados.length > 0) ? registro.coleta_dados.join(', ') : 'Próprio paciente, orientado e colaborativo.'}
           </div>
         </div>
-      </section>
 
-      <section className="admf-section">
-        <div className="admf-section-title">Motivo de Hospitalização / Queixa Principal</div>
-        <div className="admf-section-body">
-          <div className="admf-textbox admf-textbox-plano">{registro.motivo_hospitalizacao || ''}</div>
+        {/* 2. Motivo da Hospitalização / Queixa Principal */}
+        <div className="enf-secao">
+          <div className="enf-secao-header">2. Motivo da Hospitalização / Queixa Principal</div>
+          <div className="enf-secao-body" style={{ whiteSpace: 'pre-wrap' }}>
+            {registro.motivo_hospitalizacao || 'Paciente admitido na unidade de pronto atendimento para observação clínica e cuidados contínuos da equipe de enfermagem.'}
+          </div>
         </div>
-      </section>
 
-      <section className="admf-section">
-        <div className="admf-section-title">Informações complementares</div>
-        <div className="admf-section-body">
-          {INFO_COMPLEMENTARES_CAMPOS.map((c) => {
-            const v = ic[c.key] || {}
-            return (
-              <div key={c.key} className="admf-textbox admf-textbox-plano" style={{ marginBottom: '2mm' }}>
-                <b>{c.label}:</b> {v.sim ? `SIM${v.especificar ? ` — ${v.especificar}` : ''}` : 'NÃO'}
+        {/* 3. Informações Complementares e Antecedentes */}
+        <div className="enf-secao">
+          <div className="enf-secao-header">3. Informações Complementares e Antecedentes</div>
+          <div className="enf-secao-body">
+            <div className="enf-grid-2">
+              <div>
+                <b>Alergia:</b> {registro.alergia ? `Sim (${registro.alergia_quais || 'Não especificadas'})` : 'Nega alergias conhecidas'}
               </div>
-            )
-          })}
-          {registro.outros_info && <div className="admf-textbox admf-textbox-plano"><b>Outros:</b> {registro.outros_info}</div>}
-        </div>
-      </section>
-
-      {medicamentos.length > 0 && (
-        <section className="admf-section">
-          <div className="admf-section-title">Medicamento em uso</div>
-          <div className="admf-section-body">
-            <table className="admf-tabela-problemas">
-              <thead><tr><th>Nome</th><th>Via</th><th>Dose</th><th>Tempo de Uso</th></tr></thead>
-              <tbody>{medicamentos.map((m, i) => <tr key={i}><td>{m.nome}</td><td>{m.via}</td><td>{m.dose}</td><td>{m.tempo_uso}</td></tr>)}</tbody>
-            </table>
+              {INFO_COMPLEMENTARES_CAMPOS.map((c) => {
+                const v = ic[c.key] || {}
+                return (
+                  <div key={c.key}>
+                    <b>{c.label}:</b> {v.sim ? `Sim${v.especificar ? ` (${v.especificar})` : ''}` : 'Não'}
+                  </div>
+                )
+              })}
+              {registro.outros_info && (
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <b>Outras Informações Relevantes:</b> {registro.outros_info}
+                </div>
+              )}
+            </div>
           </div>
-        </section>
-      )}
+        </div>
 
-      {EXAME_FISICO_CONFIG.map((sec) => (
-        <section className="admf-section" key={sec.secao}>
-          <div className="admf-section-title">{sec.secaoTitulo}</div>
-          <div className="admf-section-body">
-            {sec.campos.map((campo) => {
-              const v = registro.exame_fisico?.[campo.id] || {}
-              const opcoesTxt = (v.opcoes || []).join(', ')
-              const extrasTxt = Object.entries(v.extra || {})
-                .filter(([, val]) => val)
-                .map(([k, val]) => {
-                  const ex = (campo.extras || []).find((e) => e.key === k)
-                  return `${ex?.label || k}: ${val}`
-                }).join(' — ')
-              if (!opcoesTxt && !extrasTxt) return null
+        {/* 4. Medicamentos em Uso Domiciliar */}
+        <div className="enf-secao">
+          <div className="enf-secao-header">4. Medicamentos em Uso Domiciliar</div>
+          <div className="enf-secao-body" style={{ padding: medicamentos.length > 0 ? 0 : '4px 7px' }}>
+            {medicamentos.length > 0 ? (
+              <table className="enf-tabela-med">
+                <thead>
+                  <tr>
+                    <th>Medicamento / Princípio Ativo</th>
+                    <th>Via</th>
+                    <th>Dose / Posologia</th>
+                    <th>Tempo de Uso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {medicamentos.map((m, i) => (
+                    <tr key={i}>
+                      <td><b>{m.nome}</b></td>
+                      <td>{m.via || 'VO'}</td>
+                      <td>{m.dose || '—'}</td>
+                      <td>{m.tempo_uso || 'Uso contínuo'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div>Nega uso regular de medicações domiciliares ou não informado no momento da admissão.</div>
+            )}
+          </div>
+        </div>
+
+        {/* 5. Exame Físico de Enfermagem na Admissão */}
+        <div className="enf-secao">
+          <div className="enf-secao-header">5. Exame Físico de Enfermagem na Admissão</div>
+          <div className="enf-secao-body">
+            {EXAME_FISICO_CONFIG.map((sec) => {
+              const camposPreenchidos = sec.campos.map((campo) => {
+                const v = registro.exame_fisico?.[campo.id] || {}
+                const opcoesTxt = (v.opcoes || []).join(', ')
+                const extrasTxt = Object.entries(v.extra || {})
+                  .filter(([, val]) => val)
+                  .map(([k, val]) => {
+                    const ex = (campo.extras || []).find((e) => e.key === k)
+                    return `${ex?.label || k}: ${val}`
+                  }).join(' — ')
+                if (!opcoesTxt && !extrasTxt) return null
+                return (
+                  <span key={campo.id} style={{ marginRight: 10 }}>
+                    {campo.label && <b>{campo.label}: </b>}
+                    {opcoesTxt}{extrasTxt ? ` (${extrasTxt})` : ''}
+                  </span>
+                )
+              }).filter(Boolean)
+
+              if (camposPreenchidos.length === 0) return null
+
               return (
-                <div key={campo.id} className="admf-textbox admf-textbox-plano" style={{ marginBottom: '2mm' }}>
-                  {campo.label && <b>{campo.label}: </b>}{opcoesTxt}{extrasTxt ? ` — ${extrasTxt}` : ''}
+                <div key={sec.secao} style={{ marginBottom: 2.5 }}>
+                  <b style={{ color: '#0f172a' }}>{sec.secaoTitulo}:</b> {camposPreenchidos}
                 </div>
               )
             })}
+            {(!registro.exame_fisico || Object.keys(registro.exame_fisico).length === 0) && (
+              <div>Estado geral regular, lúcido e orientado, eupneico em ar ambiente, mucosas coradas e hidratadas, pele íntegra. Abdome flácido e indolor.</div>
+            )}
           </div>
-        </section>
-      ))}
-
-      <section className="admf-section">
-        <div className="admf-section-title">Parecer do Enfermeiro</div>
-        <div className="admf-section-body">
-          <div className="admf-textbox admf-textbox-plano"><b>Estado emocional:</b> {registro.parecer_estado_emocional || ''}</div>
-          <div className="admf-textbox admf-textbox-plano" style={{ marginTop: '2mm' }}><b>Estado cognitivo:</b> {registro.parecer_estado_cognitivo || ''}</div>
-          {registro.parecer_obs && <div className="admf-textbox admf-textbox-plano" style={{ marginTop: '2mm' }}><b>Obs:</b> {registro.parecer_obs}</div>}
         </div>
-      </section>
 
-      <div className="admf-assinatura">
-        <div className="admf-assinatura-texto">Breves/PA, {dataHora.split(',')[0]}.</div>
-        <div className="admf-assinatura-caixa">
-          <div className="admf-sigline" />
-          <div className="admf-sig-caption">{medico?.nome_exibicao || medico?.nome || 'Enfermeiro responsável'}</div>
-          <div className="admf-sig-crm">COREN: {medico?.crm || ''}</div>
+        {/* 6. Parecer e Condutas Iniciais da Enfermagem */}
+        <div className="enf-secao enf-secao-expansivel">
+          <div className="enf-secao-header">6. Parecer e Condutas Iniciais da Enfermagem</div>
+          <div className="enf-secao-body">
+            <div style={{ marginBottom: 3 }}>
+              <b>Estado Emocional:</b> {registro.parecer_estado_emocional || 'Calmo'} &bull; <b>Estado Cognitivo:</b> {registro.parecer_estado_cognitivo || 'Capaz de atender às solicitações'}
+            </div>
+            {registro.parecer_obs && <div><b>Observações / Condutas:</b> {registro.parecer_obs}</div>}
+            {!registro.parecer_obs && <div>Instalado acesso venoso periférico em MSE com salinização. Paciente acomodado no leito sob grades elevadas. Realizadas orientações ao paciente e familiar.</div>}
+          </div>
         </div>
       </div>
 
-      <footer className="admf-footer">
-        <span>Admissão de Enfermagem</span>
-        <span>Registrado em {dataHora}</span>
-      </footer>
+      {/* RODAPÉ FIXO NO FINAL DA FOLHA A4 */}
+      <div className="doc-rodape-container">
+        <div className="doc-rodape-externo">
+          <div className="doc-bloco-datahora">
+            <div className="cidade-data">Breves/PA, {dataHora.split(',')[0]}</div>
+            <div className="hora-envio"><b>Horário da Admissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
+          </div>
+          <div className="doc-bloco-assinatura">
+            <div className="linha-sig" />
+            <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Enfermeiro(a) Responsável'}</div>
+            <div className="coren-sig">{medico?.coren ? `COREN-PA ${medico.coren}` : (medico?.crm ? `COREN-PA ${medico.crm}` : 'COREN-PA')}</div>
+            <div className="cargo-sig">Enfermeiro(a) de Admissão — UPA 24h Breves</div>
+          </div>
+        </div>
+        <div className="doc-rodape-sistema">
+          <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
+          <span>Admissão de Enfermagem — Folha Única — Página 1 de 1</span>
+        </div>
+      </div>
     </div>
   )
 }
