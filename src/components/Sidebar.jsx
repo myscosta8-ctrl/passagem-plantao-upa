@@ -58,7 +58,7 @@ export default function Sidebar({
         title="Abrir menu"
         aria-label="Abrir menu"
       >
-        ☰
+        <i className="ph ph-list" />
       </button>
 
       {abertoMobile && <div className="sidebar-backdrop-mobile" onClick={() => setAbertoMobile(false)} />}
@@ -73,7 +73,7 @@ export default function Sidebar({
           title={fechado ? 'Expandir menu' : 'Recolher menu'}
           aria-label="Alternar menu"
         >
-          ☰
+          <i className="ph ph-list" />
         </button>
         <div className="sidebar-marca">
           <span className="sidebar-marca-titulo">Passagem de Plantão</span>
@@ -91,7 +91,7 @@ export default function Sidebar({
           onClick={() => onNavegar('painel')}
           title="Painel de Leitos"
         >
-          <span className="sidebar-item-icone">🛏️</span>
+          <i className="ph ph-bed sidebar-item-icone" />
           <span className="sidebar-item-texto">Painel de Leitos</span>
         </button>
 
@@ -101,7 +101,7 @@ export default function Sidebar({
           onClick={() => onNavegar('recepcao')}
           title="Recepção"
         >
-          <span className="sidebar-item-icone">🚪</span>
+          <i className="ph ph-user-plus sidebar-item-icone" />
           <span className="sidebar-item-texto">Recepção</span>
           <span className="sidebar-item-tag-novo">NOVO</span>
         </button>
@@ -112,7 +112,7 @@ export default function Sidebar({
           onClick={() => onNavegar('historico')}
           title="Histórico de Plantões"
         >
-          <span className="sidebar-item-icone">⏮️</span>
+          <i className="ph ph-clock-counter-clockwise sidebar-item-icone" />
           <span className="sidebar-item-texto">Histórico</span>
         </button>
 
@@ -122,7 +122,7 @@ export default function Sidebar({
           onClick={() => onNavegar('altas')}
           title="Desfechos e Altas"
         >
-          <span className="sidebar-item-icone">✅</span>
+          <i className="ph ph-check-circle sidebar-item-icone" />
           <span className="sidebar-item-texto">Desfechos</span>
         </button>
 
@@ -132,7 +132,7 @@ export default function Sidebar({
           onClick={() => onNavegar('pendencias')}
           title="Pendências do Plantão"
         >
-          <span className="sidebar-item-icone">⏳</span>
+          <i className="ph ph-hourglass sidebar-item-icone" />
           <span className="sidebar-item-texto">Pendências</span>
         </button>
 
@@ -144,7 +144,7 @@ export default function Sidebar({
               onClick={() => onNavegar('print1')}
               title="Imprimir: Vermelha + Internação"
             >
-              <span className="sidebar-item-icone">🖨️</span>
+              <i className="ph ph-printer sidebar-item-icone" />
               <span className="sidebar-item-texto">Imprimir Vermelha</span>
             </button>
 
@@ -154,7 +154,7 @@ export default function Sidebar({
               onClick={() => onNavegar('print2')}
               title="Imprimir: Pediátrico + Observação"
             >
-              <span className="sidebar-item-icone">📄</span>
+              <i className="ph ph-file-text sidebar-item-icone" />
               <span className="sidebar-item-texto">Imprimir Observação</span>
             </button>
           </>
@@ -168,7 +168,7 @@ export default function Sidebar({
           onClick={() => onNavegar('indicadoresClinicos')}
           title="Indicadores Clínicos"
         >
-          <span className="sidebar-item-icone">📊</span>
+          <i className="ph ph-chart-bar sidebar-item-icone" />
           <span className="sidebar-item-texto">Indicadores Clínicos</span>
           <span className="sidebar-item-tag-novo">NOVO</span>
         </button>
@@ -181,7 +181,7 @@ export default function Sidebar({
           onClick={() => onNavegar('compartilhar')}
           title="Compartilhar Plantão"
         >
-          <span className="sidebar-item-icone">💬</span>
+          <i className="ph ph-chat-circle-text sidebar-item-icone" />
           <span className="sidebar-item-texto">Compartilhar Plantão</span>
         </button>
 
@@ -193,7 +193,7 @@ export default function Sidebar({
               onClick={() => onNavegar('equipe')}
               title="Painel de Equipe"
             >
-              <span className="sidebar-item-icone">👥</span>
+              <i className="ph ph-users sidebar-item-icone" />
               <span className="sidebar-item-texto">Painel de Equipe</span>
             </button>
 
@@ -203,7 +203,7 @@ export default function Sidebar({
               onClick={() => onNavegar('profissionais')}
               title="Gerenciar Profissionais"
             >
-              <span className="sidebar-item-icone">🧑‍⚕️</span>
+              <i className="ph ph-identification-badge sidebar-item-icone" />
               <span className="sidebar-item-texto">Profissionais</span>
             </button>
           </>
@@ -217,7 +217,7 @@ export default function Sidebar({
           onClick={() => onNavegar('conta')}
           title="Minha Conta"
         >
-          <span className="sidebar-item-icone">⚙️</span>
+          <i className="ph ph-gear-six sidebar-item-icone" />
           <span className="sidebar-item-texto">Minha Conta</span>
         </button>
 
@@ -227,7 +227,7 @@ export default function Sidebar({
           onClick={() => onNavegar('ajuda')}
           title="Ajuda e Documentação"
         >
-          <span className="sidebar-item-icone">❓</span>
+          <i className="ph ph-question sidebar-item-icone" />
           <span className="sidebar-item-texto">Ajuda</span>
         </button>
 
@@ -237,7 +237,7 @@ export default function Sidebar({
           onClick={trocarTema}
           title={`Tema: ${tema === 'escuro' ? 'Escuro' : 'Claro'}`}
         >
-          <span className="sidebar-item-icone">{tema === 'escuro' ? '☾' : '☀'}</span>
+          <i className={`ph sidebar-item-icone ${tema === 'escuro' ? 'ph-moon' : 'ph-sun'}`} />
           <span className="sidebar-item-texto">{tema === 'escuro' ? 'Tema Escuro' : 'Tema Claro'}</span>
         </button>
       </nav>
@@ -267,7 +267,7 @@ export default function Sidebar({
               disabled={encerrandoPlantao}
               title="Encerrar participação no plantão"
             >
-              <span>🚪</span>
+              <i className="ph ph-sign-out" />
               <span className="sidebar-btn-encerrar-texto">
                 {encerrandoPlantao ? 'Saindo...' : 'Encerrar turno'}
               </span>
@@ -280,7 +280,7 @@ export default function Sidebar({
             onClick={onLogout}
             title="Sair do sistema"
           >
-            <span>🔓</span>
+            <i className="ph ph-sign-out" />
             <span className="sidebar-btn-encerrar-texto">Sair</span>
           </button>
         </div>
