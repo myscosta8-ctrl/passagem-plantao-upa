@@ -72,6 +72,35 @@ sqlOut.push(`\n-- ==============================================================
 const schemaFiles = files.slice(0, 4);
 let tableCols = new Map();
 
+function stripCheckConstraint(str) {
+  let res = str;
+  while (true) {
+    const checkIdx = res.search(/\bCHECK\s*\(/i);
+    if (checkIdx === -1) break;
+    let depth = 0;
+    let startParen = res.indexOf('(', checkIdx);
+    let endParen = -1;
+    for (let i = startParen; i < res.length; i++) {
+      if (res[i] === '(') depth++;
+      else if (res[i] === ')') {
+        depth--;
+        if (depth === 0) {
+          endParen = i;
+          break;
+        }
+      }
+    }
+    if (endParen !== -1) {
+      const before = res.substring(0, checkIdx);
+      const after = res.substring(endParen + 1);
+      res = (before + ' ' + after).trim();
+    } else {
+      break;
+    }
+  }
+  return res.replace(/,\s*$/, '').replace(/\s+/g, ' ').trim();
+}
+
 for (const f of schemaFiles) {
   const content = fs.readFileSync(path.join(migDir, f), 'utf8');
   
@@ -99,8 +128,8 @@ for (const f of schemaFiles) {
         if (!hasDefault && /\bNOT\s+NULL\b/i.test(colDef)) {
           colDef = colDef.replace(/\bNOT\s+NULL\b/gi, '').trim();
         }
-        // Strip inline CHECK constraints to avoid blocking legacy rows
-        colDef = colDef.replace(/CHECK\s*\([^)]+\)/gi, '').trim();
+        // Strip inline CHECK constraints to avoid blocking legacy rows or leaving dangling parentheses
+        colDef = stripCheckConstraint(colDef);
         colDef = colDef.replace(/,\s*$/, '').replace(/\s+/g, ' ').trim();
 
         // ALIGNMENT OF TYPES WITH PRODUCTION DATABASE (setores and leitos use INTEGER)
@@ -121,7 +150,7 @@ for (const f of schemaFiles) {
     const tableName = match[1].toLowerCase();
     const colName = match[2].toLowerCase();
     let colDef = match[3].trim().replace(/;\s*$/, '').replace(/,\s*$/, '').trim();
-    colDef = colDef.replace(/CHECK\s*\([^)]+\)/gi, '').trim();
+    colDef = stripCheckConstraint(colDef);
     
     if (colName.includes('setor_') || colName === 'setor_id') {
       colDef = colDef.replace(/\bUUID\b/gi, 'INTEGER');
