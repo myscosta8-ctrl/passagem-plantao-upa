@@ -25,6 +25,9 @@ CREATE INDEX IF NOT EXISTS idx_passagens_paciente_id ON public.passagens (pacien
 CREATE INDEX IF NOT EXISTS idx_plantoes_status ON public.plantoes (status);
 
 -- 4. ÍNDICES PARA FICHA CLÍNICA / ENFERMAGEM
+ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS horario_registro TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS horario_medicao TIMESTAMPTZ DEFAULT NOW();
+
 CREATE INDEX IF NOT EXISTS idx_admissoes_enf_atendimento ON public.admissoes_enfermagem (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_evolucoes_atendimento ON public.evolucoes (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_balanco_hidrico_atendimento ON public.balanco_hidrico (atendimento_id, horario_registro);

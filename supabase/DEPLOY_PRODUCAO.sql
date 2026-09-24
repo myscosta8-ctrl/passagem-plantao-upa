@@ -395,6 +395,11 @@ CREATE TABLE IF NOT EXISTS public.balanco_hidrico (
     criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Compatibilidade retroativa para instâncias onde balanco_hidrico já existia
+ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS horario_registro TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS registrado_em TIMESTAMPTZ DEFAULT NOW();
+
+
 -- 4. DISPOSITIVOS INVASIVOS E ACESSOS
 CREATE TABLE IF NOT EXISTS public.dispositivos_invasivos (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -429,6 +434,11 @@ CREATE TABLE IF NOT EXISTS public.sinais_vitais (
     observacoes TEXT,
     criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Compatibilidade retroativa para instâncias onde sinais_vitais já existia
+ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS horario_medicao TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS medido_em TIMESTAMPTZ DEFAULT NOW();
+
 
 -- 6. PRECAUÇÕES E ISOLAMENTO
 CREATE TABLE IF NOT EXISTS public.isolamentos (
@@ -819,6 +829,9 @@ CREATE INDEX IF NOT EXISTS idx_passagens_paciente_id ON public.passagens (pacien
 CREATE INDEX IF NOT EXISTS idx_plantoes_status ON public.plantoes (status);
 
 -- 4. ÍNDICES PARA FICHA CLÍNICA / ENFERMAGEM
+ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS horario_registro TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS horario_medicao TIMESTAMPTZ DEFAULT NOW();
+
 CREATE INDEX IF NOT EXISTS idx_admissoes_enf_atendimento ON public.admissoes_enfermagem (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_evolucoes_atendimento ON public.evolucoes (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_balanco_hidrico_atendimento ON public.balanco_hidrico (atendimento_id, horario_registro);
