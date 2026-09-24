@@ -137,141 +137,170 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
   }
 
   return (
-    <div className="form-section">
-      <div className="form-section-title">Nova prescrição</div>
-
-      <div className="form-field span-3">
-        <label>Dieta</label>
-        <input type="text" placeholder="ex: Dieta oral livre, Dieta enteral padrão..." value={dieta} onChange={(e) => setDieta(e.target.value)} />
-      </div>
-
-      <div className="form-section-title" style={{ fontSize: 13, marginTop: 16 }}>Medicamentos</div>
-      {itens.map((it, i) => (
-        <div key={i} className="form-grid" style={{ marginBottom: 10, paddingBottom: 10, borderBottom: '1px dashed var(--color-border)' }}>
-          <div className="form-field span-2">
-            <label>Medicamento</label>
-            <AutocompleteMedicamento
-              catalogo={catalogo}
-              valor={it.medicamento_nome}
-              onChange={(v) => setItem(i, 'medicamento_nome', v)}
-              onSelecionar={(m) => selecionarMedicamento(i, m)}
-            />
-          </div>
-          <div className="form-field">
-            <label>Dose</label>
-            <input type="number" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label>Unidade</label>
-            <input type="text" placeholder="mg, ml..." value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label>Via</label>
-            <select value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)}>
-              {VIAS.map((v) => <option key={v} value={v}>{v}</option>)}
-            </select>
-          </div>
-          <div className="form-field">
-            <label>Frequência</label>
-            <input type="text" placeholder="ex: 8/8h" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} />
-          </div>
-          <div className="form-field">
-            <label>Duração</label>
-            <input type="text" placeholder="ex: 7 dias" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
-          </div>
-          <div className="form-field" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <input type="checkbox" id={`sn-${i}`} checked={it.sn_aplic} onChange={(e) => setItem(i, 'sn_aplic', e.target.checked)} />
-            <label htmlFor={`sn-${i}`} style={{ margin: 0 }}>Se necessário (SN)</label>
-          </div>
-          <div className="form-field span-2">
-            <label>Instruções / diluição</label>
-            <input type="text" placeholder="ex: Diluir em 100mL SF 0,9% e correr em 30 minutos" value={it.diluicao} onChange={(e) => setItem(i, 'diluicao', e.target.value)} />
-          </div>
-          <div className="form-field span-2">
-            <label>Instruções gerais</label>
-            <input type="text" value={it.instrucoes} onChange={(e) => setItem(i, 'instrucoes', e.target.value)} />
-          </div>
-          {itens.length > 1 && (
-            <div className="form-field" style={{ alignSelf: 'flex-end' }}>
-              <button type="button" className="modal-btn-secondary" onClick={() => removerItem(i)}>Remover</button>
-            </div>
-          )}
+    <div className="clinical-card" style={{ flex: 1 }}>
+      <div className="cc-header">
+        <div className="cc-title">
+          <h2><i className="ph ph-pill" /> Prescrição Médica Hospitalar</h2>
+          <p>Válida por 24 horas a partir da assinatura.</p>
         </div>
-      ))}
-      <button type="button" className="btn-copiar" onClick={adicionarItem}>+ Adicionar medicamento</button>
+      </div>
 
-      <div className="form-section-title" style={{ fontSize: 13, marginTop: 16 }}>Orientação enfermagem</div>
-      {orientacaoEnfermagem.map((o, i) => (
-        <div key={i} className="form-grid" style={{ marginBottom: 6 }}>
-          <div className="form-field span-2">
-            <label>Orientação</label>
-            <input type="text" placeholder="ex: Monitorização contínua" value={o.texto} onChange={(e) => setOrientacao(i, 'texto', e.target.value)} />
+      <div className="cc-body">
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-fork-knife" /> Dieta</div>
+          <div className="form-group">
+            <input type="text" placeholder="ex: Dieta oral livre, Dieta enteral padrão..." value={dieta} onChange={(e) => setDieta(e.target.value)} />
           </div>
-          <div className="form-field">
-            <label>Frequência</label>
-            <input type="text" placeholder="ex: 6/6h, Contínuo..." value={o.frequencia} onChange={(e) => setOrientacao(i, 'frequencia', e.target.value)} />
-          </div>
-          {orientacaoEnfermagem.length > 1 && (
-            <div className="form-field" style={{ alignSelf: 'flex-end' }}>
-              <button type="button" className="modal-btn-secondary" onClick={() => removerOrientacao(i)}>Remover</button>
-            </div>
-          )}
         </div>
-      ))}
-      <button type="button" className="btn-copiar" onClick={adicionarOrientacao}>+ Adicionar orientação</button>
 
-      <div className="form-field span-3" style={{ marginTop: 14 }}>
-        <label>Avaliação multidisciplinar</label>
-        <textarea value={avaliacaoMultidisciplinar} onChange={(e) => setAvaliacaoMultidisciplinar(e.target.value)} />
-      </div>
-
-      <div className="form-field span-3">
-        <label>Hemocomponente</label>
-        <textarea value={hemocomponente} onChange={(e) => setHemocomponente(e.target.value)} />
-      </div>
-
-      <div className="form-field span-3" style={{ marginTop: 14 }}>
-        <label>Observações</label>
-        <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} />
-      </div>
-
-      {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
-      <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>
-          {salvando ? 'Salvando...' : 'Registrar prescrição'}
-        </button>
-      </div>
-
-      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
-      {carregando ? (
-        <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
-      ) : historico.length === 0 ? (
-        <p style={{ color: 'var(--color-text-muted)' }}>Nenhuma prescrição registrada ainda.</p>
-      ) : (
-        historico.map((p) => (
-          <div key={p.id} style={{ borderBottom: '1px solid var(--color-border)', padding: '10px 0', fontSize: 13 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontWeight: 600 }}>
-                {(p.prescricao_itens ?? []).map((it) => it.medicamento_nome).join(', ')}
-              </span>
-              <span style={{ fontSize: 11, color: p.status === 'cancelada' ? 'var(--color-danger, #b91c1c)' : 'var(--color-text-muted)' }}>
-                {p.status}
-              </span>
-            </div>
-            <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
-              {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} · {new Date(p.criado_em).toLocaleString('pt-BR')}
-            </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-              <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(p)}>Imprimir</button>
-              {p.status === 'ativa' && (
-                <button type="button" className="modal-btn-secondary" onClick={() => cancelar(p.id)}>
-                  Cancelar prescrição
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-syringe" /> Medicamentos</div>
+          {itens.map((it, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12, paddingBottom: 12, borderBottom: '1px dashed var(--border-strong)' }}>
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label>Medicamento</label>
+                <AutocompleteMedicamento
+                  catalogo={catalogo}
+                  valor={it.medicamento_nome}
+                  onChange={(v) => setItem(i, 'medicamento_nome', v)}
+                  onSelecionar={(m) => selecionarMedicamento(i, m)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Dose</label>
+                <input type="number" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Unidade</label>
+                <input type="text" placeholder="mg, ml..." value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label><i className="ph ph-syringe" /> Via</label>
+                <select value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)}>
+                  {VIAS.map((v) => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label><i className="ph ph-clock" /> Frequência</label>
+                <input type="text" placeholder="ex: 8/8h" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Duração</label>
+                <input type="text" placeholder="ex: 7 dias" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
+              </div>
+              <label className="checkbox-item">
+                <input type="checkbox" checked={it.sn_aplic} onChange={(e) => setItem(i, 'sn_aplic', e.target.checked)} /> Se necessário (SN)
+              </label>
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label>Instruções / diluição</label>
+                <input type="text" placeholder="ex: Diluir em 100mL SF 0,9% e correr em 30 minutos" value={it.diluicao} onChange={(e) => setItem(i, 'diluicao', e.target.value)} />
+              </div>
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label>Instruções gerais</label>
+                <input type="text" value={it.instrucoes} onChange={(e) => setItem(i, 'instrucoes', e.target.value)} />
+              </div>
+              {itens.length > 1 && (
+                <button type="button" className="btn-cancel" style={{ justifySelf: 'flex-start' }} onClick={() => removerItem(i)}>
+                  <i className="ph ph-trash" /> Remover
                 </button>
               )}
             </div>
+          ))}
+          <button type="button" className="btn-add-chip" onClick={adicionarItem}>
+            <i className="ph ph-plus" /> Adicionar medicamento
+          </button>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-first-aid-kit" /> Orientação de enfermagem</div>
+          {orientacaoEnfermagem.map((o, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: 12, marginBottom: 8, alignItems: 'flex-end' }}>
+              <div className="form-group">
+                <label>Orientação</label>
+                <input type="text" placeholder="ex: Monitorização contínua" value={o.texto} onChange={(e) => setOrientacao(i, 'texto', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label><i className="ph ph-clock" /> Frequência</label>
+                <input type="text" placeholder="ex: 6/6h, Contínuo..." value={o.frequencia} onChange={(e) => setOrientacao(i, 'frequencia', e.target.value)} />
+              </div>
+              {orientacaoEnfermagem.length > 1 && (
+                <button type="button" className="btn-cancel" onClick={() => removerOrientacao(i)}>
+                  <i className="ph ph-trash" />
+                </button>
+              )}
+            </div>
+          ))}
+          <button type="button" className="btn-add-chip" onClick={adicionarOrientacao}>
+            <i className="ph ph-plus" /> Adicionar orientação
+          </button>
+        </div>
+
+        <div className="assess-grid">
+          <div className="form-group">
+            <label><i className="ph ph-users-three" /> Avaliação multidisciplinar</label>
+            <textarea value={avaliacaoMultidisciplinar} onChange={(e) => setAvaliacaoMultidisciplinar(e.target.value)} />
           </div>
-        ))
-      )}
+          <div className="form-group">
+            <label><i className="ph ph-drop" /> Hemocomponente</label>
+            <textarea value={hemocomponente} onChange={(e) => setHemocomponente(e.target.value)} />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label><i className="ph ph-note" /> Observações</label>
+          <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} />
+        </div>
+
+        {erro && (
+          <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+            <div className="info" style={{ color: '#DC2626' }}>
+              <i className="ph ph-warning" /> {erro}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico</div>
+          {carregando ? (
+            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p>
+          ) : historico.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma prescrição registrada ainda.</p>
+          ) : (
+            historico.map((p) => (
+              <div key={p.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontWeight: 600 }}>
+                    {(p.prescricao_itens ?? []).map((it) => it.medicamento_nome).join(', ')}
+                  </span>
+                  <span style={{ fontSize: 11, color: p.status === 'cancelada' ? '#DC2626' : 'var(--text-muted)' }}>
+                    {p.status}
+                  </span>
+                </div>
+                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+                  {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} · {new Date(p.criado_em).toLocaleString('pt-BR')}
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                  <button type="button" className="btn-save-draft" onClick={() => onImprimir(p)}>
+                    <i className="ph ph-printer" /> Imprimir
+                  </button>
+                  {p.status === 'ativa' && (
+                    <button type="button" className="btn-cancel" onClick={() => cancelar(p.id)}>
+                      <i className="ph ph-x-circle" /> Cancelar prescrição
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="cc-footer">
+        <span />
+        <button className="btn-save-print" onClick={salvar} disabled={salvando}>
+          <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Registrar prescrição'}
+        </button>
+      </div>
     </div>
   )
 }
