@@ -764,7 +764,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_leito_setor_numero ON public.leitos (setor_
 CREATE UNIQUE INDEX IF NOT EXISTS uq_enfermeiros_email ON public.enfermeiros (email);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_configuracoes_chave ON public.configuracoes (chave);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_cid_catalog_codigo ON public.cid_catalog (codigo);
-CREATE UNIQUE INDEX IF NOT EXISTS uq_catalogo_medicamentos_nome ON public.catalogo_medicamentos (nome);
 
 
 -- =====================================================================
