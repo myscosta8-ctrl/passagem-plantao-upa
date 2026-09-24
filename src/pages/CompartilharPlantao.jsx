@@ -24,7 +24,6 @@ export default function CompartilharPlantao({ plantao, onVoltar }) {
   const [curativoOk, setCurativoOk] = useState(true)
   const [carrinhoOk, setCarrinhoOk] = useState(true)
   const [notaExtra, setNotaExtra] = useState('')
-  const [incluirExamesFuturos, setIncluirExamesFuturos] = useState(true)
   const [copiado, setCopiado] = useState('')
 
   useEffect(() => {
@@ -132,7 +131,7 @@ export default function CompartilharPlantao({ plantao, onVoltar }) {
 
     let msg = '*EXAMES*\n\n'
     for (const [setorLabel, lista] of Object.entries(grupos)) {
-      msg += `*${setorLabel.replace(/[🔴🟢🟡⚪️:]/g, '').trim().toUpperCase()}*\n`
+      msg += `*${setorLabel.replace(/[\u{1F534}\u{1F7E2}\u{1F7E1}\u{26AA}:]|\uFE0F/gu, '').trim().toUpperCase()}*\n`
       for (const e of lista) {
         const numLeito = e.leitoInfo?.numero ?? '?'
         const dataFmt = e.exame_a_realizar_data ? new Date(e.exame_a_realizar_data + 'T00:00:00').toLocaleDateString('pt-BR') : '(sem data)'

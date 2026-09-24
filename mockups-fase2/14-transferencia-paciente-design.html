@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transferência Estruturada do Paciente (SBAR) — UPA 24h</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #F1F5F9;
+  --bg-surface: #ffffff;
+  --border-light: #E2E8F0;
+  --border-strong: #CBD5E1;
+  
+  --text-main: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+
+  --enf-primary: #0D9488;       /* Teal Enfermagem */
+  --enf-hover: #0F766E;
+  --enf-light: #F0FDFA;
+  --enf-badge: #CCFBF1;
+
+  --sbar-s: #0284C7;           /* Situation - Blue */
+  --sbar-b: #4F46E5;           /* Background - Indigo */
+  --sbar-a: #0D9488;           /* Assessment - Teal */
+  --sbar-r: #D97706;           /* Recommendation - Amber */
+
+  --danger: #DC2626;
+  --danger-light: #FEF2F2;
+
+  --success: #16A34A;
+  --success-light: #DCFCE7;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-app); color: var(--text-main); font-size: 13.5px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* TOPBAR */
+.topbar { height: 50px; background: var(--bg-surface); border-bottom: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: var(--shadow-sm); z-index: 40; flex-shrink: 0; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.breadcrumb span.current { color: var(--enf-primary); font-weight: 700; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.btn-voltar { background: transparent; border: 1px solid var(--border-strong); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
+.btn-voltar:hover { background: var(--border-light); color: var(--text-main); }
+.sys-time { font-size: 11px; font-weight: 600; color: var(--text-muted); padding-right: 14px; border-right: 1px solid var(--border-light); }
+.top-avatar { padding: 4px 10px; border-radius: 20px; background: var(--enf-light); color: var(--enf-primary); border: 1px solid var(--enf-primary); display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 11px; }
+
+/* WORKSPACE */
+.workspace { flex: 1; overflow: hidden; padding: 12px 18px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+
+/* 1. PATIENT BANNER */
+.patient-banner { flex-shrink: 0; background: var(--bg-surface); border: 1px solid var(--enf-primary); border-left: 6px solid var(--enf-primary); border-radius: 8px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+.pb-main { padding: 8px 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+.pb-left { display: flex; flex-direction: column; gap: 4px; }
+.pb-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pb-name { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; }
+.pb-badge { background: var(--enf-badge); color: var(--enf-hover); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 4px; }
+.pb-alergia { background: var(--danger-light); color: var(--danger); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 4px; }
+.pb-meta { display: flex; align-items: center; gap: 14px; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; flex-wrap: wrap; }
+.pb-meta-item { display: flex; align-items: center; gap: 5px; }
+.pb-meta-item i { color: var(--text-muted); font-size: 14px; }
+.pb-hd { font-size: 11.5px; color: var(--text-secondary); }
+.pb-hd strong { color: var(--text-main); }
+.pb-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.pb-leito { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+.pb-leito i { color: var(--enf-primary); font-size: 16px; }
+.btn-expand-details { background: transparent; border: 1px solid var(--border-strong); padding: 3px 9px; border-radius: 6px; font-size: 10.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+.btn-expand-details:hover { background: var(--bg-app); color: var(--text-main); }
+
+/* Gaveta de Identificação */
+.pb-details { border-top: 1px dashed var(--border-strong); padding: 10px 16px; background: #F8FAFC; border-radius: 0 0 8px 8px; display: none; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 11px; }
+.detail-item { display: flex; flex-direction: column; gap: 2px; }
+.detail-item label { font-size: 9.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.detail-item span { color: var(--text-main); font-weight: 600; }
+
+/* 2. CLINICAL TABS ENFERMAGEM (DESMEMBRADO) */
+.clinical-tabs { display: flex; gap: 6px; background: var(--border-light); padding: 4px; border-radius: 8px; flex-shrink: 0; overflow-x: auto; }
+.tab-btn { flex: 1; min-width: 130px; padding: 8px 12px; border: none; background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 7px; text-decoration: none; white-space: nowrap; }
+.tab-btn i { font-size: 15px; }
+.tab-btn:hover { background: rgba(255,255,255,0.7); color: var(--text-main); }
+.tab-btn.active { background: var(--bg-surface); color: var(--enf-primary); box-shadow: var(--shadow-sm); }
+
+/* 3. CARD DA TRANSFERÊNCIA SBAR */
+.transfer-card { flex: 1; min-width: 0; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+
+.tc-header { padding: 12px 20px; border-bottom: 1px solid var(--border-strong); background: #F8FAFC; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.tc-title h2 { font-size: 16px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.tc-title h2 i { color: var(--sbar-s); font-size: 20px; }
+.tc-title p { font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+.tc-actions { display: flex; gap: 8px; align-items: center; }
+.btn-toggle-sidebar { background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+.btn-toggle-sidebar:hover { background: var(--border-light); color: var(--text-main); }
+.btn-print-preview { background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
+.btn-print-preview:hover { background: var(--border-light); color: var(--text-main); }
+
+/* SUB-TABS: AS PÁGINAS DA TRANSFERÊNCIA */
+.transfer-subtabs {
+  display: flex;
+  gap: 6px;
+  background: #F1F5F9;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border-strong);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.transfer-tab {
+  padding: 7px 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: 0.15s;
+}
+.transfer-tab:hover { background: rgba(255,255,255,0.8); color: var(--text-main); }
+.transfer-tab.active { background: #fff; color: var(--sbar-s); border-color: var(--border-strong); box-shadow: var(--shadow-sm); font-weight: 700; }
+
+/* CORPO COM ROLAGEM */
+.tc-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* SEÇÃO / PILAR SBAR (NUNCA ENCOLHE) */
+.sbar-section {
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  flex-shrink: 0 !important; /* CRUCIAL: impede achatamento */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CABEÇALHO DO PILAR CLICÁVEL (ACORDEÃO INTERATIVO) */
+.pillar-header {
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s;
+}
+.pillar-header:hover { opacity: 0.93; }
+.pillar-header.reg { background: #334155; }
+.pillar-header.s { background: var(--sbar-s); }
+.pillar-header.b { background: var(--sbar-b); }
+.pillar-header.a { background: var(--sbar-a); }
+.pillar-header.r { background: var(--sbar-r); }
+
+.ph-left { display: flex; align-items: center; gap: 10px; }
+.pillar-badge { width: 26px; height: 26px; background: rgba(255,255,255,0.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
+.ph-right { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,0.85); font-weight: 600; }
+.ph-right i { transition: transform 0.2s ease; font-size: 15px; color: #fff; }
+
+.sbar-section.collapsed .pillar-header { border-bottom: none; }
+.sbar-section.collapsed .ph-right i { transform: rotate(-90deg); }
+.sbar-section.collapsed .pillar-body { display: none !important; }
+
+.pillar-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+}
+
+/* Grids */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+
+/* Form Elements */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+.form-group label i { color: var(--enf-primary); font-size: 14px; }
+
+.form-control { width: 100%; min-height: 38px; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 13px; background: #FAFAFA; color: var(--text-main); outline: none; transition: 0.2s; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+.form-control:focus { background: #fff; border-color: var(--sbar-s); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+select.form-control { cursor: pointer; height: 38px; }
+textarea.form-control { min-height: 70px; line-height: 1.45; resize: vertical; padding: 10px 12px; }
+
+/* Checklist Chips */
+.check-item { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer; user-select: none; transition: 0.15s; }
+.check-item:hover { background: var(--enf-light); border-color: var(--enf-primary); }
+.check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--enf-primary); cursor: pointer; margin: 0; }
+
+/* Rodapé Universal */
+.tc-footer { padding: 12px 20px; background: #F8FAFC; border-top: 1px solid var(--border-strong); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.btn-cancel { background: #fff; border: 1px solid var(--danger); color: var(--danger); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-cancel:hover { background: var(--danger-light); }
+.btn-save-draft { background: #fff; border: 1px solid var(--primary, #1D4ED8); color: var(--primary, #1D4ED8); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-save-draft:hover { background: #EFF6FF; }
+.btn-save-print { background: var(--primary, #1D4ED8); color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm); transition: 0.2s; }
+.btn-save-print:hover { background: #1E3A8A; box-shadow: var(--shadow-md); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="breadcrumb">
+    <a href="01-painel-leitos-design.html" class="btn-voltar"><i class="ph ph-arrow-left"></i> Painel de Leitos</a>
+    <i class="ph ph-caret-right"></i>
+    <span>Módulo de Enfermagem</span>
+    <i class="ph ph-caret-right"></i>
+    <span class="current">Transferência Estruturada (SBAR)</span>
+  </div>
+  <div class="topbar-right">
+    <span class="sys-time"><i class="ph ph-clock"></i> 23/09/2026 — 19:15</span>
+    <div class="top-avatar">
+      <i class="ph ph-ambulance"></i> Enf. Juliana Ramos (COREN/PA 123.456)
+    </div>
+  </div>
+</header>
+
+<main class="workspace">
+
+  <!-- 1. PATIENT BANNER COM IDENTIFICAÇÃO COMPLETA -->
+  <div class="patient-banner">
+    <div class="pb-main">
+      <div class="pb-left">
+        <div class="pb-header">
+          <span class="pb-name">RAIMUNDO NONATO PEREIRA</span>
+          <span class="pb-badge"><i class="ph ph-shield-check"></i> UPA 24H BREVES</span>
+          <span class="pb-alergia" title="Paciente com alergia a Dipirona"><i class="ph ph-warning"></i> Alergia: Dipirona</span>
+        </div>
+        <div class="pb-meta">
+          <span class="pb-meta-item"><i class="ph ph-identification-card"></i> Reg: <strong>#2026-0891</strong></span>
+          <span class="pb-meta-item"><i class="ph ph-folder"></i> Pront: <strong>#45821</strong></span>
+          <span class="pb-meta-item"><i class="ph ph-user"></i> 64 anos (22/04/1962)</span>
+          <span class="pb-meta-item"><i class="ph ph-gender-male"></i> Masculino</span>
+          <span class="pb-meta-item"><i class="ph ph-heartbeat"></i> <strong>PA:</strong> 140/85 mmHg · <strong>FC:</strong> 82 bpm · <strong>SpO₂:</strong> 98%</span>
+        </div>
+        <div class="pb-hd">
+          <strong>HD:</strong> AVE Isquêmico · Origem: <strong>Sala Amarela — Leito 03</strong> · Destino: <strong>Hospital Regional (CTI)</strong>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="pb-leito"><i class="ph ph-ambulance"></i> Vaga Regulada (SUS Fácil)</div>
+        <button class="btn-expand-details" onclick="toggleDetails()">
+          <i class="ph ph-caret-down"></i> <span id="toggle-lbl">Exibir Ficha Completa</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="pb-details" id="ficha-oficial">
+      <div class="detail-item"><label>Nome da Mãe</label><span>Maria Auxiliadora Pereira</span></div>
+      <div class="detail-item"><label>RG / CPF</label><span>1234567 PC/PA — 000.000.000-00</span></div>
+      <div class="detail-item"><label>CNS (Cartão SUS)</label><span>898 0001 2345 6789</span></div>
+      <div class="detail-item"><label>Regulação SUS Fácil</label><span>Protocolo #2026-PA-88492</span></div>
+      <div class="detail-item"><label>Viatura Transporte</label><span>SAMU USA-04 (UTI Móvel)</span></div>
+      <div class="detail-item"><label>Data da Saída</label><span>23/09/2026 às 19:30</span></div>
+    </div>
+  </div>
+
+  <!-- 2. CLINICAL TABS ENFERMAGEM (DESMEMBRADO) -->
+  <nav class="clinical-tabs">
+    <a href="08-admissao-enfermagem-design.html" class="tab-btn"><i class="ph ph-clipboard-text"></i> Admissão</a>
+    <a href="09-evolucao-enfermagem-sae-design.html" class="tab-btn"><i class="ph ph-activity"></i> Evolução SAE</a>
+    <a href="10-checagem-aprazamento-design.html" class="tab-btn"><i class="ph ph-calendar-check"></i> Cardex / Aprazamento</a>
+    <a href="11-balanco-hidrico-design.html" class="tab-btn"><i class="ph ph-drop"></i> Balanço Hídrico 24h</a>
+    <a href="14-transferencia-paciente-design.html" class="tab-btn active"><i class="ph ph-ambulance"></i> Transferência SBAR</a>
+    <a href="13-nota-intercorrencia-enfermagem-design.html" class="tab-btn"><i class="ph ph-warning-octagon"></i> Intercorrências</a>
+  </nav>
+
+  <!-- 3. CARD PRINCIPAL DA TRANSFERÊNCIA SBAR -->
+  <div class="transfer-card">
+
+    <div class="tc-header">
+      <div class="tc-title">
+        <h2><i class="ph ph-arrows-left-right"></i> Transferência Estruturada do Paciente (Metodologia SBAR)</h2>
+        <p>Instrumento oficial de transição de cuidado e regulação inter-hospitalar (Padrão OMS).</p>
+      </div>
+      <div class="tc-actions">
+        <button class="btn-toggle-sidebar" onclick="toggleAllSections()" id="btn-toggle-all" title="Expandir ou recolher todas as seções">
+          <i class="ph ph-arrows-in-line-horizontal" id="all-sections-icon"></i> <span id="all-sections-lbl">Recolher Todos</span>
+        </button>
+        <a href="../modelos_impressao_html/03-transferencia-paciente-sbar.html" target="_blank" class="btn-print-preview">
+          <i class="ph ph-printer"></i> Visualizar Impresso SBAR Oficial
+        </a>
+      </div>
+    </div>
+
+    <!-- SUB-TABS: AS PÁGINAS DA TRANSFERÊNCIA -->
+    <div class="transfer-subtabs">
+      <button class="transfer-tab active" onclick="switchTransfView('all', this)" id="tab-all"><i class="ph ph-list-dashes"></i> Formulário SBAR Completo</button>
+      <button class="transfer-tab" onclick="switchTransfView('sec-regulacao', this)" id="tab-sec-regulacao"><i class="ph ph-ambulance"></i> 1. Regulação & Transporte</button>
+      <button class="transfer-tab" onclick="switchTransfView('sec-s', this)" id="tab-sec-s"><i class="ph ph-letter-circle-s"></i> 2. Situação (S)</button>
+      <button class="transfer-tab" onclick="switchTransfView('sec-b', this)" id="tab-sec-b"><i class="ph ph-letter-circle-b"></i> 3. Breve Histórico (B)</button>
+      <button class="transfer-tab" onclick="switchTransfView('sec-a', this)" id="tab-sec-a"><i class="ph ph-letter-circle-a"></i> 4. Avaliação de Embarque (A)</button>
+      <button class="transfer-tab" onclick="switchTransfView('sec-r', this)" id="tab-sec-r"><i class="ph ph-letter-circle-r"></i> 5. Recomendações & Pertences (R)</button>
+    </div>
+
+    <div class="tc-body">
+
+      <!-- SEÇÃO 1: DADOS DA REGULAÇÃO E TRANSPORTE -->
+      <section class="sbar-section" id="sec-regulacao">
+        <div class="pillar-header reg" onclick="toggleSection('sec-regulacao')">
+          <div class="ph-left">
+            <div class="pillar-badge"><i class="ph ph-ambulance"></i></div>
+            <span>LOGÍSTICA DA TRANSFERÊNCIA — Regulação SUS e Transporte</span>
+          </div>
+          <div class="ph-right">
+            <span class="sh-badge-status">Recolher</span>
+            <i class="ph ph-caret-down"></i>
+          </div>
+        </div>
+        <div class="pillar-body">
+          <div class="grid-3">
+            <div class="form-group">
+              <label><i class="ph ph-buildings"></i> Hospital / Serviço de Destino</label>
+              <input type="text" class="form-control" value="Hospital Regional do Baixo Amazonas (HRBA)">
+            </div>
+            <div class="form-group">
+              <label><i class="ph ph-door"></i> Setor de Destino</label>
+              <input type="text" class="form-control" value="CTI Adulto — Vaga leito 04">
+            </div>
+            <div class="form-group">
+              <label><i class="ph ph-barcode"></i> Protocolo SUS Fácil / Regulação</label>
+              <input type="text" class="form-control" value="Protocolo #2026-PA-88492" style="font-weight: 700; color: #0284C7;">
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="form-group">
+              <label><i class="ph ph-truck"></i> Tipo de Transporte</label>
+              <select class="form-control">
+                <option selected>USA — Suporte Avançado (UTI Móvel Samu)</option>
+                <option>USB — Suporte Básico</option>
+                <option>Aeromédico (Helicóptero / Avião)</option>
+                <option>Ambulância Branca UPA</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label><i class="ph ph-user-gear"></i> Médico(a) do Transporte</label>
+              <input type="text" class="form-control" value="Dr. Fernando Costa (CRM/PA 7890)">
+            </div>
+            <div class="form-group">
+              <label><i class="ph ph-stethoscope"></i> Enfermeiro(a) do Transporte</label>
+              <input type="text" class="form-control" value="Enf. Beatriz Guimarães (COREN/PA 45678)">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PILAR S: SITUAÇÃO (Situation) -->
+      <section class="sbar-section" id="sec-s">
+        <div class="pillar-header s" onclick="toggleSection('sec-s')">
+          <div class="ph-left">
+            <div class="pillar-badge">S</div>
+            <span>SITUAÇÃO (Situation) — Identificação e Motivo Imediato</span>
+          </div>
+          <div class="ph-right">
+            <span class="sh-badge-status">Recolher</span>
+            <i class="ph ph-caret-down"></i>
+          </div>
+        </div>
+        <div class="pillar-body">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Diagnóstico Principal de Saída</label>
+              <input type="text" class="form-control" value="Acidente Vascular Encefálico Isquêmico (AVEi) Agudo em janela estendida.">
+            </div>
+            <div class="form-group">
+              <label>Motivo da Solicitação da Vaga / Transferência</label>
+              <input type="text" class="form-control" value="Necessidade de suporte intensivo (UTI) e avaliação de neurointervenção.">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Tempo de Admissão na UPA e Situação Atual</label>
+            <textarea class="form-control" rows="2">Paciente admitido há 20 horas na Sala Amarela da UPA Breves. Apresenta-se estável hemodinamicamente, recebendo suporte clínico inicial e aguardando transferência autorizada pelo sistema regulador.</textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- PILAR B: BREVE HISTÓRICO (Background) -->
+      <section class="sbar-section" id="sec-b">
+        <div class="pillar-header b" onclick="toggleSection('sec-b')">
+          <div class="ph-left">
+            <div class="pillar-badge">B</div>
+            <span>BREVE HISTÓRICO (Background) — Antecedentes e Condutas Realizadas na UPA</span>
+          </div>
+          <div class="ph-right">
+            <span class="sh-badge-status">Recolher</span>
+            <i class="ph ph-caret-down"></i>
+          </div>
+        </div>
+        <div class="pillar-body">
+          <div class="form-group">
+            <label>Antecedentes Pessoais, Comorbidades e Cirurgias</label>
+            <textarea class="form-control" rows="2">Hipertensão Arterial Sistêmica e Diabetes Mellitus tipo 2 de longa data. Nega tabagismo recente, nega cirurgias prévias.</textarea>
+          </div>
+
+          <div style="padding: 12px 14px; background: var(--danger-light); border: 1px solid #FECACA; border-radius: 6px; font-size: 12px; color: #991B1B;">
+            <strong>⚠️ ALERGIA GRAVE CONFIRMADA:</strong> DIPIRONA SÓDICA (Relato familiar de edema de glote / urticária generalizada).
+          </div>
+
+          <div class="form-group">
+            <label>Condutas e Procedimentos já Executados na UPA</label>
+            <textarea class="form-control" rows="2">AAS 100mg VO dose de ataque realizada; Atorvastatina 40mg VO; Enoxaparina 40mg SC profilática; Monitorização multiparamétrica contínua; TC de crânio realizada (sem evidência de sangramento).</textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- PILAR A: AVALIAÇÃO ATUAL (Assessment) -->
+      <section class="sbar-section" id="sec-a">
+        <div class="pillar-header a" onclick="toggleSection('sec-a')">
+          <div class="ph-left">
+            <div class="pillar-badge">A</div>
+            <span>AVALIAÇÃO (Assessment) — Exame Clínico no Momento do Embarque</span>
+          </div>
+          <div class="ph-right">
+            <span class="sh-badge-status">Recolher</span>
+            <i class="ph ph-caret-down"></i>
+          </div>
+        </div>
+        <div class="pillar-body">
+          <div class="grid-4">
+            <div class="form-group">
+              <label>PA de Embarque</label>
+              <input type="text" class="form-control" value="140/85 mmHg" style="font-weight: 700;">
+            </div>
+            <div class="form-group">
+              <label>FC de Embarque</label>
+              <input type="text" class="form-control" value="82 bpm" style="font-weight: 700;">
+            </div>
+            <div class="form-group">
+              <label>SpO₂ / Suporte</label>
+              <input type="text" class="form-control" value="98% (Cateter 2L/min)" style="font-weight: 700;">
+            </div>
+            <div class="form-group">
+              <label>Glicemia (HGT)</label>
+              <input type="text" class="form-control" value="138 mg/dL" style="font-weight: 700;">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label><i class="ph ph-brain"></i> Avaliação Neurológica</label>
+              <textarea class="form-control" rows="2">Glasgow 15 (Abertura ocular 4, Resposta verbal 5 com disartria leve, Resposta motora 6). Pupilas isocóricas e fotorreagentes. Hemiparesia grau IV em hemicorpo direito.</textarea>
+            </div>
+            <div class="form-group">
+              <label><i class="ph ph-needle"></i> Acessos e Drogas em Infusão</label>
+              <textarea class="form-control" rows="2">AVP calibroso em MSD (Jelco 20G) pérvio. Sem drogas vasoativas no momento. Solução Salina 0.9% KVO para transporte.</textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PILAR R: RECOMENDAÇÕES E CHECKLIST DE SAÍDA (Recommendation) -->
+      <section class="sbar-section" id="sec-r">
+        <div class="pillar-header r" onclick="toggleSection('sec-r')">
+          <div class="ph-left">
+            <div class="pillar-badge">R</div>
+            <span>RECOMENDAÇÕES (Recommendation) — Orientações de Transporte & Checklist</span>
+          </div>
+          <div class="ph-right">
+            <span class="sh-badge-status">Recolher</span>
+            <i class="ph ph-caret-down"></i>
+          </div>
+        </div>
+        <div class="pillar-body">
+          <div class="form-group">
+            <label>Cuidados Críticos e Metas Durante o Transporte</label>
+            <textarea class="form-control" rows="2">Manter cabeceira elevada a 30°; Manter oxigênio contínuo para alvo de SpO2 > 95%; Notificar se PAS > 180 mmHg ou queda neurológica aguda (Glasgow < 13); Atenção rigorosa contra hipotensão ou hipoglicemia.</textarea>
+          </div>
+
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: block;">Checklist de Conferência e Pertences de Saída:</label>
+            <div class="grid-2">
+              <label class="check-item"><input type="checkbox" checked> Cópia Integral do Prontuário e Ficha de Admissão</label>
+              <label class="check-item"><input type="checkbox" checked> CD / Laudos dos Exames de Imagem (TC de Crânio)</label>
+              <label class="check-item"><input type="checkbox" checked> Resultados Impressos dos Exames Laboratoriais</label>
+              <label class="check-item"><input type="checkbox" checked> Pertences Pessoais e Documentos entregues ao familiar/transporte</label>
+              <label class="check-item"><input type="checkbox" checked> Termo de Consentimento e Transferência Assinado</label>
+              <label class="check-item"><input type="checkbox" checked> Pulseira de Identificação e Alergia Conferidas no Leito</label>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RODAPÉ UNIVERSAL -->
+    <footer class="tc-footer">
+      <button class="btn-cancel" onclick="window.history.back()"><i class="ph ph-x-circle"></i> Cancelar</button>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-save-draft" onclick="alert('Transferência SBAR salva como rascunho com sucesso!')"><i class="ph ph-floppy-disk"></i> Salvar</button>
+        <button class="btn-save-print" onclick="alert('Transferência SBAR registrada e enviada para impressão!'); window.open('../modelos_impressao_html/03-transferencia-paciente-sbar.html', '_blank')"><i class="ph ph-printer"></i> Salvar e Imprimir SBAR</button>
+      </div>
+    </footer>
+
+  </div>
+
+</main>
+
+<script>
+  function toggleDetails() {
+    const ficha = document.getElementById('ficha-oficial');
+    const lbl = document.getElementById('toggle-lbl');
+    if (ficha.style.display === 'none' || ficha.style.display === '') {
+      ficha.style.display = 'grid';
+      lbl.innerText = 'Ocultar Ficha Completa';
+    } else {
+      ficha.style.display = 'none';
+      lbl.innerText = 'Exibir Ficha Completa';
+    }
+  }
+
+  function toggleSection(secId) {
+    const sec = document.getElementById(secId);
+    if (!sec) return;
+    const isCollapsed = sec.classList.toggle('collapsed');
+    const badge = sec.querySelector('.sh-badge-status');
+    if (badge) {
+      badge.innerText = isCollapsed ? 'Expandir' : 'Recolher';
+    }
+  }
+
+  function switchTransfView(viewId, tabBtn) {
+    document.querySelectorAll('.transfer-tab').forEach(t => t.classList.remove('active'));
+    if (tabBtn) tabBtn.classList.add('active');
+
+    const sections = ['sec-regulacao', 'sec-s', 'sec-b', 'sec-a', 'sec-r'];
+    if (viewId === 'all') {
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.display = 'flex';
+          el.classList.remove('collapsed');
+          const badge = el.querySelector('.sh-badge-status');
+          if (badge) badge.innerText = 'Recolher';
+        }
+      });
+    } else {
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (id === viewId) {
+            el.style.display = 'flex';
+            el.classList.remove('collapsed');
+            const badge = el.querySelector('.sh-badge-status');
+            if (badge) badge.innerText = 'Recolher';
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            el.style.display = 'none';
+          }
+        }
+      });
+    }
+  }
+
+  let allExpanded = true;
+  function toggleAllSections() {
+    allExpanded = !allExpanded;
+    const sections = ['sec-regulacao', 'sec-s', 'sec-b', 'sec-a', 'sec-r'];
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (allExpanded) {
+          el.classList.remove('collapsed');
+          const badge = el.querySelector('.sh-badge-status');
+          if (badge) badge.innerText = 'Recolher';
+        } else {
+          el.classList.add('collapsed');
+          const badge = el.querySelector('.sh-badge-status');
+          if (badge) badge.innerText = 'Expandir';
+        }
+      }
+    });
+    document.getElementById('all-sections-lbl').innerText = allExpanded ? 'Recolher Todos' : 'Expandir Todos';
+    document.getElementById('all-sections-icon').className = allExpanded ? 'ph ph-arrows-in-line-horizontal' : 'ph ph-arrows-out-line-horizontal';
+  }
+</script>
+
+</body>
+</html>

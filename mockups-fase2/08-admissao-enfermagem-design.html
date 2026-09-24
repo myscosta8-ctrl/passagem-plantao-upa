@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admissão de Enfermagem — UPA 24h</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #F1F5F9;
+  --bg-surface: #ffffff;
+  --border-light: #E2E8F0;
+  --border-strong: #CBD5E1;
+  
+  --text-main: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+
+  --enf-primary: #0D9488;       /* Teal Enfermagem */
+  --enf-hover: #0F766E;
+  --enf-light: #F0FDFA;
+  --enf-badge: #CCFBF1;
+
+  --mc-laranja: #EA580C;
+  --mc-laranja-light: #FFEDD5;
+
+  --danger: #DC2626;
+  --danger-light: #FEF2F2;
+
+  --success: #16A34A;
+  --success-light: #DCFCE7;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-app); color: var(--text-main); font-size: 13.5px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* TOPBAR */
+.topbar { height: 50px; background: var(--bg-surface); border-bottom: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: var(--shadow-sm); z-index: 40; flex-shrink: 0; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.breadcrumb span.current { color: var(--enf-primary); font-weight: 700; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.btn-voltar { background: transparent; border: 1px solid var(--border-strong); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
+.btn-voltar:hover { background: var(--border-light); color: var(--text-main); }
+.sys-time { font-size: 11px; font-weight: 600; color: var(--text-muted); padding-right: 14px; border-right: 1px solid var(--border-light); }
+.top-avatar { padding: 4px 10px; border-radius: 20px; background: var(--enf-light); color: var(--enf-primary); border: 1px solid var(--enf-primary); display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 11px; }
+
+/* WORKSPACE */
+.workspace { flex: 1; overflow: hidden; padding: 12px 18px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+
+/* 1. PATIENT BANNER */
+.patient-banner { flex-shrink: 0; background: var(--bg-surface); border: 1px solid var(--enf-primary); border-left: 6px solid var(--enf-primary); border-radius: 8px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+.pb-main { padding: 8px 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+.pb-left { display: flex; flex-direction: column; gap: 4px; }
+.pb-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pb-name { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; }
+.pb-badge { background: var(--enf-badge); color: var(--enf-hover); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 4px; }
+.pb-alergia { background: var(--danger-light); color: var(--danger); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 4px; }
+.pb-meta { display: flex; align-items: center; gap: 14px; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; flex-wrap: wrap; }
+.pb-meta-item { display: flex; align-items: center; gap: 5px; }
+.pb-meta-item i { color: var(--text-muted); font-size: 14px; }
+.pb-hd { font-size: 11.5px; color: var(--text-secondary); }
+.pb-hd strong { color: var(--text-main); }
+.pb-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.pb-leito { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+.pb-leito i { color: var(--enf-primary); font-size: 16px; }
+.btn-expand-details { background: transparent; border: 1px solid var(--border-strong); padding: 3px 9px; border-radius: 6px; font-size: 10.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+.btn-expand-details:hover { background: var(--bg-app); color: var(--text-main); }
+
+/* Gaveta de Identificação */
+.pb-details { border-top: 1px dashed var(--border-strong); padding: 10px 16px; background: #F8FAFC; border-radius: 0 0 8px 8px; display: none; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 11px; }
+.detail-item { display: flex; flex-direction: column; gap: 2px; }
+.detail-item label { font-size: 9.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.detail-item span { color: var(--text-main); font-weight: 600; }
+
+/* 2. CLINICAL TABS ENFERMAGEM */
+.clinical-tabs { display: flex; gap: 6px; background: var(--border-light); padding: 4px; border-radius: 8px; flex-shrink: 0; overflow-x: auto; }
+.tab-btn { flex: 1; min-width: 140px; padding: 8px 12px; border: none; background: transparent; color: var(--text-secondary); font-size: 12.5px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; white-space: nowrap; }
+.tab-btn i { font-size: 15px; }
+.tab-btn:hover { background: rgba(255,255,255,0.7); color: var(--text-main); }
+.tab-btn.active { background: var(--bg-surface); color: var(--enf-primary); box-shadow: var(--shadow-sm); }
+
+/* 3. SPLIT VIEW */
+.clinical-split { display: flex; gap: 16px; flex: 1; min-height: 0; overflow: hidden; }
+
+/* Lado Esquerdo: Sidebar de Acesso Rápido e Escalas */
+.quick-sidebar { width: 270px; min-width: 250px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: var(--shadow-sm); overflow: hidden; transition: 0.3s ease; }
+.quick-sidebar.collapsed { width: 0; min-width: 0; border: none; margin: 0; padding: 0; display: none; }
+.qs-header { padding: 10px 14px; border-bottom: 1px solid var(--border-strong); background: #F8FAFC; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; flex-shrink: 0; }
+.qs-header span { display: flex; align-items: center; gap: 8px; }
+.qs-header i { color: var(--enf-primary); font-size: 16px; }
+.qs-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Cards Laterais */
+.scale-card { border: 1px solid var(--border-light); border-radius: 8px; padding: 12px; background: #FAFAFA; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+.scale-title { font-size: 12px; font-weight: 700; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.scale-badge { font-size: 10px; padding: 3px 7px; border-radius: 4px; font-weight: 700; white-space: nowrap; }
+.scale-badge.risco-alto { background: var(--danger-light); color: var(--danger); border: 1px solid #FECACA; }
+.scale-badge.risco-medio { background: #FEF08A; color: #854D0E; border: 1px solid #FDE047; }
+.scale-badge.risco-baixo { background: var(--success-light); color: var(--success); border: 1px solid #BBF7D0; }
+.scale-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+
+/* Lista de Dispositivos */
+.device-item { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; padding: 8px 10px; background: #fff; border: 1px solid var(--border-light); border-radius: 6px; }
+.device-item strong { color: var(--text-main); font-weight: 600; font-size: 12px; }
+.device-item span { font-size: 10.5px; color: var(--text-muted); }
+
+/* Lado Direito: Formulário Extenso da Admissão */
+.admissao-card { flex: 1; min-width: 0; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; overflow: hidden; }
+.ac-header { padding: 12px 20px; border-bottom: 1px solid var(--border-strong); background: #F8FAFC; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.ac-title h2 { font-size: 16px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.ac-title h2 i { color: var(--enf-primary); font-size: 20px; }
+.ac-title p { font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+.ac-actions { display: flex; gap: 8px; align-items: center; }
+.btn-toggle-sidebar { background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+.btn-toggle-sidebar:hover { background: var(--border-light); color: var(--text-main); }
+.btn-print-preview { background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
+.btn-print-preview:hover { background: var(--border-light); color: var(--text-main); }
+
+/* SUB-TABS: AS 4 "PÁGINAS" DA ADMISSÃO */
+.adm-subtabs {
+  display: flex;
+  gap: 6px;
+  background: #F1F5F9;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border-strong);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.adm-tab {
+  padding: 7px 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: 0.15s;
+}
+.adm-tab:hover {
+  background: rgba(255,255,255,0.8);
+  color: var(--text-main);
+}
+.adm-tab.active {
+  background: #fff;
+  color: var(--enf-primary);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+}
+
+/* ÁREA DE ROLAGEM COM SEÇÕES */
+.ac-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Seções do Formulário de Enfermagem (NUNCA ENCOLHE NO FLEXBOX) */
+.form-section {
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  flex-shrink: 0 !important; /* REGRA CRUCIAL: impede que o flexbox esmague as seções */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CABEÇALHO CLICÁVEL (ACORDEÃO INTERATIVO) */
+.section-header {
+  background: #F8FAFC;
+  padding: 12px 18px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.2s;
+}
+.section-header:hover {
+  background: var(--enf-light);
+  color: var(--enf-hover);
+}
+.sh-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sh-left i {
+  color: var(--enf-primary);
+  font-size: 16px;
+}
+.sh-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.sh-right i {
+  transition: transform 0.2s ease;
+  font-size: 15px;
+  color: var(--enf-primary);
+}
+
+/* ESTADO RECOLHIDO (COLLAPSED) */
+.form-section.collapsed .section-header {
+  border-bottom: none;
+  background: #F8FAFC;
+}
+.form-section.collapsed .sh-right i {
+  transform: rotate(-90deg);
+}
+.form-section.collapsed .section-body {
+  display: none !important;
+}
+
+/* CORPO DA SEÇÃO */
+.section-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+}
+
+/* Grid Helpers com Responsividade Fluida */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+
+/* Form Elements */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+.form-group label i { color: var(--enf-primary); font-size: 14px; }
+
+.form-control { width: 100%; min-height: 38px; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 13px; background: #FAFAFA; color: var(--text-main); outline: none; transition: 0.2s; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+.form-control:focus { background: #fff; border-color: var(--enf-primary); box-shadow: 0 0 0 3px var(--enf-light); }
+select.form-control { cursor: pointer; height: 38px; }
+textarea.form-control { min-height: 64px; line-height: 1.45; resize: vertical; padding: 10px 12px; }
+
+/* Checkbox & Radio Chips Espaçosos */
+.check-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.check-item { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer; user-select: none; transition: 0.15s; }
+.check-item:hover { background: var(--enf-light); border-color: var(--enf-primary); }
+.check-item input[type="checkbox"], .check-item input[type="radio"] { width: 16px; height: 16px; accent-color: var(--enf-primary); cursor: pointer; margin: 0; }
+.check-item.active { background: var(--enf-light); border-color: var(--enf-primary); font-weight: 600; color: var(--enf-hover); }
+
+/* Condicionais 'somenteSe' */
+.condicional-box { background: var(--enf-light); border: 1px solid var(--enf-badge); padding: 12px 14px; border-radius: 6px; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.condicional-box label { font-size: 12px; font-weight: 700; color: var(--enf-hover); display: flex; align-items: center; gap: 6px; }
+
+/* Rodapé de Ações Universal */
+.ac-footer { padding: 12px 20px; background: #F8FAFC; border-top: 1px solid var(--border-strong); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.btn-cancel { background: #fff; border: 1px solid var(--danger); color: var(--danger); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-cancel:hover { background: var(--danger-light); }
+.btn-save-draft { background: #fff; border: 1px solid var(--primary, #1D4ED8); color: var(--primary, #1D4ED8); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-save-draft:hover { background: #EFF6FF; }
+.btn-save-print { background: var(--primary, #1D4ED8); color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm); transition: 0.2s; }
+.btn-save-print:hover { background: #1E3A8A; box-shadow: var(--shadow-md); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="breadcrumb">
+    <a href="01-painel-leitos-design.html" class="btn-voltar"><i class="ph ph-arrow-left"></i> Painel de Leitos</a>
+    <i class="ph ph-caret-right"></i>
+    <span>Módulo de Enfermagem</span>
+    <i class="ph ph-caret-right"></i>
+    <span class="current">Admissão de Enfermagem</span>
+  </div>
+  <div class="topbar-right">
+    <span class="sys-time"><i class="ph ph-clock"></i> 23/09/2026 — 08:45</span>
+    <div class="top-avatar">
+      <i class="ph ph-stethoscope"></i> Enf. Juliana Ramos (COREN/PA 123.456)
+    </div>
+  </div>
+</header>
+
+<main class="workspace">
+
+  <!-- 1. PATIENT BANNER COM IDENTIFICAÇÃO COMPLETA -->
+  <div class="patient-banner">
+    <div class="pb-main">
+      <div class="pb-left">
+        <div class="pb-header">
+          <span class="pb-name">RAIMUNDO NONATO PEREIRA</span>
+          <span class="pb-badge"><i class="ph ph-shield-check"></i> UPA 24H BREVES</span>
+          <span class="pb-alergia" title="Paciente com alergia a Dipirona"><i class="ph ph-warning"></i> Alergia: Dipirona</span>
+        </div>
+        <div class="pb-meta">
+          <span class="pb-meta-item"><i class="ph ph-identification-card"></i> Reg: <strong>#2026-0891</strong></span>
+          <span class="pb-meta-item"><i class="ph ph-folder"></i> Pront: <strong>#45821</strong></span>
+          <span class="pb-meta-item"><i class="ph ph-user"></i> 64 anos (22/04/1962)</span>
+          <span class="pb-meta-item"><i class="ph ph-gender-male"></i> Masculino</span>
+          <span class="pb-meta-item"><i class="ph ph-heartbeat"></i> <strong>PA:</strong> 150/90 mmHg · <strong>FC:</strong> 88 bpm · <strong>SpO₂:</strong> 97%</span>
+        </div>
+        <div class="pb-hd">
+          <strong>HD Principal:</strong> Suspeita de AVE Isquêmico · Caráter: <strong>Urgência</strong> · Convênio: <strong>SUS</strong>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="pb-leito"><i class="ph ph-bed"></i> Sala Amarela — Leito 03</div>
+        <button class="btn-expand-details" onclick="toggleDetails()">
+          <i class="ph ph-caret-down"></i> <span id="toggle-lbl">Exibir Ficha Completa</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Gaveta de dados cadastrais completos -->
+    <div class="pb-details" id="ficha-oficial">
+      <div class="detail-item"><label>Nome da Mãe</label><span>Maria Auxiliadora Pereira</span></div>
+      <div class="detail-item"><label>RG / CPF</label><span>1234567 PC/PA — 000.000.000-00</span></div>
+      <div class="detail-item"><label>CNS (Cartão SUS)</label><span>898 0001 2345 6789</span></div>
+      <div class="detail-item"><label>Nacionalidade / Raça</label><span>Brasileira · Parda</span></div>
+      <div class="detail-item"><label>Endereço Completo</label><span>Av. Rio Branco, 400 - Centro, Breves/PA</span></div>
+      <div class="detail-item"><label>Telefone Contato</label><span>(91) 98111-2233 (Filha: Ana)</span></div>
+      <div class="detail-item"><label>Data Admissão</label><span>22/09/2026 23:15:00</span></div>
+      <div class="detail-item"><label>Enfermeiro Admissão</label><span>Enf. Juliana Ramos (COREN/PA 123.456)</span></div>
+    </div>
+  </div>
+
+  <!-- 2. CLINICAL TABS ENFERMAGEM (DESMEMBRADO) -->
+  <nav class="clinical-tabs">
+    <a href="08-admissao-enfermagem-design.html" class="tab-btn active"><i class="ph ph-clipboard-text"></i> Admissão</a>
+    <a href="09-evolucao-enfermagem-sae-design.html" class="tab-btn"><i class="ph ph-activity"></i> Evolução SAE</a>
+    <a href="10-checagem-aprazamento-design.html" class="tab-btn"><i class="ph ph-calendar-check"></i> Cardex / Aprazamento</a>
+    <a href="11-balanco-hidrico-design.html" class="tab-btn"><i class="ph ph-drop"></i> Balanço Hídrico 24h</a>
+    <a href="14-transferencia-paciente-design.html" class="tab-btn"><i class="ph ph-ambulance"></i> Transferência SBAR</a>
+    <a href="13-nota-intercorrencia-enfermagem-design.html" class="tab-btn"><i class="ph ph-warning-octagon"></i> Intercorrências</a>
+  </nav>
+
+  <!-- 3. SPLIT VIEW -->
+  <div class="clinical-split">
+
+    <!-- LADO ESQUERDO: RESUMO RÁPIDO & ESCALAS -->
+    <aside class="quick-sidebar" id="sidebar-escalas">
+      <div class="qs-header">
+        <span><i class="ph ph-gauge"></i> Escalas e Protocolos</span>
+        <span style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">Segurança</span>
+      </div>
+      <div class="qs-body">
+        
+        <!-- Escala de Braden (Lesão por Pressão) -->
+        <div class="scale-card">
+          <div class="scale-title">
+            <span>Escala de Braden</span>
+            <span class="scale-badge risco-medio">Score 13 (Moderado)</span>
+          </div>
+          <p class="scale-desc">Recomendada mudança de decúbito a cada 2 horas e hidratação cutânea rigorosa.</p>
+        </div>
+
+        <!-- Escala de Morse (Risco de Queda) -->
+        <div class="scale-card">
+          <div class="scale-title">
+            <span>Escala de Morse (Queda)</span>
+            <span class="scale-badge risco-alto">Score 55 (Alto Risco)</span>
+          </div>
+          <p class="scale-desc">Manter grades bilaterais elevadas, campainha ao alcance e auxílio contínuo em transferências.</p>
+        </div>
+
+        <!-- Dispositivos Ativos -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 11.5px; font-weight: 700; color: var(--text-main); text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+            <i class="ph ph-needle" style="color: var(--enf-primary); font-size: 15px;"></i> Dispositivos Invasivos
+          </label>
+          <div class="device-item">
+            <div><strong>AVP MSD (Jelco 20G)</strong><br><span>Inserção: 22/09 às 23:30</span></div>
+            <span class="scale-badge risco-baixo">Sem flogose</span>
+          </div>
+          <div class="device-item">
+            <div><strong>Cateter Nasal O₂ 2 L/min</strong><br><span>Início: 22/09 às 23:40</span></div>
+            <span class="scale-badge risco-baixo">Pérvio</span>
+          </div>
+        </div>
+
+        <!-- Alergias Registradas -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 11.5px; font-weight: 700; color: var(--text-main); text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+            <i class="ph ph-shield-warning" style="color: var(--danger); font-size: 15px;"></i> Alergias e Restrições
+          </label>
+          <div style="padding: 10px 12px; background: var(--danger-light); border: 1px solid #FECACA; border-radius: 6px; font-size: 12px; color: #991B1B; line-height: 1.4;">
+            <strong>DIPIRONA</strong>: Relato de edema labial e prurido intenso.
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- LADO DIREITO: FORMULÁRIO DE ADMISSÃO DE ENFERMAGEM -->
+    <div class="admissao-card">
+      <div class="ac-header">
+        <div class="ac-title">
+          <h2><i class="ph ph-clipboard-text"></i> Admissão de Enfermagem</h2>
+          <p>Instrumento de sistematização SAE baseado no modelo oficial da UPA 24h Breves.</p>
+        </div>
+        <div class="ac-actions">
+          <button class="btn-toggle-sidebar" onclick="toggleAllSections()" id="btn-toggle-all" title="Expandir ou recolher todas as seções">
+            <i class="ph ph-arrows-in-line-horizontal" id="all-sections-icon"></i> <span id="all-sections-lbl">Recolher Todos</span>
+          </button>
+          <button class="btn-toggle-sidebar" onclick="toggleSidebar()" title="Ocultar/Exibir painel lateral de escalas">
+            <i class="ph ph-sidebar-simple" id="sidebar-icon"></i> <span id="sidebar-lbl">Recolher Painel</span>
+          </button>
+          <a href="../modelos_impressao_html/01-admissao-enfermagem.html" target="_blank" class="btn-print-preview">
+            <i class="ph ph-printer"></i> Visualizar Impresso Oficial
+          </a>
+        </div>
+      </div>
+
+      <!-- SUB-TABS: AS 4 "PÁGINAS" DA ADMISSÃO -->
+      <div class="adm-subtabs">
+        <button class="adm-tab active" onclick="switchAdmView('all', this)" id="tab-all"><i class="ph ph-list-dashes"></i> Ficha Completa (Todas)</button>
+        <button class="adm-tab" onclick="switchAdmView('sec-1', this)" id="tab-sec-1"><i class="ph ph-user-circle"></i> 1. Procedência e Acolhimento</button>
+        <button class="adm-tab" onclick="switchAdmView('sec-2', this)" id="tab-sec-2"><i class="ph ph-heartbeat"></i> 2. Antecedentes e Riscos</button>
+        <button class="adm-tab" onclick="switchAdmView('sec-3', this)" id="tab-sec-3"><i class="ph ph-activity"></i> 3. Exame Físico Céfalo-Podálico</button>
+        <button class="adm-tab" onclick="switchAdmView('sec-4', this)" id="tab-sec-4"><i class="ph ph-check-square"></i> 4. Intervenções Iniciais</button>
+      </div>
+
+      <div class="ac-body" id="admissao-scroll-area">
+
+        <!-- 1. COLETA DE DADOS GERAIS -->
+        <section class="form-section" id="sec-1">
+          <div class="section-header" onclick="toggleSection('sec-1')" title="Clique para expandir ou recolher esta seção">
+            <div class="sh-left">
+              <i class="ph ph-user-circle"></i>
+              <span>1. Procedência e Acolhimento</span>
+            </div>
+            <div class="sh-right">
+              <span class="sh-badge-status">Recolher</span>
+              <i class="ph ph-caret-down"></i>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="grid-3">
+              <div class="form-group">
+                <label><i class="ph ph-map-pin"></i> Procedência</label>
+                <select class="form-control">
+                  <option selected>Demanda Espontânea</option>
+                  <option>SAMU 192</option>
+                  <option>Resgate Corpo de Bombeiros</option>
+                  <option>Transferência Hospitalar</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label><i class="ph ph-users"></i> Acompanhante Presente</label>
+                <input type="text" class="form-control" value="Sim (Filha: Ana Pereira)">
+              </div>
+              <div class="form-group">
+                <label><i class="ph ph-wheelchair"></i> Meio de Chegada</label>
+                <select class="form-control">
+                  <option>Deambulando</option>
+                  <option selected>Cadeira de Rodas</option>
+                  <option>Maca</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label><i class="ph ph-chats-circle"></i> Motivo da Admissão / Queixa Principal (Informada pelo paciente/familiar)</label>
+              <textarea class="form-control" rows="2" placeholder="Descreva a queixa admissional e tempo de início dos sintomas...">Fraqueza súbita em braço e perna direita associada a desvio de rima labial há cerca de 1 hora.</textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; padding-top: 6px;">
+              <button class="btn-toggle-sidebar" onclick="switchAdmView('sec-2', document.getElementById('tab-sec-2'))" style="background: var(--enf-light); color: var(--enf-primary); border-color: var(--enf-primary);">
+                Avançar para Antecedentes <i class="ph ph-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. ANTECEDENTES E FATORES DE RISCO -->
+        <section class="form-section" id="sec-2">
+          <div class="section-header" onclick="toggleSection('sec-2')" title="Clique para expandir ou recolher esta seção">
+            <div class="sh-left">
+              <i class="ph ph-heartbeat"></i>
+              <span>2. Antecedentes e Condições Crônicas</span>
+            </div>
+            <div class="sh-right">
+              <span class="sh-badge-status">Recolher</span>
+              <i class="ph ph-caret-down"></i>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="check-row">
+              <label class="check-item"><input type="checkbox" checked> <i class="ph ph-check-circle" style="color: var(--enf-primary);"></i> Hipertensão Arterial (HAS)</label>
+              <label class="check-item"><input type="checkbox" checked> <i class="ph ph-check-circle" style="color: var(--enf-primary);"></i> Diabetes Mellitus (DM)</label>
+              <label class="check-item"><input type="checkbox"> Cardiopatia / IAM prévio</label>
+              <label class="check-item"><input type="checkbox"> AVE / AVC prévio</label>
+              <label class="check-item"><input type="checkbox"> Insuficiência Renal</label>
+              <label class="check-item"><input type="checkbox"> Tabagismo</label>
+              <label class="check-item"><input type="checkbox"> Etilismo</label>
+              <label class="check-item" style="border-color: #FCA5A5; background: #FEF2F2;"><input type="checkbox" id="check-alergia" checked onchange="toggleAlergia(this)"> <strong style="color: #991B1B;"><i class="ph ph-warning"></i> Possui Alergias?</strong></label>
+            </div>
+
+            <!-- Campo Condicional de Alergia -->
+            <div class="condicional-box" id="box-alergia">
+              <label><i class="ph ph-warning-octagon"></i> Especificar Alergias Conhecidas (Medicamentos, Alimentos, Látex):</label>
+              <input type="text" class="form-control" value="Dipirona sódica (relato de edema labial e prurido intenso)">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; padding-top: 6px;">
+              <button class="btn-toggle-sidebar" onclick="switchAdmView('sec-1', document.getElementById('tab-sec-1'))">
+                <i class="ph ph-arrow-left"></i> Voltar: Procedência
+              </button>
+              <button class="btn-toggle-sidebar" onclick="switchAdmView('sec-3', document.getElementById('tab-sec-3'))" style="background: var(--enf-light); color: var(--enf-primary); border-color: var(--enf-primary);">
+                Avançar para Exame Físico <i class="ph ph-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. EXAME FÍSICO CÉFALO-PODÁLICO ESTRUTURADO -->
+        <section class="form-section" id="sec-3">
+          <div class="section-header" onclick="toggleSection('sec-3')" title="Clique para expandir ou recolher esta seção">
+            <div class="sh-left">
+              <i class="ph ph-activity"></i>
+              <span>3. Exame Físico Céfalo-Podálico</span>
+            </div>
+            <div class="sh-right">
+              <span class="sh-badge-status">Recolher</span>
+              <i class="ph ph-caret-down"></i>
+            </div>
+          </div>
+          <div class="section-body">
+            
+            <!-- Nível de Consciência -->
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                <i class="ph ph-brain" style="color: var(--enf-primary); font-size: 16px;"></i> Estado Neurológico e Nível de Consciência:
+              </label>
+              <div class="check-row">
+                <label class="check-item"><input type="radio" name="consciencia" checked> Consciente / Lúcido</label>
+                <label class="check-item"><input type="radio" name="consciencia"> Sonolento</label>
+                <label class="check-item"><input type="radio" name="consciencia"> Torporoso</label>
+                <label class="check-item"><input type="radio" name="consciencia"> Comatoso</label>
+                <label class="check-item"><input type="radio" name="consciencia"> Agitado / Confuso</label>
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <div class="form-group">
+                <label><i class="ph ph-eye"></i> Pupilas</label>
+                <select class="form-control">
+                  <option selected>Isocóricas e fotorreagentes</option>
+                  <option>Anisocóricas (D > E)</option>
+                  <option>Anisocóricas (E > D)</option>
+                  <option>Midriáticas</option>
+                  <option>Mióticas</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label><i class="ph ph-gauge"></i> Escala de Coma de Glasgow</label>
+                <select class="form-control">
+                  <option selected>15 (AO: 4, MRV: 5, MRM: 6)</option>
+                  <option>14 (AO: 4, MRV: 4, MRM: 6)</option>
+                  <option>13 a 11 (Moderado)</option>
+                  <option>< 9 (Grave - IOT)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label><i class="ph ph-lungs"></i> Padrão Respiratório</label>
+                <select class="form-control" id="padrao-resp" onchange="toggleResp(this)">
+                  <option selected>Eupneico em ar ambiente</option>
+                  <option>Dispneico</option>
+                  <option>Sob Oxigenoterapia (Cateter/Máscara)</option>
+                  <option>Traqueostomizado / Ventilação Mecânica</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Condicional Respiratório -->
+            <div class="condicional-box" id="box-resp" style="display: none;">
+              <label><i class="ph ph-info"></i> Especificar Parâmetros Respiratórios / Suporte O₂:</label>
+              <input type="text" class="form-control" placeholder="Ex: Cateter O2 a 2L/min, SatO2 97%...">
+            </div>
+
+            <!-- Padrão Abdominal & Eliminações -->
+            <div class="grid-2">
+              <div class="form-group">
+                <label><i class="ph ph-shield"></i> Abdome</label>
+                <div class="check-row">
+                  <label class="check-item"><input type="checkbox" checked> Plano</label>
+                  <label class="check-item"><input type="checkbox" checked> Flácido / Indolor</label>
+                  <label class="check-item"><input type="checkbox"> Distendido</label>
+                  <label class="check-item"><input type="checkbox"> RHA Ausentes</label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label><i class="ph ph-drop"></i> Eliminações Urinárias</label>
+                <div class="check-row">
+                  <label class="check-item"><input type="radio" name="elim-urinaria" checked> Espontânea</label>
+                  <label class="check-item"><input type="radio" name="elim-urinaria"> SVD (Foley)</label>
+                  <label class="check-item"><input type="radio" name="elim-urinaria"> Anúria / Oligúria</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Membros e Motilidade com condicional -->
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                <i class="ph ph-person-simple-walk" style="color: var(--enf-primary); font-size: 16px;"></i> Motilidade e Membros:
+              </label>
+              <div class="check-row">
+                <label class="check-item"><input type="radio" name="membros" onchange="document.getElementById('box-membros').style.display='none'"> Preservada / Sem anormalidades</label>
+                <label class="check-item" style="border-color: #FCA5A5; background: #FEF2F2;"><input type="radio" name="membros" checked onchange="document.getElementById('box-membros').style.display='flex'"> <strong style="color: #991B1B;">Com anormalidades (Paresia / Plegia / Edema)</strong></label>
+              </div>
+              <div class="condicional-box" id="box-membros">
+                <label><i class="ph ph-warning"></i> Especificar déficit motor e lateralidade:</label>
+                <textarea class="form-control" rows="2">Hemiparesia proporcionada à direita (grau IV em MSD e MID). Força muscular grau V em dimídio esquerdo.</textarea>
+              </div>
+            </div>
+
+            <!-- Integridade Cutânea -->
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                <i class="ph ph-hand-heart" style="color: var(--enf-primary); font-size: 16px;"></i> Pele e Mucosas:
+              </label>
+              <div class="check-row">
+                <label class="check-item"><input type="checkbox" checked> Íntegra</label>
+                <label class="check-item"><input type="checkbox" checked> Corada e Hidratada</label>
+                <label class="check-item"><input type="checkbox"> Cianose</label>
+                <label class="check-item"><input type="checkbox"> Icterícia</label>
+                <label class="check-item"><input type="checkbox"> Lesão por Pressão (LPP)</label>
+                <label class="check-item"><input type="checkbox"> Hematomas / Escoriações</label>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; padding-top: 6px;">
+              <button class="btn-toggle-sidebar" onclick="switchAdmView('sec-2', document.getElementById('tab-sec-2'))">
+                <i class="ph ph-arrow-left"></i> Voltar: Antecedentes
+              </button>
+              <button class="btn-toggle-sidebar" onclick="switchAdmView('sec-4', document.getElementById('tab-sec-4'))" style="background: var(--enf-light); color: var(--enf-primary); border-color: var(--enf-primary);">
+                Avançar para Intervenções <i class="ph ph-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. CONDUTA E PLANO INICIAL DE ENFERMAGEM -->
+        <section class="form-section" id="sec-4">
+          <div class="section-header" onclick="toggleSection('sec-4')" title="Clique para expandir ou recolher esta seção">
+            <div class="sh-left">
+              <i class="ph ph-check-square"></i>
+              <span>4. Intervenções Iniciais de Enfermagem</span>
+            </div>
+            <div class="sh-right">
+              <span class="sh-badge-status">Recolher</span>
+              <i class="ph ph-caret-down"></i>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="check-row">
+              <label class="check-item"><input type="checkbox" checked> <i class="ph ph-needle" style="color: var(--enf-primary);"></i> Acesso Venoso Periférico Calibroso</label>
+              <label class="check-item"><input type="checkbox" checked> <i class="ph ph-heartbeat" style="color: var(--enf-primary);"></i> Monitorização Cardíaca Contínua</label>
+              <label class="check-item"><input type="checkbox" checked> <i class="ph ph-wave-sine" style="color: var(--enf-primary);"></i> Oximetria de Pulso Contínua</label>
+              <label class="check-item"><input type="checkbox" checked> <i class="ph ph-drop" style="color: var(--enf-primary);"></i> HGT Admissional</label>
+              <label class="check-item"><input type="checkbox" checked> <i class="ph ph-bed" style="color: var(--enf-primary);"></i> Manter Cabeceira Elevada a 30°</label>
+              <label class="check-item"><input type="checkbox" checked> <i class="ph ph-shield-check" style="color: var(--enf-primary);"></i> Grades de Segurança Elevadas</label>
+              <label class="check-item"><input type="checkbox" checked> <i class="ph ph-warning-circle" style="color: var(--danger);"></i> Identificação Alérgica no Leito</label>
+            </div>
+            <div class="form-group" style="margin-top: 6px;">
+              <label><i class="ph ph-note-pencil"></i> Observações Complementares da Admissão</label>
+              <textarea class="form-control" rows="3">Paciente admitido no leito 03 da Sala Amarela, comunicativo com leve disartria. Orientado tempo-espaço. Mantido em repouso absoluto no leito com monitorização multiparâmetros. Coletado exames laboratoriais de rotina e aguarda transporte interno para TC de crânio conforme solicitação médica.</textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-start; padding-top: 6px;">
+              <button class="btn-toggle-sidebar" onclick="switchAdmView('sec-3', document.getElementById('tab-sec-3'))">
+                <i class="ph ph-arrow-left"></i> Voltar: Exame Físico
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RODAPÉ UNIVERSAL -->
+      <footer class="ac-footer">
+        <button class="btn-cancel" onclick="window.history.back()"><i class="ph ph-x-circle"></i> Cancelar</button>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn-save-draft" onclick="alert('Admissão de enfermagem salva como rascunho com sucesso!')"><i class="ph ph-floppy-disk"></i> Salvar</button>
+          <button class="btn-save-print" onclick="alert('Admissão de enfermagem salva e enviada para impressão!'); window.open('../modelos_impressao_html/01-admissao-enfermagem.html', '_blank')"><i class="ph ph-printer"></i> Salvar e Imprimir</button>
+        </div>
+      </footer>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  function toggleDetails() {
+    const ficha = document.getElementById('ficha-oficial');
+    const lbl = document.getElementById('toggle-lbl');
+    if (ficha.style.display === 'none' || ficha.style.display === '') {
+      ficha.style.display = 'grid';
+      lbl.innerText = 'Ocultar Ficha Completa';
+    } else {
+      ficha.style.display = 'none';
+      lbl.innerText = 'Exibir Ficha Completa';
+    }
+  }
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar-escalas');
+    const lbl = document.getElementById('sidebar-lbl');
+    const icon = document.getElementById('sidebar-icon');
+    if (sidebar.classList.contains('collapsed')) {
+      sidebar.classList.remove('collapsed');
+      lbl.innerText = 'Recolher Painel';
+      icon.className = 'ph ph-sidebar-simple';
+    } else {
+      sidebar.classList.add('collapsed');
+      lbl.innerText = 'Expandir Painel';
+      icon.className = 'ph ph-sidebar';
+    }
+  }
+
+  /* Acordeão Interativo para cada Seção */
+  function toggleSection(secId) {
+    const sec = document.getElementById(secId);
+    if (!sec) return;
+    const isCollapsed = sec.classList.toggle('collapsed');
+    const badge = sec.querySelector('.sh-badge-status');
+    if (badge) {
+      badge.innerText = isCollapsed ? 'Expandir' : 'Recolher';
+    }
+  }
+
+  /* Alternância entre as Sub-Páginas / Abas da Admissão */
+  function switchAdmView(viewId, tabBtn) {
+    document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
+    if (tabBtn) tabBtn.classList.add('active');
+
+    const sections = ['sec-1', 'sec-2', 'sec-3', 'sec-4'];
+    if (viewId === 'all') {
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.display = 'flex';
+          el.classList.remove('collapsed');
+          const badge = el.querySelector('.sh-badge-status');
+          if (badge) badge.innerText = 'Recolher';
+        }
+      });
+    } else {
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (id === viewId) {
+            el.style.display = 'flex';
+            el.classList.remove('collapsed');
+            const badge = el.querySelector('.sh-badge-status');
+            if (badge) badge.innerText = 'Recolher';
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            el.style.display = 'none';
+          }
+        }
+      });
+    }
+  }
+
+  /* Expandir / Recolher Todos */
+  let allExpanded = true;
+  function toggleAllSections() {
+    allExpanded = !allExpanded;
+    const sections = ['sec-1', 'sec-2', 'sec-3', 'sec-4'];
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (allExpanded) {
+          el.classList.remove('collapsed');
+          const badge = el.querySelector('.sh-badge-status');
+          if (badge) badge.innerText = 'Recolher';
+        } else {
+          el.classList.add('collapsed');
+          const badge = el.querySelector('.sh-badge-status');
+          if (badge) badge.innerText = 'Expandir';
+        }
+      }
+    });
+    document.getElementById('all-sections-lbl').innerText = allExpanded ? 'Recolher Todos' : 'Expandir Todos';
+    document.getElementById('all-sections-icon').className = allExpanded ? 'ph ph-arrows-in-line-horizontal' : 'ph ph-arrows-out-line-horizontal';
+  }
+
+  function toggleAlergia(cb) {
+    document.getElementById('box-alergia').style.display = cb.checked ? 'flex' : 'none';
+  }
+
+  function toggleResp(sel) {
+    const box = document.getElementById('box-resp');
+    box.style.display = sel.value.includes('Oxigenoterapia') || sel.value.includes('Traqueostomizado') ? 'flex' : 'none';
+  }
+</script>
+
+</body>
+</html>

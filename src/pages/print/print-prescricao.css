@@ -1,0 +1,203 @@
+/* Prescrição Médica — réplica do modelo aprovado (papel A4 paisagem) */
+@media print {
+  .pr-page {
+    page: prescricao;
+  }
+}
+@page prescricao {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+.pr-page {
+  width: 277mm;
+  max-width: 277mm;
+  min-height: 190mm;
+  margin: 0 auto;
+  padding: 8px 14px 6px;
+  font-size: 8.8px;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Fonte fixa (sans-serif) independente do documento que hospeda este
+   cabeçalho — TFD/SER usam Times New Roman no corpo, mas o cabeçalho
+   padrão UPA deve ficar sempre igual, não herdar a fonte do documento. */
+.pr-topo, .pr-titulo, .pr-info { font-family: 'Inter', Arial, Helvetica, sans-serif; }
+.pr-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pr-topo-texto { flex: 1; }
+.pr-topo-texto .nome { font-weight: 700; font-size: 10px; color: #000; letter-spacing: 0.2px; }
+.pr-topo-texto .sub { font-size: 8px; color: #333; line-height: 1.25; margin-top: 1px; }
+.pr-topo-logos { display: flex; align-items: center; gap: 6px; }
+.pr-topo-logos img { height: 25px; width: auto; object-fit: contain; }
+.pr-topo hr, .pr-topo-hr { border: none; border-top: 1px solid #000; margin: 3.5px 0 3px; }
+
+.pr-titulo { text-align: center; font-size: 13px; font-weight: 700; letter-spacing: .04em; margin: 2px 0 4px; text-transform: uppercase; color: #000; }
+
+/* Grade de identificação universal UPA Breves */
+.pr-info { width: 100%; border: 1px solid #777; margin-bottom: 5px; }
+.pr-linha { display: flex; }
+.pr-linha + .pr-linha { border-top: 1px solid #bbb; }
+.pr-campo {
+  border-left: 1px solid #bbb;
+  padding: 2px 5px;
+  font-size: 8.5px;
+  line-height: 1.3;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}
+.pr-campo:first-child { border-left: none; }
+.pr-campo b { font-weight: 700; color: #000; }
+
+.pr-secao-titulo {
+  background: #e2e8f0;
+  border: 1px solid #888;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.5px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+}
+
+table.pr-tabela { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+table.pr-tabela th { background: #f1f5f9; border: 1px solid #94a3b8; font-size: 8.5px; text-align: left; padding: 2.5px 6px; text-transform: uppercase; font-weight: 700; }
+table.pr-tabela td { border-left: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; font-size: 9px; padding: 4px 6px; vertical-align: top; }
+table.pr-tabela td.qtd, table.pr-tabela td.via, table.pr-tabela td.freq, table.pr-tabela td.horario { white-space: nowrap; }
+.pr-nota { font-style: italic; color: #333; font-size: 8.5px; display: block; margin-top: 1px; }
+
+table.pr-tabela-salutem td {
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.pr-caixa { border: 1px solid #888; border-top: none; padding: 5px 8px; min-height: 18px; font-size: 9.2px; line-height: 1.4; background: #fff; }
+
+.pr-assinaturas { display: flex; justify-content: space-between; gap: 14px; margin-top: 25px; }
+.pr-assinaturas .bloco { flex: 1; text-align: center; font-size: 9.5px; }
+.pr-assinaturas .bloco .nome-medico { font-weight: 700; font-size: 10px; display: block; }
+.pr-assinaturas .linha { border-top: 1px solid #333; margin-bottom: 4px; padding-top: 6px; }
+
+.pr-assinaturas-5 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+  padding: 0 4px;
+}
+.pr-assinaturas-5 .bloco {
+  flex: 1;
+  text-align: center;
+  font-size: 8px;
+  line-height: 1.25;
+}
+.pr-assinaturas-5 .bloco .linha {
+  border-top: 1px solid #000;
+  margin-bottom: 2.5px;
+  width: 100%;
+}
+.pr-assinaturas-5 .bloco-medico {
+  flex: 1.4;
+  text-align: center;
+  font-size: 8px;
+  line-height: 1.25;
+}
+.pr-assinaturas-5 .bloco-medico .linha {
+  border-top: 1px solid #000;
+  margin-bottom: 2.5px;
+  width: 100%;
+}
+
+.pr-rodape { display: flex; justify-content: space-between; font-size: 8px; color: #333; margin-top: 6px; border-top: 1px solid #999; padding-top: 3px; }
+
+/* ==============================================================
+   RODAPÉ EXTERNO UNIVERSAL UPA BREVES (FORA DA CAIXA DE CONTEÚDO)
+   Data e Hora no canto esquerdo & Assinatura no canto direito
+   ============================================================== */
+.doc-corpo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.doc-rodape-container {
+  margin-top: auto;
+  width: 100%;
+}
+.doc-rodape-externo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 8px 4px 0 4px;
+  margin-top: 6px;
+}
+.doc-bloco-datahora {
+  font-size: 9.5px;
+  color: #111;
+  line-height: 1.4;
+}
+.doc-bloco-datahora .cidade-data {
+  font-weight: 600;
+  font-size: 10px;
+}
+.doc-bloco-datahora .hora-envio {
+  color: #333;
+  font-size: 9px;
+}
+.doc-bloco-assinatura {
+  text-align: center;
+  min-width: 240px;
+}
+.doc-bloco-assinatura .linha-sig {
+  border-top: 1px solid #000;
+  margin-bottom: 3px;
+}
+.doc-bloco-assinatura .nome-sig {
+  font-weight: 700;
+  font-size: 10px;
+  color: #000;
+}
+.doc-bloco-assinatura .coren-sig,
+.doc-bloco-assinatura .crm-sig {
+  font-size: 8.8px;
+  color: #333;
+}
+.doc-bloco-assinatura .cargo-sig {
+  font-size: 8px;
+  color: #475569;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.doc-rodape-sistema {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #888;
+  padding-top: 2.5px;
+  margin-top: 5px;
+  font-size: 8px;
+  color: #444;
+}
+
+/* Checkboxes fiéis e padronizados */
+.check-box-fiel {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 1px solid #000;
+  text-align: center;
+  line-height: 10px;
+  font-weight: bold;
+  font-size: 8.5px;
+  margin-right: 4px;
+  vertical-align: middle;
+  background: #fff;
+}
+.check-item {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 12px;
+  font-size: 9px;
+}

@@ -32,3 +32,11 @@ dist-ssr
 *.mp4
 *.gif
 *.mov
+
+# Documentos reais de pacientes usados só como referência local de layout —
+# nunca sobem pro repositório.
+/pdfs_exemplo/
+
+# Scripts temporários e raspadores locais
+scratch/
+

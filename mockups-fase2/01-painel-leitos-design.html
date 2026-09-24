@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Leitos — UPA 24h (Enterprise)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  /* Cores da Marca e Menu Lateral */
+  --sidebar-bg: #0B192C; 
+  --sidebar-bg-hover: #152A4A;
+  --sidebar-active: #1D4ED8; 
+  --sidebar-text: #94A3B8; 
+  --sidebar-text-item: #E2E8F0; 
+  
+  /* Cores do App */
+  --bg-app: #F1F5F9; /* Fundo mais suave para contraste dos cards brancos */
+  --bg-surface: #ffffff;
+  --border-light: #E2E8F0;
+  --border-strong: #CBD5E1;
+  
+  --text-main: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+
+  --primary: #1D4ED8;
+  --primary-hover: #1E3A8A;
+  --primary-light: #EFF6FF;
+
+  /* Classificação Manchester Clínico Real */
+  --mc-vermelho: #DC2626;
+  --mc-laranja:  #EA580C;
+  --mc-amarelo:  #EAB308;
+  --mc-verde:    #16A34A;
+  --mc-azul:     #2563EB;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-app); color: var(--text-main); font-size: 14px; height: 100vh; display: flex; overflow: hidden; }
+
+/* Botão Hamburguer Flutuante */
+.floating-btn {
+  position: fixed; top: 14px; left: 16px; z-index: 100; background: transparent; border: none; color: white; cursor: pointer; width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.3s;
+}
+.floating-btn i { font-size: 24px; }
+body.sidebar-collapsed .floating-btn { color: var(--text-secondary); }
+
+/* SIDEBAR (Mesma fundação da Auditoria) */
+.sidebar { width: 280px; margin-left: 0; background: var(--sidebar-bg); display: flex; flex-direction: column; transition: 0.3s ease; flex-shrink: 0; z-index: 50; }
+body.sidebar-collapsed .sidebar { margin-left: -280px; }
+.sidebar-header { height: 64px; display: flex; align-items: center; padding-left: 64px; min-width: 280px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.brand-info h2 { font-size: 16px; font-weight: 700; color: white; letter-spacing: -0.02em; }
+.brand-info span { font-size: 12px; color: var(--sidebar-text); font-weight: 500; }
+.sidebar-nav { flex: 1; padding: 20px 12px; overflow-y: auto; overflow-x: hidden; min-width: 280px; }
+.nav-group-title { font-size: 11px; font-weight: 700; color: var(--sidebar-text); text-transform: uppercase; letter-spacing: 0.08em; margin: 16px 0 8px 12px; }
+.nav-item { display: flex; align-items: center; gap: 14px; padding: 10px 12px; color: var(--sidebar-text-item); text-decoration: none; border-radius: 6px; font-size: 13.5px; font-weight: 500; transition: 0.15s ease; cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; margin-bottom: 4px; }
+.nav-item:hover { background: var(--sidebar-bg-hover); color: white; }
+.nav-item.active { background: var(--sidebar-active); color: white; font-weight: 600; box-shadow: inset 4px 0 0 white; }
+.nav-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; color: var(--sidebar-text); }
+.nav-item:hover .nav-icon, .nav-item.active .nav-icon { color: white; }
+
+/* MAIN E TOPBAR */
+.main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; transition: 0.3s ease; }
+.topbar { height: 64px; background: var(--bg-surface); border-bottom: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 24px; box-shadow: var(--shadow-sm); z-index: 40; transition: 0.3s ease; }
+body.sidebar-collapsed .topbar { padding-left: 64px; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.breadcrumb span.current { color: var(--text-main); font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 20px; }
+.sys-time { font-size: 12px; font-weight: 600; color: var(--text-muted); padding-right: 20px; border-right: 1px solid var(--border-light); }
+.top-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+
+/* -----------------------------------------
+   WORKSPACE - PAINEL DE LEITOS
+----------------------------------------- */
+.workspace { flex: 1; overflow-y: auto; padding: 32px 40px; display: flex; flex-direction: column; }
+.painel-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+.painel-title h1 { font-size: 24px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; letter-spacing: -0.02em; }
+.painel-title p { font-size: 14px; color: var(--text-secondary); }
+
+/* Filtros e Controles */
+.painel-controls { display: flex; gap: 12px; }
+.control-btn { background: var(--bg-surface); border: 1px solid var(--border-strong); padding: 8px 16px; border-radius: 6px; font-size: 13.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm); transition: 0.2s; }
+.control-btn:hover { background: #F8FAFC; border-color: var(--primary); color: var(--primary); }
+.control-btn.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+.search-bar { position: relative; }
+.search-bar i { position: absolute; left: 12px; top: 10px; color: var(--text-muted); font-size: 16px; }
+.search-bar input { width: 280px; padding: 9px 12px 9px 36px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 13.5px; outline: none; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
+.search-bar input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+/* SETORES */
+.setor-section { margin-bottom: 40px; }
+.setor-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border-strong); padding-bottom: 12px; }
+.setor-header h3 { font-size: 16px; font-weight: 700; color: var(--text-main); }
+.setor-badge { background: #E2E8F0; color: var(--text-secondary); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }
+
+/* GRID DE LEITOS */
+.leitos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+
+/* CARDS DE LEITO - ESTILO ENTERPRISE */
+.leito-card {
+  background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px;
+  box-shadow: var(--shadow-sm); position: relative; overflow: hidden; display: flex; flex-direction: column;
+  cursor: pointer; transition: all 0.2s ease;
+}
+.leito-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #94A3B8; }
+
+/* Faixa de Risco (Manchester) no topo */
+.risk-bar { height: 6px; width: 100%; background: var(--text-muted); }
+.risk-vermelho { background: var(--mc-vermelho); }
+.risk-laranja { background: var(--mc-laranja); }
+.risk-amarelo { background: var(--mc-amarelo); }
+.risk-verde { background: var(--mc-verde); }
+.risk-azul { background: var(--mc-azul); }
+
+.leito-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 8px; }
+.leito-numero { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; }
+.leito-status { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.02em;}
+.status-internado { background: #DBEAFE; color: #1E40AF; }
+.status-observacao { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+
+.leito-body { padding: 4px 16px 16px; flex: 1; }
+.paciente-nome { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; line-height: 1.3; }
+.paciente-meta { font-size: 12.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-weight: 500; }
+.paciente-meta i { color: var(--text-muted); font-size: 15px; }
+.paciente-hd { font-size: 12.5px; color: var(--text-secondary); background: #F8FAFC; padding: 10px; border-radius: 6px; border: 1px solid var(--border-light); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+.paciente-hd strong { color: var(--text-main); font-weight: 600; }
+
+.leito-footer { border-top: 1px solid var(--border-light); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; background: #FAFAF9; font-size: 11.5px; color: var(--text-muted); font-weight: 500; }
+.footer-info { display: flex; align-items: center; gap: 6px; }
+.action-btn { background: transparent; border: none; cursor: pointer; font-size: 16px; color: var(--text-muted); transition: 0.2s; }
+.action-btn:hover { color: var(--primary); }
+
+/* LEITO VAZIO */
+.leito-vazio { background: transparent; border: 2px dashed var(--border-strong); box-shadow: none; justify-content: center; align-items: center; padding: 40px 16px; text-align: center; }
+.leito-vazio:hover { border-color: var(--primary); background: var(--primary-light); }
+.leito-vazio .risk-bar { display: none; }
+.vazio-icon { font-size: 32px; color: var(--text-muted); margin-bottom: 12px; transition: 0.2s; }
+.vazio-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; transition: 0.2s; }
+.vazio-subtitle { font-size: 12px; color: var(--text-muted); }
+.leito-vazio:hover .vazio-icon, .leito-vazio:hover .vazio-title { color: var(--primary); }
+
+</style>
+</head>
+<body>
+
+<button class="floating-btn" onclick="toggleSidebar()"><i class="ph ph-list"></i></button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="brand-info">
+      <h2>Passagem de Plantão</h2>
+      <span>UPA 24h · Breves</span>
+    </div>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-group-title">Assistencial</div>
+    <a href="01-painel-leitos-design.html" class="nav-item active"><i class="ph ph-bed nav-icon"></i><span class="nav-text">Painel de Leitos</span></a>
+    <a href="02-recepcao-design.html" class="nav-item"><i class="ph ph-door nav-icon"></i><span class="nav-text">Recepção</span></a>
+    <a href="12-passagem-plantao-design.html" class="nav-item"><i class="ph ph-arrows-clockwise nav-icon"></i><span class="nav-text">Passagem de Plantão</span></a>
+    <button class="nav-item"><i class="ph ph-clock-counter-clockwise nav-icon"></i><span class="nav-text">Histórico</span></button>
+    <button class="nav-item"><i class="ph ph-check-square-offset nav-icon"></i><span class="nav-text">Desfechos</span></button>
+    
+    <div class="nav-group-title">Indicadores</div>
+    <button class="nav-item"><i class="ph ph-chart-bar nav-icon"></i><span class="nav-text">Indicadores Clínicos</span></button>
+
+    <div class="nav-group-title">Equipe</div>
+    <button class="nav-item"><i class="ph ph-chat-circle-dots nav-icon"></i><span class="nav-text">Compartilhar Plantão</span></button>
+    <button class="nav-item"><i class="ph ph-users nav-icon"></i><span class="nav-text">Painel de Equipe</span></button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="breadcrumb">
+        <i class="ph ph-house"></i>
+        <span>Prontuário Eletrônico</span>
+        <i class="ph ph-caret-right"></i>
+        <span class="current">Painel de Leitos</span>
+      </div>
+    </div>
+    
+    <div class="topbar-right">
+      <div class="sys-time"><i class="ph ph-clock"></i> 21/09/2026 22:30</div>
+      <div class="top-avatar">MC</div>
+    </div>
+  </header>
+
+  <div class="workspace">
+    
+    <!-- CABEÇALHO DO PAINEL -->
+    <div class="painel-header">
+      <div class="painel-title">
+        <h1>Painel do Plantão</h1>
+        <p>Visão geral de ocupação, classificação de risco e admissão de pacientes da UPA.</p>
+      </div>
+      <div class="painel-controls">
+        <div class="search-bar">
+          <i class="ph ph-magnifying-glass"></i>
+          <input type="text" placeholder="Buscar paciente ou leito...">
+        </div>
+        <button class="control-btn"><i class="ph ph-funnel"></i> Filtrar</button>
+        <button class="control-btn active"><i class="ph ph-squares-four"></i> Cards</button>
+        <button class="control-btn"><i class="ph ph-list-dashes"></i> Lista</button>
+      </div>
+    </div>
+
+    <!-- SETOR 1: SALA AMARELA -->
+    <section class="setor-section">
+      <div class="setor-header">
+        <h3>Sala Amarela - Observação Adulto</h3>
+        <span class="setor-badge">2/3 Ocupados</span>
+      </div>
+
+      <div class="leitos-grid">
+        
+        <!-- CARD PACIENTE (Amarelo) -->
+        <div class="leito-card">
+          <div class="risk-bar risk-amarelo"></div>
+          <div class="leito-header">
+            <div class="leito-numero"><i class="ph ph-bed"></i> Leito 01</div>
+            <div class="leito-status status-observacao">Observação</div>
+          </div>
+          <div class="leito-body">
+            <div class="paciente-nome">Maria do Socorro da Silva</div>
+            <div class="paciente-meta">
+              <i class="ph ph-identification-card"></i> 45 anos · Feminino
+            </div>
+            <div class="paciente-hd">
+              <strong>HD:</strong> Crise Hipertensiva c/ cefaleia, investigando Dores Torácicas.
+            </div>
+          </div>
+          <div class="leito-footer">
+            <div class="footer-info"><i class="ph ph-clock"></i> Admissão: Hoje, 14:20</div>
+            <button class="action-btn" title="Mais opções"><i class="ph ph-dots-three-vertical"></i></button>
+          </div>
+        </div>
+
+        <!-- CARD PACIENTE (Laranja) -->
+        <div class="leito-card">
+          <div class="risk-bar risk-laranja"></div>
+          <div class="leito-header">
+            <div class="leito-numero"><i class="ph ph-bed"></i> Leito 02</div>
+            <div class="leito-status status-internado">Internado</div>
+          </div>
+          <div class="leito-body">
+            <div class="paciente-nome">João Pereira Souza</div>
+            <div class="paciente-meta">
+              <i class="ph ph-identification-card"></i> 62 anos · Masculino
+            </div>
+            <div class="paciente-hd">
+              <strong>HD:</strong> Suspeita de AVE Isquêmico. Aguardando vaga em leito de UTI via Regulação.
+            </div>
+          </div>
+          <div class="leito-footer">
+            <div class="footer-info"><i class="ph ph-clock"></i> Admissão: Ontem, 23:15</div>
+            <button class="action-btn" title="Mais opções"><i class="ph ph-dots-three-vertical"></i></button>
+          </div>
+        </div>
+
+        <!-- CARD VAZIO -->
+        <div class="leito-card leito-vazio">
+          <i class="ph ph-plus-circle vazio-icon"></i>
+          <div class="vazio-title">Leito 03 (Vazio)</div>
+          <div class="vazio-subtitle">Clique para internar paciente</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SETOR 2: SALA VERMELHA -->
+    <section class="setor-section">
+      <div class="setor-header">
+        <h3>Sala Vermelha - Emergência</h3>
+        <span class="setor-badge">1/2 Ocupados</span>
+      </div>
+      <div class="leitos-grid">
+        
+        <!-- CARD PACIENTE (Vermelho) -->
+        <div class="leito-card">
+          <div class="risk-bar risk-vermelho"></div>
+          <div class="leito-header">
+            <div class="leito-numero"><i class="ph ph-bed"></i> Leito 01 (Emerg.)</div>
+            <div class="leito-status status-internado">Internado</div>
+          </div>
+          <div class="leito-body">
+            <div class="paciente-nome">Paciente Desconhecido (Trauma)</div>
+            <div class="paciente-meta">
+              <i class="ph ph-identification-card"></i> Aprox. 30 anos · Masculino
+            </div>
+            <div class="paciente-hd">
+              <strong>HD:</strong> Politraumatismo grave. Intubado. Aguardando transferência SAMU.
+            </div>
+          </div>
+          <div class="leito-footer">
+            <div class="footer-info"><i class="ph ph-clock"></i> Admissão: Hoje, 21:05</div>
+            <button class="action-btn" title="Mais opções"><i class="ph ph-dots-three-vertical"></i></button>
+          </div>
+        </div>
+
+        <!-- CARD VAZIO -->
+        <div class="leito-card leito-vazio">
+          <i class="ph ph-plus-circle vazio-icon"></i>
+          <div class="vazio-title">Leito 02 (Vazio)</div>
+          <div class="vazio-subtitle">Clique para internar paciente</div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script>
+  function toggleSidebar() {
+    document.body.classList.toggle('sidebar-collapsed');
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protótipo — Design System Vitaloop Clinical UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..800;1,14..32,400..700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Paleta Clínica Proposta */
+  --c-primary: #0E5A8A;
+  --c-primary-hover: #0B4A72;
+  --c-primary-light: #EBF4FA;
+  --c-primary-border: #C2DDF0;
+  --c-primary-dark: #082136;
+
+  /* Superfícies e Fundos Ergonômicos */
+  --c-bg: #F6F8F9;
+  --c-surface: #FFFFFF;
+  --c-surface-raised: #FAFBFB;
+  --c-surface-inset: #EEF2F4;
+  
+  /* Textos com Contraste Balanceado */
+  --c-text-main: #111827;
+  --c-text-secondary: #4B5563;
+  --c-text-muted: #828F9E;
+  
+  /* Bordas Suaves e Sombras Difusas */
+  --c-border: #E2E7EA;
+  --c-border-light: #EFF3F5;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 4px 14px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 16px 36px rgba(8, 33, 54, 0.22);
+
+  /* Semiótica de Urgência & Manchester */
+  --manchester-vermelho: #E02828;
+  --manchester-laranja: #F5781E;
+  --manchester-amarelo: #E8B408;
+  --manchester-verde: #16A34A;
+  --manchester-azul: #2563EB;
+
+  /* Alertas Clínicos */
+  --c-danger: #D92D20;
+  --c-danger-bg: #FEF3F2;
+  --c-danger-border: #FECDCA;
+  --c-warning: #DC6803;
+  --c-warning-bg: #FFFAEB;
+  --c-warning-border: #FEDF89;
+  --c-success: #079455;
+  --c-success-bg: #ECFDF3;
+  --c-success-border: #A6F4C5;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+body { background: var(--c-bg); color: var(--c-text-main); font-size: 13.5px; height: 100vh; overflow: hidden; }
+
+/* Tipografia de Números Tabulares Clínicos */
+.num-tabular {
+  font-feature-settings: "tnum" 1, "cv01" 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Layout Geral */
+.app-layout { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+
+/* 1. Sidebar Retrátil */
+.sidebar {
+  width: 250px;
+  background: var(--c-primary-dark);
+  color: #C2D4E0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  z-index: 20;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+.sidebar.recolhida { width: 64px; }
+
+.sidebar-topo {
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.hamburguer-btn {
+  width: 34px; height: 34px; border-radius: 8px; border: none; background: transparent;
+  color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.hamburguer-btn:hover { background: rgba(255, 255, 255, 0.1); }
+.sidebar-marca { overflow: hidden; white-space: nowrap; }
+.sidebar-marca h2 { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+.sidebar-marca p { font-size: 10.5px; color: #85A3B8; }
+
+.sidebar-menu { flex: 1; overflow-y: auto; padding: 12px 8px; }
+.sidebar-grupo-titulo { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #648196; padding: 14px 10px 6px; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 11px; padding: 9px 10px; border-radius: 7px;
+  color: #B5CBD8; text-decoration: none; border: none; background: transparent; width: 100%;
+  font-size: 13px; cursor: pointer; transition: all 0.15s; text-align: left;
+}
+.sidebar-item:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.sidebar-item.ativo { background: var(--c-primary); color: #fff; font-weight: 600; box-shadow: 0 2px 6px rgba(14, 90, 138, 0.4); }
+.sidebar-item-icone { width: 20px; font-size: 15px; text-align: center; flex-shrink: 0; }
+.sidebar-tag-novo { font-size: 8.5px; font-weight: 700; background: #FDE68A; color: #78350F; padding: 1.5px 6px; border-radius: 6px; margin-left: auto; }
+
+.sidebar.recolhida .sidebar-marca,
+.sidebar.recolhida .sidebar-grupo-titulo,
+.sidebar.recolhida .sidebar-item-texto,
+.sidebar.recolhida .sidebar-tag-novo,
+.sidebar.recolhida .usuario-meta { display: none !important; }
+
+/* Rodapé com Indicador de Conexão */
+.sidebar-rodape {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.status-conexao {
+  display: flex; align-items: center; gap: 7px; font-size: 11px; color: #85A3B8;
+}
+.status-bolinha { width: 7px; height: 7px; border-radius: 50%; background: #10B981; box-shadow: 0 0 6px #10B981; }
+
+/* 2. Área Central de Conteúdo */
+.conteudo-principal { flex: 1; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+
+.barra-superior {
+  height: 62px; background: var(--c-surface); border-bottom: 1px solid var(--c-border);
+  padding: 0 28px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.barra-superior-titulo h1 { font-size: 16px; font-weight: 700; }
+.barra-superior-titulo p { font-size: 11.5px; color: var(--c-text-muted); }
+
+.painel-container { padding: 24px 28px 60px; max-width: 1300px; margin: 0 auto; width: 100%; }
+
+/* 3. Cards do Painel de Leitos com Faixa Manchester Lateral */
+.secao-leitos-titulo {
+  font-size: 13px; font-weight: 700; color: var(--c-text-secondary); text-transform: uppercase;
+  letter-spacing: .04em; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.grade-leitos {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; margin-bottom: 28px;
+}
+
+.card-leito {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  box-shadow: var(--shadow-sm);
+  padding: 14px 16px 14px 20px; /* respiro para a barra Manchester */
+}
+.card-leito:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--c-primary-border);
+}
+
+/* Barra lateral indicadora de risco (Manchester) */
+.card-leito-faixa {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+}
+.card-leito.vermelho .card-leito-faixa { background: var(--manchester-vermelho); }
+.card-leito.laranja .card-leito-faixa { background: var(--manchester-laranja); }
+.card-leito.amarelo .card-leito-faixa { background: var(--manchester-amarelo); }
+.card-leito.verde .card-leito-faixa { background: var(--manchester-verde); }
+
+.card-leito-topo { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.card-leito-numero {
+  font-size: 12px; font-weight: 700; background: var(--c-surface-inset); color: var(--c-text-secondary);
+  padding: 2px 7px; border-radius: 5px;
+}
+.card-leito-tempo { font-size: 11px; color: var(--c-text-muted); display: flex; align-items: center; gap: 4px; }
+.card-leito-tempo.alerta { color: var(--c-warning); font-weight: 600; }
+
+.card-leito-nome { font-size: 14px; font-weight: 700; color: var(--c-text-main); line-height: 1.3; margin-bottom: 4px; }
+.card-leito-diag { font-size: 12px; color: var(--c-text-secondary); margin-bottom: 10px; }
+
+/* Micro-badges de telemetria e dispositivos */
+.card-leito-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.badge-pilula {
+  font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 12px; background: var(--c-surface-inset);
+  color: var(--c-text-secondary);
+}
+.badge-pilula.alergia { background: var(--c-danger-bg); color: var(--c-danger); border: 1px solid var(--c-danger-border); }
+.badge-pilula.sv { background: #F0FDF4; color: #166534; }
+
+/* 4. MODAL ESPAÇO DO PACIENTE — DESIGN REFINADO COM "HUD" */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(8, 33, 54, 0.65); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px;
+}
+.modal-container {
+  background: var(--c-bg); width: 100%; max-width: 1080px; height: 90vh; border-radius: 12px;
+  box-shadow: var(--shadow-lg); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Cabeçalho Clínico Tipo "HUD" */
+.hud-paciente {
+  background: var(--c-primary-dark); color: #fff; padding: 14px 24px; display: flex;
+  align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+}
+.hud-identificacao h2 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.hud-identificacao p { font-size: 11.5px; color: #94AFBF; margin-top: 2px; }
+.hud-telemetria {
+  display: flex; align-items: center; gap: 14px; background: rgba(255, 255, 255, 0.06);
+  padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.hud-dado-vital { display: flex; flex-direction: column; align-items: center; }
+.hud-dado-label { font-size: 9.5px; text-transform: uppercase; color: #85A3B8; font-weight: 600; }
+.hud-dado-val { font-size: 13px; font-weight: 700; color: #fff; }
+
+.modal-fechar {
+  background: transparent; border: none; color: #fff; font-size: 26px; cursor: pointer;
+  opacity: 0.7; padding: 4px 8px; border-radius: 6px; line-height: 1; transition: opacity .15s;
+}
+.modal-fechar:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+
+/* Pilares no estilo Segmented Control */
+.pilares-nav {
+  background: var(--c-surface); border-bottom: 1px solid var(--c-border); padding: 0 24px;
+  display: flex; gap: 6px; flex-shrink: 0;
+}
+.pilar-tab {
+  padding: 12px 18px; cursor: pointer; border-bottom: 3px solid transparent; font-size: 13px;
+  font-weight: 600; color: var(--c-text-secondary); display: flex; align-items: center; gap: 8px;
+  transition: all 0.15s;
+}
+.pilar-tab:hover { color: var(--c-primary); }
+.pilar-tab.ativo { border-bottom-color: var(--c-primary); color: var(--c-primary); }
+.pilar-tag-sub { font-size: 10.5px; color: var(--c-text-muted); font-weight: 400; }
+
+.modal-corpo { flex: 1; overflow-y: auto; padding: 24px 32px 60px; }
+
+/* 5. Ficha Clínica com 4 Macro-sistemas Anatômicos */
+.progresso-exame {
+  background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 8px; padding: 12px 18px;
+  margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between;
+}
+.progresso-rotulo { font-size: 12.5px; font-weight: 600; color: var(--c-text-secondary); }
+.progresso-trilho { width: 140px; height: 6px; background: var(--c-surface-inset); border-radius: 3px; overflow: hidden; }
+.progresso-fill { height: 100%; background: var(--c-primary); width: 65%; border-radius: 3px; }
+
+/* Macro-grupos Anatômicos */
+.macro-grupo { margin-bottom: 20px; }
+.macro-grupo-titulo {
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--c-text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+
+.acordeao-card {
+  background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 8px; margin-bottom: 6px;
+  overflow: hidden; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.acordeao-card.aberto { border-color: var(--c-primary-border); box-shadow: var(--shadow-sm); }
+
+.acordeao-cabecalho {
+  padding: 11px 16px; display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none; background: var(--c-surface); transition: background 0.15s;
+}
+.acordeao-cabecalho:hover { background: var(--c-surface-raised); }
+.acordeao-titulo-esquerda { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; }
+.icone-status { width: 8px; height: 8px; border-radius: 50%; background: var(--c-success); flex-shrink: 0; }
+.icone-status.vazio { background: var(--c-border); }
+
+.acordeao-resumo { font-size: 12px; color: var(--c-text-muted); font-weight: 400; max-width: 360px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+.acordeao-resumo.preenchido { color: var(--c-primary); font-weight: 500; }
+.acordeao-seta { color: var(--c-text-muted); font-size: 11px; transition: transform 0.18s; }
+.acordeao-card.aberto .acordeao-seta { transform: rotate(180deg); color: var(--c-primary); }
+
+.acordeao-corpo { padding: 14px 16px 18px; border-top: 1px solid var(--c-border-light); background: var(--c-surface); }
+.chip-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chip-btn {
+  padding: 6px 12px; border: 1.5px solid var(--c-border); border-radius: 16px; font-size: 12px;
+  color: var(--c-text-secondary); background: var(--c-surface); cursor: pointer; transition: all 0.12s;
+}
+.chip-btn:hover { border-color: var(--c-primary-border); }
+.chip-btn.selecionado { background: var(--c-primary); border-color: var(--c-primary); color: #fff; font-weight: 600; }
+
+.linha-extras { display: flex; gap: 12px; flex-wrap: wrap; }
+.campo-extra { flex: 1; min-width: 140px; }
+.campo-extra label { display: block; font-size: 10.5px; font-weight: 600; color: var(--c-text-muted); text-transform: uppercase; margin-bottom: 4px; }
+.campo-extra input { width: 100%; padding: 7px 10px; border: 1px solid var(--c-border); border-radius: 6px; font-size: 12.5px; }
+
+/* Banner de Notificação de Proposta */
+.banner-proposta {
+  background: var(--c-primary-light); border: 1px solid var(--c-primary-border); border-radius: 10px;
+  padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;
+}
+.banner-proposta b { color: var(--c-primary); }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <!-- 1. SIDEBAR LATERAL RETRÁTIL -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-topo">
+      <button class="hamburguer-btn" onclick="document.getElementById('sidebar').classList.toggle('recolhida')">☰</button>
+      <div class="sidebar-marca">
+        <h2>Vitaloop UPA 24h</h2>
+        <p>Semiologia & Plantão</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+      <div class="sidebar-grupo-titulo">Assistencial</div>
+      <button class="sidebar-item ativo">
+        <span class="sidebar-item-icone">🛏️</span>
+        <span class="sidebar-item-texto">Painel de Leitos</span>
+      </button>
+      <button class="sidebar-item">
+        <span class="sidebar-item-icone">🚪</span>
+        <span class="sidebar-item-texto">Recepção</span>
+        <span class="sidebar-tag-novo">NOVO</span>
+      </button>
+      <button class="sidebar-item">
+        <span class="sidebar-item-icone">⏮️</span>
+        <span class="sidebar-item-texto">Histórico</span>
+      </button>
+      <button class="sidebar-item">
+        <span class="sidebar-item-icone">✅</span>
+        <span class="sidebar-item-texto">Desfechos</span>
+      </button>
+      <button class="sidebar-item">
+        <span class="sidebar-item-icone">⏳</span>
+        <span class="sidebar-item-texto">Pendências</span>
+      </button>
+
+      <div class="sidebar-grupo-titulo">Indicadores</div>
+      <button class="sidebar-item">
+        <span class="sidebar-item-icone">📊</span>
+        <span class="sidebar-item-texto">Indicadores Clínicos</span>
+        <span class="sidebar-tag-novo">NOVO</span>
+      </button>
+
+      <div class="sidebar-grupo-titulo">Equipe</div>
+      <button class="sidebar-item">
+        <span class="sidebar-item-icone">💬</span>
+        <span class="sidebar-item-texto">Passagem Handoff</span>
+      </button>
+      <button class="sidebar-item">
+        <span class="sidebar-item-icone">👥</span>
+        <span class="sidebar-item-texto">Equipe em Turno</span>
+      </button>
+
+      <div class="sidebar-grupo-titulo">Sistema</div>
+      <button class="sidebar-item">
+        <span class="sidebar-item-icone">⚙️</span>
+        <span class="sidebar-item-texto">Minha Conta</span>
+      </button>
+      <button class="sidebar-item">
+        <span class="sidebar-item-icone">🌓</span>
+        <span class="sidebar-item-texto">Modo Noturno</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-rodape">
+      <div class="status-conexao">
+        <span class="status-bolinha"></span>
+        <span class="sidebar-item-texto">Sincronizado em tempo real</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 2. CONTEÚDO PRINCIPAL -->
+  <main class="conteudo-principal">
+    <header class="barra-superior">
+      <div class="barra-superior-titulo">
+        <h1>Painel de Leitos — Sala Vermelha & Observação</h1>
+        <p>Plantão Diurno · 14 leitos ocupados · 2 vagas disponíveis</p>
+      </div>
+      <div>
+        <span style="font-size:12px; color:var(--c-text-secondary); background:var(--c-surface-inset); padding:6px 12px; border-radius:6px; font-weight:600">
+          Enf. Marcus Costa (Plantão Ativo)
+        </span>
+      </div>
+    </header>
+
+    <div class="painel-container">
+      <div class="banner-proposta">
+        <div>
+          <b>Protótipo Interativo da Proposta Visual:</b> Este modelo demonstra as melhorias de <b>faixa lateral Manchester</b> nos leitos, cabeçalho clínico <b>HUD</b> no modal e a divisão dos 26 grupos em <b>4 macro-sistemas anatômicos</b>.
+        </div>
+        <button class="chip-btn selecionado" onclick="abrirModal()">Abrir Espaço do Paciente</button>
+      </div>
+
+      <div class="secao-leitos-titulo">
+        <span>Sala Vermelha (Estabilização & Críticos)</span>
+        <span style="font-size:11.5px; color:var(--c-danger); font-weight:600">3 leitos em alta complexidade</span>
+      </div>
+
+      <!-- GRADE DE LEITOS DEMO -->
+      <div class="grade-leitos">
+        <!-- Leito 01 - Vermelho -->
+        <div class="card-leito vermelho" onclick="abrirModal()">
+          <div class="card-leito-faixa"></div>
+          <div class="card-leito-topo">
+            <span class="card-leito-numero">Leito 01</span>
+            <span class="card-leito-tempo alerta">⏱️ 3 dias</span>
+          </div>
+          <div class="card-leito-nome">Raimundo Gonçalves Alves</div>
+          <div class="card-leito-diag">Choque Séptico · Foco Pulmonar</div>
+          <div class="card-leito-badges">
+            <span class="badge-pilula sv num-tabular">PA 120/80</span>
+            <span class="badge-pilula">AVP</span>
+            <span class="badge-pilula">SVD</span>
+            <span class="badge-pilula">O2 Máscara</span>
+            <span class="badge-pilula alergia">⚠ Dipirona</span>
+          </div>
+        </div>
+
+        <!-- Leito 02 - Laranja -->
+        <div class="card-leito laranja" onclick="abrirModal()">
+          <div class="card-leito-faixa"></div>
+          <div class="card-leito-topo">
+            <span class="card-leito-numero">Leito 02</span>
+            <span class="card-leito-tempo">⏱️ Há 6h</span>
+          </div>
+          <div class="card-leito-nome">Maria Silvana de Castro</div>
+          <div class="card-leito-diag">Insuficiência Cardíaca Descompensada</div>
+          <div class="card-leito-badges">
+            <span class="badge-pilula sv num-tabular">PA 150/95</span>
+            <span class="badge-pilula">AVP</span>
+            <span class="badge-pilula">O2 Cateter</span>
+          </div>
+        </div>
+
+        <!-- Leito 03 - Amarelo -->
+        <div class="card-leito amarelo" onclick="abrirModal()">
+          <div class="card-leito-faixa"></div>
+          <div class="card-leito-topo">
+            <span class="card-leito-numero">Leito 03</span>
+            <span class="card-leito-tempo">⏱️ 1 dia</span>
+          </div>
+          <div class="card-leito-nome">João Batista Pereira</div>
+          <div class="card-leito-diag">Cetoacidose Diabética em compensação</div>
+          <div class="card-leito-badges">
+            <span class="badge-pilula sv num-tabular">Glicemia 240</span>
+            <span class="badge-pilula">AVP</span>
+            <span class="badge-pilula">Sem Alergias</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 3. MODAL COM HUD CLÍNICO E 4 MACRO-SISTEMAS -->
+<div class="modal-overlay" id="modalPaciente" style="display:none">
+  <div class="modal-container">
+    <!-- Topo HUD (Heads-Up Display) -->
+    <div class="hud-paciente">
+      <div class="hud-identificacao">
+        <h2>
+          Raimundo Gonçalves Alves
+          <span style="font-size:11px; background:var(--manchester-vermelho); color:#fff; padding:2px 8px; border-radius:12px; font-weight:700">VERMELHO</span>
+        </h2>
+        <p>Leito 01 · Sala Vermelha · 68 anos · Internado há 3 dias</p>
+      </div>
+
+      <!-- Telemetria Rápida no Topo -->
+      <div class="hud-telemetria">
+        <div class="hud-dado-vital">
+          <span class="hud-dado-label">PA</span>
+          <span class="hud-dado-val num-tabular">120/80</span>
+        </div>
+        <div class="hud-dado-vital">
+          <span class="hud-dado-label">FC</span>
+          <span class="hud-dado-val num-tabular">88 bpm</span>
+        </div>
+        <div class="hud-dado-vital">
+          <span class="hud-dado-label">SpO2</span>
+          <span class="hud-dado-val num-tabular">96%</span>
+        </div>
+        <div class="hud-dado-vital">
+          <span class="hud-dado-label">Glasgow</span>
+          <span class="hud-dado-val num-tabular">15</span>
+        </div>
+      </div>
+
+      <button class="modal-fechar" onclick="fecharModal()">×</button>
+    </div>
+
+    <!-- Barra de Pilares -->
+    <div class="pilares-nav">
+      <div class="pilar-tab" onclick="trocarTab(this)">📋 Passagem de Plantão <span class="pilar-tag-sub">Handoff</span></div>
+      <div class="pilar-tab ativo" onclick="trocarTab(this)">🩺 Prontuário de Enfermagem <span class="pilar-tag-sub">10 seções</span></div>
+      <div class="pilar-tab" onclick="trocarTab(this)">⚕️ Prontuário Médico <span class="pilar-tag-sub">11 seções</span></div>
+    </div>
+
+    <!-- Conteúdo do Prontuário de Enfermagem -->
+    <div class="modal-corpo">
+      <div class="progresso-exame">
+        <div>
+          <div class="progresso-rotulo">Exame Físico da Admissão — Organizado por Sistemas</div>
+          <div style="font-size:11.5px; color:var(--c-text-muted); margin-top:2px">18 de 26 grupos avaliados · Avaliação clínica consistente</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px">
+          <span style="font-size:12px; font-weight:700; color:var(--c-primary)" class="num-tabular">69% concluído</span>
+          <div class="progresso-trilho"><div class="progresso-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- MACRO-SISTEMA 1: NEUROLÓGICO E GERAL -->
+      <div class="macro-grupo">
+        <div class="macro-grupo-titulo">🧠 1. Sistema Neurológico, Sensorial & Geral</div>
+        
+        <div class="acordeao-card aberto">
+          <div class="acordeao-cabecalho" onclick="toggleAcordeao(this)">
+            <div class="acordeao-titulo-esquerda">
+              <span class="icone-status"></span>
+              <span>Avaliação Neurológica & Consciência</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px">
+              <span class="acordeao-resumo preenchido">Consciente, Orientado · Glasgow 15</span>
+              <span class="acordeao-seta">▾</span>
+            </div>
+          </div>
+          <div class="acordeao-corpo">
+            <div class="chip-grid">
+              <button class="chip-btn selecionado">Consciente</button>
+              <button class="chip-btn selecionado">Orientado</button>
+              <button class="chip-btn">Vigil</button>
+              <button class="chip-btn">Torporoso</button>
+              <button class="chip-btn">Letárgico</button>
+              <button class="chip-btn">Comatoso</button>
+              <button class="chip-btn">Sedado</button>
+            </div>
+            <div class="linha-extras">
+              <div class="campo-extra"><label>Escala de Glasgow</label><input value="15" class="num-tabular"></div>
+              <div class="campo-extra"><label>Escala de RASS (Sedação)</label><input placeholder="ex: 0, -1, -2" class="num-tabular"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acordeao-card">
+          <div class="acordeao-cabecalho" onclick="toggleAcordeao(this)">
+            <div class="acordeao-titulo-esquerda">
+              <span class="icone-status"></span>
+              <span>Pupilas & Reflexos</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px">
+              <span class="acordeao-resumo preenchido">Fotoreagentes, Isocóricas</span>
+              <span class="acordeao-seta">▾</span>
+            </div>
+          </div>
+          <div class="acordeao-corpo" style="display:none">
+            <div class="chip-grid">
+              <button class="chip-btn selecionado">Fotoreagentes</button>
+              <button class="chip-btn selecionado">Isocóricas</button>
+              <button class="chip-btn">Anisocóricas</button>
+              <button class="chip-btn">Miose</button>
+              <button class="chip-btn">Midríase</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MACRO-SISTEMA 2: RESPIRATÓRIO E CARDIOVASCULAR -->
+      <div class="macro-grupo">
+        <div class="macro-grupo-titulo">🫁 2. Sistema Respiratório & Cardiovascular</div>
+        
+        <div class="acordeao-card">
+          <div class="acordeao-cabecalho" onclick="toggleAcordeao(this)">
+            <div class="acordeao-titulo-esquerda">
+              <span class="icone-status"></span>
+              <span>Padrão Respiratório & Ventilação</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px">
+              <span class="acordeao-resumo preenchido">Eupnéico · Máscara de Venturi</span>
+              <span class="acordeao-seta">▾</span>
+            </div>
+          </div>
+          <div class="acordeao-corpo" style="display:none">
+            <div class="chip-grid">
+              <button class="chip-btn selecionado">Eupnéico</button>
+              <button class="chip-btn">Dispnéico</button>
+              <button class="chip-btn">Taquipnéico</button>
+              <button class="chip-btn selecionado">Máscara de Venturi</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="acordeao-card">
+          <div class="acordeao-cabecalho" onclick="toggleAcordeao(this)">
+            <div class="acordeao-titulo-esquerda">
+              <span class="icone-status vazio"></span>
+              <span>Frequência Cardíaca, Ritmo & Bulhas</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px">
+              <span class="acordeao-resumo">Não preenchido</span>
+              <span class="acordeao-seta">▾</span>
+            </div>
+          </div>
+          <div class="acordeao-corpo" style="display:none">
+            <div class="chip-grid">
+              <button class="chip-btn">Normocárdico</button>
+              <button class="chip-btn">Taquicárdico</button>
+              <button class="chip-btn">Rítmico</button>
+              <button class="chip-btn">Normofonéticas</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MACRO-SISTEMA 3: DIGESTIVO, RENAL E METABÓLICO -->
+      <div class="macro-grupo">
+        <div class="macro-grupo-titulo">🩺 3. Abdome, Nutrição & Eliminações</div>
+        
+        <div class="acordeao-card">
+          <div class="acordeao-cabecalho" onclick="toggleAcordeao(this)">
+            <div class="acordeao-titulo-esquerda">
+              <span class="icone-status"></span>
+              <span>Sistema Urinário & Eliminação</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px">
+              <span class="acordeao-resumo preenchido">SVD (Sonda Vesical de Demora)</span>
+              <span class="acordeao-seta">▾</span>
+            </div>
+          </div>
+          <div class="acordeao-corpo" style="display:none">
+            <div class="chip-grid">
+              <button class="chip-btn">Diurese espontânea</button>
+              <button class="chip-btn selecionado">SVD</button>
+              <button class="chip-btn">Fralda descartável</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MACRO-SISTEMA 4: PELE E EXTREMIDADES -->
+      <div class="macro-grupo">
+        <div class="macro-grupo-titulo">🦵 4. Pele, Integridade Cutânea & Membros</div>
+        
+        <div class="acordeao-card">
+          <div class="acordeao-cabecalho" onclick="toggleAcordeao(this)">
+            <div class="acordeao-titulo-esquerda">
+              <span class="icone-status vazio"></span>
+              <span>Pele / Tecidos / Hidratação</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px">
+              <span class="acordeao-resumo">Não preenchido</span>
+              <span class="acordeao-seta">▾</span>
+            </div>
+          </div>
+          <div class="acordeao-corpo" style="display:none">
+            <div class="chip-grid">
+              <button class="chip-btn">Normocorada</button>
+              <button class="chip-btn">Hidratada</button>
+              <button class="chip-btn">Hipocorada</button>
+              <button class="chip-btn">Ictérica</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function abrirModal() {
+  document.getElementById('modalPaciente').style.display = 'flex';
+}
+function fecharModal() {
+  document.getElementById('modalPaciente').style.display = 'none';
+}
+function toggleAcordeao(el) {
+  const card = el.closest('.acordeao-card');
+  const corpo = card.querySelector('.acordeao-corpo');
+  const aberto = card.classList.contains('aberto');
+  if (aberto) {
+    card.classList.remove('aberto');
+    corpo.style.display = 'none';
+  } else {
+    card.classList.add('aberto');
+    corpo.style.display = 'block';
+  }
+}
+function trocarTab(el) {
+  document.querySelectorAll('.pilar-tab').forEach(t => t.classList.remove('ativo'));
+  el.classList.add('ativo');
+}
+</script>
+
+</body>
+</html>

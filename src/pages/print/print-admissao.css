@@ -1,0 +1,336 @@
+/* Réplica da "Ficha de Admissão" real da UPA Breves (papel timbrado simples:
+   nome do paciente, duas datas, caixas de rótulo-no-canto para cada campo
+   clínico, assinatura) — bem diferente do layout burocrático da AIH. */
+.doc2-page {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 11px;
+  color: #111;
+}
+
+.doc2-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.doc2-header img {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+}
+
+.doc2-header-texto {
+  text-align: center;
+}
+
+.doc2-header-texto .orgao {
+  font-size: 11px;
+}
+
+.doc2-header-titulo {
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  margin-top: 2px;
+}
+
+.doc2-nome-box {
+  border: 1px solid #000;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px;
+  margin-bottom: 4px;
+}
+
+.doc2-datas {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.doc2-datas > div {
+  border: 1px solid #000;
+  flex: 1;
+  padding: 3px 8px 5px;
+  position: relative;
+}
+
+.doc2-datas .rotulo {
+  font-size: 8.5px;
+  color: #333;
+  display: block;
+}
+
+.doc2-datas .valor {
+  font-size: 12px;
+}
+
+/* Linha com 2 caixas lado a lado — usada pra agrupar campos de resposta
+   curta (Queixa Principal, Antecedentes, Revisão de Sistemas, Hipótese
+   Diagnóstica), pra não empilhar tudo em largura total sem necessidade. */
+.doc2-linha-dupla {
+  display: flex;
+  gap: 10px;
+}
+
+.doc2-linha-dupla > .doc2-caixa {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Caixa com rótulo no canto superior esquerdo + linha à direita — igual ao
+   "HISTORIA DA DOENÇA ATUAL" / "CONDUTA" do papel real. */
+.doc2-caixa {
+  border: 1px solid #000;
+  padding: 5px 8px 8px;
+  margin-bottom: 10px;
+}
+
+.doc2-caixa .doc2-caixa-titulo {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.doc2-caixa .doc2-caixa-titulo::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid #000;
+}
+
+.doc2-caixa .doc2-caixa-valor {
+  font-size: 11px;
+  white-space: pre-wrap;
+  min-height: 20px;
+  line-height: 1.35;
+}
+
+.doc2-caixa.grande .doc2-caixa-valor {
+  min-height: 70px;
+}
+
+.doc2-assinatura {
+  text-align: right;
+  margin-top: 30px;
+  font-size: 10.5px;
+}
+
+.doc2-assinatura .linha {
+  border-top: 1px solid #333;
+  width: 260px;
+  margin: 0 0 4px auto;
+}
+
+.doc2-rodape {
+  text-align: center;
+  font-size: 9px;
+  color: #444;
+  margin-top: 14px;
+}
+
+/* Admissão Médica — réplica fiel do modelo de referência aprovado
+   (admissao_medica_pep_A4.html): caixa única de dados administrativos,
+   4 blocos de texto livre e assinatura, sem checkboxes nem tabelas. */
+@media print {
+  .admf-document { page: admissao; }
+}
+@page admissao {
+  size: A4;
+  margin: 10mm 12mm 9mm;
+}
+
+.admf-document {
+  --admf-ice: #e2e8f0;
+  --admf-ice2: #f1f5f9;
+  --admf-border: #94a3b8;
+  --admf-dark: #0f172a;
+  --admf-mid: #475569;
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9.5px;
+  color: var(--admf-dark);
+}
+
+.admf-header { margin-bottom: 4mm; }
+
+/* Camada 1 — identidade institucional: timbre fino, sem caixa, mesmo
+   padrão já validado na Prescrição Médica. */
+.admf-topo { display: flex; align-items: center; gap: 6mm; padding-bottom: 2mm; border-bottom: 1.5px solid var(--admf-dark); }
+.admf-topo-texto { flex: 1; }
+.admf-topo-texto .nome { font-weight: 700; font-size: 9px; }
+.admf-topo-texto .sub { font-size: 7.5px; color: var(--admf-mid); margin-top: .5mm; }
+.admf-topo-logos { display: flex; align-items: center; gap: 5mm; }
+.admf-topo-logos img { height: 7mm; width: auto; object-fit: contain; }
+
+/* Camada 2 — título do documento, isolado e centralizado. */
+.admf-titulo { display: flex; align-items: baseline; justify-content: center; margin: 2.5mm 0; }
+.admf-titulo h1 { font-size: 14px; letter-spacing: .3px; margin: 0; font-weight: 700; }
+
+/* Variante empilhada (título + tag PEP centralizados um sob o outro),
+   usada quando o documento mantém a etiqueta "PEP — ..." junto ao título. */
+.admf-titulo-empilhado { flex-direction: column; align-items: center; gap: 1mm; text-align: center; }
+.admf-titulo-empilhado .admf-pep { font-size: 7.5px; color: var(--admf-mid); text-transform: uppercase; letter-spacing: .03em; }
+
+/* Cabeçalho padrão UPA — reutilizável em documentos que não usam
+   .admf-document (ex.: TFD, Atualização de Quadro Clínico), mantendo o
+   corpo do documento na fonte/estilo próprios (serifada, bureaucrática).
+   Define as mesmas variáveis de cor localmente para reaproveitar
+   .admf-topo / .admf-titulo sem depender do restante do sistema admf-*.
+   Exceção: APAC, Solicitação de Sangue (hemoterápico), SINAN e AIH mantêm
+   o cabeçalho bureaucrático original — não usam esta classe. */
+.doc-cabecalho-upa {
+  --admf-ice: #e9edf0;
+  --admf-ice2: #f4f6f7;
+  --admf-border: #aeb6bc;
+  --admf-dark: #263238;
+  --admf-mid: #5f6b72;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--admf-dark);
+  margin-bottom: 4mm;
+}
+.doc-cabecalho-upa .admf-titulo-numero { text-align: right; font-size: 8px; color: var(--admf-mid); margin-top: -1.5mm; }
+
+/* Camada 3 — paciente em destaque: nome grande + os 4 dados que
+   qualquer profissional precisa achar em 1 segundo. */
+.admf-paciente {
+  background: var(--admf-ice2);
+  border: 1px solid var(--admf-border);
+  border-radius: 3px;
+  padding: 2.2mm 4mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4mm;
+  margin-bottom: 2.5mm;
+}
+.admf-paciente-nome { font-size: 11.5px; font-weight: 700; }
+.admf-paciente-tags { display: flex; gap: 6mm; flex-wrap: wrap; font-size: 8px; align-items: baseline; }
+.admf-paciente-tags b { font-weight: 700; color: var(--admf-mid); text-transform: uppercase; letter-spacing: .02em; margin-right: 1.2mm; }
+
+/* Camada 4 — dados administrativos secundários: densos, discretos,
+   rebaixados visualmente (fonte menor, cor neutra) em relação à
+   camada 3, mas nenhum campo do modelo de referência foi removido. */
+.admf-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 5mm;
+  row-gap: 1.6mm;
+  font-size: 7.3px;
+  color: var(--admf-mid);
+  line-height: 1.3;
+}
+
+.admf-mi { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admf-mi b { font-weight: 700; color: var(--admf-dark); margin-right: 1mm; }
+.admf-mi-full { grid-column: 1 / -1; white-space: normal; }
+
+.admf-section {
+  border: 1px solid var(--admf-border);
+  border-radius: 3px;
+  background: #fff;
+  margin-bottom: 4mm;
+  overflow: hidden;
+}
+
+.admf-section-title {
+  background: var(--admf-ice);
+  font-weight: 700;
+  font-size: 9.5px;
+  padding: 2.1mm 3mm;
+  letter-spacing: .05px;
+}
+
+.admf-section-body { padding: 3mm; }
+
+.admf-textbox {
+  width: 100%;
+  font: inherit;
+  color: var(--admf-dark);
+  background: #fff;
+  border: 1px solid var(--admf-border);
+  border-radius: 2px;
+  padding: 2mm;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  box-sizing: border-box;
+}
+
+.admf-hda { min-height: 31mm; }
+.admf-ante { min-height: 24mm; }
+.admf-exam { min-height: 32mm; }
+.admf-plan { min-height: 31mm; }
+
+.admf-clinical-grid { display: grid; grid-template-columns: 59% 41%; gap: 3mm; }
+
+.admf-vitals {
+  background: var(--admf-ice2);
+  border: 1px solid #d4dade;
+  border-radius: 2px;
+  padding: 3mm;
+}
+
+.admf-vitals-title { font-weight: 700; font-size: 8.5px; margin-bottom: 3mm; }
+.admf-vgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2mm 3mm; font-size: 8px; }
+.admf-vfield { display: flex; align-items: baseline; gap: 1mm; }
+.admf-vfield > b { white-space: nowrap; }
+.admf-vval {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 1px solid var(--admf-dark);
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.admf-unit { font-size: 7px; }
+
+.admf-reg { margin-top: 3mm; display: flex; align-items: baseline; gap: 1.5mm; font-size: 8px; }
+.admf-vval-wide { flex: 1; min-width: 0; }
+
+/* Bloco final — texto "Cidade/UF, [data] por extenso." à esquerda e caixa
+   de assinatura com espaço pra carimbar à direita, igual ao modelo em PDF. */
+.admf-assinatura {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 6mm;
+  font-size: 9.5px;
+}
+
+.admf-assinatura-texto {
+  padding-bottom: 2mm;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.admf-assinatura-caixa {
+  min-width: 65mm;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.admf-sigline { border-bottom: 1px solid #000; height: 8mm; margin-bottom: 3px; }
+.admf-sig-caption { text-align: center; font-size: 10px; font-weight: 700; color: #000; }
+.admf-sig-crm { text-align: center; font-size: 8.8px; color: #333; margin-top: 1px; }
+
+.admf-footer {
+  border-top: 1px solid #888;
+  margin-top: 4mm;
+  padding-top: 2mm;
+  display: flex;
+  justify-content: space-between;
+  color: #444;
+  font-size: 8px;
+}

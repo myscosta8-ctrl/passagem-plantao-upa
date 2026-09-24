@@ -8,6 +8,7 @@
     "build": "vite build",
     "test": "node scripts/test-runner.js",
     "lint": "oxlint",
+    "db:migrate": "node scripts/migrate.js",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import PassagemForm from './PassagemForm'
 import FichaClinica from './FichaClinica'
 import FichaMedica from './FichaMedica'
@@ -28,7 +28,6 @@ export default function EspacoPaciente({
   setorNome,
   plantaoId,
   enfermeiroId,
-  enfermeiro,
   onFechar,
   onSalvo,
   onRealocar,

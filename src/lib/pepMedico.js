@@ -1,5 +1,5 @@
-import { supabase } from './supabaseClient'
-import { calcularIdade, registrarEventoAuditoria } from './pepAtendimentos'
+import { supabase } from './supabaseClient.js'
+import { calcularIdade, registrarEventoAuditoria } from './pepAtendimentos.js'
 
 // Camada de dados do módulo médico (Fase 1 do PEP). Só existe sobre a estrutura
 // nova (pessoas/atendimentos/leito_ocupacoes) — diferente do resto do app, não
@@ -53,24 +53,45 @@ export async function listarConsultas(atendimentoId) {
 }
 
 export async function criarConsulta({ atendimentoId, pessoaId, medicoId, dados }) {
+  // Só os 6 campos originais vivem como coluna própria — o restante do
+  // formulário de Admissão Médica (identificação do atendimento, alergias,
+  // medicamentos em uso, antecedentes, sinais vitais, exame físico
+  // estruturado, hipóteses CID-10, conduta, exames, classificação de risco,
+  // destino) fica em campos_admissao (jsonb), mesmo padrão da AIH.
+  const {
+    queixa_principal, historia_doenca_atual, antecedentes,
+    revisao_sistemas, exame_geral, hipotese_diagnostica, conduta_inicial,
+    ...extras
+  } = dados
   return supabase.from('consultas_medicas').insert({
     atendimento_id: atendimentoId,
     pessoa_id: pessoaId,
     medico_id: medicoId,
-    ...dados,
+    queixa_principal: queixa_principal || null,
+    historia_doenca_atual: historia_doenca_atual || null,
+    antecedentes: antecedentes || null,
+    revisao_sistemas: revisao_sistemas || null,
+    exame_geral: exame_geral || null,
+    hipotese_diagnostica: hipotese_diagnostica || null,
+    conduta_inicial: conduta_inicial || null,
+    campos_admissao: extras,
   }).select().single()
 }
 
 export async function listarPrescricoes(atendimentoId) {
-  const { data } = await supabase
+  // prescricoes_medicas tem 2 FKs pra enfermeiros (medico_id e cancelado_por) —
+  // precisa do hint explícito, senão o PostgREST recusa o embed por ambiguidade
+  // e a consulta inteira falha (silenciosamente, porque só usamos `data ?? []`).
+  const { data, error } = await supabase
     .from('prescricoes_medicas')
-    .select('*, enfermeiros(nome_exibicao, nome, crm), prescricao_itens(*)')
+    .select('*, enfermeiros!prescricoes_medicas_medico_id_fkey(nome_exibicao, nome, crm), prescricao_itens(*)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (error) console.error('Erro ao listar prescrições:', error)
   return data ?? []
 }
 
-export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens }) {
+export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao }) {
   const { data: prescricao, error } = await supabase
     .from('prescricoes_medicas')
     .insert({
@@ -79,6 +100,7 @@ export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consu
       medico_id: medicoId,
       consulta_id: consultaId || null,
       observacoes: observacoes || null,
+      campos_prescricao: camposPrescricao || {},
     })
     .select()
     .single()
@@ -99,11 +121,14 @@ export async function cancelarPrescricao(prescricaoId, medicoId, motivo) {
 }
 
 export async function listarAih(atendimentoId) {
-  const { data } = await supabase
+  // aih_solicitacoes tem 2 FKs pra enfermeiros (solicitante_id e encerrado_por) —
+  // mesmo problema de listarPrescricoes, precisa do hint explícito.
+  const { data, error } = await supabase
     .from('aih_solicitacoes')
-    .select('*, enfermeiros(nome_exibicao, nome, crm), cid_catalog!aih_solicitacoes_cid_principal_fkey(codigo, descricao)')
+    .select('*, enfermeiros!aih_solicitacoes_solicitante_id_fkey(nome_exibicao, nome, crm), cid_catalog!aih_solicitacoes_cid_principal_fkey(codigo, descricao)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (error) console.error('Erro ao listar AIH:', error)
   return data ?? []
 }
 
@@ -127,11 +152,25 @@ export async function buscarCabecalhoImpressao(atendimentoId) {
 }
 
 export async function criarAih({ atendimentoId, pessoaId, solicitanteId, dados }) {
+  // Só procedimento/CID vivem como coluna própria — o resto dos campos do
+  // formulário oficial do SUS (sinais clínicos, diagnóstico inicial, clínica,
+  // caráter da internação etc.) fica em campos_formulario (jsonb) pra não
+  // precisar de migration a cada campo novo do laudo.
+  const {
+    procedimento_principal_nome, procedimento_principal_codigo, procedimento_secundario_codigo,
+    cid_principal, cid_secundario,
+    ...extras
+  } = dados
   return supabase.from('aih_solicitacoes').insert({
     atendimento_id: atendimentoId,
     pessoa_id: pessoaId,
     solicitante_id: solicitanteId,
-    ...dados,
+    procedimento_principal_nome: procedimento_principal_nome || null,
+    procedimento_principal_codigo: procedimento_principal_codigo || null,
+    procedimento_secundario_codigo: procedimento_secundario_codigo || null,
+    cid_principal: cid_principal || null,
+    cid_secundario: cid_secundario || null,
+    campos_formulario: extras,
   }).select().single()
 }
 
@@ -243,6 +282,25 @@ export async function salvarPlanoTerapeutico({ atendimentoId, criadoPor, dados }
   return supabase.from('planos_terapeuticos').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
 }
 
+// ===================== Sumário de alta (no máximo um por atendimento) =====================
+
+export async function buscarSumarioAlta(atendimentoId) {
+  const { data } = await supabase
+    .from('sumarios_alta')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .maybeSingle()
+  return data
+}
+
+export async function salvarSumarioAlta({ atendimentoId, criadoPor, dados }) {
+  const existente = await buscarSumarioAlta(atendimentoId)
+  if (existente) {
+    return supabase.from('sumarios_alta').update({ ...dados, atualizado_em: new Date().toISOString() }).eq('id', existente.id).select().single()
+  }
+  return supabase.from('sumarios_alta').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
 // ===================== APAC =====================
 
 export async function listarApac(atendimentoId) {
@@ -286,6 +344,85 @@ export async function listarTfd(atendimentoId) {
 
 export async function criarTfd({ atendimentoId, profissionalResponsavel, dados }) {
   return supabase.from('tfd_solicitacoes').insert({ atendimento_id: atendimentoId, profissional_responsavel: profissionalResponsavel, ...dados }).select().single()
+}
+
+// ===================== Evolução Médica Diária =====================
+
+export async function listarEvolucoesMedicas(atendimentoId) {
+  const { data } = await supabase
+    .from('evolucoes_medicas')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarEvolucaoMedica({ atendimentoId, criadoPor, dados }) {
+  return supabase.from('evolucoes_medicas').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
+// ===================== Admissão de Enfermagem (Histórico de Enfermagem) — no máximo um por atendimento =====================
+
+export async function buscarHistoricoEnfermagem(atendimentoId) {
+  const { data } = await supabase
+    .from('historico_enfermagem')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .maybeSingle()
+  return data
+}
+
+export async function salvarHistoricoEnfermagem({ atendimentoId, criadoPor, dados }) {
+  const existente = await buscarHistoricoEnfermagem(atendimentoId)
+  if (existente) {
+    return supabase.from('historico_enfermagem').update({ ...dados, atualizado_em: new Date().toISOString() }).eq('id', existente.id).select().single()
+  }
+  return supabase.from('historico_enfermagem').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
+// ===================== Nota de Intercorrência Médica =====================
+
+export async function listarNotasIntercorrenciaMedica(atendimentoId) {
+  const { data } = await supabase
+    .from('notas_intercorrencia_medica')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarNotaIntercorrenciaMedica({ atendimentoId, criadoPor, dados }) {
+  return supabase.from('notas_intercorrencia_medica').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
+// ===================== Receituário Médico =====================
+
+export async function listarReceitasMedicas(atendimentoId) {
+  const { data } = await supabase
+    .from('receitas_medicas')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarReceitaMedica({ atendimentoId, criadoPor, dados }) {
+  return supabase.from('receitas_medicas').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
+// ===================== Solicitação de Sangue, Componentes e Derivados (Hemopa) =====================
+
+export async function listarSolicitacoesSangue(atendimentoId) {
+  const { data } = await supabase
+    .from('solicitacoes_sangue')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarSolicitacaoSangue({ atendimentoId, solicitadoPor, dados }) {
+  return supabase.from('solicitacoes_sangue').insert({ atendimento_id: atendimentoId, solicitado_por: solicitadoPor, ...dados }).select().single()
 }
 
 // ===================== Atualizações de regulação (SER/SISREG) =====================

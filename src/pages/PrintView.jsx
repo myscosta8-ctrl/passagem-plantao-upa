@@ -105,7 +105,6 @@ export default function PrintView({ plantao, grupo, onVoltar, viaHistorico }) {
                       leito={leito}
                       paciente={dados.pacientePorLeito[leito.id]}
                       passagem={dados.passagemPorPaciente[dados.pacientePorLeito[leito.id].id]}
-                      plantaoAtualId={plantao.id}
                     />
                   ))}
                 </div>
@@ -118,9 +117,8 @@ export default function PrintView({ plantao, grupo, onVoltar, viaHistorico }) {
   )
 }
 
-function CardPaciente({ leito, paciente, passagem, plantaoAtualId }) {
+function CardPaciente({ leito, paciente, passagem }) {
   const p = passagem ?? {}
-  const desatualizado = p.plantao_id && p.plantao_id !== plantaoAtualId
   const linhas = []
 
   linhas.push(<div className="linha" key="dg"><span className="rotulo">HD:</span> {paciente.diagnostico || '(sem diagnóstico registrado)'}</div>)
@@ -194,7 +192,6 @@ function CardPaciente({ leito, paciente, passagem, plantaoAtualId }) {
   return (
     <div className="print-card">
       <b>Leito {leito.numero} — {paciente.nome} ({paciente.status_internacao === 'Internado' ? 'INT' : 'OBS'})</b>
-      {desatualizado && <div className="linha aviso-desatualizado">⚠ Não revisado neste plantão — dado do plantão anterior</div>}
       {linhas}
     </div>
   )

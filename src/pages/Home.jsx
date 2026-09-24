@@ -1,22 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import Painel from './Painel'
-import PrintView from './PrintView'
-import Historico from './Historico'
-import Ajuda from './Ajuda'
-import MinhaConta from './MinhaConta'
-import AltasRecentes from './AltasRecentes'
-import Pendencias from './Pendencias'
-import IndicadoresPainel from './IndicadoresPainel'
-import CompartilharPlantao from './CompartilharPlantao'
 import ConfirmModal from './ConfirmModal'
-import PainelEquipe from './PainelEquipe'
-import GerenciarProfissionais from './GerenciarProfissionais'
-import PainelMedico from './PainelMedico'
-import CadastroPacientes from './CadastroPacientes'
 import Sidebar from '../components/Sidebar'
 import './AberturaPlantao.css'
+
+// Telas carregadas sob demanda via React.lazy (Code-Splitting)
+const PrintView = lazy(() => import('./PrintView'))
+const Historico = lazy(() => import('./Historico'))
+const Ajuda = lazy(() => import('./Ajuda'))
+const MinhaConta = lazy(() => import('./MinhaConta'))
+const AltasRecentes = lazy(() => import('./AltasRecentes'))
+const Pendencias = lazy(() => import('./Pendencias'))
+const IndicadoresPainel = lazy(() => import('./IndicadoresPainel'))
+const CompartilharPlantao = lazy(() => import('./CompartilharPlantao'))
+const PainelEquipe = lazy(() => import('./PainelEquipe'))
+const GerenciarProfissionais = lazy(() => import('./GerenciarProfissionais'))
+const PainelMedico = lazy(() => import('./PainelMedico'))
+const CadastroPacientes = lazy(() => import('./CadastroPacientes'))
 
 async function purgarHistoricoAntigo() {
   const seteDiasAtras = new Date()
@@ -240,7 +242,9 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} /> : ehMedico ? <PainelMedico /> : <CadastroPacientes />}
+        <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
+          {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} /> : ehMedico ? <PainelMedico /> : <CadastroPacientes />}
+        </Suspense>
       </div>
     )
   }
@@ -260,36 +264,38 @@ export default function Home() {
         onLogout={logout}
       />
       <main className="app-shell-conteudo shell">
-        {tela === 'ajuda' ? (
-          <Ajuda onVoltar={() => setTela('painel')} />
-        ) : tela === 'conta' ? (
-          <MinhaConta onVoltar={() => setTela('painel')} />
-        ) : tela === 'recepcao' ? (
-          <CadastroPacientes onVoltar={() => setTela('painel')} />
-        ) : (
-          <>
-            {!plantao && (
-              <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
-                Não foi possível abrir o plantão. Verifique a conexão e recarregue a página.
-              </div>
-            )}
+        <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
+          {tela === 'ajuda' ? (
+            <Ajuda onVoltar={() => setTela('painel')} />
+          ) : tela === 'conta' ? (
+            <MinhaConta onVoltar={() => setTela('painel')} />
+          ) : tela === 'recepcao' ? (
+            <CadastroPacientes onVoltar={() => setTela('painel')} />
+          ) : (
+            <>
+              {!plantao && (
+                <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+                  Não foi possível abrir o plantão. Verifique a conexão e recarregue a página.
+                </div>
+              )}
 
-            {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
-            {plantao && setoresIds && tela === 'print1' && (
-              <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('painel')} />
-            )}
-            {plantao && setoresIds && tela === 'print2' && (
-              <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('painel')} />
-            )}
-            {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
-            {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
-            {plantao && setoresIds && tela === 'indicadoresClinicos' && <IndicadoresPainel onVoltar={() => setTela('painel')} />}
-            {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
-            {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
-            {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
-            {plantao && setoresIds && tela === 'profissionais' && podeEncerrarQualquerPlantonista && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
-          </>
-        )}
+              {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
+              {plantao && setoresIds && tela === 'print1' && (
+                <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('painel')} />
+              )}
+              {plantao && setoresIds && tela === 'print2' && (
+                <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('painel')} />
+              )}
+              {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
+              {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
+              {plantao && setoresIds && tela === 'indicadoresClinicos' && <IndicadoresPainel onVoltar={() => setTela('painel')} />}
+              {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
+              {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
+              {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
+              {plantao && setoresIds && tela === 'profissionais' && podeEncerrarQualquerPlantonista && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
+            </>
+          )}
+        </Suspense>
 
         {modalConfirmar && <ConfirmModal {...modalConfirmar} onCancelar={() => setModalConfirmar(null)} />}
       </main>

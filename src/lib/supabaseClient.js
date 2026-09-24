@@ -1,10 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
-const url = import.meta.env.VITE_SUPABASE_URL
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-if (!url || !key) {
-  throw new Error('As variáveis de ambiente do Supabase não estão definidas.')
-}
+const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : (process.env || {})
+const url = env.VITE_SUPABASE_URL || 'https://supabase.local'
+const key = env.VITE_SUPABASE_ANON_KEY || 'mock-anon-key'
 
 export const supabase = createClient(url, key)
+

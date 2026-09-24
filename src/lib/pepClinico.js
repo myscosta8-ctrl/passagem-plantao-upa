@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient'
+import { supabase } from './supabaseClient.js'
 
 // Fase 2 (piloto Observação/Internação) — ficha clínica contínua do
 // enfermeiro: admissão (exame físico por marcação) + sinais vitais em série.

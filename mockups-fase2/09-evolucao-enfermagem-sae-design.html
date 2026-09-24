@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evolução de Enfermagem (SAE) — UPA 24h</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #F1F5F9;
+  --bg-surface: #ffffff;
+  --border-light: #E2E8F0;
+  --border-strong: #CBD5E1;
+  
+  --text-main: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+
+  --enf-primary: #0D9488;       /* Teal Enfermagem */
+  --enf-hover: #0F766E;
+  --enf-light: #F0FDFA;
+  --enf-badge: #CCFBF1;
+
+  --mc-laranja: #EA580C;
+  --mc-laranja-light: #FFEDD5;
+
+  --danger: #DC2626;
+  --danger-light: #FEF2F2;
+
+  --success: #16A34A;
+  --success-light: #DCFCE7;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-app); color: var(--text-main); font-size: 13.5px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* TOPBAR */
+.topbar { height: 50px; background: var(--bg-surface); border-bottom: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: var(--shadow-sm); z-index: 40; flex-shrink: 0; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.breadcrumb span.current { color: var(--enf-primary); font-weight: 700; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.btn-voltar { background: transparent; border: 1px solid var(--border-strong); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
+.btn-voltar:hover { background: var(--border-light); color: var(--text-main); }
+.sys-time { font-size: 11px; font-weight: 600; color: var(--text-muted); padding-right: 14px; border-right: 1px solid var(--border-light); }
+.top-avatar { padding: 4px 10px; border-radius: 20px; background: var(--enf-light); color: var(--enf-primary); border: 1px solid var(--enf-primary); display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 11px; }
+
+/* WORKSPACE */
+.workspace { flex: 1; overflow: hidden; padding: 10px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* 1. PATIENT BANNER */
+.patient-banner { flex-shrink: 0; background: var(--bg-surface); border: 1px solid var(--enf-primary); border-left: 6px solid var(--enf-primary); border-radius: 8px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+.pb-main { padding: 8px 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+.pb-left { display: flex; flex-direction: column; gap: 3px; }
+.pb-header { display: flex; align-items: center; gap: 8px; }
+.pb-name { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; }
+.pb-badge { background: var(--enf-badge); color: var(--enf-hover); font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 4px; }
+.pb-alergia { background: var(--danger-light); color: var(--danger); font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 4px; }
+.pb-meta { display: flex; align-items: center; gap: 14px; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
+.pb-meta-item { display: flex; align-items: center; gap: 4px; }
+.pb-meta-item i { color: var(--text-muted); font-size: 13px; }
+.pb-hd { font-size: 11.5px; color: var(--text-secondary); }
+.pb-hd strong { color: var(--text-main); }
+.pb-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.pb-leito { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 4px; }
+.pb-leito i { color: var(--enf-primary); }
+.btn-expand-details { background: transparent; border: 1px solid var(--border-strong); padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+.btn-expand-details:hover { background: var(--bg-app); color: var(--text-main); }
+
+/* Gaveta de Identificação */
+.pb-details { border-top: 1px dashed var(--border-strong); padding: 10px 16px; background: #F8FAFC; border-radius: 0 0 8px 8px; display: none; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 11px; }
+.detail-item { display: flex; flex-direction: column; gap: 2px; }
+.detail-item label { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.detail-item span { color: var(--text-main); font-weight: 500; }
+
+/* 2. CLINICAL TABS ENFERMAGEM */
+.clinical-tabs { display: flex; gap: 4px; background: var(--border-light); padding: 4px; border-radius: 8px; flex-shrink: 0; }
+.tab-btn { flex: 1; padding: 7px 12px; border: none; background: transparent; color: var(--text-secondary); font-size: 12.5px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+.tab-btn:hover { background: rgba(255,255,255,0.6); color: var(--text-main); }
+.tab-btn.active { background: var(--bg-surface); color: var(--enf-primary); box-shadow: var(--shadow-sm); }
+
+/* 3. SPLIT VIEW: Linha do Tempo x Nova Evolução */
+.clinical-split { display: flex; gap: 14px; flex: 1; min-height: 0; overflow: hidden; }
+
+/* Lado Esquerdo: Timeline de Evoluções e Anotações */
+.timeline-pane { width: 300px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: var(--shadow-sm); overflow: hidden; }
+.pane-header { padding: 10px 14px; border-bottom: 1px solid var(--border-strong); background: #F8FAFC; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; }
+.pane-header span { display: flex; align-items: center; gap: 6px; }
+.pane-header i { color: var(--enf-primary); }
+.timeline-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+.tl-item { padding-left: 14px; border-left: 2px solid var(--border-strong); position: relative; cursor: pointer; transition: 0.2s; }
+.tl-item::before { content: ''; position: absolute; left: -5px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); border: 2px solid #fff; transition: 0.2s; }
+.tl-item:hover::before { background: var(--enf-primary); }
+.tl-item.active { border-left-color: var(--enf-primary); }
+.tl-item.active::before { background: var(--enf-primary); }
+.tl-date { font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 2px; display: flex; justify-content: space-between; }
+.tl-author { font-size: 10.5px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.tl-preview { font-size: 11px; color: var(--text-main); margin-top: 5px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; background: #F8FAFC; padding: 7px; border-radius: 6px; line-height: 1.35; }
+.tl-item.expanded .tl-preview { display: block; -webkit-line-clamp: unset; background: #fff; border: 1px solid var(--enf-primary); }
+
+/* Lado Direito: Formulário SAE */
+.sae-card { flex: 1; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; overflow: hidden; }
+.sc-header { padding: 10px 18px; border-bottom: 1px solid var(--border-strong); background: #F8FAFC; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.sc-title h2 { font-size: 14.5px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.sc-title h2 i { color: var(--enf-primary); }
+.sc-title p { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.sc-actions { display: flex; gap: 8px; }
+.btn-print-preview { background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
+.btn-print-preview:hover { background: var(--border-light); color: var(--text-main); }
+
+.sc-body { padding: 18px 24px; display: flex; flex-direction: column; gap: 18px; flex: 1; overflow-y: auto; }
+
+/* Grid Sinais Vitais + Dor (EVA) */
+.vitals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; flex-shrink: 0; }
+.vital-box { border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 10px; background: #F8FAFC; }
+.vital-box label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 3px; }
+.vital-input-wrap { display: flex; align-items: baseline; gap: 3px; }
+.vital-input-wrap input { width: 100%; border: none; background: transparent; font-size: 15px; font-weight: 700; color: var(--text-main); outline: none; }
+.vital-input-wrap span { font-size: 10.5px; font-weight: 600; color: var(--text-muted); }
+
+/* Bloco NANDA e NIC */
+.sae-section { border: 1px solid var(--border-strong); border-radius: 8px; overflow: hidden; background: #fff; flex-shrink: 0; }
+.sae-header { background: #F1F5F9; padding: 7px 12px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-main); border-bottom: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: space-between; }
+.sae-header span { display: flex; align-items: center; gap: 6px; }
+.sae-header i { color: var(--enf-primary); font-size: 14px; }
+.sae-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Chips de Diagnóstico NANDA */
+.chips-container { display: flex; flex-wrap: wrap; gap: 6px; }
+.nanda-chip { border: 1px solid var(--border-strong); background: #F8FAFC; color: var(--text-main); padding: 5px 10px; border-radius: 16px; font-size: 11.5px; font-weight: 500; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; user-select: none; }
+.nanda-chip:hover { border-color: var(--enf-primary); background: var(--enf-light); }
+.nanda-chip.selected { border-color: var(--enf-primary); background: var(--enf-light); color: var(--enf-hover); font-weight: 700; }
+.nanda-chip i { font-size: 13px; }
+
+/* Prescrição de Enfermagem (Cuidados NIC) */
+.nic-list { display: flex; flex-direction: column; gap: 6px; }
+.nic-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #FAFAFA; border: 1px solid var(--border-light); border-radius: 6px; font-size: 12px; }
+.nic-left { display: flex; align-items: center; gap: 8px; }
+.nic-left input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--enf-primary); }
+.nic-freq { font-size: 11px; font-weight: 700; color: var(--enf-hover); background: var(--enf-badge); padding: 2px 8px; border-radius: 4px; }
+
+/* Área Textual da Evolução */
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.form-control-area { width: 100%; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 12.5px; line-height: 1.4; outline: none; background: #FAFAFA; color: var(--text-main); transition: 0.2s; font-family: 'Inter', sans-serif; resize: vertical; }
+.form-control-area:focus { background: #fff; border-color: var(--enf-primary); box-shadow: 0 0 0 2px var(--enf-light); }
+
+/* Rodapé Universal */
+.sc-footer { padding: 12px 20px; background: #F8FAFC; border-top: 1px solid var(--border-strong); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.btn-cancel { background: #fff; border: 1px solid var(--danger); color: var(--danger); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-cancel:hover { background: var(--danger-light); }
+.btn-save-draft { background: #fff; border: 1px solid var(--primary, #1D4ED8); color: var(--primary, #1D4ED8); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-save-draft:hover { background: #EFF6FF; }
+.btn-save-print { background: var(--primary, #1D4ED8); color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm); transition: 0.2s; }
+.btn-save-print:hover { background: #1E3A8A; box-shadow: var(--shadow-md); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="breadcrumb">
+    <a href="01-painel-leitos-design.html" class="btn-voltar"><i class="ph ph-arrow-left"></i> Painel de Leitos</a>
+    <i class="ph ph-caret-right"></i>
+    <span>Módulo de Enfermagem</span>
+    <i class="ph ph-caret-right"></i>
+    <span class="current">Evolução Diária SAE</span>
+  </div>
+  <div class="topbar-right">
+    <span class="sys-time"><i class="ph ph-clock"></i> 23/09/2026 — 08:50</span>
+    <div class="top-avatar">
+      <i class="ph ph-stethoscope"></i> Enf. Juliana Ramos (COREN/PA 123.456)
+    </div>
+  </div>
+</header>
+
+<main class="workspace">
+
+  <!-- 1. PATIENT BANNER -->
+  <div class="patient-banner">
+    <div class="pb-main">
+      <div class="pb-left">
+        <div class="pb-header">
+          <span class="pb-name">RAIMUNDO NONATO PEREIRA</span>
+          <span class="pb-badge"><i class="ph ph-shield-check"></i> UPA 24H BREVES</span>
+          <span class="pb-alergia" title="Paciente com alergia a Dipirona"><i class="ph ph-warning"></i> Alergia: Dipirona</span>
+        </div>
+        <div class="pb-meta">
+          <span class="pb-meta-item"><i class="ph ph-identification-card"></i> Reg: <strong>#2026-0891</strong></span>
+          <span class="pb-meta-item"><i class="ph ph-folder"></i> Pront: <strong>#45821</strong></span>
+          <span class="pb-meta-item"><i class="ph ph-user"></i> 64 anos (22/04/1962)</span>
+          <span class="pb-meta-item"><i class="ph ph-gender-male"></i> Masculino</span>
+          <span class="pb-meta-item"><i class="ph ph-heartbeat"></i> <strong>PA:</strong> 150/90 mmHg · <strong>FC:</strong> 88 bpm · <strong>SpO₂:</strong> 97%</span>
+        </div>
+        <div class="pb-hd">
+          <strong>HD Principal:</strong> Suspeita de AVE Isquêmico · Caráter: <strong>Urgência</strong> · Convênio: <strong>SUS</strong>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="pb-leito"><i class="ph ph-bed"></i> Sala Amarela — Leito 03</div>
+        <button class="btn-expand-details" onclick="toggleDetails()">
+          <i class="ph ph-caret-down"></i> <span id="toggle-lbl">Exibir Ficha Completa</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="pb-details" id="ficha-oficial">
+      <div class="detail-item"><label>Nome da Mãe</label><span>Maria Auxiliadora Pereira</span></div>
+      <div class="detail-item"><label>RG / CPF</label><span>1234567 PC/PA — 000.000.000-00</span></div>
+      <div class="detail-item"><label>CNS (Cartão SUS)</label><span>898 0001 2345 6789</span></div>
+      <div class="detail-item"><label>Nacionalidade / Raça</label><span>Brasileira · Parda</span></div>
+      <div class="detail-item"><label>Endereço Completo</label><span>Av. Rio Branco, 400 - Centro, Breves/PA</span></div>
+      <div class="detail-item"><label>Telefone Contato</label><span>(91) 98111-2233 (Filha: Ana)</span></div>
+      <div class="detail-item"><label>Data Admissão</label><span>22/09/2026 23:15:00</span></div>
+      <div class="detail-item"><label>Enfermeiro Admissão</label><span>Enf. Juliana Ramos (COREN/PA 123.456)</span></div>
+    </div>
+  </div>
+
+  <!-- 2. CLINICAL TABS ENFERMAGEM (DESMEMBRADO) -->
+  <nav class="clinical-tabs">
+    <a href="08-admissao-enfermagem-design.html" class="tab-btn"><i class="ph ph-clipboard-text"></i> Admissão</a>
+    <a href="09-evolucao-enfermagem-sae-design.html" class="tab-btn active"><i class="ph ph-activity"></i> Evolução SAE</a>
+    <a href="10-checagem-aprazamento-design.html" class="tab-btn"><i class="ph ph-calendar-check"></i> Cardex / Aprazamento</a>
+    <a href="11-balanco-hidrico-design.html" class="tab-btn"><i class="ph ph-drop"></i> Balanço Hídrico 24h</a>
+    <a href="14-transferencia-paciente-design.html" class="tab-btn"><i class="ph ph-ambulance"></i> Transferência SBAR</a>
+    <a href="13-nota-intercorrencia-enfermagem-design.html" class="tab-btn"><i class="ph ph-warning-octagon"></i> Intercorrências</a>
+  </nav>
+
+  <!-- 3. SPLIT VIEW: Histórico x Nova Evolução -->
+  <div class="clinical-split">
+
+    <!-- LADO ESQUERDO: LINHA DO TEMPO DA ENFERMAGEM -->
+    <aside class="timeline-pane">
+      <div class="pane-header">
+        <span><i class="ph ph-clock-counter-clockwise"></i> Anotações de Turnos</span>
+        <span style="font-size: 10px; color: var(--text-muted);">24h Ativas</span>
+      </div>
+      <div class="timeline-list">
+
+        <!-- Item 1 -->
+        <div class="tl-item active" onclick="this.classList.toggle('expanded')">
+          <div class="tl-date">Hoje, 07:30 <i class="ph ph-caret-down"></i></div>
+          <div class="tl-author"><i class="ph ph-user"></i> Enf. Juliana Ramos (Turno Diurno)</div>
+          <div class="tl-preview">Recebido plantão com paciente no leito, consciente, contactuando. Mantém hemiparesia braquiocrural D. PA: 150/90, FC: 88, SpO2: 97%. AVP em MSD sem sinais flogísticos. Diurese espontânea presente em urinol. Realizada troca de decúbito e higienização. Aguarda transporte para tomografia.</div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="tl-item" onclick="this.classList.toggle('expanded')">
+          <div class="tl-date">Hoje, 03:00 <i class="ph ph-caret-down"></i></div>
+          <div class="tl-author"><i class="ph ph-user"></i> Téc. Carlos Alberto (Noturno)</div>
+          <div class="tl-preview">Verificação de sinais vitais de rotina: PA 145/85, FC 82, Tax 36.3°C, SatO2 98%. Paciente dormindo confortavelmente no leito com grades elevadas. Sem queixas de dor no momento.</div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="tl-item" onclick="this.classList.toggle('expanded')">
+          <div class="tl-date">Ontem, 23:45 <i class="ph ph-caret-down"></i></div>
+          <div class="tl-author"><i class="ph ph-user"></i> Enf. Amanda Castro (Noturno)</div>
+          <div class="tl-preview">Admissão de enfermagem realizada. Puncionado AVP em MSD com jelco 20G na primeira tentativa com fluxo livre. Instalado monitor multiparamétrico. Coleta de exames de sangue encaminhada com urgência ao laboratório.</div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- LADO DIREITO: FORMULÁRIO DE NOVA EVOLUÇÃO SAE -->
+    <div class="sae-card">
+      <div class="sc-header">
+        <div class="sc-title">
+          <h2><i class="ph ph-activity"></i> Nova Evolução do Enfermeiro (SAE)</h2>
+          <p>Sistematização da Assistência com Diagnósticos NANDA e Prescrição de Cuidados NIC.</p>
+        </div>
+        <div class="sc-actions">
+          <a href="../modelos_impressao_html/02-evolucao-enfermagem-sae.html" target="_blank" class="btn-print-preview">
+            <i class="ph ph-printer"></i> Visualizar Impresso SAE
+          </a>
+        </div>
+      </div>
+
+      <div class="sc-body">
+
+        <!-- SINAIS VITAIS DO TURNO -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+              <i class="ph ph-thermometer" style="color: var(--danger);"></i> Sinais Vitais do Turno
+            </label>
+            <span style="font-size: 11px; color: var(--text-muted);"><i class="ph ph-clock"></i> Última aferição: 08:30</span>
+          </div>
+          <div class="vitals-grid">
+            <div class="vital-box"><label>P. Arterial</label><div class="vital-input-wrap"><input type="text" value="150/90"><span>mmHg</span></div></div>
+            <div class="vital-box"><label>F. Cardíaca</label><div class="vital-input-wrap"><input type="text" value="88"><span>bpm</span></div></div>
+            <div class="vital-box"><label>F. Respiratória</label><div class="vital-input-wrap"><input type="text" value="17"><span>irpm</span></div></div>
+            <div class="vital-box"><label>Temperatura</label><div class="vital-input-wrap"><input type="text" value="36.4"><span>°C</span></div></div>
+            <div class="vital-box"><label>Sat O₂</label><div class="vital-input-wrap"><input type="text" value="97"><span>%</span></div></div>
+            <div class="vital-box"><label>HGT / Glicemia</label><div class="vital-input-wrap"><input type="text" value="118"><span>mg/dL</span></div></div>
+            <div class="vital-box"><label>Dor (EVA 0-10)</label><div class="vital-input-wrap"><input type="text" value="0 (Sem dor)"></div></div>
+          </div>
+        </div>
+
+        <!-- DIAGNÓSTICOS DE ENFERMAGEM (NANDA-I) -->
+        <div class="sae-section">
+          <div class="sae-header">
+            <span><i class="ph ph-stethoscope"></i> Diagnósticos de Enfermagem (NANDA-I)</span>
+            <span style="font-size: 10.5px; color: var(--text-muted);">Selecione os títulos prioritários</span>
+          </div>
+          <div class="sae-body">
+            <div class="chips-container">
+              <span class="nanda-chip selected" onclick="this.classList.toggle('selected')"><i class="ph ph-check-circle"></i> Mobilidade Física Prejudicada</span>
+              <span class="nanda-chip selected" onclick="this.classList.toggle('selected')"><i class="ph ph-check-circle"></i> Risco de Queda</span>
+              <span class="nanda-chip selected" onclick="this.classList.toggle('selected')"><i class="ph ph-check-circle"></i> Risco de Integridade da Pele Prejudicada</span>
+              <span class="nanda-chip selected" onclick="this.classList.toggle('selected')"><i class="ph ph-check-circle"></i> Comunicação Verbal Prejudicada</span>
+              <span class="nanda-chip" onclick="this.classList.toggle('selected')"><i class="ph ph-plus-circle"></i> Risco de Aspiração</span>
+              <span class="nanda-chip" onclick="this.classList.toggle('selected')"><i class="ph ph-plus-circle"></i> Risco de Infecção</span>
+              <span class="nanda-chip" onclick="this.classList.toggle('selected')"><i class="ph ph-plus-circle"></i> Padrão Respiratório Ineficaz</span>
+              <span class="nanda-chip" onclick="this.classList.toggle('selected')"><i class="ph ph-plus-circle"></i> Débito Cardíaco Diminuído</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRESCRIÇÃO DE ENFERMAGEM / CUIDADOS (NIC) -->
+        <div class="sae-section">
+          <div class="sae-header">
+            <span><i class="ph ph-list-checks"></i> Prescrição de Enfermagem e Cuidados (NIC)</span>
+            <span style="font-size: 10.5px; color: var(--text-muted);">Aprazamento pelo Enfermeiro</span>
+          </div>
+          <div class="sae-body">
+            <div class="nic-list">
+              <div class="nic-item">
+                <div class="nic-left">
+                  <input type="checkbox" checked>
+                  <span>Mudança de decúbito e posicionamento no leito com coxins</span>
+                </div>
+                <span class="nic-freq">2 / 2 horas</span>
+              </div>
+              <div class="nic-item">
+                <div class="nic-left">
+                  <input type="checkbox" checked>
+                  <span>Manter cabeceira elevada a 30° - 45°</span>
+                </div>
+                <span class="nic-freq">Contínuo</span>
+              </div>
+              <div class="nic-item">
+                <div class="nic-left">
+                  <input type="checkbox" checked>
+                  <span>Manter grades laterais do leito sempre elevadas</span>
+                </div>
+                <span class="nic-freq">Contínuo</span>
+              </div>
+              <div class="nic-item">
+                <div class="nic-left">
+                  <input type="checkbox" checked>
+                  <span>Aferir sinais vitais completos e registrar parâmetros</span>
+                </div>
+                <span class="nic-freq">4 / 4 horas</span>
+              </div>
+              <div class="nic-item">
+                <div class="nic-left">
+                  <input type="checkbox" checked>
+                  <span>Avaliar e inspecionar inserção do AVP quanto a sinais de flebite</span>
+                </div>
+                <span class="nic-freq">Por turno</span>
+              </div>
+              <div class="nic-item">
+                <div class="nic-left">
+                  <input type="checkbox" checked>
+                  <span>Balanço hídrico rigoroso (entradas e saídas)</span>
+                </div>
+                <span class="nic-freq">24 horas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EVOLUÇÃO DESCRITIVA -->
+        <div class="form-group">
+          <label><i class="ph ph-text-align-left"></i> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
+          <textarea class="form-control-area" rows="4">Paciente masculino, 64 anos, no 1º D.I. com diagnóstico de AVE Isquêmico. No momento em repouso no leito, lúcido, calmo, colaborativo com leves episódios de disartria. Mantém hemiparesia braquiocrural à direita, pupilas isocóricas. Padrão ventilatório espontâneo em ar ambiente com SpO2 97%. AVP em MSD pérvio e salinizado. Abdome inocente, ruídos hidroaéreos presentes. Eliminações vesicais presentes espontâneas. Pele íntegra sem hiperemias em proeminências ósseas. Grades elevadas e decúbito alternado. Aguarda horário para realização de TC de crânio e parecer da neurologia.</textarea>
+        </div>
+
+      </div>
+
+      <!-- RODAPÉ UNIVERSAL -->
+      <footer class="sc-footer">
+        <button class="btn-cancel" onclick="window.history.back()"><i class="ph ph-x-circle"></i> Cancelar</button>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn-save-draft" onclick="alert('Evolução de enfermagem SAE salva como rascunho com sucesso!')"><i class="ph ph-floppy-disk"></i> Salvar</button>
+          <button class="btn-save-print" onclick="alert('Evolução de enfermagem salva e enviada para impressão!'); window.open('../modelos_impressao_html/02-evolucao-enfermagem-sae.html', '_blank')"><i class="ph ph-printer"></i> Salvar e Imprimir</button>
+        </div>
+      </footer>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  function toggleDetails() {
+    const ficha = document.getElementById('ficha-oficial');
+    const lbl = document.getElementById('toggle-lbl');
+    if (ficha.style.display === 'none' || ficha.style.display === '') {
+      ficha.style.display = 'grid';
+      lbl.innerText = 'Ocultar Ficha Completa';
+    } else {
+      ficha.style.display = 'none';
+      lbl.innerText = 'Exibir Ficha Completa';
+    }
+  }
+</script>
+
+</body>
+</html>
