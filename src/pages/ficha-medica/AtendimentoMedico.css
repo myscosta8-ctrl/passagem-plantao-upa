@@ -825,3 +825,123 @@
 .atendimento-medico-container .btn-next-tab:hover {
   background: #EFF6FF;
 }
+
+/* Timeline (histórico de evoluções) — Evolução Médica Diária */
+.atendimento-medico-container .timeline-pane {
+  width: 280px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+.atendimento-medico-container .timeline-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.atendimento-medico-container .tl-item {
+  padding-left: 16px;
+  border-left: 2px solid #CBD5E1;
+  position: relative;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.atendimento-medico-container .tl-item::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #CBD5E1;
+  border: 2px solid #FFFFFF;
+  transition: 0.2s;
+}
+.atendimento-medico-container .tl-item:hover::before {
+  background: #1D4ED8;
+}
+.atendimento-medico-container .tl-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.atendimento-medico-container .tl-author {
+  font-size: 11px;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.atendimento-medico-container .tl-preview {
+  font-size: 11px;
+  color: #0F172A;
+  margin-top: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  background: #F8FAFC;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+.atendimento-medico-container .tl-item:hover .tl-preview {
+  border-color: #CBD5E1;
+}
+.atendimento-medico-container .tl-item.expanded .tl-preview {
+  -webkit-line-clamp: unset;
+  border-color: #1D4ED8;
+}
+.atendimento-medico-container .tl-print {
+  border: none;
+  background: transparent;
+  color: #1D4ED8;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+/* Grid de avaliação (2 colunas) e grupo de checkboxes reais — Evolução Médica */
+.atendimento-medico-container .assess-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.atendimento-medico-container .checkbox-group {
+  display: flex;
+  gap: 20px;
+  padding: 10px 14px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.atendimento-medico-container .checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+}
