@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarEventosAdversos, registrarEventoAdverso } from '../../lib/pepClinico';
+import { CATEGORIAS_EVENTO_ADVERSO, GRAVIDADES_EVENTO_ADVERSO } from './constantes';
 
 export default function AbaEventosAdversos({ atendimento, autorId, onImprimir }) {
   const [lista, setLista] = useState([])

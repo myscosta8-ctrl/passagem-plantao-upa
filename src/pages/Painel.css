@@ -1,63 +1,91 @@
+/* =====================================================================
+   PAINEL DE LEITOS — DESIGN SYSTEM FASE 2
+   Fiel ao mockup mockups-fase2/01-painel-leitos-design.html
+   ===================================================================== */
+
 .setor-secao {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
 .setor-secao-titulo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--c-primary);
-  border-bottom: 1px solid var(--c-border);
-  padding-bottom: 9px;
-  margin-bottom: 2px;
+  gap: 12px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-text-primary);
+  border-bottom: 2px solid var(--border-strong);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
 }
 
 .setor-secao-titulo .count {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--c-text-muted);
+  background: var(--border-light);
+  color: var(--c-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
 }
 
+/* GRID DE LEITOS */
 .leitos-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 18px;
 }
 
+/* CARDS DE LEITO - ESTILO ENTERPRISE */
 .leito-card {
   background: var(--c-surface);
-  border: none;
-  border-bottom: 1px solid var(--c-border-light);
-  border-radius: 0;
-  padding: 12px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: background 0.1s ease;
-  position: relative;
+  transition: all 0.2s ease;
+  min-height: 180px;
 }
 
 .leito-card:hover {
-  background: var(--c-surface-inset);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: #94A3B8;
 }
 
-.leito-card.vazio {
-  color: var(--c-text-muted);
+/* Faixa de Risco (Manchester) no topo */
+.risk-bar {
+  height: 6px;
+  width: 100%;
+  background: #CBD5E1;
+}
+.risk-bar.risk-vermelho { background: var(--mc-vermelho); }
+.risk-bar.risk-laranja  { background: var(--mc-laranja); }
+.risk-bar.risk-amarelo  { background: var(--mc-amarelo); }
+.risk-bar.risk-verde    { background: var(--mc-verde); }
+.risk-bar.risk-azul     { background: var(--mc-azul); }
+
+.leito-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px 6px;
 }
 
 .leito-numero {
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: 10.5px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
   color: var(--c-text-muted);
-  letter-spacing: 0.03em;
-  align-self: flex-start;
-  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .leito-numero.extra {
@@ -65,9 +93,7 @@
 }
 
 .leito-menu-acoes {
-  position: absolute;
-  top: 8px;
-  right: 6px;
+  position: relative;
 }
 
 .leito-menu-botao {
@@ -79,22 +105,24 @@
   padding: 2px 6px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .leito-menu-botao:hover {
   background: var(--c-surface-inset);
+  color: var(--c-text-primary);
 }
 
 .leito-menu-dropdown {
   position: absolute;
   top: 100%;
   right: 0;
-  z-index: 20;
+  z-index: 25;
   background: var(--c-surface);
-  border: 1px solid var(--c-border-light);
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-  min-width: 168px;
+  box-shadow: var(--shadow-lg);
+  min-width: 170px;
   overflow: hidden;
 }
 
@@ -106,157 +134,191 @@
   background: none;
   border: none;
   font-size: 13px;
-  color: var(--c-text);
+  color: var(--c-text-primary);
   cursor: pointer;
 }
 
 .leito-menu-dropdown button:hover {
-  background: var(--c-surface-inset);
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+}
+
+.leito-card-body {
+  padding: 6px 14px 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .leito-paciente-nome {
-  font-weight: 600;
-  font-size: 14px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 14.5px;
   color: var(--c-text-primary);
-  margin-bottom: 3px;
+  line-height: 1.3;
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.status-badge {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0;
-  border-radius: 0;
-  background: none !important;
-  border: none !important;
-}
-
-.status-badge::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.status-badge.internado { color: var(--c-primary); }
-.status-badge.internado::before { background: var(--c-primary); }
-
-.status-badge.observacao { color: var(--c-warning); }
-.status-badge.observacao::before { background: var(--c-warning); }
-
-.status-badge.presc-hoje { color: var(--c-info); }
-.status-badge.presc-hoje::before { background: var(--c-info); }
-
-.status-badge.presc-amanha { color: var(--c-danger); }
-.status-badge.presc-amanha::before { background: var(--c-danger); animation: pulseDot 1.4s infinite; }
-
-@keyframes pulseDot {
-  0% { opacity: 1; }
-  50% { opacity: 0.35; }
-  100% { opacity: 1; }
-}
-
-.status-badge.alerta { color: var(--c-danger); }
-.status-badge.alerta::before { background: var(--c-danger); }
-
-.leito-paciente-extra {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--c-text-muted);
-  margin-top: 4px;
-}
-
-.leito-paciente-pendencia {
+.leito-paciente-meta {
   font-size: 11.5px;
-  color: var(--c-warning);
-  border-left: 2px solid var(--c-warning);
-  padding: 4px 0 4px 8px;
-  margin-top: 8px;
-  line-height: 1.4;
-}
-
-.leito-ultima-alteracao {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
   color: var(--c-text-muted);
-  margin-top: 8px;
+  font-weight: 500;
 }
 
 .leito-paciente-diag {
   font-size: 12px;
   color: var(--c-text-secondary);
   line-height: 1.4;
-  margin-top: 2px;
+  background: var(--c-surface-inset);
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
 }
 
-.leito-vazio-texto {
+.status-badge {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.status-badge.internado {
+  background: #DBEAFE;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+}
+
+.status-badge.observacao {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.status-badge.alerta {
+  background: var(--mc-vermelho-bg);
+  color: var(--mc-vermelho);
+  border: 1px solid #FECACA;
+}
+
+.leito-paciente-pendencia {
+  font-size: 11.5px;
+  color: #92400E;
+  background: #FFFBEB;
+  border-left: 3px solid #F59E0B;
+  padding: 4px 8px;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.4;
+}
+
+.leito-ultima-alteracao {
+  font-size: 10.5px;
   color: var(--c-text-muted);
-  font-size: 12px;
-  margin-top: 2px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+/* LEITO VAZIO */
+.leito-card.vazio {
+  background: #FAFAFA;
+  border: 2px dashed var(--border-strong);
+  box-shadow: none;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 16px;
+  text-align: center;
+}
+
+.leito-card.vazio:hover {
+  border-color: var(--c-primary);
+  background: var(--c-primary-light);
+}
+
+.leito-vazio-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.vazio-icon {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+
+.vazio-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--c-text-secondary);
+}
+
+.vazio-subtitle {
+  font-size: 11.5px;
+  color: var(--c-text-muted);
 }
 
 .leito-add-extra {
-  border: 1px dashed var(--c-border);
-  border-radius: var(--r-sm);
-  padding: 10px;
-  margin-top: 8px;
+  border: 2px dashed var(--border-strong);
+  border-radius: 10px;
+  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--c-text-muted);
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  background: none;
+  font-size: 13px;
+  background: transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  min-height: 140px;
 }
 
 .leito-add-extra:hover {
   border-color: var(--c-primary);
   color: var(--c-primary);
+  background: var(--c-primary-light);
 }
 
-/* ===================== VISUALIZAÇÃO EM TABELA (alternativa aos cards) ===================== */
+/* ===================== VISUALIZAÇÃO EM TABELA ===================== */
 
 .visualizacao-toggle {
   display: flex;
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
-  padding: 2px;
-  gap: 2px;
+  background: var(--border-light);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
   flex-shrink: 0;
 }
 
 .visualizacao-toggle button {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
   padding: 6px 14px;
   border: none;
-  border-radius: var(--r-sm);
-  background: none;
-  color: var(--c-text-muted);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--c-text-secondary);
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .visualizacao-toggle button.on {
-  background: var(--c-primary);
-  color: #ffffff;
+  background: #ffffff;
+  color: var(--c-primary);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
 }
 
 .tabela-filtros {
@@ -265,183 +327,70 @@
   align-items: flex-end;
   flex-wrap: wrap;
   background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
   padding: 14px 16px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
 }
 
 .tabela-filtro-campo label {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--c-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   margin-bottom: 5px;
 }
 
 .tabela-filtro-campo select,
 .tabela-filtro-campo input {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-sm);
+  font-size: 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
   padding: 7px 10px;
-  background: var(--c-surface);
+  background: var(--c-surface-inset);
   color: var(--c-text-primary);
   min-width: 160px;
-  width: 100%;
 }
 
 .tabela-painel-wrap {
   background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
-  overflow-x: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .tabela-painel {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--font-mono);
 }
 
 .tabela-painel thead tr {
-  background: var(--c-surface-raised);
-  border-bottom: 1.5px solid var(--c-text-primary);
+  background: #F8FAFC;
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .tabela-painel th {
-  text-align: left;
   padding: 10px 14px;
-  font-size: 9.5px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--c-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
+  letter-spacing: 0.05em;
+  text-align: left;
 }
 
 .tabela-painel td {
-  padding: 9px 14px;
-  font-size: 12px;
-  border-bottom: 1px solid var(--c-border-light);
-}
-
-.tabela-painel tbody tr {
-  cursor: pointer;
-}
-
-.tabela-painel tbody tr:hover {
-  background: var(--c-surface-inset);
-}
-
-.tabela-painel-rodape {
-  padding: 9px 14px;
-  border-top: 1px solid var(--c-border-light);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--c-text-muted);
-}
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 20, 18, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 500;
-  padding: 20px;
-}
-
-.modal-card {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-lg);
-  padding: 22px;
-  width: 100%;
-  max-width: 440px;
-  box-shadow: var(--shadow-lg);
-}
-
-.modal-title {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--c-primary);
-  margin: 0 0 18px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--c-border);
-}
-
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.modal-actions button {
-  flex: 1;
-  padding: 9px 14px;
-  border-radius: var(--r-md);
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.modal-btn-primary {
-  border: none;
-  background: var(--c-primary);
-  color: white;
-}
-.modal-btn-primary:hover:not(:disabled) { background: var(--color-acao-hover); }
-.modal-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.modal-btn-secondary {
-  border: 1px solid var(--c-border);
-  background: transparent;
-  color: var(--c-text-secondary);
-}
-.modal-btn-secondary:hover { background: var(--c-surface-inset); }
-
-.leito-btn-prontuario {
-  background: transparent;
-  border: 1px solid var(--c-border);
-  color: var(--c-primary);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  padding: 5px 10px;
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.leito-btn-prontuario:hover {
-  background: var(--c-surface-inset);
-}
-
-.error-box {
-  background: var(--c-danger-light);
-  color: var(--c-danger);
+  padding: 12px 14px;
   font-size: 13px;
-  padding: 10px 12px;
-  border-radius: var(--r-sm);
-  margin-bottom: 18px;
-  border-left: 3px solid var(--c-danger);
-  font-weight: 500;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--c-text-primary);
+}
+
+.tabela-painel tr:hover td {
+  background: #F8FAFC;
+  cursor: pointer;
 }

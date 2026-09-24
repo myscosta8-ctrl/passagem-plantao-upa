@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarReceitasMedicas, criarReceitaMedica } from '../../lib/pepMedico';
+import { RECEITA_ITEM_VAZIO, VIAS_RECEITA, TAGS_INSTRUCAO } from './constantes';
 
 export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])

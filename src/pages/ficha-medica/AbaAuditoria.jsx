@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarEventosAuditoria } from '../../lib/pepAtendimentos';
+import { ACOES_AUDITORIA } from './constantes';
 
 export default function AbaAuditoria({ atendimento }) {
   const [eventos, setEventos] = useState([])

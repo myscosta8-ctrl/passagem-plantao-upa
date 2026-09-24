@@ -43,18 +43,18 @@ export default function FichaClinica({ atendimento, onFechar, embedded = false }
 
       <ResumoPaciente atendimento={atendimento} />
 
-      <div className="form-toolbar">
-        <button className={aba === 'admissao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('admissao')}>Admissão</button>
-        <button className={aba === 'admissaoEnfermagem' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('admissaoEnfermagem')}>Admissão de Enfermagem</button>
-        <button className={aba === 'sinaisVitais' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sinaisVitais')}>Sinais Vitais</button>
-        <button className={aba === 'evolucao' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('evolucao')}>Evolução</button>
-        <button className={aba === 'dispositivos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('dispositivos')}>Dispositivos</button>
-        <button className={aba === 'balanco' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('balanco')}>Balanço Hídrico</button>
-        <button className={aba === 'escalas' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('escalas')}>Escalas</button>
-        <button className={aba === 'alergias' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('alergias')}>Alergias</button>
-        <button className={aba === 'isolamento' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('isolamento')}>Isolamento</button>
-        <button className={aba === 'sbar' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('sbar')}>Transferência SBAR</button>
-        <button className={aba === 'eventosAdversos' ? 'btn-realocar' : 'btn-copiar'} onClick={() => setAba('eventosAdversos')}>Eventos Adversos</button>
+      <div className="form-toolbar clinical-tabs">
+        <button type="button" className={`tab-btn ${aba === 'admissao' ? 'active' : ''}`} onClick={() => setAba('admissao')}>Admissão</button>
+        <button type="button" className={`tab-btn ${aba === 'admissaoEnfermagem' ? 'active' : ''}`} onClick={() => setAba('admissaoEnfermagem')}>Admissão de Enfermagem</button>
+        <button type="button" className={`tab-btn ${aba === 'sinaisVitais' ? 'active' : ''}`} onClick={() => setAba('sinaisVitais')}>Sinais Vitais</button>
+        <button type="button" className={`tab-btn ${aba === 'evolucao' ? 'active' : ''}`} onClick={() => setAba('evolucao')}>Evolução</button>
+        <button type="button" className={`tab-btn ${aba === 'dispositivos' ? 'active' : ''}`} onClick={() => setAba('dispositivos')}>Dispositivos</button>
+        <button type="button" className={`tab-btn ${aba === 'balanco' ? 'active' : ''}`} onClick={() => setAba('balanco')}>Balanço Hídrico</button>
+        <button type="button" className={`tab-btn ${aba === 'escalas' ? 'active' : ''}`} onClick={() => setAba('escalas')}>Escalas</button>
+        <button type="button" className={`tab-btn ${aba === 'alergias' ? 'active' : ''}`} onClick={() => setAba('alergias')}>Alergias</button>
+        <button type="button" className={`tab-btn ${aba === 'isolamento' ? 'active' : ''}`} onClick={() => setAba('isolamento')}>Isolamento</button>
+        <button type="button" className={`tab-btn ${aba === 'sbar' ? 'active' : ''}`} onClick={() => setAba('sbar')}>Transferência SBAR</button>
+        <button type="button" className={`tab-btn ${aba === 'eventosAdversos' ? 'active' : ''}`} onClick={() => setAba('eventosAdversos')}>Eventos Adversos</button>
       </div>
 
       {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}

@@ -1,10 +1,14 @@
-/* Espaço do Paciente — 3 Pilares (PEP Seção 1) */
+/* =====================================================================
+   ESPAÇO DO PACIENTE — DESIGN SYSTEM FASE 2
+   Fiel a mockups-fase2/proposta-espaco-paciente-3-pilares.html
+   e mockups-fase2/03-prontuario-medico-design.html
+   ===================================================================== */
 
 .espaco-paciente-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10, 20, 18, 0.65);
-  backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,20 +17,21 @@
 }
 
 .espaco-paciente-modal {
-  background: var(--c-bg, #F4F6F5);
+  background: var(--c-bg);
   width: 100%;
-  max-width: 1060px;
-  height: 92vh;
-  border-radius: var(--r-xl, 12px);
+  max-width: 1240px;
+  height: 94vh;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--border-strong);
 }
 
-/* Topo com dados do paciente */
+/* Topo do paciente — Banner Hospitalar */
 .espaco-paciente-topo {
-  background: var(--c-primary-dark, #0A1F33);
+  background: #0B192C;
   color: #fff;
   padding: 16px 24px;
   display: flex;
@@ -37,22 +42,28 @@
 }
 
 .espaco-paciente-nome {
-  font-size: 17px;
+  font-family: var(--font-ui);
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  color: #ffffff;
 }
 
 .espaco-paciente-meta {
-  font-size: 12px;
-  color: #9DB4C4;
-  margin-top: 3px;
+  font-size: 12.5px;
+  color: #94A3B8;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .espaco-paciente-fechar-btn {
   border: none;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  font-size: 26px;
+  font-size: 24px;
   line-height: 1;
   width: 36px;
   height: 36px;
@@ -61,70 +72,72 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.75;
-  transition: opacity 0.15s ease, background 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .espaco-paciente-fechar-btn:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 /* Barra de 3 Pilares principais */
 .espaco-paciente-pilares {
   display: flex;
-  gap: 4px;
-  background: var(--c-surface, #fff);
-  border-bottom: 1px solid var(--c-border, #DCE2E2);
-  padding: 0 20px;
+  gap: 2px;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--border-strong);
+  padding: 0 24px;
   flex-shrink: 0;
   overflow-x: auto;
 }
 
 .espaco-paciente-pilar {
-  padding: 12px 18px;
+  padding: 12px 20px;
   cursor: pointer;
   border-bottom: 3px solid transparent;
   display: flex;
   flex-direction: column;
   gap: 2px;
   user-select: none;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .espaco-paciente-pilar:hover {
-  background: var(--c-surface-raised, #FAFBFA);
+  background: #F8FAFC;
 }
 
 .espaco-paciente-pilar.ativo {
-  border-bottom-color: var(--c-primary, #14507D);
+  border-bottom-color: var(--c-primary);
+  background: #EFF6FF;
 }
 
 .espaco-paciente-pilar-titulo {
+  font-family: var(--font-ui);
   font-size: 13.5px;
   font-weight: 700;
-  color: var(--c-text-secondary, #4A5A68);
+  color: var(--c-text-secondary);
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 
 .espaco-paciente-pilar.ativo .espaco-paciente-pilar-titulo {
-  color: var(--c-primary, #14507D);
+  color: var(--c-primary);
 }
 
 .espaco-paciente-pilar-sub {
   font-size: 11px;
-  color: var(--c-text-muted, #8B98A0);
-  padding-left: 23px;
+  color: var(--c-text-muted);
+  padding-left: 24px;
 }
 
 /* Área de conteúdo do pilar ativo */
 .espaco-paciente-conteudo {
   flex: 1;
   overflow-y: auto;
-  background: var(--c-bg, #F4F6F5);
+  background: var(--c-bg);
+  padding: 16px 20px 40px;
 }
 
 .espaco-paciente-loading {
@@ -135,18 +148,19 @@
   height: 260px;
   gap: 12px;
   color: var(--c-text-muted);
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
-/* Ajustes no PassagemForm quando embutido */
+/* Ajustes de formulários quando embutidos no modal */
+.ficha-clinica-embedded,
 .form-panel-embedded {
-  background: var(--c-surface, #fff);
-  max-width: 980px;
-  margin: 16px auto 40px;
-  padding: 20px 24px;
-  border-radius: var(--r-md, 8px);
-  border: 1px solid var(--c-border-light, #EDF0EF);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: var(--c-surface);
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 768px) {

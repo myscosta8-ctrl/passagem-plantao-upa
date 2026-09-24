@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarEvolucoesMedicas, criarEvolucaoMedica } from '../../lib/pepMedico';
+import { EVOLUCAO_VAZIA, RISCO_TEV_OPCOES } from './constantes';
 
 
 function CampoSimNao({ label, valor, onChange }) {

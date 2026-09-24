@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarAlergias, registrarAlergia, inativarAlergia } from '../../lib/pepClinico';
+import { GRAVIDADES } from './constantes';
 
 export default function AbaAlergias({ atendimento }) {
   const [lista, setLista] = useState([])

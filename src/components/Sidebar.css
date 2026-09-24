@@ -144,11 +144,10 @@
   width: 20px;
   text-align: center;
   flex-shrink: 0;
-  font-size: 14.5px;
+  font-size: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: grayscale(1);
 }
 
 .sidebar-item-texto {

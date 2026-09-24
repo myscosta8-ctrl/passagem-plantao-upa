@@ -1,66 +1,78 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
 
 /* =====================================================================
-   PASSAGEM DE PLANTÃO — DESIGN SYSTEM
-   Direção "Painel de controle": denso, mono, sem card-com-sombra, cor só
-   como sinal funcional (nunca decoração). Claro é o padrão — uso real é
-   sob luz forte de UPA o dia inteiro; escuro fica disponível por escolha
-   (ver src/lib/theme.js e o botão na sidebar), salvo por aparelho.
+   PASSAGEM DE PLANTÃO & PEP — DESIGN SYSTEM ENTERPRISE (FASE 2)
+   Fidelidade 100% aos mockups-fase2 e proposta-design-system-vitaloop.html
    ===================================================================== */
 
 :root {
-  /* PALETA — azul único (marca = ação, uma cor só, nunca duas competindo) */
-  --c-primary:        #14507D;
-  --c-primary-dark:   #0A1F33;
-  --c-primary-mid:    #14507D;
-  --c-primary-light:  #EAF2F8;
-  --c-primary-border: #B8D0E8;
+  /* PALETA PRIMÁRIA E MARCA (Hospitalar Enterprise) */
+  --c-primary:        #1D4ED8;
+  --c-primary-hover:  #1E3A8A;
+  --c-primary-dark:   #0B192C;
+  --c-primary-mid:    #1D4ED8;
+  --c-primary-light:  #EFF6FF;
+  --c-primary-border: #BFDBFE;
 
   /* SUPERFÍCIES */
-  --c-bg:             #F4F6F5;
+  --c-bg:             #F1F5F9;
   --c-surface:        #ffffff;
-  --c-surface-raised: #FAFBFA;
-  --c-surface-inset:  #F0F2F1;
+  --c-surface-raised: #FFFFFF;
+  --c-surface-inset:  #F8FAFC;
 
   /* TEXTO */
-  --c-text-primary:   #101820;
-  --c-text-secondary: #4A5A68;
-  --c-text-muted:     #8B98A0;
+  --c-text-primary:   #0F172A;
+  --c-text-secondary: #334155;
+  --c-text-muted:     #64748B;
   --c-text-inverse:   #ffffff;
 
   /* BORDAS */
-  --c-border:         #DCE2E2;
-  --c-border-light:   #EDF0EF;
-  --c-border-dark:    #B5BFBC;
+  --c-border:         #E2E8F0;
+  --c-border-light:   #F1F5F9;
+  --c-border-dark:    #CBD5E1;
+  --border-light:     #E2E8F0;
+  --border-strong:    #CBD5E1;
 
-  /* ESTADO / SEMÂNTICA — só usadas em texto/ícone/pingo, nunca em fundo de bloco grande */
-  --c-success:        #15803d;
-  --c-success-light:  #dcfce7;
-  --c-success-border: #86efac;
-  --c-warning:        #92640B;
-  --c-warning-light:  #FBF1DE;
-  --c-warning-border: #F0DCA8;
-  --c-danger:         #B3261E;
-  --c-danger-light:   #FBEAE8;
-  --c-danger-border:  #F0C2BE;
-  --c-danger-strong:      #8a1f1f;
-  --c-danger-strong-light: #fdf0f0;
-  --c-info:           #0369a1;
-  --c-info-light:     #e0f2fe;
-  --c-info-border:    #bae6fd;
-  --c-acao-light:     #EAF2F8;
+  /* CLASSIFICAÇÃO DE RISCO MANCHESTER */
+  --mc-vermelho:      #DC2626;
+  --mc-vermelho-bg:   #FEF2F2;
+  --mc-laranja:       #EA580C;
+  --mc-laranja-bg:    #FFEDD5;
+  --mc-amarelo:       #EAB308;
+  --mc-amarelo-bg:    #FEF9C3;
+  --mc-verde:         #16A34A;
+  --mc-verde-bg:      #DCFCE7;
+  --mc-azul:          #2563EB;
+  --mc-azul-bg:       #DBEAFE;
 
-  /* TIPOGRAFIA — Plex Sans pro texto lido, Plex Mono pra tudo que é rótulo/dado/leito/hora */
-  --font-ui:          'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  /* ESTADO / SEMÂNTICA */
+  --c-success:        #16A34A;
+  --c-success-light:  #DCFCE7;
+  --c-success-border: #86EFAC;
+  --c-warning:        #D97706;
+  --c-warning-light:  #FEF3C7;
+  --c-warning-border: #FDE68A;
+  --c-danger:         #DC2626;
+  --c-danger-light:   #FEF2F2;
+  --c-danger-border:  #FECACA;
+  --c-danger-strong:  #B91C1C;
+  --c-danger-strong-light: #FEE2E2;
+  --c-info:           #0284C7;
+  --c-info-light:     #E0F2FE;
+  --c-info-border:    #BAE6FD;
+  --c-acao-light:     #EFF6FF;
+
+  /* TIPOGRAFIA */
+  --font-ui:          'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono:        'IBM Plex Mono', ui-monospace, monospace;
 
-  /* ESCALA */
+  /* ESCALA DE TEXTO */
   --text-xs:   11px;
   --text-sm:   12px;
-  --text-base: 13px;
-  --text-md:   14px;
+  --text-base: 13.5px;
+  --text-md:   14.5px;
   --text-lg:   16px;
-  --text-xl:   18px;
+  --text-xl:   19px;
 
   /* ESPAÇAMENTO */
   --sp-1: 4px;
@@ -70,25 +82,23 @@
   --sp-5: 20px;
   --sp-6: 24px;
 
-  /* RAIO DE BORDA — quase reto, de propósito (era um dos sintomas de "genérico") */
-  --r-sm:  3px;
-  --r-md:  4px;
-  --r-lg:  6px;
-  --r-xl:  8px;
+  /* RAIO DE BORDA */
+  --r-sm:  6px;
+  --r-md:  8px;
+  --r-lg:  10px;
+  --r-xl:  12px;
 
-  /* SOMBRAS — usadas só em elementos flutuantes de verdade (menu suspenso, modal), nunca em card */
-  --shadow-xs:  none;
-  --shadow-sm:  none;
-  --shadow-md:  0 8px 24px rgba(16,24,32,0.14);
-  --shadow-lg:  0 12px 32px rgba(16,24,32,0.16);
-  --shadow-xl:  0 20px 48px rgba(16,24,32,0.20);
+  /* SOMBRAS PROFISSIONAIS (DEPTH) */
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md:  0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg:  0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl:  0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
   /* TRANSIÇÕES */
-  --ease: 0.15s ease;
+  --ease: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* =====================================================================
-     ALIASES DE COMPATIBILIDADE (usados em Auth.css, Painel.css, etc.)
-     ===================================================================== */
+  /* ALIASES DE COMPATIBILIDADE */
   --color-primary:        var(--c-primary);
   --color-primary-dark:   var(--c-primary-dark);
   --color-primary-light:  var(--c-primary-light);
@@ -100,55 +110,41 @@
   --color-success:        var(--c-success);
   --color-danger:         var(--c-danger);
   --color-warning:        var(--c-warning);
-  --color-accent:         var(--c-danger);
-  --color-accent-light:   var(--c-danger-light);
+  --color-accent:         var(--c-primary);
+  --color-accent-light:   var(--c-primary-light);
   --color-acao:           var(--c-primary);
-  --color-acao-hover:     #0F3C5C;
+  --color-acao-hover:     var(--c-primary-hover);
   --radius:               var(--r-md);
-  --shadow-md:            var(--shadow-md);
 }
 
 /* ===================== TEMA ESCURO ===================== */
 :root[data-tema="escuro"] {
-  --c-primary:        #5B9BD5;
-  --c-primary-dark:   #DCE6E2;
-  --c-primary-mid:    #5B9BD5;
-  --c-primary-light:  rgba(91, 155, 213, 0.14);
-  --c-primary-border: #24322D;
+  --c-primary:        #3B82F6;
+  --c-primary-hover:  #60A5FA;
+  --c-primary-dark:   #0F172A;
+  --c-primary-mid:    #3B82F6;
+  --c-primary-light:  rgba(59, 130, 246, 0.16);
+  --c-primary-border: #1E3A8A;
 
-  --c-bg:             #0C1210;
-  --c-surface:        #111A17;
-  --c-surface-raised: #141E1A;
-  --c-surface-inset:  #0F1815;
+  --c-bg:             #0B1320;
+  --c-surface:        #152238;
+  --c-surface-raised: #1C2D4A;
+  --c-surface-inset:  #101C30;
 
-  --c-text-primary:   #DCE6E2;
-  --c-text-secondary: #8CA39A;
-  --c-text-muted:     #6C8079;
-  --c-text-inverse:   #06231F;
+  --c-text-primary:   #F1F5F9;
+  --c-text-secondary: #CBD5E1;
+  --c-text-muted:     #94A3B8;
+  --c-text-inverse:   #0F172A;
 
-  --c-border:         #24322D;
-  --c-border-light:   #1B2622;
-  --c-border-dark:    #3A4A44;
+  --c-border:         #1E293B;
+  --c-border-light:   #152238;
+  --c-border-dark:    #334155;
+  --border-light:     #1E293B;
+  --border-strong:    #334155;
 
-  --c-success:        #3FBBA8;
-  --c-success-light:  rgba(63,187,168,0.14);
-  --c-success-border: #24322D;
-  --c-warning:        #E0B25C;
-  --c-warning-light:  rgba(224,178,92,0.14);
-  --c-warning-border: #3A2E14;
-  --c-danger:         #E5766D;
-  --c-danger-light:   rgba(229,118,109,0.14);
-  --c-danger-border:  #3A1815;
-  --c-danger-strong:      #E5766D;
-  --c-danger-strong-light: rgba(229,118,109,0.14);
-  --c-info:           #6AA3D6;
-  --c-info-light:     rgba(106,163,214,0.14);
-  --c-info-border:    #1B2622;
-  --c-acao-light:     rgba(91,155,213,0.14);
-
-  --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,0.45);
-  --shadow-xl: 0 20px 48px rgba(0,0,0,0.5);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5);
 }
 
 /* ===================== RESET E BASE ===================== */
@@ -178,64 +174,119 @@ button, input, select, textarea {
 
 button { cursor: pointer; }
 
-/* ===================== CAMPOS — linha embaixo, sem caixa. !important porque
-   boa parte do app ainda estiliza input via style={{}} inline (JSX antigo);
-   isso garante que a direção nova vence sem precisar reescrever cada tela.
-   Checkbox/radio ficam de fora: são campos de marcar, não de texto — a regra
-   acima esticava cada caixinha para 100% da largura do rótulo (width:100%
-   !important), fazendo o quadrado de marcação renderizar por cima do texto
-   em vez de ao lado dele. ===================== */
+/* ===================== CAMPOS DE FORMULÁRIO (Design System Fase 2) ===================== */
 input:not([type="checkbox"]):not([type="radio"]), select, textarea {
-  width: 100% !important;
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 1.5px solid var(--c-border) !important;
-  color: var(--c-text-primary) !important;
-  padding: 8px 2px !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  transition: border-color var(--ease);
+  width: 100%;
+  background: var(--c-surface-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  color: var(--c-text-primary);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all var(--ease);
 }
+
 input:focus:not([type="checkbox"]):not([type="radio"]), select:focus, textarea:focus {
-  outline: none !important;
-  border-color: var(--c-primary) !important;
+  outline: none;
+  background: var(--c-surface);
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px var(--c-primary-light);
 }
+
 input[type="checkbox"], input[type="radio"] {
-  width: 16px !important;
-  height: 16px !important;
-  flex-shrink: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
   accent-color: var(--c-primary);
 }
+
 input::placeholder, textarea::placeholder {
   color: var(--c-text-muted);
 }
+
 label {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-ui);
+  font-size: 12px;
   font-weight: 600;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: var(--c-text-secondary);
+  letter-spacing: 0.01em;
+  margin-bottom: 4px;
+  display: block;
 }
 
-a { color: var(--c-primary-mid); text-decoration: none; }
-a:hover { text-decoration: underline; }
+a { color: var(--c-primary); text-decoration: none; font-weight: 500; }
+a:hover { text-decoration: underline; color: var(--c-primary-hover); }
 
-/* ===================== FOCO ===================== */
+/* ===================== BOTÕES GLOBAIS MODERNOS ===================== */
+.btn-primary {
+  background: var(--c-primary);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--ease);
+}
+.btn-primary:hover {
+  background: var(--c-primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--c-surface);
+  color: var(--c-text-secondary);
+  border: 1px solid var(--border-strong);
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--ease);
+}
+.btn-secondary:hover {
+  background: var(--c-surface-inset);
+  color: var(--c-text-primary);
+  border-color: var(--c-text-muted);
+}
+
+/* ===================== BADGES E CHIPS MANCHESTER ===================== */
+.badge-manchester {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.badge-manchester.vermelho { background: var(--mc-vermelho-bg); color: var(--mc-vermelho); border: 1px solid #FECACA; }
+.badge-manchester.laranja  { background: var(--mc-laranja-bg);  color: var(--mc-laranja);  border: 1px solid #FED7AA; }
+.badge-manchester.amarelo  { background: var(--mc-amarelo-bg);  color: #854D0E;            border: 1px solid #FEF08A; }
+.badge-manchester.verde    { background: var(--mc-verde-bg);    color: var(--mc-verde);    border: 1px solid #BBF7D0; }
+.badge-manchester.azul     { background: var(--mc-azul-bg);     color: var(--mc-azul);     border: 1px solid #BFDBFE; }
+
+/* ===================== FOCO E SCROLLBAR ===================== */
 :focus-visible {
-  outline: 2px solid var(--c-primary-mid);
+  outline: 2px solid var(--c-primary);
   outline-offset: 2px;
 }
 
-/* ===================== SELEÇÃO DE TEXTO ===================== */
-::selection      { background: var(--c-primary); color: #fff; }
-::-moz-selection { background: var(--c-primary); color: #fff; }
+::selection      { background: var(--c-primary-light); color: var(--c-primary); }
+::-moz-selection { background: var(--c-primary-light); color: var(--c-primary); }
 
-/* ===================== SCROLLBAR ===================== */
 ::-webkit-scrollbar        { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: var(--c-border-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb  { background: var(--border-strong); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--c-text-muted); }
-

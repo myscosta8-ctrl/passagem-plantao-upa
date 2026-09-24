@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarTfd, criarTfd } from '../../lib/pepMedico';
+import { TFD_VAZIA } from './constantes';
 
 export default function AbaTfd({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])

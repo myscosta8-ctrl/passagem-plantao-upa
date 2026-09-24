@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
+import { SV_VAZIO } from './constantes';
 
 export default function AbaSinaisVitais({ atendimento, autorId }) {
   const [historico, setHistorico] = useState([])

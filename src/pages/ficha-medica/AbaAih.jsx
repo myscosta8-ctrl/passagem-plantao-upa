@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { listarAih, criarAih } from '../../lib/pepMedico';
+import { AIH_VAZIA, VINCULO_PREVIDENCIA_OPCOES } from './constantes';
 
 export default function AbaAih({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])

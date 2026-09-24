@@ -3,6 +3,7 @@ import {
   buscarOcupacaoAtiva, listarSetoresParaTransferencia, listarEnfermeirosAtivos,
   listarTransferenciasSbar, registrarTransferenciaSbar
 } from '../../lib/pepClinico';
+import { NIVEIS_CONSCIENCIA } from './constantes';
 
 export default function AbaSbar({ atendimento, autorId, onImprimir }) {
   const [historico, setHistorico] = useState([])

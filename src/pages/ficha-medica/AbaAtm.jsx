@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarAtm, criarAtm } from '../../lib/pepMedico';
+import { ATM_VAZIA } from './constantes';
 
 export default function AbaAtm({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])

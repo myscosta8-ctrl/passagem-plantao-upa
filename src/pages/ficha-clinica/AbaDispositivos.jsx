@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarDispositivos, inserirDispositivo, removerDispositivo } from '../../lib/pepClinico';
+import { TIPOS_DISPOSITIVO } from './constantes';
 
 export default function AbaDispositivos({ atendimento }) {
   const [lista, setLista] = useState([])

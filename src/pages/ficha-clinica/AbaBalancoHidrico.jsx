@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarBalancoHidrico, registrarBalancoHidrico } from '../../lib/pepClinico';
+import { VIAS_ENTRADA, VIAS_SAIDA } from './constantes';
 
 export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir }) {
   const [historico, setHistorico] = useState([])

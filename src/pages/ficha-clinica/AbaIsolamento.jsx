@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarIsolamentos, registrarIsolamento, encerrarIsolamento } from '../../lib/pepClinico';
+import { TIPOS_ISOLAMENTO } from './constantes';
 
 export default function AbaIsolamento({ atendimento, autorId }) {
   const [lista, setLista] = useState([])

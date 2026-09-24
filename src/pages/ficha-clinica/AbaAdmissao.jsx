@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { buscarAdmissao, salvarAdmissao } from '../../lib/pepClinico';
+import { buscarAdmissao, salvarAdmissao, registrarSinaisVitais } from '../../lib/pepClinico';
 
 const GRUPOS_EXAME = [
   { chave: 'neurologico', titulo: 'Avaliação neurológica',

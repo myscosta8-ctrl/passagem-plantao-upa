@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarSolicitacoesSangue, criarSolicitacaoSangue } from '../../lib/pepMedico';
+import { SANGUE_VAZIA, HEMOCOMPONENTES_OPCOES, URGENCIA_OPCOES } from './constantes';
 
 export default function AbaSangue({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])

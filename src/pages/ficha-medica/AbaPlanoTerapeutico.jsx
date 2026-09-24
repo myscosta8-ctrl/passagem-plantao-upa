@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { buscarPlanoTerapeutico, salvarPlanoTerapeutico } from '../../lib/pepMedico';
+import { PROTOCOLOS_OPCOES, EQUIPE_OPCOES, PROBLEMA_VAZIO } from './constantes';
 
 export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir }) {
   const [dados, setDados] = useState({

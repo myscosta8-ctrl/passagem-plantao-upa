@@ -68,11 +68,12 @@ export default function FichaMedica({ atendimento, onFechar, embedded = false })
 
       <DiagnosticoPrincipal atendimento={atendimento} medicoId={enfermeiro?.id} />
 
-      <div className="form-toolbar">
+      <div className="form-toolbar clinical-tabs">
         {ABAS.map((a) => (
           <button
             key={a.chave}
-            className={a.chave === aba ? 'btn-realocar' : 'btn-copiar'}
+            type="button"
+            className={`tab-btn ${a.chave === aba ? 'active' : ''}`}
             onClick={() => setAba(a.chave)}
           >
             {a.rotulo}

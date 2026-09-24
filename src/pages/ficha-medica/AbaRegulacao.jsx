@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarRegulacao, registrarRegulacao, buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao } from '../../lib/pepMedico';
+import { listarRegulacao, registrarRegulacao, buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao, listarCatalogoCid } from '../../lib/pepMedico';
 
 export default function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])

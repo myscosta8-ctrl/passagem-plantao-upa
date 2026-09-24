@@ -1,32 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarEscalas, registrarEscala } from '../../lib/pepClinico';
-
-function riscoBraden(total) {
-  if (total <= 9) return 'Risco muito alto'
-  if (total <= 12) return 'Risco alto'
-  if (total <= 14) return 'Risco moderado'
-  if (total <= 18) return 'Risco baixo'
-  return 'Sem risco'
-}
-
-const MORSE_CAMPOS = [
-  { chave: 'historico_quedas', rotulo: 'Histórico de quedas', opcoes: [{ v: 0, t: 'Não' }, { v: 25, t: 'Sim' }] },
-  { chave: 'diagnostico_secundario', rotulo: 'Diagnóstico secundário', opcoes: [{ v: 0, t: 'Não' }, { v: 15, t: 'Sim' }] },
-  { chave: 'auxilio_locomocao', rotulo: 'Auxílio de locomoção', opcoes: [
-    { v: 0, t: 'Nenhum / leito / cadeira de rodas / enfermeiro' }, { v: 15, t: 'Muletas / bengala / andador' }, { v: 30, t: 'Apoia-se em móveis' },
-  ] },
-  { chave: 'terapia_ev', rotulo: 'Terapia endovenosa', opcoes: [{ v: 0, t: 'Não' }, { v: 20, t: 'Sim' }] },
-  { chave: 'marcha', rotulo: 'Marcha', opcoes: [{ v: 0, t: 'Normal / leito / imóvel' }, { v: 10, t: 'Fraca' }, { v: 20, t: 'Comprometida' }] },
-  { chave: 'estado_mental', rotulo: 'Estado mental', opcoes: [
-    { v: 0, t: 'Orienta-se quanto à própria capacidade' }, { v: 15, t: 'Superestima capacidade / esquece limitações' },
-  ] },
-]
-
-function riscoMorse(total) {
-  if (total <= 24) return 'Risco baixo'
-  if (total <= 50) return 'Risco médio'
-  return 'Risco alto'
-}
+import { BRADEN_CAMPOS, MORSE_CAMPOS, riscoBraden, riscoMorse, riscoClasse } from './constantes';
 
 
 export default function AbaEscalas({ atendimento }) {

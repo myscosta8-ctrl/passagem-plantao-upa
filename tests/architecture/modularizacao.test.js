@@ -250,6 +250,27 @@ export function runModularizacaoTests(test) {
       assert.ok(stat.size > 500, `Submódulo CSS ${m} parece vazio ou corrompido (${stat.size} bytes)`);
     }
   });
+
+  test('Todas as constantes clínicas e médicas vazias estão devidamente exportadas em constantes.js', () => {
+    const medConstPath = path.join(SRC_DIR, 'pages', 'ficha-medica', 'constantes.js');
+    const clinConstPath = path.join(SRC_DIR, 'pages', 'ficha-clinica', 'constantes.js');
+
+    assert.ok(fs.existsSync(medConstPath), 'constantes.js em ficha-medica deve existir');
+    assert.ok(fs.existsSync(clinConstPath), 'constantes.js em ficha-clinica deve existir');
+
+    const medContent = fs.readFileSync(medConstPath, 'utf8');
+    const clinContent = fs.readFileSync(clinConstPath, 'utf8');
+
+    const medEsperados = ['AIH_VAZIA', 'APAC_VAZIA', 'ATM_VAZIA', 'CONSULTA_VAZIA', 'EVOLUCAO_VAZIA', 'SANGUE_VAZIA', 'TFD_VAZIA', 'VINCULO_PREVIDENCIA_OPCOES'];
+    for (const k of medEsperados) {
+      assert.ok(medContent.includes(k), `Constante médica obrigatória ausente em constantes.js: ${k}`);
+    }
+
+    const clinEsperados = ['SV_VAZIO', 'VIAS_ENTRADA', 'VIAS_SAIDA', 'TIPOS_ISOLAMENTO', 'NIVEIS_CONSCIENCIA', 'BRADEN_CAMPOS', 'MORSE_CAMPOS'];
+    for (const k of clinEsperados) {
+      assert.ok(clinContent.includes(k), `Constante clínica obrigatória ausente em constantes.js: ${k}`);
+    }
+  });
 }
 
 

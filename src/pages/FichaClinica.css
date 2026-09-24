@@ -2,9 +2,47 @@
 
 .ficha-clinica-embedded {
   width: 100%;
-  max-width: 980px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 16px 24px 60px;
+  padding: 16px 20px 60px;
+}
+
+/* NAVEGAÇÃO DE ABAS (Pills modernas) */
+.clinical-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--border-light);
+  padding: 6px;
+  border-radius: 10px;
+  margin: 14px 0 20px;
+  border: 1px solid var(--border-strong);
+}
+
+.clinical-tabs .tab-btn {
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--c-text-secondary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.clinical-tabs .tab-btn:hover {
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--c-text-primary);
+}
+
+.clinical-tabs .tab-btn.active {
+  background: #ffffff;
+  color: var(--c-primary);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
 }
 
 /* Barra de progresso de preenchimento dos grupos da Admissão */
