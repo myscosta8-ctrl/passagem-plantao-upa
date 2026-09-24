@@ -178,7 +178,7 @@ export default function ModalInternar({ leito, setorNome, pacientesExistentes, e
 
           {duplicata && (
             <div className="error-box" style={{ marginTop: 14, marginBottom: 0 }}>
-              ⚠ Já existe um paciente com nome parecido internado: <b>{duplicata.nome}</b>.
+              <i className="ph ph-warning" /> Já existe um paciente com nome parecido internado: <b>{duplicata.nome}</b>.
               {confirmouDuplicata
                 ? ' Clique em "Internar mesmo assim" de novo pra confirmar.'
                 : ' Confira se não é a mesma pessoa antes de continuar.'}
@@ -187,7 +187,7 @@ export default function ModalInternar({ leito, setorNome, pacientesExistentes, e
 
           {camposFaltando.length > 0 && (
             <div className="error-box" style={{ marginTop: 14, marginBottom: 0 }}>
-              ⚠ Preencha antes de continuar: <b>{camposFaltando.join(', ')}</b>
+              <i className="ph ph-warning" /> Preencha antes de continuar: <b>{camposFaltando.join(', ')}</b>
             </div>
           )}
 

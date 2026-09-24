@@ -47,7 +47,7 @@ export default function PainelCards({
 
                     <div className="leito-card-header">
                       <span className={`leito-numero ${leito.tipo === 'extra' ? 'extra' : ''}`}>
-                        Leito {leito.numero} {leito.tipo === 'extra' ? '· Extra' : ''}
+                        <i className="ph ph-bed" /> Leito {leito.numero} {leito.tipo === 'extra' ? '· Extra' : ''}
                       </span>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -69,7 +69,7 @@ export default function PainelCards({
                               title="Mais ações"
                               onClick={() => setMenuAcoesLeitoId(menuAcoesLeitoId === leito.id ? null : leito.id)}
                             >
-                              ⋮
+                              <i className="ph ph-dots-three-vertical" />
                             </button>
                             {menuAcoesLeitoId === leito.id && (
                               <div className="leito-menu-dropdown">
@@ -80,7 +80,7 @@ export default function PainelCards({
                                     onAbrirRealocar({ paciente, leitoOrigem: leito })
                                   }}
                                 >
-                                  ⇄ Realocar paciente
+                                  <i className="ph ph-arrows-clockwise" /> Realocar paciente
                                 </button>
                               </div>
                             )}
@@ -97,6 +97,7 @@ export default function PainelCards({
                         </div>
 
                         <div className="leito-paciente-meta">
+                          <i className="ph ph-identification-card" />{' '}
                           {paciente.idade ? `${paciente.idade} anos` : null}
                           {paciente.idade && paciente.sexo ? ' · ' : null}
                           {paciente.sexo === 'F' ? 'Feminino' : paciente.sexo === 'M' ? 'Masculino' : null}
@@ -125,7 +126,7 @@ export default function PainelCards({
                       </div>
                     ) : (
                       <div className="leito-vazio-card">
-                        <div className="vazio-icon">🛏️</div>
+                        <i className="ph ph-plus-circle vazio-icon" />
                         <div className="vazio-title">Leito {leito.numero} Livre</div>
                         <div className="vazio-subtitle">Clique para admitir paciente</div>
                       </div>

@@ -55,8 +55,8 @@ export default function Painel({ plantao, setoresIds }) {
           </p>
         </div>
         <div className="visualizacao-toggle">
-          <button className={visualizacao === 'cards' ? 'on' : ''} onClick={() => setVisualizacao('cards')}>Cards</button>
-          <button className={visualizacao === 'tabela' ? 'on' : ''} onClick={() => setVisualizacao('tabela')}>Lista</button>
+          <button className={visualizacao === 'cards' ? 'on' : ''} onClick={() => setVisualizacao('cards')}><i className="ph ph-squares-four" /> Cards</button>
+          <button className={visualizacao === 'tabela' ? 'on' : ''} onClick={() => setVisualizacao('tabela')}><i className="ph ph-list-dashes" /> Lista</button>
         </div>
       </div>
       <div style={{ borderBottom: '1px solid var(--c-border)', marginBottom: 20 }} />
@@ -64,7 +64,7 @@ export default function Painel({ plantao, setoresIds }) {
       {erroGeral && (
         <div className="error-box" style={{ marginBottom: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{erroGeral}</span>
-          <button onClick={() => setErroGeral('')} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontWeight: 700, cursor: 'pointer' }}>✕</button>
+          <button onClick={() => setErroGeral('')} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontWeight: 700, cursor: 'pointer' }}><i className="ph ph-x" /></button>
         </div>
       )}
 
