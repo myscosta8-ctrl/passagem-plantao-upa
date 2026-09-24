@@ -54,6 +54,9 @@ export default function EspacoPaciente({
         pessoa_id: paciente.pessoa_id,
         nome: paciente.nome,
         leito_numero: leito?.numero,
+        paciente,
+        leito,
+        setorNome,
       }
       setAtendimentoResolvido(atd)
       setPilarAtivo(chaveDestino)
@@ -75,9 +78,21 @@ export default function EspacoPaciente({
       pessoa_id: pessoaId,
       nome: paciente.nome,
       leito_numero: leito?.numero,
+      paciente,
+      leito,
+      setorNome,
     }
     setAtendimentoResolvido(atd)
     setPilarAtivo(chaveDestino)
+  }
+
+  if (pilarAtivo === 'medico' && atendimentoResolvido) {
+    return (
+      <FichaMedica
+        atendimento={atendimentoResolvido}
+        onFechar={onFechar}
+      />
+    )
   }
 
   function trocarPilar(chave) {

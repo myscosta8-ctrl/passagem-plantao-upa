@@ -1,0 +1,827 @@
+/* ========================================================
+   ATENDIMENTO MÉDICO — WORKSPACE CLÍNICO COMPLETO
+   Fiel a mockups-fase2/06-anamnese-admissao-design.html
+   ======================================================== */
+
+.atendimento-medico-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  background: #F8FAFC;
+  color: #0F172A;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* TOPBAR */
+.atendimento-medico-container .topbar {
+  background: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+.atendimento-medico-container .topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.atendimento-medico-container .btn-voltar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid #CBD5E1;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #475569;
+  transition: 0.2s;
+}
+.atendimento-medico-container .btn-voltar:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+.atendimento-medico-container .breadcrumb {
+  font-size: 12px;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.atendimento-medico-container .breadcrumb .current {
+  color: #0F172A;
+  font-weight: 600;
+}
+.atendimento-medico-container .topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.atendimento-medico-container .sys-time {
+  font-size: 12px;
+  color: #94A3B8;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.atendimento-medico-container .top-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  border: 1px solid #BFDBFE;
+}
+
+/* ÁREA DE TRABALHO */
+.atendimento-medico-container .workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 20px;
+  gap: 10px;
+  overflow: hidden;
+}
+
+/* BANNER DO PACIENTE */
+.atendimento-medico-container .patient-banner {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 10px 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+.atendimento-medico-container .pb-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.atendimento-medico-container .pb-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.atendimento-medico-container .badge-pediatrico {
+  font-size: 10px;
+  font-weight: 700;
+  background: #E0E7FF;
+  color: #3730A3;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid #C7D2FE;
+}
+.atendimento-medico-container .badge-alergia-pb {
+  font-size: 10px;
+  font-weight: 700;
+  background: #FEF2F2;
+  color: #DC2626;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid #FECACA;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.atendimento-medico-container .pb-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #475569;
+  flex-wrap: wrap;
+}
+.atendimento-medico-container .pb-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.atendimento-medico-container .weight-badge {
+  background: #FEF3C7;
+  color: #92400E;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.atendimento-medico-container .pb-right {
+  text-align: right;
+  font-size: 12px;
+}
+.atendimento-medico-container .btn-toggle-pb {
+  background: transparent;
+  border: none;
+  color: #1D4ED8;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+/* GAVETA DE DADOS DO PACIENTE */
+.atendimento-medico-container .pb-drawer {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #E2E8F0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  font-size: 11px;
+}
+.atendimento-medico-container .drawer-item label {
+  display: block;
+  color: #94A3B8;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.atendimento-medico-container .drawer-item span {
+  font-weight: 600;
+  color: #0F172A;
+}
+
+/* BARRA DE NAVEGAÇÃO DE ABAS CLÍNICAS */
+.atendimento-medico-container .clinical-tabs {
+  display: flex;
+  gap: 4px;
+  background: #E2E8F0;
+  padding: 4px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  align-items: center;
+}
+.atendimento-medico-container .tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.15s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.atendimento-medico-container .tab-btn:hover {
+  background: rgba(255,255,255,0.6);
+  color: #0F172A;
+}
+.atendimento-medico-container .tab-btn.active {
+  background: #FFFFFF;
+  color: #1D4ED8;
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.atendimento-medico-container .tab-more-select {
+  padding: 6px 10px;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #FFFFFF;
+  color: #475569;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ÁREA SPLIT CLÍNICA */
+.atendimento-medico-container .clinical-split {
+  flex: 1;
+  display: flex;
+  gap: 14px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* LADO ESQUERDO: PAINEL DE FERRAMENTAS & KITS */
+.atendimento-medico-container .tools-pane {
+  width: 310px;
+  flex-shrink: 0;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.atendimento-medico-container .pane-header {
+  background: #F8FAFC;
+  border-bottom: 1px solid #CBD5E1;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.atendimento-medico-container .tools-body {
+  padding: 12px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.atendimento-medico-container .triage-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px;
+}
+.atendimento-medico-container .triage-card h3 {
+  font-size: 11px;
+  color: #94A3B8;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+.atendimento-medico-container .vitals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.atendimento-medico-container .vital-box {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  padding: 6px;
+  border-radius: 6px;
+  text-align: center;
+}
+.atendimento-medico-container .vital-box span {
+  display: block;
+  font-size: 9px;
+  color: #94A3B8;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.atendimento-medico-container .vital-box strong {
+  display: block;
+  font-size: 13px;
+  color: #0F172A;
+  margin-top: 2px;
+}
+.atendimento-medico-container .vital-box.alert {
+  background: #FEF2F2;
+  border-color: #FECACA;
+}
+.atendimento-medico-container .vital-box.alert strong {
+  color: #DC2626;
+}
+
+/* Banners Auxiliares da Barra Lateral */
+.atendimento-medico-container .info-integration-box {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  padding: 10px;
+}
+.atendimento-medico-container .info-integration-box h3 {
+  font-size: 11px;
+  color: #1D4ED8;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+.atendimento-medico-container .info-integration-box p {
+  font-size: 11px;
+  color: #475569;
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+
+.atendimento-medico-container .template-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 6px;
+  text-align: left;
+  width: 100%;
+  transition: 0.2s;
+}
+.atendimento-medico-container .template-btn:hover {
+  border-color: #1D4ED8;
+  background: #EFF6FF;
+}
+.atendimento-medico-container .template-btn strong {
+  display: block;
+  font-size: 11px;
+  color: #0F172A;
+}
+.atendimento-medico-container .template-btn span {
+  font-size: 10px;
+  color: #94A3B8;
+}
+
+/* LADO DIREITO: CARD PRINCIPAL COM TROCA DE TELA */
+.atendimento-medico-container .clinical-card {
+  flex: 1;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.atendimento-medico-container .cc-header {
+  background: #F8FAFC;
+  border-bottom: 1px solid #CBD5E1;
+  padding: 10px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.atendimento-medico-container .cc-header-info h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.atendimento-medico-container .cc-header-info span {
+  font-size: 11px;
+  color: #94A3B8;
+  margin-top: 2px;
+  display: block;
+}
+
+.atendimento-medico-container .cc-body {
+  padding: 16px 18px;
+  flex: 1;
+  overflow-y: auto;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Seções do Formulário */
+.atendimento-medico-container .form-section-box {
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 14px;
+  position: relative;
+  background: #FFFFFF;
+}
+.atendimento-medico-container .form-section-box-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  position: absolute;
+  top: -8px;
+  left: 14px;
+  background: #FFFFFF;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.atendimento-medico-container .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.atendimento-medico-container .form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0F172A;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.atendimento-medico-container .form-group input,
+.atendimento-medico-container .form-group textarea,
+.atendimento-medico-container .form-group select {
+  padding: 8px 10px;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+}
+.atendimento-medico-container .form-group input:focus,
+.atendimento-medico-container .form-group textarea:focus,
+.atendimento-medico-container .form-group select:focus {
+  border-color: #1D4ED8;
+  box-shadow: 0 0 0 3px #EFF6FF;
+}
+
+.atendimento-medico-container .badge-auto {
+  background: #DCFCE7;
+  color: #166534;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid #BBF7D0;
+}
+.atendimento-medico-container .badge-manual {
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid #FDE68A;
+}
+
+.atendimento-medico-container .allergy-alert {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 6px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.atendimento-medico-container .allergy-alert .info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #DC2626;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.atendimento-medico-container .chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.atendimento-medico-container .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+}
+.atendimento-medico-container .chip-close {
+  cursor: pointer;
+  color: #94A3B8;
+  font-weight: bold;
+}
+.atendimento-medico-container .chip-close:hover {
+  color: #DC2626;
+}
+.atendimento-medico-container .btn-add-chip {
+  background: transparent;
+  border: 1px dashed #1D4ED8;
+  color: #1D4ED8;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.atendimento-medico-container .btn-add-chip:hover {
+  background: #EFF6FF;
+}
+
+/* ========================================================
+   ESTILOS EXCLUSIVOS DO LAUDO DE AIH
+   ======================================================== */
+.atendimento-medico-container .aih-banner-top {
+  background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 100%);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.atendimento-medico-container .aih-banner-title h3 {
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.atendimento-medico-container .aih-banner-title p {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+.atendimento-medico-container .aih-sync-pill {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.atendimento-medico-container .aih-secao-box {
+  border: 1.5px solid #1E293B;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #FFFFFF;
+  position: relative;
+  margin-top: 4px;
+}
+.atendimento-medico-container .aih-secao-legend {
+  font-size: 11px;
+  font-weight: 800;
+  color: #1E293B;
+  text-transform: uppercase;
+  background: #FFFFFF;
+  padding: 0 8px;
+  position: absolute;
+  top: -8px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.05em;
+}
+
+.atendimento-medico-container .aih-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 8px;
+}
+.atendimento-medico-container .col-1 { grid-column: span 1; }
+.atendimento-medico-container .col-2 { grid-column: span 2; }
+.atendimento-medico-container .col-3 { grid-column: span 3; }
+.atendimento-medico-container .col-4 { grid-column: span 4; }
+.atendimento-medico-container .col-5 { grid-column: span 5; }
+.atendimento-medico-container .col-6 { grid-column: span 6; }
+.atendimento-medico-container .col-7 { grid-column: span 7; }
+.atendimento-medico-container .col-8 { grid-column: span 8; }
+.atendimento-medico-container .col-9 { grid-column: span 9; }
+.atendimento-medico-container .col-10 { grid-column: span 10; }
+.atendimento-medico-container .col-11 { grid-column: span 11; }
+.atendimento-medico-container .col-12 { grid-column: span 12; }
+
+.atendimento-medico-container .aih-field-box {
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: #FAFAFA;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.atendimento-medico-container .aih-field-box.readonly {
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+}
+.atendimento-medico-container .aih-field-box.highlight {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+}
+.atendimento-medico-container .aih-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+.atendimento-medico-container .aih-field-header label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #94A3B8;
+  text-transform: uppercase;
+}
+.atendimento-medico-container .aih-field-value {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.atendimento-medico-container .quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.atendimento-medico-container .quick-chip {
+  font-size: 10px;
+  font-weight: 600;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #475569;
+  transition: 0.15s;
+}
+.atendimento-medico-container .quick-chip:hover {
+  border-color: #1D4ED8;
+  color: #1D4ED8;
+  background: #EFF6FF;
+}
+.atendimento-medico-container .quick-chip.active {
+  background: #1D4ED8;
+  color: white;
+  border-color: #1D4ED8;
+}
+
+/* RODAPÉ UNIVERSAL */
+.atendimento-medico-container .cc-footer {
+  background: #F8FAFC;
+  border-top: 1px solid #CBD5E1;
+  padding: 10px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.atendimento-medico-container .btn-cancel {
+  background: #fff;
+  border: 1px solid #CBD5E1;
+  color: #475569;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.2s;
+}
+.atendimento-medico-container .btn-cancel:hover {
+  background: #FEF2F2;
+  color: #DC2626;
+  border-color: #FECACA;
+}
+.atendimento-medico-container .btn-save-draft {
+  background: #fff;
+  border: 1px solid #1D4ED8;
+  color: #1D4ED8;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.2s;
+}
+.atendimento-medico-container .btn-save-draft:hover {
+  background: #EFF6FF;
+}
+.atendimento-medico-container .btn-save-print {
+  background: #1D4ED8;
+  color: white;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: 0.2s;
+}
+.atendimento-medico-container .btn-save-print:hover {
+  background: #1E40AF;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);
+}
+.atendimento-medico-container .btn-save-aih {
+  background: #1E3A8A;
+  color: white;
+  border: 1px solid #172554;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: 0.2s;
+}
+.atendimento-medico-container .btn-save-aih:hover {
+  background: #0F172A;
+}
+.atendimento-medico-container .btn-next-tab {
+  background: #F8FAFC;
+  border: 1px solid #1D4ED8;
+  color: #1D4ED8;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.atendimento-medico-container .btn-next-tab:hover {
+  background: #EFF6FF;
+}
