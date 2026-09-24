@@ -957,7 +957,19 @@ END $$;
 -- ==============================================================================
 
 -- 1. SETORES PADRÃO DA UPA 24H BREVES
+ALTER TABLE public.setores ADD COLUMN IF NOT EXISTS sigla TEXT;
+ALTER TABLE public.setores ADD COLUMN IF NOT EXISTS ordem INTEGER DEFAULT 0;
+ALTER TABLE public.setores ADD COLUMN IF NOT EXISTS ativo BOOLEAN DEFAULT true;
+
+ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'comum';
+ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS ativo BOOLEAN DEFAULT true;
+
+ALTER TABLE public.catalogo_medicamentos ADD COLUMN IF NOT EXISTS via_padrao TEXT;
+ALTER TABLE public.catalogo_medicamentos ADD COLUMN IF NOT EXISTS controlado BOOLEAN DEFAULT false;
+ALTER TABLE public.catalogo_medicamentos ADD COLUMN IF NOT EXISTS antimicrobiano BOOLEAN DEFAULT false;
+
 INSERT INTO public.setores (id, nome, sigla, ordem, ativo) VALUES
+
     ('11111111-1111-1111-1111-111111111101', 'Sala Vermelha (Emergência)', 'SV', 1, true),
     ('11111111-1111-1111-1111-111111111102', 'Internação', 'INT', 2, true),
     ('11111111-1111-1111-1111-111111111103', 'Observação Masculina', 'OBS-M', 3, true),
