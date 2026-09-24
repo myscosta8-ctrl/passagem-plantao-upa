@@ -765,6 +765,34 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_enfermeiros_email ON public.enfermeiros (em
 CREATE UNIQUE INDEX IF NOT EXISTS uq_configuracoes_chave ON public.configuracoes (chave);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_cid_catalog_codigo ON public.cid_catalog (codigo);
 
+-- Atualização e compatibilização de CHECK constraints legadas
+ALTER TABLE public.leitos DROP CONSTRAINT IF EXISTS leitos_tipo_check;
+ALTER TABLE public.leitos ADD CONSTRAINT leitos_tipo_check CHECK (tipo IN ('comum', 'extra', 'isolamento', 'emergencia', 'observacao', 'suporte_ventilatorio'));
+
+ALTER TABLE public.plantoes DROP CONSTRAINT IF EXISTS plantoes_turno_check;
+ALTER TABLE public.plantoes ADD CONSTRAINT plantoes_turno_check CHECK (turno IN ('diurno', 'noturno', '24h'));
+
+ALTER TABLE public.plantoes DROP CONSTRAINT IF EXISTS plantoes_status_check;
+ALTER TABLE public.plantoes ADD CONSTRAINT plantoes_status_check CHECK (status IN ('aberto', 'encerrado'));
+
+ALTER TABLE public.atendimentos DROP CONSTRAINT IF EXISTS atendimentos_tipo_check;
+ALTER TABLE public.atendimentos ADD CONSTRAINT atendimentos_tipo_check CHECK (tipo IN ('urgencia', 'emergencia', 'ambulatorial', 'internacao', 'observacao'));
+
+ALTER TABLE public.atendimentos DROP CONSTRAINT IF EXISTS atendimentos_status_check;
+ALTER TABLE public.atendimentos ADD CONSTRAINT atendimentos_status_check CHECK (status IN ('triagem', 'atendimento', 'internado', 'alta', 'obito', 'transferido', 'evasao'));
+
+ALTER TABLE public.dispositivos_invasivos DROP CONSTRAINT IF EXISTS dispositivos_invasivos_status_check;
+ALTER TABLE public.dispositivos_invasivos ADD CONSTRAINT dispositivos_invasivos_status_check CHECK (status IN ('ativo', 'retirado', 'obstruido', 'infiltrado', 'infeccao'));
+
+ALTER TABLE public.alergias DROP CONSTRAINT IF EXISTS alergias_status_check;
+ALTER TABLE public.alergias ADD CONSTRAINT alergias_status_check CHECK (status IN ('ativa', 'inativa', 'resolvida'));
+
+ALTER TABLE public.medicacoes_continuas DROP CONSTRAINT IF EXISTS medicacoes_continuas_status_check;
+ALTER TABLE public.medicacoes_continuas ADD CONSTRAINT medicacoes_continuas_status_check CHECK (status IN ('ativo', 'suspenso', 'interrompido'));
+
+ALTER TABLE public.isolamentos DROP CONSTRAINT IF EXISTS isolamentos_status_check;
+ALTER TABLE public.isolamentos ADD CONSTRAINT isolamentos_status_check CHECK (status IN ('ativo', 'suspenso'));
+
 
 -- =====================================================================
 -- FASE 4: ÍNDICES DE PERFORMANCE E POLÍTICAS DE ACESSO (RLS)
