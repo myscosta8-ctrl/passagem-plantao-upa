@@ -46,28 +46,89 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir }) {
     setSalvo(data)
   }
 
-  if (carregando) return <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
+  if (carregando) return <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
 
   return (
-    <div className="form-section">
-      <div className="form-section-title">Sumário de alta</div>
-      <div className="form-grid">
-        <div className="form-field"><label>Data de internação</label><input type="date" value={dados.data_internacao} onChange={(e) => set('data_internacao', e.target.value)} /></div>
-        <div className="form-field"><label>Data da alta</label><input type="date" value={dados.data_alta} onChange={(e) => set('data_alta', e.target.value)} /></div>
-        <div className="form-field span-2"><label>Diagnóstico de internação</label><input type="text" value={dados.diagnostico_internacao} onChange={(e) => set('diagnostico_internacao', e.target.value)} /></div>
-        <div className="form-field"><label>CID</label><input type="text" placeholder="Ex: J18.9" value={dados.cid_internacao} onChange={(e) => set('cid_internacao', e.target.value)} /></div>
-        <div className="form-field span-2"><label>Diagnóstico de alta</label><input type="text" value={dados.diagnostico_alta} onChange={(e) => set('diagnostico_alta', e.target.value)} /></div>
-        <div className="form-field"><label>CID</label><input type="text" placeholder="Ex: J18.9" value={dados.cid_alta} onChange={(e) => set('cid_alta', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Resumo clínico</label><textarea value={dados.resumo_clinico} onChange={(e) => set('resumo_clinico', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Orientações para continuidade do tratamento</label><textarea value={dados.orientacoes_continuidade} onChange={(e) => set('orientacoes_continuidade', e.target.value)} /></div>
+    <div className="clinical-card" style={{ flex: 1 }}>
+      <div className="cc-header">
+        <div className="cc-title">
+          <h2><i className="ph ph-clipboard-text" /> Sumário de Alta</h2>
+          <p>Documento único por atendimento, editável até o fechamento.</p>
+        </div>
       </div>
 
-      {sucesso && <p style={{ fontSize: 12, color: 'var(--c-primary)', marginTop: 14 }}>Sumário de alta salvo.</p>}
-      <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar sumário'}</button>
-        {salvo && <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(salvo)}>Imprimir</button>}
+      <div className="cc-body">
+        <div className="assess-grid">
+          <div className="form-group">
+            <label><i className="ph ph-calendar" /> Data de internação</label>
+            <input type="date" value={dados.data_internacao} onChange={(e) => set('data_internacao', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label><i className="ph ph-calendar-check" /> Data da alta</label>
+            <input type="date" value={dados.data_alta} onChange={(e) => set('data_alta', e.target.value)} />
+          </div>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-virus" /> Diagnóstico de internação</div>
+          <div className="assess-grid">
+            <div className="form-group" style={{ gridColumn: 'span 1' }}>
+              <label>Diagnóstico</label>
+              <input type="text" value={dados.diagnostico_internacao} onChange={(e) => set('diagnostico_internacao', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>CID</label>
+              <input type="text" placeholder="Ex: J18.9" value={dados.cid_internacao} onChange={(e) => set('cid_internacao', e.target.value)} />
+            </div>
+          </div>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-check-circle" /> Diagnóstico de alta</div>
+          <div className="assess-grid">
+            <div className="form-group">
+              <label>Diagnóstico</label>
+              <input type="text" value={dados.diagnostico_alta} onChange={(e) => set('diagnostico_alta', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>CID</label>
+              <input type="text" placeholder="Ex: J18.9" value={dados.cid_alta} onChange={(e) => set('cid_alta', e.target.value)} />
+            </div>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label><i className="ph ph-text-align-left" /> Resumo clínico</label>
+          <textarea value={dados.resumo_clinico} onChange={(e) => set('resumo_clinico', e.target.value)} />
+        </div>
+
+        <div className="form-group">
+          <label><i className="ph ph-list-checks" /> Orientações para continuidade do tratamento</label>
+          <textarea value={dados.orientacoes_continuidade} onChange={(e) => set('orientacoes_continuidade', e.target.value)} />
+        </div>
+
+        {sucesso && (
+          <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
+            <div className="info" style={{ color: '#166534' }}>
+              <i className="ph ph-check-circle" /> Sumário de alta salvo.
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="cc-footer">
+        <span />
+        <div style={{ display: 'flex', gap: 12 }}>
+          {salvo && (
+            <button type="button" className="btn-save-draft" onClick={() => onImprimir(salvo)}>
+              <i className="ph ph-printer" /> Imprimir
+            </button>
+          )}
+          <button className="btn-save-print" onClick={salvar} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar sumário'}
+          </button>
+        </div>
       </div>
     </div>
   )
 }
-
