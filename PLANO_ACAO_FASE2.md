@@ -84,13 +84,13 @@ Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
 Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada abaixo.
 
-### Fase 1 (redesenho de conteúdo por módulo) — **2 de 16 módulos feitos**
+### Fase 1 (redesenho de conteúdo por módulo) — **3 de 16 módulos feitos**
 
 | Módulo do mockup | Status | Evidência |
 |---|---|---|
-| 06 — Anamnese/Admissão (aba Consulta) | ✅ Redesenhado | `AbaConsulta.jsx` reescrito (509 linhas), sem classe `form-section` antiga — **mas tem o bug crítico do topo** |
-| 06 — Laudo de AIH | ✅ Redesenhado | `AbaAih.jsx` reescrito (924 linhas), split-view — **mas tem o bug crítico do topo** |
-| 01 — Painel de Leitos | ⚠️ Só CSS, não a estrutura | `Painel.css` reescrito (469 linhas) mudando cores/espaçamento, mas `Painel.jsx` **não foi tocado** — continua com a estrutura antiga (`.page`, `.visualizacao-toggle`), não o layout de cards do mockup `01-painel-leitos-design.html` |
+| 06 — Anamnese/Admissão (aba Consulta) | ✅ Redesenhado | `AbaConsulta.jsx` reescrito, sem classe `form-section` antiga, ícones Phosphor, bug do dado falso corrigido (commit `a3c5953`) |
+| 06 — Laudo de AIH | ✅ Redesenhado | `AbaAih.jsx` reescrito, split-view, ícones Phosphor, bug do dado falso corrigido (commit `a3c5953`) |
+| 01 — Painel de Leitos | ✅ Concluído (commit `8148de5`) | `Painel.css` já batia com o mockup (cores, risk-bar, grid de cards); faltavam só os ícones — trocados emoji/símbolos unicode por Phosphor em `Painel.jsx`, `PainelCards.jsx`, `ModalInternar.jsx`. Nenhuma funcionalidade alterada. |
 | 02 — Recepção | ❌ Não iniciado | `CadastroPacientes.jsx` sem alteração |
 | 03 — Prontuário Médico/Evolução | ❌ Não iniciado | `AbaEvolucaoMedica.jsx` ainda usa `form-section` |
 | 04 — Prescrição Médica | ❌ Não iniciado | `AbaPrescricao.jsx` ainda usa `form-section` |
@@ -212,6 +212,13 @@ própria, distinta da médica).
   `mockups-fase2/`) — consolidar.
 - Revisão do `somenteSe` em `historicoEnfermagemConfig.js`.
 - Verificação visual da tela de Abertura de Plantão.
+- **CORS do Supabase bloqueando `localhost`** (achado 24/09, noite): o projeto Supabase só
+  libera `https://viltaloop.com.br` como origem — qualquer teste em `localhost:5188` (ou
+  outra porta local) falha com erro de CORS ao buscar dados. Não é algo desta sessão nem
+  relacionado ao redesign; provavelmente um endurecimento de segurança feito em outro
+  momento. Sem isso corrigido (adicionar `http://localhost:*` nas origens permitidas do
+  projeto Supabase), verificação visual via browser local fica impossível — só dá pra
+  confiar em build/lint/testes automatizados, ou testar direto no domínio de produção.
 
 ## Nota sobre branch
 
