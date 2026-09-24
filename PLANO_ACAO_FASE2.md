@@ -84,7 +84,7 @@ Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
 Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada abaixo.
 
-### Fase 1 (redesenho de conteúdo por módulo) — **5 de 16 módulos feitos**
+### Fase 1 (redesenho de conteúdo por módulo) — **6 de 16 módulos feitos**
 
 | Módulo do mockup | Status | Evidência |
 |---|---|---|
@@ -93,7 +93,7 @@ Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada a
 | 01 — Painel de Leitos | ✅ Concluído (commit `8148de5`) | `Painel.css` já batia com o mockup (cores, risk-bar, grid de cards); faltavam só os ícones — trocados emoji/símbolos unicode por Phosphor em `Painel.jsx`, `PainelCards.jsx`, `ModalInternar.jsx`. Nenhuma funcionalidade alterada. |
 | 02 — Recepção | ✅ Concluído (commit `e26a872`) | `CadastroPacientes.css` novo, aplicado na barra de busca e cards de resultado (`AbaBusca.jsx`) e abas/lista de recentes (`CadastroPacientes.jsx`), ícones Phosphor. **Deliberadamente fora do escopo:** os campos internos dos formulários (`CamposIdentidade.jsx`/`CamposAtendimento.jsx`) continuam no padrão `.form-field`/`.form-grid` compartilhado com o resto do sistema — redesenhar esse padrão em si é tarefa maior e transversal a todos os módulos, não específica da Recepção. |
 | 03 — Prontuário Médico/Evolução | ✅ Concluído (commit `022fce8`) | `AbaEvolucaoMedica.jsx` reescrito no padrão split-view (timeline + formulário), mesmo framework CSS de AIH/Consulta. Booleanos viraram checkbox real. Fora do escopo: grade de sinais vitais "puxar da enfermagem" do mockup — não existe no modelo de dados hoje, é funcionalidade nova (Fase 2). |
-| 04 — Prescrição Médica | ❌ Não iniciado | `AbaPrescricao.jsx` ainda usa `form-section` |
+| 04 — Prescrição Médica | ✅ Concluído (commit `54f5cdf`) | `AbaPrescricao.jsx` reescrito com `clinical-card`/`form-section-box`, ícones Phosphor, campo SN virou checkbox real. Fora do escopo: calculadora de dose pediátrica EV/IM do mockup — funcionalidade de cálculo nova, não existe hoje, pertence à Fase 2. |
 | 05 — Receituário/Sumário de Alta | ❌ Não iniciado | `AbaReceituarioMedico.jsx`/`AbaSumarioAlta.jsx` ainda usam `form-section` |
 | 07 — Plano Terapêutico | ❌ Não iniciado | `AbaPlanoTerapeutico.jsx` ainda usa `form-section` |
 | 08 — Admissão de Enfermagem | ❌ Não iniciado | `AbaHistoricoEnfermagem.jsx` continua no formato antigo (nem foi movida pra dentro de `ficha-clinica/`) |
