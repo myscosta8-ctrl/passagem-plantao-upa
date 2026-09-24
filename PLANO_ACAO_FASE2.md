@@ -4,6 +4,27 @@
 dia (commits `4cfb21c` e `06ba6cb` na branch `main`).** A versão anterior deste documento
 tinha uma auditoria desatualizada (dizia que nada da Fase 0 existia) — corrigida abaixo.
 
+## Confirmado com o usuário (24/09, à noite)
+
+- **A remodelação da Passagem de Plantão AINDA NÃO foi implementada em produção** — existe
+  só como proposta em `mockups-fase2/12-passagem-plantao-design.html` (workspace) e
+  `modelos_impressao_html/15-passagem-plantao-coletiva.html` (impressão). O que existe hoje
+  em produção (`src/pages/passagem-form/`) é só a modularização estrutural do formulário
+  antigo — mesma funcionalidade, mesmo visual, só quebrado em arquivos menores.
+- **Toda a Passagem de Plantão será remodelada, mas os dados salvos em produção têm que
+  sobreviver**, mesmo os incompletos. Nenhuma migração/redesenho desse módulo pode implicar
+  perda de registro existente — regra vale pra qualquer módulo, mas o usuário pediu ênfase
+  nesse especificamente.
+- Confirmado por auditoria própria (não só pelo commit message): nenhum dado foi de fato
+  alterado hoje. As 6 migrações novas em `supabase/migrations/20260924*.sql` e o
+  `supabase/DEPLOY_PRODUCAO.sql` **nunca foram aplicados no banco real** — `list_migrations`
+  no Supabase mostra a última migração real ainda sendo a nossa, de dias atrás
+  (`pep_historico_enfermagem`). Contagem de linhas de `pacientes`, `atendimentos`,
+  `internacoes`, `leito_ocupacoes`, `realocacoes` idêntica à de antes. Os arquivos são
+  aditivos (`CREATE TABLE IF NOT EXISTS`, sem `DROP`/`TRUNCATE`), mas **não devem ser
+  rodados (`npm run db:migrate` ou o SQL direto) sem revisão prévia**, exatamente por
+  cobrirem tabelas que já têm dado real hoje.
+
 ## 🚨 Bug crítico a corrigir ANTES de continuar qualquer coisa nova
 
 Os 3 arquivos que o IDE reescreveu hoje (`src/pages/ficha-medica/AbaAih.jsx`,
