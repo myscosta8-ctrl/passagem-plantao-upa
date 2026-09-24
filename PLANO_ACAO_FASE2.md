@@ -71,18 +71,18 @@ Cada fase é um pacote fechado — só avança pra próxima com confirmação ex
 
 Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
-### Fase 0 (fundação do design system) — **quase concluída (atualizado 24/09, noite)**
+### Fase 0 (fundação do design system) — **✅ CONCLUÍDA (24/09, noite, commit `7a6336a`)**
 
 | Item | Status | Evidência |
 |---|---|---|
 | Paleta/tokens de cor (Manchester, sombras) | ✅ Feito | `src/index.css` tem `--mc-vermelho/laranja/amarelo/verde/azul` e variações `-bg` |
 | Fonte Inter como base da UI | ✅ Feito | `--font-ui: 'Inter'...` importada e aplicada em `body`/inputs; IBM Plex Mono mantida como `--font-mono` pros campos "burocráticos" (parece intencional, não removida) |
-| Ícones Phosphor | ✅ Feito (commit `6c971d1`) | Pacote `@phosphor-icons/web` instalado localmente (`src/main.jsx`), emoji trocados por `<i className="ph ph-...">` seguindo os nomes exatos usados nos mockups, em `PatientBanner.jsx`, `FichaMedicaHeader/Tabs.jsx`, `AbaConsulta.jsx`, `AbaAih.jsx`. **Ainda faltam** `AbaApac.jsx`/`AbaExames.jsx` (arquivos antigos, fora do escopo de hoje) e os botões de imprimir em `AbaBalancoHidrico/AbaEventosAdversos/AbaEvolucao.jsx` (ficha-clinica) — ficam pro Fase 1 de cada módulo. |
-| Sidebar redesenhada | ⚠️ Parcial (sem mudança) | `Sidebar.css` só teve 3 linhas alteradas — não é o rebuild completo de `proposta-menu-hamburguer.html` |
+| Ícones Phosphor | ✅ Feito (commits `6c971d1`, `7a6336a`) | Pacote `@phosphor-icons/web` instalado localmente (`src/main.jsx`), emoji trocados por `<i className="ph ph-...">` seguindo os nomes exatos usados nos mockups, em `PatientBanner.jsx`, `FichaMedicaHeader/Tabs.jsx`, `AbaConsulta.jsx`, `AbaAih.jsx`, `Sidebar.jsx`. **Ainda faltam** `AbaApac.jsx`/`AbaExames.jsx` (arquivos antigos, fora do escopo de hoje) e os botões de imprimir em `AbaBalancoHidrico/AbaEventosAdversos/AbaEvolucao.jsx` (ficha-clinica) — ficam pro Fase 1 de cada módulo. |
+| Sidebar redesenhada | ✅ Feito (commit `7a6336a`) | A estrutura (grupos, colapsar/expandir, hambúrguer mobile, cor `--c-primary-dark`) já implementava fielmente `proposta-menu-hamburguer.html` desde antes de hoje — só faltava trocar os emoji dos itens por Phosphor, feito agora. |
 | Componente de app-shell (topbar/banner) | ✅ Feito (commit `6c971d1`) | Prontuário de Enfermagem ganhou `FichaClinicaHeader.jsx`/`FichaClinicaTabs.jsx`/`FichaClinicaConteudo.jsx`, espelhando o padrão do Prontuário Médico e reaproveitando o mesmo `PatientBanner` e a mesma `AtendimentoMedico.css` — nenhuma aba/funcionalidade existente foi removida, só o shell visual mudou. |
 | 3 pilares do Espaço do Paciente | ✅ Já existia antes de hoje | Confirmado em `EspacoPaciente.jsx` (não é pendência) |
 
-**Falta só a Sidebar** pra fechar a Fase 0 por completo.
+Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada abaixo.
 
 ### Fase 1 (redesenho de conteúdo por módulo) — **2 de 16 módulos feitos**
 
