@@ -35,134 +35,211 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir }) {
   }
 
   return (
-    <div className="form-section">
-      <div className="form-section-title">Solicitação de Sangue, Componentes e Derivados</div>
-      <div className="form-grid">
-        <div className="form-field"><label>Peso</label><input type="text" value={dados.peso} onChange={(e) => set('peso', e.target.value)} /></div>
-        <div className="form-field"><label>HB/HT</label><input type="text" placeholder="Ex: 6,4/20,9" value={dados.hb_ht} onChange={(e) => set('hb_ht', e.target.value)} /></div>
-        <div className="form-field"><label>APT</label><input type="text" value={dados.apt} onChange={(e) => set('apt', e.target.value)} /></div>
-        <div className="form-field"><label>ENFª/Leito</label><input type="text" value={dados.enf_leito} onChange={(e) => set('enf_leito', e.target.value)} /></div>
-        <div className="form-field"><label>Registro hospitalar</label><input type="text" value={dados.registro_hospitalar} onChange={(e) => set('registro_hospitalar', e.target.value)} /></div>
-        <div className="form-field"><label>Categoria</label><input type="text" value={dados.categoria} onChange={(e) => set('categoria', e.target.value)} /></div>
+    <div className="clinical-card" style={{ flex: 1 }}>
+      <div className="cc-header">
+        <div className="cc-title">
+          <h2><i className="ph ph-drop" /> Solicitação de Sangue, Componentes e Derivados</h2>
+          <p>Documento Oficial: Modelo 17 · Fundação HEMOPA</p>
+        </div>
+      </div>
 
-        <div className="form-field">
-          <label>Recebeu transfusão?</label>
-          <div className="toggle-group">
-            {[['sim', 'Sim'], ['nao', 'Não']].map(([v, r]) => (
-              <button key={v} type="button" className={`toggle-btn ${dados.recebeu_transfusao === v ? 'on' : ''}`} onClick={() => set('recebeu_transfusao', v)}>{r}</button>
-            ))}
+      <div className="cc-body">
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-user" /> 1. Identificação e histórico transfusional</div>
+          <div className="assess-grid">
+            <div className="form-group"><label>Peso</label><input type="text" value={dados.peso} onChange={(e) => set('peso', e.target.value)} /></div>
+            <div className="form-group"><label>HB/HT</label><input type="text" placeholder="Ex: 6,4/20,9" value={dados.hb_ht} onChange={(e) => set('hb_ht', e.target.value)} /></div>
+          </div>
+          <div className="assess-grid" style={{ marginTop: 12 }}>
+            <div className="form-group"><label>APT</label><input type="text" value={dados.apt} onChange={(e) => set('apt', e.target.value)} /></div>
+            <div className="form-group"><label>Enfermaria/Leito</label><input type="text" value={dados.enf_leito} onChange={(e) => set('enf_leito', e.target.value)} /></div>
+          </div>
+          <div className="assess-grid" style={{ marginTop: 12 }}>
+            <div className="form-group"><label>Registro hospitalar</label><input type="text" value={dados.registro_hospitalar} onChange={(e) => set('registro_hospitalar', e.target.value)} /></div>
+            <div className="form-group"><label>Categoria</label><input type="text" value={dados.categoria} onChange={(e) => set('categoria', e.target.value)} /></div>
+          </div>
+
+          <div className="assess-grid" style={{ marginTop: 12 }}>
+            <div className="form-group">
+              <label>Recebeu transfusão anteriormente?</label>
+              <select value={dados.recebeu_transfusao} onChange={(e) => set('recebeu_transfusao', e.target.value)}>
+                <option value="">—</option>
+                <option value="nao">NÃO</option>
+                <option value="sim">SIM</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Antecedentes de anticorpo irregular?</label>
+              <select value={dados.antecedentes_anticorpo} onChange={(e) => set('antecedentes_anticorpo', e.target.value)}>
+                <option value="">—</option>
+                <option value="nao">NÃO</option>
+                <option value="sim">SIM</option>
+              </select>
+            </div>
+          </div>
+          {dados.recebeu_transfusao === 'sim' && (
+            <div className="assess-grid" style={{ marginTop: 12 }}>
+              <div className="form-group"><label>Quando</label><input type="date" value={dados.quando} onChange={(e) => set('quando', e.target.value)} /></div>
+              <div className="form-group"><label>Onde</label><input type="text" value={dados.onde} onChange={(e) => set('onde', e.target.value)} /></div>
+            </div>
+          )}
+          <div className="form-group" style={{ marginTop: 12 }}>
+            <label>Solicitou doadores à família?</label>
+            <input type="text" value={dados.solicitou_doadores} onChange={(e) => set('solicitou_doadores', e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginTop: 12 }}>
+            <label>Indicação clínica / cirurgia proposta *</label>
+            <textarea value={dados.indicacao_clinica} onChange={(e) => set('indicacao_clinica', e.target.value)} />
           </div>
         </div>
-        <div className="form-field"><label>Quando</label><input type="date" value={dados.quando} onChange={(e) => set('quando', e.target.value)} /></div>
-        <div className="form-field"><label>Onde</label><input type="text" value={dados.onde} onChange={(e) => set('onde', e.target.value)} /></div>
 
-        <div className="form-field">
-          <label>Antecedentes de anticorpo irregular?</label>
-          <div className="toggle-group">
-            {[['sim', 'Sim'], ['nao', 'Não']].map(([v, r]) => (
-              <button key={v} type="button" className={`toggle-btn ${dados.antecedentes_anticorpo === v ? 'on' : ''}`} onClick={() => set('antecedentes_anticorpo', v)}>{r}</button>
-            ))}
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-drop" /> 2. Hemocomponentes / hemoderivados</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: '6px 8px', borderBottom: '1px solid var(--border-strong)', color: 'var(--text-secondary)', fontSize: 11, textTransform: 'uppercase' }}>Descrição</th>
+                <th style={{ textAlign: 'center', padding: '6px 8px', borderBottom: '1px solid var(--border-strong)', color: 'var(--text-secondary)', fontSize: 11, textTransform: 'uppercase', width: 140 }}>Quantidade</th>
+              </tr>
+            </thead>
+            <tbody>
+              {HEMOCOMPONENTES_OPCOES.map((item) => (
+                <tr key={item}>
+                  <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-light)' }}>
+                    <label className="checkbox-item" style={{ padding: 0, background: 'transparent', border: 'none' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!dados.hemocomponentes[item]?.marcado}
+                        onChange={(e) => setHemo(item, 'marcado', e.target.checked)}
+                      />
+                      {item}
+                    </label>
+                  </td>
+                  <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-light)', textAlign: 'center' }}>
+                    <input
+                      type="text"
+                      placeholder="Qtd/unid"
+                      disabled={!dados.hemocomponentes[item]?.marcado}
+                      value={dados.hemocomponentes[item]?.quantidade || ''}
+                      onChange={(e) => setHemo(item, 'quantidade', e.target.value)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="form-group" style={{ marginTop: 12 }}>
+            <label>Outros</label>
+            <input type="text" value={dados.outros_hemocomponentes} onChange={(e) => set('outros_hemocomponentes', e.target.value)} />
           </div>
         </div>
-        <div className="form-field span-2"><label>Solicitou doadores?</label><input type="text" value={dados.solicitou_doadores} onChange={(e) => set('solicitou_doadores', e.target.value)} /></div>
 
-        <div className="form-field span-3"><label>Indicação clínica / cirurgia proposta *</label><textarea value={dados.indicacao_clinica} onChange={(e) => set('indicacao_clinica', e.target.value)} /></div>
-      </div>
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-clock" /> 3. Caráter / urgência da transfusão</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {URGENCIA_OPCOES.map(([v, r]) => (
+              <label key={v} className="checkbox-item" style={{ justifyContent: 'flex-start' }}>
+                <input type="radio" name="urgencia_transfusao" checked={dados.urgencia === v} onChange={() => set('urgencia', v)} /> {r}
+              </label>
+            ))}
+          </div>
+          {dados.urgencia === 'cirurgia' && (
+            <div className="assess-grid" style={{ marginTop: 12 }}>
+              <div className="form-group"><label>Data da cirurgia</label><input type="date" value={dados.cirurgia_data} onChange={(e) => set('cirurgia_data', e.target.value)} /></div>
+              <div className="form-group"><label>Hora</label><input type="time" value={dados.cirurgia_hora} onChange={(e) => set('cirurgia_hora', e.target.value)} /></div>
+            </div>
+          )}
+          {dados.urgencia === 'ambulatorial' && (
+            <div className="assess-grid" style={{ marginTop: 12 }}>
+              <div className="form-group"><label>Data da transfusão ambulatorial</label><input type="date" value={dados.ambulatorial_data} onChange={(e) => set('ambulatorial_data', e.target.value)} /></div>
+              <div className="form-group"><label>Hora</label><input type="time" value={dados.ambulatorial_hora} onChange={(e) => set('ambulatorial_hora', e.target.value)} /></div>
+            </div>
+          )}
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Hemocomponentes / hemoderivados</div>
-      {HEMOCOMPONENTES_OPCOES.map((item) => (
-        <div key={item} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-          <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
-            <input
-              type="checkbox"
-              checked={!!dados.hemocomponentes[item]?.marcado}
-              onChange={(e) => setHemo(item, 'marcado', e.target.checked)}
-            />
-            {item}
-          </label>
-          <input
-            type="text"
-            placeholder="Qtd/unid"
-            style={{ width: 100 }}
-            value={dados.hemocomponentes[item]?.quantidade || ''}
-            onChange={(e) => setHemo(item, 'quantidade', e.target.value)}
-          />
+          <div style={{ marginTop: 16, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: 12 }}>
+            <label className="checkbox-item" style={{ background: 'transparent', border: 'none', padding: 0, alignItems: 'flex-start' }}>
+              <input type="checkbox" checked={dados.extrema_urgencia} onChange={(e) => set('extrema_urgencia', e.target.checked)} />
+              <span><i className="ph ph-warning-octagon" /> <strong>Transfusão de extrema urgência</strong> — autorizo a transfusão sem testes pré-transfusionais, por risco de vida</span>
+            </label>
+            {dados.extrema_urgencia && (
+              <div className="assess-grid" style={{ marginTop: 12 }}>
+                <div className="form-group"><label>Data</label><input type="date" value={dados.extrema_urgencia_data} onChange={(e) => set('extrema_urgencia_data', e.target.value)} /></div>
+                <div className="form-group"><label>Hora</label><input type="time" value={dados.extrema_urgencia_hora} onChange={(e) => set('extrema_urgencia_hora', e.target.value)} /></div>
+              </div>
+            )}
+          </div>
         </div>
-      ))}
-      <div className="form-grid" style={{ marginTop: 6 }}>
-        <div className="form-field span-3"><label>Outros</label><input type="text" value={dados.outros_hemocomponentes} onChange={(e) => set('outros_hemocomponentes', e.target.value)} /></div>
-      </div>
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Urgência da solicitação</div>
-      <div className="chip-group">
-        {URGENCIA_OPCOES.map(([v, r]) => (
-          <button key={v} type="button" className={`chip ${dados.urgencia === v ? 'on' : ''}`} onClick={() => set('urgencia', dados.urgencia === v ? '' : v)}>{r}</button>
-        ))}
-      </div>
-      {dados.urgencia === 'cirurgia' && (
-        <div className="form-grid" style={{ marginTop: 6 }}>
-          <div className="form-field"><label>Data da cirurgia</label><input type="date" value={dados.cirurgia_data} onChange={(e) => set('cirurgia_data', e.target.value)} /></div>
-          <div className="form-field"><label>Hora</label><input type="time" value={dados.cirurgia_hora} onChange={(e) => set('cirurgia_hora', e.target.value)} /></div>
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-signature" /> 4. Responsáveis e coleta de amostra</div>
+          <div className="assess-grid">
+            <div className="form-group"><label>Coletado por</label><input type="text" value={dados.coletado_por} onChange={(e) => set('coletado_por', e.target.value)} /></div>
+            <div className="form-group"><label>Data</label><input type="date" value={dados.coletado_data} onChange={(e) => set('coletado_data', e.target.value)} /></div>
+          </div>
+          <div className="form-group" style={{ marginTop: 12 }}>
+            <label>Hora da coleta</label>
+            <input type="time" value={dados.coletado_hora} onChange={(e) => set('coletado_hora', e.target.value)} />
+          </div>
         </div>
-      )}
-      {dados.urgencia === 'ambulatorial' && (
-        <div className="form-grid" style={{ marginTop: 6 }}>
-          <div className="form-field"><label>Data da transfusão ambulatorial</label><input type="date" value={dados.ambulatorial_data} onChange={(e) => set('ambulatorial_data', e.target.value)} /></div>
-          <div className="form-field"><label>Hora</label><input type="time" value={dados.ambulatorial_hora} onChange={(e) => set('ambulatorial_hora', e.target.value)} /></div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-flask" /> Uso exclusivo da Fundação Hemopa</div>
+          <div className="assess-grid">
+            <div className="form-group"><label>PAI I</label><input type="text" value={dados.pai_i} onChange={(e) => set('pai_i', e.target.value)} /></div>
+            <div className="form-group"><label>PAI II</label><input type="text" value={dados.pai_ii} onChange={(e) => set('pai_ii', e.target.value)} /></div>
+          </div>
+          <div className="assess-grid" style={{ marginTop: 12 }}>
+            <div className="form-group"><label>AC</label><input type="text" value={dados.ac} onChange={(e) => set('ac', e.target.value)} /></div>
+            <div className="form-group"><label>CD</label><input type="text" value={dados.cd} onChange={(e) => set('cd', e.target.value)} /></div>
+          </div>
+          <div className="assess-grid" style={{ marginTop: 12 }}>
+            <div className="form-group"><label>Responsável</label><input type="text" value={dados.responsavel_hemopa} onChange={(e) => set('responsavel_hemopa', e.target.value)} /></div>
+            <div className="form-group"><label>Data</label><input type="date" value={dados.hemopa_data} onChange={(e) => set('hemopa_data', e.target.value)} /></div>
+          </div>
+          <div className="form-group" style={{ marginTop: 12 }}>
+            <label>Hora</label>
+            <input type="time" value={dados.hemopa_hora} onChange={(e) => set('hemopa_hora', e.target.value)} />
+          </div>
         </div>
-      )}
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Transfusão de extrema urgência</div>
-      <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-        <input type="checkbox" checked={dados.extrema_urgencia} onChange={(e) => set('extrema_urgencia', e.target.checked)} />
-        Autorizo a transfusão sem testes pré-transfusionais, por risco de vida
-      </label>
-      {dados.extrema_urgencia && (
-        <div className="form-grid">
-          <div className="form-field"><label>Data</label><input type="date" value={dados.extrema_urgencia_data} onChange={(e) => set('extrema_urgencia_data', e.target.value)} /></div>
-          <div className="form-field"><label>Hora</label><input type="time" value={dados.extrema_urgencia_hora} onChange={(e) => set('extrema_urgencia_hora', e.target.value)} /></div>
-        </div>
-      )}
+        {erro && (
+          <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+            <div className="info" style={{ color: '#DC2626' }}>
+              <i className="ph ph-warning" /> {erro}
+            </div>
+          </div>
+        )}
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Coleta</div>
-      <div className="form-grid">
-        <div className="form-field span-2"><label>Coletado por</label><input type="text" value={dados.coletado_por} onChange={(e) => set('coletado_por', e.target.value)} /></div>
-        <div className="form-field"><label>Data</label><input type="date" value={dados.coletado_data} onChange={(e) => set('coletado_data', e.target.value)} /></div>
-        <div className="form-field"><label>Hora</label><input type="time" value={dados.coletado_hora} onChange={(e) => set('coletado_hora', e.target.value)} /></div>
-      </div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Uso exclusivo da Fundação Hemopa</div>
-      <div className="form-grid">
-        <div className="form-field"><label>PAI I</label><input type="text" value={dados.pai_i} onChange={(e) => set('pai_i', e.target.value)} /></div>
-        <div className="form-field"><label>PAI II</label><input type="text" value={dados.pai_ii} onChange={(e) => set('pai_ii', e.target.value)} /></div>
-        <div className="form-field"><label>AC</label><input type="text" value={dados.ac} onChange={(e) => set('ac', e.target.value)} /></div>
-        <div className="form-field"><label>CD</label><input type="text" value={dados.cd} onChange={(e) => set('cd', e.target.value)} /></div>
-        <div className="form-field span-2"><label>Responsável</label><input type="text" value={dados.responsavel_hemopa} onChange={(e) => set('responsavel_hemopa', e.target.value)} /></div>
-        <div className="form-field"><label>Data</label><input type="date" value={dados.hemopa_data} onChange={(e) => set('hemopa_data', e.target.value)} /></div>
-        <div className="form-field"><label>Hora</label><input type="time" value={dados.hemopa_hora} onChange={(e) => set('hemopa_hora', e.target.value)} /></div>
-      </div>
-
-      {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
-      <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Registrar solicitação'}</button>
-      </div>
-
-      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
-      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : historico.length === 0 ? (
-        <p style={{ color: 'var(--color-text-muted)' }}>Nenhuma solicitação registrada ainda.</p>
-      ) : historico.map((s) => (
-        <div key={s.id} style={{ borderBottom: '1px solid var(--color-border)', padding: '10px 0', fontSize: 13 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div style={{ fontWeight: 600 }}>{s.indicacao_clinica}</div>
-              <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
-                {s.enfermeiros?.nome_exibicao || s.enfermeiros?.nome} · {new Date(s.criado_em).toLocaleString('pt-BR')}
+        <div>
+          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico</div>
+          {carregando ? (
+            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p>
+          ) : historico.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma solicitação registrada ainda.</p>
+          ) : historico.map((s) => (
+            <div key={s.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontWeight: 600 }}>{s.indicacao_clinica}</div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+                    {s.enfermeiros?.nome_exibicao || s.enfermeiros?.nome} · {new Date(s.criado_em).toLocaleString('pt-BR')}
+                  </div>
+                </div>
+                <button type="button" className="btn-save-draft" onClick={() => onImprimir(s)}>
+                  <i className="ph ph-printer" /> Imprimir
+                </button>
               </div>
             </div>
-            <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(s)}>Imprimir</button>
-          </div>
+          ))}
         </div>
-      ))}
+      </div>
+
+      <div className="cc-footer">
+        <span />
+        <button className="btn-save-print" onClick={salvar} disabled={salvando}>
+          <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Registrar solicitação'}
+        </button>
+      </div>
     </div>
   )
 }
