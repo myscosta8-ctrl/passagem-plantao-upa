@@ -25,21 +25,35 @@ tinha uma auditoria desatualizada (dizia que nada da Fase 0 existia) — corrigi
   rodados (`npm run db:migrate` ou o SQL direto) sem revisão prévia**, exatamente por
   cobrirem tabelas que já têm dado real hoje.
 
-## 🚨 Bug crítico a corrigir ANTES de continuar qualquer coisa nova
+## ✅ Item 0 — Bug crítico do dado falso — CORRIGIDO (24/09, à noite, commit `a3c5953`)
 
 Os 3 arquivos que o IDE reescreveu hoje (`src/pages/ficha-medica/AbaAih.jsx`,
 `src/pages/ficha-medica/AbaConsulta.jsx`, `src/pages/ficha-medica/PatientBanner.jsx`)
 ficaram com **texto de exemplo do mockup HTML hardcoded como fallback `||`** em vez de
 serem removidos ao ligar no dado real. Sempre que o campo vier vazio do banco (situação
-normal — nem todo paciente tem CNS, sinais vitais ainda não aferidos etc.), a tela mostra
+normal — nem todo paciente tem CNS, sinais vitais ainda não aferidos etc.), a tela mostrava
 **dado inventado como se fosse real**, inclusive na AIH (documento com valor legal):
 
 - Sinais vitais falsos: PA `90x60`, FC `110`, Temp `39.2°C`, SpO2 `97%`
 - Alergia grave inventada: `"DIPIRONA (Risco de Choque Anafilático)"`
 - CNS `700.1234.5678.9012`, RG/CPF, endereço completo, nome da mãe "Maria Eduarda Silva"
 - Queixa da triagem inventada: "Febre alta há 2 dias, tosse produtiva..."
+- **O mais grave, encontrado só ao abrir o código pra corrigir**: o formulário inteiro de
+  Consulta e o de AIH nasciam **pré-preenchidos com um caso clínico completo de pneumonia**
+  (queixa, HDA, exame físico, CID, conduta, até número de autorização SUS fictício) — se o
+  profissional não apagasse tudo manualmente, esse caso fake podia ser salvo como se fosse
+  o atendimento real do paciente.
 
-**Ação:** remover todo `|| 'valor de exemplo'` desses 3 arquivos, deixando os campos vazios
+**Corrigido:** estado inicial dos formulários volta a nascer vazio; identificação do
+paciente na AIH e no banner passa a vir de `pessoas` via `buscarCabecalhoImpressao`
+(mesma função já usada nas impressões) em vez de inventar CNS/RG/mãe/endereço; alertas de
+alergia só aparecem quando há alergia real registrada. Build e lint rodados sem erro.
+**Não foi possível fazer verificação visual ao vivo no browser** (sem credenciais de login
+neste ambiente) — validado por leitura de código, build limpo e lint limpo. Recomendo um
+teste manual rápido na próxima vez que alguém abrir o Prontuário Médico de um paciente
+real com campos vazios, só pra confirmar visualmente.
+
+Texto original da ação (referência):
 (ou com um placeholder visual tipo "—" / "Não informado") quando o dado real não existir.
 Confirmado por grep que o padrão não vazou pro resto do sistema — está isolado nesses 3
 arquivos. **Isso é o item 0 do plano, prioridade sobre tudo.**
