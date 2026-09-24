@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitação de Exames & Laudo APAC — UPA 24h Breves</title>
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <style>
+    :root {
+      --primary: #1D4ED8;
+      --primary-hover: #1E40AF;
+      --primary-light: #EFF6FF;
+      --primary-border: #BFDBFE;
+      
+      --secondary: #0D9488;
+      --secondary-hover: #0F766E;
+      --secondary-light: #F0FDFA;
+      
+      --danger: #DC2626;
+      --danger-light: #FEF2F2;
+      --danger-border: #FECACA;
+      
+      --warning: #D97706;
+      --warning-light: #FFFBEB;
+      --warning-border: #FDE68A;
+      
+      --success: #16A34A;
+      --success-light: #F0FDF4;
+      --success-border: #BBF7D0;
+      
+      --text-main: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #94A3B8;
+      
+      --bg-app: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --border-light: #E2E8F0;
+      --border-strong: #CBD5E1;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* BARRA LATERAL GLOBAL */
+    .app-sidebar {
+      width: 64px;
+      background-color: var(--bg-surface);
+      border-right: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 0;
+      gap: 20px;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+    .logo-container {
+      width: 40px; height: 40px;
+      background: var(--primary);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 900; font-size: 16px;
+    }
+    .nav-items { display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center; }
+    .nav-btn {
+      width: 44px; height: 44px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary); background: transparent; border: none;
+      cursor: pointer; font-size: 20px; transition: all 0.2s;
+    }
+    .nav-btn:hover { background-color: var(--primary-light); color: var(--primary); }
+    .nav-btn.active { background-color: var(--primary-light); color: var(--primary); font-weight: 700; }
+
+    /* LAYOUT PRINCIPAL */
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* TOPBAR */
+    .topbar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-light);
+      height: 50px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; flex-shrink: 0;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .btn-voltar {
+      display: flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--border-strong);
+      padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      cursor: pointer; color: var(--text-secondary); transition: 0.2s;
+    }
+    .btn-voltar:hover { background: #F1F5F9; color: var(--text-main); }
+    .breadcrumb { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .breadcrumb span.current { color: var(--text-main); font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .badge-status {
+      padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #EFF6FF; color: var(--primary); border: 1px solid var(--primary-border);
+    }
+
+    /* BANNER PACIENTE */
+    .patient-banner {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-light);
+      padding: 10px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+    }
+    .pb-left { display: flex; align-items: center; gap: 14px; }
+    .pb-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #EFF6FF; color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 15px; border: 1px solid var(--primary-border);
+    }
+    .pb-info h2 {
+      font-size: 15px; font-weight: 800; color: var(--text-main);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .badge-sector { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: #FEF3C7; color: #92400E; }
+    .badge-alerta { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; display: inline-flex; align-items: center; gap: 4px; }
+    .pb-sub { font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+    .pb-sub strong { color: var(--text-main); }
+    .btn-drawer {
+      background: transparent; border: 1px solid var(--border-strong);
+      padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; color: var(--text-secondary);
+    }
+    .btn-drawer:hover { background: #F1F5F9; color: var(--text-main); }
+
+    /* GAVETA DE DADOS */
+    .patient-drawer {
+      display: none; background: #F8FAFC; border-bottom: 1px solid var(--border-strong);
+      padding: 12px 20px; grid-template-columns: repeat(4, 1fr); gap: 14px; font-size: 11.5px;
+    }
+    .drawer-item label { display: block; font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+    .drawer-item span { font-weight: 700; color: var(--text-main); }
+
+    /* ABAS CLÍNICAS (8 ABAS OFICIAIS DO SISTEMA) */
+    .clinical-tabs {
+      display: flex; background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-strong);
+      padding: 0 20px; overflow-x: auto; flex-shrink: 0;
+    }
+    .tab-btn {
+      padding: 11px 16px; font-size: 12px; font-weight: 700; color: var(--text-secondary);
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.15s;
+    }
+    .tab-btn:hover { color: var(--primary); background: #F1F5F9; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
+
+    /* CORPO DIVIDIDO (SIDEBAR + CARD CENTRAL) */
+    .clinical-split { display: flex; flex: 1; overflow: hidden; }
+
+    /* SIDEBAR FERRAMENTAS */
+    .tools-pane {
+      width: 310px; background: var(--bg-surface);
+      border-right: 1px solid var(--border-light);
+      display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+    }
+    .pane-header {
+      padding: 12px 16px; border-bottom: 1px solid var(--border-light);
+      font-weight: 800; font-size: 12px; color: var(--text-main);
+      display: flex; justify-content: space-between; align-items: center; background: #F8FAFC;
+    }
+    .tools-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+
+    .summary-box {
+      background: #FFFFFF; border: 1px solid var(--border-light);
+      border-radius: 8px; padding: 12px;
+    }
+    .summary-box h3 {
+      font-size: 11px; font-weight: 800; color: var(--text-main);
+      text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .modality-nav {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .modality-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 9px 12px; border-radius: 6px;
+      border: 1px solid var(--border-strong); background: #fff;
+      font-size: 12px; font-weight: 700; color: var(--text-secondary);
+      cursor: pointer; transition: 0.15s; text-align: left;
+    }
+    .modality-btn:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+    .modality-btn.active {
+      border-color: var(--primary); background: var(--primary-light);
+      color: var(--primary); box-shadow: 0 0 0 1px var(--primary);
+    }
+    .modality-badge {
+      font-size: 10px; font-weight: 800; padding: 2px 7px;
+      border-radius: 12px; background: #E2E8F0; color: #475569;
+    }
+    .modality-btn.active .modality-badge {
+      background: var(--primary); color: #fff;
+    }
+
+    /* CARD DE AVISO DE BLOQUEIO */
+    .blocking-alert-box {
+      background: #F8FAFC; border: 1px solid #CBD5E1; border-left: 4px solid var(--primary);
+      border-radius: 6px; padding: 10px 12px; font-size: 11.5px; line-height: 1.35;
+    }
+    .blocking-alert-box strong { color: var(--text-main); display: block; margin-bottom: 3px; }
+
+    /* CARD CENTRAL */
+    .clinical-card {
+      flex: 1; display: flex; flex-direction: column;
+      overflow: hidden; background: #F1F5F9; padding: 12px 16px;
+    }
+    .cc-header {
+      background: #fff; border: 1px solid var(--border-light);
+      border-radius: 8px 8px 0 0; padding: 12px 18px;
+      display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    }
+    .cc-header h2 { font-size: 14px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    .cc-header span { font-size: 11.5px; color: var(--text-muted); }
+
+    .cc-body {
+      flex: 1; overflow-y: auto; background: #fff;
+      border-left: 1px solid var(--border-light);
+      border-right: 1px solid var(--border-light);
+      padding: 16px 20px; display: flex; flex-direction: column; gap: 14px;
+    }
+
+    .form-section { border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; background: #FFFFFF; }
+    .form-section-title {
+      font-size: 12px; font-weight: 800; color: var(--text-main);
+      text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;
+    }
+    .form-section-title span.st-left { display: flex; align-items: center; gap: 6px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 11px; font-weight: 700; color: var(--text-secondary); }
+    .form-group input, .form-group select, .form-group textarea {
+      border: 1px solid var(--border-strong); border-radius: 6px;
+      padding: 7px 10px; font-size: 12px; font-family: inherit;
+      color: var(--text-main); background: #fff;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(29,78,216,0.15);
+    }
+    .form-group input[readonly] { background: #F8FAFC; color: var(--text-secondary); cursor: not-allowed; }
+
+    /* GRADE DE CHECKBOXES POR GRUPO */
+    .exam-group-box {
+      border: 1px solid var(--border-light); border-radius: 6px;
+      padding: 10px 12px; background: #FAFAFA; margin-bottom: 10px;
+    }
+    .exam-group-header {
+      font-size: 11px; font-weight: 800; color: var(--primary);
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .exam-checkbox-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 14px;
+    }
+    .exam-check-item {
+      display: flex; align-items: flex-start; gap: 8px; font-size: 12px;
+      color: var(--text-main); cursor: pointer; user-select: none;
+    }
+    .exam-check-item input[type="checkbox"] {
+      margin-top: 2px; accent-color: var(--primary); width: 14px; height: 14px; cursor: pointer;
+    }
+    .exam-check-item.checked { font-weight: 700; color: var(--primary); }
+
+    /* FOOTER FIXO DE AÇÕES — MODELO PADRÃO DO PROGRAMA */
+    .cc-footer {
+      background: #F8FAFC; border: 1px solid var(--border-light);
+      border-top: 1px solid var(--border-strong); border-radius: 0 0 8px 8px;
+      padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    }
+    .btn-cancel {
+      background: #fff; border: 1px solid var(--border-strong); color: var(--text-secondary);
+      padding: 7px 16px; border-radius: 6px; font-weight: 600; font-size: 12px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;
+    }
+    .btn-cancel:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger-border); }
+    .btn-save-draft {
+      background: #fff; border: 1px solid var(--primary); color: var(--primary);
+      padding: 7px 16px; border-radius: 6px; font-weight: 600; font-size: 12px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;
+    }
+    .btn-save-draft:hover { background: var(--primary-light); }
+    .btn-save-print {
+      background: var(--primary); color: white; border: none;
+      padding: 7px 18px; border-radius: 6px; font-weight: 600; font-size: 12px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      box-shadow: var(--shadow-sm); transition: 0.2s;
+    }
+    .btn-save-print:hover { background: var(--primary-hover); box-shadow: var(--shadow-md); }
+
+    /* MODAL DE BLOQUEIO */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.6); z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    .modal-card {
+      background: #fff; border-radius: 10px; width: 480px; max-width: 90vw;
+      padding: 24px; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2);
+    }
+    .modal-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: #EFF6FF; color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 14px; border: 1px solid var(--primary-border);
+    }
+    .modal-card h3 { font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+    .modal-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA LATERAL GLOBAL -->
+  <aside class="app-sidebar">
+    <div class="logo-container">UPA</div>
+    <div class="nav-items">
+      <button class="nav-btn" title="Painel Geral" onclick="window.location.href='index.html'"><i class="ph ph-squares-four"></i></button>
+      <button class="nav-btn active" title="Prontuário do Paciente"><i class="ph ph-user-list"></i></button>
+      <button class="nav-btn" title="Passagem de Plantão"><i class="ph ph-arrows-left-right"></i></button>
+      <button class="nav-btn" title="Catálogo de Impressos" onclick="window.open('../modelos_impressao_html/index.html', '_blank')"><i class="ph ph-printer"></i></button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn-voltar" onclick="window.location.href='index.html'"><i class="ph ph-arrow-left"></i> Painel</button>
+        <div class="breadcrumb">
+          <span>Pacientes</span> <i class="ph ph-caret-right"></i>
+          <span>Internação Adulto/Pediátrica</span> <i class="ph ph-caret-right"></i>
+          <span class="current">6. Exames & APAC</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="badge-status" id="topbar-modality-badge"><i class="ph ph-flask"></i> Laboratório Interno Ativo</span>
+      </div>
+    </header>
+
+    <!-- BANNER DO PACIENTE -->
+    <section class="patient-banner">
+      <div class="pb-left">
+        <div class="pb-avatar">FP</div>
+        <div class="pb-info">
+          <h2>
+            FELIPE PINHEIRO CARVALHO
+            <span class="badge-sector">Sala Amarela · Leito 03</span>
+            <span class="badge-alerta"><i class="ph ph-activity"></i> IRA / Dor Abdominal</span>
+          </h2>
+          <div class="pb-sub">
+            <strong>13 anos</strong> (01/12/2012) · Sexo Masculino · Prontuário: <strong>2026-088412</strong> · CNS: <strong>898.0012.3456.7890</strong>
+          </div>
+        </div>
+      </div>
+      <button class="btn-drawer" onclick="toggleDrawer()"><i class="ph ph-caret-down"></i> Dados Cadastrais</button>
+    </section>
+
+    <!-- GAVETA DE DADOS EXPANSÍVEL -->
+    <div class="patient-drawer" id="patientDrawer">
+      <div class="drawer-item"><label>Nome da Mãe</label><span>Maria de Nazaré da Costa Andrade</span></div>
+      <div class="drawer-item"><label>Telefone</label><span>(91) 98455-1234</span></div>
+      <div class="drawer-item"><label>Município / UF</label><span>Breves / PA (IBGE 1501808)</span></div>
+      <div class="drawer-item"><label>Endereço</label><span>Rua Tajapuru, 145 — Centro — CEP 68800-000</span></div>
+      <div class="drawer-item"><label>Unidade Solicitante</label><span>UPA 24h Breves (CNES 0296796)</span></div>
+      <div class="drawer-item"><label>Médico Solicitante</label><span>Dr. Marcelo Fontes da Silva — CRM/PA 12345</span></div>
+      <div class="drawer-item"><label>Diagnóstico Principal</label><span>CID-10 N17.9 (Insuficiência Renal Aguda)</span></div>
+      <div class="drawer-item"><label>Diagnóstico Secundário</label><span>CID-10 R10.4 (Dor Abdominal Aguda)</span></div>
+    </div>
+
+    <!-- ABAS CLÍNICAS (8 ABAS OFICIAIS DO SISTEMA) -->
+    <nav class="clinical-tabs">
+      <button class="tab-btn" onclick="window.location.href='06-anamnese-admissao-design.html'"><i class="ph ph-folder-user"></i> 1. Anamnese & Admissão</button>
+      <button class="tab-btn" onclick="window.location.href='06-anamnese-admissao-design.html?mode=aih'"><i class="ph ph-file-text"></i> 2. Laudo de AIH</button>
+      <button class="tab-btn" onclick="alert('Navegando para Plano Terapêutico...')"><i class="ph ph-strategy"></i> 3. Plano Terapêutico</button>
+      <button class="tab-btn" onclick="alert('Navegando para Evolução Diária...')"><i class="ph ph-activity"></i> 4. Evolução Diária</button>
+      <button class="tab-btn" onclick="alert('Navegando para Prescrição Médica...')"><i class="ph ph-pill"></i> 5. Prescrição Médica</button>
+      <button class="tab-btn active"><i class="ph ph-flask"></i> 6. Exames & APAC</button>
+      <button class="tab-btn" onclick="window.location.href='15-solicitacao-hemoterapia-design.html'"><i class="ph ph-drop"></i> 7. Hemoterapia</button>
+      <button class="tab-btn" onclick="alert('Navegando para Receituário & Alta...')"><i class="ph ph-file-text"></i> 8. Receituário & Alta</button>
+    </nav>
+
+    <!-- CORPO PRINCIPAL -->
+    <div class="clinical-split">
+
+      <!-- SIDEBAR DE APOIO E MODALIDADES -->
+      <aside class="tools-pane">
+        <div class="pane-header">
+          <span><i class="ph ph-navigation-arrow"></i> Modalidade do Pedido</span>
+        </div>
+
+        <div class="tools-body">
+          
+          <!-- SELETOR DE MODALIDADE COM BLOQUEIO RÍGIDO -->
+          <div class="summary-box">
+            <h3><i class="ph ph-shield-check"></i> Guia Ativa (Bloqueio Mútuo)</h3>
+            <div class="modality-nav">
+              <button class="modality-btn active" id="btn-mod-lab" onclick="setModality('lab')">
+                <span><i class="ph ph-flask"></i> 1. Laboratório Interno</span>
+                <span class="modality-badge" id="badge-count-lab">11 exames</span>
+              </button>
+              <button class="modality-btn" id="btn-mod-img" onclick="setModality('img')">
+                <span><i class="ph ph-scan"></i> 2. Imagem & Radiologia</span>
+                <span class="modality-badge" id="badge-count-img">2 exames</span>
+              </button>
+              <button class="modality-btn" id="btn-mod-ecg" onclick="setModality('ecg')">
+                <span><i class="ph ph-heartbeat"></i> 3. Eletrocardiograma (ECG)</span>
+                <span class="modality-badge" id="badge-count-ecg">1 exame</span>
+              </button>
+              <button class="modality-btn" id="btn-mod-apac" onclick="setModality('apac')">
+                <span><i class="ph ph-file-text"></i> 4. Laudo APAC (Regulação)</span>
+                <span class="modality-badge" id="badge-count-apac">1 proced.</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- REGRA INSTITUCIONAL DE BLOQUEIO -->
+          <div class="blocking-alert-box">
+            <strong><i class="ph ph-lock-key"></i> Separação Física Obrigatória</strong>
+            O Laboratório de Análises Clínicas, a Radiologia Digital e o Eletrocardiograma (ECG) são setores/métodos distintos. Guias mistas são bloqueadas institucionalmente para assegurar a rastreabilidade e evitar atrasos.
+          </div>
+
+          <!-- PAINEL DE AÇÕES RÁPIDAS / COMBOS -->
+          <div class="summary-box">
+            <h3><i class="ph ph-lightning"></i> Protocolos Rápidos de Emergência</h3>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <button class="btn-cancel" style="justify-content:flex-start; width:100%; text-align:left;" onclick="applyQuickBundle('sepse')">
+                <i class="ph ph-shield-warning" style="color:#d97706;"></i> Combo Sepse / IRA (Lab)
+              </button>
+              <button class="btn-cancel" style="justify-content:flex-start; width:100%; text-align:left;" onclick="applyQuickBundle('abdome')">
+                <i class="ph ph-scan" style="color:#1d4ed8;"></i> Rotina Abdome Agudo (RX)
+              </button>
+              <button class="btn-cancel" style="justify-content:flex-start; width:100%; text-align:left;" onclick="applyQuickBundle('ecg_urgencia')">
+                <i class="ph ph-heartbeat" style="color:#dc2626;"></i> Protocolo ECG 12D (ECG)
+              </button>
+              <button class="btn-cancel" style="justify-content:flex-start; width:100%; text-align:left;" onclick="applyQuickBundle('apac_usg')">
+                <i class="ph ph-file-text" style="color:#059669;"></i> Preencher APAC - USG Total
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- CARD CENTRAL COM FORMULÁRIOS DINÂMICOS CONFORME A MODALIDADE -->
+      <section class="clinical-card">
+        
+        <!-- HEADER DO CARD (SEM BOTÕES REDUNDANTES NO CANTO SUPERIOR) -->
+        <header class="cc-header">
+          <div>
+            <h2 id="card-main-title"><i class="ph ph-flask"></i> Requisição de Exames Laboratoriais (Laboratório Interno)</h2>
+            <span id="card-main-subtitle">Documento exclusivo para o posto de análises clínicas da UPA 24h Breves · Modelo 19</span>
+          </div>
+          <span style="font-size:11px; font-weight:700; color:var(--text-secondary);" id="card-right-status">Em Aberto · Urgência</span>
+        </header>
+
+        <!-- CORPO DO CARD COM AS 3 SUB-GUIAS -->
+        <div class="cc-body">
+
+          <!-- ==================== SUB-GUIA 1: LABORATÓRIO INTERNO ==================== -->
+          <div id="section-lab" style="display: flex; flex-direction: column; gap: 14px;">
+            
+            <!-- Dados do Pedido -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-identification-card"></i> Dados da Coleta Laboratorial</span>
+                <span style="font-size:11px; color:#1e3a8a; font-weight:700;">Posto Interno de Coleta — UPA 24h Breves</span>
+              </div>
+              <div class="grid-4">
+                <div class="form-group">
+                  <label>Caráter da Coleta</label>
+                  <select id="lab-prioridade">
+                    <option value="urgencia" selected>Urgência / Emergência</option>
+                    <option value="rotina">Rotina de Enfermaria</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Local da Coleta</label>
+                  <input type="text" value="Beira do Leito (Sala Amarela 03)" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Data/Hora Solicitação</label>
+                  <input type="text" value="23/09/2026 22:30" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Médico Solicitante</label>
+                  <input type="text" value="Dr. Marcelo Fontes — CRM 12345" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grade de Exames Laboratoriais -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-check-square"></i> Seleção de Exames de Análises Clínicas (Laboratório Interno)</span>
+                <span style="font-size:11px; color:var(--text-muted);">Marque os exames necessários — Somente os selecionados serão impressos na requisição</span>
+              </div>
+
+              <!-- Grupo 1: Hematologia & Hemostasia -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">1. Hematologia & Hemostasia</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item checked" data-grupo="Hematologia & Hemostasia" data-nome="Hemograma Completo com Contagem de Plaquetas e Índices Hematimétricos" data-amostra="Sangue Total (EDTA - Tubo Roxo)">
+                    <input type="checkbox" checked> <strong>Hemograma Completo</strong> (Eritrograma + Leucograma + Plaquetas)
+                  </label>
+                  <label class="exam-check-item checked" data-grupo="Hematologia & Hemostasia" data-nome="Tipagem Sanguínea (Determinação de Grupos ABO e Fator Rh)" data-amostra="Sangue Total (EDTA - Tubo Roxo)">
+                    <input type="checkbox" checked> <strong>Tipagem Sanguínea</strong> (Determinação de Grupos ABO e Fator Rh)
+                  </label>
+                  <label class="exam-check-item checked" data-grupo="Hematologia & Hemostasia" data-nome="Coagulograma Completo (Tempo de Protrombina / TP / INR + TTPA)" data-amostra="Plasma Citratado (Tubo Azul)">
+                    <input type="checkbox" checked> <strong>Coagulograma Completo</strong> (TP / INR + TTPA)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Hematologia & Hemostasia" data-nome="D-Dímero Quantitativo de Alta Sensibilidade" data-amostra="Plasma Citratado (Tubo Azul)">
+                    <input type="checkbox"> D-Dímero Quantitativo de Alta Sensibilidade
+                  </label>
+                  <label class="exam-check-item" data-grupo="Hematologia & Hemostasia" data-nome="Fibrinogênio Plasmático de Urgência" data-amostra="Plasma Citratado (Tubo Azul)">
+                    <input type="checkbox"> Fibrinogênio Plasmático de Urgência
+                  </label>
+                  <label class="exam-check-item" data-grupo="Hematologia & Hemostasia" data-nome="Velocidade de Hemossedimentação (VHS)" data-amostra="Sangue Total (EDTA - Tubo Roxo)">
+                    <input type="checkbox"> VHS (Velocidade de Hemossedimentação)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Hematologia & Hemostasia" data-nome="Contagem de Reticulócitos" data-amostra="Sangue Total (EDTA - Tubo Roxo)">
+                    <input type="checkbox"> Contagem de Reticulócitos
+                  </label>
+                  <label class="exam-check-item" data-grupo="Hematologia & Hemostasia" data-nome="Tempo de Sangramento (TS) e Tempo de Coagulação (TC)" data-amostra="In Vivo / Sangue Capilar">
+                    <input type="checkbox"> Tempo de Sangramento (TS) e Tempo de Coagulação (TC)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Grupo 2: Bioquímica, Função Renal & Hepática -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">2. Bioquímica, Função Renal & Hepática</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item checked" data-grupo="Bioquímica & Função Renal" data-nome="Dosagem de Ureia Sérica" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox" checked> <strong>Ureia Sérica</strong>
+                  </label>
+                  <label class="exam-check-item checked" data-grupo="Bioquímica & Função Renal" data-nome="Dosagem de Creatinina Sérica (com estimativa de TFG)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox" checked> <strong>Creatinina Sérica</strong> (com estimativa de TFG)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Bioquímica & Função Hepática" data-nome="Transaminase Oxalacética (TGO / AST)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> TGO / AST (Transaminase Oxalacética)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Bioquímica & Função Hepática" data-nome="Transaminase Pirúvica (TGP / ALT)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> TGP / ALT (Transaminase Pirúvica)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Bioquímica & Função Hepática" data-nome="Bilirrubinas Totais e Frações (Direta e Indireta)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Bilirrubinas Totais e Frações (Direta e Indireta)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Bioquímica & Função Hepática" data-nome="Gama-Glutamiltransferase (Gama-GT) e Fosfatase Alcalina (FA)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Fosfatase Alcalina (FA) e Gama-GT
+                  </label>
+                  <label class="exam-check-item" data-grupo="Bioquímica & Pâncreas" data-nome="Amilase Sérica e Lipase Sérica de Urgência" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Amilase Sérica e Lipase Sérica
+                  </label>
+                  <label class="exam-check-item" data-grupo="Bioquímica & Metabolismo" data-nome="Ácido Úrico Sérico" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Ácido Úrico Sérico
+                  </label>
+                  <label class="exam-check-item" data-grupo="Bioquímica & Metabolismo" data-nome="Proteínas Totais e Frações (Albumina e Globulinas)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Proteínas Totais e Frações (Albumina e Globulinas)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Grupo 3: Eletrólitos & Metabolismo -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">3. Eletrólitos, Metabolismo & Glicemia</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item checked" data-grupo="Eletrólitos & Metabolismo" data-nome="Dosagem de Sódio Sérico (Na+)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox" checked> <strong>Sódio Sérico (Na+)</strong>
+                  </label>
+                  <label class="exam-check-item checked" data-grupo="Eletrólitos & Metabolismo" data-nome="Dosagem de Potássio Sérico (K+)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox" checked> <strong>Potássio Sérico (K+)</strong>
+                  </label>
+                  <label class="exam-check-item checked" data-grupo="Eletrólitos & Metabolismo" data-nome="Glicemia de Urgência em Jejum/Casual" data-amostra="Fluoreto de Sódio (Tubo Cinza)">
+                    <input type="checkbox" checked> <strong>Glicemia de Urgência</strong> Casual / Jejum
+                  </label>
+                  <label class="exam-check-item checked" data-grupo="Eletrólitos & Metabolismo" data-nome="Dosagem de Ácido Láctico Sérico (Lactato de Urgência)" data-amostra="Plasma Fluoretado / Soro Gel">
+                    <input type="checkbox" checked> <strong>Lactato Sérico de Urgência</strong> (Ácido Láctico)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Eletrólitos & Metabolismo" data-nome="Dosagem de Cloreto Sérico (Cl-)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Cloreto Sérico (Cl-)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Eletrólitos & Metabolismo" data-nome="Cálcio Total e Cálcio Iônico" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Cálcio Total e Cálcio Iônico
+                  </label>
+                  <label class="exam-check-item" data-grupo="Eletrólitos & Metabolismo" data-nome="Dosagem de Magnésio Sérico" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Magnésio Sérico
+                  </label>
+                  <label class="exam-check-item" data-grupo="Eletrólitos & Metabolismo" data-nome="Dosagem de Fósforo Sérico" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Fósforo Sérico
+                  </label>
+                </div>
+              </div>
+
+              <!-- Grupo 4: Gasometria, Marcadores Cardíacos & Inflamatórios -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">4. Gasometria, Marcadores Cardíacos & Inflamatórios</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item checked" data-grupo="Equilíbrio Ácido-Básico" data-nome="Gasometria Arterial Completa (pH, pO2, pCO2, HCO3, BE, SatO2, Eletrólitos e Lactato)" data-amostra="Sangue Arterial (Seringa Heparinizada)">
+                    <input type="checkbox" checked> <strong>Gasometria Arterial Completa</strong> (com eletrólitos e lactato)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Equilíbrio Ácido-Básico" data-nome="Gasometria Venosa (pH, pCO2, HCO3, BE e SatO2 Venosa)" data-amostra="Sangue Venoso (Seringa Heparinizada)">
+                    <input type="checkbox"> Gasometria Venosa Central / Periférica
+                  </label>
+                  <label class="exam-check-item checked" data-grupo="Marcadores Cardíacos" data-nome="Troponina I de Alta Sensibilidade (Quantitativa)" data-amostra="Soro / Plasma Heparinizado">
+                    <input type="checkbox" checked> <strong>Troponina I de Alta Sensibilidade</strong> (Quantitativa)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Marcadores Cardíacos" data-nome="CK-MB (Massa / Atividade) e CPK Total" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> CK-MB (Massa) e CPK Total
+                  </label>
+                  <label class="exam-check-item checked" data-grupo="Marcadores Inflamatórios" data-nome="Proteína C-Reativa Quantitativa (PCR de Alta Sensibilidade)" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox" checked> <strong>Proteína C-Reativa Quantitativa</strong> (PCR-as)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Marcadores Inflamatórios" data-nome="Procalcitonina (PCT) Quantitativa" data-amostra="Soro / Gel Separador (Tubo Amarelo)">
+                    <input type="checkbox"> Procalcitonina (PCT) Quantitativa
+                  </label>
+                  <label class="exam-check-item" data-grupo="Marcadores Cardíacos" data-nome="BNP / NT-proBNP (Peptídeo Natriurético Cerebral)" data-amostra="Plasma EDTA (Tubo Roxo)">
+                    <input type="checkbox"> BNP / NT-proBNP (Marcador de ICC)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Grupo 5: Urinálise & Sedimento -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">5. Urinálise & Sedimento Urinário</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item checked" data-grupo="Urinálise & Sedimento" data-nome="Exame Físico-Químico e Microscópico da Urina (EAS / Sumário de Urina)" data-amostra="Urina Jato Médio / Coletor Estéril">
+                    <input type="checkbox" checked> <strong>EAS / Sumário de Urina com Sedimento</strong>
+                  </label>
+                  <label class="exam-check-item" data-grupo="Urinálise & Sedimento" data-nome="Proteinúria de Amostra Isolada / Relação Proteína/Creatinina Urinária" data-amostra="Urina Jato Médio">
+                    <input type="checkbox"> Proteinúria de Amostra Isolada / Relação P/C
+                  </label>
+                  <label class="exam-check-item" data-grupo="Urinálise & Sedimento" data-nome="Pesquisa de Corpos Cetônicos na Urina" data-amostra="Urina Recente">
+                    <input type="checkbox"> Pesquisa de Corpos Cetônicos na Urina
+                  </label>
+                </div>
+              </div>
+
+              <!-- Grupo 6: Testes Rápidos Point-of-Care (Triagem UPA) -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">6. Testes Rápidos Point-of-Care (Triagem Imediata UPA)</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item" data-grupo="Triagem Rápida Point-of-Care" data-nome="Teste Rápido para Dengue (Antígeno NS1 e Anticorpos IgG/IgM)" data-amostra="Sangue Total / Soro">
+                    <input type="checkbox"> Teste Rápido Dengue (NS1 Ag / IgG / IgM)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Triagem Rápida Point-of-Care" data-nome="Teste Rápido / Gota Espessa para Malária (Pan / Plasmodium falciparum)" data-amostra="Sangue Total / Capilar">
+                    <input type="checkbox"> Teste Rápido / Gota Espessa para Malária
+                  </label>
+                  <label class="exam-check-item" data-grupo="Triagem Rápida Point-of-Care" data-nome="Teste Rápido Painel Respiratório COVID-19 / Influenza A+B" data-amostra="Swab Nasofaríngeo">
+                    <input type="checkbox"> Teste Rápido COVID-19 / Influenza A+B
+                  </label>
+                  <label class="exam-check-item" data-grupo="Triagem Rápida Point-of-Care" data-nome="Teste Rápido de Triagem para HIV 1/2 e Sífilis" data-amostra="Sangue Total">
+                    <input type="checkbox"> Teste Rápido HIV 1/2 e Sífilis
+                  </label>
+                  <label class="exam-check-item" data-grupo="Triagem Rápida Point-of-Care" data-nome="Teste Imunológico Rápido de Gravidez (Beta-HCG Qualitativo)" data-amostra="Soro / Urina">
+                    <input type="checkbox"> Beta-HCG Qualitativo de Urgência
+                  </label>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Justificativa Clínica -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-chat-text"></i> Justificativa Clínica / Hipótese Diagnóstica (Laboratório)</span>
+              </div>
+              <div class="form-group">
+                <textarea rows="3" id="lab-justificativa">Paciente de 13 anos admitido na Sala Amarela em vigilância clínica intensiva com dor abdominal em flancos, oligúria e instabilidade metabólica. Suspeita clínica de Insuficiência Renal Aguda (CID N17.9) com distúrbio hidroeletrolítico e ácido-básico associado a processo inflamatório sistêmico. Exames solicitados com caráter de URGÊNCIA para definição de conduta hidroeletrolítica, controle de escórias e ajuste terapêutico imediato pela equipe médica da UPA 24h Breves.</textarea>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ==================== SUB-GUIA 2: IMAGEM & RX INTERNO ==================== -->
+          <div id="section-img" style="display: none; flex-direction: column; gap: 14px;">
+            
+            <!-- Dados da Radiologia -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-scan"></i> Dados do Atendimento Radiológico & ECG</span>
+                <span style="font-size:11px; color:#1e3a8a; font-weight:700;">Setor de Diagnóstico por Imagem — UPA 24h Breves</span>
+              </div>
+              <div class="grid-4">
+                <div class="form-group">
+                  <label>Caráter do Exame</label>
+                  <select id="img-prioridade">
+                    <option value="urgencia" selected>Urgência / Emergência</option>
+                    <option value="eletivo">Eletivo Interno</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Condição de Mobilidade</label>
+                  <select id="img-transporte">
+                    <option value="maca" selected>Maca / Leito (Sem deambulação)</option>
+                    <option value="cadeira">Cadeira de Rodas</option>
+                    <option value="deambulando">Deambulando com auxílio</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Data/Hora Solicitação</label>
+                  <input type="text" value="23/09/2026 22:30" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Médico Solicitante</label>
+                  <input type="text" value="Dr. Marcelo Fontes — CRM 12345" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grade de Exames de Imagem & Radiologia -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-check-square"></i> Seleção de Procedimentos de Imagem & Radiologia</span>
+                <span style="font-size:11px; color:var(--text-muted);">Somente os procedimentos selecionados serão impressos na requisição</span>
+              </div>
+
+              <!-- Grupo RX Tórax e Abdome -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">1. Radiologia Digital — Tórax & Abdome</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item checked" data-grupo="Radiologia Digital — Tórax" data-nome="Radiografia de Tórax (Incidências Posteroanterior - PA e Perfil)" data-projecao="Ortostase / Grade Antidifusora">
+                    <input type="checkbox" checked> <strong>Radiografia de Tórax (PA e Perfil)</strong> em Ortostase
+                  </label>
+                  <label class="exam-check-item checked" data-grupo="Radiologia Digital — Abdome" data-nome="Rotina Radiológica de Abdome Agudo Completa (Tórax PA em Cúpulas Frênicas + Abdome em Ortostase e Decúbito Dorsal)" data-projecao="Ortostático + Decúbito Dorsal">
+                    <input type="checkbox" checked> <strong>Rotina Radiológica de Abdome Agudo Completa</strong> (Cúpulas + Abdome em Pé + Decúbito)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Tórax" data-nome="Radiografia de Tórax no Leito (Incidência Anteroposterior - AP)" data-projecao="Leito / Feixe AP Portátil">
+                    <input type="checkbox"> Radiografia de Tórax no Leito (Incidência AP)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Abdome" data-nome="Radiografia Simples de Abdome (Incidência Anteroposterior - AP em Decúbito Dorsal)" data-projecao="Decúbito Dorsal / AP">
+                    <input type="checkbox"> Radiografia Simples de Abdome (AP em Decúbito Dorsal)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Tórax" data-nome="Radiografia de Tórax em Decúbito Lateral com Raios Horizontais (Manobra de Laurel)" data-projecao="Decúbito Lateral / Feixe Horizontal">
+                    <input type="checkbox"> Radiografia de Tórax em Decúbito Lateral (Manobra de Laurel)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Tórax" data-nome="Radiografia de Arcos Costais / Hemitórax (Incidências AP e Oblíquas)" data-projecao="AP + Oblíqua Específica">
+                    <input type="checkbox"> Radiografia de Arcos Costais / Gradil Costal (AP e Oblíquas)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Grupo Pelve Óssea & Quadril -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">2. Radiologia Digital — Pelve Óssea & Articulação Coxofemoral</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Pelve Óssea" data-nome="Radiografia de Pelve Óssea Panorâmica (Incidência Anteroposterior - AP)" data-projecao="Decúbito Dorsal / AP Panorâmica">
+                    <input type="checkbox"> Radiografia de Pelve Óssea Panorâmica (Incidência AP)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Articulação Coxofemoral" data-nome="Radiografia de Articulação Coxofemoral / Quadril (Incidências AP e Perfil / Rã)" data-projecao="AP + Perfil / Posição de Rã (Lauenstein)">
+                    <input type="checkbox"> Radiografia de Articulação Coxofemoral / Quadril (AP e Perfil / Rã)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Pelve Óssea" data-nome="Radiografia de Articulações Sacroilíacas (Incidências Oblíquas Bilaterais)" data-projecao="Oblíquas Direita e Esquerda">
+                    <input type="checkbox"> Radiografia de Articulações Sacroilíacas (Oblíquas)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Grupo Coluna Vertebral, Crânio & Face -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">3. Radiologia Digital — Coluna Vertebral & Crânio / Face</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Coluna Vertebral" data-nome="Radiografia de Coluna Cervical (Incidências AP, Perfil e Transoral / Nadador)" data-projecao="AP + Perfil + Transoral">
+                    <input type="checkbox"> Radiografia de Coluna Cervical (AP, Perfil e Transoral)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Coluna Vertebral" data-nome="Radiografia de Coluna Torácica / Dorsal (Incidências AP e Perfil)" data-projecao="AP + Perfil">
+                    <input type="checkbox"> Radiografia de Coluna Torácica (AP e Perfil)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Coluna Vertebral" data-nome="Radiografia de Coluna Lombossacra (Incidências AP, Perfil e Dinâmica)" data-projecao="AP + Perfil com L5-S1">
+                    <input type="checkbox"> Radiografia de Coluna Lombossacra (AP e Perfil)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Crânio & Face" data-nome="Radiografia de Crânio (Incidências Posteroanterior - PA e Perfil)" data-projecao="PA + Perfil">
+                    <input type="checkbox"> Radiografia de Crânio (PA e Perfil)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Crânio & Face" data-nome="Radiografia de Seios da Face / Maciço Facial (Incidências de Waters e Caldwell)" data-projecao="Mento-Naso (Waters) + Fronto-Naso (Caldwell)">
+                    <input type="checkbox"> Radiografia de Seios da Face (Incidências de Waters e Caldwell)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Grupo Cintura Escapular & Segmentos do Membro Superior -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">4. Radiologia Digital — Cintura Escapular & Segmentos do Membro Superior</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Cintura Escapular" data-nome="Radiografia de Cintura Escapular & Articulação do Ombro (Incidências AP e Axilar)" data-projecao="AP Verdadeiro + Axilar / Perfil Escapular">
+                    <input type="checkbox"> Radiografia de Cintura Escapular & Ombro (AP e Axilar)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Cintura Escapular" data-nome="Radiografia de Clavícula (Incidências AP e Axial com Angulação Cefálica)" data-projecao="AP + Axial (Angulação de 15-30°)">
+                    <input type="checkbox"> Radiografia de Clavícula (AP e Axial)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Membro Superior" data-nome="Radiografia de Braço / Úmero (Incidências AP e Perfil)" data-projecao="AP + Perfil Incluindo Articulações">
+                    <input type="checkbox"> Radiografia de Braço / Úmero (AP e Perfil)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Membro Superior" data-nome="Radiografia de Cotovelo & Antebraço (Incidências AP e Perfil)" data-projecao="AP + Perfil">
+                    <input type="checkbox"> Radiografia de Cotovelo & Antebraço (AP e Perfil)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Membro Superior" data-nome="Radiografia de Punho e Mão / Quirodáctilos (Incidências PA e Oblíqua)" data-projecao="PA + Oblíqua / Perfil">
+                    <input type="checkbox"> Radiografia de Punho e Mão (PA e Oblíqua)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Grupo Segmentos do Membro Inferior -->
+              <div class="exam-group-box">
+                <div class="exam-group-header">5. Radiologia Digital — Segmentos do Membro Inferior</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Membro Inferior" data-nome="Radiografia de Coxa / Fêmur (Incidências AP e Perfil)" data-projecao="AP + Perfil Incluindo Joelho ou Quadril">
+                    <input type="checkbox"> Radiografia de Coxa / Fêmur (AP e Perfil)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Membro Inferior" data-nome="Radiografia de Articulação do Joelho (Incidências AP e Perfil com Carga)" data-projecao="AP + Perfil (Bilateral se Indicado)">
+                    <input type="checkbox"> Radiografia de Joelho (AP e Perfil com Carga)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Membro Inferior" data-nome="Radiografia de Perna / Tíbia e Fíbula (Incidências AP e Perfil)" data-projecao="AP + Perfil Incluindo Articulações">
+                    <input type="checkbox"> Radiografia de Perna / Tíbia e Fíbula (AP e Perfil)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Radiologia Digital — Membro Inferior" data-nome="Radiografia de Articulação do Tornozelo e Pé / Pododáctilos (Incidências AP, Perfil e Oblíqua)" data-projecao="AP + Perfil + Oblíqua (Mortise)">
+                    <input type="checkbox"> Radiografia de Tornozelo e Pé (AP, Perfil e Oblíqua)
+                  </label>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Justificativa Clínica e Alertas de Radioproteção -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-chat-text"></i> Indicação Clínica & Alertas para o Técnico em Radiologia</span>
+              </div>
+              <div class="form-group" style="margin-bottom:8px;">
+                <label>Suspeita Diagnóstica / Justificativa</label>
+                <textarea rows="3" id="img-justificativa">Paciente de 13 anos admitido com quadro agudo de dor abdominal difusa com defesa e parada parcial de eliminação de gases, associado a oligúria e instabilidade clínica. Exames solicitados em caráter de URGÊNCIA para descartar pneumoperitônio (perfuração de víscera oca), níveis hidroaéreos patológicos (obstrução mecânica ou íleo paralítico) e avaliação de repercussão cardiorrespiratória (congestão pulmonar / derrame) via Radiografia de Tórax e Rotina Radiológica de Abdome Agudo.</textarea>
+              </div>
+              <div class="form-group">
+                <label>Recomendações Especiais de Radioproteção</label>
+                <input type="text" value="Paciente adolescente (13 anos): colimação estrita e proteção gonadal/plumbífera obrigatória." readonly>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ==================== SUB-GUIA 3: ELETROCARDIOGRAMA (ECG) ==================== -->
+          <div id="section-ecg" style="display: none; flex-direction: column; gap: 14px;">
+            
+            <!-- Dados do Atendimento de ECG -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-heartbeat"></i> Dados da Solicitação de Eletrocardiograma (ECG)</span>
+                <span style="font-size:11px; color:#1e3a8a; font-weight:700;">Setor de Métodos Gráficos / Emergência — UPA 24h Breves</span>
+              </div>
+              <div class="grid-4">
+                <div class="form-group">
+                  <label>Caráter do Exame</label>
+                  <select id="ecg-prioridade">
+                    <option value="urgencia" selected>Urgência / Emergência (Imediato)</option>
+                    <option value="rotina">Rotina de Acompanhamento</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Local de Realização</label>
+                  <select id="ecg-local">
+                    <option value="leito" selected>Beira do Leito (Sala Amarela 03)</option>
+                    <option value="sala_ecg">Sala de Eletrocardiografia / Emergência</option>
+                    <option value="vermelha">Sala Vermelha (Emergência Crítica)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Data/Hora Solicitação</label>
+                  <input type="text" value="23/09/2026 22:30" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Médico Solicitante</label>
+                  <input type="text" value="Dr. Marcelo Fontes — CRM 12345" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grade de Procedimentos de ECG -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-check-square"></i> Procedimentos Eletrocardiográficos Solicitados</span>
+                <span style="font-size:11px; color:var(--text-muted);">Somente os procedimentos selecionados serão impressos na requisição</span>
+              </div>
+
+              <div class="exam-group-box">
+                <div class="exam-group-header">Eletrocardiografia Clínica & Derivações Especiais</div>
+                <div class="exam-checkbox-grid">
+                  <label class="exam-check-item checked" data-grupo="Eletrocardiografia Clínica" data-nome="Eletrocardiograma Convencional de 12 Derivações com Registro Contínuo em DII Longo" data-projecao="12 Derivações Simultâneas + DII Longo">
+                    <input type="checkbox" checked> <strong>Eletrocardiograma Convencional de 12 Derivações</strong> com Registro Contínuo em DII Longo
+                  </label>
+                  <label class="exam-check-item" data-grupo="Eletrocardiografia Clínica" data-nome="Eletrocardiograma com Derivações Direitas e Posteriores (V3R, V4R, V7, V8 e V9)" data-projecao="Derivações Especiais Direitas e Dorsais">
+                    <input type="checkbox"> Eletrocardiograma com Derivações Direitas e Posteriores (V3R, V4R, V7, V8 e V9)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Eletrocardiografia Clínica" data-nome="Eletrocardiograma Seriado para Protocolo de Síndrome Coronariana Aguda (SCA)" data-projecao="Traçados Seriados de 15/30 min">
+                    <input type="checkbox"> Eletrocardiograma Seriado (Protocolo de Dor Torácica / SCA)
+                  </label>
+                  <label class="exam-check-item" data-grupo="Eletrocardiografia Clínica" data-nome="Monitorização Eletrocardiográfica Contínua em Sala de Emergência" data-projecao="Derivação Contínua de Ritmo em Monitor Multiparamétrico">
+                    <input type="checkbox"> Monitorização Eletrocardiográfica Contínua / Ritmo
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Justificativa Clínica (ECG) -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-chat-text"></i> Indicação Clínica & Hipótese Diagnóstica (ECG)</span>
+              </div>
+              <div class="form-group" style="margin-bottom:8px;">
+                <label>Suspeita Diagnóstica / Justificativa Cardiológica</label>
+                <textarea rows="3" id="ecg-justificativa">Paciente de 13 anos admitido na Sala Amarela em vigilância clínica intensiva com dor abdominal em investigação e instabilidade metabólica. Exame solicitado com caráter de URGÊNCIA para rastreio de alterações na repolarização ventricular, sobrecarga de câmaras, distúrbios de condução atrioventricular e arritmias secundárias a desequilíbrio hidroeletrolítico e ácido-básico (K+/Ca++).</textarea>
+              </div>
+              <div class="form-group">
+                <label>Orientações ao Técnico / Enfermagem</label>
+                <input type="text" value="Realizar o traçado em repouso absoluto no leito com DII longo de 10 segundos. Anexar fita impressa ao prontuário e comunicar imediatamente se supradesnivelamento ou arritmia." readonly>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ==================== SUB-GUIA 3: LAUDO APAC (REGULAÇÃO SUS) ==================== -->
+          <div id="section-apac" style="display: none; flex-direction: column; gap: 14px;">
+            
+            <!-- Dados do Estabelecimento Solicitante (Campos 1 e 2) -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-buildings"></i> Estabelecimento Solicitante (Campos 1 e 2)</span>
+                <span style="font-size:11px; color:#1e3a8a; font-weight:700;">Regulação Externa SUS / SER-PA</span>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label>1 - Nome do Estabelecimento de Saúde</label>
+                  <input type="text" value="UPA 24 HORAS BREVES" readonly>
+                </div>
+                <div class="form-group">
+                  <label>2 - CNES</label>
+                  <input type="text" value="0296796" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Procedimento Ambulatorial Solicitado (Campos 15 a 32) -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-list-numbers"></i> Procedimento Principal Solicitado (Campos 15, 16 e 17)</span>
+                <span style="font-size:11px; color:var(--text-muted);">Tabela de Procedimentos do SUS (SIGTAP)</span>
+              </div>
+              <div class="grid-3">
+                <div class="form-group">
+                  <label>15 - Código de Procedimento (SIGTAP)</label>
+                  <input type="text" value="02.05.02.004-6" id="apac-cod" readonly>
+                </div>
+                <div class="form-group" style="grid-column: span 1;">
+                  <label>16 - Nome do Procedimento Principal</label>
+                  <input type="text" value="ULTRASSONOGRAFIA DE ABDOME TOTAL" id="apac-nome" readonly>
+                </div>
+                <div class="form-group">
+                  <label>17 - Quantidade</label>
+                  <input type="number" value="1" min="1" max="1" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Justificativa e Diagnóstico (Campos 33 a 37) -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-file-text"></i> Justificativa do Procedimento (Campos 33 a 37)</span>
+              </div>
+              <div class="grid-3" style="margin-bottom:10px;">
+                <div class="form-group">
+                  <label>33 - Descrição do Diagnóstico</label>
+                  <input type="text" value="INSUFICIÊNCIA RENAL AGUDA E DOR ABDOMINAL AGUDA A ESCLARECER" id="apac-diag">
+                </div>
+                <div class="form-group">
+                  <label>34 - CID-10 Principal</label>
+                  <input type="text" value="N17.9" id="apac-cid">
+                </div>
+                <div class="form-group">
+                  <label>35 - CID-10 Secundário</label>
+                  <input type="text" value="R10.4">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>37 - Histórico / Justificativa Clínica (Campo Oficial do SUS)</label>
+                <textarea rows="4" id="apac-justificativa">PACIENTE APRESENTANDO QUADRO DE INSUFICIÊNCIA RENAL AGUDA COM OLIGÚRIA PERSISTENTE, DOR ABDOMINAL EM FLANCOS E FOSSA ILÍACA, ASSOCIADO A ELEVAÇÃO EXPRESSIVA DE ESCÓRIAS NITROGENADAS (UREIA: 142 mg/dL, CREATININA: 3.4 mg/dL). SOLICITA-SE ULTRASSONOGRAFIA DE ABDOME TOTAL EM CARÁTER DE REGULAÇÃO AMBULATORIAL / URGÊNCIA PARA AVALIAÇÃO DE PARÊNQUIMA RENAL, EXCLUSÃO DE UROPATIA OBSTRUTIVA (HIDRONEFROSE) E OUTRAS CAUSAS DE ABDOME AGUDO.</textarea>
+              </div>
+            </div>
+
+            <!-- Dados do Profissional Solicitante (Campos 38 a 42) -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="st-left"><i class="ph ph-user"></i> Solicitação Médica (Campos 38 a 42)</span>
+              </div>
+              <div class="grid-3">
+                <div class="form-group">
+                  <label>38 - Profissional Solicitante</label>
+                  <input type="text" value="DR. MARCELO FONTES DA SILVA" readonly>
+                </div>
+                <div class="form-group">
+                  <label>39 - Data da Solicitação</label>
+                  <input type="text" value="23/09/2026" readonly>
+                </div>
+                <div class="form-group">
+                  <label>41 - Documento (CNS do Profissional)</label>
+                  <input type="text" value="700.1234.5678.9012" readonly>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- FOOTER FIXO DE AÇÕES — MODELO PADRÃO DO PROGRAMA -->
+        <footer class="cc-footer">
+          <button class="btn-cancel" onclick="resetForm()"><i class="ph ph-trash"></i> Descartar / Limpar</button>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-save-draft" onclick="saveDraft()"><i class="ph ph-floppy-disk"></i> Salvar Rascunho</button>
+            <button class="btn-save-print" id="btn-main-print" onclick="saveAndPrint()"><i class="ph ph-printer"></i> Salvar & Imprimir Requisição</button>
+          </div>
+        </footer>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL DE BLOQUEIO / ALERTA DE SEPARAÇÃO INSTITUCIONAL -->
+  <div class="modal-overlay" id="blockingModal">
+    <div class="modal-card">
+      <div class="modal-icon"><i class="ph ph-warning-octagon"></i></div>
+      <h3>Bloqueio Institucional de Requisições</h3>
+      <p>
+        Exames de <strong>Imagem / Radiologia</strong> e exames <strong>Laboratoriais</strong> tramitam por setores físicos separados da UPA e possuem formulários oficiais distintos.<br><br>
+        O sistema não permite misturar essas solicitações na mesma guia para garantir a rastreabilidade e evitar perda de coletas.
+      </p>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <button class="btn-save-print" id="btnModalSwitch" onclick="confirmSwitchModality()">Alternar Guia</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentModality = 'lab'; // 'lab', 'img', 'apac'
+    let pendingModality = null;
+
+    function toggleDrawer() {
+      const drawer = document.getElementById('patientDrawer');
+      drawer.style.display = drawer.style.display === 'grid' ? 'none' : 'grid';
+    }
+
+    function updateCounts() {
+      const labCount = document.querySelectorAll('#section-lab .exam-check-item input[type="checkbox"]:checked').length;
+      const imgCount = document.querySelectorAll('#section-img .exam-check-item input[type="checkbox"]:checked').length;
+      const ecgCount = document.querySelectorAll('#section-ecg .exam-check-item input[type="checkbox"]:checked').length;
+      
+      const badgeLab = document.getElementById('badge-count-lab');
+      if (badgeLab) badgeLab.textContent = labCount + (labCount === 1 ? ' exame' : ' exames');
+      
+      const badgeImg = document.getElementById('badge-count-img');
+      if (badgeImg) badgeImg.textContent = imgCount + (imgCount === 1 ? ' exame' : ' exames');
+
+      const badgeEcg = document.getElementById('badge-count-ecg');
+      if (badgeEcg) badgeEcg.textContent = ecgCount + (ecgCount === 1 ? ' exame' : ' exames');
+    }
+
+    function setModality(mod) {
+      currentModality = mod;
+
+      // Atualiza botões da sidebar
+      document.querySelectorAll('.modality-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById('btn-mod-' + mod);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      // Alterna visibilidade das seções
+      document.getElementById('section-lab').style.display = mod === 'lab' ? 'flex' : 'none';
+      document.getElementById('section-img').style.display = mod === 'img' ? 'flex' : 'none';
+      document.getElementById('section-ecg').style.display = mod === 'ecg' ? 'flex' : 'none';
+      document.getElementById('section-apac').style.display = mod === 'apac' ? 'flex' : 'none';
+
+      // Atualiza títulos e badges
+      const title = document.getElementById('card-main-title');
+      const subtitle = document.getElementById('card-main-subtitle');
+      const printBtn = document.getElementById('btn-main-print');
+      const topBadge = document.getElementById('topbar-modality-badge');
+
+      if (mod === 'lab') {
+        title.innerHTML = '<i class="ph ph-flask"></i> Requisição de Exames Laboratoriais (Laboratório Interno)';
+        subtitle.textContent = 'Documento exclusivo para o posto de análises clínicas da UPA 24h Breves · Modelo 19';
+        printBtn.innerHTML = '<i class="ph ph-printer"></i> Imprimir Requisição Laboratorial (Modelo 19)';
+        topBadge.innerHTML = '<i class="ph ph-flask"></i> Laboratório Interno Ativo';
+      } else if (mod === 'img') {
+        title.innerHTML = '<i class="ph ph-scan"></i> Requisição de Imagem & Radiologia (Setor Interno)';
+        subtitle.textContent = 'Documento exclusivo para o setor de Radiologia Digital da UPA 24h Breves · Modelo 20';
+        printBtn.innerHTML = '<i class="ph ph-printer"></i> Imprimir Requisição de Imagem / RX (Modelo 20)';
+        topBadge.innerHTML = '<i class="ph ph-scan"></i> Radiologia Digital Ativa';
+      } else if (mod === 'ecg') {
+        title.innerHTML = '<i class="ph ph-heartbeat"></i> Requisição de Eletrocardiograma — ECG (Métodos Gráficos)';
+        subtitle.textContent = 'Documento exclusivo para o setor de eletrocardiografia e emergência da UPA 24h Breves · Modelo 21';
+        printBtn.innerHTML = '<i class="ph ph-printer"></i> Imprimir Requisição de ECG (Modelo 21)';
+        topBadge.innerHTML = '<i class="ph ph-heartbeat"></i> Eletrocardiograma (ECG) Ativo';
+      } else if (mod === 'apac') {
+        title.innerHTML = '<i class="ph ph-file-text"></i> Laudo APAC — Procedimento Ambulatorial (Regulação SUS)';
+        subtitle.textContent = 'Documento oficial do SUS idêntico ao modelo físico (Campos 1 a 52) · Modelo 18';
+        printBtn.innerHTML = '<i class="ph ph-printer"></i> Imprimir Laudo APAC Oficial (Modelo 18)';
+        topBadge.innerHTML = '<i class="ph ph-file-text"></i> Laudo APAC Ativo';
+      }
+    }
+
+    function applyQuickBundle(bundle) {
+      if (bundle === 'sepse') {
+        setModality('lab');
+        const sepsisTests = ['Hemograma Completo', 'Tipagem Sanguínea', 'Coagulograma', 'Ureia Sérica', 'Creatinina Sérica', 'Sódio Sérico', 'Potássio Sérico', 'Glicemia de Urgência', 'Lactato Sérico', 'Gasometria Arterial', 'Troponina', 'Proteína C-Reativa', 'EAS / Sumário'];
+        document.querySelectorAll('#section-lab .exam-check-item').forEach(item => {
+          const cb = item.querySelector('input[type="checkbox"]');
+          const isMatch = sepsisTests.some(t => item.innerText.includes(t));
+          cb.checked = isMatch;
+          if (isMatch) item.classList.add('checked'); else item.classList.remove('checked');
+        });
+        updateCounts();
+        alert('Protocolo Sepse / IRA aplicado com sucesso: exames essenciais selecionados para coleta imediata!');
+      } else if (bundle === 'abdome') {
+        setModality('img');
+        const abdomeTests = ['Tórax (PA e Perfil)', 'Rotina Radiológica de Abdome Agudo'];
+        document.querySelectorAll('#section-img .exam-check-item').forEach(item => {
+          const cb = item.querySelector('input[type="checkbox"]');
+          const isMatch = abdomeTests.some(t => item.innerText.includes(t));
+          cb.checked = isMatch;
+          if (isMatch) item.classList.add('checked'); else item.classList.remove('checked');
+        });
+        updateCounts();
+        alert('Protocolo Abdome Agudo aplicado: Rotina de Abdome Agudo e Tórax PA/Perfil selecionados no setor de Radiologia!');
+      } else if (bundle === 'ecg_urgencia') {
+        setModality('ecg');
+        document.querySelectorAll('#section-ecg .exam-check-item').forEach((item, idx) => {
+          const cb = item.querySelector('input[type="checkbox"]');
+          cb.checked = idx === 0; // Marca ECG 12 derivações padrão
+          if (cb.checked) item.classList.add('checked'); else item.classList.remove('checked');
+        });
+        updateCounts();
+        alert('Protocolo ECG Urgência aplicado: Eletrocardiograma de 12 derivações com DII longo selecionado!');
+      } else if (bundle === 'apac_usg') {
+        setModality('apac');
+        alert('Formulário APAC preenchido com Ultrassonografia de Abdome Total (SIGTAP 02.05.02.004-6) e justificativa clínica oficial!');
+      }
+    }
+
+    function showBlockingModal(targetMod) {
+      pendingModality = targetMod;
+      document.getElementById('blockingModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('blockingModal').style.display = 'none';
+      pendingModality = null;
+    }
+
+    function confirmSwitchModality() {
+      if (pendingModality) {
+        setModality(pendingModality);
+      }
+      closeModal();
+    }
+
+    function saveDraft() {
+      const nomeMod = currentModality === 'lab' ? 'Exames Laboratoriais' : currentModality === 'img' ? 'Exames de Imagem' : currentModality === 'ecg' ? 'Eletrocardiograma' : 'Laudo APAC';
+      alert('Rascunho de ' + nomeMod + ' salvo com sucesso no prontuário do paciente!');
+    }
+
+    function resetForm() {
+      if (confirm('Deseja limpar as seleções deste formulário?')) {
+        const selMap = { lab: '#section-lab', img: '#section-img', ecg: '#section-ecg' };
+        if (selMap[currentModality]) {
+          document.querySelectorAll(selMap[currentModality] + ' .exam-check-item input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+            cb.closest('.exam-check-item').classList.remove('checked');
+          });
+        }
+        updateCounts();
+        alert('Formulário redefinido com sucesso.');
+      }
+    }
+
+    function saveAndPrint() {
+      if (currentModality === 'lab') {
+        // Coleta SOMENTE os exames laboratoriais selecionados
+        const labItems = [];
+        document.querySelectorAll('#section-lab .exam-check-item input[type="checkbox"]:checked').forEach(cb => {
+          const item = cb.closest('.exam-check-item');
+          labItems.push({
+            grupo: item.dataset.grupo || 'Análises Clínicas',
+            nome: item.dataset.nome || item.innerText.trim(),
+            amostra: item.dataset.amostra || 'Conforme protocolo interno'
+          });
+        });
+
+        if (labItems.length === 0) {
+          alert('Atenção: Selecione ao menos um exame laboratorial para gerar a requisição de impressão!');
+          return;
+        }
+
+        try {
+          localStorage.setItem('requisicao_lab_selecionados', JSON.stringify(labItems));
+          localStorage.setItem('requisicao_lab_justificativa', document.getElementById('lab-justificativa').value);
+        } catch(e) {
+          console.warn('Erro ao salvar no localStorage', e);
+        }
+
+        window.open('../modelos_impressao_html/19-solicitacao-exames-laboratoriais.html', '_blank');
+
+      } else if (currentModality === 'img') {
+        // Coleta SOMENTE os procedimentos radiológicos selecionados
+        const imgItems = [];
+        document.querySelectorAll('#section-img .exam-check-item input[type="checkbox"]:checked').forEach(cb => {
+          const item = cb.closest('.exam-check-item');
+          imgItems.push({
+            grupo: item.dataset.grupo || 'Radiologia Digital',
+            nome: item.dataset.nome || item.innerText.trim(),
+            projecao: item.dataset.projecao || 'Conforme protocolo radiológico'
+          });
+        });
+
+        if (imgItems.length === 0) {
+          alert('Atenção: Selecione ao menos um procedimento radiológico para gerar a requisição de impressão!');
+          return;
+        }
+
+        try {
+          localStorage.setItem('requisicao_img_selecionados', JSON.stringify(imgItems));
+          localStorage.setItem('requisicao_img_justificativa', document.getElementById('img-justificativa').value);
+        } catch(e) {
+          console.warn('Erro ao salvar no localStorage', e);
+        }
+
+        window.open('../modelos_impressao_html/20-solicitacao-exames-imagem-rx.html', '_blank');
+
+      } else if (currentModality === 'ecg') {
+        // Coleta SOMENTE os procedimentos de ECG selecionados
+        const ecgItems = [];
+        document.querySelectorAll('#section-ecg .exam-check-item input[type="checkbox"]:checked').forEach(cb => {
+          const item = cb.closest('.exam-check-item');
+          ecgItems.push({
+            grupo: item.dataset.grupo || 'Eletrocardiografia Clínica',
+            nome: item.dataset.nome || item.innerText.trim(),
+            projecao: item.dataset.projecao || '12 Derivações Simultâneas'
+          });
+        });
+
+        if (ecgItems.length === 0) {
+          alert('Atenção: Selecione ao menos um procedimento de ECG para gerar a requisição de impressão!');
+          return;
+        }
+
+        try {
+          localStorage.setItem('requisicao_ecg_selecionados', JSON.stringify(ecgItems));
+          localStorage.setItem('requisicao_ecg_justificativa', document.getElementById('ecg-justificativa').value);
+        } catch(e) {
+          console.warn('Erro ao salvar no localStorage', e);
+        }
+
+        window.open('../modelos_impressao_html/21-solicitacao-eletrocardiograma-ecg.html', '_blank');
+
+      } else if (currentModality === 'apac') {
+        window.open('../modelos_impressao_html/18-laudo-apac-procedimento-ambulatorial.html', '_blank');
+      }
+    }
+
+    // Toggle visual dos checkboxes e contagem reativa
+    document.querySelectorAll('.exam-check-item input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', function() {
+        if (this.checked) {
+          this.closest('.exam-check-item').classList.add('checked');
+        } else {
+          this.closest('.exam-check-item').classList.remove('checked');
+        }
+        updateCounts();
+      });
+    });
+
+    // Inicialização da contagem
+    updateCounts();
+  </script>
+</body>
+</html>

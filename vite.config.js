@@ -14,12 +14,77 @@ export default defineConfig({
       registerType: 'autoUpdate',
       manifest: false, // usa o public/manifest.json existente, sem duplicar
       injectRegister: false, // registrado manualmente em src/main.jsx
-      // Sem runtimeCaching: as chamadas ao Supabase são pra outro domínio e
-      // nunca passam pelo cache — só o "esqueleto" do próprio app é guardado.
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico}'],
+        globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico,woff,woff2}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        navigateFallback: 'index.html',
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico)$/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'hospital-assets-cache',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/unpkg\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'cdn-assets-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
     }),
   ],
   base: './',
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@supabase')) {
+              return 'vendor-supabase'
+            }
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor-react'
+            }
+            return 'vendor-libs'
+          }
+        },
+      },
+    },
+  },
 })
+

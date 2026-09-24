@@ -1,0 +1,68 @@
+/* Plano Terapêutico — listas "sem quadrados" (item marcado = negrito + ✓,
+   não-marcado = cinza claro, sem checkbox) e tabela de problemas ativos. */
+.admf-lista-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.8mm 6mm;
+  font-size: 8.5px;
+  padding-left: 2mm;
+  border-left: 2px solid var(--admf-ice);
+}
+
+.admf-planejamento-grid { display: grid; grid-template-columns: 20mm 1fr; gap: 4mm; align-items: start; }
+
+.admf-tempo-previsto {
+  background: var(--admf-ice2);
+  border: 1px solid #d4dade;
+  border-radius: 2px;
+  padding: 1.5mm 1mm;
+  text-align: center;
+}
+
+.admf-tempo-valor { font-size: 11px; font-weight: 700; margin-top: 0.5mm; color: var(--admf-dark); }
+.admf-tempo-valor small { font-size: 6.5px; font-weight: 400; color: var(--admf-mid); margin-left: 0.5mm; }
+
+/* Plano Terapêutico — versão "compacta" do modelo: caixas de texto rasas
+   (o documento precisa caber numa folha A4, não sobrar espaço em branco). */
+.admf-textbox-plano { min-height: 9mm; padding: 1.5mm 2mm; }
+
+/* Sumário de Alta — resumo clínico ganha uma caixa mais alta que as
+   demais (é o campo mais longo do documento). */
+.admf-textbox-alta { min-height: 40mm; padding: 2mm; }
+
+/* Escopo só do Plano Terapêutico — reduz respiro entre seções sem afetar
+   os outros documentos que reaproveitam as mesmas classes admf-*. */
+.admf-document-compacto .admf-section { margin-bottom: 2.5mm; }
+.admf-document-compacto .admf-section-title { padding: 1.4mm 3mm; font-size: 8.5px; }
+.admf-document-compacto .admf-section-body { padding: 2mm 3mm; }
+.admf-document-compacto .admf-header { margin-bottom: 2.5mm; }
+.admf-document-compacto .cap { font-size: 7.5px; }
+.admf-document-compacto .admf-assinatura { margin-top: 3mm; }
+.admf-document-compacto .admf-assinatura-caixa {
+  border: none;
+  background: none;
+  padding: 0;
+  min-height: 0;
+  width: 55mm;
+}
+.admf-document-compacto .admf-sigline { height: 6mm; }
+
+table.admf-tabela-problemas {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5px;
+}
+
+table.admf-tabela-problemas th,
+table.admf-tabela-problemas td {
+  border: 1px solid var(--admf-border);
+  padding: 2mm 3mm;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.admf-tabela-problemas th {
+  background: var(--admf-ice);
+  font-size: 8px;
+  text-transform: uppercase;
+}

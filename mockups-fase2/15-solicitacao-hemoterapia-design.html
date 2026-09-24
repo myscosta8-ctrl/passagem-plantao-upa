@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hemoterapia & Transfusão — UPA 24h Breves</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+:root {
+  --primary: #1D4ED8;
+  --primary-hover: #1E40AF;
+  --primary-light: #EFF6FF;
+  --primary-border: #BFDBFE;
+  
+  --success: #16A34A;
+  --success-light: #F0FDF4;
+  --success-border: #BBF7D0;
+  
+  --warning: #D97706;
+  --warning-light: #FFFBEB;
+  --warning-border: #FDE68A;
+  
+  --danger: #DC2626;
+  --danger-light: #FEF2F2;
+  --danger-border: #FECACA;
+  
+  --bg-page: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  
+  --text-main: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  
+  --border-light: #E2E8F0;
+  --border-strong: #CBD5E1;
+  
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-main); font-size: 13px; line-height: 1.4; display: flex; height: 100vh; overflow: hidden; }
+
+/* LAYOUT PRINCIPAL */
+.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; height: 100vh; }
+
+/* TOPBAR */
+.topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border-light); height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; }
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.btn-voltar { display: flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--border-strong); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-secondary); transition: 0.2s; }
+.btn-voltar:hover { background: #F1F5F9; color: var(--text-main); }
+.breadcrumb { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.breadcrumb span.current { color: var(--text-main); font-weight: 700; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; background: #F1F5F9; color: var(--text-secondary); border: 1px solid var(--border-light); }
+
+/* BANNER PACIENTE */
+.patient-banner { background: var(--bg-surface); border-bottom: 1px solid var(--border-light); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.pb-left { display: flex; align-items: center; gap: 14px; }
+.pb-avatar { width: 40px; height: 40px; border-radius: 50%; background: #EFF6FF; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; border: 1px solid var(--primary-border); }
+.pb-info h2 { font-size: 15px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.badge-sector { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: #FEF3C7; color: #92400E; }
+.badge-hb-critico { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; display: inline-flex; align-items: center; gap: 4px; }
+.pb-sub { font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+.pb-sub strong { color: var(--text-main); }
+.btn-drawer { background: transparent; border: 1px solid var(--border-strong); padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; color: var(--text-secondary); }
+.btn-drawer:hover { background: #F1F5F9; color: var(--text-main); }
+
+/* GAVETA DE DADOS */
+.patient-drawer { display: none; background: #F8FAFC; border-bottom: 1px solid var(--border-strong); padding: 12px 20px; grid-template-columns: repeat(4, 1fr); gap: 14px; font-size: 11.5px; }
+.drawer-item label { display: block; font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+.drawer-item span { font-weight: 700; color: var(--text-main); }
+
+/* ABAS CLÍNICAS (8 ABAS OFICIAIS DO SISTEMA) */
+.clinical-tabs { display: flex; background: var(--bg-surface); border-bottom: 1px solid var(--border-strong); padding: 0 20px; overflow-x: auto; flex-shrink: 0; }
+.tab-btn { padding: 11px 16px; font-size: 12px; font-weight: 700; color: var(--text-secondary); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.15s; }
+.tab-btn:hover { color: var(--primary); background: #F1F5F9; }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
+.tab-badge { font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 4px; background: #475569; color: #fff; }
+
+/* CORPO DIVIDIDO (SIDEBAR + CARD CENTRAL) */
+.clinical-split { display: flex; flex: 1; overflow: hidden; }
+
+/* SIDEBAR FERRAMENTAS */
+.tools-pane { width: 300px; background: var(--bg-surface); border-right: 1px solid var(--border-light); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+.pane-header { padding: 12px 16px; border-bottom: 1px solid var(--border-light); font-weight: 800; font-size: 12px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; }
+.tools-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+
+.vitals-box-hemo { background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 8px; padding: 12px; }
+.vitals-box-hemo h3 { font-size: 11px; font-weight: 800; color: var(--text-main); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.vitals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.vital-item { background: #F8FAFC; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light); text-align: center; }
+.vital-item span { display: block; font-size: 9px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+.vital-item strong { font-size: 13px; font-weight: 900; color: var(--text-main); }
+.vital-item.alert strong { color: #DC2626; font-size: 14px; }
+
+.protocol-box { background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 8px; padding: 12px; }
+.protocol-box h4 { font-size: 11px; font-weight: 800; color: var(--text-main); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+.btn-protocol { width: 100%; text-align: left; background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; cursor: pointer; transition: 0.15s; font-size: 11.5px; }
+.btn-protocol:hover { border-color: var(--primary); background: var(--primary-light); }
+.btn-protocol strong { display: block; color: var(--text-main); font-weight: 700; }
+.btn-protocol span { font-size: 10px; color: var(--text-secondary); }
+
+/* CARD CENTRAL */
+.clinical-card { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #F1F5F9; padding: 12px 16px; }
+.cc-header { background: #fff; border: 1px solid var(--border-light); border-radius: 8px 8px 0 0; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.cc-header h2 { font-size: 14px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.cc-header span { font-size: 11.5px; color: var(--text-muted); }
+
+.cc-body { flex: 1; overflow-y: auto; background: #fff; border-left: 1px solid var(--border-light); border-right: 1px solid var(--border-light); padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+.form-section { border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; background: #FFFFFF; }
+.form-section-title { font-size: 12px; font-weight: 800; color: var(--text-main); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border-light); padding-bottom: 6px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 11px; font-weight: 700; color: var(--text-secondary); }
+.form-group input, .form-group select, .form-group textarea { border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 10px; font-size: 12px; font-family: inherit; color: var(--text-main); background: #fff; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(29,78,216,0.15); }
+.form-group input[readonly] { background: #F8FAFC; color: var(--text-secondary); cursor: not-allowed; }
+
+/* TABELA DE HEMOCOMPONENTES INTERATIVA (PADRÃO NEUTRO DO PROGRAMA) */
+.table-hemo-select { width: 100%; border-collapse: collapse; font-size: 12px; }
+.table-hemo-select th { background: #F8FAFC; border: 1px solid var(--border-light); padding: 7px 10px; text-align: left; font-weight: 800; font-size: 11px; text-transform: uppercase; color: var(--text-secondary); }
+.table-hemo-select td { border: 1px solid var(--border-light); padding: 7px 10px; vertical-align: middle; background: #fff; }
+.table-hemo-select tr.selected td { background: var(--primary-light); border-color: var(--primary-border); }
+.hemo-check-row { display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; color: var(--text-main); }
+.hemo-qty-input { width: 100px; text-align: center; font-weight: 800; padding: 5px 8px; border: 1px solid var(--border-strong); border-radius: 4px; font-size: 12px; }
+
+/* CARÁTER / URGÊNCIA */
+.urg-radio-group { display: flex; flex-direction: column; gap: 8px; }
+.urg-radio-card { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--border-light); border-radius: 6px; background: #fff; cursor: pointer; transition: 0.15s; }
+.urg-radio-card:hover { border-color: var(--primary); background: #F8FAFC; }
+.urg-radio-card.active { border-color: var(--primary); background: var(--primary-light); font-weight: 700; }
+
+.extrema-urgencia-box { background: #FFFBEB; border: 1px solid var(--warning-border); border-radius: 8px; padding: 12px 14px; margin-top: 6px; }
+.extrema-urgencia-box h4 { color: #92400E; font-size: 12px; font-weight: 900; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.extrema-urgencia-box p { font-size: 11.5px; color: #78350F; line-height: 1.35; }
+
+/* FOOTER FIXO DE AÇÕES — MODELO PADRÃO DO PROGRAMA */
+.cc-footer { background: #F8FAFC; border: 1px solid var(--border-light); border-top: 1px solid var(--border-strong); border-radius: 0 0 8px 8px; padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.btn-cancel { background: #fff; border: 1px solid var(--border-strong); color: var(--text-secondary); padding: 7px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+.btn-cancel:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger-border); }
+.btn-save-draft { background: #fff; border: 1px solid var(--primary); color: var(--primary); padding: 7px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+.btn-save-draft:hover { background: var(--primary-light); }
+.btn-save-print { background: var(--primary); color: white; border: none; padding: 7px 18px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow-sm); transition: 0.2s; }
+.btn-save-print:hover { background: var(--primary-hover); box-shadow: var(--shadow-md); }
+</style>
+</head>
+<body>
+
+<main class="main-content">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn-voltar" onclick="window.location.href='index.html'"><i class="ph ph-arrow-left"></i> Painel</button>
+      <div class="breadcrumb">
+        <span>Pacientes</span> <i class="ph ph-caret-right"></i>
+        <span>Internação Adulto/Pediátrica</span> <i class="ph ph-caret-right"></i>
+        <span class="current">7. Solicitação de Hemoterapia</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="badge-status"><i class="ph ph-drop"></i> Transfusão Indicada</span>
+    </div>
+  </header>
+
+  <!-- BANNER DO PACIENTE -->
+  <section class="patient-banner">
+    <div class="pb-left">
+      <div class="pb-avatar">FP</div>
+      <div class="pb-info">
+        <h2>
+          FELIPE PINHEIRO CARVALHO
+          <span class="badge-sector">Obs. Pediátrica · Leito 02</span>
+          <span class="badge-hb-critico"><i class="ph ph-warning"></i> Hb 6,4 / Ht 20,9</span>
+        </h2>
+        <div class="pb-sub">
+          13 anos (01/12/2012) · Sexo: <strong>Masculino</strong> · Peso: <strong>38 kg</strong> · Prontuário: <strong>2026.09.114-PED</strong> · Alergia: <strong style="color:#DC2626;">Dipirona</strong>
+        </div>
+      </div>
+    </div>
+    <div>
+      <button class="btn-drawer" onclick="toggleDrawer()"><i class="ph ph-identification-card"></i> <span id="lbl-drawer">Expandir Ficha Oficial</span></button>
+    </div>
+  </section>
+
+  <!-- GAVETA DE DADOS OFICIAIS -->
+  <div class="patient-drawer" id="pb-drawer">
+    <div class="drawer-item"><label>Nome da Mãe</label><span>Maria das Dores Pinheiro Carvalho</span></div>
+    <div class="drawer-item"><label>Cartão SUS</label><span>898.0012.3456.7890</span></div>
+    <div class="drawer-item"><label>RG / CPF</label><span>6543210 PC/PA — 012.345.678-90</span></div>
+    <div class="drawer-item"><label>Município / UF</label><span>Breves / PA (Zona Urbana)</span></div>
+    <div class="drawer-item"><label>Endereço</label><span>Trav. Castilhos França, 450, Centro</span></div>
+    <div class="drawer-item"><label>Unidade Solicitante</label><span>UPA 24h Breves (CNES 0296796)</span></div>
+    <div class="drawer-item"><label>Médico Solicitante</label><span>Dr. Marcos Costa — CRM/PA 1234</span></div>
+    <div class="drawer-item"><label>Agência Transfusional</label><span>Fundação HEMOPA — Polo Breves</span></div>
+  </div>
+
+  <!-- ABAS CLÍNICAS (8 ABAS OFICIAIS DO SISTEMA) -->
+  <nav class="clinical-tabs">
+    <button class="tab-btn" onclick="window.location.href='06-anamnese-admissao-design.html'"><i class="ph ph-folder-user"></i> 1. Anamnese & Admissão</button>
+    <button class="tab-btn" onclick="window.location.href='06-anamnese-admissao-design.html?mode=aih'"><i class="ph ph-file-text"></i> 2. Laudo de AIH</button>
+    <button class="tab-btn" onclick="alert('Navegando para Plano Terapêutico...')"><i class="ph ph-strategy"></i> 3. Plano Terapêutico</button>
+    <button class="tab-btn" onclick="alert('Navegando para Evolução Diária...')"><i class="ph ph-activity"></i> 4. Evolução Diária</button>
+    <button class="tab-btn" onclick="alert('Navegando para Prescrição Médica...')"><i class="ph ph-pill"></i> 5. Prescrição Médica</button>
+    <button class="tab-btn" onclick="window.location.href='16-solicitacao-exames-apac-design.html'"><i class="ph ph-flask"></i> 6. Exames & APAC</button>
+    <button class="tab-btn active"><i class="ph ph-drop"></i> 7. Hemoterapia</button>
+    <button class="tab-btn" onclick="alert('Navegando para Receituário & Alta...')"><i class="ph ph-file-text"></i> 8. Receituário & Alta</button>
+  </nav>
+
+  <!-- CORPO PRINCIPAL -->
+  <div class="clinical-split">
+
+    <!-- SIDEBAR DE APOIO -->
+    <aside class="tools-pane">
+      <div class="pane-header">
+        <span><i class="ph ph-drop-half-bottom"></i> Suporte Transfusional</span>
+      </div>
+
+      <div class="tools-body">
+        <div class="vitals-box-hemo">
+          <h3><i class="ph ph-chart-line-down"></i> Hemograma Recente</h3>
+          <div class="vitals-grid">
+            <div class="vital-item alert">
+              <span>Hemoglobina</span>
+              <strong>6,4 g/dL</strong>
+            </div>
+            <div class="vital-item alert">
+              <span>Hematócrito</span>
+              <strong>20,9 %</strong>
+            </div>
+            <div class="vital-item">
+              <span>Plaquetas</span>
+              <strong>248.000 /mm³</strong>
+            </div>
+            <div class="vital-item">
+              <span>Leucócitos</span>
+              <strong>11.400 /mm³</strong>
+            </div>
+          </div>
+          <div style="font-size:11px; color:var(--text-secondary); margin-top:8px; line-height:1.35;">
+            <strong>Indicação:</strong> Níveis críticos de hemoglobina com descompensação clínica e taquicardia (FC: 110 bpm).
+          </div>
+        </div>
+
+        <div class="protocol-box">
+          <h4><i class="ph ph-lightning"></i> Protocolos Transfusionais</h4>
+          <button class="btn-protocol" onclick="aplicarProtocolo('anemia-grave')">
+            <strong>Anemia Aguda Grave / Menorragia</strong>
+            <span>Prescreve 01 bolsa de Concentrado de Hemácias (Urgência 3h)</span>
+          </button>
+          <button class="btn-protocol" onclick="aplicarProtocolo('choque-hemorragico')">
+            <strong>Choque Hemorrágico / Trauma</strong>
+            <span>Prescreve 02 bolsas CH + Extrema Urgência</span>
+          </button>
+          <button class="btn-protocol" onclick="aplicarProtocolo('plaquetopenia')">
+            <strong>Plaquetopenia Severa</strong>
+            <span>Prescreve Concentrado de Plaquetas (Urgência 3h)</span>
+          </button>
+        </div>
+
+        <div style="font-size:11px; color:var(--text-secondary); background:#F8FAFC; border:1px solid var(--border-light); border-radius:6px; padding:10px; line-height:1.4;">
+          <strong>Legislação Hemoterápica:</strong><br>
+          A solicitação exige justificativa clínica, carimbo e assinatura do médico, além de identificação da coleta. Devolver à agência em até 48h bolsas não transfundidas.
+        </div>
+      </div>
+    </aside>
+
+    <!-- CARD CENTRAL: FORMULÁRIO COMPLETO -->
+    <div class="clinical-card">
+      
+      <!-- CABEÇALHO LIMPO (SEM BOTÃO DUPLICADO NO CANTO SUPERIOR DIREITO) -->
+      <div class="cc-header">
+        <div>
+          <h2><i class="ph ph-drop"></i> Solicitação de Sangue, Componentes e Derivados</h2>
+          <span>Documento Oficial: <strong>Modelo 17</strong> · Unidade: <strong>UPA 24H BREVES (CNES 0296796)</strong></span>
+        </div>
+      </div>
+
+      <div class="cc-body">
+
+        <!-- SEÇÃO 1: IDENTIFICAÇÃO E DADOS CLÍNICOS -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="ph ph-user"></i> 1. Identificação do Paciente e Histórico Transfusional</div>
+          
+          <div class="grid-4" style="margin-bottom:10px;">
+            <div class="form-group">
+              <label>Paciente</label>
+              <input type="text" value="FELIPE PINHEIRO CARVALHO" readonly>
+            </div>
+            <div class="form-group">
+              <label>Data de Nascimento</label>
+              <input type="text" value="01/12/2012 (13 anos)" readonly>
+            </div>
+            <div class="form-group">
+              <label>Sexo</label>
+              <input type="text" value="MASCULINO" readonly>
+            </div>
+            <div class="form-group">
+              <label>Peso (kg)</label>
+              <input type="text" id="hemo-peso" value="38 kg">
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-bottom:10px;">
+            <div class="form-group">
+              <label>Hospital Solicitante</label>
+              <input type="text" value="UPA 24H BREVES" readonly>
+            </div>
+            <div class="form-group">
+              <label>Enfermaria / Leito</label>
+              <input type="text" value="OBS. PEDIÁTRICA / LEITO 02" readonly>
+            </div>
+            <div class="form-group">
+              <label>Registro Hospitalar (Prontuário)</label>
+              <input type="text" value="2026.09.114-PED" readonly>
+            </div>
+            <div class="form-group">
+              <label>HB / HT Recente (g/dL / %)</label>
+              <input type="text" id="hemo-hb-ht" value="6,4 / 20,9" style="font-weight:800; color:#DC2626;">
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-bottom:10px;">
+            <div class="form-group">
+              <label>Recebeu Transfusão Anteriormente?</label>
+              <select id="hemo-prev-transf">
+                <option value="nao" selected>NÃO</option>
+                <option value="sim">SIM</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Antecedentes de Anticorpo Irregular?</label>
+              <select id="hemo-anticorpo">
+                <option value="nao" selected>NÃO</option>
+                <option value="sim">SIM</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Solicitou Doadores à Família?</label>
+              <select id="hemo-doadores">
+                <option value="nao" selected>NÃO</option>
+                <option value="sim">SIM</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Indicação Clínica / Cirurgia Proposta (Conforme Modelo Oficial)</label>
+            <input type="text" id="hemo-indicacao" value="ANEMIA AGUDA GRAVE / MENORRAGIA SINTOMÁTICA COM DESCOMPENSAÇÃO HEMODINÂMICA" style="font-weight:700;">
+          </div>
+        </div>
+
+        <!-- SEÇÃO 2: HEMOCOMPONENTES / HEMODERIVADOS -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="ph ph-drop"></i> 2. Hemocomponentes / Hemoderivados Solicitados</div>
+          
+          <table class="table-hemo-select">
+            <thead>
+              <tr>
+                <th style="width:75%;">Descrição do Hemocomponente</th>
+                <th style="width:25%; text-align:center;">Quantidade / Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label class="hemo-check-row">
+                    <input type="checkbox" id="chk-hemo-1" onchange="toggleHemoRow(this, 'qtd-hemo-1')">
+                    Concentrado de hemácias pobre em leucócitos (+ 300 ml/unid)
+                  </label>
+                </td>
+                <td style="text-align:center;">
+                  <input type="text" id="qtd-hemo-1" class="hemo-qty-input" placeholder="Qtd / Unid" disabled>
+                </td>
+              </tr>
+              <tr class="selected">
+                <td>
+                  <label class="hemo-check-row">
+                    <input type="checkbox" id="chk-hemo-2" checked onchange="toggleHemoRow(this, 'qtd-hemo-2')">
+                    <strong style="color:var(--primary);">Concentrado de hemácias (+ 300 ml/unid)</strong>
+                  </label>
+                </td>
+                <td style="text-align:center;">
+                  <input type="text" id="qtd-hemo-2" class="hemo-qty-input" value="01 UNIDADE" style="font-weight:900; color:var(--primary);">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label class="hemo-check-row">
+                    <input type="checkbox" id="chk-hemo-3" onchange="toggleHemoRow(this, 'qtd-hemo-3')">
+                    Concentrado de hemácias pobre em leucócitos irradiado (+ 300 ml/unid)
+                  </label>
+                </td>
+                <td style="text-align:center;">
+                  <input type="text" id="qtd-hemo-3" class="hemo-qty-input" placeholder="Qtd / Unid" disabled>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label class="hemo-check-row">
+                    <input type="checkbox" id="chk-hemo-4" onchange="toggleHemoRow(this, 'qtd-hemo-4')">
+                    Plasma fresco congelado (+ 200 ml/unid)
+                  </label>
+                </td>
+                <td style="text-align:center;">
+                  <input type="text" id="qtd-hemo-4" class="hemo-qty-input" placeholder="Qtd / Unid" disabled>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label class="hemo-check-row">
+                    <input type="checkbox" id="chk-hemo-5" onchange="toggleHemoRow(this, 'qtd-hemo-5')">
+                    Concentrado de plaquetas pobre em leucócitos (+ 60 ml/unid)
+                  </label>
+                </td>
+                <td style="text-align:center;">
+                  <input type="text" id="qtd-hemo-5" class="hemo-qty-input" placeholder="Qtd / Unid" disabled>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label class="hemo-check-row">
+                    <input type="checkbox" id="chk-hemo-6" onchange="toggleHemoRow(this, 'qtd-hemo-6')">
+                    Concentrado de plaquetas pobre em leucócitos irradiado (+ 60 ml/unid)
+                  </label>
+                </td>
+                <td style="text-align:center;">
+                  <input type="text" id="qtd-hemo-6" class="hemo-qty-input" placeholder="Qtd / Unid" disabled>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label class="hemo-check-row">
+                    <input type="checkbox" id="chk-hemo-7" onchange="toggleHemoRow(this, 'qtd-hemo-7')">
+                    Concentrado de plaquetas por aférese (+ 300 ml/unid)
+                  </label>
+                </td>
+                <td style="text-align:center;">
+                  <input type="text" id="qtd-hemo-7" class="hemo-qty-input" placeholder="Qtd / Unid" disabled>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label class="hemo-check-row">
+                    <input type="checkbox" id="chk-hemo-8" onchange="toggleHemoRow(this, 'qtd-hemo-8')">
+                    Crioprecipitado (+ 20 ml/unid)
+                  </label>
+                </td>
+                <td style="text-align:center;">
+                  <input type="text" id="qtd-hemo-8" class="hemo-qty-input" placeholder="Qtd / Unid" disabled>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <label class="hemo-check-row">
+                      <input type="checkbox" id="chk-hemo-9" onchange="toggleHemoRow(this, 'qtd-hemo-9')">
+                      Outros:
+                    </label>
+                    <input type="text" id="desc-hemo-outros" placeholder="Descrever outro hemoderivado..." style="flex:1; padding:4px 8px; border:1px solid var(--border-strong); border-radius:4px;" disabled>
+                  </div>
+                </td>
+                <td style="text-align:center;">
+                  <input type="text" id="qtd-hemo-9" class="hemo-qty-input" placeholder="Qtd / Unid" disabled>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- SEÇÃO 3: CARÁTER DA TRANSFUSÃO -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="ph ph-clock"></i> 3. Caráter / Urgência da Transfusão</div>
+          
+          <div class="urg-radio-group">
+            <label class="urg-radio-card active" onclick="selecionarUrgencia(this)">
+              <input type="radio" name="carater_transf" value="urgencia-3h" checked>
+              <div>
+                <strong>Urgência, a realizar dentro de 3 horas</strong>
+                <span style="font-size:11.5px; color:var(--text-secondary); display:block;">Para pacientes com instabilidade clínica e necessidade de rápida infusão de hemocomponentes.</span>
+              </div>
+            </label>
+
+            <label class="urg-radio-card" onclick="selecionarUrgencia(this)">
+              <input type="radio" name="carater_transf" value="rotina-24h">
+              <div>
+                <strong>Não urgente (rotina), a realizar dentro de 24 horas</strong>
+                <span style="font-size:11.5px; color:var(--text-secondary); display:block;">Transfusões eletivas de enfermaria sem risco hemodinâmico imediato.</span>
+              </div>
+            </label>
+
+            <label class="urg-radio-card" onclick="selecionarUrgencia(this)">
+              <input type="radio" name="carater_transf" value="programada">
+              <div>
+                <strong>Programada (Cirurgia Eletiva ou Ambulatorial)</strong>
+                <span style="font-size:11.5px; color:var(--text-secondary); display:block;">Encaminhar paciente à Fundação HEMOPA com antecedência mínima de 3 dias úteis.</span>
+              </div>
+            </label>
+          </div>
+
+          <!-- BLOCO: TRANSFUSÃO DE EXTREMA URGÊNCIA -->
+          <div class="extrema-urgencia-box">
+            <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="chk-extrema-urgencia" style="margin-top:2px;">
+              <div>
+                <h4><i class="ph ph-warning-octagon"></i> Transfusão de Extrema Urgência (Risco Iminente de Morte)</h4>
+                <p>Autorizo expressamente a transfusão de sangue sem testes pré-transfusionais exigidos por se tratar de risco de vida do paciente.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- SEÇÃO 4: RESPONSABILIDADE MÉDICA E COLETA -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="ph ph-signature"></i> 4. Responsáveis e Coleta de Amostra</div>
+          
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Médico Solicitante</label>
+              <input type="text" value="Dr. Marcos Costa — CRM/PA 1234" readonly>
+            </div>
+            <div class="form-group">
+              <label>Profissional que Coletou a Amostra Pré-Transfusional</label>
+              <input type="text" id="hemo-coletor" value="Enfª. Amanda Santos — COREN/PA 5678">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER FIXO DE AÇÕES — MODELO PADRÃO DO PROGRAMA -->
+      <footer class="cc-footer">
+        <button class="btn-cancel" onclick="window.history.back()"><i class="ph ph-x-circle"></i> Cancelar</button>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-save-draft" onclick="alert('Rascunho da solicitação de sangue salvo com sucesso!')"><i class="ph ph-floppy-disk"></i> Salvar</button>
+          <button class="btn-save-print" onclick="salvarEImprimirHemo()"><i class="ph ph-printer"></i> Salvar e Imprimir Solicitação</button>
+        </div>
+      </footer>
+
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  function toggleDrawer() {
+    const d = document.getElementById('pb-drawer');
+    const l = document.getElementById('lbl-drawer');
+    if (d.style.display === 'grid') {
+      d.style.display = 'none';
+      l.innerText = 'Expandir Ficha Oficial';
+    } else {
+      d.style.display = 'grid';
+      l.innerText = 'Ocultar Ficha Oficial';
+    }
+  }
+
+  function toggleHemoRow(chk, inputId) {
+    const input = document.getElementById(inputId);
+    const row = chk.closest('tr');
+    if (chk.checked) {
+      input.disabled = false;
+      if (!input.value) input.value = '01 UNIDADE';
+      row.classList.add('selected');
+    } else {
+      input.disabled = true;
+      input.value = '';
+      row.classList.remove('selected');
+    }
+    if (inputId === 'qtd-hemo-9') {
+      document.getElementById('desc-hemo-outros').disabled = !chk.checked;
+    }
+  }
+
+  function selecionarUrgencia(card) {
+    document.querySelectorAll('.urg-radio-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    const radio = card.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+  }
+
+  function aplicarProtocolo(tipo) {
+    if (tipo === 'anemia-grave') {
+      document.getElementById('hemo-indicacao').value = 'ANEMIA AGUDA GRAVE / MENORRAGIA SINTOMÁTICA COM DESCOMPENSAÇÃO HEMODINÂMICA';
+      document.getElementById('chk-hemo-2').checked = true;
+      toggleHemoRow(document.getElementById('chk-hemo-2'), 'qtd-hemo-2');
+      document.getElementById('qtd-hemo-2').value = '01 UNIDADE';
+      alert('Protocolo de Anemia Grave aplicado: 01 bolsa de Concentrado de Hemácias selecionada!');
+    } else if (tipo === 'choque-hemorragico') {
+      document.getElementById('hemo-indicacao').value = 'CHOQUE HEMORRÁGICO GRAVE COM HIPOTENSÃO REFRATÁRIA E TAQUICARDIA';
+      document.getElementById('chk-hemo-2').checked = true;
+      toggleHemoRow(document.getElementById('chk-hemo-2'), 'qtd-hemo-2');
+      document.getElementById('qtd-hemo-2').value = '02 UNIDADES';
+      document.getElementById('chk-extrema-urgencia').checked = true;
+      alert('Protocolo de Choque Hemorrágico aplicado: 02 bolsas CH + Termo de Extrema Urgência acionado!');
+    } else if (tipo === 'plaquetopenia') {
+      document.getElementById('hemo-indicacao').value = 'PLAQUETOPENIA SEVERA COM SANGRAMENTO ATIVO';
+      document.getElementById('chk-hemo-5').checked = true;
+      toggleHemoRow(document.getElementById('chk-hemo-5'), 'qtd-hemo-5');
+      document.getElementById('qtd-hemo-5').value = '05 UNIDADES';
+      alert('Protocolo de Plaquetopenia aplicado: Concentrado de Plaquetas selecionado!');
+    }
+  }
+
+  function salvarEImprimirHemo() {
+    alert('Solicitação de Hemoterápicos salva no prontuário do paciente!\nAbrindo formulário oficial de Solicitação de Sangue e Hemoderivados (Modelo 17)...');
+    window.open('../modelos_impressao_html/17-solicitacao-hemoterapicos.html', '_blank');
+  }
+</script>
+
+</body>
+</html>

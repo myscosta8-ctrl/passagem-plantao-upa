@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient'
+import { supabase } from './supabaseClient.js'
 
 // Chave de configuração (Etapa H da Fase 0 do PEP): controla se o app lê/escreve
 // na estrutura nova (pessoas/atendimentos/internacoes/leito_ocupacoes) ou continua

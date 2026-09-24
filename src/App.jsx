@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import CompletarPerfil from './pages/CompletarPerfil'
 import BemVindoModal from './pages/BemVindoModal'
 import TrocaSenhaObrigatoria from './pages/TrocaSenhaObrigatoria'
+import StatusConexao from './components/StatusConexao'
 
 function Gate() {
   const { loading, session, enfermeiro, profileLoading } = useAuth()
@@ -46,6 +47,7 @@ function Gate() {
 export default function App() {
   return (
     <AuthProvider>
+      <StatusConexao />
       <Gate />
     </AuthProvider>
   )

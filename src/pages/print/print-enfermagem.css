@@ -1,0 +1,526 @@
+/* Admissão de Enfermagem — réplica fiel (checkboxes ☒/☐ burocráticos,
+   igual ao modelo "HISTÓRICO DE ENFERMAGEM" original). */
+.hef-page { width: 190mm; max-width: 190mm; margin: 0 auto; font-family: Arial, Helvetica, sans-serif; font-size: 8.5px; line-height: 1.5; color: #000; }
+.hef-secao-titulo { background: #ddd; border: 1px solid #000; border-top: none; font-weight: 700; text-align: center; font-size: 9px; padding: 1mm; }
+.hef-caixa { border: 1px solid #000; border-top: none; padding: 1.5mm 2mm; }
+.hef-caixa-titulo { background: #ddd; font-weight: 700; text-align: center; font-size: 8.5px; padding: 0.8mm; margin: -1.5mm -2mm 1mm; border-bottom: 1px solid #000; }
+.hef-par { display: flex; border: 1px solid #000; }
+.hef-par .hef-caixa { border: none; border-right: 1px solid #000; }
+.hef-par .hef-caixa:last-child { border-right: none; }
+.hef-linha-check { display: flex; flex-wrap: wrap; column-gap: 4mm; row-gap: 0.6mm; align-items: baseline; margin: 0.6mm 0; }
+.hef-opcao { white-space: nowrap; }
+.hef-campo-label { font-weight: 700; }
+.hef-extra { border-bottom: 1px solid #000; padding: 0 1mm; min-width: 25mm; display: inline-block; }
+.hef-extra-largo { min-width: 100mm; }
+.hef-tabela-med { width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 8px; }
+.hef-tabela-med th, .hef-tabela-med td { border: 1px solid #000; padding: 1mm 1.5mm; text-align: left; }
+.hef-tabela-med th { background: #eee; }
+.hef-rodape { display: flex; justify-content: space-between; margin-top: 6mm; font-size: 8.5px; font-weight: 700; }
+
+/* ==============================================================
+   PRONTUÁRIO DE ENFERMAGEM — PADRÃO VISUAL UNIVERSAL (SBAR / SAE / NOTA / BALANÇO)
+   ============================================================== */
+
+/* SBAR */
+.sbar-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.sbar-badge {
+  display: inline-block;
+  background: #0f172a;
+  color: #fff;
+  font-weight: 700;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-right: 5px;
+  text-transform: uppercase;
+}
+.sbar-secao {
+  border: 1px solid #888;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4.5px;
+}
+.sbar-secao-header {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.5px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+  display: flex;
+  align-items: center;
+}
+.sbar-secao-body {
+  padding: 5px 8px;
+  font-size: 9.2px;
+  line-height: 1.42;
+  background: #fff;
+}
+.sbar-grid-3 {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1.2fr;
+  gap: 6px;
+}
+.sbar-card-mini {
+  border: 1px solid #94a3b8;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.sbar-card-mini .card-header {
+  background: #f1f5f9;
+  font-weight: 700;
+  font-size: 9px;
+  padding: 2px 5px;
+  color: #0f172a;
+  text-transform: uppercase;
+  border-bottom: 1px solid #cbd5e1;
+}
+.sbar-card-mini .card-body {
+  padding: 4px 6px;
+  font-size: 9px;
+  background: #fff;
+}
+.sbar-tabela-sv {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 3px;
+}
+.sbar-tabela-sv th {
+  background: #f1f5f9;
+  border: 1px solid #94a3b8;
+  padding: 2.5px 4px;
+  font-weight: 700;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+.sbar-tabela-sv td {
+  border: 1px solid #cbd5e1;
+  padding: 3.5px 4px;
+  font-size: 9.2px;
+  font-weight: 600;
+}
+
+/* SAE */
+.sae-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.sae-bloco-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.sae-card-mini {
+  border: 1px solid #888;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.sae-card-mini .card-header {
+  background: #e2e8f0;
+  font-weight: 700;
+  font-size: 9px;
+  padding: 1.5px 4px;
+  color: #0f172a;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+}
+.sae-card-mini .card-body {
+  padding: 3px 6px;
+  font-size: 9px;
+  background: #fff;
+}
+.sae-secao {
+  border: 1px solid #888;
+  border-radius: 2px;
+  margin-bottom: 4px;
+  overflow: hidden;
+}
+.sae-secao-header {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.5px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sae-secao-body {
+  padding: 5px 8px;
+  font-size: 9.2px;
+  line-height: 1.42;
+  text-align: justify;
+  background: #fff;
+}
+.sae-tabela-dispositivos {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.8px;
+}
+.sae-tabela-dispositivos th {
+  background: #f1f5f9;
+  border: 1px solid #94a3b8;
+  padding: 2.5px 5px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+.sae-tabela-dispositivos td {
+  border: 1px solid #cbd5e1;
+  padding: 3px 4px;
+  vertical-align: middle;
+}
+.sae-plano-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.sae-item-diagnostico {
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  padding: 3px 6px;
+  background: #f8fafc;
+  font-size: 8.8px;
+}
+.sae-item-diagnostico b {
+  color: #0284c7;
+  font-size: 9px;
+}
+
+/* Intercorrência de Enfermagem */
+.not-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.not-secao {
+  border: 1px solid #888;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+.not-secao-header {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.5px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.not-secao-body {
+  padding: 6px 8px;
+  font-size: 9.2px;
+  line-height: 1.45;
+  text-align: justify;
+  background: #fff;
+}
+.not-grid-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.not-card-mini {
+  border: 1px solid #94a3b8;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.not-card-mini .card-header {
+  background: #f1f5f9;
+  font-weight: 700;
+  font-size: 9px;
+  padding: 2px 5px;
+  color: #0f172a;
+  text-transform: uppercase;
+  border-bottom: 1px solid #cbd5e1;
+}
+.not-card-mini .card-body {
+  padding: 4px 6px;
+  font-size: 9px;
+  background: #fff;
+}
+.not-tabela-sv {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 3px;
+}
+.not-tabela-sv th {
+  background: #f1f5f9;
+  border: 1px solid #94a3b8;
+  padding: 2.5px 4px;
+  font-weight: 700;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+.not-tabela-sv td {
+  border: 1px solid #cbd5e1;
+  padding: 3.5px 4px;
+  font-size: 9.2px;
+  font-weight: 600;
+}
+
+/* Balanço Hídrico 24h */
+@media print {
+  .bh-landscape { page: balanco; }
+}
+@page balanco {
+  size: A4 landscape;
+  margin: 5mm 6mm;
+}
+
+.bh-page {
+  width: 285mm;
+  max-width: 285mm;
+  min-height: 195mm;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  color: #111;
+}
+.bh-tabela-container {
+  width: 100%;
+  margin-bottom: 5px;
+  border: 1px solid #666;
+  border-radius: 2px;
+  overflow: hidden;
+}
+table.bh-grade {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9px;
+}
+table.bh-grade th, table.bh-grade td {
+  border: 1px solid #cbd5e1;
+  padding: 3px 2px;
+  text-align: center;
+  vertical-align: middle;
+}
+table.bh-grade th {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+table.bh-grade th.col-item {
+  text-align: left;
+  padding-left: 6px;
+  width: 18%;
+  font-size: 9.2px;
+}
+table.bh-grade td.col-item {
+  text-align: left;
+  padding-left: 6px;
+  font-weight: 600;
+  font-size: 9.2px;
+  color: #1e293b;
+}
+table.bh-grade th.th-subtotal, table.bh-grade td.td-subtotal {
+  background: #e2e8f0;
+  font-weight: 700;
+  font-size: 9px;
+  width: 5.5%;
+  border-left: 1.5px solid #64748b;
+  border-right: 1.5px solid #64748b;
+}
+table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
+  background: #cbd5e1;
+  font-weight: 700;
+  font-size: 9.5px;
+  width: 6.5%;
+  border-left: 2px solid #334155;
+  color: #0f172a;
+}
+.tr-secao-ganho {
+  background: #f0fdf4;
+  font-weight: 700;
+  color: #166534;
+  text-transform: uppercase;
+  font-size: 9px;
+  text-align: left;
+  height: 18px;
+}
+.tr-secao-perda {
+  background: #fef2f2;
+  font-weight: 700;
+  color: #991b1b;
+  text-transform: uppercase;
+  font-size: 9px;
+  text-align: left;
+  height: 18px;
+}
+.tr-total-ganho {
+  background: #dcfce7;
+  font-weight: 700;
+  color: #15803d;
+  font-size: 9.2px;
+}
+.tr-total-perda {
+  background: #fee2e2;
+  font-weight: 700;
+  color: #b91c1c;
+  font-size: 9.2px;
+}
+.tr-balanco-final {
+  background: #e0f2fe;
+  font-weight: 700;
+  color: #0369a1;
+  font-size: 10.5px;
+  border-top: 2px solid #0284c7;
+  height: 22px;
+}
+
+/* Admissão de Enfermagem — Padrão UPA 24h Breves */
+.enf-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.enf-secao {
+  border: 1px solid #888;
+  border-radius: 2px;
+  margin-bottom: 3.5px;
+  overflow: hidden;
+}
+
+.enf-secao-header {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 9.2px;
+  padding: 2.5px 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+}
+
+.enf-secao-body {
+  padding: 4px 7px;
+  font-size: 9px;
+  line-height: 1.38;
+  background: #fff;
+}
+
+.enf-secao-expansivel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.enf-secao-expansivel .enf-secao-body {
+  flex: 1;
+}
+
+.enf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+}
+
+.enf-tabela-med {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.8px;
+}
+
+.enf-tabela-med th {
+  background: #f1f5f9;
+  border: 1px solid #94a3b8;
+  padding: 2.5px 5px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 8.5px;
+  text-transform: uppercase;
+}
+
+.enf-tabela-med td {
+  border: 1px solid #cbd5e1;
+  padding: 3px 5px;
+  vertical-align: middle;
+}
+
+/* Evolução de Enfermagem SAE — Padrão UPA 24h Breves */
+.sae-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Transferência SBAR — Padrão UPA 24h Breves */
+.sbar-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Nota de Intercorrência de Enfermagem — Padrão UPA 24h Breves */
+.note-page {
+  width: 194mm;
+  max-width: 194mm;
+  min-height: 278mm;
+  margin: 0 auto;
+  padding: 4mm 6mm 3mm 6mm;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #111;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+

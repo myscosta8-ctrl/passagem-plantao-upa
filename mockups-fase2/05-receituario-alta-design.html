@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receituário e Alta — UPA 24h (Enterprise)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #F1F5F9;
+  --bg-surface: #ffffff;
+  --border-light: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-main: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --primary: #1D4ED8;
+  --primary-hover: #1E3A8A;
+  --primary-light: #EFF6FF;
+  --mc-laranja:  #EA580C;
+  --mc-laranja-light: #FFEDD5;
+  --danger: #DC2626;
+  --success: #16A34A;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-app); color: var(--text-main); font-size: 14px; height: 100vh; display: flex; overflow: hidden; }
+
+.main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.topbar { height: 50px; background: var(--bg-surface); border-bottom: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: var(--shadow-sm); z-index: 40; flex-shrink: 0; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.breadcrumb span.current { color: var(--text-main); font-weight: 600; }
+.btn-voltar { background: transparent; border: 1px solid var(--border-strong); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+
+.workspace { flex: 1; overflow: hidden; padding: 10px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* PATIENT BANNER */
+.patient-banner { flex-shrink: 0; background: var(--primary-light); border: 1px solid var(--primary); border-left: 6px solid var(--primary); border-radius: 8px; display: flex; justify-content: space-between; padding: 6px 16px; align-items: flex-start; }
+.pb-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
+.pb-meta { display: flex; gap: 12px; font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.weight-badge { background: #FEF08A; color: #854D0E; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+.pb-hd { margin-top: 4px; font-size: 11px; color: var(--text-secondary); }
+
+/* MAIN TABS */
+.clinical-tabs { display: flex; gap: 4px; background: var(--border-light); padding: 4px; border-radius: 8px; flex-shrink: 0; }
+.tab-btn { flex: 1; padding: 6px 12px; border: none; background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.tab-btn.active { background: var(--bg-surface); color: var(--primary); box-shadow: var(--shadow-sm); }
+
+.clinical-split { display: flex; gap: 16px; flex: 1; min-height: 0; overflow: hidden; }
+
+/* ESQUERDA: Ferramentas / Kits */
+.tools-pane { width: 300px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 12px; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: var(--shadow-sm); }
+.pane-header { padding: 10px 14px; border-bottom: 1px solid var(--border-strong); background: #F8FAFC; font-weight: 700; font-size: 13px; }
+.tools-body { padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+.protocol-btn { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #F8FAFC; border: 1px solid var(--border-strong); border-radius: 8px; cursor: pointer; margin-bottom: 8px; text-align: left; }
+.protocol-btn strong { display: block; font-size: 12px; color: var(--text-main); }
+.protocol-btn span { font-size: 10px; color: var(--text-muted); }
+
+/* DIREITA: Área de Documentos - SUB-TABS */
+.clinical-card { flex: 1; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 12px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; overflow: hidden; }
+
+.cc-header { background: #F8FAFC; border-bottom: 1px solid var(--border-strong); flex-shrink: 0; }
+.cc-title-area { padding: 10px 16px; }
+.cc-title-area h2 { font-size: 15px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.cc-title-area h2 i { color: var(--success); }
+
+.doc-subtabs { display: flex; gap: 8px; padding: 0 16px; overflow-x: auto; }
+.doc-tab { background: transparent; border: none; padding: 10px 8px; font-size: 12.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: 0.2s; }
+.doc-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.doc-tab:hover:not(.active) { color: var(--text-main); }
+.doc-tab.highlight-pulse { animation: tabPulse 1.5s infinite; color: var(--mc-laranja); border-bottom-color: var(--mc-laranja); }
+
+@keyframes tabPulse {
+  0% { background-color: transparent; }
+  50% { background-color: var(--mc-laranja-light); }
+  100% { background-color: transparent; }
+}
+
+.cc-body { padding: 20px; flex: 1; overflow-y: auto; background: var(--bg-surface); }
+.doc-section { display: none; flex-direction: column; gap: 16px; }
+.doc-section.active { display: flex; }
+
+/* Formulários */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+.form-group input, .form-group textarea, .form-group select { padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 13px; outline: none; font-family: 'Inter', sans-serif; resize: vertical; }
+.form-group input:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+.form-row { display: flex; gap: 16px; }
+
+/* Receituário */
+.receita-item { border: 1px solid var(--border-light); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; position: relative; animation: slideIn 0.3s ease-out; }
+@keyframes slideIn { from { opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
+.receita-item .rm-btn { position: absolute; top: 12px; right: 12px; color: var(--danger); background: none; border: none; cursor: pointer; }
+.badge-2vias { font-size: 9px; font-weight: 700; background: var(--mc-laranja-light); color: var(--mc-laranja); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; display: inline-block; margin-left: 8px; }
+
+.add-med-bar { display: flex; gap: 12px; align-items: center; background: #F8FAFC; padding: 12px; border: 1px dashed var(--primary); border-radius: 8px; position: relative; }
+.btn-calc-ped { background: #FEF08A; border: 1px solid #CA8A04; color: #854D0E; border-radius: 6px; padding: 8px 12px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+
+/* Autocomplete Customizado (Fake) */
+.autocomplete-dropdown { display: none; position: absolute; top: 100%; left: 12px; width: calc(100% - 220px); background: white; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: var(--shadow-md); z-index: 50; flex-direction: column; margin-top: 4px; overflow: hidden; }
+.autocomplete-dropdown.show { display: flex; }
+.ac-item { padding: 10px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+.ac-item:hover { background: var(--primary-light); }
+.ac-item .ac-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+.ac-badge.comum { background: #E2E8F0; color: #334155; }
+.ac-badge.atb { background: #DBEAFE; color: #1E40AF; }
+.ac-badge.c1 { background: #FFEDD5; color: #9A3412; }
+
+/* TOAST ALERT */
+.toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
+.toast { background: white; border-left: 4px solid var(--mc-laranja); box-shadow: var(--shadow-md); padding: 16px; border-radius: 6px; display: flex; align-items: flex-start; gap: 12px; width: 350px; transform: translateX(120%); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.toast.show { transform: translateX(0); }
+.toast i { font-size: 20px; color: var(--mc-laranja); margin-top: 2px; }
+.toast-content strong { display: block; font-size: 13px; color: var(--text-main); margin-bottom: 4px; }
+.toast-content p { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+
+/* Footer Universal */
+.cc-footer { padding: 12px 20px; background: #F8FAFC; border-top: 1px solid var(--border-strong); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.btn-cancel { background: #fff; border: 1px solid var(--danger); color: var(--danger); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-cancel:hover { background: var(--danger-light); }
+.btn-save-draft { background: #fff; border: 1px solid var(--primary); color: var(--primary); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-save-draft:hover { background: var(--primary-light); }
+.btn-save-print { background: var(--primary); color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm); transition: 0.2s; }
+.btn-save-print:hover { background: var(--primary-hover); box-shadow: var(--shadow-md); }
+
+</style>
+</head>
+<body>
+
+<main class="main-content">
+  <header class="topbar">
+    <div class="topbar-left" style="display: flex; gap: 16px; align-items: center;">
+      <button class="btn-voltar"><i class="ph ph-arrow-left"></i> Voltar</button>
+      <div class="breadcrumb"><span>Prontuário Eletrônico</span><i class="ph ph-caret-right"></i><span class="current">Atendimento Médico</span></div>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <div class="patient-banner">
+      <div>
+        <h1 class="pb-name">Enzo Gabriel Silva <span style="font-size:10px; background:#E0E7FF; color:var(--primary); padding:2px 6px; border-radius:4px; margin-left:8px;">Modo Pediátrico</span></h1>
+        <div class="pb-meta">
+          <span><i class="ph ph-identification-card"></i> 4 anos</span>
+          <span><i class="ph ph-gender-male"></i> Masc</span>
+          <span class="weight-badge"><i class="ph ph-scales"></i> 16 kg</span>
+        </div>
+        <div class="pb-hd"><strong>HD:</strong> Pneumonia Adquirida na Comunidade (PAC)</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="clinical-tabs">
+      <button class="tab-btn"><i class="ph ph-stethoscope"></i> Anamnese e Admissão</button>
+      <button class="tab-btn"><i class="ph ph-activity"></i> Evolução Diária</button>
+      <button class="tab-btn"><i class="ph ph-pill"></i> Prescrição Médica</button>
+      <button class="tab-btn active"><i class="ph ph-file-text"></i> Documentos de Alta</button>
+    </div>
+
+    <div class="clinical-split">
+      <!-- LADO ESQUERDO -->
+      <aside class="tools-pane">
+        <div class="pane-header">Atalhos e Kits</div>
+        <div class="tools-body">
+          <button class="protocol-btn">
+            <div><strong>Kit IVAS Pediátrico</strong><span>Dipirona Gotas + Lavagem</span></div>
+            <i class="ph ph-plus" style="color:var(--primary);"></i>
+          </button>
+        </div>
+      </aside>
+
+      <!-- LADO DIREITO -->
+      <div class="clinical-card">
+        <div class="cc-header">
+          <div class="cc-title-area">
+            <h2><i class="ph ph-folder-open"></i> Documentos de Alta do Paciente</h2>
+          </div>
+          <!-- SUB-TABS -->
+          <div class="doc-subtabs">
+            <button class="doc-tab active" onclick="openDoc('receita-comum')" id="tab-receita-comum"><i class="ph ph-pill"></i> Receita Simples (Branca)</button>
+            <button class="doc-tab" onclick="openDoc('receita-especial')" id="tab-receita-especial"><i class="ph ph-warning-circle"></i> Controle Especial (2 Vias)</button>
+            <button class="doc-tab" onclick="openDoc('atestado')" id="tab-atestado"><i class="ph ph-file-text"></i> Atestado Médico</button>
+            <button class="doc-tab" onclick="openDoc('sumario')" id="tab-sumario"><i class="ph ph-clipboard-text"></i> Sumário de Alta</button>
+          </div>
+        </div>
+
+        <div class="cc-body">
+          
+          <!-- DOC 1: RECEITA SIMPLES -->
+          <div class="doc-section active" id="doc-receita-comum">
+            <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                <h3 style="font-size: 15px; color: var(--text-main);">Receituário Simples</h3>
+                <p style="font-size: 11px; color: var(--text-muted);">Medicamentos isentos de retenção de receita.</p>
+            </div>
+            
+            <div class="receita-item">
+              <button class="rm-btn"><i class="ph ph-trash"></i></button>
+              <div style="font-weight: 600; font-size: 14px;">Dipirona 50mg/mL, Solução Oral (Gotas)</div>
+              <div style="display: flex; gap: 16px;">
+                <div class="form-group" style="flex: 2;"><label>Posologia</label><input type="text" value="Dar 16 gotas por Via Oral de 6/6 horas."></div>
+                <div class="form-group" style="flex: 1;"><label>Quantidade</label><input type="text" value="01 (um) Frasco"></div>
+              </div>
+            </div>
+
+            <!-- SMART SEARCH BAR -->
+            <div class="add-med-bar">
+              <div class="form-group" style="flex: 1; position: relative;">
+                <input type="text" id="smartSearchInput" placeholder="Buscar medicamento (ex: Carbamazepina, Amoxicilina)..." oninput="showFakeAutocomplete(this.value)" autocomplete="off">
+              </div>
+              <button class="btn-calc-ped"><i class="ph ph-calculator"></i> Calc. Pediátrica</button>
+              <button style="background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Adicionar</button>
+              
+              <!-- DROPDOWN FAKE -->
+              <div class="autocomplete-dropdown" id="smartDropdown">
+                <div class="ac-item" onclick="selectMed('Amoxicilina', 'atb')">
+                  <span>Amoxicilina 250mg/5mL Susp.</span>
+                  <span class="ac-badge atb">Antibiótico (Comum 2 Vias)</span>
+                </div>
+                <div class="ac-item" onclick="selectMed('Carbamazepina', 'c1')">
+                  <span>Carbamazepina 200mg Comp.</span>
+                  <span class="ac-badge c1">Controle Especial (Lista C1)</span>
+                </div>
+                <div class="ac-item" onclick="selectMed('Sertralina', 'c1')">
+                  <span>Sertralina 50mg Comp.</span>
+                  <span class="ac-badge c1">Controle Especial (Lista C1)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOC 2: RECEITA DE CONTROLE ESPECIAL -->
+          <div class="doc-section" id="doc-receita-especial">
+            <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="font-size: 15px; color: var(--text-main);">Receituário de Controle Especial</h3>
+                    <p style="font-size: 11px; color: var(--text-muted);">Uso exclusivo para Portaria 344/98 (Antidepressivos, Anticonvulsivantes, etc).</p>
+                </div>
+                <div class="badge-2vias">IMPRIME EM 2 VIAS</div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 12px; background: #F8FAFC; padding: 12px; border-radius: 8px; border: 1px solid var(--border-light);">
+              <label>Endereço do Paciente (Obrigatório para Receita Especial)</label>
+              <input type="text" value="Rua das Flores, 123, Centro, São Paulo - SP">
+            </div>
+
+            <div id="lista-controle-especial">
+              <!-- Remédios C1 vão cair aqui dinamicamente pelo JS -->
+            </div>
+
+            <div class="add-med-bar" style="margin-top: 12px;">
+              <div class="form-group" style="flex: 1;"><input type="text" placeholder="Buscar medicamento controlado..."></div>
+              <button style="background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Adicionar</button>
+            </div>
+          </div>
+
+          <!-- DOC 3 e DOC 4 Omitidos para focar na lógica -->
+          <div class="doc-section" id="doc-atestado"><h3>Atestado Médico</h3><p>Preenchimento do atestado...</p></div>
+          <div class="doc-section" id="doc-sumario"><h3>Sumário de Alta</h3><p>Preenchimento do sumário...</p></div>
+
+        </div>
+
+        <!-- RODAPÉ UNIVERSAL -->
+        <div class="cc-footer">
+          <button class="btn-cancel" onclick="window.history.back()"><i class="ph ph-x-circle"></i> Cancelar</button>
+          
+          <div style="display: flex; gap: 12px;">
+            <button class="btn-save-draft" onclick="alert('Receituário salvo como rascunho!')"><i class="ph ph-floppy-disk"></i> Salvar</button>
+            <button class="btn-save-print" onclick="alert('Receituário salvo! Abrindo impressão oficial em 2 vias...'); window.open('../modelos_impressao_html/14-receituario-medico-2vias.html', '_blank')"><i class="ph ph-printer"></i> Salvar e Imprimir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container" id="toastArea"></div>
+
+<script>
+  function openDoc(docId) {
+    document.querySelectorAll('.doc-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.doc-tab').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById('doc-' + docId).classList.add('active');
+    document.getElementById('tab-' + docId).classList.add('active');
+  }
+
+  function showFakeAutocomplete(val) {
+    const drop = document.getElementById('smartDropdown');
+    if(val.length > 2) drop.classList.add('show');
+    else drop.classList.remove('show');
+  }
+
+  function selectMed(name, tipo) {
+    document.getElementById('smartDropdown').classList.remove('show');
+    document.getElementById('smartSearchInput').value = '';
+
+    if (tipo === 'c1') {
+      // 1. Mostrar Alerta (Toast)
+      showToast('Bloqueio de Mistura (Portaria 344/98)', `A medicação <b>${name}</b> pertence à Lista C1 e não pode ser misturada com receitas comuns. O sistema está redirecionando o item para o Receituário de Controle Especial.`);
+      
+      // 2. Destacar a aba correta
+      const tab = document.getElementById('tab-receita-especial');
+      tab.classList.add('highlight-pulse');
+      setTimeout(() => tab.classList.remove('highlight-pulse'), 3000);
+      
+      // 3. Adicionar o item na lista de controle especial
+      const lista = document.getElementById('lista-controle-especial');
+      lista.innerHTML += `
+        <div class="receita-item" style="border-color: var(--mc-laranja-light); background: #FFF7ED; margin-bottom: 8px;">
+          <button class="rm-btn"><i class="ph ph-trash"></i></button>
+          <div style="font-weight: 600; font-size: 14px; color: var(--mc-laranja);">${name} <span class="badge-2vias">Lista C1</span></div>
+          <div style="display: flex; gap: 16px;">
+            <div class="form-group" style="flex: 2;"><label>Posologia</label><input type="text" placeholder="Digite a posologia"></div>
+            <div class="form-group" style="flex: 1;"><label>Quantidade</label><input type="text" placeholder="Ex: 01 Caixa"></div>
+          </div>
+        </div>
+      `;
+
+      // 4. Mudar para a aba de Controle Especial automaticamente
+      setTimeout(() => openDoc('receita-especial'), 2500);
+
+    } else {
+      // É um remédio comum/atb, adicionaria na aba atual
+      alert(`Adicionado: ${name} (Receita Comum)`);
+    }
+  }
+
+  function showToast(title, msg) {
+    const toastArea = document.getElementById('toastArea');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+      <i class="ph ph-warning-circle"></i>
+      <div class="toast-content">
+        <strong>${title}</strong>
+        <p>${msg}</p>
+      </div>
+    `;
+    toastArea.appendChild(toast);
+    
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Remove after 5s
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 5000);
+  }
+</script>
+
+</body>
+</html>

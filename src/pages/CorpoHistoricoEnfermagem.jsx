@@ -25,7 +25,6 @@ function HefCampo({ campo, valor }) {
 export function CorpoHistoricoEnfermagemFiel({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const ic = registro.info_complementares || {}
   const medicamentos = (registro.medicamentos_uso || []).filter((m) => m.nome)
-  const criadoEm = registro.criado_em ? new Date(registro.criado_em) : null
 
   return (
     <div className="hef-page">

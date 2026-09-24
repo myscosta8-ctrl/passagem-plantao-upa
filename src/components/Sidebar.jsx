@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { lerTemaSalvo, alternarTema } from '../lib/theme'
 import './Sidebar.css'
 

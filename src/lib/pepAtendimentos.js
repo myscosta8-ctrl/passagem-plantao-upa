@@ -1,5 +1,5 @@
-import { supabase } from './supabaseClient'
-import { detectarDuplicatas } from './pepRecepcao'
+import { supabase } from './supabaseClient.js'
+import { detectarDuplicatas } from './pepRecepcao.js'
 
 // Etapa H da Fase 0 do PEP — caminho novo de leitura/escrita, usado só quando
 // configuracoes.pep_ativo = true (ver pepConfig.js). Produz objetos com o MESMO
@@ -45,16 +45,14 @@ export async function carregarLeitosOcupadosPep() {
   ])
 
   const pessoaIds = [...new Set((atendimentos ?? []).map((a) => a.pessoa_id))]
-  const [{ data: pessoas }, { data: alergiasAtivas }, { data: enfermeirosResp }] = await Promise.all([
+  const [{ data: pessoas }, { data: alergiasAtivas }] = await Promise.all([
     supabase.from('pessoas').select('*').in('id', pessoaIds),
     supabase.from('alergias').select('pessoa_id').eq('status', 'ativa').in('pessoa_id', pessoaIds),
-    supabase.from('enfermeiros').select('id, nome_exibicao, nome'),
   ])
 
   const pessoaPorId = Object.fromEntries((pessoas ?? []).map((p) => [p.id, p]))
   const internacaoPorAtendimento = Object.fromEntries((internacoes ?? []).map((i) => [i.atendimento_id, i]))
   const temAlergiaAtiva = new Set((alergiasAtivas ?? []).map((a) => a.pessoa_id))
-  const enfermeiroPorId = Object.fromEntries((enfermeirosResp ?? []).map((e) => [e.id, e]))
 
   const pacientesPorLeito = {}
   for (const ocupacao of ocupacoes) {
@@ -97,7 +95,7 @@ export async function carregarLeitosOcupadosPep() {
   return { pacientesPorLeito, passagemPorPaciente }
 }
 
-export async function internarPacientePep({ leito, dados, enfermeiroId }) {
+export async function internarPacientePep({ leito, dados, enfermeiroId: _enfermeiroId }) {
   const { data: pessoa, error: erroPessoa } = await supabase
     .from('pessoas')
     .insert({ nome: dados.nome, data_nascimento: dados.dataNascimento || null })

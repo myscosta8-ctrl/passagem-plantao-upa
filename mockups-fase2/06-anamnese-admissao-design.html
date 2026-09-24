@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atendimento Médico — Admissão & Laudo AIH | UPA 24h Breves</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+:root {
+  --primary: #1D4ED8;
+  --primary-hover: #1E40AF;
+  --primary-light: #EFF6FF;
+  --primary-border: #BFDBFE;
+  
+  --success: #16A34A;
+  --success-light: #F0FDF4;
+  --success-border: #BBF7D0;
+  
+  --warning: #D97706;
+  --warning-light: #FFFBEB;
+  --warning-border: #FDE68A;
+  
+  --danger: #DC2626;
+  --danger-light: #FEF2F2;
+  --danger-border: #FECACA;
+  
+  --bg-page: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  
+  --text-main: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  
+  --border-light: #E2E8F0;
+  --border-strong: #CBD5E1;
+  
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-main); font-size: 13px; line-height: 1.4; display: flex; height: 100vh; overflow: hidden; }
+
+/* LAYOUT PRINCIPAL */
+.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; height: 100vh; }
+
+/* TOPBAR */
+.topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border-light); height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; }
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.btn-voltar { display: flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--border-strong); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-secondary); transition: 0.2s; }
+.btn-voltar:hover { background: #F1F5F9; color: var(--text-main); }
+.breadcrumb { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.breadcrumb .current { color: var(--text-main); font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.sys-time { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.top-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; border: 1px solid var(--primary-border); }
+
+/* ÁREA DE TRABALHO */
+.workspace { flex: 1; display: flex; flex-direction: column; padding: 14px 20px; gap: 10px; overflow: hidden; }
+
+/* BANNER DO PACIENTE */
+.patient-banner { background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 8px; padding: 10px 16px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
+.pb-main { display: flex; justify-content: space-between; align-items: center; }
+.pb-name { font-size: 16px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+.badge-pediatrico { font-size: 10px; font-weight: 700; background: #E0E7FF; color: #3730A3; padding: 2px 8px; border-radius: 12px; border: 1px solid #C7D2FE; }
+.badge-alergia-pb { font-size: 10px; font-weight: 700; background: var(--danger-light); color: var(--danger); padding: 2px 8px; border-radius: 12px; border: 1px solid var(--danger-border); display: flex; align-items: center; gap: 4px; }
+.pb-meta { display: flex; align-items: center; gap: 16px; margin-top: 4px; font-size: 12px; color: var(--text-secondary); }
+.pb-meta span { display: flex; align-items: center; gap: 4px; }
+.weight-badge { background: #FEF3C7; color: #92400E; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+.pb-right { text-align: right; font-size: 12px; }
+.btn-toggle-pb { background: transparent; border: none; color: var(--primary); font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+
+/* GAVETA DE DADOS DO PACIENTE */
+.pb-drawer { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-light); grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 11px; }
+.drawer-item label { display: block; color: var(--text-muted); font-size: 10px; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
+.drawer-item span { font-weight: 600; color: var(--text-main); }
+
+/* BARRA DE NAVEGAÇÃO DE ABAS CLÍNICAS (8 ABAS COM AIH EM ABA PRÓPRIA) */
+.clinical-tabs { display: flex; gap: 4px; background: var(--border-light); padding: 4px; border-radius: 8px; flex-shrink: 0; overflow-x: auto; }
+.tab-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: none; background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.15s; white-space: nowrap; }
+.tab-btn:hover { background: rgba(255,255,255,0.6); color: var(--text-main); }
+.tab-btn.active { background: var(--bg-surface); color: var(--primary); font-weight: 700; box-shadow: var(--shadow-sm); }
+.tab-badge-novo { background: #16A34A; color: white; font-size: 9px; padding: 1px 5px; border-radius: 10px; font-weight: 800; margin-left: 2px; }
+
+/* ÁREA SPLIT CLÍNICA */
+.clinical-split { flex: 1; display: flex; gap: 14px; overflow: hidden; min-height: 0; }
+
+/* LADO ESQUERDO: PAINEL DE FERRAMENTAS & KITS */
+.tools-pane { width: 310px; flex-shrink: 0; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; overflow: hidden; }
+.pane-header { background: #F8FAFC; border-bottom: 1px solid var(--border-strong); padding: 10px 14px; font-weight: 700; font-size: 12px; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.tools-body { padding: 12px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+
+.triage-card { background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 8px; padding: 10px; }
+.triage-card h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; font-weight: 700; }
+.vitals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vital-box { background: var(--bg-surface); border: 1px solid var(--border-light); padding: 6px; border-radius: 6px; text-align: center; }
+.vital-box span { display: block; font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+.vital-box strong { display: block; font-size: 13px; color: var(--text-main); margin-top: 2px; }
+.vital-box.alert { background: var(--danger-light); border-color: var(--danger-border); }
+.vital-box.alert strong { color: var(--danger); }
+
+/* Banners Auxiliares da Barra Lateral */
+.info-integration-box { background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: 8px; padding: 10px; }
+.info-integration-box h3 { font-size: 11px; color: var(--primary); text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; font-weight: 700; }
+.info-integration-box p { font-size: 11px; color: var(--text-secondary); line-height: 1.35; margin-bottom: 6px; }
+
+.template-btn { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: #F8FAFC; border: 1px solid var(--border-strong); border-radius: 6px; cursor: pointer; margin-bottom: 6px; text-align: left; width: 100%; transition: 0.2s; }
+.template-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+.template-btn strong { display: block; font-size: 11px; color: var(--text-main); }
+.template-btn span { font-size: 10px; color: var(--text-muted); }
+
+/* LADO DIREITO: CARD PRINCIPAL COM TROCA DE TELA */
+.clinical-card { flex: 1; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; overflow: hidden; }
+.cc-header { background: #F8FAFC; border-bottom: 1px solid var(--border-strong); padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.cc-header-info h2 { font-size: 15px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.cc-header-info h2 i { color: var(--primary); }
+.cc-header-info span { font-size: 11px; color: var(--text-muted); margin-top: 2px; display: block; }
+
+.btn-switch-screen { background: #fff; border: 1px solid var(--primary); color: var(--primary); padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.15s; }
+.btn-switch-screen:hover { background: var(--primary); color: #fff; }
+
+.cc-body { padding: 16px 18px; flex: 1; overflow-y: auto; background: var(--bg-surface); display: flex; flex-direction: column; gap: 16px; }
+
+/* Seções do Formulário de Admissão */
+.form-section { border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; position: relative; background: #FFFFFF; }
+.form-section-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; position: absolute; top: -8px; left: 14px; background: var(--bg-surface); padding: 0 8px; display: flex; align-items: center; gap: 6px; }
+
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 11px; font-weight: 600; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; }
+.form-group input, .form-group textarea, .form-group select { padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 12px; outline: none; font-family: 'Inter', sans-serif; resize: vertical; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+.badge-auto { background: #DCFCE7; color: #166534; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; border: 1px solid #BBF7D0; }
+.badge-manual { background: #FEF3C7; color: #92400E; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; border: 1px solid #FDE68A; }
+
+.allergy-alert { background: var(--danger-light); border: 1px solid var(--danger-border); border-radius: 6px; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+.allergy-alert .info { display: flex; align-items: center; gap: 10px; color: var(--danger); font-weight: 700; font-size: 12px; }
+
+.chip-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: #F1F5F9; border: 1px solid var(--border-strong); padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+.chip i { cursor: pointer; color: var(--text-muted); }
+.chip i:hover { color: var(--danger); }
+.btn-add-chip { background: transparent; border: 1px dashed var(--primary); color: var(--primary); padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.btn-add-chip:hover { background: var(--primary-light); }
+
+/* ========================================================
+   ESTILOS EXCLUSIVOS DA TELA DEDICADA DE LAUDO DE AIH
+   ======================================================== */
+.aih-banner-top { background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 100%); color: white; padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+.aih-banner-title h3 { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.aih-banner-title p { font-size: 11px; opacity: 0.9; margin-top: 2px; }
+.aih-sync-pill { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+.aih-secao-box { border: 1.5px solid #1E293B; border-radius: 8px; padding: 12px 14px; background: #FFFFFF; position: relative; margin-top: 4px; }
+.aih-secao-legend { font-size: 11px; font-weight: 800; color: #1E293B; text-transform: uppercase; background: #FFFFFF; padding: 0 8px; position: absolute; top: -8px; left: 14px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.05em; }
+
+.aih-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; }
+.col-1 { grid-column: span 1; } .col-2 { grid-column: span 2; } .col-3 { grid-column: span 3; }
+.col-4 { grid-column: span 4; } .col-5 { grid-column: span 5; } .col-6 { grid-column: span 6; }
+.col-7 { grid-column: span 7; } .col-8 { grid-column: span 8; } .col-9 { grid-column: span 9; }
+.col-10 { grid-column: span 10; } .col-11 { grid-column: span 11; } .col-12 { grid-column: span 12; }
+
+.aih-field-box { border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 8px; background: #FAFAFA; display: flex; flex-direction: column; justify-content: center; }
+.aih-field-box.readonly { background: #F8FAFC; border-color: var(--border-light); }
+.aih-field-box.highlight { background: #EFF6FF; border-color: var(--primary-border); }
+.aih-field-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+.aih-field-header label { font-size: 9.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+.aih-field-value { font-size: 11.5px; font-weight: 700; color: var(--text-main); }
+
+.quick-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.quick-chip { font-size: 10px; font-weight: 600; background: #F1F5F9; border: 1px solid var(--border-strong); padding: 2px 8px; border-radius: 4px; cursor: pointer; color: var(--text-secondary); transition: 0.15s; }
+.quick-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.quick-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* RODAPÉ UNIVERSAL */
+.cc-footer { background: #F8FAFC; border-top: 1px solid var(--border-strong); padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.btn-cancel { background: #fff; border: 1px solid var(--border-strong); color: var(--text-secondary); padding: 7px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+.btn-cancel:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger-border); }
+.btn-save-draft { background: #fff; border: 1px solid var(--primary); color: var(--primary); padding: 7px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+.btn-save-draft:hover { background: var(--primary-light); }
+.btn-save-print { background: var(--primary); color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow-sm); transition: 0.2s; }
+.btn-save-print:hover { background: var(--primary-hover); box-shadow: var(--shadow-md); }
+.btn-save-aih { background: #1E3A8A; color: white; border: 1px solid #172554; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow-sm); transition: 0.2s; }
+.btn-save-aih:hover { background: #0F172A; }
+.btn-next-tab { background: #F8FAFC; border: 1px solid var(--primary); color: var(--primary); padding: 7px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.btn-next-tab:hover { background: var(--primary-light); }
+
+</style>
+</head>
+<body>
+
+<main class="main-content">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn-voltar" onclick="alert('Retornando ao Painel de Leitos...')"><i class="ph ph-arrow-left"></i> Painel de Leitos</button>
+      <div class="breadcrumb">
+        <span>Prontuário Eletrônico</span>
+        <i class="ph ph-caret-right"></i>
+        <span>Atendimento Médico</span>
+        <i class="ph ph-caret-right"></i>
+        <span class="current" id="bc-current">1. Anamnese & Admissão</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="sys-time"><i class="ph ph-clock"></i> 22/09/2026 — 08:30</div>
+      <div class="top-avatar">DR</div>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <!-- PATIENT BANNER INFANTIL -->
+    <div class="patient-banner">
+      <div class="pb-main">
+        <div>
+          <h1 class="pb-name">
+            Enzo Gabriel Silva 
+            <span class="badge-pediatrico">Modo Pediátrico</span>
+            <span class="badge-alergia-pb"><i class="ph ph-warning-octagon"></i> Alergia: Dipirona</span>
+          </h1>
+          <div class="pb-meta">
+            <span><i class="ph ph-identification-card"></i> 4 anos (12/03/2022)</span>
+            <span><i class="ph ph-gender-male"></i> Masc</span>
+            <span class="weight-badge"><i class="ph ph-scales"></i> 16 kg</span>
+            <span><i class="ph ph-bed"></i> Leito: Observação Pediátrica 02</span>
+            <span><i class="ph ph-credit-card"></i> CNS: 700.1234.5678.9012</span>
+          </div>
+        </div>
+        <div class="pb-right">
+          <div><strong>Classificação:</strong> Amarelo (Urgência)</div>
+          <button class="btn-toggle-pb" onclick="toggleDrawer()"><i class="ph ph-caret-down"></i> <span id="lbl-drawer">Expandir Ficha Oficial</span></button>
+        </div>
+      </div>
+      
+      <!-- GAVETA DE DADOS OFICIAIS -->
+      <div class="pb-drawer" id="pb-drawer">
+        <div class="drawer-item"><label>Nome da Mãe</label><span>Maria Eduarda Silva</span></div>
+        <div class="drawer-item"><label>RG / CPF</label><span>6543210 PC/PA — 012.345.678-90</span></div>
+        <div class="drawer-item"><label>Município / UF</label><span>Breves / PA (Zona Urbana)</span></div>
+        <div class="drawer-item"><label>Endereço</label><span>Trav. Castilhos França, 450, Centro</span></div>
+        <div class="drawer-item"><label>CNES Solicitante</label><span>02.967.963 (UPA 24h Breves)</span></div>
+      </div>
+    </div>
+
+    <!-- TABS CLÍNICAS (AIH COMO ABA DEDICADA — UM CLIQUE AO LADO DA ADMISSÃO) -->
+    <div class="clinical-tabs">
+      <button class="tab-btn active" id="tab-nav-admissao" onclick="setDocMode('admissao')"><i class="ph ph-stethoscope"></i> 1. Anamnese & Admissão</button>
+      <button class="tab-btn" id="tab-nav-aih" onclick="setDocMode('aih')"><i class="ph ph-hospital"></i> 2. Laudo de AIH</button>
+      <button class="tab-btn" onclick="alert('Navegando para Plano Terapêutico...')"><i class="ph ph-strategy"></i> 3. Plano Terapêutico</button>
+      <button class="tab-btn" onclick="alert('Navegando para Evolução Diária...')"><i class="ph ph-activity"></i> 4. Evolução Diária</button>
+      <button class="tab-btn" onclick="alert('Navegando para Prescrição Médica...')"><i class="ph ph-pill"></i> 5. Prescrição Médica</button>
+      <button class="tab-btn" onclick="window.location.href='16-solicitacao-exames-apac-design.html'"><i class="ph ph-flask"></i> 6. Exames & APAC</button>
+      <button class="tab-btn" onclick="window.location.href='15-solicitacao-hemoterapia-design.html'"><i class="ph ph-drop"></i> 7. Hemoterapia</button>
+      <button class="tab-btn" onclick="alert('Navegando para Receituário & Alta...')"><i class="ph ph-file-text"></i> 8. Receituário & Alta</button>
+    </div>
+
+    <div class="clinical-split">
+      
+      <!-- LADO ESQUERDO: BARRA DE FERRAMENTAS ESPECÍFICA DE CADA ABA -->
+      <aside class="tools-pane">
+        
+        <!-- SIDEBAR PARA TELA DE ADMISSÃO MÉDICA -->
+        <div id="sidebar-admissao">
+          <div class="pane-header">
+            <span><i class="ph ph-heartbeat"></i> Triagem & Ferramentas</span>
+            <span style="font-size: 10px; color: var(--text-muted);">Recepção</span>
+          </div>
+          <div class="tools-body">
+            <div class="triage-card">
+              <h3>Sinais Vitais (Triagem Há 15 min)</h3>
+              <div class="vitals-grid">
+                <div class="vital-box"><span>Pressão Arterial</span><strong>90x60 mmHg</strong></div>
+                <div class="vital-box"><span>Freq. Cardíaca</span><strong>110 bpm</strong></div>
+                <div class="vital-box alert"><span>Temperatura</span><strong>39.2 °C</strong></div>
+                <div class="vital-box"><span>Saturação (O2)</span><strong>97% em AA</strong></div>
+              </div>
+              <div style="margin-top: 8px; font-size: 11px; color: var(--text-secondary); line-height: 1.3;">
+                <strong>Queixa na Triagem:</strong> Febre alta há 2 dias, tosse produtiva e cansaço leve. Recusa alimentar.
+              </div>
+            </div>
+
+            <div class="templates-section">
+              <h3 style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 700;"><i class="ph ph-magic-wand"></i> Modelos de Admissão</h3>
+              <button class="template-btn" onclick="fillTemplate('pediatria')">
+                <div><strong>Pneumonia Pediátrica</strong><span>Preenche HDA + EF completo</span></div>
+                <i class="ph ph-plus-circle" style="color:var(--primary); font-size:16px;"></i>
+              </button>
+              <button class="template-btn" onclick="fillTemplate('bronquiolite')">
+                <div><strong>Bronquiolite / Asma Grave</strong><span>Cibrose, sibilos e oxigenoterapia</span></div>
+                <i class="ph ph-plus-circle" style="color:var(--primary); font-size:16px;"></i>
+              </button>
+              <button class="template-btn" onclick="fillTemplate('desidratacao')">
+                <div><strong>Gastroenterite + Desidratação</strong><span>Vômitos, diarreia e hidratação EV</span></div>
+                <i class="ph ph-plus-circle" style="color:var(--primary); font-size:16px;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIDEBAR PARA TELA DE LAUDO DE AIH -->
+        <div id="sidebar-aih" style="display:none;">
+          <div class="pane-header">
+            <span><i class="ph ph-hospital"></i> Regulação SUS / AIH</span>
+            <span style="font-size: 10px; color: var(--success); font-weight:700;"><i class="ph ph-check-circle"></i> Conectado</span>
+          </div>
+          <div class="tools-body">
+            <div class="info-integration-box" style="background:#F0FDF4; border-color:var(--success-border);">
+              <h3 style="color:#166534;"><i class="ph ph-check"></i> Estabelecimento UPA 24h</h3>
+              <p style="font-size:11px; color:#14532D;">
+                <strong>Unidade:</strong> UPA 24H BREVES<br>
+                <strong>CNES:</strong> 02.967.963<br>
+                <strong>Caráter:</strong> 02 - Urgência<br>
+                <strong>Órgão:</strong> SEMSA BREVES / SUS
+              </p>
+            </div>
+
+            <div class="info-integration-box">
+              <h3><i class="ph ph-sparkle"></i> Dados Sincronizados</h3>
+              <p>Os campos clínicos desta AIH foram preenchidos a partir da <strong>Admissão Médica</strong>:</p>
+              <ul style="font-size:11px; color:var(--text-secondary); margin-left:14px; margin-bottom:8px; line-height:1.4;">
+                <li>Queixa e HDA &rarr; Sinais e Sintomas</li>
+                <li>Comorbidades &rarr; CID Secundário</li>
+                <li>Hipótese &rarr; CID-10 Principal</li>
+              </ul>
+              <button class="btn-switch-screen" style="width:100%; justify-content:center;" onclick="reSyncAll()"><i class="ph ph-arrows-clockwise"></i> Re-sincronizar Agora</button>
+            </div>
+
+            <div class="templates-section">
+              <h3 style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 700;"><i class="ph ph-needle"></i> Procedimentos SIGTAP Frequentes</h3>
+              <button class="template-btn" onclick="selecionarProcRapido('03.03.01.019-0', 'TRATAMENTO DE PNEUMONIA OU INFLUENZA (GRIPE)')">
+                <div><strong>Pneumonia / Influenza</strong><span>03.03.01.019-0</span></div>
+                <i class="ph ph-check-circle" style="color:var(--success); font-size:16px;"></i>
+              </button>
+              <button class="template-btn" onclick="selecionarProcRapido('03.03.01.003-4', 'TRATAMENTO DE OUTRAS DOENCAS DO APARELHO RESPIRATORIO')">
+                <div><strong>Doenças Respiratórias (Asma)</strong><span>03.03.01.003-4</span></div>
+                <i class="ph ph-check-circle" style="color:var(--success); font-size:16px;"></i>
+              </button>
+              <button class="template-btn" onclick="selecionarProcRapido('03.03.01.006-9', 'TRATAMENTO DE TRANSTORNOS DIGESTIVOS / DIARREIA AGUDA')">
+                <div><strong>Transtornos Digestivos</strong><span>03.03.01.006-9</span></div>
+                <i class="ph ph-check-circle" style="color:var(--success); font-size:16px;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- LADO DIREITO: CARD PRINCIPAL COM TROCA TOTAL ENTRE AS DUAS TELAS -->
+      <div class="clinical-card">
+        
+        <!-- HEADER DINÂMICO -->
+        <div class="cc-header">
+          <div class="cc-header-info">
+            <h2 id="cc-title"><i class="ph ph-stethoscope"></i> Ficha de Consulta e Admissão Médica</h2>
+            <span id="cc-subtitle">Documento Oficial: Consulta / Admissão Médica (Modelo 10) &bull; Médico: <strong>Dr. Marcos Costa — CRM/PA 1234</strong></span>
+          </div>
+        </div>
+
+        <div class="cc-body">
+          
+          <!-- ========================================================
+               TELA 1: PREENCHIMENTO EXCLUSIVO DA ADMISSÃO MÉDICA
+               ======================================================== -->
+          <div id="screen-admissao">
+            
+            <!-- ALERTAS CRÍTICOS -->
+            <div class="allergy-alert" style="margin-bottom: 14px;">
+              <div class="info">
+                <i class="ph ph-warning-octagon" style="font-size: 20px;"></i>
+                <span>ALERGIA GRAVE REGISTRADA: DIPIRONA (Risco de Choque Anafilático)</span>
+              </div>
+              <button style="background:white; border:1px solid var(--danger-border); color:var(--danger); padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer;" onclick="alert('Módulo de Alergias aberto.')">Gerenciar Alergias</button>
+            </div>
+
+            <!-- BLOCO 1: QUEIXA E HDA -->
+            <div class="form-section" style="margin-bottom: 14px;">
+              <div class="form-section-title"><i class="ph ph-chat-teardrop-text"></i> 1. Motivo da Consulta e HDA</div>
+              
+              <div class="form-group" style="margin-bottom: 12px; margin-top: 6px;">
+                <label>Queixa Principal (QP) <span class="badge-manual"><i class="ph ph-pencil-simple"></i> Preenchimento Clínico</span></label>
+                <input type="text" id="qp-input" placeholder="Ex: Febre alta e tosse há 3 dias" value="Febre alta, tosse e falta de ar há 3 dias">
+              </div>
+              
+              <div class="form-group">
+                <label>História da Doença Atual (HDA) <span class="badge-auto"><i class="ph ph-lightning"></i> Passagem Automática para AIH</span></label>
+                <textarea id="hda-input" rows="4" placeholder="Descreva a evolução cronológica dos sintomas..." oninput="syncHdaToAih()">Mãe relata que a criança iniciou quadro de febre alta (aferido 39.2ºC na triagem) há 3 dias, responsiva parcialmente a antitérmicos. Evoluiu nas últimas 24h com tosse produtiva e taquipneia. Apresenta recusa alimentar, hipoatividade e prostração.</textarea>
+              </div>
+            </div>
+
+            <!-- BLOCO 2: ANTECEDENTES E COMORBIDADES -->
+            <div class="form-section" style="margin-bottom: 14px;">
+              <div class="form-section-title"><i class="ph ph-folder-user"></i> 2. Antecedentes e Comorbidades</div>
+              
+              <div class="form-group" style="margin-top: 6px;">
+                <label>Comorbidades / Diagnósticos Secundários <span class="badge-auto"><i class="ph ph-lightning"></i> Passa para CIDs Secundários da AIH</span></label>
+                <div class="chip-container" id="chips-comorbidades">
+                  <span class="chip">Asma Brônquica (CID J45.9) <i class="ph ph-x" onclick="this.parentElement.remove(); syncCidsToAih();"></i></span>
+                  <span class="chip">Rinite Alérgica (CID J30.4) <i class="ph ph-x" onclick="this.parentElement.remove(); syncCidsToAih();"></i></span>
+                  <button class="btn-add-chip" onclick="addComorbidade()"><i class="ph ph-plus"></i> Adicionar CID Comorbidade</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- BLOCO 3: EXAME FÍSICO -->
+            <div class="form-section" style="margin-bottom: 14px;">
+              <div class="form-section-title"><i class="ph ph-person"></i> 3. Exame Físico da Admissão</div>
+              
+              <div class="form-group" style="margin-top: 6px;">
+                <label>Achados do Exame Físico <span class="badge-auto"><i class="ph ph-lightning"></i> Sincroniza com Justificativa da AIH</span></label>
+                <textarea id="ef-input" rows="5" placeholder="Geral, ACV, AR, Abdome..." oninput="syncEfToAih()">Geral: REG, hipoativo, acianótico, anictérico, febril ao toque, taquipneico leve (FR: 28 irpm).
+ACV: RCRM em 2T, bulhas normofonéticas, sem sopros. FC: 110 bpm.
+AR: Murmúrio vesicular presente bilateralmente, com estertores crepitantes em base pulmonar direita e tiragem intercostal leve. SpO2: 97% em ar ambiente.
+Abdome: Flácido, indolor à palpação, sem visceromegalias, RHA presentes.
+Oroscopia: Sem placas purulentas em amígdalas.</textarea>
+              </div>
+            </div>
+
+            <!-- BLOCO 4: HIPÓTESE DIAGNÓSTICA E CONDUTA DE ADMISSÃO -->
+            <div class="form-section">
+              <div class="form-section-title"><i class="ph ph-brain"></i> 4. Conclusão, Hipótese Diagnóstica & Conduta</div>
+              
+              <div class="form-group" style="margin-top: 6px; margin-bottom: 12px;">
+                <label>Hipótese Diagnóstica Principal (CID-10) <span class="badge-auto"><i class="ph ph-arrows-clockwise"></i> Passagem Automática para AIH</span></label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="cid-input" value="J15.9 - Pneumonia bacteriana não especificada" style="flex: 1; font-weight: 700; color: var(--primary);" oninput="syncCidInput(this.value)">
+                  <button style="background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 0 14px; cursor: pointer;" onclick="alert('Seletor de CID-10 aberto')"><i class="ph ph-magnifying-glass"></i> Buscar CID</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Conduta Inicial de Admissão Médica</label>
+                <textarea id="conduta-input" rows="3" placeholder="Ex: Internação em leito de observação pediátrica, prescrição de antibioticoterapia parenteral...">Paciente admitido em leito de observação pediátrica da UPA 24h Breves. Iniciada antibioticoterapia parenteral (Ampicilina + Sulbactam EV), suporte de O2 sob cateter nasal SN, hidratação venosa e monitorização contínua. Solicitado Laudo de AIH para autorização de leito hospitalar.</textarea>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ========================================================
+               TELA 2: PREENCHIMENTO EXCLUSIVO DO LAUDO DE AIH (SUS)
+               ======================================================== -->
+          <div id="screen-aih" style="display: none;">
+            
+            <div class="aih-banner-top">
+              <div class="aih-banner-title">
+                <h3><i class="ph ph-file-text"></i> Laudo de Solicitação de Internação Hospitalar (AIH)</h3>
+                <p>Portaria SAS/MS nº 113 &bull; Documento Oficial SUS &bull; UPA 24h Breves (CNES 0296796)</p>
+              </div>
+              <div class="aih-sync-pill">
+                <i class="ph ph-check-circle" style="color:#86EFAC;"></i> Dados Sincronizados da Admissão
+              </div>
+            </div>
+
+            <!-- SEÇÃO 1: IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE -->
+            <div class="aih-secao-box">
+              <div class="aih-secao-legend"><span>1. IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE</span></div>
+              <div class="aih-grid" style="margin-top: 4px;">
+                <div class="col-8">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>1 - NOME DO ESTABELECIMENTO SOLICITANTE</label></div>
+                    <div class="aih-field-value">UPA 24H BREVES — SECRETARIA MUNICIPAL DE SAÚDE (SEMSA)</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>2 - CNES</label></div>
+                    <div class="aih-field-value" style="letter-spacing:2px; font-weight:800; color:var(--primary);">0 2 9 6 7 9 6</div>
+                  </div>
+                </div>
+                <div class="col-8">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>3 - NOME DO ESTABELECIMENTO EXECUTANTE</label></div>
+                    <div class="aih-field-value">UPA 24H BREVES</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>4 - CNES</label></div>
+                    <div class="aih-field-value" style="letter-spacing:2px; font-weight:800; color:var(--primary);">0 2 9 6 7 9 6</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SEÇÃO 2: IDENTIFICAÇÃO DO PACIENTE -->
+            <div class="aih-secao-box">
+              <div class="aih-secao-legend"><span>2. IDENTIFICAÇÃO DO PACIENTE</span></div>
+              <div class="aih-grid" style="margin-top: 4px;">
+                <div class="col-8">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>5 - NOME DO PACIENTE</label></div>
+                    <div class="aih-field-value">ENZO GABRIEL SILVA</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>6 - Nº DO PRONTUÁRIO</label></div>
+                    <div class="aih-field-value">10452</div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>7 - CARTÃO NACIONAL DE SAÚDE (CNS)</label></div>
+                    <div class="aih-field-value" style="letter-spacing:1px;">700 1234 5678 9012</div>
+                  </div>
+                </div>
+                <div class="col-2">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>8 - NASCIMENTO</label></div>
+                    <div class="aih-field-value">12/03/2022</div>
+                  </div>
+                </div>
+                <div class="col-2">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>9 - SEXO</label></div>
+                    <div class="aih-field-value">MASCULINO</div>
+                  </div>
+                </div>
+                <div class="col-2">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>10 - RAÇA / COR</label></div>
+                    <div class="aih-field-value">PARDA</div>
+                  </div>
+                </div>
+                <div class="col-7">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>11 - NOME DA MÃE</label></div>
+                    <div class="aih-field-value">MARIA EDUARDA SILVA</div>
+                  </div>
+                </div>
+                <div class="col-5">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>12 - TELEFONE</label></div>
+                    <div class="aih-field-value">(91) 98455-1234</div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>15 - ENDEREÇO COMPLETO</label></div>
+                    <div class="aih-field-value">TRAVESSA CASTILHOS FRANÇA, 450 — CENTRO — BREVES/PA — CEP: 68.800-000</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SEÇÃO 3: JUSTIFICATIVA DA INTERNAÇÃO -->
+            <div class="aih-secao-box">
+              <div class="aih-secao-legend"><span>3. JUSTIFICATIVA DA INTERNAÇÃO</span></div>
+              <div class="aih-grid" style="margin-top: 4px;">
+                <div class="col-12">
+                  <div class="form-group">
+                    <label>20 - PRINCIPAIS SINAIS E SINTOMAS CLÍNICOS <span class="badge-auto"><i class="ph ph-lightning"></i> Preenchido da Admissão</span></label>
+                    <textarea id="aih-sintomas" rows="3" style="width:100%;">PACIENTE PEDIÁTRICO, 4 ANOS, ADMITIDO NA UPA 24H BREVES COM FEBRE ALTA (39.2ºC AFERIDA NA TRIAGEM) HÁ 72 HORAS, ASSOCIADA A TOSSE PRODUTIVA, TAQUIPNEIA (FR 28 IRPM), DISPNEIA LEVE, INAPETÊNCIA E PROSTRAÇÃO. AUSCULTA PULMONAR COM ESTERTORES CREPITANTES EM BASE DIREITA E TIRAGEM INTERCOSTAL LEVE. SINAIS VITAIS: PA 90X60 MMHG, FC 110 BPM, TEMP 39.2ºC, SPO2 97% EM AR AMBIENTE.</textarea>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="form-group">
+                    <label>21 - CONDIÇÕES QUE JUSTIFICAM A INTERNAÇÃO</label>
+                    <textarea id="aih-justificativa" rows="2" style="width:100%;">NECESSIDADE DE INTERNAÇÃO EM LEITO DE OBSERVAÇÃO CLÍNICA DA UPA 24H BREVES PARA INÍCIO DE ANTIBIOTICOTERAPIA PARENTERAL, MONITORIZAÇÃO RESPIRATÓRIA E SUPORTE DE OXIGENOTERAPIA CONFORME DEMANDA; RISCO DE INSUFICIÊNCIA RESPIRATÓRIA AGUDA; INTOLERÂNCIA À MEDICAÇÃO ORAL E RECUSA HÍDRICA COM RISCO DE DESIDRATAÇÃO.</textarea>
+                    <div class="quick-chips">
+                      <span class="quick-chip" onclick="toggleJustChip(this, 'Risco iminente de insuficiência respiratória')">+ Insuficiência Respiratória</span>
+                      <span class="quick-chip" onclick="toggleJustChip(this, 'Necessidade de antibioticoterapia parenteral supervisionada')">+ Antibioticoterapia EV</span>
+                      <span class="quick-chip" onclick="toggleJustChip(this, 'Intolerância medicamentosa oral com desidratação')">+ Intolerância VO</span>
+                      <span class="quick-chip" onclick="toggleJustChip(this, 'Refratariedade ao tratamento ambulatorial prévio')">+ Refratariedade Ambulatorial</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="form-group">
+                    <label>22 - PRINCIPAIS RESULTADOS DE PROVAS DIAGNÓSTICAS (EXAMES REALIZADOS)</label>
+                    <textarea id="aih-exames" rows="2" style="width:100%;">1. RAIO-X DE TÓRAX (22/09/2026 - UPA 24H BREVES): INFILTRADO ALVEOLAR HOMOGÊNEO EM BASE PULMONAR DIREITA, COMPATÍVEL COM CONSOLIDAÇÃO PNEUMÔNICA BACTERIANA. SEIOS COSTOFRÊNICOS LIVRES.
+2. LEUCOGRAMA: 16.800 LEUCÓCITOS/MM³ COM DESVIO À ESQUERDA (10% BASTONETES). PCR: 48 MG/L (ELEVADO).</textarea>
+                    <div class="quick-chips">
+                      <span class="quick-chip" onclick="insertExamSnippet('rx-leuco')">+ Inserir Raio-X + Leucograma</span>
+                      <span class="quick-chip" onclick="insertExamSnippet('gaso')">+ Inserir Gasometria</span>
+                      <span class="quick-chip" onclick="insertExamSnippet('pcr-eletr')">+ Inserir PCR + Eletrólitos</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-6">
+                  <div class="aih-field-box highlight">
+                    <div class="aih-field-header"><label>24 - CID-10 PRINCIPAL</label><span class="badge-auto">Da Admissão</span></div>
+                    <input type="text" id="aih-cid-principal" value="J15.9 - Pneumonia bacteriana não especificada" style="width:100%; border:none; outline:none; font-size:11.5px; font-weight:800; color:var(--primary); background:transparent;">
+                  </div>
+                </div>
+
+                <div class="col-6">
+                  <div class="aih-field-box">
+                    <div class="aih-field-header"><label>25 - CID-10 SECUNDÁRIO (COMORBIDADES)</label><span class="badge-auto">Automático</span></div>
+                    <input type="text" id="aih-cid-secundario" value="J45.9 / J30.4" style="width:100%; border:none; outline:none; font-size:11px; font-weight:700; background:transparent;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SEÇÃO 4: PROCEDIMENTO SOLICITADO -->
+            <div class="aih-secao-box">
+              <div class="aih-secao-legend"><span>4. PROCEDIMENTO SOLICITADO</span></div>
+              <div class="aih-grid" style="margin-top: 4px;">
+                <div class="col-8">
+                  <div class="aih-field-box highlight">
+                    <div class="aih-field-header">
+                      <label>27 - DESCRIÇÃO DO PROCEDIMENTO SIGTAP</label>
+                      <button style="border:none; background:transparent; color:var(--primary); font-size:10px; font-weight:700; cursor:pointer;" onclick="trocarProcedimento()">Alterar</button>
+                    </div>
+                    <input type="text" id="aih-procedimento" value="TRATAMENTO DE PNEUMONIA OU INFLUENZA (GRIPE)" style="width:100%; border:none; outline:none; font-size:11.5px; font-weight:700; color:var(--primary); background:transparent;">
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="aih-field-box highlight">
+                    <div class="aih-field-header"><label>28 - CÓDIGO SIGTAP</label></div>
+                    <input type="text" id="aih-cod-proc" value="0303010190" style="width:100%; border:none; outline:none; font-size:12px; font-weight:800; color:var(--primary); letter-spacing:2px; background:transparent;">
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="aih-field-box">
+                    <div class="aih-field-header"><label>29 - CLÍNICA</label></div>
+                    <input type="text" value="PEDIATRIA / OBSERVAÇÃO" style="width:100%; border:none; outline:none; font-size:11px; font-weight:700; background:transparent;">
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="aih-field-box">
+                    <div class="aih-field-header"><label>30 - CARÁTER DA INTERNAÇÃO</label></div>
+                    <input type="text" value="02 - URGÊNCIA" style="width:100%; border:none; outline:none; font-size:11px; font-weight:700; background:transparent;">
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>32 - CNS DO SOLICITANTE</label></div>
+                    <div class="aih-field-value">704600614714321</div>
+                  </div>
+                </div>
+                <div class="col-8">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>33 - NOME DO PROFISSIONAL SOLICITANTE</label></div>
+                    <div class="aih-field-value">DR. MARCOS COSTA &bull; CRM-PA: 1234 (PLANTONISTA UPA 24H)</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>34 - DATA DA SOLICITAÇÃO</label></div>
+                    <div class="aih-field-value">22/09/2026 — 08:30</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SEÇÃO 5: CAUSAS EXTERNAS -->
+            <div class="aih-secao-box">
+              <div class="aih-secao-legend"><span>5. PREENCHER EM CASO DE CAUSAS EXTERNAS</span></div>
+              <div class="aih-grid" style="margin-top: 4px;">
+                <div class="col-4">
+                  <label style="font-size:11px; font-weight:600;"><input type="checkbox"> 36 - Acidente de Trânsito</label>
+                </div>
+                <div class="col-4">
+                  <label style="font-size:11px; font-weight:600;"><input type="checkbox"> 37 - Acidente de Trabalho Típico</label>
+                </div>
+                <div class="col-4">
+                  <label style="font-size:11px; font-weight:600;"><input type="checkbox"> 38 - Acidente de Trajeto</label>
+                </div>
+                <div class="col-12" style="background:#F8FAFC; border:1px solid var(--border-light); border-radius:4px; padding:6px 10px; margin-top:2px;">
+                  <span style="font-size:9.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">45 - Vínculo Previdenciário:</span>
+                  <div style="display:flex; gap:14px; margin-top:4px; font-size:11px; font-weight:600;">
+                    <label><input type="radio" name="prev"> Empregado</label>
+                    <label><input type="radio" name="prev"> Autônomo</label>
+                    <label><input type="radio" name="prev"> Aposentado</label>
+                    <label><input type="radio" name="prev" checked> Não Segurado (Menor)</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SEÇÃO 6: AUTORIZAÇÃO REGULATÓRIA -->
+            <div class="aih-secao-box">
+              <div class="aih-secao-legend"><span>6. AUTORIZAÇÃO</span></div>
+              <div class="aih-grid" style="margin-top: 4px;">
+                <div class="col-6">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>46 - NOME DO AUTORIZADOR</label></div>
+                    <div class="aih-field-value">MÉDICO REGULADOR / SEMSA BREVES</div>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>47 - CÓD. ÓRGÃO EMISSOR</label></div>
+                    <div class="aih-field-value" style="font-weight:800;">SEMSA BREVES / SUS</div>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="aih-field-box readonly">
+                    <div class="aih-field-header"><label>52 - Nº DA AIH</label></div>
+                    <div class="aih-field-value" style="font-weight:800; color:var(--primary);">152610084512-3</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- RODAPÉ DINÂMICO PARA CADA DOCUMENTO -->
+        <div class="cc-footer">
+          <div id="footer-left-btn">
+            <button class="btn-cancel" onclick="window.history.back()"><i class="ph ph-x-circle"></i> Cancelar</button>
+          </div>
+          
+          <!-- BOTÕES DA TELA DE ADMISSÃO -->
+          <div id="footer-btns-admissao" style="display: flex; gap: 10px;">
+            <button class="btn-save-draft" onclick="alert('Rascunho da Admissão Médica salvo com sucesso!')"><i class="ph ph-floppy-disk"></i> Salvar</button>
+            <button class="btn-save-print" onclick="salvarEImprimirAnamnese()"><i class="ph ph-printer"></i> Salvar e Imprimir Admissão</button>
+            <button class="btn-next-tab" onclick="setDocMode('aih')"><i class="ph ph-hospital"></i> Ir para Laudo de AIH &rarr;</button>
+          </div>
+
+          <!-- BOTÕES DA TELA DE LAUDO DE AIH -->
+          <div id="footer-btns-aih" style="display: none; gap: 10px;">
+            <button class="btn-next-tab" onclick="setDocMode('admissao')"><i class="ph ph-stethoscope"></i> &larr; Voltar para Admissão</button>
+            <button class="btn-save-draft" onclick="alert('Rascunho do Laudo de AIH salvo com sucesso!')"><i class="ph ph-floppy-disk"></i> Salvar</button>
+            <button class="btn-save-aih" onclick="salvarEImprimirAIH()"><i class="ph ph-hospital"></i> Salvar e Imprimir Laudo AIH</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // CONTROLE DE MODO: 'admissao' OU 'aih' (UM CLIQUE AO LADO!)
+  let currentDocMode = 'admissao';
+
+  function setDocMode(mode) {
+    currentDocMode = mode;
+    
+    // Atualiza abas superiores
+    const tabAdmissao = document.getElementById('tab-nav-admissao');
+    const tabAih = document.getElementById('tab-nav-aih');
+    const bcCurrent = document.getElementById('bc-current');
+    
+    // Telas centrais
+    const screenAdmissao = document.getElementById('screen-admissao');
+    const screenAih = document.getElementById('screen-aih');
+    
+    // Sidebars
+    const sidebarAdmissao = document.getElementById('sidebar-admissao');
+    const sidebarAih = document.getElementById('sidebar-aih');
+    
+    // Headers e Footers
+    const ccTitle = document.getElementById('cc-title');
+    const ccSubtitle = document.getElementById('cc-subtitle');
+    const footerAdmissao = document.getElementById('footer-btns-admissao');
+    const footerAih = document.getElementById('footer-btns-aih');
+    
+    // Rola para o topo do formulário
+    const ccBody = document.querySelector('.cc-body');
+    if (ccBody) ccBody.scrollTop = 0;
+
+    if (mode === 'admissao') {
+      tabAdmissao.classList.add('active');
+      tabAih.classList.remove('active');
+      bcCurrent.innerText = '1. Anamnese & Admissão';
+      
+      screenAdmissao.style.display = 'block';
+      screenAih.style.display = 'none';
+      
+      sidebarAdmissao.style.display = 'block';
+      sidebarAih.style.display = 'none';
+      
+      ccTitle.innerHTML = '<i class="ph ph-stethoscope"></i> Ficha de Consulta e Admissão Médica';
+      ccSubtitle.innerHTML = 'Documento Oficial: Consulta / Admissão Médica (Modelo 10) &bull; Médico: <strong>Dr. Marcos Costa — CRM/PA 1234</strong>';
+      
+      footerAdmissao.style.display = 'flex';
+      footerAih.style.display = 'none';
+    } else {
+      tabAdmissao.classList.remove('active');
+      tabAih.classList.add('active');
+      bcCurrent.innerText = '2. Laudo de AIH';
+      
+      screenAdmissao.style.display = 'none';
+      screenAih.style.display = 'block';
+      
+      sidebarAdmissao.style.display = 'none';
+      sidebarAih.style.display = 'block';
+      
+      ccTitle.innerHTML = '<i class="ph ph-hospital"></i> Laudo para Solicitação de AIH (SUS) — UPA 24h Breves';
+      ccSubtitle.innerHTML = 'Documento Oficial: Laudo AIH Oficial (Modelo 16) &bull; Estabelecimento: <strong>UPA 24H BREVES (CNES 0296796)</strong>';
+      
+      footerAdmissao.style.display = 'none';
+      footerAih.style.display = 'flex';
+
+      // Sincroniza dados automaticamente da Admissão para a AIH ao entrar na tela
+      autoSyncAdmissaoToAih();
+    }
+  }
+
+  // Sincronização Inteligente Automática: Admissão -> AIH
+  function autoSyncAdmissaoToAih() {
+    const qp = document.getElementById('qp-input').value;
+    const hda = document.getElementById('hda-input').value;
+    const ef = document.getElementById('ef-input').value;
+    const cid = document.getElementById('cid-input').value;
+    
+    // Atualiza CID Principal na AIH
+    document.getElementById('aih-cid-principal').value = cid;
+    
+    // Atualiza Sinais e Sintomas se não tiver sido customizado
+    if (hda) {
+      document.getElementById('aih-sintomas').value = "PACIENTE PEDIÁTRICO, 4 ANOS, ADMITIDO NA UPA 24H BREVES COM HISTÓRIA DE: " + hda.toUpperCase() + " SINAIS VITAIS NA ADMISSÃO: PA 90X60 MMHG, FC 110 BPM, TEMP 39.2ºC, SPO2 97% EM AR AMBIENTE.";
+    }
+    
+    syncCidsToAih();
+  }
+
+  // Controle da Gaveta de Dados Oficiais
+  function toggleDrawer() {
+    const drawer = document.getElementById('pb-drawer');
+    const lbl = document.getElementById('lbl-drawer');
+    if (drawer.style.display === 'grid') {
+      drawer.style.display = 'none';
+      lbl.innerText = 'Expandir Ficha Oficial';
+    } else {
+      drawer.style.display = 'grid';
+      lbl.innerText = 'Ocultar Ficha Oficial';
+    }
+  }
+
+  // Sincronização de CID Principal
+  function syncCidInput(val) {
+    document.getElementById('aih-cid-principal').value = val;
+    if (val.toUpperCase().includes('J15') || val.toUpperCase().includes('PNEUMONIA')) {
+      selecionarProcRapido('0303010190', 'TRATAMENTO DE PNEUMONIA OU INFLUENZA (GRIPE)');
+    } else if (val.toUpperCase().includes('J45') || val.toUpperCase().includes('ASMA')) {
+      selecionarProcRapido('0303010034', 'TRATAMENTO DE OUTRAS DOENCAS DO APARELHO RESPIRATORIO (ASMA/BRONQUITE)');
+    } else if (val.toUpperCase().includes('A09') || val.toUpperCase().includes('DIARREIA')) {
+      selecionarProcRapido('0303010069', 'TRATAMENTO DE TRANSTORNOS DIGESTIVOS / DIARREIA AGUDA');
+    }
+  }
+
+  function selecionarProcRapido(cod, desc) {
+    document.getElementById('aih-cod-proc').value = cod;
+    document.getElementById('aih-procedimento').value = desc;
+  }
+
+  function syncHdaToAih() {
+    autoSyncAdmissaoToAih();
+  }
+
+  function syncEfToAih() {
+    // sincroniza se necessário
+  }
+
+  function syncCidsToAih() {
+    const chips = document.querySelectorAll('#chips-comorbidades .chip');
+    let lista = [];
+    chips.forEach(chip => {
+      lista.push(chip.innerText.trim());
+    });
+    if (lista.length > 0) {
+      document.getElementById('aih-cid-secundario').value = lista.join(' / ');
+    }
+  }
+
+  function addComorbidade() {
+    const cid = prompt('Digite o CID-10 e descrição da comorbidade:', 'J30.4 - Rinite Alérgica');
+    if (cid) {
+      const container = document.getElementById('chips-comorbidades');
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.innerHTML = `${cid} <i class="ph ph-x" onclick="this.parentElement.remove(); syncCidsToAih();"></i>`;
+      container.insertBefore(span, container.lastElementChild);
+      syncCidsToAih();
+    }
+  }
+
+  function reSyncAll() {
+    autoSyncAdmissaoToAih();
+    alert('Todos os dados da Admissão Médica foram sincronizados com sucesso no Laudo de AIH!');
+  }
+
+  function toggleJustChip(el, texto) {
+    el.classList.toggle('active');
+    const txtArea = document.getElementById('aih-justificativa');
+    if (el.classList.contains('active')) {
+      if (!txtArea.value.includes(texto)) {
+        txtArea.value = txtArea.value ? txtArea.value + '; ' + texto : texto;
+      }
+    } else {
+      txtArea.value = txtArea.value.replace('; ' + texto, '').replace(texto + '; ', '').replace(texto, '');
+    }
+  }
+
+  function insertExamSnippet(tipo) {
+    const txtArea = document.getElementById('aih-exames');
+    if (tipo === 'rx-leuco') {
+      txtArea.value += '\nRAIO-X DE TÓRAX: INFILTRADO CONSOLIDATIVO EM BASE DIREITA. LEUCOGRAMA: 16.800 COM DESVIO À ESQUERDA.';
+    } else if (tipo === 'gaso') {
+      txtArea.value += '\nGASOMETRIA ARTERIAL: PH 7.36, PCO2 38 MMHG, PO2 88 MMHG, HCO3 22 MEQ/L, SATO2 96%.';
+    } else if (tipo === 'pcr-eletr') {
+      txtArea.value += '\nPCR: 48 MG/L (ELEVADO). NA: 138 MEQ/L, K: 4.1 MEQ/L, UREIA: 24 MG/DL, CREATININA: 0.5 MG/DL.';
+    }
+  }
+
+  function trocarProcedimento() {
+    const novo = prompt('Informe a descrição do procedimento SIGTAP:', document.getElementById('aih-procedimento').value);
+    if (novo) {
+      document.getElementById('aih-procedimento').value = novo;
+    }
+  }
+
+  function fillTemplate(tipo) {
+    if (tipo === 'pediatria') {
+      document.getElementById('qp-input').value = "Febre alta e tosse produtiva há 3 dias";
+      document.getElementById('hda-input').value = "Criança de 4 anos dá entrada acompanhada da genitora com febre aferida em 39.2ºC há 72h, tosse produtiva e taquipneia. Apresenta recusa alimentar e prostração nas últimas 24h. Fez uso prévio de antitérmicos com melhora parcial.";
+      document.getElementById('ef-input').value = "Geral: REG, febril ao toque, hipoativo, acianótico, anictérico, taquipneico leve (FR: 28 irpm). ACV: RCRM em 2T, sem sopros, FC: 110 bpm. AR: Estertores crepitantes em base direita, tiragem intercostal leve, SpO2: 97% em AA. Abdome: Flácido, indolor, sem visceromegalias.";
+      document.getElementById('cid-input').value = "J15.9 - Pneumonia bacteriana não especificada";
+      syncCidInput("J15.9 - Pneumonia bacteriana não especificada");
+      autoSyncAdmissaoToAih();
+      alert('Modelo de Pneumonia Pediátrica aplicado com sucesso na Admissão!');
+    } else if (tipo === 'bronquiolite') {
+      document.getElementById('qp-input').value = "Chiado no peito e cansaço respiratório";
+      document.getElementById('hda-input').value = "Paciente com quadro de coriza e tosse seca há 4 dias que evoluiu com cansaço respiratório, sibilância audível e tiragem subcostal.";
+      document.getElementById('ef-input').value = "Geral: REG, taquipneico (FR: 34 irpm), com batimento de asa de nariz. AR: Murmúrio vesicular diminuído difusamente com sibilos expiratórios disseminados. SpO2: 94% em AA.";
+      document.getElementById('cid-input').value = "J21.9 - Bronquiolite aguda não especificada";
+      syncCidInput("J21.9 - Bronquiolite aguda não especificada");
+      autoSyncAdmissaoToAih();
+      alert('Modelo de Bronquiolite aplicado!');
+    } else if (tipo === 'desidratacao') {
+      document.getElementById('qp-input').value = "Diarreia e vômitos há 2 dias";
+      document.getElementById('hda-input').value = "Mãe refere episódios múltiplos de vômitos e diarreia líquida sem sangue. Inapetência acentuada, não tolera líquidos por via oral.";
+      document.getElementById('ef-input').value = "Geral: REG, prostrado, mucosas secas, olhos encovados, turgor diminuído, tempo de enchimento capilar de 3 segundos. Abdome: Timpânico, dor difusa à palpação, RHA aumentados.";
+      document.getElementById('cid-input').value = "A09 - Gastroenterite e colite de origem infecciosa presumível";
+      syncCidInput("A09 - Gastroenterite e colite de origem infecciosa presumível");
+      autoSyncAdmissaoToAih();
+      alert('Modelo de Gastroenterite aplicado!');
+    }
+  }
+
+  function salvarEImprimirAnamnese() {
+    alert('Admissão Médica salva no Prontuário Eletrônico!\nAbrindo documento oficial de Admissão Médica (Modelo 10)...');
+    window.open('../modelos_impressao_html/10-consulta-admissao-medica.html', '_blank');
+  }
+
+  function salvarEImprimirAIH() {
+    alert('Laudo de AIH emitido e vinculado ao prontuário!\nAbrindo documento oficial do Laudo de AIH (Modelo 16)...');
+    window.open('../modelos_impressao_html/16-laudo-aih-internacao.html', '_blank');
+  }
+</script>
+
+</body>
+</html>

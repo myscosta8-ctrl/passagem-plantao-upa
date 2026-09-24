@@ -1,5 +1,5 @@
-import { supabase } from './supabaseClient'
-import { calcularIdade, registrarEventoAuditoria } from './pepAtendimentos'
+import { supabase } from './supabaseClient.js'
+import { calcularIdade, registrarEventoAuditoria } from './pepAtendimentos.js'
 
 // Camada de dados do módulo médico (Fase 1 do PEP). Só existe sobre a estrutura
 // nova (pessoas/atendimentos/leito_ocupacoes) — diferente do resto do app, não

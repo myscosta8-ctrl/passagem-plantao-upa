@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passagem de Plantão de Enfermagem — UPA 24h</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #F1F5F9;
+  --bg-surface: #ffffff;
+  --border-light: #E2E8F0;
+  --border-strong: #CBD5E1;
+  
+  --text-main: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+
+  --enf-primary: #0D9488;       /* Teal Enfermagem Oficial */
+  --enf-hover: #0F766E;
+  --enf-light: #F0FDFA;
+  --enf-badge: #CCFBF1;
+
+  --primary: #1D4ED8;           /* Azul Oficial dos Botões Salvar do Sistema */
+  --primary-hover: #1E3A8A;
+  --primary-light: #EFF6FF;
+
+  --danger: #DC2626;
+  --danger-light: #FEF2F2;
+
+  --success: #16A34A;
+  --success-light: #DCFCE7;
+
+  --warning-amber: #D97706;
+  --warning-light: #FEF3C7;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-app); color: var(--text-main); font-size: 13px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* TOPBAR OFICIAL */
+.topbar { height: 50px; background: var(--bg-surface); border-bottom: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: var(--shadow-sm); z-index: 40; flex-shrink: 0; }
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.breadcrumb span.current { color: var(--enf-primary); font-weight: 700; }
+.btn-menu-hamburguer { background: #F1F5F9; border: 1px solid var(--border-strong); border-radius: 6px; padding: 5px 11px; font-size: 12px; font-weight: 600; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.15s; }
+.btn-menu-hamburguer:hover { background: #E2E8F0; border-color: #94A3B8; }
+.btn-menu-hamburguer i { font-size: 16px; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.btn-voltar { background: transparent; border: 1px solid var(--border-strong); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
+.btn-voltar:hover { background: var(--border-light); color: var(--text-main); }
+.sys-time { font-size: 11.5px; font-weight: 600; color: var(--text-muted); padding-right: 14px; border-right: 1px solid var(--border-light); }
+.top-avatar { padding: 4px 12px; border-radius: 20px; background: var(--enf-light); color: var(--enf-primary); border: 1px solid var(--enf-primary); display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 11.5px; }
+
+/* SIDEBAR DRAWER (MENU LATERAL PRINCIPAL) */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.sidebar-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.main-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 270px;
+  background: #0F172A;
+  color: #fff;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
+}
+.main-sidebar.open {
+  transform: translateX(0);
+}
+
+.sb-header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 0 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sb-brand {
+  display: flex;
+  flex-direction: column;
+}
+.sb-brand h2 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.sb-brand span {
+  font-size: 11px;
+  color: #94A3B8;
+}
+.sb-close-btn {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.15s;
+}
+.sb-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sb-nav {
+  flex: 1;
+  padding: 14px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sb-group-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 12px 10px 4px 10px;
+}
+.sb-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  color: #CBD5E1;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: 0.15s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+.sb-nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.sb-nav-item.active {
+  background: rgba(13, 148, 136, 0.2);
+  color: #2DD4BF;
+  font-weight: 600;
+}
+.sb-nav-item i {
+  font-size: 17px;
+  width: 20px;
+  text-align: center;
+  color: #94A3B8;
+}
+.sb-nav-item.active i {
+  color: #2DD4BF;
+}
+.sb-badge {
+  font-size: 9.5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #0D9488;
+  color: #fff;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+/* WORKSPACE */
+.workspace { flex: 1; overflow: hidden; padding: 12px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+
+/* BARRA DE CONTROLE DO SETOR (COMPACTA, SOBRIA E ELEGANTE) */
+.sector-control-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.scc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.sector-nav-pills {
+  display: flex;
+  gap: 4px;
+  background: #F1F5F9;
+  padding: 3px;
+  border-radius: 6px;
+}
+.sec-pill {
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.15s;
+}
+.sec-pill:hover { color: var(--text-main); }
+.sec-pill.active { background: #fff; color: var(--enf-primary); font-weight: 700; box-shadow: var(--shadow-sm); }
+.sec-pill .badge-count { font-size: 10px; padding: 1px 6px; border-radius: 10px; background: #E2E8F0; color: #475569; font-weight: 700; }
+.sec-pill.active .badge-count { background: var(--enf-badge); color: var(--enf-hover); }
+
+.scc-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-compact-tool {
+  background: #fff;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: 0.15s;
+}
+.btn-compact-tool:hover { background: #F8FAFC; color: var(--text-main); border-color: var(--border-strong); }
+.btn-compact-tool.primary { background: var(--enf-light); border-color: var(--enf-primary); color: var(--enf-hover); font-weight: 700; }
+.btn-compact-tool.primary:hover { background: #CCFBF1; }
+
+.view-toggle {
+  display: flex;
+  gap: 2px;
+  background: #F1F5F9;
+  padding: 2px;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+}
+.vt-btn {
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.vt-btn.active { background: #fff; color: var(--enf-primary); font-weight: 700; box-shadow: var(--shadow-sm); }
+
+/* LINHA DE RESUMO DO TURNO (SÓBRIA) */
+.scc-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-light);
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.team-flow { display: flex; align-items: center; gap: 6px; }
+.team-flow strong { color: var(--text-main); }
+
+.filter-row { display: flex; align-items: center; gap: 4px; }
+.filter-chip {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.filter-chip:hover { color: var(--text-main); background: #F1F5F9; }
+.filter-chip.active { background: #E2E8F0; color: var(--text-main); font-weight: 700; }
+
+/* CONTAINER PRINCIPAL DE LEITOS */
+.main-view-card {
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ÁREA DE SCROLL DOS LEITOS */
+.beds-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+/* CARD DE LEITO (PADRÃO SOBRIO HOSPITALAR) */
+.bed-card {
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0 !important;
+  transition: border-color 0.15s;
+}
+.bed-card:hover { border-color: #94A3B8; }
+.bed-card.checked { border-left: 4px solid var(--success); }
+.bed-card.has-alert { border-left: 4px solid var(--mc-laranja, #EA580C); }
+
+/* ESTADO RECOLHIDO DO CARD DE LEITO */
+.bed-card.collapsed .bc-content {
+  display: none !important;
+}
+.bed-card.collapsed .bc-header {
+  border-bottom: none;
+}
+.btn-toggle-bed {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: 0.15s;
+  flex-shrink: 0;
+}
+.btn-toggle-bed:hover {
+  background: #E2E8F0;
+  color: var(--text-main);
+}
+.btn-toggle-bed i {
+  font-size: 13px;
+  transition: transform 0.2s ease;
+}
+.bed-card.collapsed .btn-toggle-bed i {
+  transform: rotate(-90deg);
+}
+
+.collapsed-summary {
+  display: none;
+  font-size: 11px;
+  color: var(--text-muted);
+  gap: 6px;
+  align-items: center;
+  margin-left: 4px;
+}
+.bed-card.collapsed .collapsed-summary {
+  display: inline-flex;
+}
+.patient-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  transition: color 0.15s;
+}
+.patient-title:hover {
+  color: var(--enf-primary);
+}
+
+/* HEADER DO LEITO */
+.bc-header {
+  padding: 8px 12px;
+  background: #F8FAFC;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.bc-header-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.bed-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #E2E8F0;
+  color: var(--text-main);
+  border: 1px solid var(--border-strong);
+}
+.patient-meta-text { font-size: 11px; color: var(--text-muted); }
+.patient-hd-text { font-size: 11.5px; color: var(--text-secondary); }
+.patient-hd-text strong { color: var(--text-main); }
+
+.tag-alergia {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid #FECACA;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bc-header-right { display: flex; align-items: center; gap: 8px; }
+.btn-status-toggle {
+  background: #fff;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: 0.15s;
+}
+.btn-status-toggle:hover { background: #F1F5F9; color: var(--text-main); }
+.btn-status-toggle.active {
+  background: var(--success-light);
+  color: var(--success);
+  border-color: #86EFAC;
+  font-weight: 700;
+}
+.btn-view-patient {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-view-patient:hover { color: var(--text-main); background: #F1F5F9; }
+
+/* CORPO DO LEITO: 4 COLUNAS CLÍNICAS EQUILIBRADAS */
+.bc-content {
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 210px 220px 200px 1fr;
+  gap: 12px;
+  background: #fff;
+}
+@media (max-width: 1200px) {
+  .bc-content { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .bc-content { grid-template-columns: 1fr; }
+}
+
+.col-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+}
+.col-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+.col-title i { color: var(--enf-primary); font-size: 12px; }
+
+/* SINAIS VITAIS SOBRIOS */
+.vitals-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.v-cell {
+  background: #F8FAFC;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 3px 5px;
+  display: flex;
+  flex-direction: column;
+}
+.v-cell .lbl { font-size: 9px; color: var(--text-muted); font-weight: 600; }
+.v-cell .val { font-size: 11.5px; font-weight: 700; color: var(--text-main); }
+.v-cell.alert .val { color: var(--danger); }
+.v-cell.warn .val { color: var(--warning-amber); }
+
+/* LISTA DE DISPOSITIVOS */
+.device-text {
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+  padding: 0;
+}
+.device-text li { list-style: none; display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+.device-text li i { color: var(--enf-primary); font-size: 12px; }
+
+/* BALANÇO E CARDEX */
+.balance-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+.bal-tag {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--success);
+  margin-top: 2px;
+}
+
+/* PENDÊNCIAS (EDIÇÃO ÁGIL) */
+.col-block-pending {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pending-input {
+  width: 100%;
+  min-height: 52px;
+  resize: vertical;
+  background: #FAFAFA;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-main);
+  outline: none;
+  font-family: inherit;
+  transition: 0.15s;
+}
+.pending-input:focus {
+  background: #fff;
+  border-color: var(--enf-primary);
+  box-shadow: 0 0 0 2px var(--enf-light);
+}
+
+.quick-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.q-chip {
+  font-size: 10px;
+  background: #F1F5F9;
+  border: 1px solid var(--border-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: 0.15s;
+  user-select: none;
+}
+.q-chip:hover { background: var(--enf-light); border-color: var(--enf-primary); color: var(--enf-hover); }
+
+/* LEITO VAGO: DISCRETO E COMPACTO (SEM EXAGERO) */
+.bed-card.vago {
+  border: 1px dashed var(--border-strong);
+  background: #F8FAFC;
+}
+.bed-card.vago .bc-header {
+  background: #F8FAFC;
+  border-bottom: none;
+  padding: 8px 12px;
+}
+.btn-admit-compact {
+  background: #fff;
+  border: 1px solid var(--enf-primary);
+  color: var(--enf-primary);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  transition: 0.15s;
+}
+.btn-admit-compact:hover {
+  background: var(--enf-light);
+  color: var(--enf-hover);
+}
+
+/* VISÃO 2: TABELA SINTÉTICA (MATRIZ EXECUTIVA) */
+.table-view-container {
+  display: none;
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+}
+.table-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.table-matrix th {
+  background: #F8FAFC;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.table-matrix td {
+  padding: 8px 10px;
+  border: 1px solid var(--border-light);
+  background: #fff;
+  vertical-align: top;
+}
+.table-matrix tr:hover td { background: #F8FAFC; }
+.table-matrix tr.checked td { background: #F0FDF4; }
+
+/* VISÃO 3: FOCO NO LEITO INDIVIDUAL */
+.focus-view-container {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+  padding: 12px;
+  gap: 14px;
+}
+.focus-selector-sidebar {
+  width: 220px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: #F8FAFC;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.focus-bed-item {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  transition: 0.15s;
+}
+.focus-bed-item:hover { background: var(--enf-light); }
+.focus-bed-item.active { background: #fff; border-left: 3px solid var(--enf-primary); font-weight: 700; }
+.focus-detail-pane {
+  flex: 1;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: #fff;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ========================================================
+   RODAPÉ UNIVERSAL OFICIAL DO PROGRAMA (3 BOTÕES EXATOS)
+   ======================================================== */
+.ac-footer {
+  padding: 12px 20px;
+  background: #F8FAFC;
+  border-top: 1px solid var(--border-strong);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.btn-cancel {
+  background: #fff;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s;
+  text-decoration: none;
+}
+.btn-cancel:hover { background: var(--danger-light); }
+
+.btn-save-draft {
+  background: #fff;
+  border: 1px solid var(--primary, #1D4ED8);
+  color: var(--primary, #1D4ED8);
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s;
+}
+.btn-save-draft:hover { background: #EFF6FF; }
+
+.btn-save-print {
+  background: var(--primary, #1D4ED8);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: 0.2s;
+}
+.btn-save-print:hover { background: #1E3A8A; box-shadow: var(--shadow-md); }
+
+/* ESTILOS DE IMPRESSÃO OFICIAL */
+@media print {
+  body { height: auto; overflow: visible; background: #fff; font-size: 11px; }
+  .topbar, .clinical-tabs, .sector-control-card, .ac-footer, .btn-status-toggle, .btn-view-patient, .btn-admit-compact, .quick-chips, .view-toggle { display: none !important; }
+  .workspace { padding: 0; margin: 0; }
+  .main-view-card { border: none; box-shadow: none; }
+  .beds-container { overflow: visible; padding: 0; gap: 8px; }
+  .bed-card { page-break-inside: avoid; border: 1px solid #000; margin-bottom: 6px; }
+  .pending-input { border: none; padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- OVERLAY DO MENU LATERAL -->
+<div class="sidebar-overlay" id="sb-overlay" onclick="toggleSidebarMenu()"></div>
+
+<!-- MENU LATERAL PRINCIPAL (SISTEMA & GESTÃO) -->
+<aside class="main-sidebar" id="main-sidebar">
+  <div class="sb-header">
+    <div class="sb-brand">
+      <h2>Passagem de Plantão</h2>
+      <span>UPA 24h · Gestão Setorial</span>
+    </div>
+    <button class="sb-close-btn" onclick="toggleSidebarMenu()" title="Fechar menu">
+      <i class="ph ph-x"></i>
+    </button>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-group-title">Assistencial & Leitos</div>
+    <a href="01-painel-leitos-design.html" class="sb-nav-item">
+      <i class="ph ph-bed"></i>
+      <span>Painel de Leitos</span>
+    </a>
+    <a href="02-recepcao-design.html" class="sb-nav-item">
+      <i class="ph ph-door"></i>
+      <span>Recepção & Triagem</span>
+    </a>
+    <a href="12-passagem-plantao-design.html" class="sb-nav-item active">
+      <i class="ph ph-arrows-clockwise"></i>
+      <span>Passagem de Plantão</span>
+      <span class="sb-badge">Setor</span>
+    </a>
+    <a href="#" class="sb-nav-item" onclick="alert('Histórico de plantões anteriores arquivados no sistema.')">
+      <i class="ph ph-clock-counter-clockwise"></i>
+      <span>Histórico de Turnos</span>
+    </a>
+    <a href="#" class="sb-nav-item" onclick="alert('Módulo de desfechos clínicos e altas da UPA.')">
+      <i class="ph ph-check-square-offset"></i>
+      <span>Desfechos Clínicos</span>
+    </a>
+
+    <div class="sb-group-title">Gestão da Unidade</div>
+    <a href="#" class="sb-nav-item" onclick="alert('Indicadores e tempo de permanência.')">
+      <i class="ph ph-chart-bar"></i>
+      <span>Indicadores Clínicos</span>
+    </a>
+    <a href="#" class="sb-nav-item" onclick="alert('Gestão da escala e equipe do turno.')">
+      <i class="ph ph-users"></i>
+      <span>Equipe do Plantão</span>
+    </a>
+  </nav>
+</aside>
+
+<!-- TOPBAR OFICIAL -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="btn-menu-hamburguer" onclick="toggleSidebarMenu()" title="Abrir menu principal">
+      <i class="ph ph-list"></i>
+      <span>Menu</span>
+    </button>
+    <div class="breadcrumb">
+      <a href="01-painel-leitos-design.html" class="btn-voltar"><i class="ph ph-arrow-left"></i> Painel de Leitos</a>
+      <i class="ph ph-caret-right"></i>
+      <span>Gestão do Plantão</span>
+      <i class="ph ph-caret-right"></i>
+      <span class="current">Passagem de Plantão Coletiva</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="sys-time"><i class="ph ph-clock"></i> 23/09/2026 — 19:00</span>
+    <div class="top-avatar">
+      <i class="ph ph-stethoscope"></i> Enf. Juliana Ramos (COREN/PA 123.456)
+    </div>
+  </div>
+</header>
+
+<main class="workspace">
+
+  <!-- BARRA DE CONTROLE DO SETOR (SÓBRIA, PADRONIZADA COM O RESTANTE DO SISTEMA) -->
+  <div class="sector-control-card">
+    <div class="scc-top">
+      <div class="sector-nav-pills">
+        <button class="sec-pill active" onclick="switchSector('amarela', this)">
+          <span>Sala Amarela</span>
+          <span class="badge-count">5/6</span>
+        </button>
+        <button class="sec-pill" onclick="switchSector('vermelha', this)">
+          <span>Sala Vermelha</span>
+          <span class="badge-count">4/4</span>
+        </button>
+        <button class="sec-pill" onclick="switchSector('obs-masc', this)">
+          <span>Obs. Masculina</span>
+          <span class="badge-count">7/8</span>
+        </button>
+        <button class="sec-pill" onclick="switchSector('obs-fem', this)">
+          <span>Obs. Feminina</span>
+          <span class="badge-count">6/8</span>
+        </button>
+        <button class="sec-pill" onclick="switchSector('estabilizacao', this)">
+          <span>Estabilização</span>
+          <span class="badge-count">1/2</span>
+        </button>
+      </div>
+
+      <div class="scc-actions">
+        <button class="btn-compact-tool" onclick="toggleAllBeds()" id="btn-toggle-all-beds" title="Recolher ou expandir todos os leitos">
+          <i class="ph ph-arrows-in-line-vertical" id="icon-toggle-all"></i> <span id="lbl-toggle-all">Recolher Todos</span>
+        </button>
+        <button class="btn-compact-tool primary" onclick="sincronizarDados()" title="Sincronizar sinais vitais e balanço hídrico">
+          <i class="ph ph-arrows-clockwise"></i> Sincronizar Sinais & Balanço
+        </button>
+        <button class="btn-compact-tool" onclick="marcarTodosPassados()">
+          <i class="ph ph-check-square"></i> Conferir Todos
+        </button>
+
+        <div class="view-toggle">
+          <button class="vt-btn active" id="btn-v-cards" onclick="setViewMode('cards')"><i class="ph ph-squares-four"></i> Grade</button>
+          <button class="vt-btn" id="btn-v-table" onclick="setViewMode('table')"><i class="ph ph-table"></i> Tabela</button>
+          <button class="vt-btn" id="btn-v-focus" onclick="setViewMode('focus')"><i class="ph ph-user"></i> Detalhe</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- META INFORMAÇÃO DO PLANTÃO & FILTROS DISCRETOS -->
+    <div class="scc-meta">
+      <div class="team-flow">
+        <span>Turno: <strong>Diurno ➔ Noturno (12h)</strong></span>
+        <span style="color: var(--border-strong);">·</span>
+        <span>Entrega: <strong>Enf. Juliana Ramos</strong></span>
+        <span style="color: var(--border-strong);">➔</span>
+        <span>Assume: <strong>Enf. Marcos Lima</strong></span>
+      </div>
+
+      <div class="filter-row">
+        <span style="font-size: 11px; color: var(--text-muted); margin-right: 4px;">Filtro:</span>
+        <button class="filter-chip active" onclick="filtrarLeitos('todos', this)">Todos (6)</button>
+        <button class="filter-chip" onclick="filtrarLeitos('pendentes', this)">Com Pendências (4)</button>
+        <button class="filter-chip" onclick="filtrarLeitos('nao-passados', this)">A Conferir (<span id="c-unpassed">2</span>)</button>
+        <button class="filter-chip" onclick="filtrarLeitos('passados', this)">Conferidos (<span id="c-passed">3</span>)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTAINER PRINCIPAL -->
+  <div class="main-view-card">
+
+    <!-- ==================== VISÃO 1: GRADE DE LEITOS DO SETOR ==================== -->
+    <div class="beds-container" id="view-cards">
+
+      <!-- LEITO 01 -->
+      <article class="bed-card checked" id="card-01" data-critico="nao" data-pendencia="sim">
+        <div class="bc-header">
+          <div class="bc-header-left">
+            <button class="btn-toggle-bed" onclick="toggleCardBed('01')" id="btn-tg-01" title="Recolher / Expandir leito">
+              <i class="ph ph-caret-down" id="caret-01"></i>
+            </button>
+            <span class="bed-tag">Leito 01</span>
+            <span class="patient-title" onclick="toggleCardBed('01')" style="cursor: pointer;" title="Clique para recolher/expandir">Maria das Graças Santos, 68a</span>
+            <span class="patient-meta-text">Reg: #2026-0812 · Permanência: 14h</span>
+            <span class="patient-hd-text"><strong>HD:</strong> Crise Hipertensiva Severa</span>
+            <div class="collapsed-summary">
+              <span>• PA 160/95</span> · <span>SpO₂ 97%</span> · <span>BH +250 mL</span> · <span style="color: var(--text-secondary); font-weight: 600;">1 pendência</span>
+            </div>
+          </div>
+          <div class="bc-header-right">
+            <button class="btn-status-toggle active" id="btn-st-01" onclick="toggleStatus('01')">
+              <i class="ph ph-check"></i> <span id="lbl-st-01">Conferido</span>
+            </button>
+            <button class="btn-view-patient" onclick="abrirFocoLeito('01')"><i class="ph ph-magnifying-glass"></i> Detalhes</button>
+          </div>
+        </div>
+
+        <div class="bc-content">
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-heartbeat"></i> Sinais Vitais (18:00)</div>
+            <div class="vitals-row">
+              <div class="v-cell warn"><span class="lbl">PA</span><span class="val">160/95</span></div>
+              <div class="v-cell"><span class="lbl">FC</span><span class="val">78</span></div>
+              <div class="v-cell"><span class="lbl">SpO₂</span><span class="val">97%</span></div>
+              <div class="v-cell"><span class="lbl">HGT</span><span class="val">124</span></div>
+            </div>
+            <span style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">FR 18 rpm · Temp 36.4°C · Eupneica</span>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-needle"></i> Dispositivos & Cuidados</div>
+            <ul class="device-text">
+              <li><i class="ph ph-check"></i> AVP em MSE (20G) pérvio</li>
+              <li><i class="ph ph-check"></i> Ar ambiente (sem O2)</li>
+              <li><i class="ph ph-check"></i> Diurese espontânea</li>
+            </ul>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-drop"></i> Balanço & Cardex</div>
+            <div class="balance-summary">
+              <div>Ingesta: <strong>950 mL</strong> · Diurese: <strong>700 mL</strong></div>
+              <span class="bal-tag">Balanço: +250 mL (Equilibrado)</span>
+              <span style="font-size: 10.5px; color: var(--text-muted);">Cardex 100% checado no diurno</span>
+            </div>
+          </div>
+
+          <div class="col-block col-block-pending">
+            <div class="col-title"><i class="ph ph-warning-circle"></i> Pendências para o Noturno</div>
+            <textarea class="pending-input" id="pend-01">Reavaliar PA às 20h e 22h. Se PAS > 160 mmHg, comunicar médico. Aguarda laudo de ECG.</textarea>
+            <div class="quick-chips">
+              <span class="q-chip" onclick="addChip('01', 'Reavaliar PA 20h')">+ Reavaliar PA</span>
+              <span class="q-chip" onclick="addChip('01', 'Cobrar ECG')">+ Cobrar ECG</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- LEITO 02 -->
+      <article class="bed-card checked has-alert" id="card-02" data-critico="sim" data-pendencia="sim">
+        <div class="bc-header">
+          <div class="bc-header-left">
+            <button class="btn-toggle-bed" onclick="toggleCardBed('02')" id="btn-tg-02" title="Recolher / Expandir leito">
+              <i class="ph ph-caret-down" id="caret-02"></i>
+            </button>
+            <span class="bed-tag">Leito 02</span>
+            <span class="patient-title" onclick="toggleCardBed('02')" style="cursor: pointer;" title="Clique para recolher/expandir">José Carlos Oliveira, 52a</span>
+            <span class="tag-alergia"><i class="ph ph-prohibit"></i> Alergia: Penicilina</span>
+            <span class="patient-meta-text">Reg: #2026-0840 · Permanência: 26h</span>
+            <span class="patient-hd-text"><strong>HD:</strong> PAC Grave + Broncoespasmo</span>
+            <div class="collapsed-summary">
+              <span>• PA 120/80</span> · <span>SpO₂ 93% (O2)</span> · <span style="color: var(--danger); font-weight: 600;">Temp 38.2°C</span> · <span>BH +550 mL</span>
+            </div>
+          </div>
+          <div class="bc-header-right">
+            <button class="btn-status-toggle active" id="btn-st-02" onclick="toggleStatus('02')">
+              <i class="ph ph-check"></i> <span id="lbl-st-02">Conferido</span>
+            </button>
+            <button class="btn-view-patient" onclick="abrirFocoLeito('02')"><i class="ph ph-magnifying-glass"></i> Detalhes</button>
+          </div>
+        </div>
+
+        <div class="bc-content">
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-heartbeat"></i> Sinais Vitais (18:30)</div>
+            <div class="vitals-row">
+              <div class="v-cell"><span class="lbl">PA</span><span class="val">120/80</span></div>
+              <div class="v-cell warn"><span class="lbl">FC</span><span class="val">98</span></div>
+              <div class="v-cell alert"><span class="lbl">SpO₂</span><span class="val">93% O2</span></div>
+              <div class="v-cell alert"><span class="lbl">Temp</span><span class="val">38.2°C</span></div>
+            </div>
+            <span style="font-size: 10.5px; color: var(--danger); margin-top: 2px;">FR 24 rpm · Taquipneico leve · Febril</span>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-needle"></i> Dispositivos & Cuidados</div>
+            <ul class="device-text">
+              <li><i class="ph ph-check"></i> AVP em MSD (18G) com SF 0.9%</li>
+              <li><i class="ph ph-check"></i> Cateter tipo Óculos O₂ 3 L/min</li>
+              <li><i class="ph ph-check"></i> Cabeceira mantida a 45°</li>
+            </ul>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-drop"></i> Balanço & Cardex</div>
+            <div class="balance-summary">
+              <div>Ingesta: <strong>1.450 mL</strong> · Diurese: <strong>900 mL</strong></div>
+              <span class="bal-tag">Balanço: +550 mL</span>
+              <span style="font-size: 10.5px; color: var(--text-muted);">Paracetamol administrado às 18:30</span>
+            </div>
+          </div>
+
+          <div class="col-block col-block-pending">
+            <div class="col-title"><i class="ph ph-warning-circle"></i> Pendências para o Noturno</div>
+            <textarea class="pending-input" id="pend-02">Ceftriaxona 1g IV às 20:00 (já na bancada). Curva térmica de 2/2h. Manter O2 para SpO2 > 92%. Alerta Penicilina!</textarea>
+            <div class="quick-chips">
+              <span class="q-chip" onclick="addChip('02', 'Ceftriaxona 20h')">+ Ceftriaxona 20h</span>
+              <span class="q-chip" onclick="addChip('02', 'Curva térmica 2/2h')">+ Curva Térmica</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- LEITO 03 -->
+      <article class="bed-card checked has-alert" id="card-03" data-critico="sim" data-pendencia="sim">
+        <div class="bc-header">
+          <div class="bc-header-left">
+            <button class="btn-toggle-bed" onclick="toggleCardBed('03')" id="btn-tg-03" title="Recolher / Expandir leito">
+              <i class="ph ph-caret-down" id="caret-03"></i>
+            </button>
+            <span class="bed-tag">Leito 03</span>
+            <span class="patient-title" onclick="toggleCardBed('03')" style="cursor: pointer;" title="Clique para recolher/expandir">Raimundo Nonato Pereira, 64a</span>
+            <span class="tag-alergia"><i class="ph ph-prohibit"></i> Alergia: Dipirona</span>
+            <span class="patient-meta-text">Reg: #2026-0891 · Permanência: 19h</span>
+            <span class="patient-hd-text"><strong>HD:</strong> AVE Isquêmico (D1) · Hemiparesia D</span>
+            <div class="collapsed-summary">
+              <span>• PA 140/85</span> · <span>SpO₂ 98%</span> · <span>BH +420 mL</span> · <span style="color: var(--text-secondary); font-weight: 600;">TC Crânio 20:30</span>
+            </div>
+          </div>
+          <div class="bc-header-right">
+            <button class="btn-status-toggle active" id="btn-st-03" onclick="toggleStatus('03')">
+              <i class="ph ph-check"></i> <span id="lbl-st-03">Conferido</span>
+            </button>
+            <button class="btn-view-patient" onclick="abrirFocoLeito('03')"><i class="ph ph-magnifying-glass"></i> Detalhes</button>
+          </div>
+        </div>
+
+        <div class="bc-content">
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-heartbeat"></i> Sinais Vitais (18:45)</div>
+            <div class="vitals-row">
+              <div class="v-cell warn"><span class="lbl">PA</span><span class="val">140/85</span></div>
+              <div class="v-cell"><span class="lbl">FC</span><span class="val">82</span></div>
+              <div class="v-cell"><span class="lbl">SpO₂</span><span class="val">98%</span></div>
+              <div class="v-cell"><span class="lbl">HGT</span><span class="val">138</span></div>
+            </div>
+            <span style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">Glasgow 15 · Déficit motor D · Pupilas isocóricas</span>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-needle"></i> Dispositivos & Cuidados</div>
+            <ul class="device-text">
+              <li><i class="ph ph-check"></i> AVP em MSD (20G) salinizado</li>
+              <li><i class="ph ph-check"></i> Cateter nasal O2 a 2 L/min</li>
+              <li><i class="ph ph-check"></i> Grades bilaterais elevadas</li>
+            </ul>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-drop"></i> Balanço & Cardex</div>
+            <div class="balance-summary">
+              <div>Ingesta: <strong>1.270 mL</strong> · Diurese: <strong>850 mL</strong></div>
+              <span class="bal-tag">Balanço: +420 mL</span>
+              <span style="font-size: 10.5px; color: var(--text-muted);">AAS e Atorvastatina checados às 18h</span>
+            </div>
+          </div>
+
+          <div class="col-block col-block-pending">
+            <div class="col-title"><i class="ph ph-warning-circle"></i> Pendências para o Noturno</div>
+            <textarea class="pending-input" id="pend-03">TC de Crânio às 20:30 (aguarda maqueiro). Enoxaparina 40mg SC às 20:00. HGT 22h e 06h. ALERTA: ALERGIA A DIPIRONA.</textarea>
+            <div class="quick-chips">
+              <span class="q-chip" onclick="addChip('03', 'TC Crânio 20:30')">+ TC Crânio</span>
+              <span class="q-chip" onclick="addChip('03', 'Enoxaparina 20h')">+ Enoxaparina</span>
+              <span class="q-chip" onclick="addChip('03', 'HGT 22h')">+ HGT 22h</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- LEITO 04 -->
+      <article class="bed-card" id="card-04" data-critico="nao" data-pendencia="sim">
+        <div class="bc-header">
+          <div class="bc-header-left">
+            <button class="btn-toggle-bed" onclick="toggleCardBed('04')" id="btn-tg-04" title="Recolher / Expandir leito">
+              <i class="ph ph-caret-down" id="caret-04"></i>
+            </button>
+            <span class="bed-tag">Leito 04</span>
+            <span class="patient-title" onclick="toggleCardBed('04')" style="cursor: pointer;" title="Clique para recolher/expandir">Carlos Eduardo Mendes, 34a</span>
+            <span class="patient-meta-text">Reg: #2026-0902 · Permanência: 08h</span>
+            <span class="patient-hd-text"><strong>HD:</strong> Apendicite Aguda · Aguarda Regulação SUS Fácil</span>
+            <div class="collapsed-summary">
+              <span>• PA 115/75</span> · <span>Dor 4/10</span> · <span>Jejum Absoluto</span> · <span style="color: var(--text-secondary); font-weight: 600;">Regulação HRBA</span>
+            </div>
+          </div>
+          <div class="bc-header-right">
+            <button class="btn-status-toggle" id="btn-st-04" onclick="toggleStatus('04')">
+              <i class="ph ph-clock"></i> <span id="lbl-st-04">A Conferir</span>
+            </button>
+            <button class="btn-view-patient" onclick="abrirFocoLeito('04')"><i class="ph ph-magnifying-glass"></i> Detalhes</button>
+          </div>
+        </div>
+
+        <div class="bc-content">
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-heartbeat"></i> Sinais Vitais (18:15)</div>
+            <div class="vitals-row">
+              <div class="v-cell"><span class="lbl">PA</span><span class="val">115/75</span></div>
+              <div class="v-cell"><span class="lbl">FC</span><span class="val">84</span></div>
+              <div class="v-cell"><span class="lbl">SpO₂</span><span class="val">99%</span></div>
+              <div class="v-cell warn"><span class="lbl">Dor</span><span class="val">4/10</span></div>
+            </div>
+            <span style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">Dor em FID · Descompressão brusca (+)</span>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-needle"></i> Dispositivos & Cuidados</div>
+            <ul class="device-text">
+              <li><i class="ph ph-check"></i> AVP em MSE (18G) com SG 5% em BIC</li>
+              <li><i class="ph ph-prohibit" style="color: var(--danger);"></i> Jejum absoluto mantido desde 13h</li>
+              <li><i class="ph ph-check"></i> Sem O2 suplementar · Afebril</li>
+            </ul>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-drop"></i> Balanço & Cardex</div>
+            <div class="balance-summary">
+              <div>Hidratação: <strong>1.000 mL</strong> · Diurese: <strong>800 mL</strong></div>
+              <span class="bal-tag">Balanço: +200 mL</span>
+              <span style="font-size: 10.5px; color: var(--text-muted);">Tramadol administrado às 16h</span>
+            </div>
+          </div>
+
+          <div class="col-block col-block-pending">
+            <div class="col-title"><i class="ph ph-warning-circle"></i> Pendências para o Noturno</div>
+            <textarea class="pending-input" id="pend-04">Checar regulação cirúrgica SUS Fácil às 20h. Manter jejum estrito. Se dor EVA > 6, analgesia de resgate.</textarea>
+            <div class="quick-chips">
+              <span class="q-chip" onclick="addChip('04', 'Checar SUS Fácil')">+ Checar Regulação</span>
+              <span class="q-chip" onclick="addChip('04', 'Manter jejum absoluto')">+ Jejum Estrito</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- LEITO 05 -->
+      <article class="bed-card" id="card-05" data-critico="nao" data-pendencia="sim">
+        <div class="bc-header">
+          <div class="bc-header-left">
+            <button class="btn-toggle-bed" onclick="toggleCardBed('05')" id="btn-tg-05" title="Recolher / Expandir leito">
+              <i class="ph ph-caret-down" id="caret-05"></i>
+            </button>
+            <span class="bed-tag">Leito 05</span>
+            <span class="patient-title" onclick="toggleCardBed('05')" style="cursor: pointer;" title="Clique para recolher/expandir">Francisca Lima da Silva, 72a</span>
+            <span class="patient-meta-text">Reg: #2026-0798 · Permanência: 38h</span>
+            <span class="patient-hd-text"><strong>HD:</strong> DM Descompensado + ITU</span>
+            <div class="collapsed-summary">
+              <span>• PA 130/70</span> · <span style="color: var(--danger); font-weight: 600;">HGT 210</span> · <span>SVD 1.100 mL</span> · <span>BH +150 mL</span>
+            </div>
+          </div>
+          <div class="bc-header-right">
+            <button class="btn-status-toggle" id="btn-st-05" onclick="toggleStatus('05')">
+              <i class="ph ph-clock"></i> <span id="lbl-st-05">A Conferir</span>
+            </button>
+            <button class="btn-view-patient" onclick="abrirFocoLeito('05')"><i class="ph ph-magnifying-glass"></i> Detalhes</button>
+          </div>
+        </div>
+
+        <div class="bc-content">
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-heartbeat"></i> Sinais Vitais (18:20)</div>
+            <div class="vitals-row">
+              <div class="v-cell"><span class="lbl">PA</span><span class="val">130/70</span></div>
+              <div class="v-cell"><span class="lbl">FC</span><span class="val">76</span></div>
+              <div class="v-cell"><span class="lbl">SpO₂</span><span class="val">96%</span></div>
+              <div class="v-cell alert"><span class="lbl">HGT</span><span class="val">210</span></div>
+            </div>
+            <span style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">Sonolenta ocasional · Risco queda elevado</span>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-needle"></i> Dispositivos & Cuidados</div>
+            <ul class="device-text">
+              <li><i class="ph ph-check"></i> AVP em MSD (22G) pérvio</li>
+              <li><i class="ph ph-check"></i> SVD nº 14 em sistema fechado (turva)</li>
+              <li><i class="ph ph-check"></i> Grades bilaterais mantidas elevadas</li>
+            </ul>
+          </div>
+
+          <div class="col-block">
+            <div class="col-title"><i class="ph ph-drop"></i> Balanço & Cardex</div>
+            <div class="balance-summary">
+              <div>Ingesta: <strong>1.250 mL</strong> · Diurese: <strong>1.100 mL</strong></div>
+              <span class="bal-tag">Balanço: +150 mL</span>
+              <span style="font-size: 10.5px; color: var(--text-muted);">Ciprofloxacino infundido às 14h</span>
+            </div>
+          </div>
+
+          <div class="col-block col-block-pending">
+            <div class="col-title"><i class="ph ph-warning-circle"></i> Pendências para o Noturno</div>
+            <textarea class="pending-input" id="pend-05">HGT às 22h e às 06h (Insulina Regular se > 200). Esvaziar SVD às 24h. Colher Urocultura pela manhã.</textarea>
+            <div class="quick-chips">
+              <span class="q-chip" onclick="addChip('05', 'HGT 22h')">+ HGT 22h</span>
+              <span class="q-chip" onclick="addChip('05', 'Esvaziar SVD 24h')">+ Esvaziar SVD</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- LEITO 06: LEITO VAGO (COMPACTO E DISCRETO) -->
+      <article class="bed-card vago" id="card-06" data-tipo="vago">
+        <div class="bc-header">
+          <div class="bc-header-left">
+            <span class="bed-tag">Leito 06</span>
+            <span class="patient-title" style="color: var(--text-muted); font-weight: 600;">Leito Vago (Higienizado)</span>
+            <span class="patient-meta-text">Limpeza às 17:30 · Régua de gases e aspirador testados · Pronto para receber paciente</span>
+          </div>
+          <div class="bc-header-right">
+            <a href="08-admissao-enfermagem-design.html" class="btn-admit-compact">
+              <i class="ph ph-plus-circle"></i> Admitir Paciente
+            </a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- ==================== VISÃO 2: TABELA SINTÉTICA (MATRIZ EXECUTIVA) ==================== -->
+    <div class="table-view-container" id="view-table">
+      <table class="table-matrix">
+        <thead>
+          <tr>
+            <th style="width: 75px;">Leito</th>
+            <th style="width: 190px;">Paciente</th>
+            <th style="width: 170px;">HD Principal</th>
+            <th style="width: 130px;">Sinais Vitais</th>
+            <th style="width: 140px;">Dispositivos</th>
+            <th style="width: 90px;">Balanço</th>
+            <th>Pendências Noturnas</th>
+            <th style="width: 100px; text-align: center;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="row-01" class="checked">
+            <td><strong>Leito 01</strong></td>
+            <td><strong>Maria das Graças</strong>, 68a</td>
+            <td>Crise Hipertensiva</td>
+            <td>PA 160/95 · FC 78</td>
+            <td>AVP MSE · Ar ambiente</td>
+            <td><strong style="color: var(--success);">+250 mL</strong></td>
+            <td>Reavaliar PA 20h e 22h. Cobrar laudo de ECG.</td>
+            <td style="text-align: center;"><span style="color: var(--success); font-weight: 700;">✓ Conferido</span></td>
+          </tr>
+          <tr id="row-02" class="checked">
+            <td><strong>Leito 02</strong></td>
+            <td><strong>José Carlos</strong>, 52a <span class="tag-alergia" style="font-size: 9px;">Penicilina</span></td>
+            <td>PAC Grave</td>
+            <td>PA 120/80 · SpO2 93%</td>
+            <td>AVP MSD · O2 3L/min</td>
+            <td><strong style="color: var(--success);">+550 mL</strong></td>
+            <td>Ceftriaxona 1g IV às 20h. Curva térmica 2/2h.</td>
+            <td style="text-align: center;"><span style="color: var(--success); font-weight: 700;">✓ Conferido</span></td>
+          </tr>
+          <tr id="row-03" class="checked">
+            <td><strong>Leito 03</strong></td>
+            <td><strong>Raimundo Nonato</strong>, 64a <span class="tag-alergia" style="font-size: 9px;">Dipirona</span></td>
+            <td>AVE Isquêmico (D1)</td>
+            <td>PA 140/85 · SpO2 98%</td>
+            <td>AVP MSD · O2 2L/min</td>
+            <td><strong style="color: var(--success);">+420 mL</strong></td>
+            <td>TC Crânio às 20:30. Enoxaparina 20h. HGT 22h.</td>
+            <td style="text-align: center;"><span style="color: var(--success); font-weight: 700;">✓ Conferido</span></td>
+          </tr>
+          <tr id="row-04">
+            <td><strong>Leito 04</strong></td>
+            <td><strong>Carlos Eduardo</strong>, 34a</td>
+            <td>Apendicite Aguda</td>
+            <td>PA 115/75 · Dor 4/10</td>
+            <td>AVP MSE BIC · Jejum</td>
+            <td><strong style="color: var(--success);">+200 mL</strong></td>
+            <td>Regulação SUS Fácil. Manter jejum estrito.</td>
+            <td style="text-align: center;"><span style="color: var(--warning-amber); font-weight: 700;">⏳ A Conferir</span></td>
+          </tr>
+          <tr id="row-05">
+            <td><strong>Leito 05</strong></td>
+            <td><strong>Francisca Lima</strong>, 72a</td>
+            <td>DM + ITU</td>
+            <td>PA 130/70 · HGT 210</td>
+            <td>AVP MSD · SVD 14</td>
+            <td><strong style="color: var(--success);">+150 mL</strong></td>
+            <td>HGT 22h (Insulina se > 200). Esvaziar SVD 24h.</td>
+            <td style="text-align: center;"><span style="color: var(--warning-amber); font-weight: 700;">⏳ A Conferir</span></td>
+          </tr>
+          <tr id="row-06" style="background: #F8FAFC;">
+            <td><strong>Leito 06</strong></td>
+            <td colspan="6"><span style="color: var(--text-muted);">[ Leito Vago e Higienizado — Pronto para receber paciente ]</span></td>
+            <td style="text-align: center;"><span style="color: var(--text-muted); font-size: 11px;">Vago</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ==================== VISÃO 3: FOCO NO LEITO INDIVIDUAL ==================== -->
+    <div class="focus-view-container" id="view-focus">
+      <div class="focus-selector-sidebar">
+        <div style="padding: 8px 10px; background: #E2E8F0; font-weight: 700; font-size: 11px; text-transform: uppercase;">
+          Leitos do Setor
+        </div>
+        <div class="focus-bed-item" onclick="selecionarFoco('01', this)">
+          <strong>Leito 01</strong>
+          <span>Maria das Graças (68a)</span>
+        </div>
+        <div class="focus-bed-item" onclick="selecionarFoco('02', this)">
+          <strong>Leito 02</strong>
+          <span>José Carlos (52a)</span>
+        </div>
+        <div class="focus-bed-item active" onclick="selecionarFoco('03', this)">
+          <strong>Leito 03</strong>
+          <span>Raimundo Nonato (64a)</span>
+        </div>
+        <div class="focus-bed-item" onclick="selecionarFoco('04', this)">
+          <strong>Leito 04</strong>
+          <span>Carlos Eduardo (34a)</span>
+        </div>
+        <div class="focus-bed-item" onclick="selecionarFoco('05', this)">
+          <strong>Leito 05</strong>
+          <span>Francisca Lima (72a)</span>
+        </div>
+      </div>
+
+      <div class="focus-detail-pane" id="focus-detail-pane">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+          <div>
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--text-main);">RAIMUNDO NONATO PEREIRA — 64 anos</h3>
+            <p style="color: var(--text-secondary); font-size: 12px; margin-top: 2px;">
+              <strong>Leito 03 — Sala Amarela</strong> · Admissão: 22/09/2026 23:15 · Diagnóstico: AVE Isquêmico (D1)
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <a href="09-evolucao-enfermagem-sae-design.html" class="btn-compact-tool"><i class="ph ph-activity"></i> Abrir SAE</a>
+            <a href="10-checagem-aprazamento-design.html" class="btn-compact-tool"><i class="ph ph-calendar-check"></i> Abrir Cardex</a>
+          </div>
+        </div>
+
+        <div class="tag-alergia" style="padding: 6px 10px; font-size: 12px; width: fit-content;">
+          <i class="ph ph-warning-circle"></i> Alergia Severa a DIPIRONA cadastrada no prontuário.
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div style="border: 1px solid var(--border-light); border-radius: 6px; padding: 10px; background: #F8FAFC;">
+            <h4 style="font-size: 11.5px; font-weight: 700; margin-bottom: 6px; color: var(--text-secondary);"><i class="ph ph-activity"></i> Exame Físico do Turno</h4>
+            <p style="font-size: 11.5px; line-height: 1.45; color: var(--text-main);">
+              Lúcido, orientado, Glasgow 15, hemiparesia braquiocrural D grau IV com leve disartria. Pupilas isocóricas. Ausculta pulmonar limpa sem ruídos adventícios. Abdome flácido. Diurese espontânea de 850 mL no urinol.
+            </p>
+          </div>
+
+          <div style="border: 1px solid var(--border-light); border-radius: 6px; padding: 10px; background: #F8FAFC;">
+            <h4 style="font-size: 11.5px; font-weight: 700; margin-bottom: 6px; color: var(--text-secondary);"><i class="ph ph-clock-counter-clockwise"></i> Histórico de Turnos Anteriores</h4>
+            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;">
+              <div style="padding: 5px 8px; background: #fff; border: 1px solid var(--border-light); border-radius: 4px;">
+                <strong>23/09 07:00:</strong> Enf. Roberto ➔ Enf. Juliana. Paciente estável, admitido na madrugada.
+              </div>
+              <div style="padding: 5px 8px; background: #fff; border: 1px solid var(--border-light); border-radius: 4px;">
+                <strong>22/09 23:30:</strong> Admissão via Demanda Espontânea. Coletado exames e ECG.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border-strong); border-radius: 6px; padding: 10px; background: #FAFAFA;">
+          <h4 style="font-size: 11.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;"><i class="ph ph-list-checks"></i> Pendências para a Noite</h4>
+          <p style="font-size: 11.5px; line-height: 1.45; color: var(--text-secondary);">
+            1. TC de Crânio de controle às 20:30 (aguarda maqueiro).<br>
+            2. Enoxaparina 40mg SC às 20:00.<br>
+            3. HGT às 22h e 06h.<br>
+            4. Monitorização de PA contínua (comunicar plantonista se PAS > 180 ou PAD > 105).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         RODAPÉ UNIVERSAL OFICIAL DO PROGRAMA (3 BOTÕES EXATOS)
+         ======================================================== -->
+    <footer class="ac-footer">
+      <button class="btn-cancel" onclick="window.history.back()"><i class="ph ph-x-circle"></i> Cancelar</button>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-save-draft" onclick="salvarRascunho()"><i class="ph ph-floppy-disk"></i> Salvar</button>
+        <button class="btn-save-print" onclick="salvarEImprimir()"><i class="ph ph-printer"></i> Salvar e Imprimir</button>
+      </div>
+    </footer>
+
+  </div>
+
+</main>
+
+<script>
+  let statusLeitos = {
+    '01': true,
+    '02': true,
+    '03': true,
+    '04': false,
+    '05': false
+  };
+
+  function updateCounts() {
+    let passados = 0;
+    let naoPassados = 0;
+    for (let id of ['01', '02', '03', '04', '05']) {
+      if (statusLeitos[id]) passados++;
+      else naoPassados++;
+    }
+    const elPassed = document.getElementById('c-passed');
+    const elUnpassed = document.getElementById('c-unpassed');
+    if (elPassed) elPassed.innerText = passados;
+    if (elUnpassed) elUnpassed.innerText = naoPassados;
+  }
+
+  function toggleStatus(id) {
+    statusLeitos[id] = !statusLeitos[id];
+    const isOk = statusLeitos[id];
+    const btn = document.getElementById(`btn-st-${id}`);
+    const lbl = document.getElementById(`lbl-st-${id}`);
+    const card = document.getElementById(`card-${id}`);
+    const row = document.getElementById(`row-${id}`);
+
+    if (isOk) {
+      if (btn) {
+        btn.classList.add('active');
+        lbl.innerText = 'Conferido';
+        btn.querySelector('i').className = 'ph ph-check';
+      }
+      if (card) card.classList.add('checked');
+      if (row) {
+        row.classList.add('checked');
+        row.cells[7].innerHTML = '<span style="color: var(--success); font-weight: 700;">✓ Conferido</span>';
+      }
+    } else {
+      if (btn) {
+        btn.classList.remove('active');
+        lbl.innerText = 'A Conferir';
+        btn.querySelector('i').className = 'ph ph-clock';
+      }
+      if (card) card.classList.remove('checked');
+      if (row) {
+        row.classList.remove('checked');
+        row.cells[7].innerHTML = '<span style="color: var(--warning-amber); font-weight: 700;">⏳ A Conferir</span>';
+      }
+    }
+    updateCounts();
+  }
+
+  function marcarTodosPassados() {
+    ['01', '02', '03', '04', '05'].forEach(id => {
+      statusLeitos[id] = true;
+      const btn = document.getElementById(`btn-st-${id}`);
+      const lbl = document.getElementById(`lbl-st-${id}`);
+      const card = document.getElementById(`card-${id}`);
+      const row = document.getElementById(`row-${id}`);
+
+      if (btn) {
+        btn.classList.add('active');
+        lbl.innerText = 'Conferido';
+        btn.querySelector('i').className = 'ph ph-check';
+      }
+      if (card) card.classList.add('checked');
+      if (row) {
+        row.classList.add('checked');
+        row.cells[7].innerHTML = '<span style="color: var(--success); font-weight: 700;">✓ Conferido</span>';
+      }
+    });
+    updateCounts();
+  }
+
+  function addChip(id, text) {
+    const input = document.getElementById(`pend-${id}`);
+    if (input) {
+      if (input.value.trim() !== '') {
+        input.value += '\n• ' + text;
+      } else {
+        input.value = '• ' + text;
+      }
+      input.focus();
+    }
+  }
+
+  function setViewMode(mode) {
+    document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`btn-v-${mode}`).classList.add('active');
+
+    const cards = document.getElementById('view-cards');
+    const table = document.getElementById('view-table');
+    const focus = document.getElementById('view-focus');
+
+    if (mode === 'cards') {
+      cards.style.display = 'flex';
+      table.style.display = 'none';
+      focus.style.display = 'none';
+    } else if (mode === 'table') {
+      cards.style.display = 'none';
+      table.style.display = 'block';
+      focus.style.display = 'none';
+    } else if (mode === 'focus') {
+      cards.style.display = 'none';
+      table.style.display = 'none';
+      focus.style.display = 'flex';
+    }
+  }
+
+  function filtrarLeitos(tipo, btn) {
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cards = document.querySelectorAll('.bed-card');
+    cards.forEach(card => {
+      const isPend = card.dataset.pendencia === 'sim';
+      const isVago = card.dataset.tipo === 'vago';
+      const bedId = card.id.replace('card-', '');
+      const isPassado = statusLeitos[bedId];
+
+      if (tipo === 'todos') {
+        card.style.display = 'flex';
+      } else if (tipo === 'pendentes') {
+        card.style.display = isPend ? 'flex' : 'none';
+      } else if (tipo === 'nao-passados') {
+        card.style.display = (!isPassado && !isVago) ? 'flex' : 'none';
+      } else if (tipo === 'passados') {
+        card.style.display = (isPassado && !isVago) ? 'flex' : 'none';
+      }
+    });
+  }
+
+  function switchSector(sec, btn) {
+    document.querySelectorAll('.sec-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function abrirFocoLeito(id) {
+    setViewMode('focus');
+    const items = document.querySelectorAll('.focus-bed-item');
+    items.forEach(it => {
+      if (it.innerText.includes(`Leito ${id}`)) {
+        selecionarFoco(id, it);
+      }
+    });
+  }
+
+  function selecionarFoco(id, el) {
+    document.querySelectorAll('.focus-bed-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function sincronizarDados() {
+    alert('Sinais vitais e balanço hídrico dos leitos sincronizados com sucesso.');
+  }
+
+  function salvarRascunho() {
+    alert('Passagem de plantão salva com sucesso!');
+  }
+
+  function salvarEImprimir() {
+    alert('Passagem de plantão salva com sucesso! Abrindo modelo de impressão oficial...');
+    window.open('../modelos_impressao_html/15-passagem-plantao-coletiva.html', '_blank');
+  }
+
+  function toggleCardBed(id) {
+    const card = document.getElementById(`card-${id}`);
+    if (!card) return;
+    card.classList.toggle('collapsed');
+  }
+
+  let allBedsExpanded = true;
+  function toggleAllBeds() {
+    allBedsExpanded = !allBedsExpanded;
+    ['01', '02', '03', '04', '05'].forEach(id => {
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        if (allBedsExpanded) {
+          card.classList.remove('collapsed');
+        } else {
+          card.classList.add('collapsed');
+        }
+      }
+    });
+    const lbl = document.getElementById('lbl-toggle-all');
+    const icon = document.getElementById('icon-toggle-all');
+    if (lbl) lbl.innerText = allBedsExpanded ? 'Recolher Todos' : 'Expandir Todos';
+    if (icon) icon.className = allBedsExpanded ? 'ph ph-arrows-in-line-vertical' : 'ph ph-arrows-out-line-vertical';
+  }
+
+  function toggleSidebarMenu() {
+    const sb = document.getElementById('main-sidebar');
+    const overlay = document.getElementById('sb-overlay');
+    if (!sb || !overlay) return;
+    const isOpen = sb.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active', isOpen);
+  }
+
+  // Inicializar contadores
+  updateCounts();
+</script>
+
+</body>
+</html>

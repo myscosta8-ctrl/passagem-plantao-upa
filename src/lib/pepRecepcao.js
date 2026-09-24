@@ -1,5 +1,5 @@
-import { supabase } from './supabaseClient'
-import { registrarEventoAuditoria } from './pepAtendimentos'
+import { supabase } from './supabaseClient.js'
+import { registrarEventoAuditoria } from './pepAtendimentos.js'
 
 // Camada de dados da Recepção (Fase 1b do PEP) — cadastro de identidade
 // completo (Ficha de Identificação do Paciente, UPA Breves) + abertura do

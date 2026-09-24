@@ -1,0 +1,54 @@
+.status-conexao-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  animation: slideDownStatus 0.3s ease-out;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.status-conexao-banner.offline {
+  background-color: #7f1d1d;
+  color: #fef2f2;
+  border-bottom: 2px solid #ef4444;
+}
+
+.status-conexao-banner.online {
+  background-color: #064e3b;
+  color: #ecfdf5;
+  border-bottom: 2px solid #10b981;
+}
+
+.status-conexao-conteudo {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-conexao-icone {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.status-conexao-texto {
+  flex: 1;
+  line-height: 1.35;
+}
+
+@keyframes slideDownStatus {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

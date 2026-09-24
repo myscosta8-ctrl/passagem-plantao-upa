@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient'
+import { supabase } from './supabaseClient.js'
 
 // Indicadores Clínicos (Seção 5 da evolução do PEP) — calculados a partir da
 // tabela `pacientes`, que é onde os dados reais de produção estão hoje

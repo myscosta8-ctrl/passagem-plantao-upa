@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Módulos Clínicos (Fase 2) — UPA 24h</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #0F172A;
+  --bg-surface: #1E293B;
+  --bg-card: #1E293B;
+  --border: #334155;
+  --border-light: #475569;
+  
+  --text-main: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+
+  --med-color: #3B82F6;
+  --enf-color: #14B8A6;
+  --rec-color: #F59E0B;
+  --imp-color: #8B5CF6;
+
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-app); color: var(--text-main); min-height: 100vh; padding: 32px 24px; }
+
+.container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+/* HEADER */
+.header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 24px; }
+.header-left h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px; }
+.header-left h1 i { color: var(--enf-color); }
+.header-left p { color: var(--text-muted); font-size: 14px; margin-top: 6px; }
+.status-badge { background: rgba(20, 184, 166, 0.15); color: var(--enf-color); border: 1px solid var(--enf-color); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+/* SEÇÕES DE MÓDULOS */
+.section-title { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.section-title.enf { color: var(--enf-color); }
+.section-title.med { color: var(--med-color); }
+.section-title.rec { color: var(--rec-color); }
+
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; margin-bottom: 16px; }
+
+.module-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; transition: all 0.2s ease; position: relative; overflow: hidden; }
+.module-card:hover { transform: translateY(-3px); border-color: var(--text-muted); box-shadow: var(--shadow-lg); }
+
+.module-card.enf:hover { border-color: var(--enf-color); }
+.module-card.med:hover { border-color: var(--med-color); }
+.module-card.rec:hover { border-color: var(--rec-color); }
+
+.mc-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.mc-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.module-card.enf .mc-icon { background: rgba(20, 184, 166, 0.15); color: var(--enf-color); }
+.module-card.med .mc-icon { background: rgba(59, 130, 246, 0.15); color: var(--med-color); }
+.module-card.rec .mc-icon { background: rgba(245, 158, 11, 0.15); color: var(--rec-color); }
+
+.mc-num { font-size: 11px; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px; }
+
+.mc-content h3 { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+.mc-content p { font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; }
+
+.mc-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; margin-top: 4px; font-size: 12px; font-weight: 600; }
+.mc-action { display: flex; align-items: center; gap: 6px; }
+.module-card.enf .mc-action { color: var(--enf-color); }
+.module-card.med .mc-action { color: var(--med-color); }
+.module-card.rec .mc-action { color: var(--rec-color); }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <h1><i class="ph ph-heartbeat"></i> Galeria de Módulos Clínicos (Fase 2 — HTML)</h1>
+      <p>Prototipação interativa em alta fidelidade com Design System unificado da UPA 24h Breves.</p>
+    </div>
+    <div class="status-badge">
+      <i class="ph ph-check-circle"></i> Todos os Módulos Prontos para Teste
+    </div>
+  </header>
+
+  <!-- SEÇÃO 1: MÓDULO DE ENFERMAGEM (NOVO) -->
+  <div>
+    <div class="section-title enf">
+      <i class="ph ph-stethoscope"></i> Módulo de Enfermagem (Assistência 24h & SAE)
+    </div>
+    <div class="cards-grid">
+
+      <!-- 08. Admissão de Enfermagem -->
+      <a href="08-admissao-enfermagem-design.html" class="module-card enf">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-clipboard-text"></i></div>
+          <span class="mc-num">Módulo 08</span>
+        </div>
+        <div class="mc-content">
+          <h3>Admissão de Enfermagem (Histórico)</h3>
+          <p>Coleta de dados, fatores de risco, alergias condicionais, Glasgow, exame físico céfalo-podálico interativo e escalas de Braden e Morse.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-browsers"></i> Formulário SAE Completo</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 09. Evolução SAE -->
+      <a href="09-evolucao-enfermagem-sae-design.html" class="module-card enf">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-activity"></i></div>
+          <span class="mc-num">Módulo 09</span>
+        </div>
+        <div class="mc-content">
+          <h3>Evolução Diária de Enfermagem (SAE)</h3>
+          <p>Sinais vitais com escala EVA de dor, Diagnósticos de Enfermagem NANDA-I, Prescrição de Cuidados NIC e linha do tempo de turnos anteriores.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-clock-counter-clockwise"></i> Timeline + SAE</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 10. Cardex / Aprazamento -->
+      <a href="10-checagem-aprazamento-design.html" class="module-card enf">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-calendar-check"></i></div>
+          <span class="mc-num">Módulo 10</span>
+        </div>
+        <div class="mc-content">
+          <h3>Cardex / Aprazamento e Checagem 24h</h3>
+          <p>Grade horária de administração da prescrição médica, checagem interativa com um clique (Feito ✓, Pendente ⊖, Não administrado ✗) e registro de SNs.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-pill"></i> Administração Segura</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 11. Balanço Hídrico -->
+      <a href="11-balanco-hidrico-design.html" class="module-card enf">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-drop"></i></div>
+          <span class="mc-num">Módulo 11</span>
+        </div>
+        <div class="mc-content">
+          <h3>Balanço Hídrico 24 Horas Interativo</h3>
+          <p>Lançamentos de infusões/dietas vs diurese/drenos com cálculo automático em tempo real dos totais, parciais por turno e balanço cumulativo (positivo/negativo).</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-calculator"></i> Cálculo em Tempo Real</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 12. Passagem de Plantão -->
+      <a href="12-passagem-plantao-design.html" class="module-card enf">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-arrows-clockwise"></i></div>
+          <span class="mc-num">Módulo 12</span>
+        </div>
+        <div class="mc-content">
+          <h3>Passagem de Plantão Coletiva (Grade por Setor)</h3>
+          <p>Transição ágil multi-leitos com autopreenchimento de sinais vitais, dispositivos e balanço, conferência com 1 clique por leito, matriz sintética e validação em lote do setor.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-squares-four"></i> Multi-Leitos & Setor</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 13. Nota de Intercorrência -->
+      <a href="13-nota-intercorrencia-enfermagem-design.html" class="module-card enf">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-warning-octagon"></i></div>
+          <span class="mc-num">Módulo 13</span>
+        </div>
+        <div class="mc-content">
+          <h3>Nota de Intercorrência de Enfermagem</h3>
+          <p>Registro rápido de eventos agudos (pico pressórico, hipóxia, queda), sinais vitais no evento, condutas imediatas e notificação médica com horário.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-first-aid"></i> Registro Imediato</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 14. Transferência Estruturada SBAR -->
+      <a href="14-transferencia-paciente-design.html" class="module-card enf">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-ambulance"></i></div>
+          <span class="mc-num">Módulo 14</span>
+        </div>
+        <div class="mc-content">
+          <h3>Transferência Estruturada do Paciente (SBAR)</h3>
+          <p>Transição de cuidado para CTI / Regulação SUS Fácil / Remoção em UTI Móvel estruturada nos 4 pilares: Situação (S), Breve Histórico (B), Avaliação (A) e Recomendações (R).</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-shield-check"></i> Padrão Internacional OMS</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- SEÇÃO 2: MÓDULO MÉDICO -->
+  <div>
+    <div class="section-title med">
+      <i class="ph ph-user-md"></i> Módulo Médico (Prontuário & Prescrição)
+    </div>
+    <div class="cards-grid">
+
+      <!-- 03. Prontuário Médico / Evolução -->
+      <a href="03-prontuario-medico-design.html" class="module-card med">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-activity"></i></div>
+          <span class="mc-num">Módulo 03</span>
+        </div>
+        <div class="mc-content">
+          <h3>Evolução Médica Diária</h3>
+          <p>Evolução clínica SOAP, sinais vitais, hipóteses diagnósticas, avaliação de risco de TEV/Sepse e linha do tempo de evoluções médicas.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-stethoscope"></i> SOAP + Timeline</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 04. Prescrição Médica -->
+      <a href="04-prescricao-medica-design.html" class="module-card med">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-pill"></i></div>
+          <span class="mc-num">Módulo 04</span>
+        </div>
+        <div class="mc-content">
+          <h3>Prescrição Médica Hospitalar</h3>
+          <p>Prescrição completa: Dietas, Soluções/Hidratação, Medicamentos de Horário Fixo com posologia e diluição, e Medicamentos SN.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-file-plus"></i> Prescrição 24h</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 05. Receituário / Alta -->
+      <a href="05-receituario-alta-design.html" class="module-card med">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-file-text"></i></div>
+          <span class="mc-num">Módulo 05</span>
+        </div>
+        <div class="mc-content">
+          <h3>Receituário Médico & Sumário de Alta</h3>
+          <p>Emissão de receita em 2 vias com agrupamento inteligente por via (Oral, Tópica, Injetável) e sumário de alta com orientações domiciliares.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-printer"></i> Receita 2 Vias</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 06. Anamnese e Admissão Médica -->
+      <a href="06-anamnese-admissao-design.html" class="module-card med">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-folder-user"></i></div>
+          <span class="mc-num">Módulo 06</span>
+        </div>
+        <div class="mc-content">
+          <h3>Anamnese, Admissão Médica & Laudo de AIH</h3>
+          <p>Anamnese e exame físico completo com geração do impresso de Admissão Médica e aba lateral dedicada a 1 clique para emissão do Laudo de AIH (SUS/SER-PA).</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-article"></i> Admissão + Laudo AIH</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 07. Plano Terapêutico -->
+      <a href="07-plano-terapeutico-design.html" class="module-card med">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-path"></i></div>
+          <span class="mc-num">Módulo 07</span>
+        </div>
+        <div class="mc-content">
+          <h3>Plano Terapêutico Singular (PTS)</h3>
+          <p>Definição de metas clínicas, pendências diagnósticas, pareceres de especialistas, critérios de alta e planejamento de transferência regulada.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-target"></i> Metas & Desfechos</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 15. Solicitação de Hemoterapia -->
+      <a href="15-solicitacao-hemoterapia-design.html" class="module-card med">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-drop"></i></div>
+          <span class="mc-num">Módulo 15</span>
+        </div>
+        <div class="mc-content">
+          <h3>Solicitação de Hemoterápicos (HEMOPA)</h3>
+          <p>Solicitação oficial de concentrado de hemácias, plaquetas, plasma e crioprecipitado, com Hb/Ht, protocolos transfusionais e geração do Modelo 17.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-printer"></i> Solicitação de Sangue</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 16. Solicitação de Exames & Laudo APAC -->
+      <a href="16-solicitacao-exames-apac-design.html" class="module-card med">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-flask"></i></div>
+          <span class="mc-num">Módulo 16</span>
+        </div>
+        <div class="mc-content">
+          <h3>Exames Internos & Laudo APAC</h3>
+          <p>Solicitação de exames internos (Laboratório, Radiologia Digital e ECG em abas exclusivas) e emissão de Laudo APAC do SUS (Modelos 18, 19, 20 e 21).</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-printer"></i> Lab + Imagem + ECG + APAC</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- SEÇÃO 3: RECEPÇÃO & GESTÃO DE LEITOS -->
+  <div>
+    <div class="section-title rec">
+      <i class="ph ph-identification-card"></i> Recepção & Gestão Visual
+    </div>
+    <div class="cards-grid">
+
+      <!-- 01. Painel de Leitos -->
+      <a href="01-painel-leitos-design.html" class="module-card rec">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-bed"></i></div>
+          <span class="mc-num">Módulo 01</span>
+        </div>
+        <div class="mc-content">
+          <h3>Painel Visual de Leitos</h3>
+          <p>Visão geral dos setores (Sala Vermelha, Amarela, Observação, Isolamento), classificação Manchester em cores, badges de alertas e ocupação.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-kanban"></i> Visão Geral da Unidade</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- 02. Recepção -->
+      <a href="02-recepcao-design.html" class="module-card rec">
+        <div class="mc-top">
+          <div class="mc-icon"><i class="ph ph-user-plus"></i></div>
+          <span class="mc-num">Módulo 02</span>
+        </div>
+        <div class="mc-content">
+          <h3>Recepção & Abertura de Atendimento</h3>
+          <p>Busca rápida por CPF/Nome, cadastro completo com 27 campos oficiais, impressão de Ficha de Identificação e direcionamento de fluxo.</p>
+        </div>
+        <div class="mc-bottom">
+          <span style="color: var(--text-muted);"><i class="ph ph-printer"></i> Cadastro & Ficha</span>
+          <span class="mc-action">Abrir Tela <i class="ph ph-arrow-right"></i></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
