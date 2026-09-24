@@ -71,16 +71,18 @@ Cada fase é um pacote fechado — só avança pra próxima com confirmação ex
 
 Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
-### Fase 0 (fundação do design system) — **parcialmente feita**
+### Fase 0 (fundação do design system) — **quase concluída (atualizado 24/09, noite)**
 
 | Item | Status | Evidência |
 |---|---|---|
 | Paleta/tokens de cor (Manchester, sombras) | ✅ Feito | `src/index.css` tem `--mc-vermelho/laranja/amarelo/verde/azul` e variações `-bg` |
 | Fonte Inter como base da UI | ✅ Feito | `--font-ui: 'Inter'...` importada e aplicada em `body`/inputs; IBM Plex Mono mantida como `--font-mono` pros campos "burocráticos" (parece intencional, não removida) |
-| Ícones Phosphor | ❌ Não feito | Nenhuma ocorrência de `ph ph-` no projeto. `PatientBanner.jsx` usa **emoji** (🪪⚧⚖️🛏️💳⚠️) em vez dos ícones do mockup — inconsistente entre navegadores/SO, e diferente do que o mockup pedia |
-| Sidebar redesenhada | ⚠️ Parcial | `Sidebar.css` só teve 3 linhas alteradas — não é o rebuild completo de `proposta-menu-hamburguer.html` |
-| Componente de app-shell (topbar/banner) | ⚠️ Só no Prontuário Médico | `FichaMedicaHeader.jsx`, `FichaMedicaTabs.jsx`, `PatientBanner.jsx`, `FichaMedicaConteudo.jsx` criados e em uso — mas **o Prontuário de Enfermagem (`FichaClinica.jsx`) não tem equivalente**, continua com o shell antigo |
+| Ícones Phosphor | ✅ Feito (commit `6c971d1`) | Pacote `@phosphor-icons/web` instalado localmente (`src/main.jsx`), emoji trocados por `<i className="ph ph-...">` seguindo os nomes exatos usados nos mockups, em `PatientBanner.jsx`, `FichaMedicaHeader/Tabs.jsx`, `AbaConsulta.jsx`, `AbaAih.jsx`. **Ainda faltam** `AbaApac.jsx`/`AbaExames.jsx` (arquivos antigos, fora do escopo de hoje) e os botões de imprimir em `AbaBalancoHidrico/AbaEventosAdversos/AbaEvolucao.jsx` (ficha-clinica) — ficam pro Fase 1 de cada módulo. |
+| Sidebar redesenhada | ⚠️ Parcial (sem mudança) | `Sidebar.css` só teve 3 linhas alteradas — não é o rebuild completo de `proposta-menu-hamburguer.html` |
+| Componente de app-shell (topbar/banner) | ✅ Feito (commit `6c971d1`) | Prontuário de Enfermagem ganhou `FichaClinicaHeader.jsx`/`FichaClinicaTabs.jsx`/`FichaClinicaConteudo.jsx`, espelhando o padrão do Prontuário Médico e reaproveitando o mesmo `PatientBanner` e a mesma `AtendimentoMedico.css` — nenhuma aba/funcionalidade existente foi removida, só o shell visual mudou. |
 | 3 pilares do Espaço do Paciente | ✅ Já existia antes de hoje | Confirmado em `EspacoPaciente.jsx` (não é pendência) |
+
+**Falta só a Sidebar** pra fechar a Fase 0 por completo.
 
 ### Fase 1 (redesenho de conteúdo por módulo) — **2 de 16 módulos feitos**
 
