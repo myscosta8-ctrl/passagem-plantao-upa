@@ -8,6 +8,7 @@ import {
   AbaFormNovo,
 } from './cadastro-pacientes'
 import './PassagemForm.css'
+import './CadastroPacientes.css'
 
 // Home da Recepção — cadastro de identidade completo (Ficha de Identificação
 // do Paciente, UPA Breves) + abertura do atendimento administrativo. Não
@@ -47,25 +48,25 @@ export default function CadastroPacientes() {
           className={aba === 'buscar' ? 'btn-realocar' : 'btn-copiar'}
           onClick={() => { setAba('buscar'); setPessoaParaEditar(null) }}
         >
-          🔍 Buscar paciente (1º passo)
+          <i className="ph ph-magnifying-glass" /> Buscar paciente (1º passo)
         </button>
         <button
           className={aba === 'novo' ? 'btn-realocar' : 'btn-copiar'}
           onClick={() => setAba('novo')}
         >
-          {pessoaParaEditar ? 'Completar dados' : 'Novo cadastro'}
+          <i className="ph ph-user-plus" /> {pessoaParaEditar ? 'Completar dados' : 'Novo cadastro'}
         </button>
         <button
           className={aba === 'duplicatas' ? 'btn-realocar' : 'btn-copiar'}
           onClick={() => { setAba('duplicatas'); setPessoaParaEditar(null) }}
         >
-          Duplicatas{qtdDuplicatas > 0 ? ` (${qtdDuplicatas})` : ''}
+          <i className="ph ph-copy" /> Duplicatas{qtdDuplicatas > 0 ? ` (${qtdDuplicatas})` : ''}
         </button>
         <button
           className={aba === 'desfecho' ? 'btn-realocar' : 'btn-copiar'}
           onClick={() => { setAba('desfecho'); setPessoaParaEditar(null) }}
         >
-          Desfecho
+          <i className="ph ph-check-square-offset" /> Desfecho
         </button>
       </div>
 
@@ -98,10 +99,10 @@ export default function CadastroPacientes() {
           <p style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>Nenhum cadastro ainda.</p>
         ) : (
           recentes.map((a) => (
-            <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
+            <div key={a.id} className="recepcao-recentes-item">
               <span>{a.pessoas?.nome}</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--c-text-muted)' }}>
-                {a.pessoas?.prontuario_numero} · {new Date(a.criado_em).toLocaleString('pt-BR')}
+              <span className="recepcao-recentes-meta">
+                <i className="ph ph-identification-card" /> {a.pessoas?.prontuario_numero} · {new Date(a.criado_em).toLocaleString('pt-BR')}
               </span>
             </div>
           ))

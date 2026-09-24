@@ -60,15 +60,18 @@ export default function AbaBusca({ enfermeiroId, onAtendimentoAberto, onCompleta
 
   return (
     <div className="card">
-      <form onSubmit={buscar} style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        <input
-          type="text"
-          placeholder="Digite Nome, CPF, CNS ou nº de prontuário..."
-          value={termo}
-          onChange={(e) => setTermo(e.target.value)}
-          autoFocus
-        />
-        <button type="submit" className="submit-btn" style={{ flexShrink: 0, padding: '0 20px', maxWidth: 140 }} disabled={buscando}>
+      <form onSubmit={buscar} className="recepcao-search-bar" style={{ marginBottom: 16 }}>
+        <div className="recepcao-search-input">
+          <i className="ph ph-magnifying-glass" />
+          <input
+            type="text"
+            placeholder="Digite Nome, CPF, CNS ou nº de prontuário..."
+            value={termo}
+            onChange={(e) => setTermo(e.target.value)}
+            autoFocus
+          />
+        </div>
+        <button type="submit" className="submit-btn" style={{ padding: '0 20px', maxWidth: 140 }} disabled={buscando}>
           {buscando ? 'Buscando...' : 'Buscar'}
         </button>
       </form>
@@ -85,22 +88,22 @@ export default function AbaBusca({ enfermeiroId, onAtendimentoAberto, onCompleta
             Nenhum paciente encontrado para <b>"{termo}"</b>.
           </p>
           <button type="button" className="btn-realocar" onClick={onIrParaNovo}>
-            + Iniciar novo cadastro para este paciente
+            <i className="ph ph-plus-circle" /> Iniciar novo cadastro para este paciente
           </button>
         </div>
       )}
 
       {!selecionada && resultados.map((p) => (
-        <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--c-border-light)' }}>
+        <div key={p.id} className="recepcao-resultado-item">
           <div>
-            <div style={{ fontWeight: 600, fontSize: 13.5 }}>{p.nome}</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--c-text-muted)', marginTop: 2 }}>
+            <div className="recepcao-resultado-nome">{p.nome}</div>
+            <div className="recepcao-resultado-meta">
               Prontuário: {p.prontuario_numero || '—'} {p.cpf ? `· CPF: ${p.cpf}` : ''} {p.cns ? `· CNS: ${p.cns}` : ''} {p.data_nascimento ? `· Nasc: ${new Date(p.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="recepcao-resultado-acoes">
             <button type="button" className="modal-btn-secondary" style={{ fontSize: 12 }} onClick={() => onCompletarCadastro?.(p)}>
-              ✏️ Completar dados
+              <i className="ph ph-pencil-simple" /> Completar dados
             </button>
             <button type="button" className="btn-realocar" style={{ fontSize: 12 }} onClick={() => setSelecionada(p)}>
               Abrir atendimento

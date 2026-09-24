@@ -136,7 +136,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
       {/* Alerta de duplicata preventiva enquanto digita */}
       {!pessoaInicial && candidatosDuplicata.length > 0 && (
         <div className="error-box" style={{ marginBottom: 18, background: '#FFF8E6', color: '#8A5D00', borderLeftColor: '#F2A900' }}>
-          <div style={{ fontWeight: 600, marginBottom: 6 }}>⚠ Atenção: Já encontramos pacientes cadastrados com nome semelhante:</div>
+          <div style={{ fontWeight: 600, marginBottom: 6 }}><i className="ph ph-warning" /> Atenção: Já encontramos pacientes cadastrados com nome semelhante:</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {candidatosDuplicata.map((c) => (
               <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '6px 10px', borderRadius: 6, border: '1px solid #ECD99F' }}>

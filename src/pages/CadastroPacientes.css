@@ -1,0 +1,102 @@
+/* Recepção — reskin fiel a mockups-fase2/02-recepcao-design.html (Fase 1, item 2.2).
+   Só a casca visual (busca, abas, cards de resultado) — os campos internos de
+   cada formulário continuam no padrão .form-field/.form-grid compartilhado com
+   o resto do sistema (redesenho deles é tarefa maior, à parte). */
+
+.recepcao-search-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.recepcao-search-bar .recepcao-search-input {
+  position: relative;
+  flex: 1;
+}
+
+.recepcao-search-bar .recepcao-search-input i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--c-text-muted);
+  font-size: 17px;
+  pointer-events: none;
+}
+
+.recepcao-search-bar .recepcao-search-input input {
+  width: 100%;
+  padding: 12px 14px 12px 40px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background: var(--c-surface-inset);
+  transition: 0.15s ease;
+}
+
+.recepcao-search-bar .recepcao-search-input input:focus {
+  border-color: var(--c-primary);
+  background: var(--c-surface);
+  box-shadow: 0 0 0 3px var(--c-primary-light);
+}
+
+.recepcao-search-bar button {
+  flex-shrink: 0;
+}
+
+.recepcao-resultado-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: 0.15s ease;
+  background: var(--c-surface);
+}
+
+.recepcao-resultado-item:hover {
+  border-color: var(--c-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.recepcao-resultado-nome {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--c-text-primary);
+}
+
+.recepcao-resultado-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--c-text-muted);
+  margin-top: 3px;
+}
+
+.recepcao-resultado-acoes {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.recepcao-recentes-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--c-border-light);
+  font-size: 13px;
+}
+
+.recepcao-recentes-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--c-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
