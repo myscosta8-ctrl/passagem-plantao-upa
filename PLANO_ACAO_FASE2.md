@@ -206,6 +206,22 @@ própria, distinta da médica).
 
 ---
 
+## 🚩 Marco: redesenho transversal do padrão `.form-field`/`.form-grid`
+
+Registrado em 24/09 (noite), a pedido explícito do usuário, pra não se perder: o padrão
+antigo de campo de formulário (`.form-field`, `.form-grid`, `.toggle-group`, `.chip-group`
+— classes globais de `PassagemForm.css`) é usado por **praticamente todo módulo ainda não
+redesenhado** (Recepção, Prescrição, Plano Terapêutico, Sumário de Alta, etc.), não é
+específico de nenhum um deles. Cada módulo da Fase 1 vem recebendo só o reskin da própria
+casca (busca, abas, cards) e deixando esse padrão de campo intacto, deliberadamente, pra
+não misturar um redesenho pontual com um redesenho transversal maior.
+
+**Isso não pode ser esquecido no final da Fase 1**: em algum momento (sugestão: depois que
+todos os 16 módulos tiverem passado pelo reskin de casca) vale uma rodada dedicada só pra
+redesenhar esse padrão de campo de formulário — uma vez, no lugar compartilhado
+(`PassagemForm.css`), beneficiando todos os módulos de uma vez, em vez de reinventar campo
+por campo em cada um.
+
 ## Pendências antigas (ainda não feitas, não esquecer)
 
 - `proposta-design-system-vitaloop.html` duplicado (raiz do projeto + dentro de
