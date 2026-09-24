@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome }) {
+export default function FichaClinicaHeader({ onFechar, rotuloAbaAtual, enfermeiroNome }) {
   const [relogio, setRelogio] = useState('');
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome
         <div className="breadcrumb">
           <span>Prontuário Eletrônico</span>
           <span>&gt;</span>
-          <span>Atendimento Médico</span>
+          <span>Atendimento de Enfermagem</span>
           <span>&gt;</span>
           <span className="current">{rotuloAbaAtual}</span>
         </div>
@@ -32,7 +32,7 @@ export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome
           <i className="ph ph-clock" /> {relogio}
         </div>
         <div className="top-avatar">
-          {medicoNome?.slice(0, 2)?.toUpperCase() || 'DR'}
+          {enfermeiroNome?.slice(0, 2)?.toUpperCase() || 'EN'}
         </div>
       </div>
     </header>

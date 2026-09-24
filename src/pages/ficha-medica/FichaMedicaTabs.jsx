@@ -1,12 +1,12 @@
 export const ABAS_PRINCIPAIS = [
-  { chave: 'consulta', rotulo: '1. Anamnese & Admissão', icon: '🩺' },
-  { chave: 'aih', rotulo: '2. Laudo de AIH', icon: '🏥' },
-  { chave: 'plano', rotulo: '3. Plano Terapêutico', icon: '📋' },
-  { chave: 'evolucao', rotulo: '4. Evolução Diária', icon: '📈' },
-  { chave: 'prescricao', rotulo: '5. Prescrição Médica', icon: '💊' },
-  { chave: 'exames', rotulo: '6. Exames & APAC', icon: '🧪' },
-  { chave: 'sangue', rotulo: '7. Hemoterapia', icon: '🩸' },
-  { chave: 'receituario', rotulo: '8. Receituário & Alta', icon: '📄' },
+  { chave: 'consulta', rotulo: '1. Anamnese & Admissão', icon: 'ph-stethoscope' },
+  { chave: 'aih', rotulo: '2. Laudo de AIH', icon: 'ph-hospital' },
+  { chave: 'plano', rotulo: '3. Plano Terapêutico', icon: 'ph-strategy' },
+  { chave: 'evolucao', rotulo: '4. Evolução Diária', icon: 'ph-activity' },
+  { chave: 'prescricao', rotulo: '5. Prescrição Médica', icon: 'ph-pill' },
+  { chave: 'exames', rotulo: '6. Exames & APAC', icon: 'ph-flask' },
+  { chave: 'sangue', rotulo: '7. Hemoterapia', icon: 'ph-drop' },
+  { chave: 'receituario', rotulo: '8. Receituário & Alta', icon: 'ph-file-text' },
 ];
 
 export const ABAS_SECUNDARIAS = [
@@ -30,7 +30,7 @@ export default function FichaMedicaTabs({ aba, onSelecionarAba }) {
           className={`tab-btn ${a.chave === aba ? 'active' : ''}`}
           onClick={() => onSelecionarAba(a.chave)}
         >
-          <span>{a.icon}</span>
+          <i className={`ph ${a.icon}`} />
           <span>{a.rotulo}</span>
         </button>
       ))}

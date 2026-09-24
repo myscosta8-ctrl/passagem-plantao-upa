@@ -46,15 +46,15 @@ export default function PatientBanner({ atendimento }) {
             {isPediatrico && <span className="badge-pediatrico">Modo Pediátrico</span>}
             {alergia && (
               <span className="badge-alergia-pb">
-                <span>⚠️</span> Alergia: {alergia}
+                <i className="ph ph-warning" /> Alergia: {alergia}
               </span>
             )}
           </h1>
           <div className="pb-meta">
-            {idade && <span>🪪 {idade}{dataNasc ? ` (${dataNasc})` : ''}</span>}
-            {sexo && <span>⚧ {sexo}</span>}
-            {leito && <span>🛏️ Leito: {leito}</span>}
-            {cns && <span>💳 CNS: {cns}</span>}
+            {idade && <span><i className="ph ph-user" /> {idade}{dataNasc ? ` (${dataNasc})` : ''}</span>}
+            {sexo && <span><i className={`ph ph-gender-${sexo === 'Fem' ? 'female' : 'male'}`} /> {sexo}</span>}
+            {leito && <span><i className="ph ph-bed" /> Leito: {leito}</span>}
+            {cns && <span><i className="ph ph-identification-card" /> CNS: {cns}</span>}
           </div>
         </div>
         <div className="pb-right">
@@ -64,7 +64,7 @@ export default function PatientBanner({ atendimento }) {
             className="btn-toggle-pb"
             onClick={() => setDrawerAberto(!drawerAberto)}
           >
-            <span>{drawerAberto ? '▲' : '▼'}</span>
+            <i className={`ph ph-caret-${drawerAberto ? 'up' : 'down'}`} />
             <span>{drawerAberto ? 'Ocultar Ficha Oficial' : 'Expandir Ficha Oficial'}</span>
           </button>
         </div>

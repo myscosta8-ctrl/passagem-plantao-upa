@@ -16,6 +16,12 @@ export default defineConfig({
       injectRegister: false, // registrado manualmente em src/main.jsx
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico,woff,woff2}'],
+        // O sprite SVG dos ícones Phosphor (~3MB) é só um fallback legado do
+        // font-face — todo navegador moderno usa o .woff2 (bem menor), que já
+        // fica no precache pelo globPattern acima. Sem isso o build do PWA
+        // falha (excede o limite padrão de 2MB do Workbox) por um arquivo que
+        // não é realmente necessário offline.
+        globIgnores: ['**/Phosphor-*.svg'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,

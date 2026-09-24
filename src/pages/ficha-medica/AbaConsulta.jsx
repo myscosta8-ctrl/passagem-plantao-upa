@@ -143,7 +143,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
       <aside className="tools-pane">
         <div className="pane-header">
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>🩺</span> Triagem & Ferramentas
+            <i className="ph ph-heartbeat" /> Triagem & Ferramentas
           </span>
           <span style={{ fontSize: 10, color: '#94A3B8' }}>Recepção</span>
         </div>
@@ -178,7 +178,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
 
           <div>
             <h3 style={{ fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
-              🪄 Modelos de Admissão
+              <i className="ph ph-magic-wand" /> Modelos de Admissão
             </h3>
             <button
               type="button"
@@ -221,7 +221,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
           ) : historico.length > 0 && (
             <div style={{ marginTop: 8, borderTop: '1px solid #E2E8F0', paddingTop: 10 }}>
               <h3 style={{ fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 6, fontWeight: 700 }}>
-                📋 Consultas Registradas ({historico.length})
+                <i className="ph ph-clock-counter-clockwise" /> Consultas Registradas ({historico.length})
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {historico.map((h) => (
@@ -236,7 +236,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
                         style={{ border: 'none', background: 'transparent', color: '#1D4ED8', fontWeight: 700, cursor: 'pointer', padding: 0 }}
                         onClick={() => onImprimir(h)}
                       >
-                        🖨️ Imprimir
+                        <i className="ph ph-printer" /> Imprimir
                       </button>
                     </div>
                   </div>
@@ -252,7 +252,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
         <div className="cc-header">
           <div className="cc-header-info">
             <h2>
-              <span>🩺</span> Ficha de Consulta e Admissão Médica
+              <i className="ph ph-stethoscope" /> Ficha de Consulta e Admissão Médica
             </h2>
             <span>
               Documento Oficial: Consulta / Admissão Médica (Modelo 10) &bull; UPA 24H BREVES (CNES 0296796)
@@ -264,7 +264,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
           {erro && (
             <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
               <div className="info" style={{ color: '#DC2626' }}>
-                <span>⚠️ {erro}</span>
+                <i className="ph ph-warning" /> {erro}
               </div>
             </div>
           )}
@@ -272,7 +272,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
           {sucesso && (
             <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
               <div className="info" style={{ color: '#166534' }}>
-                <span>✓ {sucesso}</span>
+                <i className="ph ph-check-circle" /> {sucesso}
               </div>
             </div>
           )}
@@ -281,7 +281,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
           {(paciente?.alergias_obs || paciente?.alergias) && (
             <div className="allergy-alert">
               <div className="info">
-                <span style={{ fontSize: 18 }}>⚠️</span>
+                <i className="ph ph-warning-octagon" style={{ fontSize: 18 }} />
                 <span>ALERGIA REGISTRADA: {paciente?.alergias_obs || 'Sem detalhe registrado'}</span>
               </div>
             </div>
@@ -290,7 +290,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
           {/* BLOCO 1: MOTIVO DA CONSULTA E HDA */}
           <div className="form-section-box">
             <div className="form-section-box-title">
-              <span>💬</span> 1. Motivo da Consulta e HDA
+              <i className="ph ph-chat-teardrop-text" /> 1. Motivo da Consulta e HDA
             </div>
 
             <div className="form-group" style={{ marginBottom: 12, marginTop: 6 }}>
@@ -323,7 +323,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
           {/* BLOCO 2: ANTECEDENTES E COMORBIDADES */}
           <div className="form-section-box">
             <div className="form-section-box-title">
-              <span>📁</span> 2. Antecedentes e Comorbidades
+              <i className="ph ph-folder" /> 2. Antecedentes e Comorbidades
             </div>
 
             <div className="form-group" style={{ marginTop: 6 }}>
@@ -352,7 +352,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
           {/* BLOCO 3: EXAME FÍSICO */}
           <div className="form-section-box">
             <div className="form-section-box-title">
-              <span>👤</span> 3. Exame Físico da Admissão
+              <i className="ph ph-person" /> 3. Exame Físico da Admissão
             </div>
 
             <div className="form-group" style={{ marginTop: 6 }}>
@@ -372,7 +372,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
           {/* BLOCO 4: HIPÓTESE DIAGNÓSTICA E CONDUTA */}
           <div className="form-section-box">
             <div className="form-section-box-title">
-              <span>🧠</span> 4. Conclusão, Hipótese Diagnóstica & Conduta
+              <i className="ph ph-brain" /> 4. Conclusão, Hipótese Diagnóstica & Conduta
             </div>
 
             <div className="form-group" style={{ marginTop: 6, marginBottom: 12 }}>
@@ -408,7 +408,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
               className="btn-cancel"
               onClick={() => onIrParaAih && onIrParaAih()}
             >
-              ✕ Cancelar
+              <i className="ph ph-x-circle" /> Cancelar
             </button>
           </div>
 
@@ -419,7 +419,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
               onClick={() => salvar(false)}
               disabled={salvando}
             >
-              💾 {salvando ? 'Salvando...' : 'Salvar'}
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
             </button>
             <button
               type="button"
@@ -427,7 +427,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
               onClick={() => salvar(true)}
               disabled={salvando}
             >
-              🖨️ {salvando ? 'Salvando...' : 'Salvar e Imprimir Admissão'}
+              <i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir Admissão"}
             </button>
             {onIrParaAih && (
               <button

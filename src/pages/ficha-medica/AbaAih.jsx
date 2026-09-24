@@ -180,16 +180,16 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
       <aside className="tools-pane">
         <div className="pane-header">
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 14 }}>🏥</span> Regulação SUS / AIH
+            <i className="ph ph-hospital" style={{ fontSize: 14 }} /> Regulação SUS / AIH
           </span>
           <span style={{ fontSize: 10, color: '#16A34A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span>●</span> Conectado
+            <i className="ph ph-check-circle" /> Conectado
           </span>
         </div>
 
         <div className="tools-body">
           <div className="info-integration-box" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
-            <h3 style={{ color: '#166534', margin: 0, marginBottom: 4 }}>✓ Estabelecimento UPA 24h</h3>
+            <h3 style={{ color: '#166534', margin: 0, marginBottom: 4 }}><i className="ph ph-check" /> Estabelecimento UPA 24h</h3>
             <p style={{ fontSize: 11, color: '#14532D', margin: 0, lineHeight: 1.4 }}>
               <strong>Unidade:</strong> UPA 24H BREVES<br />
               <strong>CNES:</strong> 02.967.963<br />
@@ -199,7 +199,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
           </div>
 
           <div className="info-integration-box">
-            <h3 style={{ margin: 0, marginBottom: 4 }}>⚡ Dados Sincronizados</h3>
+            <h3 style={{ margin: 0, marginBottom: 4 }}><i className="ph ph-sparkle" /> Dados Sincronizados</h3>
             <p style={{ margin: 0, marginBottom: 6 }}>
               Os campos clínicos desta AIH foram preenchidos a partir da <strong>Admissão Médica</strong>:
             </p>
@@ -214,13 +214,13 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
               style={{ width: '100%', justifyContent: 'center' }}
               onClick={reSyncAll}
             >
-              🔄 Re-sincronizar Agora
+              <i className="ph ph-arrows-clockwise" /> Re-sincronizar Agora
             </button>
           </div>
 
           <div>
             <h3 style={{ fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
-              💉 Procedimentos SIGTAP Frequentes
+              <i className="ph ph-needle" /> Procedimentos SIGTAP Frequentes
             </h3>
             {PROCEDIMENTOS_RAPIDOS.map((p) => (
               <button
@@ -233,7 +233,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
                   <strong>{p.rotulo}</strong>
                   <span>{p.codFormatado}</span>
                 </div>
-                <span style={{ color: '#16A34A', fontSize: 14 }}>✓</span>
+                <i className="ph ph-check-circle" style={{ color: "#16A34A", fontSize: 14 }} />
               </button>
             ))}
           </div>
@@ -244,7 +244,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
           ) : historico.length > 0 && (
             <div style={{ marginTop: 8, borderTop: '1px solid #E2E8F0', paddingTop: 10 }}>
               <h3 style={{ fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 6, fontWeight: 700 }}>
-                📋 Laudos Anteriores ({historico.length})
+                <i className="ph ph-clock-counter-clockwise" /> Laudos Anteriores ({historico.length})
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {historico.map((h) => (
@@ -259,7 +259,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
                         style={{ border: 'none', background: 'transparent', color: '#1D4ED8', fontWeight: 700, cursor: 'pointer', padding: 0 }}
                         onClick={() => onImprimir(h)}
                       >
-                        🖨️ Imprimir
+                        <i className="ph ph-printer" /> Imprimir
                       </button>
                     </div>
                   </div>
@@ -275,7 +275,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
         <div className="cc-header">
           <div className="cc-header-info">
             <h2>
-              <span>🏥</span> Laudo para Solicitação de AIH (SUS) — UPA 24h Breves
+              <i className="ph ph-hospital" /> Laudo para Solicitação de AIH (SUS) — UPA 24h Breves
             </h2>
             <span>
               Documento Oficial: Laudo AIH Oficial (Modelo 16) &bull; Estabelecimento: <strong>UPA 24H BREVES (CNES 0296796)</strong>
@@ -287,7 +287,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
           {erro && (
             <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
               <div className="info" style={{ color: '#DC2626' }}>
-                <span>⚠️ {erro}</span>
+                <i className="ph ph-warning" /> {erro}
               </div>
             </div>
           )}
@@ -295,7 +295,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
           {sucesso && (
             <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
               <div className="info" style={{ color: '#166534' }}>
-                <span>✓ {sucesso}</span>
+                <i className="ph ph-check-circle" /> {sucesso}
               </div>
             </div>
           )}
@@ -303,11 +303,11 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
           {/* BANNER OFICIAL AIH */}
           <div className="aih-banner-top">
             <div className="aih-banner-title">
-              <h3><span>📄</span> Laudo de Solicitação de Internação Hospitalar (AIH)</h3>
+              <h3><i className="ph ph-file-text" /> Laudo de Solicitação de Internação Hospitalar (AIH)</h3>
               <p>Portaria SAS/MS nº 113 &bull; Documento Oficial SUS &bull; UPA 24h Breves (CNES 0296796)</p>
             </div>
             <div className="aih-sync-pill">
-              <span style={{ color: '#86EFAC' }}>✓</span> Dados Sincronizados da Admissão
+              <i className="ph ph-sparkle" style={{ color: "#86EFAC" }} /> Dados Sincronizados da Admissão
             </div>
           </div>
 
@@ -679,7 +679,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
               className="btn-cancel"
               onClick={() => onIrParaAdmissao && onIrParaAdmissao()}
             >
-              ✕ Cancelar
+              <i className="ph ph-x-circle" /> Cancelar
             </button>
           </div>
 
@@ -699,7 +699,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
               onClick={() => salvar(false)}
               disabled={salvando}
             >
-              💾 {salvando ? 'Salvando...' : 'Salvar'}
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
             </button>
             <button
               type="button"
@@ -707,7 +707,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
               onClick={() => salvar(true)}
               disabled={salvando}
             >
-              🏥 {salvando ? 'Salvando...' : 'Salvar e Imprimir Laudo AIH'}
+              <i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir Laudo AIH"}
             </button>
           </div>
         </div>

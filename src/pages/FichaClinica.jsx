@@ -1,91 +1,54 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../lib/AuthContext';
-import FichaClinicaPrint from './FichaClinicaPrint';
-import AbaHistoricoEnfermagem from './AbaHistoricoEnfermagem';
+const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'));
+import PatientBanner from './ficha-medica/PatientBanner';
 import ResumoPaciente from './ficha-clinica/ResumoPaciente';
-import AbaAdmissao from './ficha-clinica/AbaAdmissao';
-import AbaSinaisVitais from './ficha-clinica/AbaSinaisVitais';
-import AbaEvolucao from './ficha-clinica/AbaEvolucao';
-import AbaDispositivos from './ficha-clinica/AbaDispositivos';
-import AbaBalancoHidrico from './ficha-clinica/AbaBalancoHidrico';
-import AbaEscalas from './ficha-clinica/AbaEscalas';
-import AbaAlergias from './ficha-clinica/AbaAlergias';
-import AbaIsolamento from './ficha-clinica/AbaIsolamento';
-import AbaSbar from './ficha-clinica/AbaSbar';
-import AbaEventosAdversos from './ficha-clinica/AbaEventosAdversos';
+import FichaClinicaHeader from './ficha-clinica/FichaClinicaHeader';
+import FichaClinicaTabs, { ABAS_PRINCIPAIS, ABAS_SECUNDARIAS } from './ficha-clinica/FichaClinicaTabs';
+import FichaClinicaConteudo from './ficha-clinica/FichaClinicaConteudo';
+import './ficha-medica/AtendimentoMedico.css';
 import './PassagemForm.css';
 import './FichaClinica.css';
 
-export default function FichaClinica({ atendimento, onFechar, embedded = false }) {
+export default function FichaClinica({ atendimento, onFechar }) {
   const { enfermeiro } = useAuth();
   const [aba, setAba] = useState('admissao');
   const [imprimindo, setImprimindo] = useState(null);
 
   if (imprimindo) {
     return (
-      <FichaClinicaPrint
-        atendimentoId={atendimento.atendimento_id}
-        tipo={imprimindo.tipo}
-        registro={imprimindo.registro}
-        onVoltar={() => setImprimindo(null)}
-      />
+      <Suspense fallback={<div className="print-page" style={{ padding: 20, color: '#94A3B8' }}>Carregando visualização de impressão...</div>}>
+        <FichaClinicaPrint
+          atendimentoId={atendimento.atendimento_id}
+          tipo={imprimindo.tipo}
+          registro={imprimindo.registro}
+          onVoltar={() => setImprimindo(null)}
+        />
+      </Suspense>
     );
   }
 
-  const corpo = (
-    <div className={embedded ? "ficha-clinica-embedded" : "form-panel"} onClick={(e) => e.stopPropagation()}>
-      {!embedded && (
-        <div className="form-header">
-          <span className="form-leito-tag">Ficha clínica — {atendimento.nome}</span>
-          <button className="form-header-close" onClick={onFechar}>×</button>
-        </div>
-      )}
+  const abaAtivaObj = ABAS_PRINCIPAIS.find((a) => a.chave === aba) || ABAS_SECUNDARIAS.find((a) => a.chave === aba);
+  const rotuloAbaAtual = abaAtivaObj ? abaAtivaObj.rotulo : 'Atendimento de Enfermagem';
 
-      <ResumoPaciente atendimento={atendimento} />
-
-      <div className="form-toolbar clinical-tabs">
-        <button type="button" className={`tab-btn ${aba === 'admissao' ? 'active' : ''}`} onClick={() => setAba('admissao')}>Admissão</button>
-        <button type="button" className={`tab-btn ${aba === 'admissaoEnfermagem' ? 'active' : ''}`} onClick={() => setAba('admissaoEnfermagem')}>Admissão de Enfermagem</button>
-        <button type="button" className={`tab-btn ${aba === 'sinaisVitais' ? 'active' : ''}`} onClick={() => setAba('sinaisVitais')}>Sinais Vitais</button>
-        <button type="button" className={`tab-btn ${aba === 'evolucao' ? 'active' : ''}`} onClick={() => setAba('evolucao')}>Evolução</button>
-        <button type="button" className={`tab-btn ${aba === 'dispositivos' ? 'active' : ''}`} onClick={() => setAba('dispositivos')}>Dispositivos</button>
-        <button type="button" className={`tab-btn ${aba === 'balanco' ? 'active' : ''}`} onClick={() => setAba('balanco')}>Balanço Hídrico</button>
-        <button type="button" className={`tab-btn ${aba === 'escalas' ? 'active' : ''}`} onClick={() => setAba('escalas')}>Escalas</button>
-        <button type="button" className={`tab-btn ${aba === 'alergias' ? 'active' : ''}`} onClick={() => setAba('alergias')}>Alergias</button>
-        <button type="button" className={`tab-btn ${aba === 'isolamento' ? 'active' : ''}`} onClick={() => setAba('isolamento')}>Isolamento</button>
-        <button type="button" className={`tab-btn ${aba === 'sbar' ? 'active' : ''}`} onClick={() => setAba('sbar')}>Transferência SBAR</button>
-        <button type="button" className={`tab-btn ${aba === 'eventosAdversos' ? 'active' : ''}`} onClick={() => setAba('eventosAdversos')}>Eventos Adversos</button>
-      </div>
-
-      {aba === 'admissao' && <AbaAdmissao atendimento={atendimento} autorId={enfermeiro?.id} />}
-      {aba === 'admissaoEnfermagem' && (
-        <AbaHistoricoEnfermagem
+  return (
+    <div className="atendimento-medico-container" onClick={(e) => e.stopPropagation()}>
+      <FichaClinicaHeader
+        onFechar={onFechar}
+        rotuloAbaAtual={rotuloAbaAtual}
+        enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
+      />
+      <div className="workspace">
+        <PatientBanner atendimento={atendimento} />
+        <ResumoPaciente atendimento={atendimento} />
+        <FichaClinicaTabs aba={aba} onSelecionarAba={setAba} />
+        <FichaClinicaConteudo
           atendimento={atendimento}
-          medicoId={enfermeiro?.id}
-          onImprimir={(registro) => setImprimindo({
-            tipo: registro._variante === 'projeto' ? 'historico_enfermagem_projeto' : 'historico_enfermagem_fiel',
-            registro
-          })}
+          autorId={enfermeiro?.id}
+          aba={aba}
+          onImprimir={setImprimindo}
         />
-      )}
-      {aba === 'sinaisVitais' && <AbaSinaisVitais atendimento={atendimento} autorId={enfermeiro?.id} />}
-      {aba === 'evolucao' && <AbaEvolucao atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'evolucao_sae', registro })} />}
-      {aba === 'dispositivos' && <AbaDispositivos atendimento={atendimento} />}
-      {aba === 'balanco' && <AbaBalancoHidrico atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'balanco', registro })} />}
-      {aba === 'escalas' && <AbaEscalas atendimento={atendimento} />}
-      {aba === 'alergias' && <AbaAlergias atendimento={atendimento} />}
-      {aba === 'isolamento' && <AbaIsolamento atendimento={atendimento} autorId={enfermeiro?.id} />}
-      {aba === 'sbar' && <AbaSbar atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'sbar', registro })} />}
-      {aba === 'eventosAdversos' && <AbaEventosAdversos atendimento={atendimento} autorId={enfermeiro?.id} onImprimir={(registro) => setImprimindo({ tipo: 'intercorrencia', registro })} />}
-
-      {!embedded && (
-        <div className="form-footer">
-          <button className="btn-fechar" onClick={onFechar}>Fechar</button>
-        </div>
-      )}
+      </div>
     </div>
   );
-
-  if (embedded) return corpo;
-  return <div className="form-overlay">{corpo}</div>;
 }
