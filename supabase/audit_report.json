@@ -1,0 +1,963 @@
+{
+  "existing": [
+    {
+      "table": "enfermeiros",
+      "rowCount": 0,
+      "totalExpected": 14,
+      "presentCols": [
+        "id",
+        "nome",
+        "nome_exibicao",
+        "crm",
+        "role",
+        "ativo",
+        "pep_beta",
+        "primeiro_acesso",
+        "deve_trocar_senha"
+      ],
+      "missingCols": [
+        "email",
+        "senha_hash",
+        "coren",
+        "criado_em",
+        "atualizado_em"
+      ]
+    },
+    {
+      "table": "setores",
+      "rowCount": 0,
+      "totalExpected": 6,
+      "presentCols": [
+        "id",
+        "nome",
+        "ordem"
+      ],
+      "missingCols": [
+        "sigla",
+        "ativo",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "leitos",
+      "rowCount": 0,
+      "totalExpected": 6,
+      "presentCols": [
+        "id",
+        "setor_id",
+        "numero",
+        "tipo",
+        "ativo",
+        "criado_em"
+      ],
+      "missingCols": []
+    },
+    {
+      "table": "plantoes",
+      "rowCount": 0,
+      "totalExpected": 12,
+      "presentCols": [
+        "id",
+        "turno",
+        "status",
+        "encerrado_em"
+      ],
+      "missingCols": [
+        "data_inicio",
+        "data_fim",
+        "enfermeiro_chefe_id",
+        "observacoes",
+        "curativo_ok",
+        "carrinho_ok",
+        "nota_extra",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "plantao_profissionais",
+      "rowCount": 0,
+      "totalExpected": 5,
+      "presentCols": [
+        "plantao_id"
+      ],
+      "missingCols": [
+        "id",
+        "enfermeiro_id",
+        "funcao",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "pacientes",
+      "rowCount": 0,
+      "totalExpected": 16,
+      "presentCols": [
+        "id",
+        "nome",
+        "diagnostico",
+        "idade",
+        "sexo",
+        "data_admissao",
+        "data_nascimento",
+        "alergias",
+        "alergias_obs",
+        "status_internacao",
+        "status",
+        "classificacao_manchester",
+        "leito_atual_id",
+        "ultima_alteracao_por",
+        "ultima_alteracao_em"
+      ],
+      "missingCols": [
+        "criado_em"
+      ]
+    },
+    {
+      "table": "passagens",
+      "rowCount": 0,
+      "totalExpected": 19,
+      "presentCols": [
+        "id",
+        "plantao_id",
+        "paciente_id",
+        "atendimento_id",
+        "leito_id",
+        "pendencias",
+        "exame_a_realizar_data",
+        "exame_a_realizar_hora",
+        "exame_a_realizar_local",
+        "alta_sala_vermelha",
+        "alta_sala_vermelha_data",
+        "alta_sala_vermelha_hora",
+        "criado_em",
+        "atualizado_em"
+      ],
+      "missingCols": [
+        "enfermeiro_id",
+        "diagnostico",
+        "cuidados",
+        "intercorrencias",
+        "exames_texto"
+      ]
+    },
+    {
+      "table": "realocacoes",
+      "rowCount": 0,
+      "totalExpected": 8,
+      "presentCols": [
+        "id",
+        "paciente_id",
+        "leito_origem_id",
+        "leito_destino_id",
+        "enfermeiro_id"
+      ],
+      "missingCols": [
+        "atendimento_id",
+        "motivo",
+        "realocado_em"
+      ]
+    },
+    {
+      "table": "configuracoes",
+      "rowCount": 0,
+      "totalExpected": 4,
+      "presentCols": [
+        "chave",
+        "valor",
+        "atualizado_em"
+      ],
+      "missingCols": [
+        "descricao"
+      ]
+    },
+    {
+      "table": "eventos_auditoria",
+      "rowCount": 0,
+      "totalExpected": 9,
+      "presentCols": [
+        "id",
+        "acao"
+      ],
+      "missingCols": [
+        "usuario_id",
+        "entidade",
+        "entidade_id",
+        "dados_anteriores",
+        "dados_novos",
+        "ip",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "pessoas",
+      "rowCount": 0,
+      "totalExpected": 28,
+      "presentCols": [
+        "id",
+        "prontuario_numero",
+        "nome",
+        "nome_mae",
+        "nome_pai",
+        "data_nascimento",
+        "idade_informada",
+        "sexo",
+        "raca_cor",
+        "religiao",
+        "nacionalidade",
+        "rg",
+        "cpf",
+        "cns",
+        "numero_registro_nascimento",
+        "telefone",
+        "endereco",
+        "endereco_numero",
+        "bairro",
+        "cidade",
+        "mesclado_com_id",
+        "criado_em"
+      ],
+      "missingCols": [
+        "naturalidade",
+        "telefone_contato",
+        "uf",
+        "cep",
+        "municipio_ibge",
+        "atualizado_em"
+      ]
+    },
+    {
+      "table": "pessoas_duplicatas",
+      "rowCount": 0,
+      "totalExpected": 8,
+      "presentCols": [
+        "id",
+        "status",
+        "revisado_por",
+        "revisado_em",
+        "criado_em"
+      ],
+      "missingCols": [
+        "pessoa_origem_id",
+        "pessoa_duplicada_id",
+        "similaridade_score"
+      ]
+    },
+    {
+      "table": "pessoas_fusoes",
+      "rowCount": 0,
+      "totalExpected": 6,
+      "presentCols": [
+        "id",
+        "pessoa_mantida_id",
+        "motivo"
+      ],
+      "missingCols": [
+        "pessoa_mesclada_id",
+        "realizado_por",
+        "realizado_em"
+      ]
+    },
+    {
+      "table": "atendimentos",
+      "rowCount": 0,
+      "totalExpected": 16,
+      "presentCols": [
+        "id",
+        "numero_atendimento",
+        "pessoa_id",
+        "setor_id",
+        "tipo",
+        "carater",
+        "convenio",
+        "status",
+        "status_internacao",
+        "classificacao_risco_cor",
+        "regulacao_flag",
+        "regulacao_tipo",
+        "regulacao_aberta_em",
+        "criado_em"
+      ],
+      "missingCols": [
+        "tipo_entrada",
+        "encerrado_em"
+      ]
+    },
+    {
+      "table": "internacoes",
+      "rowCount": 0,
+      "totalExpected": 11,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "internado_em",
+        "diagnostico_admissao"
+      ],
+      "missingCols": [
+        "cid_admissao",
+        "medico_admissao_id",
+        "previsao_alta",
+        "desfecho_tipo",
+        "desfecho_em",
+        "desfecho_obs",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "leito_ocupacoes",
+      "rowCount": 0,
+      "totalExpected": 7,
+      "presentCols": [
+        "id",
+        "leito_id",
+        "atendimento_id",
+        "alocado_em",
+        "status"
+      ],
+      "missingCols": [
+        "desocupado_em",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "alergias",
+      "rowCount": 0,
+      "totalExpected": 8,
+      "presentCols": [
+        "id",
+        "pessoa_id",
+        "substancia",
+        "reacao",
+        "gravidade",
+        "status",
+        "criado_em"
+      ],
+      "missingCols": [
+        "registrado_por"
+      ]
+    },
+    {
+      "table": "medicacoes_continuas",
+      "rowCount": 0,
+      "totalExpected": 9,
+      "presentCols": [
+        "id",
+        "pessoa_id",
+        "medicamento",
+        "dose",
+        "frequencia",
+        "status",
+        "registrado_por",
+        "registrado_em"
+      ],
+      "missingCols": [
+        "criado_em"
+      ]
+    },
+    {
+      "table": "admissoes_enfermagem",
+      "rowCount": 0,
+      "totalExpected": 25,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "criado_em"
+      ],
+      "missingCols": [
+        "enfermeiro_id",
+        "coleta_dados",
+        "procedencia",
+        "motivo_procura",
+        "diagnostico_medico",
+        "medicamentos_uso",
+        "alergias_relatadas",
+        "antecedentes_pessoais",
+        "sinais_vitais_admissao",
+        "exame_neurologico",
+        "exame_respiratorio",
+        "exame_cardiovascular",
+        "exame_gastrointestinal",
+        "exame_genitourinario",
+        "exame_pele_mucosas",
+        "dispositivos_instalados",
+        "diagnosticos_enfermagem",
+        "intervencoes_plano",
+        "parecer_estado_emocional",
+        "parecer_estado_cognitivo",
+        "parecer_obs",
+        "info_complementares"
+      ]
+    },
+    {
+      "table": "historico_enfermagem",
+      "rowCount": 0,
+      "totalExpected": 13,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "coleta_dados",
+        "medicamentos_uso",
+        "info_complementares",
+        "parecer_estado_emocional",
+        "parecer_estado_cognitivo",
+        "parecer_obs",
+        "criado_em"
+      ],
+      "missingCols": [
+        "enfermeiro_id",
+        "procedencia",
+        "motivo_procura",
+        "diagnostico_medico"
+      ]
+    },
+    {
+      "table": "evolucoes",
+      "rowCount": 0,
+      "totalExpected": 10,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "texto",
+        "criado_em"
+      ],
+      "missingCols": [
+        "enfermeiro_id",
+        "subjetivo",
+        "objetivo",
+        "avaliacao",
+        "plano",
+        "intercorrencia"
+      ]
+    },
+    {
+      "table": "balanco_hidrico",
+      "rowCount": 0,
+      "totalExpected": 10,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "registrado_por",
+        "tipo",
+        "via",
+        "volume_ml",
+        "registrado_em"
+      ],
+      "missingCols": [
+        "descricao",
+        "horario_registro",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "dispositivos_invasivos",
+      "rowCount": 0,
+      "totalExpected": 12,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "tipo",
+        "removido_em"
+      ],
+      "missingCols": [
+        "instalado_por",
+        "localizacao",
+        "calibre",
+        "instalado_em",
+        "status",
+        "curativo_data",
+        "observacoes",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "sinais_vitais",
+      "rowCount": 0,
+      "totalExpected": 16,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "registrado_por",
+        "temperatura",
+        "dor_escala"
+      ],
+      "missingCols": [
+        "pressao_arterial_sistolica",
+        "pressao_arterial_diastolica",
+        "frequencia_cardiaca",
+        "frequencia_respiratoria",
+        "saturacao_oxigenio",
+        "hgt",
+        "glasgow",
+        "horario_medicao",
+        "observacoes",
+        "criado_em",
+        "medido_em"
+      ]
+    },
+    {
+      "table": "isolamentos",
+      "rowCount": 0,
+      "totalExpected": 10,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "prescrito_por",
+        "tipo",
+        "motivo"
+      ],
+      "missingCols": [
+        "microorganismo",
+        "iniciado_em",
+        "suspenso_em",
+        "status",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "escalas_enfermagem",
+      "rowCount": 0,
+      "totalExpected": 9,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "tipo",
+        "avaliado_em"
+      ],
+      "missingCols": [
+        "avaliado_por",
+        "escore_total",
+        "classificacao_risco",
+        "itens_detalhados",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "eventos_adversos",
+      "rowCount": 0,
+      "totalExpected": 10,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "gravidade"
+      ],
+      "missingCols": [
+        "notificado_por",
+        "tipo_evento",
+        "descricao_detalhada",
+        "condutas_imediatas",
+        "data_hora_ocorrencia",
+        "notificado_nsp",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "transferencias_sbar",
+      "rowCount": 0,
+      "totalExpected": 11,
+      "presentCols": [
+        "id",
+        "setor_destino_id",
+        "criado_em"
+      ],
+      "missingCols": [
+        "atendimento_id",
+        "transferido_por",
+        "setor_origem_id",
+        "situacao",
+        "breve_historico",
+        "avaliacao",
+        "recomendacao",
+        "data_hora_transferencia"
+      ]
+    },
+    {
+      "table": "consultas_medicas",
+      "rowCount": 0,
+      "totalExpected": 13,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "medico_id",
+        "queixa_principal",
+        "campos_admissao",
+        "criado_em"
+      ],
+      "missingCols": [
+        "historia_molestia_atual",
+        "antecedentes_pessoais",
+        "antecedentes_familiares",
+        "exame_fisico_geral",
+        "hipoteses_diagnosticas",
+        "cid_principal",
+        "conduta"
+      ]
+    },
+    {
+      "table": "evolucoes_medicas",
+      "rowCount": 0,
+      "totalExpected": 23,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "diagnosticos",
+        "historia_doenca_atual",
+        "comorbidades",
+        "comorbidades_texto",
+        "reconciliacao_medicamentosa",
+        "reconciliacao_texto",
+        "alergias",
+        "alergias_texto",
+        "risco_tev",
+        "criterios_sepse",
+        "antibioticoterapia",
+        "evolucao_dia",
+        "exame_fisico",
+        "plano_terapeutico",
+        "exames_laboratorio",
+        "aguarda_exames",
+        "aguarda_exames_texto",
+        "data_prevista_alta",
+        "conduta_medica",
+        "criado_em"
+      ],
+      "missingCols": [
+        "medico_id"
+      ]
+    },
+    {
+      "table": "catalogo_medicamentos",
+      "rowCount": 0,
+      "totalExpected": 9,
+      "presentCols": [
+        "id",
+        "nome",
+        "forma_farmaceutica",
+        "via_padrao",
+        "ativo",
+        "criado_em"
+      ],
+      "missingCols": [
+        "concentracao",
+        "controlado",
+        "antimicrobiano"
+      ]
+    },
+    {
+      "table": "cid_catalog",
+      "rowCount": 0,
+      "totalExpected": 4,
+      "presentCols": [
+        "codigo",
+        "descricao"
+      ],
+      "missingCols": [
+        "sexo",
+        "agravo"
+      ]
+    },
+    {
+      "table": "prescricoes_medicas",
+      "rowCount": 0,
+      "totalExpected": 11,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "medico_id",
+        "status",
+        "criado_em",
+        "atualizado_em"
+      ],
+      "missingCols": [
+        "data_prescricao",
+        "validade_horas",
+        "dieta",
+        "cuidados_gerais",
+        "orientacoes_enfermagem"
+      ]
+    },
+    {
+      "table": "prescricao_itens",
+      "rowCount": 0,
+      "totalExpected": 12,
+      "presentCols": [
+        "id",
+        "prescricao_id",
+        "medicamento_nome",
+        "dose",
+        "via",
+        "frequencia",
+        "diluicao",
+        "criado_em"
+      ],
+      "missingCols": [
+        "velocidade_infusao",
+        "horarios",
+        "observacoes",
+        "status"
+      ]
+    },
+    {
+      "table": "exames_solicitados",
+      "rowCount": 0,
+      "totalExpected": 12,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "status",
+        "criado_em"
+      ],
+      "missingCols": [
+        "solicitado_por",
+        "tipo",
+        "exames",
+        "justificativa_clinica",
+        "urgencia",
+        "laudo_resultado",
+        "concluido_em",
+        "modalidade"
+      ]
+    },
+    {
+      "table": "notas_intercorrencia_medica",
+      "rowCount": 0,
+      "totalExpected": 9,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "criado_em"
+      ],
+      "missingCols": [
+        "medico_id",
+        "descricao_evento",
+        "conduta_tomada",
+        "prescricao_urgencia",
+        "sinais_vitais_evento",
+        "data_hora"
+      ]
+    },
+    {
+      "table": "planos_terapeuticos",
+      "rowCount": 0,
+      "totalExpected": 10,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "criado_em"
+      ],
+      "missingCols": [
+        "responsavel_id",
+        "metas_curto_prazo",
+        "metas_medio_prazo",
+        "estrategia_ventilatoria",
+        "desmame_sedacao",
+        "programacao_cirurgica",
+        "pareceres_especializados"
+      ]
+    },
+    {
+      "table": "receitas_medicas",
+      "rowCount": 0,
+      "totalExpected": 8,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "criado_por",
+        "itens",
+        "criado_em"
+      ],
+      "missingCols": [
+        "tipo",
+        "orientacoes_gerais",
+        "uso_continuo"
+      ]
+    },
+    {
+      "table": "aih_solicitacoes",
+      "rowCount": 0,
+      "totalExpected": 17,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "solicitante_id",
+        "procedimento_principal_codigo",
+        "procedimento_principal_nome",
+        "procedimento_secundario_codigo",
+        "cid_principal",
+        "cid_secundario",
+        "campos_formulario",
+        "status",
+        "criado_em"
+      ],
+      "missingCols": [
+        "numero_aih",
+        "carater_internacao",
+        "cid_causas_associadas",
+        "sinais_sintomas_clinicos",
+        "condicoes_justificam_internacao",
+        "resultados_provas_diagnosticas"
+      ]
+    },
+    {
+      "table": "apac_solicitacoes",
+      "rowCount": 0,
+      "totalExpected": 13,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "procedimento_codigo",
+        "procedimento_nome",
+        "quantidade",
+        "cid_principal",
+        "cid_secundario",
+        "justificativa",
+        "numero_autorizacao"
+      ],
+      "missingCols": [
+        "medico_id",
+        "campos_formulario",
+        "status",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "solicitacoes_atm",
+      "rowCount": 0,
+      "totalExpected": 14,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "dose",
+        "criado_em"
+      ],
+      "missingCols": [
+        "medico_id",
+        "antimicrobiano",
+        "tempo_provavel_dias",
+        "foco_infeccioso",
+        "indicacao_tipo",
+        "germe_isolado",
+        "antibiograma",
+        "justificativa",
+        "parecer_ccih",
+        "status"
+      ]
+    },
+    {
+      "table": "solicitacoes_sangue",
+      "rowCount": 0,
+      "totalExpected": 12,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "solicitado_por",
+        "indicacao_clinica",
+        "campos_extra",
+        "criado_em"
+      ],
+      "missingCols": [
+        "urgencia",
+        "hemocomponentes",
+        "peso",
+        "hb_ht",
+        "antecedentes_transfusionais",
+        "status"
+      ]
+    },
+    {
+      "table": "solicitacoes_hemoterapia",
+      "rowCount": 0,
+      "totalExpected": 7,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "criado_em"
+      ],
+      "missingCols": [
+        "solicitado_por",
+        "indicacao_clinica",
+        "hemocomponentes",
+        "status"
+      ]
+    },
+    {
+      "table": "sorologias_notificaveis",
+      "rowCount": 0,
+      "totalExpected": 10,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "criado_em"
+      ],
+      "missingCols": [
+        "notificado_por",
+        "agravo_nome",
+        "cid10",
+        "data_primeiros_sintomas",
+        "notificado_sinan",
+        "numero_notificacao_sinan",
+        "observacoes"
+      ]
+    },
+    {
+      "table": "sumarios_alta",
+      "rowCount": 0,
+      "totalExpected": 14,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "cid_alta",
+        "data_alta",
+        "criado_em"
+      ],
+      "missingCols": [
+        "medico_id",
+        "diagnostico_principal_alta",
+        "diagnosticos_secundarios",
+        "resumo_evolucao_internacao",
+        "procedimentos_realizados",
+        "exames_relevantes",
+        "condicao_alta",
+        "orientacoes_pos_alta",
+        "medicamentos_prescritos_alta"
+      ]
+    },
+    {
+      "table": "regulacao_atualizacoes",
+      "rowCount": 0,
+      "totalExpected": 9,
+      "presentCols": [
+        "id",
+        "atendimento_id",
+        "atualizado_por",
+        "atualizado_em"
+      ],
+      "missingCols": [
+        "numero_registro_regulacao",
+        "status_regulacao",
+        "hospital_destino",
+        "observacoes",
+        "criado_em"
+      ]
+    },
+    {
+      "table": "profissionais",
+      "rowCount": 0,
+      "totalExpected": 0,
+      "presentCols": [],
+      "missingCols": []
+    }
+  ],
+  "missing": [
+    "evolucoes_enfermagem",
+    "solicitacoes_tfd",
+    "usuarios",
+    "users",
+    "passagem_plantoes",
+    "passagens_plantao",
+    "prontuarios",
+    "atendimento",
+    "paciente",
+    "leito",
+    "prescricoes",
+    "prescricao"
+  ]
+}
