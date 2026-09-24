@@ -151,75 +151,135 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
     setSalvo(data)
   }
 
-  if (carregando) return <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
+  if (carregando) return <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
 
   return (
-    <div className="form-section">
-      <div className="form-section-title">Admissão de Enfermagem</div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 8 }}>Coleta de dados</div>
-      <ChipMultiEscolha opcoes={COLETA_DADOS_OPCOES.map((o) => o.label)} valor={dados.coleta_dados} onChange={(v) => set('coleta_dados', v)} />
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Alergia</div>
-      <div style={{ marginBottom: 6 }}><CheckboxSimNao valor={dados.alergia} onChange={(v) => set('alergia', v)} /></div>
-      {dados.alergia && <div className="form-field span-2"><label>Quais?</label><input type="text" value={dados.alergia_quais} onChange={(e) => set('alergia_quais', e.target.value)} /></div>}
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Motivo de Hospitalização / Queixa Principal</div>
-      <textarea value={dados.motivo_hospitalizacao} onChange={(e) => set('motivo_hospitalizacao', e.target.value)} style={{ width: '100%' }} />
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Informações complementares</div>
-      {INFO_COMPLEMENTARES_CAMPOS.map((c) => {
-        const v = dados.info_complementares[c.key] || {}
-        return (
-          <div key={c.key} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 13, minWidth: 160 }}>{c.label}</span>
-            <CheckboxSimNao valor={v.sim} onChange={(val) => setInfoComplementar(c.key, 'sim', val)} />
-            {v.sim && <input type="text" placeholder="Especificar" value={v.especificar || ''} onChange={(e) => setInfoComplementar(c.key, 'especificar', e.target.value)} style={{ flex: 1, minWidth: 160 }} />}
-          </div>
-        )
-      })}
-      <div className="form-field span-3"><label>Outros</label><input type="text" value={dados.outros_info} onChange={(e) => set('outros_info', e.target.value)} /></div>
-
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Medicamento em uso</div>
-      {dados.medicamentos_uso.map((m, i) => (
-        <div key={i} style={{ border: '1px solid var(--color-border)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
-          <div className="form-grid">
-            <div className="form-field"><label>Nome</label><input type="text" value={m.nome} onChange={(e) => setMedicamento(i, 'nome', e.target.value)} /></div>
-            <div className="form-field"><label>Via</label><input type="text" value={m.via} onChange={(e) => setMedicamento(i, 'via', e.target.value)} /></div>
-            <div className="form-field"><label>Dose</label><input type="text" value={m.dose} onChange={(e) => setMedicamento(i, 'dose', e.target.value)} /></div>
-            <div className="form-field"><label>Tempo de Uso</label><input type="text" value={m.tempo_uso} onChange={(e) => setMedicamento(i, 'tempo_uso', e.target.value)} /></div>
-          </div>
-          {dados.medicamentos_uso.length > 1 && <button type="button" className="modal-btn-secondary" onClick={() => removerMedicamento(i)}>Remover</button>}
+    <div className="clinical-card" style={{ flex: 1 }}>
+      <div className="cc-header">
+        <div className="cc-title">
+          <h2><i className="ph ph-clipboard-text" /> Admissão de Enfermagem</h2>
+          <p>Instrumento de sistematização SAE baseado no modelo oficial da UPA 24h Breves.</p>
         </div>
-      ))}
-      <button type="button" className="modal-btn-secondary" onClick={adicionarMedicamento}>+ Adicionar medicamento</button>
+      </div>
 
-      <div className="form-section-title" style={{ marginTop: 24 }}>Exame Físico</div>
-      {EXAME_FISICO_CONFIG.map((secao) => (
-        <div key={secao.secao} style={{ marginBottom: 18 }}>
-          <div className="form-section-title" style={{ fontSize: 12 }}>{secao.secaoTitulo}</div>
-          {secao.campos.map((campo) => (
-            <CampoExameFisico key={campo.id} campo={campo} valor={dados.exame_fisico[campo.id]} onChange={(v) => setExameFisico(campo.id, v)} />
+      <div className="cc-body">
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-user-circle" /> Coleta de dados</div>
+          <ChipMultiEscolha opcoes={COLETA_DADOS_OPCOES.map((o) => o.label)} valor={dados.coleta_dados} onChange={(v) => set('coleta_dados', v)} />
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-shield-warning" /> Alergia</div>
+          <div style={{ marginBottom: 6 }}><CheckboxSimNao valor={dados.alergia} onChange={(v) => set('alergia', v)} /></div>
+          {dados.alergia && (
+            <div className="form-group">
+              <label>Quais?</label>
+              <input type="text" value={dados.alergia_quais} onChange={(e) => set('alergia_quais', e.target.value)} />
+            </div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label><i className="ph ph-clipboard-text" /> Motivo de Hospitalização / Queixa Principal</label>
+          <textarea value={dados.motivo_hospitalizacao} onChange={(e) => set('motivo_hospitalizacao', e.target.value)} />
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-info" /> Informações complementares</div>
+          {INFO_COMPLEMENTARES_CAMPOS.map((c) => {
+            const v = dados.info_complementares[c.key] || {}
+            return (
+              <div key={c.key} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 13, minWidth: 160 }}>{c.label}</span>
+                <CheckboxSimNao valor={v.sim} onChange={(val) => setInfoComplementar(c.key, 'sim', val)} />
+                {v.sim && <input type="text" placeholder="Especificar" value={v.especificar || ''} onChange={(e) => setInfoComplementar(c.key, 'especificar', e.target.value)} style={{ flex: 1, minWidth: 160 }} />}
+              </div>
+            )
+          })}
+          <div className="form-group" style={{ marginTop: 8 }}>
+            <label>Outros</label>
+            <input type="text" value={dados.outros_info} onChange={(e) => set('outros_info', e.target.value)} />
+          </div>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-pill" /> Medicamento em uso</div>
+          {dados.medicamentos_uso.map((m, i) => (
+            <div key={i} style={{ border: '1px solid var(--border-light)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
+              <div className="assess-grid">
+                <div className="form-group"><label>Nome</label><input type="text" value={m.nome} onChange={(e) => setMedicamento(i, 'nome', e.target.value)} /></div>
+                <div className="form-group"><label>Via</label><input type="text" value={m.via} onChange={(e) => setMedicamento(i, 'via', e.target.value)} /></div>
+              </div>
+              <div className="assess-grid" style={{ marginTop: 12 }}>
+                <div className="form-group"><label>Dose</label><input type="text" value={m.dose} onChange={(e) => setMedicamento(i, 'dose', e.target.value)} /></div>
+                <div className="form-group"><label>Tempo de Uso</label><input type="text" value={m.tempo_uso} onChange={(e) => setMedicamento(i, 'tempo_uso', e.target.value)} /></div>
+              </div>
+              {dados.medicamentos_uso.length > 1 && (
+                <button type="button" className="btn-cancel" style={{ marginTop: 8 }} onClick={() => removerMedicamento(i)}>
+                  <i className="ph ph-trash" /> Remover
+                </button>
+              )}
+            </div>
+          ))}
+          <button type="button" className="btn-add-chip" onClick={adicionarMedicamento}>
+            <i className="ph ph-plus" /> Adicionar medicamento
+          </button>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-activity" /> Exame Físico</div>
+          {EXAME_FISICO_CONFIG.map((secao) => (
+            <div key={secao.secao} style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: 8 }}>{secao.secaoTitulo}</div>
+              {secao.campos.map((campo) => (
+                <CampoExameFisico key={campo.id} campo={campo} valor={dados.exame_fisico[campo.id]} onChange={(v) => setExameFisico(campo.id, v)} />
+              ))}
+            </div>
           ))}
         </div>
-      ))}
 
-      <div className="form-section-title" style={{ fontSize: 12, marginTop: 16 }}>Parecer do Enfermeiro</div>
-      <div style={{ marginBottom: 10 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Estado emocional</div>
-        <CheckboxUnica opcoes={['Calmo', 'Tenso', 'Agressivo', 'Preocupado']} valor={dados.parecer_estado_emocional} onChange={(v) => set('parecer_estado_emocional', v)} />
-      </div>
-      <div style={{ marginBottom: 10 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Estado cognitivo</div>
-        <CheckboxUnica opcoes={['Capaz de atender às solicitações', 'Capaz de apreender às orientações', 'Deficiência cognitiva']} valor={dados.parecer_estado_cognitivo} onChange={(v) => set('parecer_estado_cognitivo', v)} />
-      </div>
-      <div className="form-field span-3"><label>Obs.</label><input type="text" value={dados.parecer_obs} onChange={(e) => set('parecer_obs', e.target.value)} /></div>
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-user-check" /> Parecer do Enfermeiro</div>
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Estado emocional</div>
+            <CheckboxUnica opcoes={['Calmo', 'Tenso', 'Agressivo', 'Preocupado']} valor={dados.parecer_estado_emocional} onChange={(v) => set('parecer_estado_emocional', v)} />
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Estado cognitivo</div>
+            <CheckboxUnica opcoes={['Capaz de atender às solicitações', 'Capaz de apreender às orientações', 'Deficiência cognitiva']} valor={dados.parecer_estado_cognitivo} onChange={(v) => set('parecer_estado_cognitivo', v)} />
+          </div>
+          <div className="form-group">
+            <label>Obs.</label>
+            <input type="text" value={dados.parecer_obs} onChange={(e) => set('parecer_obs', e.target.value)} />
+          </div>
+        </div>
 
-      {sucesso && <p style={{ fontSize: 12, color: 'var(--c-primary)', marginTop: 14 }}>Admissão de enfermagem salva.</p>}
-      <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</button>
-        {salvo && <button type="button" className="modal-btn-secondary" onClick={() => onImprimir({ ...salvo, _variante: 'fiel' })}>Imprimir (modelo oficial)</button>}
-        {salvo && <button type="button" className="modal-btn-secondary" onClick={() => onImprimir({ ...salvo, _variante: 'projeto' })}>Imprimir (layout do projeto)</button>}
+        {sucesso && (
+          <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
+            <div className="info" style={{ color: '#166534' }}>
+              <i className="ph ph-check-circle" /> Admissão de enfermagem salva.
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="cc-footer">
+        <span />
+        <div style={{ display: 'flex', gap: 12 }}>
+          {salvo && (
+            <button type="button" className="btn-save-draft" onClick={() => onImprimir({ ...salvo, _variante: 'fiel' })}>
+              <i className="ph ph-printer" /> Imprimir (modelo oficial)
+            </button>
+          )}
+          {salvo && (
+            <button type="button" className="btn-save-draft" onClick={() => onImprimir({ ...salvo, _variante: 'projeto' })}>
+              <i className="ph ph-printer" /> Imprimir (layout do projeto)
+            </button>
+          )}
+          <button className="btn-save-print" onClick={salvar} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+          </button>
+        </div>
       </div>
     </div>
   )
