@@ -84,7 +84,7 @@ Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
 Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada abaixo.
 
-### Fase 1 (redesenho de conteúdo por módulo) — **8 de 16 módulos feitos**
+### Fase 1 (redesenho de conteúdo por módulo) — **9 de 16 módulos feitos**
 
 | Módulo do mockup | Status | Evidência |
 |---|---|---|
@@ -96,7 +96,7 @@ Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada a
 | 04 — Prescrição Médica | ✅ Concluído (commit `54f5cdf`) | `AbaPrescricao.jsx` reescrito com `clinical-card`/`form-section-box`, ícones Phosphor, campo SN virou checkbox real. Fora do escopo: calculadora de dose pediátrica EV/IM do mockup — funcionalidade de cálculo nova, não existe hoje, pertence à Fase 2. |
 | 05 — Receituário/Sumário de Alta | ✅ Concluído (commit `be99b7a`) | Ambos reescritos com o framework compartilhado, ícones Phosphor. Fora do escopo: unificação em sub-abas com classificação automática de medicamento controlado (Portaria 344/98) e Atestado Médico — funcionalidade nova, pertence à Fase 2. |
 | 07 — Plano Terapêutico | ✅ Concluído (commit `02fa5d3`) | Reescrito com framework compartilhado, protocolos/equipe viraram checkbox real. Fora do escopo: "Kits de auto-preenchimento" (TCE/Sepse/IAM) do mockup — funcionalidade nova, e o kit de exemplo usa texto clínico fabricado como valor automático, o mesmo padrão do bug crítico corrigido antes (commit `a3c5953`). |
-| 08 — Admissão de Enfermagem | ❌ Não iniciado | `AbaHistoricoEnfermagem.jsx` continua no formato antigo (nem foi movida pra dentro de `ficha-clinica/`) |
+| 08 — Admissão de Enfermagem | ✅ Concluído (commit `38a4455`) | Reescrito com o mesmo framework do Prontuário Médico (já disponível, roda dentro do mesmo `.atendimento-medico-container`), ícones Phosphor. Fora do escopo: sub-abas com filtro de seção, expandir/recolher todas, painel lateral com escalas/dispositivos/alergias de outras abas — interação nova, não só visual. |
 | 09 a 16 (todo o resto) | ❌ Não iniciado | — |
 
 O que houve hoje foi um **refactor estrutural** (quebrar `FichaMedica.jsx`/`FichaClinica.jsx`
