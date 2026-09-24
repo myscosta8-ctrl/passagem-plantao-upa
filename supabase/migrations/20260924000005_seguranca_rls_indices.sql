@@ -10,6 +10,10 @@ CREATE INDEX IF NOT EXISTS idx_pessoas_cns ON public.pessoas USING btree (cns);
 CREATE INDEX IF NOT EXISTS idx_pessoas_prontuario ON public.pessoas USING btree (prontuario_numero);
 
 -- 2. ÍNDICES PARA CONTROLE DE ATENDIMENTOS E OCUPAÇÃO DE LEITOS EM TEMPO REAL
+ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'aberto';
+ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ocupado';
+ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'aberto';
+
 CREATE INDEX IF NOT EXISTS idx_atendimentos_pessoa_id ON public.atendimentos (pessoa_id);
 CREATE INDEX IF NOT EXISTS idx_atendimentos_status ON public.atendimentos (status);
 CREATE INDEX IF NOT EXISTS idx_atendimentos_setor_id ON public.atendimentos (setor_id);
@@ -26,7 +30,13 @@ CREATE INDEX IF NOT EXISTS idx_plantoes_status ON public.plantoes (status);
 
 -- 4. ÍNDICES PARA FICHA CLÍNICA / ENFERMAGEM
 ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS horario_registro TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS registrado_em TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS horario_medicao TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS medido_em TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ativo';
+ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ativa';
+ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ativo';
+ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ativo';
 
 CREATE INDEX IF NOT EXISTS idx_admissoes_enf_atendimento ON public.admissoes_enfermagem (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_evolucoes_atendimento ON public.evolucoes (atendimento_id);
@@ -35,6 +45,7 @@ CREATE INDEX IF NOT EXISTS idx_dispositivos_atendimento_status ON public.disposi
 CREATE INDEX IF NOT EXISTS idx_sinais_vitais_atendimento ON public.sinais_vitais (atendimento_id, horario_medicao);
 CREATE INDEX IF NOT EXISTS idx_alergias_pessoa_status ON public.alergias (pessoa_id, status);
 CREATE INDEX IF NOT EXISTS idx_medicacoes_cont_pessoa_status ON public.medicacoes_continuas (pessoa_id, status);
+
 
 -- 5. ÍNDICES PARA PRONTUÁRIO MÉDICO
 CREATE INDEX IF NOT EXISTS idx_consultas_med_atendimento ON public.consultas_medicas (atendimento_id);
