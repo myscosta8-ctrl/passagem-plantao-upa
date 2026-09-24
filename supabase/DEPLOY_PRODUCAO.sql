@@ -1009,6 +1009,9 @@ BEGIN
 END $$;
 
 -- 3. CONFIGURAÇÕES INSTITUCIONAIS DA UPA 24H BREVES
+ALTER TABLE public.configuracoes ADD COLUMN IF NOT EXISTS valor TEXT;
+ALTER TABLE public.configuracoes ALTER COLUMN valor TYPE TEXT USING valor::TEXT;
+
 INSERT INTO public.configuracoes (chave, valor, descricao) VALUES
     ('pep_ativo', 'true', 'Ativação do Prontuário Eletrônico do Paciente'),
     ('hospital_nome', 'PREFEITURA MUNICIPAL DE BREVES — UPA 24H BREVES', 'Razão social e nome da unidade'),
