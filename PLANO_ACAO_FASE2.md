@@ -84,14 +84,14 @@ Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
 Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada abaixo.
 
-### Fase 1 (redesenho de conteúdo por módulo) — **3 de 16 módulos feitos**
+### Fase 1 (redesenho de conteúdo por módulo) — **4 de 16 módulos feitos**
 
 | Módulo do mockup | Status | Evidência |
 |---|---|---|
 | 06 — Anamnese/Admissão (aba Consulta) | ✅ Redesenhado | `AbaConsulta.jsx` reescrito, sem classe `form-section` antiga, ícones Phosphor, bug do dado falso corrigido (commit `a3c5953`) |
 | 06 — Laudo de AIH | ✅ Redesenhado | `AbaAih.jsx` reescrito, split-view, ícones Phosphor, bug do dado falso corrigido (commit `a3c5953`) |
 | 01 — Painel de Leitos | ✅ Concluído (commit `8148de5`) | `Painel.css` já batia com o mockup (cores, risk-bar, grid de cards); faltavam só os ícones — trocados emoji/símbolos unicode por Phosphor em `Painel.jsx`, `PainelCards.jsx`, `ModalInternar.jsx`. Nenhuma funcionalidade alterada. |
-| 02 — Recepção | ❌ Não iniciado | `CadastroPacientes.jsx` sem alteração |
+| 02 — Recepção | ✅ Concluído (commit `e26a872`) | `CadastroPacientes.css` novo, aplicado na barra de busca e cards de resultado (`AbaBusca.jsx`) e abas/lista de recentes (`CadastroPacientes.jsx`), ícones Phosphor. **Deliberadamente fora do escopo:** os campos internos dos formulários (`CamposIdentidade.jsx`/`CamposAtendimento.jsx`) continuam no padrão `.form-field`/`.form-grid` compartilhado com o resto do sistema — redesenhar esse padrão em si é tarefa maior e transversal a todos os módulos, não específica da Recepção. |
 | 03 — Prontuário Médico/Evolução | ❌ Não iniciado | `AbaEvolucaoMedica.jsx` ainda usa `form-section` |
 | 04 — Prescrição Médica | ❌ Não iniciado | `AbaPrescricao.jsx` ainda usa `form-section` |
 | 05 — Receituário/Sumário de Alta | ❌ Não iniciado | `AbaReceituarioMedico.jsx`/`AbaSumarioAlta.jsx` ainda usam `form-section` |
