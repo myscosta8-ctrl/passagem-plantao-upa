@@ -1,166 +1,183 @@
 # Plano de Ação — Fase 2 (Redesign + módulos de enfermagem)
 
-Baseado na avaliação das pastas `mockups-fase2/` (redesign visual, 16 telas + 3 propostas de
-shell) e `modelos_impressao_html/` (21 modelos de impressão A4). Este documento é o plano
-de execução; a auditoria no final mostra o que já existe no repo hoje vs. o que falta.
+**Revisado em 24/09, à noite, depois de auditar o que o IDE implementou na tarde do mesmo
+dia (commits `4cfb21c` e `06ba6cb` na branch `main`).** A versão anterior deste documento
+tinha uma auditoria desatualizada (dizia que nada da Fase 0 existia) — corrigida abaixo.
+
+## 🚨 Bug crítico a corrigir ANTES de continuar qualquer coisa nova
+
+Os 3 arquivos que o IDE reescreveu hoje (`src/pages/ficha-medica/AbaAih.jsx`,
+`src/pages/ficha-medica/AbaConsulta.jsx`, `src/pages/ficha-medica/PatientBanner.jsx`)
+ficaram com **texto de exemplo do mockup HTML hardcoded como fallback `||`** em vez de
+serem removidos ao ligar no dado real. Sempre que o campo vier vazio do banco (situação
+normal — nem todo paciente tem CNS, sinais vitais ainda não aferidos etc.), a tela mostra
+**dado inventado como se fosse real**, inclusive na AIH (documento com valor legal):
+
+- Sinais vitais falsos: PA `90x60`, FC `110`, Temp `39.2°C`, SpO2 `97%`
+- Alergia grave inventada: `"DIPIRONA (Risco de Choque Anafilático)"`
+- CNS `700.1234.5678.9012`, RG/CPF, endereço completo, nome da mãe "Maria Eduarda Silva"
+- Queixa da triagem inventada: "Febre alta há 2 dias, tosse produtiva..."
+
+**Ação:** remover todo `|| 'valor de exemplo'` desses 3 arquivos, deixando os campos vazios
+(ou com um placeholder visual tipo "—" / "Não informado") quando o dado real não existir.
+Confirmado por grep que o padrão não vazou pro resto do sistema — está isolado nesses 3
+arquivos. **Isso é o item 0 do plano, prioridade sobre tudo.**
+
+---
 
 ## Como ler este plano
 
 Cada fase é um pacote fechado — só avança pra próxima com confirmação explícita do usuário
-(mesmo ritmo "um documento/módulo de cada vez" usado a sessão inteira). Dentro de cada fase,
-os itens estão ordenados por dependência: o que outros itens precisam vem primeiro.
+(mesmo ritmo "um documento/módulo de cada vez" usado a sessão inteira).
 
 ---
 
-## Fase 0 — Fundação do design system (bloqueia tudo o resto)
+## Auditoria real — o que o IDE já implementou hoje (24/09)
 
-Sem isso, cada módulo redesenhado ficaria visualmente desconectado do resto do app (uma
-tela nova ao lado de telas antigas, sem coerência).
+Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
-1. Extrair os tokens de `proposta-design-system-vitaloop.html` (`mockups-fase2/`) para um
-   arquivo CSS real do projeto (`src/design-tokens.css` ou similar): paleta, sombras,
-   tipografia (Inter substituindo IBM Plex, ou convivendo — decisão a confirmar com o
-   usuário, já que IBM Plex Mono é a identidade "burocrática" atual e pode ser proposital).
-2. Adicionar Phosphor Icons ao projeto (pacote local, não CDN em produção).
-3. Rebuild do `Sidebar.jsx`/`Sidebar.css` conforme `proposta-menu-hamburguer.html`.
-4. Rebuild do `EspacoPaciente.jsx` (os "3 pilares") conforme
-   `proposta-espaco-paciente-3-pilares.html` — **checar primeiro se isso já não é o que
-   existe hoje**, a proposta é antiga e pode já estar implementada (ver auditoria).
-5. Componente de app-shell (topbar + breadcrumb) usado em `08-admissao-enfermagem-design.html`
-   e replicado nos outros — extrair pra componente React reutilizável antes de aplicar em
-   cada tela, não duplicar CSS 16 vezes.
+### Fase 0 (fundação do design system) — **parcialmente feita**
 
-**Critério de saída da Fase 0:** abrir o app e ver a sidebar/topbar novos funcionando, sem
-nenhuma tela de conteúdo ainda alterada.
+| Item | Status | Evidência |
+|---|---|---|
+| Paleta/tokens de cor (Manchester, sombras) | ✅ Feito | `src/index.css` tem `--mc-vermelho/laranja/amarelo/verde/azul` e variações `-bg` |
+| Fonte Inter como base da UI | ✅ Feito | `--font-ui: 'Inter'...` importada e aplicada em `body`/inputs; IBM Plex Mono mantida como `--font-mono` pros campos "burocráticos" (parece intencional, não removida) |
+| Ícones Phosphor | ❌ Não feito | Nenhuma ocorrência de `ph ph-` no projeto. `PatientBanner.jsx` usa **emoji** (🪪⚧⚖️🛏️💳⚠️) em vez dos ícones do mockup — inconsistente entre navegadores/SO, e diferente do que o mockup pedia |
+| Sidebar redesenhada | ⚠️ Parcial | `Sidebar.css` só teve 3 linhas alteradas — não é o rebuild completo de `proposta-menu-hamburguer.html` |
+| Componente de app-shell (topbar/banner) | ⚠️ Só no Prontuário Médico | `FichaMedicaHeader.jsx`, `FichaMedicaTabs.jsx`, `PatientBanner.jsx`, `FichaMedicaConteudo.jsx` criados e em uso — mas **o Prontuário de Enfermagem (`FichaClinica.jsx`) não tem equivalente**, continua com o shell antigo |
+| 3 pilares do Espaço do Paciente | ✅ Já existia antes de hoje | Confirmado em `EspacoPaciente.jsx` (não é pendência) |
 
----
+### Fase 1 (redesenho de conteúdo por módulo) — **2 de 16 módulos feitos**
 
-## Fase 1 — Redesenho puro (funcionalidade já existe, é só trocar a casca)
+| Módulo do mockup | Status | Evidência |
+|---|---|---|
+| 06 — Anamnese/Admissão (aba Consulta) | ✅ Redesenhado | `AbaConsulta.jsx` reescrito (509 linhas), sem classe `form-section` antiga — **mas tem o bug crítico do topo** |
+| 06 — Laudo de AIH | ✅ Redesenhado | `AbaAih.jsx` reescrito (924 linhas), split-view — **mas tem o bug crítico do topo** |
+| 01 — Painel de Leitos | ⚠️ Só CSS, não a estrutura | `Painel.css` reescrito (469 linhas) mudando cores/espaçamento, mas `Painel.jsx` **não foi tocado** — continua com a estrutura antiga (`.page`, `.visualizacao-toggle`), não o layout de cards do mockup `01-painel-leitos-design.html` |
+| 02 — Recepção | ❌ Não iniciado | `CadastroPacientes.jsx` sem alteração |
+| 03 — Prontuário Médico/Evolução | ❌ Não iniciado | `AbaEvolucaoMedica.jsx` ainda usa `form-section` |
+| 04 — Prescrição Médica | ❌ Não iniciado | `AbaPrescricao.jsx` ainda usa `form-section` |
+| 05 — Receituário/Sumário de Alta | ❌ Não iniciado | `AbaReceituarioMedico.jsx`/`AbaSumarioAlta.jsx` ainda usam `form-section` |
+| 07 — Plano Terapêutico | ❌ Não iniciado | `AbaPlanoTerapeutico.jsx` ainda usa `form-section` |
+| 08 — Admissão de Enfermagem | ❌ Não iniciado | `AbaHistoricoEnfermagem.jsx` continua no formato antigo (nem foi movida pra dentro de `ficha-clinica/`) |
+| 09 a 16 (todo o resto) | ❌ Não iniciado | — |
 
-Cada item = 1 sessão, testado no browser antes do próximo. Nenhum precisa de migração de
-banco.
+O que houve hoje foi um **refactor estrutural** (quebrar `FichaMedica.jsx`/`FichaClinica.jsx`
+monolíticos em um arquivo por aba, dentro de `src/pages/ficha-medica/` e
+`src/pages/ficha-clinica/`) + o redesenho real de **só 2 abas** (Consulta e AIH, ambas do
+Prontuário Médico). Isso é uma boa base (deixa mais fácil redesenhar aba por aba depois),
+mas não é "aplicação completa do Design System da Fase 2" como o commit diz — é o começo.
 
-| Ordem | Módulo | Mockup | Tela atual |
-|---|---|---|---|
-| 1.1 | Painel de Leitos | `01-painel-leitos-design.html` | `Painel.jsx` |
-| 1.2 | Recepção | `02-recepcao-design.html` | `CadastroPacientes.jsx` |
-| 1.3 | Prontuário Médico / Evolução | `03-prontuario-medico-design.html` | `FichaMedica.jsx` (aba Evolução) |
-| 1.4 | Prescrição Médica | `04-prescricao-medica-design.html` | `FichaMedica.jsx` (aba Prescrição) |
-| 1.5 | Receituário / Sumário de Alta | `05-receituario-alta-design.html` | `FichaMedica.jsx` (abas Receituário/Alta) |
-| 1.6 | Anamnese/Admissão + AIH | `06-anamnese-admissao-design.html` | `FichaMedica.jsx` (abas Consulta/AIH) |
-| 1.7 | Plano Terapêutico | `07-plano-terapeutico-design.html` | `FichaMedica.jsx` (aba Plano) |
-| 1.8 | Admissão de Enfermagem | `08-admissao-enfermagem-design.html` | `AbaHistoricoEnfermagem.jsx` (acabou de ser construída — **redesenho vai por cima do que já existe, não recomeçar do zero**) |
-| 1.9 | Passagem de Plantão coletiva | `12-passagem-plantao-design.html` | `PassagemForm.jsx` / `CompartilharPlantao.jsx` |
-| 1.10 | Solicitação de Hemoterapia | `15-solicitacao-hemoterapia-design.html` | `FichaMedica.jsx` (aba Sangue) |
+### Fase 2 (funcionalidade nova) — **nada iniciado**
 
-**Critério de saída da Fase 1:** todas as telas com funcionalidade já existente redesenhadas
-e testadas ponta a ponta (preencher → salvar → imprimir).
+Confirmado: nenhuma tabela nova no banco, nenhuma função nova em `pepClinico.js`/
+`pepMedico.js` pra Cardex/Aprazamento, SAE com NANDA-I/NIC, Nota de Intercorrência de
+Enfermagem, ou Balanço Hídrico por turno. As tabelas órfãs identificadas na auditoria
+anterior (`evolucoes_enfermagem`, `balanco_hidrico_periodos`, `balanco_hidrico_registros`)
+continuam órfãs.
 
----
+### Fase 3 (modelos de impressão) — **nada iniciado hoje**
 
-## Fase 2 — Funcionalidade nova + redesenho (precisa de migração de banco)
-
-Estes módulos não existem hoje no sistema (dado confirmado na auditoria abaixo). Cada um
-precisa: (a) migração de banco confirmada com o usuário antes de aplicar, (b) funções em
-`pepClinico.js`/`pepMedico.js`, (c) tela nova, (d) impressão.
-
-| Ordem | Módulo | Mockup | O que falta construir |
-|---|---|---|---|
-| 2.1 | Evolução de Enfermagem (SAE) | `09-evolucao-enfermagem-sae-design.html` | Catálogo NANDA-I/NIC (dados estáticos), tela com EVA de dor, timeline. Tabela `evolucoes_enfermagem` já existe no banco (0 linhas) mas **não tem função nenhuma em `pepClinico.js`** — provavelmente criada em outra sessão e nunca ligada. |
-| 2.2 | Cardex / Aprazamento | `10-checagem-aprazamento-design.html` | Não existe nada — nem tabela, nem tela. Precisa desenhar o modelo de dados (grade horária de administração ligada a `prescricao_itens`). |
-| 2.3 | Balanço Hídrico (versão rica) | `11-balanco-hidrico-design.html` | Hoje é só uma lista simples (`balanco_hidrico`, tipo/via/volume). O mockup pede parciais por turno e saldo em tempo real — dá pra fazer só com cálculo no front, sem mudar schema, **ou** migrar pra `balanco_hidrico_periodos`/`balanco_hidrico_registros`, que já existem no banco (0 linhas, não usadas) — parecem ter sido criadas pra isso e abandonadas. Avaliar antes de decidir. |
-| 2.4 | Nota de Intercorrência de Enfermagem | `13-nota-intercorrencia-enfermagem-design.html` | Só existe a versão médica (`notas_intercorrencia_medica`). Precisa tabela nova + tela + impressão. |
-| 2.5 | Transferência Estruturada (SBAR) | `14-transferencia-paciente-design.html` | Já existe uma versão simples (`transferencias_sbar` + `AbaSbar`). O mockup é mais rico (4 pilares S/B/A/R explícitos) — avaliar se é evolução da mesma tabela ou redesenho de UI só. |
-| 2.6 | Exames Internos + Laudo APAC | `16-solicitacao-exames-apac-design.html` | Hoje `AbaExames` é uma lista genérica. O mockup separa Laboratório/Radiologia/ECG em abas com formulário próprio por modalidade. `exames_solicitados` já existe no banco. |
-
-**Critério de saída da Fase 2:** cada migração aplicada só com "sim, pode aplicar" do
-usuário (regra de todo o projeto), e cada módulo testado fim a fim antes do próximo.
+Sem mudança em relação à auditoria anterior: 13 dos 21 modelos já têm impressão real no
+sistema (ver lista completa mais abaixo), o resto não.
 
 ---
 
-## Fase 3 — Modelos de impressão (`modelos_impressao_html/`)
+## Plano do que falta — ordem de execução daqui pra frente
 
-Os modelos de impressão são **independentes** do redesenho de tela — podem ser feitos em
-paralelo ou depois, na ordem que fizer sentido pro módulo que estiver ativo. Regra: sempre
-que uma tela ganhar impressão nova, ela substitui a impressão "fiel ao modelo oficial" já
-existente (quando houver) — nunca duas versões concorrentes.
+### 0. 🚨 Corrigir o bug de dado falso (urgente, antes de tudo)
+`AbaAih.jsx`, `AbaConsulta.jsx`, `PatientBanner.jsx` — remover todos os fallbacks com dado
+de exemplo. Testar com um paciente real que tenha campos vazios pra confirmar que aparece
+vazio/"—", não dado inventado.
 
-**Já têm impressão real implementada hoje** (conferir se o modelo novo é upgrade ou só
-redecoração — comparar antes de substituir):
-`06-prescricao-medica`, `07-evolucao-medica-diaria`, `08-sumario-de-alta`,
-`09-nota-intercorrencia-medica`, `10-consulta-admissao-medica`,
+### 1. Fechar a Fase 0 de verdade
+1.1. Decidir (com o usuário): ícones Phosphor de verdade ou manter emoji como decisão de
+     design? Se for Phosphor, trocar nos 3 arquivos que já usam emoji.
+1.2. Levar o shell novo (header/tabs/banner) pro Prontuário de Enfermagem — hoje só o
+     Prontuário Médico tem. Criar `FichaClinicaHeader.jsx`/`FichaClinicaTabs.jsx`/
+     `PatientBanner` compartilhado (não duplicar o componente, reaproveitar o que já existe
+     em `ficha-medica/PatientBanner.jsx` — hoje ele está acoplado à pasta médica).
+1.3. Rebuild real da Sidebar conforme `proposta-menu-hamburguer.html` (hoje é só ajuste
+     cosmético de 3 linhas).
+
+### 2. Fase 1 — módulo por módulo, na ordem abaixo (cada um só avança com sua confirmação)
+2.1. Painel de Leitos — precisa da estrutura nova (`Painel.jsx`), não só CSS.
+2.2. Recepção
+2.3. Evolução Médica Diária
+2.4. Prescrição Médica
+2.5. Receituário + Sumário de Alta
+2.6. Plano Terapêutico
+2.7. Admissão de Enfermagem (mover pra `ficha-clinica/`, redesenhar) — **manter os
+     checkboxes reais e o padrão de campo condicional já construídos, é só a casca visual**
+2.8. Passagem de Plantão coletiva
+2.9. Solicitação de Hemoterapia
+
+### 3. Fase 2 — funcionalidade nova (cada migração pede confirmação antes de aplicar)
+3.1. Evolução de Enfermagem (SAE) — avaliar se aproveita a tabela órfã `evolucoes_enfermagem`
+     ou se o formato mudou o suficiente pra precisar de uma nova.
+3.2. Balanço Hídrico por turno — avaliar se aproveita `balanco_hidrico_periodos`/
+     `balanco_hidrico_registros` órfãs ou se migra os dados da `balanco_hidrico` atual.
+3.3. Nota de Intercorrência de Enfermagem — tabela nova.
+3.4. Cardex/Aprazamento — o mais complexo, desenhar o modelo de dados com calma (grade
+     horária ligada a `prescricao_itens`).
+3.5. Transferência SBAR (versão rica) — avaliar se é só UI em cima de `transferencias_sbar`
+     ou se o formato pede colunas novas.
+3.6. Exames Internos + Laudo APAC (Lab/Radiologia/ECG em abas próprias).
+
+### 4. Fase 3 — modelos de impressão
+Fazer a impressão de cada módulo junto com o redesenho dele (não como etapa separada no
+fim) — ex.: ao redesenhar Prescrição Médica (2.4), já revisar se
+`06-prescricao-medica.html` é upgrade da impressão atual ou só redecoração.
+
+---
+
+## Referência — modelos de impressão já implementados vs. pendentes
+
+**Já têm impressão real e testada:** `06-prescricao-medica`, `07-evolucao-medica-diaria`,
+`08-sumario-de-alta`, `09-nota-intercorrencia-medica`, `10-consulta-admissao-medica`,
 `11-formulario-antimicrobiano-atm`, `12-plano-terapeutico`,
 `13-tratamento-fora-domicilio-tfd`, `14-receituario-medico-2vias`,
 `16-laudo-aih-internacao`, `17-solicitacao-hemoterapicos`,
-`18-laudo-apac-procedimento-ambulatorial`, `01-admissao-enfermagem` (acabou de ser feita).
+`18-laudo-apac-procedimento-ambulatorial`, `01-admissao-enfermagem`.
 
-**Não têm impressão hoje** (dependem da Fase 2 estar pronta antes, exceto a 15 que pode vir
-antes):
-`02-evolucao-enfermagem-sae`, `03-transferencia-paciente-sbar` (upgrade da atual),
-`04-nota-intercorrencia-enfermagem`, `05-balanco-hidrico-24h`,
-`15-passagem-plantao-coletiva`, `19-solicitacao-exames-laboratoriais`,
-`20-solicitacao-exames-imagem-rx`, `21-solicitacao-eletrocardiograma-ecg`.
-
----
-
-## Auditoria do repo em produção — o que já está implementado
-
-### Telas (pilares e abas)
-
-| Pilar | Onde vive | Abas hoje |
-|---|---|---|
-| Passagem de Plantão | `PassagemForm.jsx` | modelo antigo, intacto (não mexer sem pedido explícito) |
-| Prontuário de Enfermagem | `FichaClinica.jsx` | Admissão, **Admissão de Enfermagem** (novo, sessão anterior), Sinais Vitais, Evolução, Dispositivos, Balanço Hídrico, Escalas, Alergias, Isolamento, Transferência SBAR, Eventos Adversos |
-| Prontuário Médico | `FichaMedica.jsx` | Consulta, Prescrição, AIH, Exames, Plano Terapêutico, Evolução Médica Diária, Nota de Intercorrência Médica, Receituário Médico, APAC, ATM, TFD, Regulação, Solicitação de Sangue, Medicações Contínuas, Sumário de Alta, Auditoria |
-
-A estrutura "3 pilares" da `proposta-espaco-paciente-3-pilares.html` **já está implementada**
-em `EspacoPaciente.jsx` — essa proposta específica não é mais pendência de implementação,
-só de eventual redesenho visual (Fase 0/1).
-
-### Tabelas no banco (Supabase, projeto `fhsyrcksxcdhdbcvjspv`)
-
-**Usadas e com função correspondente em `pepClinico.js`/`pepMedico.js`** (implementado):
-`enfermeiros`, `setores`, `leitos`, `pacientes`, `pessoas`, `atendimentos`, `internacoes`,
-`leito_ocupacoes`, `realocacoes`, `plantoes`, `passagens`, `alergias`,
-`dispositivos_invasivos`, `balanco_hidrico`, `escalas_enfermagem`, `isolamentos`,
-`transferencias_sbar`, `eventos_adversos`, `sinais_vitais`, `evolucoes`,
-`admissoes_enfermagem` (legado, tabela separada — não confundir com `historico_enfermagem`),
-`historico_enfermagem` (novo, sessão anterior), `consultas_medicas`, `prescricoes_medicas`,
-`prescricao_itens`, `aih_solicitacoes`, `planos_terapeuticos`, `evolucoes_medicas`,
-`notas_intercorrencia_medica`, `receitas_medicas`, `sumarios_alta`, `apac_solicitacoes`,
-`solicitacoes_atm`, `tfd_solicitacoes`, `regulacao_atualizacoes`, `solicitacoes_sangue`,
-`medicacoes_continuas`, `exames_solicitados`, `catalogo_medicamentos`, `cid_catalog`,
-`configuracoes`.
-
-**Existem no banco mas SEM função de acesso — órfãs, candidatas a reaproveitar na Fase 2**
-(0 linhas cada, nenhuma referência em `pepClinico.js`/`pepMedico.js`):
-- `evolucoes_enfermagem` — provavelmente reservada pra Evolução SAE (item 2.1).
-- `balanco_hidrico_periodos` e `balanco_hidrico_registros` — provavelmente reservadas pra
-  Balanço Hídrico por turno (item 2.3).
-
-**Não existem no banco** (precisam de migração nova quando a Fase 2 chegar nelas):
-Cardex/Aprazamento (checagem de administração), Nota de Intercorrência de Enfermagem,
-qualquer estrutura de NANDA-I/NIC (viraria dado estático no front, não tabela).
-
-### Modelos de impressão
-
-13 dos 21 modelos em `modelos_impressao_html/` já correspondem a documentos com impressão
-real e testada no sistema (ver lista completa na Fase 3). Os 8 restantes são documentos que
-ainda não têm nenhuma versão de impressão hoje.
-
-### Design system / shell
-
-Hoje: tipografia IBM Plex Mono/Sans, paleta clara com `--c-primary` azul-petróleo, sidebar
-escura com identidade própria (`Sidebar.css`) — **diferente** da proposta Inter + Phosphor +
-navy `#0B192C` do design system novo. Nenhuma peça da Fase 0 está implementada ainda.
+**Sem impressão nenhuma hoje:** `02-evolucao-enfermagem-sae`,
+`03-transferencia-paciente-sbar` (upgrade da atual), `04-nota-intercorrencia-enfermagem`,
+`05-balanco-hidrico-24h`, `15-passagem-plantao-coletiva`,
+`19-solicitacao-exames-laboratoriais`, `20-solicitacao-exames-imagem-rx`,
+`21-solicitacao-eletrocardiograma-ecg`.
 
 ---
 
-## Pendências fora deste plano (não esquecer)
+## Tabelas no banco — referência completa
 
-- `proposta-design-system-vitaloop.html` está duplicado: existe uma cópia solta na raiz do
-  projeto (`proposta-design-system-vitaloop.html`, não commitada, mencionada no handoff
-  anterior) e outra dentro de `mockups-fase2/`. Consolidar em um só lugar antes da Fase 0.
-- Revisão do `somenteSe` em `historicoEnfermagemConfig.js` (pendência do handoff anterior,
-  ainda não feita).
-- Verificação visual da tela de Abertura de Plantão (pendência do handoff anterior).
+**Implementadas e em uso:** `enfermeiros`, `setores`, `leitos`, `pacientes`, `pessoas`,
+`atendimentos`, `internacoes`, `leito_ocupacoes`, `realocacoes`, `plantoes`, `passagens`,
+`alergias`, `dispositivos_invasivos`, `balanco_hidrico`, `escalas_enfermagem`,
+`isolamentos`, `transferencias_sbar`, `eventos_adversos`, `sinais_vitais`, `evolucoes`,
+`admissoes_enfermagem` (legado), `historico_enfermagem`, `consultas_medicas`,
+`prescricoes_medicas`, `prescricao_itens`, `aih_solicitacoes`, `planos_terapeuticos`,
+`evolucoes_medicas`, `notas_intercorrencia_medica`, `receitas_medicas`, `sumarios_alta`,
+`apac_solicitacoes`, `solicitacoes_atm`, `tfd_solicitacoes`, `regulacao_atualizacoes`,
+`solicitacoes_sangue`, `medicacoes_continuas`, `exames_solicitados`,
+`catalogo_medicamentos`, `cid_catalog`, `configuracoes`.
+
+**Órfãs (existem, 0 linhas, nenhuma função de acesso) — candidatas a reaproveitar na Fase 2:**
+`evolucoes_enfermagem`, `balanco_hidrico_periodos`, `balanco_hidrico_registros`.
+
+**Não existem ainda:** Cardex/Aprazamento, Nota de Intercorrência de Enfermagem (tabela
+própria, distinta da médica).
+
+---
+
+## Pendências antigas (ainda não feitas, não esquecer)
+
+- `proposta-design-system-vitaloop.html` duplicado (raiz do projeto + dentro de
+  `mockups-fase2/`) — consolidar.
+- Revisão do `somenteSe` em `historicoEnfermagemConfig.js`.
+- Verificação visual da tela de Abertura de Plantão.
+
+## Nota sobre branch
+
+Este documento e os commits mais recentes estão em `main`, não em `pep/fase-0-fundacao`
+(onde a sessão anterior trabalhou). Confirmar com o usuário se `main` é agora a linha de
+trabalho ativa antes de abrir PR ou mesclar qualquer coisa.
