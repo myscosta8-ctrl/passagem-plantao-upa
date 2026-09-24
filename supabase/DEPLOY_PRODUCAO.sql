@@ -1,24 +1,24 @@
 -- =====================================================================
 -- SCRIPT DE DEPLOY E REPARAÇÃO DEFINITIVA - VITALOOP / UPA 24H BREVES (SEMSA)
--- Gerado automaticamente com base na auditoria completa do banco de produção.
--- Idempotente: Execução 100% segura sem falha de coluna ou perda de dados.
+-- 100% SEGURO: PRESERVAÇÃO TOTAL DOS PACIENTES, PLANTÕES E HISTÓRICO EXISTENTES
+-- Compatibilização de tipos: setores (INTEGER), leitos (INTEGER), pacientes (UUID)
 -- =====================================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- =====================================================================
--- FASE 1: GARANTIR QUE TODAS AS 48 TABELAS EXISTEM COM CHAVE PRIMÁRIA
+-- FASE 1: GARANTIR QUE TODAS AS 48 TABELAS EXISTEM COM CHAVES PRIMÁRIAS VÁLIDAS
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.enfermeiros (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid()
 );
 CREATE TABLE IF NOT EXISTS public.setores (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+    id SERIAL PRIMARY KEY
 );
 CREATE TABLE IF NOT EXISTS public.leitos (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+    id SERIAL PRIMARY KEY
 );
 CREATE TABLE IF NOT EXISTS public.plantoes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -183,7 +183,7 @@ ALTER TABLE public.setores ADD COLUMN IF NOT EXISTS ativo BOOLEAN NOT NULL DEFAU
 ALTER TABLE public.setores ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: leitos
-ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS setor_id UUID REFERENCES public.setores(id) ON DELETE CASCADE;
+ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS setor_id INTEGER REFERENCES public.setores(id) ON DELETE CASCADE;
 ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS numero TEXT;
 ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS tipo TEXT NOT NULL DEFAULT 'comum' CHECK (tipo IN ('comum', 'extra', 'isolamento', 'emergencia'));
 ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS ativo BOOLEAN NOT NULL DEFAULT true;
@@ -220,7 +220,7 @@ ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS alergias_obs TEXT;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS status_internacao TEXT DEFAULT 'Em observação';
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'internado' CHECK (status IN ('internado', 'alta', 'obito', 'transferido'));
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS classificacao_manchester TEXT CHECK (classificacao_manchester IN ('Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul'));
-ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS leito_atual_id UUID REFERENCES public.leitos(id) ON DELETE SET NULL;
+ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS leito_atual_id INTEGER REFERENCES public.leitos(id) ON DELETE SET NULL;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS ultima_alteracao_por UUID REFERENCES public.enfermeiros(id) ON DELETE SET NULL;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS ultima_alteracao_em TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -229,7 +229,7 @@ ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT 
 ALTER TABLE public.passagens ADD COLUMN IF NOT EXISTS plantao_id UUID REFERENCES public.plantoes(id) ON DELETE CASCADE;
 ALTER TABLE public.passagens ADD COLUMN IF NOT EXISTS paciente_id UUID REFERENCES public.pacientes(id) ON DELETE CASCADE;
 ALTER TABLE public.passagens ADD COLUMN IF NOT EXISTS atendimento_id UUID;
-ALTER TABLE public.passagens ADD COLUMN IF NOT EXISTS leito_id UUID REFERENCES public.leitos(id) ON DELETE SET NULL;
+ALTER TABLE public.passagens ADD COLUMN IF NOT EXISTS leito_id INTEGER REFERENCES public.leitos(id) ON DELETE SET NULL;
 ALTER TABLE public.passagens ADD COLUMN IF NOT EXISTS enfermeiro_id UUID REFERENCES public.enfermeiros(id) ON DELETE SET NULL;
 ALTER TABLE public.passagens ADD COLUMN IF NOT EXISTS diagnostico TEXT;
 ALTER TABLE public.passagens ADD COLUMN IF NOT EXISTS pendencias TEXT;
@@ -248,8 +248,8 @@ ALTER TABLE public.passagens ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMPTZ 
 -- Colunas para tabela: realocacoes
 ALTER TABLE public.realocacoes ADD COLUMN IF NOT EXISTS paciente_id UUID REFERENCES public.pacientes(id) ON DELETE CASCADE;
 ALTER TABLE public.realocacoes ADD COLUMN IF NOT EXISTS atendimento_id UUID;
-ALTER TABLE public.realocacoes ADD COLUMN IF NOT EXISTS leito_origem_id UUID REFERENCES public.leitos(id) ON DELETE SET NULL;
-ALTER TABLE public.realocacoes ADD COLUMN IF NOT EXISTS leito_destino_id UUID REFERENCES public.leitos(id) ON DELETE CASCADE;
+ALTER TABLE public.realocacoes ADD COLUMN IF NOT EXISTS leito_origem_id INTEGER REFERENCES public.leitos(id) ON DELETE SET NULL;
+ALTER TABLE public.realocacoes ADD COLUMN IF NOT EXISTS leito_destino_id INTEGER REFERENCES public.leitos(id) ON DELETE CASCADE;
 ALTER TABLE public.realocacoes ADD COLUMN IF NOT EXISTS enfermeiro_id UUID REFERENCES public.enfermeiros(id) ON DELETE SET NULL;
 ALTER TABLE public.realocacoes ADD COLUMN IF NOT EXISTS motivo TEXT;
 ALTER TABLE public.realocacoes ADD COLUMN IF NOT EXISTS realocado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -318,7 +318,7 @@ ALTER TABLE public.pessoas_fusoes ADD COLUMN IF NOT EXISTS realizado_em TIMESTAM
 -- Colunas para tabela: atendimentos
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS numero_atendimento TEXT UNIQUE;
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS pessoa_id UUID REFERENCES public.pessoas(id) ON DELETE CASCADE;
-ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS setor_id UUID REFERENCES public.setores(id) ON DELETE SET NULL;
+ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS setor_id INTEGER REFERENCES public.setores(id) ON DELETE SET NULL;
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS tipo TEXT NOT NULL DEFAULT 'internacao' CHECK (tipo IN ('urgencia', 'emergencia', 'ambulatorial', 'internacao', 'observacao'));
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS carater TEXT NOT NULL DEFAULT 'Urgência';
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS convenio TEXT NOT NULL DEFAULT 'SUS';
@@ -345,7 +345,7 @@ ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS desfecho_obs TEXT;
 ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: leito_ocupacoes
-ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS leito_id UUID REFERENCES public.leitos(id) ON DELETE CASCADE;
+ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS leito_id INTEGER REFERENCES public.leitos(id) ON DELETE CASCADE;
 ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS atendimento_id UUID REFERENCES public.atendimentos(id) ON DELETE CASCADE;
 ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS alocado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS desocupado_em TIMESTAMPTZ;
@@ -508,8 +508,8 @@ ALTER TABLE public.eventos_adversos ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP
 -- Colunas para tabela: transferencias_sbar
 ALTER TABLE public.transferencias_sbar ADD COLUMN IF NOT EXISTS atendimento_id UUID REFERENCES public.atendimentos(id) ON DELETE CASCADE;
 ALTER TABLE public.transferencias_sbar ADD COLUMN IF NOT EXISTS transferido_por UUID REFERENCES public.enfermeiros(id) ON DELETE RESTRICT;
-ALTER TABLE public.transferencias_sbar ADD COLUMN IF NOT EXISTS setor_origem_id UUID REFERENCES public.setores(id) ON DELETE SET NULL;
-ALTER TABLE public.transferencias_sbar ADD COLUMN IF NOT EXISTS setor_destino_id UUID REFERENCES public.setores(id) ON DELETE SET NULL;
+ALTER TABLE public.transferencias_sbar ADD COLUMN IF NOT EXISTS setor_origem_id INTEGER REFERENCES public.setores(id) ON DELETE SET NULL;
+ALTER TABLE public.transferencias_sbar ADD COLUMN IF NOT EXISTS setor_destino_id INTEGER REFERENCES public.setores(id) ON DELETE SET NULL;
 ALTER TABLE public.transferencias_sbar ADD COLUMN IF NOT EXISTS situacao TEXT;
 ALTER TABLE public.transferencias_sbar ADD COLUMN IF NOT EXISTS breve_historico TEXT;
 ALTER TABLE public.transferencias_sbar ADD COLUMN IF NOT EXISTS avaliacao TEXT;
@@ -912,91 +912,88 @@ END $$;
 
 
 -- =====================================================================
--- FASE 5: CARGA DE DADOS INICIAIS (SEEDS DA UPA 24H BREVES)
+-- FASE 5: CARGA DE DADOS INICIAIS (SEEDS DINÂMICOS DA UPA 24H BREVES)
 -- =====================================================================
 
--- ==============================================================================
--- MIGRAÇÃO 06: DADOS DE REFERÊNCIA E SEEDS INICIAIS
--- SETORES, LEITOS, CONFIGURAÇÕES E CATÁLOGOS BÁSICOS — UPA 24H BREVES
--- ==============================================================================
-
--- 1. SETORES PADRÃO DA UPA 24H BREVES
+-- 1. SETORES PADRÃO (Sem forçar IDs para preservar integridade existente)
 ALTER TABLE public.setores ADD COLUMN IF NOT EXISTS sigla TEXT;
 ALTER TABLE public.setores ADD COLUMN IF NOT EXISTS ordem INTEGER DEFAULT 0;
 ALTER TABLE public.setores ADD COLUMN IF NOT EXISTS ativo BOOLEAN DEFAULT true;
 
+INSERT INTO public.setores (nome, sigla, ordem, ativo) VALUES
+    ('Sala Vermelha (Emergência)', 'SV', 1, true),
+    ('Internação', 'INT', 2, true),
+    ('Observação Masculina', 'OBS-M', 3, true),
+    ('Observação Feminina', 'OBS-F', 4, true),
+    ('Observação Pediátrica', 'OBS-P', 5, true),
+    ('Isolamento', 'ISO', 6, true)
+ON CONFLICT (nome) DO UPDATE SET 
+    sigla = COALESCE(EXCLUDED.sigla, public.setores.sigla),
+    ordem = COALESCE(EXCLUDED.ordem, public.setores.ordem),
+    ativo = EXCLUDED.ativo;
+
+-- 2. LEITOS OFICIAIS DA UPA (Vinculação dinâmica por setor_id existente)
 ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'comum';
 ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS ativo BOOLEAN DEFAULT true;
 
-ALTER TABLE public.catalogo_medicamentos ADD COLUMN IF NOT EXISTS via_padrao TEXT;
-ALTER TABLE public.catalogo_medicamentos ADD COLUMN IF NOT EXISTS controlado BOOLEAN DEFAULT false;
-ALTER TABLE public.catalogo_medicamentos ADD COLUMN IF NOT EXISTS antimicrobiano BOOLEAN DEFAULT false;
+DO $$
+DECLARE
+    sv_id integer;
+    int_id integer;
+    obsm_id integer;
+    obsf_id integer;
+    obsp_id integer;
+    iso_id integer;
+BEGIN
+    SELECT id INTO sv_id FROM public.setores WHERE sigla = 'SV' OR nome ILIKE '%Vermelha%' LIMIT 1;
+    SELECT id INTO int_id FROM public.setores WHERE sigla = 'INT' OR nome ILIKE '%Interna%' LIMIT 1;
+    SELECT id INTO obsm_id FROM public.setores WHERE sigla = 'OBS-M' OR nome ILIKE '%Masculina%' LIMIT 1;
+    SELECT id INTO obsf_id FROM public.setores WHERE sigla = 'OBS-F' OR nome ILIKE '%Feminina%' LIMIT 1;
+    SELECT id INTO obsp_id FROM public.setores WHERE sigla = 'OBS-P' OR nome ILIKE '%Pedi%' LIMIT 1;
+    SELECT id INTO iso_id FROM public.setores WHERE sigla = 'ISO' OR nome ILIKE '%Isolamento%' LIMIT 1;
 
-INSERT INTO public.setores (id, nome, sigla, ordem, ativo) VALUES
+    IF sv_id IS NOT NULL THEN
+        INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
+        (sv_id, '01', 'emergencia', true), (sv_id, '02', 'emergencia', true), (sv_id, '03', 'emergencia', true)
+        ON CONFLICT (setor_id, numero) DO NOTHING;
+    END IF;
 
-    ('11111111-1111-1111-1111-111111111101', 'Sala Vermelha (Emergência)', 'SV', 1, true),
-    ('11111111-1111-1111-1111-111111111102', 'Internação', 'INT', 2, true),
-    ('11111111-1111-1111-1111-111111111103', 'Observação Masculina', 'OBS-M', 3, true),
-    ('11111111-1111-1111-1111-111111111104', 'Observação Feminina', 'OBS-F', 4, true),
-    ('11111111-1111-1111-1111-111111111105', 'Observação Pediátrica', 'OBS-P', 5, true),
-    ('11111111-1111-1111-1111-111111111106', 'Isolamento', 'ISO', 6, true)
-ON CONFLICT (nome) DO UPDATE SET ativo = EXCLUDED.ativo;
+    IF int_id IS NOT NULL THEN
+        INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
+        (int_id, '01', 'comum', true), (int_id, '02', 'comum', true), (int_id, '03', 'comum', true),
+        (int_id, '04', 'comum', true), (int_id, '05', 'comum', true), (int_id, '06', 'comum', true),
+        (int_id, '07', 'comum', true), (int_id, '08', 'comum', true), (int_id, '09', 'comum', true),
+        (int_id, '10', 'comum', true)
+        ON CONFLICT (setor_id, numero) DO NOTHING;
+    END IF;
 
--- 2. LEITOS OFICIAIS DA UPA
--- Sala Vermelha (Leitos 1 a 3)
-INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
-    ('11111111-1111-1111-1111-111111111101', '01', 'emergencia', true),
-    ('11111111-1111-1111-1111-111111111101', '02', 'emergencia', true),
-    ('11111111-1111-1111-1111-111111111101', '03', 'emergencia', true)
-ON CONFLICT (setor_id, numero) DO NOTHING;
+    IF obsm_id IS NOT NULL THEN
+        INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
+        (obsm_id, '01', 'comum', true), (obsm_id, '02', 'comum', true), (obsm_id, '03', 'comum', true),
+        (obsm_id, '04', 'comum', true), (obsm_id, '05', 'comum', true), (obsm_id, '06', 'comum', true)
+        ON CONFLICT (setor_id, numero) DO NOTHING;
+    END IF;
 
--- Internação (Leitos 01 a 10)
-INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
-    ('11111111-1111-1111-1111-111111111102', '01', 'comum', true),
-    ('11111111-1111-1111-1111-111111111102', '02', 'comum', true),
-    ('11111111-1111-1111-1111-111111111102', '03', 'comum', true),
-    ('11111111-1111-1111-1111-111111111102', '04', 'comum', true),
-    ('11111111-1111-1111-1111-111111111102', '05', 'comum', true),
-    ('11111111-1111-1111-1111-111111111102', '06', 'comum', true),
-    ('11111111-1111-1111-1111-111111111102', '07', 'comum', true),
-    ('11111111-1111-1111-1111-111111111102', '08', 'comum', true),
-    ('11111111-1111-1111-1111-111111111102', '09', 'comum', true),
-    ('11111111-1111-1111-1111-111111111102', '10', 'comum', true)
-ON CONFLICT (setor_id, numero) DO NOTHING;
+    IF obsf_id IS NOT NULL THEN
+        INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
+        (obsf_id, '01', 'comum', true), (obsf_id, '02', 'comum', true), (obsf_id, '03', 'comum', true),
+        (obsf_id, '04', 'comum', true), (obsf_id, '05', 'comum', true), (obsf_id, '06', 'comum', true)
+        ON CONFLICT (setor_id, numero) DO NOTHING;
+    END IF;
 
--- Observação Masculina (Leitos 01 a 06)
-INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
-    ('11111111-1111-1111-1111-111111111103', '01', 'comum', true),
-    ('11111111-1111-1111-1111-111111111103', '02', 'comum', true),
-    ('11111111-1111-1111-1111-111111111103', '03', 'comum', true),
-    ('11111111-1111-1111-1111-111111111103', '04', 'comum', true),
-    ('11111111-1111-1111-1111-111111111103', '05', 'comum', true),
-    ('11111111-1111-1111-1111-111111111103', '06', 'comum', true)
-ON CONFLICT (setor_id, numero) DO NOTHING;
+    IF obsp_id IS NOT NULL THEN
+        INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
+        (obsp_id, '01', 'comum', true), (obsp_id, '02', 'comum', true), (obsp_id, '03', 'comum', true),
+        (obsp_id, '04', 'comum', true)
+        ON CONFLICT (setor_id, numero) DO NOTHING;
+    END IF;
 
--- Observação Feminina (Leitos 01 a 06)
-INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
-    ('11111111-1111-1111-1111-111111111104', '01', 'comum', true),
-    ('11111111-1111-1111-1111-111111111104', '02', 'comum', true),
-    ('11111111-1111-1111-1111-111111111104', '03', 'comum', true),
-    ('11111111-1111-1111-1111-111111111104', '04', 'comum', true),
-    ('11111111-1111-1111-1111-111111111104', '05', 'comum', true),
-    ('11111111-1111-1111-1111-111111111104', '06', 'comum', true)
-ON CONFLICT (setor_id, numero) DO NOTHING;
-
--- Observação Pediátrica (Leitos 01 a 04)
-INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
-    ('11111111-1111-1111-1111-111111111105', '01', 'comum', true),
-    ('11111111-1111-1111-1111-111111111105', '02', 'comum', true),
-    ('11111111-1111-1111-1111-111111111105', '03', 'comum', true),
-    ('11111111-1111-1111-1111-111111111105', '04', 'comum', true)
-ON CONFLICT (setor_id, numero) DO NOTHING;
-
--- Isolamento (Leitos 01 e 02)
-INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
-    ('11111111-1111-1111-1111-111111111106', '01', 'isolamento', true),
-    ('11111111-1111-1111-1111-111111111106', '02', 'isolamento', true)
-ON CONFLICT (setor_id, numero) DO NOTHING;
+    IF iso_id IS NOT NULL THEN
+        INSERT INTO public.leitos (setor_id, numero, tipo, ativo) VALUES
+        (iso_id, '01', 'isolamento', true), (iso_id, '02', 'isolamento', true)
+        ON CONFLICT (setor_id, numero) DO NOTHING;
+    END IF;
+END $$;
 
 -- 3. CONFIGURAÇÕES INSTITUCIONAIS DA UPA 24H BREVES
 INSERT INTO public.configuracoes (chave, valor, descricao) VALUES
@@ -1031,6 +1028,10 @@ INSERT INTO public.cid_catalog (codigo, descricao, agravo) VALUES
 ON CONFLICT (codigo) DO NOTHING;
 
 -- 5. CATÁLOGO INICIAL DE MEDICAMENTOS (FARMÁCIA HOSPITALAR UPA)
+ALTER TABLE public.catalogo_medicamentos ADD COLUMN IF NOT EXISTS via_padrao TEXT;
+ALTER TABLE public.catalogo_medicamentos ADD COLUMN IF NOT EXISTS controlado BOOLEAN DEFAULT false;
+ALTER TABLE public.catalogo_medicamentos ADD COLUMN IF NOT EXISTS antimicrobiano BOOLEAN DEFAULT false;
+
 INSERT INTO public.catalogo_medicamentos (nome, concentracao, forma_farmaceutica, via_padrao, controlado, antimicrobiano) VALUES
     ('Dipirona Sódica', '500 mg/mL', 'Ampola 2mL', 'EV', false, false),
     ('Ondansetrona', '2 mg/mL', 'Ampola 4mL', 'EV', false, false),
