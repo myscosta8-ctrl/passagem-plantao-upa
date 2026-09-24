@@ -18,45 +18,51 @@ CREATE INDEX IF NOT EXISTS idx_atendimentos_pessoa_id ON public.atendimentos (pe
 CREATE INDEX IF NOT EXISTS idx_atendimentos_status ON public.atendimentos (status);
 CREATE INDEX IF NOT EXISTS idx_atendimentos_setor_id ON public.atendimentos (setor_id);
 CREATE INDEX IF NOT EXISTS idx_internacoes_atendimento_id ON public.internacoes (atendimento_id);
-CREATE INDEX IF NOT EXISTS idx_leito_ocupacoes_leito_status ON public.leito_ocupacoes (leito_id, status);
-CREATE INDEX IF NOT EXISTS idx_leito_ocupacoes_atendimento_status ON public.leito_ocupacoes (atendimento_id, status);
+CREATE INDEX IF NOT EXISTS idx_leito_ocupacoes_leito_id ON public.leito_ocupacoes (leito_id);
+CREATE INDEX IF NOT EXISTS idx_leito_ocupacoes_atendimento_id ON public.leito_ocupacoes (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_leitos_setor_id ON public.leitos (setor_id);
 
 -- 3. ÍNDICES PARA PASSAGEM DE PLANTÃO
 CREATE INDEX IF NOT EXISTS idx_passagens_plantao_id ON public.passagens (plantao_id);
 CREATE INDEX IF NOT EXISTS idx_passagens_atendimento_id ON public.passagens (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_passagens_paciente_id ON public.passagens (paciente_id);
-CREATE INDEX IF NOT EXISTS idx_plantoes_status ON public.plantoes (status);
 
 -- 4. ÍNDICES PARA FICHA CLÍNICA / ENFERMAGEM
 ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS horario_registro TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS registrado_em TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'entrada';
+ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS via TEXT DEFAULT 'VO';
+ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS volume_ml NUMERIC(8,2) DEFAULT 0;
+
 ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS horario_medicao TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS medido_em TIMESTAMPTZ DEFAULT NOW();
+
 ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ativo';
 ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ativa';
 ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ativo';
 ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ativo';
+ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'laboratorio';
+ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'solicitado';
 
 CREATE INDEX IF NOT EXISTS idx_admissoes_enf_atendimento ON public.admissoes_enfermagem (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_evolucoes_atendimento ON public.evolucoes (atendimento_id);
-CREATE INDEX IF NOT EXISTS idx_balanco_hidrico_atendimento ON public.balanco_hidrico (atendimento_id, horario_registro);
-CREATE INDEX IF NOT EXISTS idx_dispositivos_atendimento_status ON public.dispositivos_invasivos (atendimento_id, status);
-CREATE INDEX IF NOT EXISTS idx_sinais_vitais_atendimento ON public.sinais_vitais (atendimento_id, horario_medicao);
-CREATE INDEX IF NOT EXISTS idx_alergias_pessoa_status ON public.alergias (pessoa_id, status);
-CREATE INDEX IF NOT EXISTS idx_medicacoes_cont_pessoa_status ON public.medicacoes_continuas (pessoa_id, status);
-
+CREATE INDEX IF NOT EXISTS idx_balanco_hidrico_atendimento ON public.balanco_hidrico (atendimento_id);
+CREATE INDEX IF NOT EXISTS idx_dispositivos_atendimento ON public.dispositivos_invasivos (atendimento_id);
+CREATE INDEX IF NOT EXISTS idx_sinais_vitais_atendimento ON public.sinais_vitais (atendimento_id);
+CREATE INDEX IF NOT EXISTS idx_alergias_pessoa ON public.alergias (pessoa_id);
+CREATE INDEX IF NOT EXISTS idx_medicacoes_cont_pessoa ON public.medicacoes_continuas (pessoa_id);
 
 -- 5. ÍNDICES PARA PRONTUÁRIO MÉDICO
 CREATE INDEX IF NOT EXISTS idx_consultas_med_atendimento ON public.consultas_medicas (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_evolucoes_med_atendimento ON public.evolucoes_medicas (atendimento_id);
-CREATE INDEX IF NOT EXISTS idx_prescricoes_med_atendimento ON public.prescricoes_medicas (atendimento_id, status);
+CREATE INDEX IF NOT EXISTS idx_prescricoes_med_atendimento ON public.prescricoes_medicas (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_prescricao_itens_prescricao ON public.prescricao_itens (prescricao_id);
-CREATE INDEX IF NOT EXISTS idx_exames_atendimento ON public.exames_solicitados (atendimento_id, tipo);
+CREATE INDEX IF NOT EXISTS idx_exames_atendimento ON public.exames_solicitados (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_aih_atendimento ON public.aih_solicitacoes (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_apac_atendimento ON public.apac_solicitacoes (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_receitas_atendimento ON public.receitas_medicas (atendimento_id);
 CREATE INDEX IF NOT EXISTS idx_sumarios_alta_atendimento ON public.sumarios_alta (atendimento_id);
+
 
 -- 6. HABILITAÇÃO DE ROW LEVEL SECURITY (RLS) EM TODAS AS TABELAS
 ALTER TABLE public.enfermeiros ENABLE ROW LEVEL SECURITY;

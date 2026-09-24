@@ -114,6 +114,12 @@ CREATE TABLE IF NOT EXISTS public.exames_solicitados (
     criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Compatibilidade retroativa para instâncias onde exames_solicitados já existia
+ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'laboratorio';
+ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS modalidade TEXT;
+ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'solicitado';
+
+
 -- 8. NOTAS DE INTERCORRÊNCIA MÉDICA
 CREATE TABLE IF NOT EXISTS public.notas_intercorrencia_medica (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
