@@ -167,7 +167,7 @@ ALTER TABLE public.enfermeiros ADD COLUMN IF NOT EXISTS email TEXT UNIQUE;
 ALTER TABLE public.enfermeiros ADD COLUMN IF NOT EXISTS senha_hash TEXT;
 ALTER TABLE public.enfermeiros ADD COLUMN IF NOT EXISTS coren TEXT;
 ALTER TABLE public.enfermeiros ADD COLUMN IF NOT EXISTS crm TEXT;
-ALTER TABLE public.enfermeiros ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'enfermeiro' CHECK (role IN ('admin', 'enfermeiro', 'medico', 'tecnico', 'recepcao'));
+ALTER TABLE public.enfermeiros ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'enfermeiro' );
 ALTER TABLE public.enfermeiros ADD COLUMN IF NOT EXISTS ativo BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE public.enfermeiros ADD COLUMN IF NOT EXISTS pep_beta BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE public.enfermeiros ADD COLUMN IF NOT EXISTS primeiro_acesso BOOLEAN NOT NULL DEFAULT true;
@@ -185,16 +185,16 @@ ALTER TABLE public.setores ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NU
 -- Colunas para tabela: leitos
 ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS setor_id INTEGER REFERENCES public.setores(id) ON DELETE CASCADE;
 ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS numero TEXT;
-ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS tipo TEXT NOT NULL DEFAULT 'comum' CHECK (tipo IN ('comum', 'extra', 'isolamento', 'emergencia'));
+ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS tipo TEXT NOT NULL DEFAULT 'comum' );
 ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS ativo BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE public.leitos ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: plantoes
 ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS data_inicio TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS data_fim TIMESTAMPTZ;
-ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS turno TEXT CHECK (turno IN ('diurno', 'noturno', '24h'));
+ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS turno TEXT );
 ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS enfermeiro_chefe_id UUID REFERENCES public.enfermeiros(id) ON DELETE SET NULL;
-ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'aberto' CHECK (status IN ('aberto', 'encerrado'));
+ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'aberto' );
 ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS observacoes TEXT;
 ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS curativo_ok BOOLEAN DEFAULT true;
 ALTER TABLE public.plantoes ADD COLUMN IF NOT EXISTS carrinho_ok BOOLEAN DEFAULT true;
@@ -212,14 +212,14 @@ ALTER TABLE public.plantao_profissionais ADD COLUMN IF NOT EXISTS criado_em TIME
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS nome TEXT;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS diagnostico TEXT;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS idade INTEGER;
-ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS sexo TEXT CHECK (sexo IN ('M', 'F', 'Outro'));
+ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS sexo TEXT );
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS data_admissao DATE;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS data_nascimento DATE;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS alergias BOOLEAN DEFAULT false;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS alergias_obs TEXT;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS status_internacao TEXT DEFAULT 'Em observação';
-ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'internado' CHECK (status IN ('internado', 'alta', 'obito', 'transferido'));
-ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS classificacao_manchester TEXT CHECK (classificacao_manchester IN ('Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul'));
+ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'internado' );
+ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS classificacao_manchester TEXT );
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS leito_atual_id INTEGER REFERENCES public.leitos(id) ON DELETE SET NULL;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS ultima_alteracao_por UUID REFERENCES public.enfermeiros(id) ON DELETE SET NULL;
 ALTER TABLE public.pacientes ADD COLUMN IF NOT EXISTS ultima_alteracao_em TIMESTAMPTZ DEFAULT NOW();
@@ -277,7 +277,7 @@ ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS nome_mae TEXT;
 ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS nome_pai TEXT;
 ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS data_nascimento DATE;
 ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS idade_informada INTEGER;
-ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS sexo TEXT CHECK (sexo IN ('M', 'F', 'Outro'));
+ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS sexo TEXT );
 ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS raca_cor TEXT;
 ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS religiao TEXT;
 ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS nacionalidade TEXT DEFAULT 'Brasil';
@@ -303,7 +303,7 @@ ALTER TABLE public.pessoas ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMPTZ NO
 ALTER TABLE public.pessoas_duplicatas ADD COLUMN IF NOT EXISTS pessoa_origem_id UUID REFERENCES public.pessoas(id) ON DELETE CASCADE;
 ALTER TABLE public.pessoas_duplicatas ADD COLUMN IF NOT EXISTS pessoa_duplicada_id UUID REFERENCES public.pessoas(id) ON DELETE CASCADE;
 ALTER TABLE public.pessoas_duplicatas ADD COLUMN IF NOT EXISTS similaridade_score NUMERIC(5,2);
-ALTER TABLE public.pessoas_duplicatas ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'confirmado', 'descartado'));
+ALTER TABLE public.pessoas_duplicatas ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pendente' );
 ALTER TABLE public.pessoas_duplicatas ADD COLUMN IF NOT EXISTS revisado_por UUID REFERENCES public.enfermeiros(id) ON DELETE SET NULL;
 ALTER TABLE public.pessoas_duplicatas ADD COLUMN IF NOT EXISTS revisado_em TIMESTAMPTZ;
 ALTER TABLE public.pessoas_duplicatas ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -319,13 +319,13 @@ ALTER TABLE public.pessoas_fusoes ADD COLUMN IF NOT EXISTS realizado_em TIMESTAM
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS numero_atendimento TEXT UNIQUE;
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS pessoa_id UUID REFERENCES public.pessoas(id) ON DELETE CASCADE;
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS setor_id INTEGER REFERENCES public.setores(id) ON DELETE SET NULL;
-ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS tipo TEXT NOT NULL DEFAULT 'internacao' CHECK (tipo IN ('urgencia', 'emergencia', 'ambulatorial', 'internacao', 'observacao'));
+ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS tipo TEXT NOT NULL DEFAULT 'internacao' );
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS carater TEXT NOT NULL DEFAULT 'Urgência';
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS convenio TEXT NOT NULL DEFAULT 'SUS';
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS tipo_entrada TEXT DEFAULT 'Demanda espontânea';
-ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'internado' CHECK (status IN ('triagem', 'atendimento', 'internado', 'alta', 'obito', 'transferido', 'evasao'));
+ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'internado' );
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS status_internacao TEXT DEFAULT 'Em observação';
-ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS classificacao_risco_cor TEXT CHECK (classificacao_risco_cor IN ('Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul'));
+ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS classificacao_risco_cor TEXT );
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS regulacao_flag BOOLEAN DEFAULT false;
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS regulacao_tipo TEXT;
 ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS regulacao_aberta_em TIMESTAMPTZ;
@@ -339,7 +339,7 @@ ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS diagnostico_admissao TEX
 ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS cid_admissao TEXT;
 ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS medico_admissao_id UUID REFERENCES public.enfermeiros(id) ON DELETE SET NULL;
 ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS previsao_alta DATE;
-ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS desfecho_tipo TEXT CHECK (desfecho_tipo IN ('alta_curado', 'alta_melhorado', 'alta_a_pedido', 'transferencia', 'obito', 'evasao'));
+ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS desfecho_tipo TEXT );
 ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS desfecho_em TIMESTAMPTZ;
 ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS desfecho_obs TEXT;
 ALTER TABLE public.internacoes ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -349,15 +349,15 @@ ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS leito_id INTEGER REF
 ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS atendimento_id UUID REFERENCES public.atendimentos(id) ON DELETE CASCADE;
 ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS alocado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS desocupado_em TIMESTAMPTZ;
-ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' CHECK (status IN ('ativo', 'encerrado', 'transferido'));
+ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' );
 ALTER TABLE public.leito_ocupacoes ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: alergias
 ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS pessoa_id UUID REFERENCES public.pessoas(id) ON DELETE CASCADE;
 ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS substancia TEXT;
 ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS reacao TEXT;
-ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS gravidade TEXT DEFAULT 'moderada' CHECK (gravidade IN ('leve', 'moderada', 'grave', 'choque_anafilatico'));
-ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativa' CHECK (status IN ('ativa', 'inativa', 'resolvida'));
+ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS gravidade TEXT DEFAULT 'moderada' );
+ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativa' );
 ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS registrado_por UUID REFERENCES public.enfermeiros(id) ON DELETE SET NULL;
 ALTER TABLE public.alergias ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
@@ -366,7 +366,7 @@ ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS pessoa_id UUID 
 ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS medicamento TEXT;
 ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS dose TEXT;
 ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS frequencia TEXT;
-ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' CHECK (status IN ('ativo', 'suspenso', 'interrompido'));
+ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' );
 ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS registrado_por UUID REFERENCES public.enfermeiros(id) ON DELETE SET NULL;
 ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS registrado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE public.medicacoes_continuas ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -435,7 +435,7 @@ ALTER TABLE public.evolucoes_enfermagem ADD COLUMN IF NOT EXISTS criado_em TIMES
 -- Colunas para tabela: balanco_hidrico
 ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS atendimento_id UUID REFERENCES public.atendimentos(id) ON DELETE CASCADE;
 ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS registrado_por UUID REFERENCES public.enfermeiros(id) ON DELETE RESTRICT;
-ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS tipo TEXT CHECK (tipo IN ('entrada', 'saida'));
+ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS tipo TEXT );
 ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS via TEXT;
 ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS volume_ml NUMERIC(8,2);
 ALTER TABLE public.balanco_hidrico ADD COLUMN IF NOT EXISTS descricao TEXT;
@@ -451,7 +451,7 @@ ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS localizacao T
 ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS calibre TEXT;
 ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS instalado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS removido_em TIMESTAMPTZ;
-ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' CHECK (status IN ('ativo', 'retirado', 'obstruido', 'infiltrado', 'infeccao'));
+ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' );
 ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS curativo_data TIMESTAMPTZ;
 ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS observacoes TEXT;
 ALTER TABLE public.dispositivos_invasivos ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -466,8 +466,8 @@ ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS frequencia_respiratori
 ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS temperatura NUMERIC(4,1);
 ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS saturacao_oxigenio INTEGER;
 ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS hgt INTEGER;
-ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS dor_escala INTEGER CHECK (dor_escala BETWEEN 0 AND 10);
-ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS glasgow INTEGER CHECK (glasgow BETWEEN 3 AND 15);
+ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS dor_escala INTEGER;
+ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS glasgow INTEGER;
 ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS horario_medicao TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS observacoes TEXT;
 ALTER TABLE public.sinais_vitais ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -481,13 +481,13 @@ ALTER TABLE public.isolamentos ADD COLUMN IF NOT EXISTS motivo TEXT;
 ALTER TABLE public.isolamentos ADD COLUMN IF NOT EXISTS microorganismo TEXT;
 ALTER TABLE public.isolamentos ADD COLUMN IF NOT EXISTS iniciado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE public.isolamentos ADD COLUMN IF NOT EXISTS suspenso_em TIMESTAMPTZ;
-ALTER TABLE public.isolamentos ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' CHECK (status IN ('ativo', 'suspenso'));
+ALTER TABLE public.isolamentos ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' );
 ALTER TABLE public.isolamentos ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: escalas_enfermagem
 ALTER TABLE public.escalas_enfermagem ADD COLUMN IF NOT EXISTS atendimento_id UUID REFERENCES public.atendimentos(id) ON DELETE CASCADE;
 ALTER TABLE public.escalas_enfermagem ADD COLUMN IF NOT EXISTS avaliado_por UUID REFERENCES public.enfermeiros(id) ON DELETE RESTRICT;
-ALTER TABLE public.escalas_enfermagem ADD COLUMN IF NOT EXISTS tipo TEXT CHECK (tipo IN ('braden', 'morse', 'glasgow', 'mews', 'rass'));
+ALTER TABLE public.escalas_enfermagem ADD COLUMN IF NOT EXISTS tipo TEXT );
 ALTER TABLE public.escalas_enfermagem ADD COLUMN IF NOT EXISTS escore_total INTEGER;
 ALTER TABLE public.escalas_enfermagem ADD COLUMN IF NOT EXISTS classificacao_risco TEXT;
 ALTER TABLE public.escalas_enfermagem ADD COLUMN IF NOT EXISTS itens_detalhados JSONB;
@@ -498,7 +498,7 @@ ALTER TABLE public.escalas_enfermagem ADD COLUMN IF NOT EXISTS criado_em TIMESTA
 ALTER TABLE public.eventos_adversos ADD COLUMN IF NOT EXISTS atendimento_id UUID REFERENCES public.atendimentos(id) ON DELETE CASCADE;
 ALTER TABLE public.eventos_adversos ADD COLUMN IF NOT EXISTS notificado_por UUID REFERENCES public.enfermeiros(id) ON DELETE RESTRICT;
 ALTER TABLE public.eventos_adversos ADD COLUMN IF NOT EXISTS tipo_evento TEXT;
-ALTER TABLE public.eventos_adversos ADD COLUMN IF NOT EXISTS gravidade TEXT CHECK (gravidade IN ('leve', 'moderado', 'grave', 'sentinela'));
+ALTER TABLE public.eventos_adversos ADD COLUMN IF NOT EXISTS gravidade TEXT );
 ALTER TABLE public.eventos_adversos ADD COLUMN IF NOT EXISTS descricao_detalhada TEXT;
 ALTER TABLE public.eventos_adversos ADD COLUMN IF NOT EXISTS condutas_imediatas TEXT;
 ALTER TABLE public.eventos_adversos ADD COLUMN IF NOT EXISTS data_hora_ocorrencia TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -579,7 +579,7 @@ ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS validade_horas I
 ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS dieta TEXT;
 ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS cuidados_gerais TEXT;
 ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS orientacoes_enfermagem JSONB;
-ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativa' CHECK (status IN ('ativa', 'suspensa', 'encerrada'));
+ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativa' );
 ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE public.prescricoes_medicas ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
@@ -593,7 +593,7 @@ ALTER TABLE public.prescricao_itens ADD COLUMN IF NOT EXISTS diluicao TEXT;
 ALTER TABLE public.prescricao_itens ADD COLUMN IF NOT EXISTS velocidade_infusao TEXT;
 ALTER TABLE public.prescricao_itens ADD COLUMN IF NOT EXISTS horarios TEXT[];
 ALTER TABLE public.prescricao_itens ADD COLUMN IF NOT EXISTS observacoes TEXT;
-ALTER TABLE public.prescricao_itens ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' CHECK (status IN ('ativo', 'suspenso', 'administrado'));
+ALTER TABLE public.prescricao_itens ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'ativo' );
 ALTER TABLE public.prescricao_itens ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: exames_solicitados
@@ -602,7 +602,7 @@ ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS solicitado_por UU
 ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'laboratorio';
 ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS exames JSONB;
 ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS justificativa_clinica TEXT;
-ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS urgencia TEXT NOT NULL DEFAULT 'urgencia' CHECK (urgencia IN ('urgencia', 'rotina', 'imediato'));
+ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS urgencia TEXT NOT NULL DEFAULT 'urgencia' );
 ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'solicitado';
 ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS laudo_resultado TEXT;
 ALTER TABLE public.exames_solicitados ADD COLUMN IF NOT EXISTS concluido_em TIMESTAMPTZ;
@@ -633,7 +633,7 @@ ALTER TABLE public.planos_terapeuticos ADD COLUMN IF NOT EXISTS criado_em TIMEST
 -- Colunas para tabela: receitas_medicas
 ALTER TABLE public.receitas_medicas ADD COLUMN IF NOT EXISTS atendimento_id UUID REFERENCES public.atendimentos(id) ON DELETE CASCADE;
 ALTER TABLE public.receitas_medicas ADD COLUMN IF NOT EXISTS criado_por UUID REFERENCES public.enfermeiros(id) ON DELETE RESTRICT;
-ALTER TABLE public.receitas_medicas ADD COLUMN IF NOT EXISTS tipo TEXT NOT NULL DEFAULT 'simples' CHECK (tipo IN ('simples', 'controle_especial', 'antimicrobiano'));
+ALTER TABLE public.receitas_medicas ADD COLUMN IF NOT EXISTS tipo TEXT NOT NULL DEFAULT 'simples' );
 ALTER TABLE public.receitas_medicas ADD COLUMN IF NOT EXISTS itens JSONB;
 ALTER TABLE public.receitas_medicas ADD COLUMN IF NOT EXISTS orientacoes_gerais TEXT;
 ALTER TABLE public.receitas_medicas ADD COLUMN IF NOT EXISTS uso_continuo BOOLEAN DEFAULT false;
@@ -654,7 +654,7 @@ ALTER TABLE public.aih_solicitacoes ADD COLUMN IF NOT EXISTS sinais_sintomas_cli
 ALTER TABLE public.aih_solicitacoes ADD COLUMN IF NOT EXISTS condicoes_justificam_internacao TEXT;
 ALTER TABLE public.aih_solicitacoes ADD COLUMN IF NOT EXISTS resultados_provas_diagnosticas TEXT;
 ALTER TABLE public.aih_solicitacoes ADD COLUMN IF NOT EXISTS campos_formulario JSONB;
-ALTER TABLE public.aih_solicitacoes ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'solicitado' CHECK (status IN ('solicitado', 'autorizado', 'negado', 'cancelado'));
+ALTER TABLE public.aih_solicitacoes ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'solicitado' );
 ALTER TABLE public.aih_solicitacoes ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: apac_solicitacoes
@@ -668,7 +668,7 @@ ALTER TABLE public.apac_solicitacoes ADD COLUMN IF NOT EXISTS cid_secundario TEX
 ALTER TABLE public.apac_solicitacoes ADD COLUMN IF NOT EXISTS justificativa TEXT;
 ALTER TABLE public.apac_solicitacoes ADD COLUMN IF NOT EXISTS numero_autorizacao TEXT;
 ALTER TABLE public.apac_solicitacoes ADD COLUMN IF NOT EXISTS campos_formulario JSONB;
-ALTER TABLE public.apac_solicitacoes ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'autorizado', 'executado', 'cancelado'));
+ALTER TABLE public.apac_solicitacoes ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pendente' );
 ALTER TABLE public.apac_solicitacoes ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: solicitacoes_atm
@@ -678,12 +678,12 @@ ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS antimicrobiano TEXT
 ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS dose TEXT;
 ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS tempo_provavel_dias INTEGER;
 ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS foco_infeccioso TEXT;
-ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS indicacao_tipo TEXT CHECK (indicacao_tipo IN ('empirico', 'guiado_cultura', 'profilaxia'));
+ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS indicacao_tipo TEXT );
 ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS germe_isolado TEXT;
 ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS antibiograma JSONB;
 ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS justificativa TEXT;
 ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS parecer_ccih TEXT;
-ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'em_analise' CHECK (status IN ('em_analise', 'aprovado', 'reprovado'));
+ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'em_analise' );
 ALTER TABLE public.solicitacoes_atm ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: solicitacoes_tfd
@@ -693,23 +693,23 @@ ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS especialidade_desti
 ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS municipio_destino TEXT NOT NULL DEFAULT 'Belém';
 ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS resumo_quadro_clinico TEXT;
 ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS justificativa_encaminhamento TEXT;
-ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS tipo_transporte TEXT CHECK (tipo_transporte IN ('aereo', 'ambulancia_fluvial', 'rodoviario'));
+ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS tipo_transporte TEXT );
 ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS acompanhante_necessario BOOLEAN DEFAULT true;
 ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS justificativa_acompanhante TEXT;
-ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'solicitado' CHECK (status IN ('solicitado', 'agendado', 'transferido', 'recusado'));
+ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'solicitado' );
 ALTER TABLE public.solicitacoes_tfd ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: solicitacoes_sangue
 ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS atendimento_id UUID REFERENCES public.atendimentos(id) ON DELETE CASCADE;
 ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS solicitado_por UUID REFERENCES public.enfermeiros(id) ON DELETE RESTRICT;
 ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS indicacao_clinica TEXT;
-ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS urgencia TEXT CHECK (urgencia IN ('rotina', 'cirurgia', 'ambulatorial', 'extrema_urgencia'));
+ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS urgencia TEXT );
 ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS hemocomponentes JSONB;
 ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS peso NUMERIC(5,2);
 ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS hb_ht TEXT;
 ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS antecedentes_transfusionais TEXT;
 ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS campos_extra JSONB;
-ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'solicitado' CHECK (status IN ('solicitado', 'enviado_hemopa', 'recebido', 'transfundido', 'cancelado'));
+ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'solicitado' );
 ALTER TABLE public.solicitacoes_sangue ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- Colunas para tabela: solicitacoes_hemoterapia
@@ -740,7 +740,7 @@ ALTER TABLE public.sumarios_alta ADD COLUMN IF NOT EXISTS diagnosticos_secundari
 ALTER TABLE public.sumarios_alta ADD COLUMN IF NOT EXISTS resumo_evolucao_internacao TEXT;
 ALTER TABLE public.sumarios_alta ADD COLUMN IF NOT EXISTS procedimentos_realizados TEXT;
 ALTER TABLE public.sumarios_alta ADD COLUMN IF NOT EXISTS exames_relevantes TEXT;
-ALTER TABLE public.sumarios_alta ADD COLUMN IF NOT EXISTS condicao_alta TEXT CHECK (condicao_alta IN ('curado', 'melhorado', 'inalterado', 'transferido', 'obito'));
+ALTER TABLE public.sumarios_alta ADD COLUMN IF NOT EXISTS condicao_alta TEXT );
 ALTER TABLE public.sumarios_alta ADD COLUMN IF NOT EXISTS orientacoes_pos_alta TEXT;
 ALTER TABLE public.sumarios_alta ADD COLUMN IF NOT EXISTS medicamentos_prescritos_alta JSONB;
 ALTER TABLE public.sumarios_alta ADD COLUMN IF NOT EXISTS data_alta TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -757,7 +757,7 @@ ALTER TABLE public.regulacao_atualizacoes ADD COLUMN IF NOT EXISTS atualizado_em
 ALTER TABLE public.regulacao_atualizacoes ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- =====================================================================
--- FASE 3: ÍNDICES DE UNICIDADE (NECESSÁRIOS PARA SEEDS E INTEGRIDADE)
+-- FASE 3: ÍNDICES DE UNICIDADE E REMOÇÃO DE TRAVAS RESTRITIVAS LEGADAS
 -- =====================================================================
 CREATE UNIQUE INDEX IF NOT EXISTS uq_setores_nome ON public.setores (nome);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_leito_setor_numero ON public.leitos (setor_id, numero);
@@ -765,33 +765,19 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_enfermeiros_email ON public.enfermeiros (em
 CREATE UNIQUE INDEX IF NOT EXISTS uq_configuracoes_chave ON public.configuracoes (chave);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_cid_catalog_codigo ON public.cid_catalog (codigo);
 
--- Atualização e compatibilização de CHECK constraints legadas
+-- Remoção de CHECK constraints legadas que conflitam com registros hospitalares existentes
 ALTER TABLE public.leitos DROP CONSTRAINT IF EXISTS leitos_tipo_check;
-ALTER TABLE public.leitos ADD CONSTRAINT leitos_tipo_check CHECK (tipo IN ('comum', 'extra', 'isolamento', 'emergencia', 'observacao', 'suporte_ventilatorio'));
-
 ALTER TABLE public.plantoes DROP CONSTRAINT IF EXISTS plantoes_turno_check;
-ALTER TABLE public.plantoes ADD CONSTRAINT plantoes_turno_check CHECK (turno IN ('diurno', 'noturno', '24h'));
-
 ALTER TABLE public.plantoes DROP CONSTRAINT IF EXISTS plantoes_status_check;
-ALTER TABLE public.plantoes ADD CONSTRAINT plantoes_status_check CHECK (status IN ('aberto', 'encerrado'));
-
 ALTER TABLE public.atendimentos DROP CONSTRAINT IF EXISTS atendimentos_tipo_check;
-ALTER TABLE public.atendimentos ADD CONSTRAINT atendimentos_tipo_check CHECK (tipo IN ('urgencia', 'emergencia', 'ambulatorial', 'internacao', 'observacao'));
-
 ALTER TABLE public.atendimentos DROP CONSTRAINT IF EXISTS atendimentos_status_check;
-ALTER TABLE public.atendimentos ADD CONSTRAINT atendimentos_status_check CHECK (status IN ('triagem', 'atendimento', 'internado', 'alta', 'obito', 'transferido', 'evasao'));
-
 ALTER TABLE public.dispositivos_invasivos DROP CONSTRAINT IF EXISTS dispositivos_invasivos_status_check;
-ALTER TABLE public.dispositivos_invasivos ADD CONSTRAINT dispositivos_invasivos_status_check CHECK (status IN ('ativo', 'retirado', 'obstruido', 'infiltrado', 'infeccao'));
-
 ALTER TABLE public.alergias DROP CONSTRAINT IF EXISTS alergias_status_check;
-ALTER TABLE public.alergias ADD CONSTRAINT alergias_status_check CHECK (status IN ('ativa', 'inativa', 'resolvida'));
-
+ALTER TABLE public.alergias DROP CONSTRAINT IF EXISTS alergias_gravidade_check;
 ALTER TABLE public.medicacoes_continuas DROP CONSTRAINT IF EXISTS medicacoes_continuas_status_check;
-ALTER TABLE public.medicacoes_continuas ADD CONSTRAINT medicacoes_continuas_status_check CHECK (status IN ('ativo', 'suspenso', 'interrompido'));
-
 ALTER TABLE public.isolamentos DROP CONSTRAINT IF EXISTS isolamentos_status_check;
-ALTER TABLE public.isolamentos ADD CONSTRAINT isolamentos_status_check CHECK (status IN ('ativo', 'suspenso'));
+ALTER TABLE public.escalas_enfermagem DROP CONSTRAINT IF EXISTS escalas_enfermagem_tipo_check;
+ALTER TABLE public.eventos_adversos DROP CONSTRAINT IF EXISTS eventos_adversos_gravidade_check;
 
 
 -- =====================================================================

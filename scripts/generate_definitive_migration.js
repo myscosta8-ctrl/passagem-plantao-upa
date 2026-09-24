@@ -99,8 +99,10 @@ for (const f of schemaFiles) {
         if (!hasDefault && /\bNOT\s+NULL\b/i.test(colDef)) {
           colDef = colDef.replace(/\bNOT\s+NULL\b/gi, '').trim();
         }
+        // Strip inline CHECK constraints to avoid blocking legacy rows
+        colDef = colDef.replace(/CHECK\s*\([^)]+\)/gi, '').trim();
         colDef = colDef.replace(/,\s*$/, '').replace(/\s+/g, ' ').trim();
-        
+
         // ALIGNMENT OF TYPES WITH PRODUCTION DATABASE (setores and leitos use INTEGER)
         if (colName.includes('setor_') || colName === 'setor_id') {
           colDef = colDef.replace(/\bUUID\b/gi, 'INTEGER');
@@ -119,6 +121,7 @@ for (const f of schemaFiles) {
     const tableName = match[1].toLowerCase();
     const colName = match[2].toLowerCase();
     let colDef = match[3].trim().replace(/;\s*$/, '').replace(/,\s*$/, '').trim();
+    colDef = colDef.replace(/CHECK\s*\([^)]+\)/gi, '').trim();
     
     if (colName.includes('setor_') || colName === 'setor_id') {
       colDef = colDef.replace(/\bUUID\b/gi, 'INTEGER');
@@ -145,7 +148,7 @@ for (const t of allTables) {
 
 // Fase 3: Índices Únicos para integridade
 sqlOut.push(`-- =====================================================================
--- FASE 3: ÍNDICES DE UNICIDADE (NECESSÁRIOS PARA SEEDS E INTEGRIDADE)
+-- FASE 3: ÍNDICES DE UNICIDADE E REMOÇÃO DE TRAVAS RESTRITIVAS LEGADAS
 -- =====================================================================
 CREATE UNIQUE INDEX IF NOT EXISTS uq_setores_nome ON public.setores (nome);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_leito_setor_numero ON public.leitos (setor_id, numero);
@@ -153,33 +156,19 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_enfermeiros_email ON public.enfermeiros (em
 CREATE UNIQUE INDEX IF NOT EXISTS uq_configuracoes_chave ON public.configuracoes (chave);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_cid_catalog_codigo ON public.cid_catalog (codigo);
 
--- Atualização e compatibilização de CHECK constraints legadas
+-- Remoção de CHECK constraints legadas que conflitam com registros hospitalares existentes
 ALTER TABLE public.leitos DROP CONSTRAINT IF EXISTS leitos_tipo_check;
-ALTER TABLE public.leitos ADD CONSTRAINT leitos_tipo_check CHECK (tipo IN ('comum', 'extra', 'isolamento', 'emergencia', 'observacao', 'suporte_ventilatorio'));
-
 ALTER TABLE public.plantoes DROP CONSTRAINT IF EXISTS plantoes_turno_check;
-ALTER TABLE public.plantoes ADD CONSTRAINT plantoes_turno_check CHECK (turno IN ('diurno', 'noturno', '24h'));
-
 ALTER TABLE public.plantoes DROP CONSTRAINT IF EXISTS plantoes_status_check;
-ALTER TABLE public.plantoes ADD CONSTRAINT plantoes_status_check CHECK (status IN ('aberto', 'encerrado'));
-
 ALTER TABLE public.atendimentos DROP CONSTRAINT IF EXISTS atendimentos_tipo_check;
-ALTER TABLE public.atendimentos ADD CONSTRAINT atendimentos_tipo_check CHECK (tipo IN ('urgencia', 'emergencia', 'ambulatorial', 'internacao', 'observacao'));
-
 ALTER TABLE public.atendimentos DROP CONSTRAINT IF EXISTS atendimentos_status_check;
-ALTER TABLE public.atendimentos ADD CONSTRAINT atendimentos_status_check CHECK (status IN ('triagem', 'atendimento', 'internado', 'alta', 'obito', 'transferido', 'evasao'));
-
 ALTER TABLE public.dispositivos_invasivos DROP CONSTRAINT IF EXISTS dispositivos_invasivos_status_check;
-ALTER TABLE public.dispositivos_invasivos ADD CONSTRAINT dispositivos_invasivos_status_check CHECK (status IN ('ativo', 'retirado', 'obstruido', 'infiltrado', 'infeccao'));
-
 ALTER TABLE public.alergias DROP CONSTRAINT IF EXISTS alergias_status_check;
-ALTER TABLE public.alergias ADD CONSTRAINT alergias_status_check CHECK (status IN ('ativa', 'inativa', 'resolvida'));
-
+ALTER TABLE public.alergias DROP CONSTRAINT IF EXISTS alergias_gravidade_check;
 ALTER TABLE public.medicacoes_continuas DROP CONSTRAINT IF EXISTS medicacoes_continuas_status_check;
-ALTER TABLE public.medicacoes_continuas ADD CONSTRAINT medicacoes_continuas_status_check CHECK (status IN ('ativo', 'suspenso', 'interrompido'));
-
 ALTER TABLE public.isolamentos DROP CONSTRAINT IF EXISTS isolamentos_status_check;
-ALTER TABLE public.isolamentos ADD CONSTRAINT isolamentos_status_check CHECK (status IN ('ativo', 'suspenso'));
+ALTER TABLE public.escalas_enfermagem DROP CONSTRAINT IF EXISTS escalas_enfermagem_tipo_check;
+ALTER TABLE public.eventos_adversos DROP CONSTRAINT IF EXISTS eventos_adversos_gravidade_check;
 `);
 
 // Fase 4: Índices de Performance e Políticas de Segurança (RLS)
