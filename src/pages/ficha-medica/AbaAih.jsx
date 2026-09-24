@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarAih, criarAih, listarConsultas } from '../../lib/pepMedico';
+import { listarAih, criarAih, listarConsultas, buscarCabecalhoImpressao } from '../../lib/pepMedico';
 import { AIH_VAZIA } from './constantes';
 
 const PROCEDIMENTOS_RAPIDOS = [
@@ -18,29 +18,25 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
   const paciente = atendimento?.paciente || {};
   const isPediatrico = (paciente?.idade && paciente?.idade < 14) || (atendimento?.idade && atendimento?.idade < 14);
 
+  // Prontuário, CNS, mãe, endereço etc. vivem em `pessoas`, não no objeto `paciente`
+  // (tabela legada) — buscar pela mesma função usada nas impressões, nunca inventar.
+  const [cabecalho, setCabecalho] = useState(null);
+  useEffect(() => {
+    if (!atendimento?.atendimento_id) return;
+    let vivo = true;
+    buscarCabecalhoImpressao(atendimento.atendimento_id).then((c) => { if (vivo) setCabecalho(c); });
+    return () => { vivo = false };
+  }, [atendimento?.atendimento_id]);
+  const pessoa = cabecalho?.pessoa || {};
+
+  // Só a clínica (pediatria vs. clínica médica) é inferida de dado real (idade do
+  // paciente) — todo o resto começa vazio (AIH_VAZIA) e é preenchido pelo médico.
+  // Não pré-preencher diagnóstico, procedimento, CID ou nº de autorização: são campos
+  // de um documento legal (Laudo de AIH/SUS), nunca podem carregar dado de exemplo.
   const [dados, setDados] = useState({
     ...AIH_VAZIA,
-    estabelecimento_solicitante_nome: 'UPA 24H BREVES — SECRETARIA MUNICIPAL DE SAÚDE (SEMSA)',
-    estabelecimento_solicitante_cnes: '0296796',
-    estabelecimento_executante_nome: 'UPA 24H BREVES',
-    estabelecimento_executante_cnes: '0296796',
-    procedimento_principal_codigo: '0303010190',
-    procedimento_principal_nome: 'TRATAMENTO DE PNEUMONIA OU INFLUENZA (GRIPE)',
     clinica: isPediatrico ? 'PEDIATRIA / OBSERVAÇÃO' : 'CLÍNICA MÉDICA / OBSERVAÇÃO',
     carater_internacao: '02 - URGÊNCIA',
-    sinais_sintomas_clinicos: 'PACIENTE ADMITIDO NA UPA 24H BREVES COM QUADRO AGUDO DE FEBRE ALTA, TOSSE PRODUTIVA, TAQUIPNEIA E PROSTRAÇÃO. AUSCULTA PULMONAR COM ESTERTORES CREPITANTES E DESCONFORTO RESPIRATÓRIO. SINAIS VITAIS MONITORIZADOS.',
-    condicoes_justificam_internacao: 'NECESSIDADE DE INTERNAÇÃO EM LEITO DE OBSERVAÇÃO CLÍNICA DA UPA 24H BREVES PARA INÍCIO DE ANTIBIOTICOTERAPIA PARENTERAL, MONITORIZAÇÃO RESPIRATÓRIA E SUPORTE DE OXIGENOTERAPIA CONFORME DEMANDA; RISCO DE INSUFICIÊNCIA RESPIRATÓRIA AGUDA.',
-    resultados_provas_diagnosticas: '1. RAIO-X DE TÓRAX (UPA 24H BREVES): INFILTRADO ALVEOLAR HOMOGÊNEO COMPATÍVEL COM CONSOLIDAÇÃO PNEUMÔNICA. SEIOS COSTOFRÊNICOS LIVRES.\n2. LEUCOGRAMA: 16.800 LEUCÓCITOS/MM³ COM DESVIO À ESQUERDA (10% BASTONETES). PCR ELEVADO.',
-    diagnostico_inicial_texto: 'Pneumonia bacteriana aguda / Insuficiência respiratória leve',
-    cid_principal: 'J15.9',
-    cid_secundario: 'J45.9',
-    causa_externa_transito: false,
-    causa_externa_trabalho_tipico: false,
-    causa_externa_trabalho_trajeto: false,
-    vinculo_previdencia: isPediatrico ? 'NÃO SEGURADO (MENOR)' : 'Não Segurado',
-    autorizador_nome: 'MÉDICO REGULADOR / SEMSA BREVES',
-    autorizador_codigo_orgao_emissor: 'SEMSA BREVES / SUS',
-    numero_autorizacao: '152610084512-3',
   });
 
   useEffect(() => {
@@ -115,7 +111,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
         const ult = consultas[0];
         setDados((prev) => ({
           ...prev,
-          sinais_sintomas_clinicos: `PACIENTE ADMITIDO NA UPA 24H BREVES COM HISTÓRIA DE: ${(ult.queixa_principal || '').toUpperCase()}. SINAIS VITAIS: PA ${ult.sv?.pa || '90x60'}, FC ${ult.sv?.fc || '110'}, TEMP ${ult.sv?.temp || '39.2'}°C, SPO2 ${ult.sv?.spo2 || '97'}%.`,
+          sinais_sintomas_clinicos: `PACIENTE ADMITIDO NA UPA 24H BREVES COM HISTÓRIA DE: ${(ult.queixa_principal || '').toUpperCase()}. SINAIS VITAIS: PA ${ult.sv?.pa || '—'}, FC ${ult.sv?.fc || '—'}, TEMP ${ult.sv?.temp || '—'}°C, SPO2 ${ult.sv?.spo2 || '—'}%.`,
           diagnostico_inicial_texto: ult.hipotese_diagnostica || prev.diagnostico_inicial_texto,
           cid_principal: ult.hipotese_diagnostica?.split(' ')[0] || prev.cid_principal,
         }));
@@ -158,19 +154,23 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
     }
   }
 
-  const nomePaciente = paciente?.nome || atendimento?.nome || 'PACIENTE NÃO IDENTIFICADO';
-  const prontuarioNum = paciente?.prontuario || atendimento?.atendimento_id?.slice(0, 8) || '10452';
-  const cnsPaciente = paciente?.cns || '700.1234.5678.9012';
-  const nascPaciente = paciente?.data_nascimento
-    ? new Date(paciente.data_nascimento).toLocaleDateString('pt-BR')
-    : (paciente?.idade ? `${paciente.idade} anos` : '12/03/2022');
-  const sexoPaciente = (paciente?.sexo || atendimento?.sexo || 'M').toUpperCase().startsWith('F') ? 'FEMININO' : 'MASCULINO';
-  const racaPaciente = (paciente?.raca_cor || 'PARDA').toUpperCase();
-  const maePaciente = (paciente?.nome_mae || 'MARIA EDUARDA SILVA').toUpperCase();
-  const telPaciente = paciente?.telefone || '(91) 98455-1234';
-  const enderecoPaciente = paciente?.endereco
-    ? `${paciente.endereco} — ${paciente.municipio || 'BREVES'}/${paciente.uf || 'PA'} — CEP: ${paciente.cep || '68.800-000'}`.toUpperCase()
-    : 'TRAVESSA CASTILHOS FRANÇA, 450 — CENTRO — BREVES/PA — CEP: 68.800-000';
+  // Identificação real vem de `pessoa` (buscarCabecalhoImpressao); `paciente` (tabela
+  // legada) só serve de fallback pro nome/sexo quando ainda não carregou. Campos sem
+  // fonte real (raça/cor, CEP) ficam vazios — nunca inventar dado de identificação num
+  // documento legal como a AIH.
+  const nomePaciente = pessoa?.nome || paciente?.nome || atendimento?.nome || 'NÃO IDENTIFICADO';
+  const prontuarioNum = pessoa?.prontuario_numero || '';
+  const cnsPaciente = pessoa?.cns || '';
+  const nascPaciente = pessoa?.data_nascimento
+    ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')
+    : (paciente?.idade ? `${paciente.idade} anos` : '');
+  const sexoPaciente = (pessoa?.sexo || paciente?.sexo || atendimento?.sexo || '').toUpperCase().startsWith('F') ? 'FEMININO' : (pessoa?.sexo || paciente?.sexo || atendimento?.sexo) ? 'MASCULINO' : '';
+  const racaPaciente = '';
+  const maePaciente = (pessoa?.nome_mae || '').toUpperCase();
+  const telPaciente = pessoa?.telefone || '';
+  const enderecoPaciente = pessoa?.endereco
+    ? `${[pessoa.endereco, pessoa.endereco_numero, pessoa.bairro].filter(Boolean).join(', ')} — ${pessoa.cidade || 'BREVES'}/PA`.toUpperCase()
+    : '';
 
   const dataHoraAtual = new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 

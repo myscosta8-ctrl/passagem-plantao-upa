@@ -35,26 +35,23 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
   const paciente = atendimento?.paciente || {};
 
   const [dados, setDados] = useState({
-    queixa_principal: 'Febre alta, tosse e falta de ar há 3 dias',
-    historia_doenca_atual: 'Mãe relata que a criança iniciou quadro de febre alta (aferido 39.2ºC na triagem) há 3 dias, responsiva parcialmente a antitérmicos. Evoluiu nas últimas 24h com tosse produtiva e taquipneia. Apresenta recusa alimentar, hipoatividade e prostração.',
-    antecedentes: 'Asma Brônquica (CID J45.9); Rinite Alérgica (CID J30.4)',
-    exame_geral: 'Geral: REG, hipoativo, acianótico, anictérico, febril ao toque, taquipneico leve (FR: 28 irpm).\nACV: RCRM em 2T, bulhas normofonéticas, sem sopros. FC: 110 bpm.\nAR: Murmúrio vesicular presente bilateralmente, com estertores crepitantes em base pulmonar direita e tiragem intercostal leve. SpO2: 97% em ar ambiente.\nAbdome: Flácido, indolor à palpação, sem visceromegalias, RHA presentes.\nOroscopia: Sem placas purulentas em amígdalas.',
+    queixa_principal: '',
+    historia_doenca_atual: '',
+    antecedentes: '',
+    exame_geral: '',
     sv: {
-      pa: paciente?.pa || '90x60',
-      fc: paciente?.fc || '110',
-      fr: paciente?.fr || '28',
-      spo2: paciente?.spo2 || '97',
-      temp: paciente?.temperatura || '39.2',
-      dor: '2',
+      pa: paciente?.pa || '',
+      fc: paciente?.fc || '',
+      fr: paciente?.fr || '',
+      spo2: paciente?.spo2 || '',
+      temp: paciente?.temperatura || '',
+      dor: '',
     },
-    hipotese_diagnostica: 'J15.9 - Pneumonia bacteriana não especificada',
-    conduta_inicial: 'Paciente admitido em leito de observação pediátrica da UPA 24h Breves. Iniciada antibioticoterapia parenteral (Ampicilina + Sulbactam EV), suporte de O2 sob cateter nasal SN, hidratação venosa e monitorização contínua. Solicitado Laudo de AIH para autorização de leito hospitalar.',
+    hipotese_diagnostica: '',
+    conduta_inicial: '',
   });
 
-  const [comorbidades, setComorbidades] = useState([
-    'Asma Brônquica (CID J45.9)',
-    'Rinite Alérgica (CID J30.4)',
-  ]);
+  const [comorbidades, setComorbidades] = useState([]);
 
   useEffect(() => {
     carregar();
@@ -157,24 +154,26 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             <div className="vitals-grid">
               <div className="vital-box">
                 <span>Pressão Arterial</span>
-                <strong>{dados.sv.pa || '90x60'} mmHg</strong>
+                <strong>{dados.sv.pa || '—'} mmHg</strong>
               </div>
               <div className="vital-box">
                 <span>Freq. Cardíaca</span>
-                <strong>{dados.sv.fc || '110'} bpm</strong>
+                <strong>{dados.sv.fc || '—'} bpm</strong>
               </div>
               <div className="vital-box alert">
                 <span>Temperatura</span>
-                <strong>{dados.sv.temp || '39.2'} °C</strong>
+                <strong>{dados.sv.temp || '—'} °C</strong>
               </div>
               <div className="vital-box">
                 <span>Saturação (O2)</span>
-                <strong>{dados.sv.spo2 || '97'}% em AA</strong>
+                <strong>{dados.sv.spo2 || '—'}% em AA</strong>
               </div>
             </div>
-            <div style={{ marginTop: 8, fontSize: 11, color: '#475569', lineHeight: 1.3 }}>
-              <strong>Queixa na Triagem:</strong> {paciente?.queixa_principal || 'Febre alta há 2 dias, tosse produtiva e cansaço leve. Recusa alimentar.'}
-            </div>
+            {paciente?.queixa_principal && (
+              <div style={{ marginTop: 8, fontSize: 11, color: '#475569', lineHeight: 1.3 }}>
+                <strong>Queixa na Triagem:</strong> {paciente.queixa_principal}
+              </div>
+            )}
           </div>
 
           <div>
@@ -278,13 +277,15 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             </div>
           )}
 
-          {/* ALERTA DE ALERGIA */}
-          <div className="allergy-alert">
-            <div className="info">
-              <span style={{ fontSize: 18 }}>⚠️</span>
-              <span>ALERGIA GRAVE REGISTRADA: {paciente?.alergias_obs || 'DIPIRONA (Risco de Choque Anafilático)'}</span>
+          {/* ALERTA DE ALERGIA — só aparece quando há alergia real registrada, nunca inventar */}
+          {(paciente?.alergias_obs || paciente?.alergias) && (
+            <div className="allergy-alert">
+              <div className="info">
+                <span style={{ fontSize: 18 }}>⚠️</span>
+                <span>ALERGIA REGISTRADA: {paciente?.alergias_obs || 'Sem detalhe registrado'}</span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* BLOCO 1: MOTIVO DA CONSULTA E HDA */}
           <div className="form-section-box">
