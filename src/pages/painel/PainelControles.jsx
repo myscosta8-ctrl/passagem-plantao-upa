@@ -45,10 +45,20 @@ export default function PainelControles({
           </div>
         )}
       </div>
-      <div className="visualizacao-toggle">
-        <button className={visualizacao === 'cards' ? 'on' : ''} onClick={() => onVisualizacao('cards')}><i className="ph ph-squares-four" /> Cards</button>
-        <button className={visualizacao === 'tabela' ? 'on' : ''} onClick={() => onVisualizacao('tabela')}><i className="ph ph-list-dashes" /> Lista</button>
-      </div>
+      <button
+        type="button"
+        className={`control-btn ${visualizacao === 'cards' ? 'active' : ''}`}
+        onClick={() => onVisualizacao('cards')}
+      >
+        <i className="ph ph-squares-four" /> Cards
+      </button>
+      <button
+        type="button"
+        className={`control-btn ${visualizacao === 'tabela' ? 'active' : ''}`}
+        onClick={() => onVisualizacao('tabela')}
+      >
+        <i className="ph ph-list-dashes" /> Lista
+      </button>
     </div>
   )
 }
