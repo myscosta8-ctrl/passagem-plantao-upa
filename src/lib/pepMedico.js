@@ -410,6 +410,21 @@ export async function criarReceitaMedica({ atendimentoId, criadoPor, dados }) {
   return supabase.from('receitas_medicas').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
 }
 
+// ===================== Atestado Médico =====================
+
+export async function listarAtestadosMedicos(atendimentoId) {
+  const { data } = await supabase
+    .from('atestados_medicos')
+    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .eq('atendimento_id', atendimentoId)
+    .order('criado_em', { ascending: false })
+  return data ?? []
+}
+
+export async function criarAtestadoMedico({ atendimentoId, criadoPor, dados }) {
+  return supabase.from('atestados_medicos').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+}
+
 // ===================== Solicitação de Sangue, Componentes e Derivados (Hemopa) =====================
 
 export async function listarSolicitacoesSangue(atendimentoId) {

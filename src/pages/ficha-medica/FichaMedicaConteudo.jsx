@@ -8,6 +8,7 @@ import AbaNotaIntercorrenciaMedica from './AbaNotaIntercorrenciaMedica';
 import AbaReceituarioMedico from './AbaReceituarioMedico';
 import AbaSumarioAlta from './AbaSumarioAlta';
 import AbaApac from './AbaApac';
+import AbaAtestadoMedico from './AbaAtestadoMedico';
 import AbaAtm from './AbaAtm';
 import AbaTfd from './AbaTfd';
 import AbaRegulacao from './AbaRegulacao';
@@ -99,6 +100,15 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'apac', registro })}
+      />
+    );
+  }
+  if (aba === 'atestado') {
+    return (
+      <AbaAtestadoMedico
+        atendimento={atendimento}
+        medicoId={medicoId}
+        onImprimir={(registro) => onImprimir({ tipo: 'atestado', registro })}
       />
     );
   }

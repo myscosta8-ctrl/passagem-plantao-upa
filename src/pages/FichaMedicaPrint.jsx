@@ -16,6 +16,7 @@ import CorpoSumarioAltaOficial from './ficha-medica-print/CorpoSumarioAltaOficia
 import CorpoEvolucaoMedicaOficial from './ficha-medica-print/CorpoEvolucaoMedicaOficial'
 import CorpoNotaIntercorrenciaOficial from './ficha-medica-print/CorpoNotaIntercorrenciaOficial'
 import CorpoReceituarioOficial from './ficha-medica-print/CorpoReceituarioOficial'
+import CorpoAtestadoOficial from './ficha-medica-print/CorpoAtestadoOficial'
 
 export {
   CorpoAihOficial,
@@ -30,7 +31,8 @@ export {
   CorpoSumarioAltaOficial,
   CorpoEvolucaoMedicaOficial,
   CorpoNotaIntercorrenciaOficial,
-  CorpoReceituarioOficial
+  CorpoReceituarioOficial,
+  CorpoAtestadoOficial
 }
 
 const TITULOS = {
@@ -46,6 +48,7 @@ const TITULOS = {
   evolucao: 'Evolução Médica Diária',
   intercorrencia: 'Nota de Intercorrência Médica',
   receituario: 'Receituário Médico',
+  atestado: 'Atestado Médico',
 }
 
 function BotoesImpressao({ onVoltar }) {
@@ -95,6 +98,7 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
     evolucao: <CorpoEvolucaoMedicaOficial {...propsComuns} />,
     intercorrencia: <CorpoNotaIntercorrenciaOficial {...propsComuns} />,
     receituario: <CorpoReceituarioOficial {...propsComuns} />,
+    atestado: <CorpoAtestadoOficial {...propsComuns} />,
   }
 
   if (mapaCorpos[tipo]) {
