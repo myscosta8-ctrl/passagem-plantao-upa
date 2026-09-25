@@ -290,6 +290,19 @@ Imprimir" adicionado em `AbaFormNovo.jsx`, seguindo o modelo visual padrão dos 
   estar acessível a partir do Painel de Leitos — só fica disponível dentro da tela
   "Passagem de Plantão" do menu lateral.
 
+- ✅ **Concluído (25/09):** corrigido o bug "Passagem de Plantão no menu lateral leva para
+  Admissão de Enfermagem em vez da grade coletiva". Causa raiz: `usePainelState.js` tinha
+  uma função `restaurarModalSalvo` que, ao carregar qualquer tela que usa esse hook (tanto
+  `Painel.jsx` quanto `PassagemColetivaTela.jsx`), reabria automaticamente — via
+  `localStorage`, chave `modal_passagem_aberto_${plantao.id}`, válida por 4h — o
+  `EspacoPaciente` do último paciente cujo prontuário havia sido aberto em qualquer tela.
+  Como o `EspacoPaciente` virou página cheia na reestruturação anterior (commit `b80bae8`),
+  esse reabrir automático cobria 100% da grade, sempre no pilar "Enfermagem" → aba padrão
+  "Admissão de Enfermagem", dando a impressão de que a navegação estava quebrada. Removida
+  a restauração automática (função `restaurarModalSalvo`, o `useRef` de controle e a chave
+  de localStorage) — a tela sempre abre limpa, na grade. `abrirPassagem`/`fecharPassagem`
+  continuam funcionando normalmente, só pararam de persistir/ler do localStorage.
+
 ## Pendências antigas (ainda não feitas, não esquecer)
 
 - `proposta-design-system-vitaloop.html` duplicado (raiz do projeto + dentro de

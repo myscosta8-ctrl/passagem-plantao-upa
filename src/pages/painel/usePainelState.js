@@ -7,7 +7,7 @@ import {
   listarUltimosSinaisVitaisPorAtendimentos, listarBalancoPorAtendimentos,
 } from '../../lib/pepAtendimentos'
 
-export function usePainelState({ plantao }) {
+export function usePainelState() {
   const { enfermeiro } = useAuth()
   const [setores, setSetores] = useState([])
   const [leitos, setLeitos] = useState([])
@@ -26,9 +26,7 @@ export function usePainelState({ plantao }) {
   const [buscaTabela, setBuscaTabela] = useState('')
   const [setorFiltro, setSetorFiltro] = useState('')
   const [statusFiltro, setStatusFiltro] = useState('')
-  const restauradoRef = useRef(false)
   const pepAtivoRef = useRef(false)
-  const chaveModalAberto = `modal_passagem_aberto_${plantao.id}`
 
   useEffect(() => {
     carregarTudo()
@@ -36,40 +34,10 @@ export function usePainelState({ plantao }) {
 
   function abrirPassagem(paciente, leito) {
     setModalPassagem({ paciente, leito })
-    try {
-      localStorage.setItem(chaveModalAberto, JSON.stringify({ pacienteId: paciente.id, leitoId: leito.id, quando: Date.now() }))
-    } catch {
-      // localStorage indisponível
-    }
   }
 
   function fecharPassagem() {
     setModalPassagem(null)
-    try {
-      localStorage.removeItem(chaveModalAberto)
-    } catch {
-      // localStorage indisponível
-    }
-  }
-
-  function restaurarModalSalvo(mapaAtual, listaLeitosAtual) {
-    if (restauradoRef.current) return
-    restauradoRef.current = true
-    try {
-      const bruto = localStorage.getItem(chaveModalAberto)
-      if (!bruto) return
-      const salvo = JSON.parse(bruto)
-      const horasPassadas = (Date.now() - salvo.quando) / 3_600_000
-      const paciente = mapaAtual[salvo.leitoId]
-      const leito = listaLeitosAtual.find((l) => l.id === salvo.leitoId)
-      if (horasPassadas <= 4 && paciente?.id === salvo.pacienteId && leito) {
-        setModalPassagem({ paciente, leito })
-      } else {
-        localStorage.removeItem(chaveModalAberto)
-      }
-    } catch {
-      localStorage.removeItem(chaveModalAberto)
-    }
   }
 
   async function carregarTudo() {
@@ -91,7 +59,6 @@ export function usePainelState({ plantao }) {
       const { pacientesPorLeito: mapa, passagemPorPaciente: passagemMapa } = await carregarLeitosOcupadosPep()
       setPacientesPorLeito(mapa)
       setPassagemPorPaciente(passagemMapa)
-      restaurarModalSalvo(mapa, listaLeitos ?? [])
       const atendimentoIds = Object.values(mapa).map((p) => p.id)
       const [svMapa, balancoMapa] = await Promise.all([
         listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds),
@@ -113,7 +80,6 @@ export function usePainelState({ plantao }) {
       if (p.leito_atual_id) mapa[p.leito_atual_id] = p
     }
     setPacientesPorLeito(mapa)
-    restaurarModalSalvo(mapa, listaLeitos ?? [])
 
     const ids = (listaPacientes ?? []).map((p) => p.id)
     if (ids.length > 0) {
