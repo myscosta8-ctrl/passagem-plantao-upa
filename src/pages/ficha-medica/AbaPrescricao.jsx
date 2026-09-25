@@ -369,54 +369,42 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                       </div>
                     )}
 
-                    {/* Formulário de Edição no estilo Input Row */}
-                    <div className="presc-input-row" style={{ display: 'flex', flexDirection: 'column', gap: 12, background: 'var(--primary-light, #EFF6FF)', border: '1px dashed var(--primary, #1D4ED8)', borderRadius: 8, padding: 16 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                          <div className="item-num">{String(i + 1).padStart(2, '0')}</div>
-                          <strong style={{ color: 'var(--primary, #1D4ED8)', fontSize: 13 }}>Adicionar Medicamento</strong>
-                        </div>
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                          <button type="button" className="btn-calc-ped" onClick={() => abrirCalculadora(i)} title="Calculadora de Dose Pediátrica">
-                            <i className="ph ph-calculator" /><i className="ph ph-baby" />
-                          </button>
-                          {itens.length > 1 && (
-                            <button type="button" onClick={() => removerItem(i)} style={{ background: 'transparent', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: 18 }} title="Remover">
-                              <i className="ph ph-trash" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+                    {/* Formulário de Edição — compacto em 3 linhas */}
+                    <div className="presc-input-row presc-input-row-compact">
+                      <div className="presc-input-linha1">
+                        <div className="item-num">{String(i + 1).padStart(2, '0')}</div>
                         <AutocompleteMedicamento
                           catalogo={catalogo}
                           valor={it.medicamento_nome}
                           onChange={(v) => setItem(i, 'medicamento_nome', v)}
                           onSelecionar={(m) => selecionarMedicamento(i, m)}
                         />
+                        <button type="button" className="btn-calc-ped" onClick={() => abrirCalculadora(i)} title="Calculadora de Dose Pediátrica">
+                          <i className="ph ph-calculator" /><i className="ph ph-baby" />
+                        </button>
+                        {itens.length > 1 && (
+                          <button type="button" onClick={() => removerItem(i)} className="btn-remover-item" title="Remover">
+                            <i className="ph ph-trash" />
+                          </button>
+                        )}
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8 }}>
-                        <input type="text" className="form-control" placeholder="Instruções / Diluição (Ex: Diluir em 10mL AD e fazer lento)" value={it.diluicao} onChange={(e) => setItem(i, 'diluicao', e.target.value)} />
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#FFFFFF', padding: '0 10px', borderRadius: 6, border: '1px solid #CBD5E1' }}>
-                          <label style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                            <input type="checkbox" checked={it.sn_aplic} onChange={(e) => setItem(i, 'sn_aplic', e.target.checked)} /> 
-                            SN (Se Necessário)
-                          </label>
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                        <input type="number" className="form-control" placeholder="Qtd (Dose)" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
-                        <input type="text" className="form-control" placeholder="Und (Ex: amp, fr, cp)" value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} />
+                      <div className="presc-input-linha2">
+                        <input type="number" className="form-control" placeholder="Qtd" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
+                        <input type="text" className="form-control" placeholder="Und" value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} />
                         <select className="form-control" value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)}>
                           {VIAS.map((v) => <option key={v} value={v}>{v}</option>)}
                         </select>
+                        <input type="text" className="form-control" placeholder="Freq (6/6h)" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} />
+                        <input type="text" className="form-control" placeholder="Duração" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                        <input type="text" className="form-control" placeholder="Freq (Ex: 6/6h, ACM)" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} />
-                        <input type="text" className="form-control" placeholder="Duração (Ex: 7 dias, contínuo)" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
+
+                      <div className="presc-input-linha3">
+                        <input type="text" className="form-control" placeholder="Instruções / Diluição (Ex: Diluir em 10mL AD e fazer lento)" value={it.diluicao} onChange={(e) => setItem(i, 'diluicao', e.target.value)} />
+                        <label className="presc-sn-toggle">
+                          <input type="checkbox" checked={it.sn_aplic} onChange={(e) => setItem(i, 'sn_aplic', e.target.checked)} />
+                          SN
+                        </label>
                       </div>
                     </div>
 
