@@ -12,7 +12,7 @@ import './FichaClinica.css';
 
 export default function FichaClinica({ atendimento, onFechar }) {
   const { enfermeiro } = useAuth();
-  const [aba, setAba] = useState('admissao');
+  const [aba, setAba] = useState('admissaoEnfermagem');
   const [imprimindo, setImprimindo] = useState(null);
 
   if (imprimindo) {
