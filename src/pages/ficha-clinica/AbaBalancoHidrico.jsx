@@ -41,76 +41,135 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir }) 
 
   const totalEntradas = historico.filter((h) => h.tipo === 'entrada').reduce((s, h) => s + Number(h.volume_ml), 0)
   const totalSaidas = historico.filter((h) => h.tipo === 'saida').reduce((s, h) => s + Number(h.volume_ml), 0)
+  const saldo = totalEntradas - totalSaidas
   const opcoesVia = tipo === 'entrada' ? VIAS_ENTRADA : VIAS_SAIDA
 
   return (
-    <div className="form-section">
-      <div className="form-section-title">Novo registro</div>
-      <div className="form-grid" style={{ marginBottom: 16 }}>
-        <div className="form-field">
-          <label>Tipo</label>
-          <div className="toggle-group">
-            <button type="button" className={`toggle-btn ${tipo === 'entrada' ? 'on' : ''}`} onClick={() => { setTipo('entrada'); setVia('') }}>Entrada</button>
-            <button type="button" className={`toggle-btn ${tipo === 'saida' ? 'on' : ''}`} onClick={() => { setTipo('saida'); setVia('') }}>Saída</button>
-          </div>
+    <div className="clinical-card">
+      <div className="cc-header">
+        <div className="cc-title">
+          <h2><i className="ph ph-drop" /> Balanço Hídrico 24h</h2>
+          <p>Registro de entradas e saídas do atendimento, com totalização cumulativa.</p>
         </div>
-        <div className="form-field">
-          <label>Via</label>
-          <div className="chip-group">
-            {opcoesVia.map((v) => (
-              <button key={v} type="button" className={`chip ${via === v ? 'on' : ''}`} onClick={() => setVia(v)}>{v}</button>
-            ))}
-          </div>
-        </div>
-        <div className="form-field"><label>Volume (mL)</label><input type="number" value={volume} onChange={(e) => setVolume(e.target.value)} /></div>
-        <div className="form-field span-2"><label>Observação</label><input type="text" value={observacao} onChange={(e) => setObservacao(e.target.value)} /></div>
       </div>
-      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !via || !volume}>
-        {salvando ? 'Registrando...' : 'Registrar'}
-      </button>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 10 }}>
-        <div className="form-section-title" style={{ margin: 0 }}>
-          Totais — Entradas {totalEntradas} mL · Saídas {totalSaidas} mL · Saldo {totalEntradas - totalSaidas} mL
+      <div className="cc-body">
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#E0F2FE', border: '1px solid #BAE6FD', borderRadius: 8, padding: '8px 16px' }}>
+            <i className="ph ph-arrow-down-left" style={{ fontSize: 20, color: '#0284C7' }} />
+            <div>
+              <div style={{ fontSize: 10.5, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Total Entradas</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{totalEntradas} mL</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 8, padding: '8px 16px' }}>
+            <i className="ph ph-arrow-up-right" style={{ fontSize: 20, color: '#D97706' }} />
+            <div>
+              <div style={{ fontSize: 10.5, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Total Saídas</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{totalSaidas} mL</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: saldo >= 0 ? '#DCFCE7' : '#FEE2E2', border: `1px solid ${saldo >= 0 ? '#BBF7D0' : '#FECACA'}`, borderRadius: 8, padding: '8px 16px' }}>
+            <i className="ph ph-scales" style={{ fontSize: 20, color: saldo >= 0 ? '#16A34A' : '#DC2626' }} />
+            <div>
+              <div style={{ fontSize: 10.5, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Balanço Cumulativo</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: saldo >= 0 ? '#16A34A' : '#DC2626' }}>{saldo >= 0 ? '+' : '−'} {Math.abs(saldo)} mL</div>
+            </div>
+          </div>
         </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-plus-circle" /> Novo Registro</div>
+
+          <div className="form-group">
+            <label>Tipo:</label>
+            <div className="checkbox-group" style={{ flexDirection: 'row' }}>
+              <label className="checkbox-item">
+                <input type="radio" name="bh-tipo" checked={tipo === 'entrada'} onChange={() => { setTipo('entrada'); setVia('') }} /> Entrada
+              </label>
+              <label className="checkbox-item">
+                <input type="radio" name="bh-tipo" checked={tipo === 'saida'} onChange={() => { setTipo('saida'); setVia('') }} /> Saída
+              </label>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Via:</label>
+            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {opcoesVia.map((v) => (
+                <label key={v} className="checkbox-item">
+                  <input type="radio" name="bh-via" checked={via === v} onChange={() => setVia(v)} /> {v}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="assess-grid">
+            <div className="form-group">
+              <label>Volume (mL)</label>
+              <input type="number" value={volume} onChange={(e) => setVolume(e.target.value)} />
+            </div>
+            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+              <label>Observação</label>
+              <input type="text" value={observacao} onChange={(e) => setObservacao(e.target.value)} />
+            </div>
+          </div>
+
+          {erro && (
+            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+              <div className="info" style={{ color: '#DC2626' }}>
+                <i className="ph ph-warning" /> {erro}
+              </div>
+            </div>
+          )}
+
+          <button type="button" className="btn-add-chip" onClick={registrar} disabled={salvando || !via || !volume}>
+            <i className="ph ph-plus" /> {salvando ? 'Registrando...' : 'Registrar'}
+          </button>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-clock-counter-clockwise" /> Histórico de Lançamentos</div>
+          {carregando ? (
+            <p style={{ fontSize: 11, color: '#94A3B8' }}>Carregando...</p>
+          ) : historico.length === 0 ? (
+            <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhum registro ainda.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {historico.map((h) => (
+                <div
+                  key={h.id}
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 6, padding: '8px 12px', fontSize: 12,
+                  }}
+                >
+                  <div>
+                    <span style={{ color: '#94A3B8', marginRight: 10 }}>{new Date(h.registrado_em).toLocaleString('pt-BR')}</span>
+                    <strong style={{ color: h.tipo === 'entrada' ? '#0284C7' : '#DC2626' }}>{h.tipo === 'entrada' ? 'Entrada' : 'Saída'}</strong>
+                    {' · '}{h.via}
+                    {h.observacao && <span style={{ color: '#64748B' }}> — {h.observacao}</span>}
+                  </div>
+                  <strong>{h.tipo === 'entrada' ? '+' : '−'}{h.volume_ml} mL</strong>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="cc-footer">
+        <span />
         {onImprimir && (
           <button
             type="button"
-            className="submit-btn"
-            style={{ maxWidth: 220, padding: '6px 12px', fontSize: 11.5 }}
-            onClick={() => onImprimir({ historico, totalEntradas, totalSaidas, saldo: totalEntradas - totalSaidas })}
+            className="btn-save-print"
+            onClick={() => onImprimir({ historico, totalEntradas, totalSaidas, saldo })}
           >
-            🖨️ Imprimir Balanço 24h
+            <i className="ph ph-printer" /> Imprimir Balanço 24h
           </button>
         )}
       </div>
-      {carregando ? (
-        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
-      ) : historico.length === 0 ? (
-        <p style={{ color: 'var(--c-text-muted)' }}>Nenhum registro ainda.</p>
-      ) : (
-        <div className="hist-tabela-wrap">
-          <table className="hist-tabela">
-            <thead>
-              <tr><th>Data/hora</th><th>Tipo</th><th>Via</th><th>Volume</th><th className="col-larga">Observação</th></tr>
-            </thead>
-            <tbody>
-              {historico.map((h) => (
-                <tr key={h.id}>
-                  <td style={{ color: 'var(--c-text-muted)' }}>{new Date(h.registrado_em).toLocaleString('pt-BR')}</td>
-                  <td style={{ color: h.tipo === 'entrada' ? 'var(--c-primary)' : 'var(--c-danger)', fontWeight: 600 }}>
-                    {h.tipo === 'entrada' ? 'Entrada' : 'Saída'}
-                  </td>
-                  <td>{h.via}</td>
-                  <td>{h.tipo === 'entrada' ? '+' : '−'}{h.volume_ml} mL</td>
-                  <td className="col-larga" style={{ color: 'var(--c-text-muted)' }}>{h.observacao || '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   )
 }
