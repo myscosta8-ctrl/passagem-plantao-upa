@@ -21,25 +21,11 @@ export default function Sidebar({
   onLogout,
 }) {
   const [tema, setTema] = useState(lerTemaSalvo)
-  const [fechado, setFechado] = useState(() => {
-    try {
-      return localStorage.getItem('sidebar_fechado') === 'true'
-    } catch {
-      return false
-    }
-  })
-  const [abertoMobile, setAbertoMobile] = useState(false)
-
-  function toggleSidebar() {
-    setFechado((prev) => {
-      const novo = !prev
-      try {
-        localStorage.setItem('sidebar_fechado', String(novo))
-      } catch {}
-      return novo
-    })
-  }
-
+  // Menu fechado por padrão — fica escondido inteiro (não como faixa de
+  // ícones), só aparece como drawer flutuante ao clicar no hambúrguer fixo.
+  // Fiel ao mockup 12: `.main-sidebar` some por completo (translateX),
+  // reaberto pelo `.btn-menu-hamburguer` do topo.
+  const [aberto, setAberto] = useState(false)
 
   function trocarTema() {
     setTema(alternarTema())
@@ -49,40 +35,41 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Hambúrguer fixo — em telas pequenas é o único elemento do menu
-          visível por padrão; a sidebar inteira fica escondida até abrir. */}
+      {/* Hambúrguer fixo — único elemento do menu visível por padrão; a
+          sidebar inteira fica escondida até abrir. */}
       <button
         type="button"
-        className="sidebar-hamburguer-mobile"
-        onClick={() => setAbertoMobile(true)}
+        className="sidebar-hamburguer-fixo"
+        onClick={() => setAberto(true)}
         title="Abrir menu"
         aria-label="Abrir menu"
       >
         <i className="ph ph-list" />
+        <span>Menu</span>
       </button>
 
-      {abertoMobile && <div className="sidebar-backdrop-mobile" onClick={() => setAbertoMobile(false)} />}
+      {aberto && <div className="sidebar-backdrop" onClick={() => setAberto(false)} />}
 
-      <aside className={`sidebar ${fechado ? 'fechado' : ''} ${abertoMobile ? 'aberto-mobile' : ''}`} id="sidebar">
-      {/* Topo com botão hambúrguer */}
+      <aside className={`sidebar ${aberto ? 'aberto' : ''}`} id="sidebar">
+      {/* Topo com botão de fechar */}
       <div className="sidebar-topo">
-        <button
-          type="button"
-          className="sidebar-hamburguer"
-          onClick={() => (abertoMobile ? setAbertoMobile(false) : toggleSidebar())}
-          title={fechado ? 'Expandir menu' : 'Recolher menu'}
-          aria-label="Alternar menu"
-        >
-          <i className="ph ph-list" />
-        </button>
         <div className="sidebar-marca">
           <span className="sidebar-marca-titulo">Passagem de Plantão</span>
           <span className="sidebar-marca-sub">UPA 24h · Breves</span>
         </div>
+        <button
+          type="button"
+          className="sidebar-fechar"
+          onClick={() => setAberto(false)}
+          title="Fechar menu"
+          aria-label="Fechar menu"
+        >
+          <i className="ph ph-x" />
+        </button>
       </div>
 
       {/* Corpo de Navegação */}
-      <nav className="sidebar-corpo" onClick={() => setAbertoMobile(false)}>
+      <nav className="sidebar-corpo" onClick={() => setAberto(false)}>
         {/* GRUPO ASSISTENCIAL */}
         <div className="sidebar-grupo-label">Assistencial</div>
         <button

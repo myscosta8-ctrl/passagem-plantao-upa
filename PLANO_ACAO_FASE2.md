@@ -321,6 +321,17 @@ Imprimir" adicionado em `AbaFormNovo.jsx`, seguindo o modelo visual padrão dos 
   estava na lista de exclusões, e usa a mesma função real `marcarPassagemConferida` já
   usada individualmente).
 
+- ✅ **Concluído (25/09):** menu lateral virou drawer/overlay escondido por padrão, fiel
+  aos mockups (12 e também `01-painel-leitos-design.html`, que o usuário mostrou em print
+  confirmando que o padrão se repete em outras telas do design, não é exclusividade do
+  12). Antes, `Sidebar.jsx`/`Sidebar.css` tinham um modo "recolhido" que ainda mostrava uma
+  faixa de 64px com ícones — no design, o menu não fica exposto de jeito nenhum por
+  padrão, só o botão "☰ Menu" fixo aparece, e a sidebar inteira desliza por cima do
+  conteúdo (nunca empurra o layout) ao clicar nele. Unificado o comportamento
+  desktop/mobile num só (antes eram dois modos diferentes: "fechado" com ícones no
+  desktop, "aberto-mobile" só em telas pequenas). `usePainelState`/telas não mudaram, só
+  a casca de navegação.
+
 ## Pendências antigas (ainda não feitas, não esquecer)
 
 - `proposta-design-system-vitaloop.html` duplicado (raiz do projeto + dentro de

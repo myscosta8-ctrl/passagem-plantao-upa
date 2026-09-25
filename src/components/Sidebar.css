@@ -1,57 +1,101 @@
-/* Menu Lateral Hambúrguer — PEP Seção 2 */
+/* Menu Lateral — Drawer/Overlay, fiel a mockups-fase2/12-passagem-plantao-design.html
+   classes main-sidebar / sb-* / btn-menu-hamburguer: escondido por padrão em
+   qualquer tamanho de tela, só aparece como painel flutuante ao clicar no
+   hambúrguer fixo. Não existe mais modo "faixa de ícones" — ou está
+   totalmente escondido, ou totalmente aberto por cima do conteúdo. */
 
 .app-shell-sidebar-layout {
-  display: flex;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
   background: var(--c-bg, #F4F6F5);
 }
 
+.sidebar-hamburguer-fixo {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 210;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0F172A;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: 0.15s;
+}
+
+.sidebar-hamburguer-fixo i {
+  font-size: 16px;
+}
+
+.sidebar-hamburguer-fixo:hover {
+  background: #E2E8F0;
+  border-color: #94A3B8;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 215;
+}
+
 .sidebar {
-  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 270px;
   background: #0F172A;
   color: #CBD5E1;
   display: flex;
   flex-direction: column;
-  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
-  z-index: 50;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  transform: translateX(-100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
+  z-index: 220;
 }
 
-.sidebar.fechado {
-  width: 64px;
+.sidebar.aberto {
+  transform: translateX(0);
 }
 
-/* Topo com botão de hambúrguer */
+/* Topo: marca + botão de fechar */
 .sidebar-topo {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
-  padding: 0 16px 0 14px;
+  padding: 0 16px 0 18px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
   height: 56px;
 }
 
-.sidebar-hamburguer {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+.sidebar-fechar {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94A3B8;
-  font-size: 18px;
+  transition: 0.15s;
   flex-shrink: 0;
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.sidebar-hamburguer:hover {
+.sidebar-fechar:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
@@ -73,17 +117,6 @@
 .sidebar-marca-sub {
   font-size: 11px;
   color: #94A3B8;
-}
-
-/* Ocultar textos no modo recolhido */
-.sidebar.fechado .sidebar-marca,
-.sidebar.fechado .sidebar-grupo-label,
-.sidebar.fechado .sidebar-item-texto,
-.sidebar.fechado .sidebar-item-tag-novo,
-.sidebar.fechado .sidebar-item-tag-setor,
-.sidebar.fechado .sidebar-user-detalhes,
-.sidebar.fechado .sidebar-btn-encerrar-texto {
-  display: none !important;
 }
 
 /* Corpo navegável */
@@ -272,106 +305,30 @@
   color: #fff;
 }
 
-/* Área de conteúdo ao lado da sidebar */
+/* Área de conteúdo — ocupa a tela inteira; a sidebar flutua por cima,
+   nunca empurra o layout (mesmo comportamento em qualquer largura). */
 .app-shell-conteudo {
-  flex: 1;
+  width: 100vw;
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--c-bg, #F4F6F5);
   position: relative;
-}
-
-/* Hambúrguer fixo (só existe/aparece em telas pequenas — ver media query
-   abaixo). Fica sempre visível, mesmo com a sidebar inteira escondida. */
-.sidebar-hamburguer-mobile {
-  display: none;
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 19px;
-  border: none;
-  background: #0F172A;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  z-index: 210;
-}
-
-.sidebar-backdrop-mobile {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .sidebar-hamburguer-mobile {
-    display: flex;
-  }
-
-  /* Some completamente da tela por padrão — sem faixa de ícones ocupando
-     espaço, como pedido. Só reaparece como painel flutuante ao abrir. */
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 260px;
-    transform: translateX(-100%);
-    transition: transform 0.22s ease;
-    z-index: 220;
-  }
-
-  .sidebar.fechado {
-    width: 260px;
-  }
-
-  .sidebar.aberto-mobile {
-    transform: translateX(0);
-  }
-
-  .sidebar.aberto-mobile .sidebar-marca,
-  .sidebar.aberto-mobile .sidebar-grupo-label,
-  .sidebar.aberto-mobile .sidebar-item-texto,
-  .sidebar.aberto-mobile .sidebar-item-tag-novo,
-  .sidebar.aberto-mobile .sidebar-item-tag-setor,
-  .sidebar.aberto-mobile .sidebar-user-detalhes,
-  .sidebar.aberto-mobile .sidebar-btn-encerrar-texto {
-    display: revert !important;
-  }
-
-  .sidebar-backdrop-mobile {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    z-index: 215;
-  }
-
-  .app-shell-sidebar-layout {
-    display: block;
-  }
-
-  .app-shell-conteudo {
-    width: 100vw;
-    padding-top: 54px;
-  }
+  padding-top: 50px;
 }
 
 @media print {
-  .sidebar {
+  .sidebar,
+  .sidebar-hamburguer-fixo {
     display: none !important;
   }
   .app-shell-sidebar-layout {
-    display: block;
     height: auto;
     width: auto;
   }
   .app-shell-conteudo {
     overflow: visible;
     height: auto;
+    padding-top: 0;
   }
 }
