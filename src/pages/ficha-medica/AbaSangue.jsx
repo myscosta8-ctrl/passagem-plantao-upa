@@ -2,6 +2,20 @@ import { useEffect, useState } from 'react';
 import { listarSolicitacoesSangue, criarSolicitacaoSangue } from '../../lib/pepMedico';
 import { SANGUE_VAZIA, HEMOCOMPONENTES_OPCOES, URGENCIA_OPCOES } from './constantes';
 
+// Protocolos transfusionais: preenchem SOMENTE o hemocomponente/quantidade
+// padrão do bundle e a urgência associada. Nunca escrevem a indicação
+// clínica (texto livre) — esse campo descreve o quadro real do paciente e
+// deve continuar 100% manual, para não repetir o padrão do bug de dado
+// fabricado já corrigido em outras abas (commit a3c5953). A autorização de
+// extrema urgência (dispensa de testes pré-transfusionais) também nunca é
+// marcada automaticamente, por ser uma decisão legal que exige ação
+// deliberada do médico.
+const PROTOCOLOS_TRANSFUSIONAIS = [
+  { chave: 'anemia-grave', titulo: 'Anemia Aguda Grave', icon: 'ph-drop-half', hemocomponente: 'Concentrado de hemácias (+ 300 ml/unid)', quantidade: '01 UNIDADE', urgencia: 'urgencia' },
+  { chave: 'choque-hemorragico', titulo: 'Choque Hemorrágico / Trauma', icon: 'ph-first-aid', hemocomponente: 'Concentrado de hemácias (+ 300 ml/unid)', quantidade: '02 UNIDADES', urgencia: 'urgencia' },
+  { chave: 'plaquetopenia', titulo: 'Plaquetopenia Severa', icon: 'ph-warning', hemocomponente: 'Concentrado de plaquetas pobre em leucócitos(+ 60 ml/unid)', quantidade: '05 UNIDADES', urgencia: 'urgencia' },
+]
+
 export default function AbaSangue({ atendimento, medicoId, onImprimir }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -14,6 +28,17 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir }) {
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
   function setHemo(item, campo, valor) {
     setDados((prev) => ({ ...prev, hemocomponentes: { ...prev.hemocomponentes, [item]: { ...prev.hemocomponentes[item], [campo]: valor } } }))
+  }
+
+  function aplicarProtocolo(protocolo) {
+    setDados((prev) => ({
+      ...prev,
+      urgencia: protocolo.urgencia,
+      hemocomponentes: {
+        ...prev.hemocomponentes,
+        [protocolo.hemocomponente]: { marcado: true, quantidade: protocolo.quantidade },
+      },
+    }))
   }
 
   async function salvar() {
@@ -44,6 +69,20 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir }) {
       </div>
 
       <div className="cc-body">
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-lightning" /> Protocolos Transfusionais</div>
+          <p style={{ fontSize: 11.5, color: '#64748B', margin: '0 0 10px' }}>
+            Pré-marca o hemocomponente/quantidade padrão do bundle e a urgência. Indicação clínica continua manual, e a autorização de extrema urgência nunca é marcada automaticamente.
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {PROTOCOLOS_TRANSFUSIONAIS.map((p) => (
+              <button key={p.chave} type="button" className="btn-add-chip" onClick={() => aplicarProtocolo(p)}>
+                <i className={`ph ${p.icon}`} /> {p.titulo}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-user" /> 1. Identificação e histórico transfusional</div>
           <div className="assess-grid">
