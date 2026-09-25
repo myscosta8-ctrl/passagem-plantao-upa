@@ -304,7 +304,10 @@ export async function listarEventosAdversos(atendimentoId) {
   return data ?? []
 }
 
-export async function registrarEventoAdverso({ atendimentoId, relatorId, anonimo, categoria, gravidade, descricao, acaoImediata }) {
+export async function registrarEventoAdverso({
+  atendimentoId, relatorId, anonimo, categoria, gravidade, descricao, acaoImediata,
+  ocorridoEm, medicoComunicado, horarioComunicacaoMedico, sinaisVitais, desfechoEvolucao,
+}) {
   return supabase
     .from('eventos_adversos')
     .insert({
@@ -315,6 +318,16 @@ export async function registrarEventoAdverso({ atendimentoId, relatorId, anonimo
       gravidade,
       descricao,
       acao_imediata: acaoImediata || null,
+      ocorrido_em: ocorridoEm || new Date().toISOString(),
+      medico_comunicado: !!medicoComunicado,
+      horario_comunicacao_medico: medicoComunicado ? (horarioComunicacaoMedico || null) : null,
+      sv_pa_sistolica: sinaisVitais?.pa_sistolica === '' || sinaisVitais?.pa_sistolica == null ? null : Number(sinaisVitais.pa_sistolica),
+      sv_pa_diastolica: sinaisVitais?.pa_diastolica === '' || sinaisVitais?.pa_diastolica == null ? null : Number(sinaisVitais.pa_diastolica),
+      sv_fc: sinaisVitais?.fc === '' || sinaisVitais?.fc == null ? null : Number(sinaisVitais.fc),
+      sv_fr: sinaisVitais?.fr === '' || sinaisVitais?.fr == null ? null : Number(sinaisVitais.fr),
+      sv_temperatura: sinaisVitais?.temperatura === '' || sinaisVitais?.temperatura == null ? null : Number(sinaisVitais.temperatura),
+      sv_spo2: sinaisVitais?.spo2 === '' || sinaisVitais?.spo2 == null ? null : Number(sinaisVitais.spo2),
+      desfecho_evolucao: desfechoEvolucao || null,
     })
     .select()
     .single()

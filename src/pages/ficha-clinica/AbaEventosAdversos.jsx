@@ -2,6 +2,14 @@ import { useEffect, useState } from 'react';
 import { listarEventosAdversos, registrarEventoAdverso } from '../../lib/pepClinico';
 import { CATEGORIAS_EVENTO_ADVERSO, GRAVIDADES_EVENTO_ADVERSO } from './constantes';
 
+function agoraParaInput() {
+  const d = new Date()
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
+  return d.toISOString().slice(0, 16)
+}
+
+const SV_VAZIO = { pa_sistolica: '', pa_diastolica: '', fc: '', fr: '', temperatura: '', spo2: '' }
+
 export default function AbaEventosAdversos({ atendimento, autorId, onImprimir }) {
   const [lista, setLista] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -10,6 +18,11 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
   const [descricao, setDescricao] = useState('')
   const [acaoImediata, setAcaoImediata] = useState('')
   const [anonimo, setAnonimo] = useState(false)
+  const [ocorridoEm, setOcorridoEm] = useState(agoraParaInput)
+  const [medicoComunicado, setMedicoComunicado] = useState(false)
+  const [horarioComunicacaoMedico, setHorarioComunicacaoMedico] = useState('')
+  const [sv, setSv] = useState({ ...SV_VAZIO })
+  const [desfechoEvolucao, setDesfechoEvolucao] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [itemExpandido, setItemExpandido] = useState(null)
@@ -29,6 +42,11 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
     const { error } = await registrarEventoAdverso({
       atendimentoId: atendimento.atendimento_id, relatorId: autorId, anonimo,
       categoria, gravidade, descricao: descricao.trim(), acaoImediata: acaoImediata.trim(),
+      ocorridoEm: ocorridoEm ? new Date(ocorridoEm).toISOString() : null,
+      medicoComunicado,
+      horarioComunicacaoMedico: horarioComunicacaoMedico ? new Date(horarioComunicacaoMedico).toISOString() : null,
+      sinaisVitais: sv,
+      desfechoEvolucao: desfechoEvolucao.trim(),
     })
     setSalvando(false)
     if (error) {
@@ -37,6 +55,8 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
       return
     }
     setCategoria(''); setGravidade(''); setDescricao(''); setAcaoImediata(''); setAnonimo(false)
+    setOcorridoEm(agoraParaInput()); setMedicoComunicado(false); setHorarioComunicacaoMedico('')
+    setSv({ ...SV_VAZIO }); setDesfechoEvolucao('')
     carregar()
   }
 
@@ -68,6 +88,10 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
                 <strong>{e.categoria} · {e.gravidade}</strong><br />
                 {e.descricao}
                 {e.acao_imediata && <><br /><em>Ação imediata: {e.acao_imediata}</em></>}
+                {e.medico_comunicado && (
+                  <><br /><em>Médico comunicado{e.horario_comunicacao_medico ? ` às ${new Date(e.horario_comunicacao_medico).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : ''}</em></>
+                )}
+                {e.desfecho_evolucao && <><br /><em>Desfecho: {e.desfecho_evolucao}</em></>}
               </div>
               {onImprimir && (
                 <button
@@ -79,7 +103,7 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
                       classificacao: `${e.categoria} (${e.gravidade})`,
                       descricao: e.descricao,
                       conduta: e.acao_imediata || 'Ações imediatas adotadas conforme protocolo institucional.',
-                      desfecho: 'Paciente sob observação contínua da equipe de enfermagem.',
+                      desfecho: e.desfecho_evolucao || 'Paciente sob observação contínua da equipe de enfermagem.',
                       criado_em: e.ocorrido_em,
                     })
                   }}
@@ -101,6 +125,11 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
         </div>
 
         <div className="cc-body">
+          <div className="form-group">
+            <label><i className="ph ph-clock" /> Horário exato da ocorrência</label>
+            <input type="datetime-local" value={ocorridoEm} onChange={(e) => setOcorridoEm(e.target.value)} />
+          </div>
+
           <div className="form-group">
             <label>Classificação / Tipo de Evento:</label>
             <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -128,10 +157,37 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
             <textarea className="large" style={{ minHeight: 100 }} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Descreva os sinais objetivos, sintomas relatados pelo paciente ou familiar..." />
           </div>
 
+          <div className="form-section-box">
+            <div className="form-section-box-title"><i className="ph ph-heartbeat" /> Sinais Vitais no Momento do Evento</div>
+            <div className="assess-grid">
+              <div className="form-group"><label>PA sistólica</label><input type="number" value={sv.pa_sistolica} onChange={(e) => setSv((p) => ({ ...p, pa_sistolica: e.target.value }))} /></div>
+              <div className="form-group"><label>PA diastólica</label><input type="number" value={sv.pa_diastolica} onChange={(e) => setSv((p) => ({ ...p, pa_diastolica: e.target.value }))} /></div>
+              <div className="form-group"><label>FC</label><input type="number" value={sv.fc} onChange={(e) => setSv((p) => ({ ...p, fc: e.target.value }))} /></div>
+              <div className="form-group"><label>FR</label><input type="number" value={sv.fr} onChange={(e) => setSv((p) => ({ ...p, fr: e.target.value }))} /></div>
+              <div className="form-group"><label>Temperatura</label><input type="number" step="0.1" value={sv.temperatura} onChange={(e) => setSv((p) => ({ ...p, temperatura: e.target.value }))} /></div>
+              <div className="form-group"><label>SpO2</label><input type="number" value={sv.spo2} onChange={(e) => setSv((p) => ({ ...p, spo2: e.target.value }))} /></div>
+            </div>
+          </div>
+
           <div className="form-group">
             <label><i className="ph ph-first-aid" /> Ação Imediata Tomada</label>
             <textarea style={{ minHeight: 70 }} value={acaoImediata} onChange={(e) => setAcaoImediata(e.target.value)} placeholder="Descreva as medidas imediatas adotadas pela enfermagem..." />
           </div>
+
+          <div className="form-group">
+            <label><i className="ph ph-notepad" /> Desfecho / Evolução Pós-Conduta</label>
+            <textarea style={{ minHeight: 70 }} value={desfechoEvolucao} onChange={(e) => setDesfechoEvolucao(e.target.value)} placeholder="Como o paciente evoluiu após a conduta adotada..." />
+          </div>
+
+          <label className="checkbox-item">
+            <input type="checkbox" checked={medicoComunicado} onChange={(e) => setMedicoComunicado(e.target.checked)} /> Médico plantonista comunicado
+          </label>
+          {medicoComunicado && (
+            <div className="form-group">
+              <label>Horário da comunicação ao médico</label>
+              <input type="datetime-local" value={horarioComunicacaoMedico} onChange={(e) => setHorarioComunicacaoMedico(e.target.value)} />
+            </div>
+          )}
 
           <label className="checkbox-item">
             <input type="checkbox" checked={anonimo} onChange={(e) => setAnonimo(e.target.checked)} /> Registrar como anônimo
