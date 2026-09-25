@@ -23,6 +23,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
   const [dispositivos, setDispositivos] = useState('')
   const [recomendacoes, setRecomendacoes] = useState('')
   const [intercorrencia, setIntercorrencia] = useState(false)
+  const [breveHistorico, setBreveHistorico] = useState('')
   const [enfermeiroRecebe, setEnfermeiroRecebe] = useState('')
   const [sv, setSv] = useState({ pa_sistolica: '', pa_diastolica: '', fc: '', fr: '', temperatura: '', spo2: '' })
   const [itemExpandido, setItemExpandido] = useState(null)
@@ -61,7 +62,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
         impressao_diagnostica: impressaoDiagnostica.trim(), nivel_consciencia: nivelConsciencia || null,
         alergia, suporte_ventilatorio: suporteVentilatorio, isolamento, dispositivos: dispositivos || null,
         recomendacoes: recomendacoes || null, intercorrencia_transporte: intercorrencia,
-        sinais_vitais: sv,
+        sinais_vitais: sv, breve_historico: breveHistorico.trim() || null,
       },
     })
     setSalvando(false)
@@ -73,6 +74,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
     setSetorDestinoId(''); setImpressaoDiagnostica(''); setNivelConsciencia('')
     setAlergia(false); setSuporteVentilatorio(false); setIsolamento(false)
     setDispositivos(''); setRecomendacoes(''); setIntercorrencia(false); setEnfermeiroRecebe('')
+    setBreveHistorico('')
     setSv({ pa_sistolica: '', pa_diastolica: '', fc: '', fr: '', temperatura: '', spo2: '' })
     carregarTudo()
   }
@@ -103,6 +105,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
               </div>
               <div className="tl-preview">
                 <strong>Para {r.setores?.nome || '—'}</strong>
+                {r.breve_historico && <><br /><em>Histórico: {r.breve_historico}</em></>}
               </div>
               {onImprimir && (
                 <button type="button" className="tl-print" onClick={(e) => { e.stopPropagation(); onImprimir(r) }}>
@@ -154,6 +157,16 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
             <div className="form-group">
               <label>Impressão diagnóstica *</label>
               <textarea value={impressaoDiagnostica} onChange={(e) => setImpressaoDiagnostica(e.target.value)} />
+            </div>
+          </div>
+
+          <div className="form-section-box">
+            <div className="form-section-box-title" style={{ color: '#4F46E5' }}>
+              <i className="ph ph-letter-circle-b" /> B — Breve Histórico
+            </div>
+            <div className="form-group">
+              <label>Antecedentes pessoais, comorbidades, cirurgias e condutas já realizadas na UPA</label>
+              <textarea value={breveHistorico} onChange={(e) => setBreveHistorico(e.target.value)} placeholder="Antecedentes relevantes e o que já foi feito neste atendimento antes da transferência..." />
             </div>
           </div>
 
