@@ -269,46 +269,60 @@ export default function AbaAdmissao({ atendimento, autorId }) {
     setSucesso(true)
   }
 
-  if (carregando) return <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+  if (carregando) return <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
 
   return (
-    <div className="form-section">
+    <div className="clinical-card" style={{ flex: 1 }}>
+      <div className="cc-header">
+        <div className="cc-title">
+          <h2><i className="ph ph-clipboard-text" /> Admissão</h2>
+          <p>Identificação complementar, sinais vitais e exame físico completo do paciente.</p>
+        </div>
+      </div>
+
+      <div className="cc-body">
       {jaSalvo && (
-        <p style={{ fontSize: 11.5, color: 'var(--c-text-muted)', marginBottom: 16, paddingBottom: 14, borderBottom: '1px solid var(--c-border)' }}>
-          Admissão já registrada — pode ajustar e salvar de novo.
-        </p>
+        <div className="allergy-alert" style={{ background: '#EFF6FF', borderColor: '#BFDBFE' }}>
+          <div className="info" style={{ color: '#1D4ED8' }}>
+            <i className="ph ph-info" /> Admissão já registrada — pode ajustar e salvar de novo.
+          </div>
+        </div>
       )}
 
-      <div className="form-section-title">Identificação complementar</div>
-      <div className="form-grid" style={{ marginBottom: 20 }}>
-        <div className="form-field"><label>Alergia medicamentosa</label><input type="text" value={cab.alergia_medicamentosa} onChange={(e) => setC('alergia_medicamentosa', e.target.value)} /></div>
-        <div className="form-field"><label>Alergia alimentar</label><input type="text" value={cab.alergia_alimentar} onChange={(e) => setC('alergia_alimentar', e.target.value)} /></div>
-        <div className="form-field"><label>Cidade onde reside</label><input type="text" value={cab.cidade_reside} onChange={(e) => setC('cidade_reside', e.target.value)} /></div>
-        <div className="form-field"><label>Acompanhante</label><input type="text" value={cab.acompanhante} onChange={(e) => setC('acompanhante', e.target.value)} /></div>
-        <div className="form-field">
+      <div className="form-section-box">
+        <div className="form-section-box-title"><i className="ph ph-identification-card" /> Identificação complementar</div>
+        <div className="assess-grid">
+          <div className="form-group"><label>Alergia medicamentosa</label><input type="text" value={cab.alergia_medicamentosa} onChange={(e) => setC('alergia_medicamentosa', e.target.value)} /></div>
+          <div className="form-group"><label>Alergia alimentar</label><input type="text" value={cab.alergia_alimentar} onChange={(e) => setC('alergia_alimentar', e.target.value)} /></div>
+          <div className="form-group"><label>Cidade onde reside</label><input type="text" value={cab.cidade_reside} onChange={(e) => setC('cidade_reside', e.target.value)} /></div>
+          <div className="form-group"><label>Acompanhante</label><input type="text" value={cab.acompanhante} onChange={(e) => setC('acompanhante', e.target.value)} /></div>
+        </div>
+        <div className="form-group">
           <label>Medicamentos controlados</label>
-          <div className="toggle-group">
-            <button type="button" className={`toggle-btn ${cab.medicamentos_controlados === false ? 'on' : ''}`} onClick={() => setC('medicamentos_controlados', false)}>Não</button>
-            <button type="button" className={`toggle-btn ${cab.medicamentos_controlados === true ? 'on' : ''}`} onClick={() => setC('medicamentos_controlados', true)}>Sim</button>
+          <div className="checkbox-group" style={{ flexDirection: 'row' }}>
+            <label className="checkbox-item"><input type="radio" name="admissao-medcontrolados" checked={cab.medicamentos_controlados === false} onChange={() => setC('medicamentos_controlados', false)} /> Não</label>
+            <label className="checkbox-item"><input type="radio" name="admissao-medcontrolados" checked={cab.medicamentos_controlados === true} onChange={() => setC('medicamentos_controlados', true)} /> Sim</label>
           </div>
         </div>
         {cab.medicamentos_controlados && (
-          <div className="form-field"><label>Quais</label><input type="text" value={cab.medicamentos_controlados_quais} onChange={(e) => setC('medicamentos_controlados_quais', e.target.value)} /></div>
+          <div className="form-group"><label>Quais</label><input type="text" value={cab.medicamentos_controlados_quais} onChange={(e) => setC('medicamentos_controlados_quais', e.target.value)} /></div>
         )}
-        <div className="form-field span-3"><label>Hipótese diagnóstica</label><input type="text" value={cab.hipotese_diagnostica} onChange={(e) => setC('hipotese_diagnostica', e.target.value)} /></div>
+        <div className="form-group"><label>Hipótese diagnóstica</label><input type="text" value={cab.hipotese_diagnostica} onChange={(e) => setC('hipotese_diagnostica', e.target.value)} /></div>
       </div>
 
-      <div className="form-section-title">Sinais vitais da admissão</div>
-      <div className="form-grid" style={{ marginBottom: 20 }}>
-        <div className="form-field"><label>PA sistólica</label><input type="number" value={svAdmissao.pa_sistolica} onChange={(e) => setSvAdmissao((p) => ({ ...p, pa_sistolica: e.target.value }))} /></div>
-        <div className="form-field"><label>PA diastólica</label><input type="number" value={svAdmissao.pa_diastolica} onChange={(e) => setSvAdmissao((p) => ({ ...p, pa_diastolica: e.target.value }))} /></div>
-        <div className="form-field"><label>Pulso</label><input type="number" value={svAdmissao.fc} onChange={(e) => setSvAdmissao((p) => ({ ...p, fc: e.target.value }))} /></div>
-        <div className="form-field"><label>FR</label><input type="number" value={svAdmissao.fr} onChange={(e) => setSvAdmissao((p) => ({ ...p, fr: e.target.value }))} /></div>
-        <div className="form-field"><label>SpO2</label><input type="number" value={svAdmissao.spo2} onChange={(e) => setSvAdmissao((p) => ({ ...p, spo2: e.target.value }))} /></div>
+      <div className="form-section-box">
+        <div className="form-section-box-title"><i className="ph ph-heartbeat" /> Sinais vitais da admissão</div>
+        <div className="assess-grid">
+          <div className="form-group"><label>PA sistólica</label><input type="number" value={svAdmissao.pa_sistolica} onChange={(e) => setSvAdmissao((p) => ({ ...p, pa_sistolica: e.target.value }))} /></div>
+          <div className="form-group"><label>PA diastólica</label><input type="number" value={svAdmissao.pa_diastolica} onChange={(e) => setSvAdmissao((p) => ({ ...p, pa_diastolica: e.target.value }))} /></div>
+          <div className="form-group"><label>Pulso</label><input type="number" value={svAdmissao.fc} onChange={(e) => setSvAdmissao((p) => ({ ...p, fc: e.target.value }))} /></div>
+          <div className="form-group"><label>FR</label><input type="number" value={svAdmissao.fr} onChange={(e) => setSvAdmissao((p) => ({ ...p, fr: e.target.value }))} /></div>
+          <div className="form-group"><label>SpO2</label><input type="number" value={svAdmissao.spo2} onChange={(e) => setSvAdmissao((p) => ({ ...p, spo2: e.target.value }))} /></div>
+        </div>
       </div>
 
-      <div className="form-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span>Exame físico (26 grupos)</span>
+      <div className="form-section-box-title" style={{ position: 'static', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span><i className="ph ph-activity" /> Exame físico (26 grupos)</span>
       </div>
 
       {(() => {
@@ -341,92 +355,119 @@ export default function AbaAdmissao({ atendimento, autorId }) {
         ))}
       </div>
 
-      <div className="form-section-title" style={{ marginTop: 8 }}>Integridade física</div>
-      <div className="form-grid" style={{ marginBottom: 20 }}>
-        <div className="form-field">
+      <div className="form-section-box">
+        <div className="form-section-box-title"><i className="ph ph-bandaids" /> Integridade física</div>
+        <div className="form-group">
           <label>Presença de lesões cutâneas</label>
-          <div className="toggle-group">
-            <button type="button" className={`toggle-btn ${integridade.lesao_cutanea === false ? 'on' : ''}`} onClick={() => setIntegridade((p) => ({ ...p, lesao_cutanea: false }))}>Não</button>
-            <button type="button" className={`toggle-btn ${integridade.lesao_cutanea === true ? 'on' : ''}`} onClick={() => setIntegridade((p) => ({ ...p, lesao_cutanea: true }))}>Sim</button>
+          <div className="checkbox-group" style={{ flexDirection: 'row' }}>
+            <label className="checkbox-item"><input type="radio" name="admissao-lesao" checked={integridade.lesao_cutanea === false} onChange={() => setIntegridade((p) => ({ ...p, lesao_cutanea: false }))} /> Não</label>
+            <label className="checkbox-item"><input type="radio" name="admissao-lesao" checked={integridade.lesao_cutanea === true} onChange={() => setIntegridade((p) => ({ ...p, lesao_cutanea: true }))} /> Sim</label>
           </div>
         </div>
         {integridade.lesao_cutanea && (
-          <>
-            <div className="form-field">
+          <div className="assess-grid">
+            <div className="form-group">
               <label>Tipo</label>
-              <div className="chip-group">
+              <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                 {['Ferida operatória', 'Lesão por pressão'].map((t) => (
-                  <button key={t} type="button" className={`chip ${integridade.tipo === t ? 'on' : ''}`} onClick={() => setIntegridade((p) => ({ ...p, tipo: p.tipo === t ? '' : t }))}>{t}</button>
+                  <label key={t} className="checkbox-item">
+                    <input type="checkbox" checked={integridade.tipo === t} onChange={() => setIntegridade((p) => ({ ...p, tipo: p.tipo === t ? '' : t }))} /> {t}
+                  </label>
                 ))}
               </div>
             </div>
-            <div className="form-field"><label>Região e grau</label><input type="text" value={integridade.local_grau} onChange={(e) => setIntegridade((p) => ({ ...p, local_grau: e.target.value }))} /></div>
-          </>
+            <div className="form-group"><label>Região e grau</label><input type="text" value={integridade.local_grau} onChange={(e) => setIntegridade((p) => ({ ...p, local_grau: e.target.value }))} /></div>
+          </div>
         )}
-        <div className="form-field span-3">
+        <div className="form-group">
           <label>Desenvolvida em</label>
-          <div className="chip-group">
+          <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {['Casa', 'Enfermaria de origem', 'UTI Adulto/Hospital'].map((t) => (
-              <button key={t} type="button" className={`chip ${integridade.desenvolvida_em === t ? 'on' : ''}`} onClick={() => setIntegridade((p) => ({ ...p, desenvolvida_em: p.desenvolvida_em === t ? '' : t }))}>{t}</button>
+              <label key={t} className="checkbox-item">
+                <input type="checkbox" checked={integridade.desenvolvida_em === t} onChange={() => setIntegridade((p) => ({ ...p, desenvolvida_em: p.desenvolvida_em === t ? '' : t }))} /> {t}
+              </label>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="form-section-title">Antecedentes</div>
-      <div className="form-grid" style={{ marginBottom: 20 }}>
-        <div className="form-field span-2">
-          <label>Doenças da infância</label>
-          <div className="chip-group">
-            {DOENCAS_INFANCIA_OPCOES.map((d) => (
-              <button key={d} type="button" className={`chip ${doencasInfancia.itens.includes(d) ? 'on' : ''}`} onClick={() => toggleDoenca(doencasInfancia, setDoencasInfancia, d)}>{d}</button>
-            ))}
+      <div className="form-section-box">
+        <div className="form-section-box-title"><i className="ph ph-clock-counter-clockwise" /> Antecedentes</div>
+        <div className="assess-grid">
+          <div className="form-group">
+            <label>Doenças da infância</label>
+            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {DOENCAS_INFANCIA_OPCOES.map((d) => (
+                <label key={d} className="checkbox-item"><input type="checkbox" checked={doencasInfancia.itens.includes(d)} onChange={() => toggleDoenca(doencasInfancia, setDoencasInfancia, d)} /> {d}</label>
+              ))}
+            </div>
           </div>
+          <div className="form-group"><label>Outras (infância)</label><input type="text" value={doencasInfancia.outros} onChange={(e) => setDoencasInfancia((p) => ({ ...p, outros: e.target.value }))} /></div>
         </div>
-        <div className="form-field"><label>Outras (infância)</label><input type="text" value={doencasInfancia.outros} onChange={(e) => setDoencasInfancia((p) => ({ ...p, outros: e.target.value }))} /></div>
 
-        <div className="form-field span-2">
-          <label>Doenças crônicas</label>
-          <div className="chip-group">
-            {DOENCAS_CRONICAS_OPCOES.map((d) => (
-              <button key={d} type="button" className={`chip ${doencasCronicas.itens.includes(d) ? 'on' : ''}`} onClick={() => toggleDoenca(doencasCronicas, setDoencasCronicas, d)}>{d}</button>
-            ))}
-            <button type="button" className={`chip ${doencasCronicas.itens.includes('Diabetes') ? 'on' : ''}`} onClick={() => toggleDoenca(doencasCronicas, setDoencasCronicas, 'Diabetes')}>Diabetes</button>
+        <div className="assess-grid" style={{ marginTop: 12 }}>
+          <div className="form-group">
+            <label>Doenças crônicas</label>
+            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {DOENCAS_CRONICAS_OPCOES.map((d) => (
+                <label key={d} className="checkbox-item"><input type="checkbox" checked={doencasCronicas.itens.includes(d)} onChange={() => toggleDoenca(doencasCronicas, setDoencasCronicas, d)} /> {d}</label>
+              ))}
+              <label className="checkbox-item"><input type="checkbox" checked={doencasCronicas.itens.includes('Diabetes')} onChange={() => toggleDoenca(doencasCronicas, setDoencasCronicas, 'Diabetes')} /> Diabetes</label>
+            </div>
           </div>
+          {doencasCronicas.itens.includes('Diabetes') && (
+            <div className="form-group"><label>Diabetes / tipo</label><input type="text" value={doencasCronicas.diabetes_tipo} onChange={(e) => setDoencasCronicas((p) => ({ ...p, diabetes_tipo: e.target.value }))} /></div>
+          )}
+          <div className="form-group"><label>Outras (crônicas)</label><input type="text" value={doencasCronicas.outros} onChange={(e) => setDoencasCronicas((p) => ({ ...p, outros: e.target.value }))} /></div>
         </div>
-        {doencasCronicas.itens.includes('Diabetes') && (
-          <div className="form-field"><label>Diabetes / tipo</label><input type="text" value={doencasCronicas.diabetes_tipo} onChange={(e) => setDoencasCronicas((p) => ({ ...p, diabetes_tipo: e.target.value }))} /></div>
-        )}
-        <div className="form-field"><label>Outras (crônicas)</label><input type="text" value={doencasCronicas.outros} onChange={(e) => setDoencasCronicas((p) => ({ ...p, outros: e.target.value }))} /></div>
 
-        <div className="form-field">
-          <label>Tabagista</label>
-          <div className="toggle-group">
-            <button type="button" className={`toggle-btn ${cab.tabagista === false ? 'on' : ''}`} onClick={() => setC('tabagista', false)}>Não</button>
-            <button type="button" className={`toggle-btn ${cab.tabagista === true ? 'on' : ''}`} onClick={() => setC('tabagista', true)}>Sim</button>
+        <div className="assess-grid" style={{ marginTop: 12 }}>
+          <div className="form-group">
+            <label>Tabagista</label>
+            <div className="checkbox-group" style={{ flexDirection: 'row' }}>
+              <label className="checkbox-item"><input type="radio" name="admissao-tabagista" checked={cab.tabagista === false} onChange={() => setC('tabagista', false)} /> Não</label>
+              <label className="checkbox-item"><input type="radio" name="admissao-tabagista" checked={cab.tabagista === true} onChange={() => setC('tabagista', true)} /> Sim</label>
+            </div>
           </div>
-        </div>
-        {cab.tabagista && <div className="form-field"><label>Há quanto tempo</label><input type="text" value={cab.tabagista_tempo} onChange={(e) => setC('tabagista_tempo', e.target.value)} /></div>}
-        <div className="form-field">
-          <label>Etilista</label>
-          <div className="toggle-group">
-            <button type="button" className={`toggle-btn ${cab.etilista === false ? 'on' : ''}`} onClick={() => setC('etilista', false)}>Não</button>
-            <button type="button" className={`toggle-btn ${cab.etilista === true ? 'on' : ''}`} onClick={() => setC('etilista', true)}>Sim</button>
+          {cab.tabagista && <div className="form-group"><label>Há quanto tempo</label><input type="text" value={cab.tabagista_tempo} onChange={(e) => setC('tabagista_tempo', e.target.value)} /></div>}
+          <div className="form-group">
+            <label>Etilista</label>
+            <div className="checkbox-group" style={{ flexDirection: 'row' }}>
+              <label className="checkbox-item"><input type="radio" name="admissao-etilista" checked={cab.etilista === false} onChange={() => setC('etilista', false)} /> Não</label>
+              <label className="checkbox-item"><input type="radio" name="admissao-etilista" checked={cab.etilista === true} onChange={() => setC('etilista', true)} /> Sim</label>
+            </div>
           </div>
+          {cab.etilista && <div className="form-group"><label>Há quanto tempo</label><input type="text" value={cab.etilista_tempo} onChange={(e) => setC('etilista_tempo', e.target.value)} /></div>}
         </div>
-        {cab.etilista && <div className="form-field"><label>Há quanto tempo</label><input type="text" value={cab.etilista_tempo} onChange={(e) => setC('etilista_tempo', e.target.value)} /></div>}
       </div>
 
-      <div className="form-section-title">Observações</div>
-      <div className="form-field" style={{ marginBottom: 16 }}>
+      <div className="form-group">
+        <label><i className="ph ph-note" /> Observações</label>
         <textarea value={cab.observacoes} onChange={(e) => setC('observacoes', e.target.value)} />
       </div>
 
-      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      {sucesso && <p style={{ fontSize: 12, color: 'var(--c-primary)', marginBottom: 14 }}>Admissão salva.</p>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={salvar} disabled={salvando}>
-        {salvando ? 'Salvando...' : 'Salvar admissão'}
-      </button>
+      {erro && (
+        <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+          <div className="info" style={{ color: '#DC2626' }}>
+            <i className="ph ph-warning" /> {erro}
+          </div>
+        </div>
+      )}
+      {sucesso && (
+        <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
+          <div className="info" style={{ color: '#166534' }}>
+            <i className="ph ph-check-circle" /> Admissão salva.
+          </div>
+        </div>
+      )}
+      </div>
+
+      <div className="cc-footer">
+        <span />
+        <button className="btn-save-print" onClick={salvar} disabled={salvando}>
+          <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar admissão'}
+        </button>
+      </div>
     </div>
   )
 }
