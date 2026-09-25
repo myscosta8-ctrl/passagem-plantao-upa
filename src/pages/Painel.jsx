@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react'
 import RealocarModal from './RealocarModal'
 import { ModalInternar, PainelTabela, PainelCards, usePainelState } from './painel/index.js'
-import PassagemColetiva from './PassagemColetiva'
 import './Painel.css'
 
 const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
@@ -58,7 +57,6 @@ export default function Painel({ plantao, setoresIds }) {
         <div className="visualizacao-toggle">
           <button className={visualizacao === 'cards' ? 'on' : ''} onClick={() => setVisualizacao('cards')}><i className="ph ph-squares-four" /> Cards</button>
           <button className={visualizacao === 'tabela' ? 'on' : ''} onClick={() => setVisualizacao('tabela')}><i className="ph ph-list-dashes" /> Lista</button>
-          <button className={visualizacao === 'coletiva' ? 'on' : ''} onClick={() => setVisualizacao('coletiva')}><i className="ph ph-arrows-clockwise" /> Passagem Coletiva</button>
         </div>
       </div>
       <div style={{ borderBottom: '1px solid var(--c-border)', marginBottom: 20 }} />
@@ -104,18 +102,6 @@ export default function Painel({ plantao, setoresIds }) {
           onAbrirModalInternar={setModalLeito}
           onAbrirRealocar={setModalRealocar}
           onAbrirLeitoExtra={abrirLeitoExtra}
-        />
-      )}
-
-      {visualizacao === 'coletiva' && (
-        <PassagemColetiva
-          setoresVisiveis={setoresVisiveis}
-          leitos={leitos}
-          pacientesPorLeito={pacientesPorLeito}
-          passagemPorPaciente={passagemPorPaciente}
-          enfermeiroId={enfermeiro?.id}
-          onAbrirPassagem={abrirPassagem}
-          onRecarregar={carregarTudo}
         />
       )}
 

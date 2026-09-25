@@ -2,6 +2,7 @@ import { useEffect, useState, lazy, Suspense } from 'react'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import Painel from './Painel'
+import PassagemColetivaTela from './PassagemColetivaTela'
 import ConfirmModal from './ConfirmModal'
 import Sidebar from '../components/Sidebar'
 import './AberturaPlantao.css'
@@ -58,7 +59,7 @@ function hojeISOLocal() {
 const TELAS_VALIDAS = [
   'painel', 'recepcao', 'print1', 'print2', 'historico', 'altas',
   'indicadoresClinicos', 'pendencias', 'compartilhar', 'equipe',
-  'ajuda', 'conta', 'profissionais',
+  'ajuda', 'conta', 'profissionais', 'passagemColetiva',
 ]
 const LIMITE_HORAS_TELA_SALVA = 4
 
@@ -280,6 +281,7 @@ export default function Home() {
               )}
 
               {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
+              {plantao && setoresIds && tela === 'passagemColetiva' && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} />}
               {plantao && setoresIds && tela === 'print1' && (
                 <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('painel')} />
               )}

@@ -108,6 +108,17 @@ export default function Sidebar({
 
         <button
           type="button"
+          className={`sidebar-item ${telaAtual === 'passagemColetiva' ? 'ativo' : ''}`}
+          onClick={() => onNavegar('passagemColetiva')}
+          title="Passagem de Plantão"
+        >
+          <i className="ph ph-arrows-clockwise sidebar-item-icone" />
+          <span className="sidebar-item-texto">Passagem de Plantão</span>
+          <span className="sidebar-item-tag-setor">Setor</span>
+        </button>
+
+        <button
+          type="button"
           className={`sidebar-item ${telaAtual === 'historico' ? 'ativo' : ''}`}
           onClick={() => onNavegar('historico')}
           title="Histórico de Plantões"
