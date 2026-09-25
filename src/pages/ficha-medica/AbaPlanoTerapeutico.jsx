@@ -2,6 +2,18 @@ import { useEffect, useState } from 'react';
 import { buscarPlanoTerapeutico, salvarPlanoTerapeutico } from '../../lib/pepMedico';
 import { PROTOCOLOS_OPCOES, EQUIPE_OPCOES, PROBLEMA_VAZIO } from './constantes';
 
+// Kits de protocolo institucional: preenchem SOMENTE as caixas de protocolo
+// elegível e equipe multidisciplinar (bundles de cuidado padronizados pela
+// instituição). Nunca escrevem diagnóstico, motivo, objetivos, metas ou
+// problemas ativos — esses campos são sempre digitados pelo médico a partir
+// do quadro real do paciente, para não repetir o padrão do bug de dado
+// fabricado já corrigido em outras abas (commit a3c5953).
+const KITS_PROTOCOLO = [
+  { chave: 'sepse', titulo: 'Sepse / Choque Séptico', icon: 'ph-virus', protocolos: ['SEPSE / Choque Séptico', 'TEV — Tromboembolismo Venoso'], equipe: ['Enfermagem', 'Fisioterapia'] },
+  { chave: 'sca', titulo: 'Síndrome Coronariana Aguda', icon: 'ph-heartbeat', protocolos: ['Dor torácica / Síndrome Coronariana Aguda', 'TEV — Tromboembolismo Venoso'], equipe: ['Enfermagem'] },
+  { chave: 'avc', titulo: 'AVC — Acidente Vascular Cerebral', icon: 'ph-brain', protocolos: ['AVC — Acidente Vascular Cerebral', 'TEV — Tromboembolismo Venoso'], equipe: ['Enfermagem', 'Fisioterapia', 'Serviço Social'] },
+]
+
 export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir }) {
   const [dados, setDados] = useState({
     diagnostico_principal_cid: '', diagnosticos_texto: '', motivo_internacao: '', objetivos_terapeuticos: '', protocolos_elegiveis: [],
@@ -48,6 +60,14 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir 
     }))
   }
 
+  function aplicarKit(kit) {
+    setDados((prev) => ({
+      ...prev,
+      protocolos_elegiveis: Array.from(new Set([...prev.protocolos_elegiveis, ...kit.protocolos])),
+      equipe_multidisciplinar: Array.from(new Set([...prev.equipe_multidisciplinar, ...kit.equipe])),
+    }))
+  }
+
   function setProblema(i, campo, valor) {
     setDados((prev) => ({ ...prev, problemas_ativos: prev.problemas_ativos.map((p, idx) => (idx === i ? { ...p, [campo]: valor } : p)) }))
   }
@@ -90,6 +110,20 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir 
       </div>
 
       <div className="cc-body">
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-lightning" /> Kits de Protocolo Institucional</div>
+          <p style={{ fontSize: 11.5, color: '#64748B', margin: '0 0 10px' }}>
+            Pré-marca os protocolos elegíveis e a equipe multidisciplinar padrão do bundle. Diagnóstico, motivo, objetivos e metas continuam de preenchimento manual — nunca são fabricados automaticamente.
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {KITS_PROTOCOLO.map((kit) => (
+              <button key={kit.chave} type="button" className="btn-add-chip" onClick={() => aplicarKit(kit)}>
+                <i className={`ph ${kit.icon}`} /> Kit {kit.titulo}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-virus" /> 1. Diagnósticos clínicos e hipóteses ativas</div>
           <div className="assess-grid">
