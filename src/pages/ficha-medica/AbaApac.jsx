@@ -182,35 +182,40 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
   }
 
   return (
-    <div className="form-section" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      
-      {/* CABEÇALHO & PROTOCOLOS RÁPIDOS */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, background: '#f8fafc', padding: '12px 16px', borderRadius: 8, border: '1px solid #cbd5e1' }}>
-        <div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span>📋</span> Laudo para Solicitação / Autorização de Procedimento Ambulatorial (APAC)
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
-            Formulário oficial SUS (52 campos) · Modelo 18 · Destinado à Regulação Externa / Exames Especializados
-          </div>
+    <div className="clinical-card">
+      <div className="cc-header">
+        <div className="cc-title">
+          <h2><i className="ph ph-clipboard-text" /> Laudo para Solicitação / Autorização de Procedimento Ambulatorial (APAC)</h2>
+          <p>Formulário oficial SUS (52 campos) · Modelo 18 · Destinado à Regulação Externa / Exames Especializados</p>
         </div>
-
         <button
           type="button"
-          className="btn-copiar"
+          className="btn-add-chip"
           onClick={aplicarComboUsg}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, padding: '8px 14px' }}
         >
-          <span>⚡</span> Preencher APAC - USG Total (Exemplo Oficial)
+          <i className="ph ph-lightning" /> Preencher APAC - USG Total (Exemplo Oficial)
         </button>
       </div>
 
-      {erro && <div className="error-box">{erro}</div>}
-      {sucesso && <div className="success-box" style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '10px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600 }}>{sucesso}</div>}
+      <div className="cc-body">
+      {erro && (
+        <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+          <div className="info" style={{ color: '#DC2626' }}>
+            <i className="ph ph-warning" /> {erro}
+          </div>
+        </div>
+      )}
+      {sucesso && (
+        <div className="allergy-alert" style={{ background: '#ECFDF5', borderColor: '#A7F3D0' }}>
+          <div className="info" style={{ color: '#065F46' }}>
+            <i className="ph ph-check-circle" /> {sucesso}
+          </div>
+        </div>
+      )}
 
       {/* SEÇÃO 1: ESTABELECIMENTO SOLICITANTE (CAMPOS 1 E 2) */}
-      <div style={{ border: '1.2px solid #334155', borderRadius: 6, padding: '12px 14px', background: '#fff' }}>
-        <div style={{ fontWeight: 800, fontSize: 12, color: '#0f172a', textTransform: 'uppercase', marginBottom: 10, borderBottom: '1px solid #e2e8f0', paddingBottom: 6 }}>
+      <div className="form-section-box">
+        <div className="form-section-box-title">
           1. Identificação do Estabelecimento de Saúde Solicitante (Campos 1 e 2)
         </div>
         <div className="form-grid">
@@ -234,8 +239,8 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
       </div>
 
       {/* SEÇÃO 2: IDENTIFICAÇÃO DO PACIENTE (CAMPOS 3 A 14) */}
-      <div style={{ border: '1.2px solid #334155', borderRadius: 6, padding: '12px 14px', background: '#fff' }}>
-        <div style={{ fontWeight: 800, fontSize: 12, color: '#0f172a', textTransform: 'uppercase', marginBottom: 10, borderBottom: '1px solid #e2e8f0', paddingBottom: 6 }}>
+      <div className="form-section-box">
+        <div className="form-section-box-title">
           2. Identificação do Paciente (Campos 3 a 14)
         </div>
         <div className="form-grid">
@@ -343,8 +348,8 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
       </div>
 
       {/* SEÇÃO 3: PROCEDIMENTO SOLICITADO (CAMPOS 15 A 32) */}
-      <div style={{ border: '1.2px solid #334155', borderRadius: 6, padding: '12px 14px', background: '#fff' }}>
-        <div style={{ fontWeight: 800, fontSize: 12, color: '#0f172a', textTransform: 'uppercase', marginBottom: 10, borderBottom: '1px solid #e2e8f0', paddingBottom: 6 }}>
+      <div className="form-section-box">
+        <div className="form-section-box-title">
           3. Procedimento Principal e Secundários Solicitados (Campos 15 a 32)
         </div>
         <div className="form-grid">
@@ -405,8 +410,8 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
       </div>
 
       {/* SEÇÃO 4: JUSTIFICATIVA DO(S) PROCEDIMENTO(S) (CAMPOS 33 A 37) */}
-      <div style={{ border: '1.2px solid #334155', borderRadius: 6, padding: '12px 14px', background: '#fff' }}>
-        <div style={{ fontWeight: 800, fontSize: 12, color: '#0f172a', textTransform: 'uppercase', marginBottom: 10, borderBottom: '1px solid #e2e8f0', paddingBottom: 6 }}>
+      <div className="form-section-box">
+        <div className="form-section-box-title">
           4. Justificativa e Diagnóstico Clínico (Campos 33 a 37)
         </div>
         <div className="form-grid">
@@ -451,8 +456,8 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
       </div>
 
       {/* SEÇÃO 5: PROFISSIONAL SOLICITANTE (CAMPOS 38 A 42) */}
-      <div style={{ border: '1.2px solid #334155', borderRadius: 6, padding: '12px 14px', background: '#fff' }}>
-        <div style={{ fontWeight: 800, fontSize: 12, color: '#0f172a', textTransform: 'uppercase', marginBottom: 10, borderBottom: '1px solid #e2e8f0', paddingBottom: 6 }}>
+      <div className="form-section-box">
+        <div className="form-section-box-title">
           5. Profissional Solicitante (Campos 38 a 42)
         </div>
         <div className="form-grid">
@@ -492,8 +497,8 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
       </div>
 
       {/* SEÇÃO 6 E 7: AUTORIZAÇÃO & ESTABELECIMENTO EXECUTANTE (CAMPOS 43 A 52) */}
-      <div style={{ border: '1.2px solid #334155', borderRadius: 6, padding: '12px 14px', background: '#fff' }}>
-        <div style={{ fontWeight: 800, fontSize: 12, color: '#0f172a', textTransform: 'uppercase', marginBottom: 10, borderBottom: '1px solid #e2e8f0', paddingBottom: 6 }}>
+      <div className="form-section-box">
+        <div className="form-section-box-title">
           6 e 7. Autorização e Estabelecimento Executante (Regulação SUS / Campos 43 a 52)
         </div>
         <div className="form-grid">
@@ -543,47 +548,12 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
         </div>
       </div>
 
-      {/* BOTÕES DE AÇÃO INFERIORES */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, flexWrap: 'wrap', gap: 10 }}>
-        <button
-          type="button"
-          className="btn-cancelar"
-          onClick={descartar}
-          disabled={salvando}
-          style={{ padding: '9px 18px', fontWeight: 600 }}
-        >
-          🗑️ Descartar / Limpar
-        </button>
-
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            type="button"
-            className="btn-copiar"
-            onClick={() => salvar(false)}
-            disabled={salvando}
-            style={{ padding: '9px 18px', fontWeight: 700 }}
-          >
-            💾 {salvando ? 'Salvando...' : 'Salvar Rascunho'}
-          </button>
-
-          <button
-            type="button"
-            className="btn-realocar"
-            onClick={() => salvar(true)}
-            disabled={salvando}
-            style={{ padding: '9px 22px', fontWeight: 800, background: '#1d4ed8', color: '#fff', fontSize: 13 }}
-          >
-            🖨️ {salvando ? 'Salvando...' : 'Salvar & Imprimir Laudo APAC (Modelo 18)'}
-          </button>
-        </div>
-      </div>
-
       {/* HISTÓRICO DE SOLICITAÇÕES APAC */}
-      <div style={{ marginTop: 24, borderTop: '1.5px solid var(--color-border)', paddingTop: 16 }}>
-        <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--color-text)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span>📜</span> Histórico de Solicitações de APAC deste Atendimento
+      <div className="form-section-box">
+        <div className="form-section-box-title">
+          <i className="ph ph-clock-counter-clockwise" /> Histórico de Solicitações de APAC deste Atendimento
         </div>
-        
+
         {carregando ? (
           <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Carregando histórico...</p>
         ) : historico.length === 0 ? (
@@ -615,7 +585,7 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
 
                 <button
                   type="button"
-                  className="btn-copiar"
+                  className="btn-add-chip"
                   onClick={() => {
                     localStorage.setItem('requisicao_apac_dados', JSON.stringify({
                       ...dados,
@@ -631,16 +601,29 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
                     window.open('./modelos_impressao_html/18-laudo-apac-procedimento-ambulatorial.html', '_blank');
                     if (onImprimir) onImprimir({ ...a, tipo: 'apac' });
                   }}
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 12 }}
                 >
-                  <span>🖨️</span> Imprimir Modelo 18
+                  <i className="ph ph-printer" /> Imprimir Modelo 18
                 </button>
               </div>
             ))}
           </div>
         )}
       </div>
+      </div>
 
+      <div className="cc-footer">
+        <button type="button" className="btn-cancel" onClick={descartar} disabled={salvando}>
+          <i className="ph ph-trash" /> Descartar / Limpar
+        </button>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}
+          </button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar & Imprimir Laudo APAC (Modelo 18)'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
