@@ -419,3 +419,19 @@ export async function listarEventosAuditoria(atendimentoId) {
     .order('ocorrido_em', { ascending: false })
   return data ?? []
 }
+
+// ===================== Passagem de Plantão Coletiva (conferência em lote) =====================
+// "Conferido" é só um carimbo de revisão do enfermeiro que assume o plantão —
+// não altera nenhum dado clínico da passagem em si, só registra quem/quando
+// revisou aquele leito. Reversível (pode desmarcar).
+export async function marcarPassagemConferida({ passagemId, enfermeiroId, conferido }) {
+  return supabase
+    .from('passagens')
+    .update({
+      conferido_por: conferido ? enfermeiroId : null,
+      conferido_em: conferido ? new Date().toISOString() : null,
+    })
+    .eq('id', passagemId)
+    .select()
+    .single()
+}

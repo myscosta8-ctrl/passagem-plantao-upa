@@ -1,0 +1,256 @@
+/* Passagem de Plantão Coletiva — reskin fiel a mockups-fase2/
+   12-passagem-plantao-design.html (Fase 1, item 2.8). Só a grade de revisão
+   por leito; a edição completa continua acontecendo no formulário existente
+   (PassagemForm.jsx), aberto pelo botão "Detalhes". */
+
+.pc-sector-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: var(--c-surface-inset);
+  padding: 4px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.pc-pill {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--c-text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.15s ease;
+}
+
+.pc-pill:hover {
+  color: var(--c-text-primary);
+}
+
+.pc-pill.active {
+  background: var(--c-surface);
+  color: var(--c-primary);
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.pc-pill-count {
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--c-border);
+  color: var(--c-text-secondary);
+  font-weight: 700;
+}
+
+.pc-pill.active .pc-pill-count {
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+}
+
+.pc-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.pc-chip {
+  padding: 6px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.pc-chip:hover {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+
+.pc-chip.active {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+}
+
+.pc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.pc-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pc-card.conferido {
+  border-color: #BBF7D0;
+}
+
+.pc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--c-border-light);
+  background: var(--c-surface-inset);
+}
+
+.pc-leito-numero {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pc-status-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pc-status-badge.a-conferir {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.pc-status-badge.conferido {
+  background: #DCFCE7;
+  color: #166534;
+}
+
+.pc-card-body {
+  padding: 12px 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pc-paciente-nome {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--c-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pc-badge-alerta {
+  font-size: 10px;
+  font-weight: 700;
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pc-paciente-meta {
+  font-size: 12px;
+  color: var(--c-text-secondary);
+}
+
+.pc-paciente-hd {
+  font-size: 12.5px;
+  color: var(--c-text-secondary);
+  background: var(--c-surface-inset);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--c-border-light);
+}
+
+.pc-paciente-hd strong {
+  color: var(--c-text-primary);
+}
+
+.pc-pendencia {
+  font-size: 12px;
+  color: #92400E;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  padding: 8px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.pc-card-footer {
+  border-top: 1px solid var(--c-border-light);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--c-surface-inset);
+}
+
+.pc-btn-conferir,
+.pc-btn-detalhes {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: 0.15s ease;
+}
+
+.pc-btn-conferir {
+  background: var(--c-surface);
+  border: 1px solid var(--c-primary);
+  color: var(--c-primary);
+}
+
+.pc-btn-conferir:hover {
+  background: var(--c-primary-light);
+}
+
+.pc-btn-conferir.on {
+  background: #F0FDF4;
+  border-color: #16A34A;
+  color: #166534;
+}
+
+.pc-btn-detalhes {
+  background: var(--c-primary);
+  border: none;
+  color: #fff;
+}
+
+.pc-btn-detalhes:hover {
+  background: var(--c-primary-dark, #0A1F33);
+}
