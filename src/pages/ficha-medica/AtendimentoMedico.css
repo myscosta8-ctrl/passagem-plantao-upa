@@ -981,7 +981,7 @@
 .atendimento-medico-container .group-actions { display: flex; align-items: center; gap: 12px; }
 .atendimento-medico-container .caret-icon { font-size: 16px; color: var(--text-muted, #64748B); transition: 0.3s; }
 
-.atendimento-medico-container .presc-group.collapsed .presc-list { display: none; }
+.atendimento-medico-container .presc-group.collapsed .presc-list { display: none !important; }
 .atendimento-medico-container .presc-group.collapsed .presc-group-header { border-bottom: none; }
 .atendimento-medico-container .presc-group.collapsed .caret-icon { transform: rotate(-90deg); }
 
@@ -1000,35 +1000,35 @@
 .atendimento-medico-container .presc-input-row .item-num { background: transparent; border: 1px solid var(--primary, #1D4ED8); color: var(--primary, #1D4ED8); }
 .atendimento-medico-container .presc-input-row input, .atendimento-medico-container .presc-input-row select { padding: 6px 10px; border: 1px solid var(--border-strong, #CBD5E1); border-radius: 6px; font-size: 11px; outline: none; }
 .atendimento-medico-container .btn-confirm-add { background: var(--primary, #1D4ED8); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-.atendimento-medico-container .btn-calc-ped { background: #FEF08A; border: 1px solid #CA8A04; color: #854D0E; border-radius: 6px; padding: 6px 12px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; justify-self: center; }
+.atendimento-medico-container .btn-calc-ped { background: #FEF08A; border: 1px solid #CA8A04; color: #854D0E; border-radius: 6px; padding: 6px 8px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; justify-self: center; line-height: 1; }
 .atendimento-medico-container .btn-calc-ped:hover { background: #FDE047; }
 
 /* Modal Calculadora Pedi�trica */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.7); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(2px); }
-.modal-calc { background: var(--bg-surface, #ffffff); border-radius: 12px; width: 550px; max-width: 90vw; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; animation: modalIn 0.2s ease-out; }
+.modal-calc { background: var(--bg-surface, #ffffff); border-radius: 12px; width: 420px; max-width: 90vw; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; animation: modalIn 0.2s ease-out; }
 @keyframes modalIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.modal-header { padding: 16px 20px; background: #F59E0B; color: white; display: flex; justify-content: space-between; align-items: center; }
-.modal-header h3 { font-size: 15px; display: flex; align-items: center; gap: 8px; font-weight: 700; margin: 0; }
+.modal-header { padding: 10px 14px; background: #F59E0B; color: white; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-size: 13px; display: flex; align-items: center; gap: 6px; font-weight: 700; margin: 0; }
 .modal-close { background: transparent; border: none; color: white; cursor: pointer; font-size: 18px; }
-.modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.modal-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 
-.calc-info-bar { display: flex; justify-content: space-between; background: #FFFBEB; padding: 12px; border: 1px solid #FEF3C7; border-radius: 8px; }
+.calc-info-bar { display: flex; justify-content: space-between; background: #FFFBEB; padding: 8px 10px; border: 1px solid #FEF3C7; border-radius: 8px; }
 .calc-info-item { display: flex; flex-direction: column; }
 .calc-info-item label { font-size: 10px; font-weight: 700; color: #92400E; text-transform: uppercase; }
 .calc-info-item span { font-size: 14px; font-weight: 700; color: #D97706; }
 
-.calc-row { display: flex; gap: 12px; align-items: flex-start; }
+.calc-row { display: flex; gap: 8px; align-items: flex-start; }
 .calc-box { flex: 1; display: flex; flex-direction: column; gap: 6px; }
 .calc-box label { font-size: 11px; font-weight: 700; color: var(--text-secondary, #334155); text-transform: uppercase; }
-.calc-box input, .calc-box select { width: 100%; border: 1px solid var(--border-strong, #CBD5E1); padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; }
+.calc-box input, .calc-box select { width: 100%; border: 1px solid var(--border-strong, #CBD5E1); padding: 6px 8px; border-radius: 6px; font-size: 12px; outline: none; }
 .calc-box input:focus { border-color: var(--primary, #1D4ED8); }
 
-.calc-result-highlight { background: #EFF6FF; border: 1px solid #BFDBFE; padding: 12px; border-radius: 8px; text-align: center; }
+.calc-result-highlight { background: #EFF6FF; border: 1px solid #BFDBFE; padding: 8px; border-radius: 8px; text-align: center; }
 .calc-result-highlight span { font-size: 11px; font-weight: 700; color: var(--primary, #1D4ED8); text-transform: uppercase; }
-.calc-result-highlight strong { font-size: 20px; color: #1D4ED8; display: block; margin-top: 4px; font-weight: 800; }
+.calc-result-highlight strong { font-size: 17px; color: #1D4ED8; display: block; margin-top: 2px; font-weight: 800; }
 
-.calc-final-text { background: #F8FAFC; border: 1px dashed var(--border-strong, #CBD5E1); padding: 12px; border-radius: 8px; font-size: 13px; color: var(--text-main, #0F172A); line-height: 1.5; font-family: monospace; }
-.modal-footer { padding: 16px 20px; background: #F8FAFC; border-top: 1px solid var(--border-light, #E2E8F0); display: flex; justify-content: flex-end; gap: 12px; }
+.calc-final-text { background: #F8FAFC; border: 1px dashed var(--border-strong, #CBD5E1); padding: 10px; border-radius: 8px; font-size: 12px; color: var(--text-main, #0F172A); line-height: 1.4; font-family: monospace; }
+.modal-footer { padding: 10px 14px; background: #F8FAFC; border-top: 1px solid var(--border-light, #E2E8F0); display: flex; justify-content: flex-end; gap: 10px; }
 .btn-outline { background: white; border: 1px solid var(--border-strong, #CBD5E1); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--text-secondary, #334155); }
 .btn-apply { background: #F59E0B; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; color: white; display: flex; align-items: center; gap: 6px; }
 .btn-apply:hover { background: #D97706; }

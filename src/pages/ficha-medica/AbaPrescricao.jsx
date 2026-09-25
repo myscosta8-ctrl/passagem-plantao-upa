@@ -167,6 +167,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
   const [catalogo, setCatalogo] = useState([])
   const [calcAberto, setCalcAberto] = useState(null)
   const [calc, setCalc] = useState({ ...CALC_VAZIA })
+  const [gruposFechados, setGruposFechados] = useState({})
 
   useEffect(() => { carregar() }, [])
   useEffect(() => { listarCatalogoMedicamentos().then(setCatalogo) }, [])
@@ -201,6 +202,10 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
 
   function fecharCalculadora() {
     setCalcAberto(null)
+  }
+
+  function toggleGrupo(chave) {
+    setGruposFechados((prev) => ({ ...prev, [chave]: !prev[chave] }))
   }
 
   function aplicarCalculadora(i) {
@@ -323,8 +328,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
           <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
             
             {/* GRUPO 1: DIETA */}
-            <div className="presc-group">
-              <div className="presc-group-header">
+            <div className={`presc-group${gruposFechados.dieta ? ' collapsed' : ''}`}>
+              <div className="presc-group-header" onClick={() => toggleGrupo('dieta')}>
                 <h3><i className="ph ph-fork-knife" /> 1. Dieta</h3>
                 <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
               </div>
@@ -334,8 +339,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
             </div>
 
             {/* GRUPO 2: MEDICAMENTOS */}
-            <div className="presc-group">
-              <div className="presc-group-header">
+            <div className={`presc-group${gruposFechados.medicamentos ? ' collapsed' : ''}`}>
+              <div className="presc-group-header" onClick={() => toggleGrupo('medicamentos')}>
                 <h3><i className="ph ph-pill" /> 2. Medicamentos</h3>
                 <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
               </div>
@@ -372,8 +377,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                           <strong style={{ color: 'var(--primary, #1D4ED8)', fontSize: 13 }}>Adicionar Medicamento</strong>
                         </div>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                          <button type="button" className="btn-calc-ped" onClick={() => abrirCalculadora(i)}>
-                            <i className="ph ph-calculator" /> Calc. Pediátrica
+                          <button type="button" className="btn-calc-ped" onClick={() => abrirCalculadora(i)} title="Calculadora de Dose Pediátrica">
+                            <i className="ph ph-calculator" /><i className="ph ph-baby" />
                           </button>
                           {itens.length > 1 && (
                             <button type="button" onClick={() => removerItem(i)} style={{ background: 'transparent', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: 18 }} title="Remover">
@@ -402,12 +407,14 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                         </div>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 8 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                         <input type="number" className="form-control" placeholder="Qtd (Dose)" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
                         <input type="text" className="form-control" placeholder="Und (Ex: amp, fr, cp)" value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} />
                         <select className="form-control" value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)}>
                           {VIAS.map((v) => <option key={v} value={v}>{v}</option>)}
                         </select>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                         <input type="text" className="form-control" placeholder="Freq (Ex: 6/6h, ACM)" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} />
                         <input type="text" className="form-control" placeholder="Duração (Ex: 7 dias, contínuo)" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
                       </div>
@@ -430,8 +437,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
             </div>
 
             {/* GRUPO 3: ORIENTAÇÕES */}
-            <div className="presc-group">
-              <div className="presc-group-header">
+            <div className={`presc-group${gruposFechados.orientacoes ? ' collapsed' : ''}`}>
+              <div className="presc-group-header" onClick={() => toggleGrupo('orientacoes')}>
                 <h3><i className="ph ph-first-aid-kit" /> 3. Cuidados e Orientações de Enfermagem</h3>
                 <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
               </div>
@@ -449,8 +456,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
             </div>
 
             {/* GRUPO 4: MULTIDISCIPLINAR E HEMOCOMPONENTES */}
-            <div className="presc-group">
-              <div className="presc-group-header">
+            <div className={`presc-group${gruposFechados.multi ? ' collapsed' : ''}`}>
+              <div className="presc-group-header" onClick={() => toggleGrupo('multi')}>
                 <h3><i className="ph ph-users-three" /> 4. Avaliação Multidisciplinar e Hemocomponentes</h3>
                 <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
               </div>
@@ -467,8 +474,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
             </div>
 
             {/* GRUPO 5: OBSERVAÇÕES */}
-            <div className="presc-group">
-              <div className="presc-group-header">
+            <div className={`presc-group${gruposFechados.observacoes ? ' collapsed' : ''}`}>
+              <div className="presc-group-header" onClick={() => toggleGrupo('observacoes')}>
                 <h3><i className="ph ph-note" /> 5. Observações da Prescrição</h3>
                 <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
               </div>
@@ -479,8 +486,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
 
             {/* HISTÓRICO */}
             {historico.length > 0 && (
-              <div className="presc-group">
-                <div className="presc-group-header">
+              <div className={`presc-group${gruposFechados.historico ? ' collapsed' : ''}`}>
+                <div className="presc-group-header" onClick={() => toggleGrupo('historico')}>
                   <h3><i className="ph ph-clock-counter-clockwise" /> Histórico de Prescrições Anteriores</h3>
                   <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
                 </div>
