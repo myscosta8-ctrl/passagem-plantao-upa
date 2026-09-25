@@ -21,6 +21,7 @@ export default function PassagemColetiva({
   passagemPorPaciente,
   enfermeiroId,
   onAbrirPassagem,
+  onEditarPassagem,
   onRecarregar,
 }) {
   const [setorAtivoId, setSetorAtivoId] = useState(null)
@@ -132,8 +133,11 @@ export default function PassagemColetiva({
                     <i className={`ph ${conferido ? 'ph-arrow-counter-clockwise' : 'ph-check-square'}`} />
                     {conferido ? 'Desmarcar' : 'Conferir'}
                   </button>
+                  <button type="button" className="pc-btn-detalhes" onClick={() => onEditarPassagem(paciente, leito)}>
+                    <i className="ph ph-note-pencil" /> Editar Passagem
+                  </button>
                   <button type="button" className="pc-btn-detalhes" onClick={() => onAbrirPassagem(paciente, leito)}>
-                    <i className="ph ph-magnifying-glass" /> Detalhes
+                    <i className="ph ph-magnifying-glass" /> Prontuários
                   </button>
                 </div>
               </div>

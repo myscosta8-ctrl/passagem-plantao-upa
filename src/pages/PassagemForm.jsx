@@ -1,5 +1,6 @@
 import ConfirmModal from './ConfirmModal'
 import './PassagemForm.css'
+import './ficha-medica/AtendimentoMedico.css'
 
 import {
   usePassagemState,
@@ -37,8 +38,8 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
   if (carregando) {
     return (
       <div className="form-overlay">
-        <div className="form-panel" onClick={(e) => e.stopPropagation()}>
-          <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
+        <div className="atendimento-medico-container passagem-form-scope clinical-card" onClick={(e) => e.stopPropagation()}>
+          <p style={{ color: 'var(--color-text-muted)', padding: 24 }}>Carregando...</p>
         </div>
       </div>
     )
@@ -46,57 +47,75 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
 
   const conteudo = (
     <>
-      <div className={embedded ? "form-panel form-panel-embedded" : "form-panel"} onClick={(e) => e.stopPropagation()}>
-        {!embedded && (
-          <div className="form-header">
-            <span className="form-leito-tag">Leito {leito.numero}</span>
-            <button className="form-header-close" onClick={fecharComConfirmacao}>×</button>
+      <div className="atendimento-medico-container passagem-form-scope clinical-card" onClick={(e) => e.stopPropagation()}>
+        <div className="cc-header">
+          <div className="cc-title">
+            <h2><i className="ph ph-arrows-clockwise" /> Passagem de Plantão — Leito {leito.numero}</h2>
+            {origemCopia && (
+              <p>Copiado do plantão de {new Date(origemCopia).toLocaleString('pt-BR')}. Ajuste o que mudou.</p>
+            )}
           </div>
-        )}
+          {!embedded && (
+            <button type="button" className="btn-cancel" onClick={fecharComConfirmacao}>
+              <i className="ph ph-x" /> Fechar
+            </button>
+          )}
+        </div>
 
-        {origemCopia && (
-          <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: -14, marginBottom: 18 }}>
-            Copiado do plantão de {new Date(origemCopia).toLocaleString('pt-BR')}. Ajuste o que mudou.
-          </p>
-        )}
+        <div className="cc-body">
+          <SecaoIdentificacao
+            identificacao={identificacao}
+            setId={setId}
+            statusTravado={statusTravado}
+          />
 
-        <SecaoIdentificacao
-          identificacao={identificacao}
-          setId={setId}
-          statusTravado={statusTravado}
-        />
+          <SecaoAssistencia
+            passagem={passagem}
+            set={set}
+            toggleDispositivo={toggleDispositivo}
+          />
 
-        <SecaoAssistencia
-          passagem={passagem}
-          set={set}
-          toggleDispositivo={toggleDispositivo}
-        />
+          <SecaoResumoProntuario paciente={paciente} />
 
-        <SecaoResumoProntuario paciente={paciente} />
+          <SecaoTransferencia
+            passagem={passagem}
+            set={set}
+          />
 
-        <SecaoTransferencia
-          passagem={passagem}
-          set={set}
-        />
+          <SecaoPendencias
+            pendencias={passagem.pendencias}
+            set={set}
+          />
 
-        <SecaoPendencias
-          pendencias={passagem.pendencias}
-          set={set}
-        />
+          {salvo && (
+            <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
+              <div className="info" style={{ color: '#166534' }}>
+                <i className="ph ph-check-circle" /> Salvo com sucesso.
+              </div>
+            </div>
+          )}
+          {camposFaltando.length > 0 && (
+            <div className="allergy-alert" style={{ background: '#FFFBEB', borderColor: '#FDE68A' }}>
+              <div className="info" style={{ color: '#92400E' }}>
+                <i className="ph ph-warning" /> Preencha antes de salvar: <b>{camposFaltando.join(', ')}</b>
+              </div>
+            </div>
+          )}
+          {erroSalvar && (
+            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+              <div className="info" style={{ color: '#DC2626' }}>
+                <i className="ph ph-warning" /> {erroSalvar}
+              </div>
+            </div>
+          )}
+        </div>
 
-        <div className="form-footer">
-          <button className="btn-fechar" onClick={fecharComConfirmacao}>Fechar</button>
-          <button className="btn-salvar" onClick={salvar} disabled={salvando}>
-            {salvando ? 'Salvando...' : 'Salvar passagem'}
+        <div className="cc-footer">
+          <span />
+          <button type="button" className="btn-save-print" onClick={salvar} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar passagem'}
           </button>
         </div>
-        {salvo && <div className="save-flag">Salvo com sucesso.</div>}
-        {camposFaltando.length > 0 && (
-          <div className="error-box" style={{ marginTop: 10 }}>
-            ⚠ Preencha antes de salvar: <b>{camposFaltando.join(', ')}</b>
-          </div>
-        )}
-        {erroSalvar && <div className="error-box" style={{ marginTop: 10 }}>{erroSalvar}</div>}
       </div>
 
       {rascunhoEncontrado && (

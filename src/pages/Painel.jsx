@@ -129,15 +129,7 @@ export default function Painel({ plantao, setoresIds }) {
             paciente={modalPassagem.paciente}
             leito={modalPassagem.leito}
             setorNome={setores.find((s) => s.id === modalPassagem.leito.setor_id)?.nome}
-            plantaoId={plantao.id}
-            enfermeiroId={enfermeiro?.id}
-            enfermeiro={enfermeiro}
             onFechar={fecharPassagem}
-            onSalvo={carregarTudo}
-            onRealocar={(paciente, leito) => {
-              fecharPassagem()
-              setModalRealocar({ paciente, leitoOrigem: leito })
-            }}
           />
         </Suspense>
       )}

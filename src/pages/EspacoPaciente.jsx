@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import PassagemForm from './PassagemForm'
+import { useEffect, useState } from 'react'
 import FichaClinica from './FichaClinica'
 import FichaMedica from './FichaMedica'
 import { obterOuCriarAtendimentoParaPaciente } from '../lib/pepAtendimentos'
@@ -26,14 +25,13 @@ export default function EspacoPaciente({
   paciente,
   leito,
   setorNome,
-  plantaoId,
-  enfermeiroId,
   onFechar,
-  onSalvo,
-  onRealocar,
 }) {
-  // Aba padrão ao clicar no leito é 'passagem' (o modelo antigo, intacto)
-  const [pilarAtivo, setPilarAtivo] = useState('passagem') // 'passagem' | 'enfermagem' | 'medico'
+  // Card do paciente mostra os prontuários (enfermagem/médico) — a edição de
+  // diagnóstico/status/Manchester/pendências (antigo pilar "Passagem de
+  // Plantão") foi movida para dentro da tela "Passagem de Plantão" do menu
+  // lateral, ver PassagemColetiva.jsx.
+  const [pilarAtivo, setPilarAtivo] = useState('enfermagem') // 'enfermagem' | 'medico'
   const [atendimentoResolvido, setAtendimentoResolvido] = useState(null)
   const [resolvendo, setResolvendo] = useState(false)
   const [erroPonte, setErroPonte] = useState('')
@@ -86,20 +84,12 @@ export default function EspacoPaciente({
     setPilarAtivo(chaveDestino)
   }
 
-  if (pilarAtivo === 'medico' && atendimentoResolvido) {
-    return (
-      <FichaMedica
-        atendimento={atendimentoResolvido}
-        onFechar={onFechar}
-      />
-    )
-  }
+  useEffect(() => {
+    garantirAtendimento('enfermagem')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function trocarPilar(chave) {
-    if (chave === 'passagem') {
-      setPilarAtivo('passagem')
-      return
-    }
     garantirAtendimento(chave)
   }
 
@@ -129,22 +119,11 @@ export default function EspacoPaciente({
         {/* Pilares do Espaço do Paciente */}
         <div className="espaco-paciente-pilares">
           <div
-            className={`espaco-paciente-pilar ${pilarAtivo === 'passagem' ? 'ativo' : ''}`}
-            onClick={() => trocarPilar('passagem')}
-          >
-            <div className="espaco-paciente-pilar-titulo">
-              <span>📋</span>
-              <span>Passagem de Plantão</span>
-            </div>
-            <div className="espaco-paciente-pilar-sub">O modelo antigo, intacto</div>
-          </div>
-
-          <div
             className={`espaco-paciente-pilar ${pilarAtivo === 'enfermagem' ? 'ativo' : ''}`}
             onClick={() => trocarPilar('enfermagem')}
           >
             <div className="espaco-paciente-pilar-titulo">
-              <span>🩺</span>
+              <i className="ph ph-stethoscope" />
               <span>Prontuário de Enfermagem</span>
             </div>
             <div className="espaco-paciente-pilar-sub">10 seções (Ficha Clínica)</div>
@@ -155,7 +134,7 @@ export default function EspacoPaciente({
             onClick={() => trocarPilar('medico')}
           >
             <div className="espaco-paciente-pilar-titulo">
-              <span>⚕️</span>
+              <i className="ph ph-first-aid-kit" />
               <span>Prontuário Médico</span>
             </div>
             <div className="espaco-paciente-pilar-sub">11 seções (Ficha Médica)</div>
@@ -178,20 +157,6 @@ export default function EspacoPaciente({
             </div>
           ) : (
             <>
-              {pilarAtivo === 'passagem' && (
-                <PassagemForm
-                  embedded={true}
-                  paciente={paciente}
-                  leito={leito}
-                  setorNome={setorNome}
-                  plantaoId={plantaoId}
-                  enfermeiroId={enfermeiroId}
-                  onFechar={onFechar}
-                  onSalvo={onSalvo}
-                  onRealocar={onRealocar}
-                />
-              )}
-
               {pilarAtivo === 'enfermagem' && atendimentoResolvido && (
                 <FichaClinica
                   embedded={true}

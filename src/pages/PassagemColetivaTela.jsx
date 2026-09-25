@@ -1,12 +1,14 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import RealocarModal from './RealocarModal'
 import { usePainelState } from './painel/index.js'
 import PassagemColetiva from './PassagemColetiva'
+import PassagemForm from './PassagemForm'
 import './Painel.css'
 
 const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
 
 export default function PassagemColetivaTela({ plantao, setoresIds }) {
+  const [modalPassagemForm, setModalPassagemForm] = useState(null)
   const {
     enfermeiro,
     setores,
@@ -43,8 +45,22 @@ export default function PassagemColetivaTela({ plantao, setoresIds }) {
         passagemPorPaciente={passagemPorPaciente}
         enfermeiroId={enfermeiro?.id}
         onAbrirPassagem={abrirPassagem}
+        onEditarPassagem={(paciente, leito) => setModalPassagemForm({ paciente, leito })}
         onRecarregar={carregarTudo}
       />
+
+      {modalPassagemForm && (
+        <PassagemForm
+          paciente={modalPassagemForm.paciente}
+          leito={modalPassagemForm.leito}
+          setorNome={setores.find((s) => s.id === modalPassagemForm.leito.setor_id)?.nome}
+          plantaoId={plantao.id}
+          enfermeiroId={enfermeiro?.id}
+          onFechar={() => setModalPassagemForm(null)}
+          onSalvo={carregarTudo}
+          onRealocar={() => setModalPassagemForm(null)}
+        />
+      )}
 
       {modalPassagem && (
         <Suspense fallback={<div className="modal-backdrop" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="modal-card" style={{ padding: 24, textAlign: 'center', color: 'var(--color-text-muted)' }}>Carregando prontuário do paciente...</div></div>}>
@@ -52,15 +68,7 @@ export default function PassagemColetivaTela({ plantao, setoresIds }) {
             paciente={modalPassagem.paciente}
             leito={modalPassagem.leito}
             setorNome={setores.find((s) => s.id === modalPassagem.leito.setor_id)?.nome}
-            plantaoId={plantao.id}
-            enfermeiroId={enfermeiro?.id}
-            enfermeiro={enfermeiro}
             onFechar={fecharPassagem}
-            onSalvo={carregarTudo}
-            onRealocar={(paciente, leito) => {
-              fecharPassagem()
-              setModalRealocar({ paciente, leitoOrigem: leito })
-            }}
           />
         </Suspense>
       )}

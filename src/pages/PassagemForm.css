@@ -17,6 +17,22 @@
   border-left: 1px solid var(--c-border);
 }
 
+/* PassagemForm reaproveita o framework visual dos prontuários
+   (clinical-card/cc-*, escopado por .atendimento-medico-container), mas
+   esse container nasceu pra ocupar a tela inteira sozinho (position: fixed;
+   inset: 0). Aqui ele roda dentro de outro layout (drawer do form-overlay,
+   ou dentro do Espaço do Paciente) — neutraliza esse posicionamento pra só
+   herdar o visual, não o full-screen. */
+.atendimento-medico-container.passagem-form-scope {
+  position: static;
+  inset: auto;
+  width: 100%;
+  max-width: 640px;
+  height: 100%;
+  z-index: auto;
+  overflow-y: auto;
+}
+
 .form-header {
   display: flex;
   justify-content: space-between;
