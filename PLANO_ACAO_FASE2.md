@@ -101,6 +101,29 @@ Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada a
 | 12 — Passagem de Plantão coletiva | ❌ Não iniciado | Pendente — usuário pediu atenção redobrada: dados salvos em produção precisam sobreviver ao redesenho |
 | 09 a 16 (demais módulos de funcionalidade nova, Fase 2) | ❌ Não iniciado | — |
 
+## 📋 Registro consolidado — funcionalidades deixadas de fora do redesenho (revisar p/ priorizar na Fase 2)
+
+Cada item abaixo é algo que o mockup mostra mas que **não foi implementado** durante o
+reskin visual, porque é funcionalidade nova (não redesenho) ou porque reproduz dado clínico
+fabricado. Nada disso está em produção ainda — a lista existe pra você decidir o que
+priorizar e mandar pra produção primeiro.
+
+| # | Módulo | O que é | Por que ficou de fora | Risco de reintroduzir o padrão do bug do dado falso? |
+|---|---|---|---|---|
+| 1 | Evolução Médica Diária | Grade de sinais vitais com botão "Puxar da Enfermagem" | Não existe no modelo de dados hoje — precisa decidir de onde puxar (Sinais Vitais da enfermagem?) e criar a integração | Não |
+| 2 | Prescrição Médica | Calculadora de dose pediátrica EV/IM (diluição, mg/kg, volume a aspirar) | Funcionalidade de cálculo nova, sem lugar no banco pra guardar o resultado ainda | Não |
+| 3 | Receituário/Sumário de Alta | Unificação em sub-abas (Receita Simples / Controle Especial / Atestado / Sumário) com classificação automática de medicamento controlado (Portaria 344/98) e redirecionamento com toast | Precisa de uma base de classificação de medicamentos (lista C1/comum/ATB) que não existe hoje; Atestado Médico não existe como documento | Não |
+| 4 | Plano Terapêutico | "Kits de auto-preenchimento" (TCE, Sepse, IAM) que preenchem diagnóstico/metas/conduta automaticamente | Funcionalidade nova | **Sim** — o kit de exemplo do mockup usa texto clínico completo fabricado como valor de preenchimento automático |
+| 5 | Admissão de Enfermagem | Sub-abas com filtro de seção ("1. Procedência", "2. Antecedentes"...), botão expandir/recolher todas as seções, painel lateral fixo com escalas de risco e dispositivos puxados de outras abas | Interação nova (não é só CSS) — precisa decidir a UX de navegação por sub-seção e a integração cruzada com Escalas/Dispositivos | Não |
+| 6 | Solicitação de Hemoterapia | Painel lateral com hemograma "puxado" de exames + botões de protocolo transfusional (anemia grave/choque/plaquetopenia) | Cruzamento de dados com Exames não mapeado hoje | **Sim** — os protocolos de exemplo usam indicação clínica fabricada |
+| 7 | Recepção (transversal) | Redesenho do próprio padrão `.form-field`/`.form-grid` usado em quase todo formulário do sistema | Não é específico da Recepção — é um redesenho maior, cross-cutting, que afeta todos os módulos ainda não redesenhados. Já registrado como marco separado acima. | Não |
+
+**Sugestão de prioridade, se ajudar a decidir:** itens 1, 2 e 6 (sinais vitais, calculadora,
+hemograma) dependem de decisões de onde buscar o dado — vale conversar antes de construir.
+O item 7 (padrão de campo) é o que mais "efeito cascata" tem — beneficia todos os módulos
+restantes de uma vez. Os itens 3, 4 e 5 são os mais trabalhosos (nova base de dados ou nova
+UX de navegação).
+
 O que houve hoje foi um **refactor estrutural** (quebrar `FichaMedica.jsx`/`FichaClinica.jsx`
 monolíticos em um arquivo por aba, dentro de `src/pages/ficha-medica/` e
 `src/pages/ficha-clinica/`) + o redesenho real de **só 2 abas** (Consulta e AIH, ambas do
