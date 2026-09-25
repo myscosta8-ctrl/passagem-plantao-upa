@@ -18,6 +18,11 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
                 <b>Comorbidades / Antecedentes:</b> {registro.comorbidades_texto || (registro.comorbidades ? 'Presentes' : 'Negadas')}
               </div>
             )}
+            {(registro.reconciliacao_medicamentosa || registro.reconciliacao_texto) && (
+              <div style={{ marginTop: '2px', color: '#475569' }}>
+                <b>Reconciliação Medicamentosa:</b> {registro.reconciliacao_texto || 'Realizada'}
+              </div>
+            )}
             {registro.alergias_texto && (
               <div style={{ marginTop: '2px', color: '#b91c1c' }}>
                 <b>Alergias Relatadas:</b> {registro.alergias_texto}
@@ -36,6 +41,16 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
         <div className="med-secao">
           <div className="med-secao-header">3. Exame Físico Dirigido</div>
           <div className="med-secao-body" style={{ minHeight: '24mm', whiteSpace: 'pre-wrap' }}>
+            {(() => {
+              const sv = [
+                (registro.sv_pa_sistolica || registro.sv_pa_diastolica) ? `PA: ${registro.sv_pa_sistolica ?? '—'}x${registro.sv_pa_diastolica ?? '—'} mmHg` : null,
+                registro.sv_fc != null ? `FC: ${registro.sv_fc} bpm` : null,
+                registro.sv_fr != null ? `FR: ${registro.sv_fr} irpm` : null,
+                registro.sv_spo2 != null ? `SpO2: ${registro.sv_spo2}%` : null,
+                registro.sv_temperatura != null ? `Tax: ${registro.sv_temperatura}°C` : null,
+              ].filter(Boolean)
+              return sv.length > 0 ? <div style={{ marginBottom: '3px' }}><b>Sinais Vitais:</b> {sv.join(' · ')}.</div> : null
+            })()}
             {registro.exame_fisico || 'Bom estado geral, lúcido e orientado, corado, hidratado, anictérico e acianótico. ACV: RCR 2T BNF sem sopros. AR: MVF universalmente audível. Abdome: Plano, flácido e indolor. Extremidades bem perfundidas sem edema.'}
           </div>
         </div>
