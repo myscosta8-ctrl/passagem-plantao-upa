@@ -253,6 +253,43 @@ redesenhar esse padrão de campo de formulário — uma vez, no lugar compartilh
 (`PassagemForm.css`), beneficiando todos os módulos de uma vez, em vez de reinventar campo
 por campo em cada um.
 
+## Mapeamento completo (25/09) — mockups-fase2/ + modelos_impressao_html/ de referência
+
+A pedido do usuário, mapeamos pixel a pixel os 20 arquivos de `mockups-fase2/` e os 17
+arquivos de uma pasta de referência externa (`Desktop\modelos_impressao_html\`, distinta
+da pasta `modelos_impressao_html/` do repo) para entender o fluxo assistencial completo.
+
+**Confirmado: o fluxo de 3 etapas já existe implementado no código:**
+1. **Enfermeiro** — `ModalInternar.jsx` → `internarPacientePep`: abertura rápida do leito
+   (nome, diagnóstico/queixa, data de nascimento, data de admissão, Manchester).
+2. **Recepção** — `CadastroPacientes.jsx`/`AbaFormNovo.jsx`: busca o paciente já aberto e
+   completa CPF/CNS/RG/endereço/filiação.
+3. **Médico** — `AbaAih.jsx`: diagnóstico oficial de internação via AIH.
+
+**Lacuna corrigida (commit `820f6f3`):** a Recepção não tinha impressão conectada. Trazido
+`15-ficha-identificacao-termos.html` da pasta de referência (ausente do repo) como
+`modelos_impressao_html/22-ficha-identificacao-termos.html`, sem dado fabricado, com script
+de preenchimento via localStorage (mesmo padrão do `18-laudo-apac-...`). Botão "Salvar e
+Imprimir" adicionado em `AbaFormNovo.jsx`, seguindo o modelo visual padrão dos prontuários
+(`btn-cancel`/`btn-save-draft`/`btn-save-print`).
+
+**Outros achados do mapeamento (não resolvidos ainda):**
+- Não existe modelo de impressão de AIH na pasta de referência externa (o repo já tem o seu
+  próprio, `16-laudo-aih-internacao.html` — as duas pastas têm numerações diferentes e não
+  são sincronizadas).
+- `12-transferencia-sbar-design.html` e `14-transferencia-paciente-design.html` em
+  `mockups-fase2/` são arquivos idênticos (duplicata, provável resquício de renumeração).
+- **Pendente de decisão explícita do usuário, pausado em 25/09:** transformar o
+  `EspacoPaciente.jsx` de modal flutuante para página cheia (fiel a
+  `proposta-espaco-paciente-3-pilares.html`, que não usa overlay/modal) e remover a aba
+  "Passagem de Plantão" individual do card do paciente, migrando a edição de
+  diagnóstico/status/Manchester/pendências para dentro da tela "Passagem de Plantão" do
+  menu lateral, com casca visual de prontuário. Essa mudança tem grande escopo (toca
+  `EspacoPaciente.jsx`, `PassagemForm.jsx`, `Painel.jsx`, `PainelCards.jsx`,
+  `PainelTabela.jsx`, `PassagemColetiva.jsx`, `PassagemColetivaTela.jsx`) e foi
+  interrompida para primeiro fazer este mapeamento geral — retomar só com confirmação
+  explícita do usuário sobre o plano exato antes de implementar.
+
 ## Pendências antigas (ainda não feitas, não esquecer)
 
 - `proposta-design-system-vitaloop.html` duplicado (raiz do projeto + dentro de
