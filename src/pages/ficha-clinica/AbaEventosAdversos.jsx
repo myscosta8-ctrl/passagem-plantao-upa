@@ -12,6 +12,7 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
   const [anonimo, setAnonimo] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
+  const [itemExpandido, setItemExpandido] = useState(null)
 
   useEffect(() => { carregar() }, [])
 
@@ -40,81 +41,118 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
   }
 
   return (
-    <div className="form-section">
-      <div className="form-section-title">Notificar evento adverso</div>
-      <p style={{ fontSize: 11.5, color: 'var(--c-text-muted)', marginTop: -10, marginBottom: 14 }}>
-        Cultura justa de notificação — o objetivo é identificar falhas do processo, não punir quem relata. Pode ser registrado como anônimo.
-      </p>
-      <div className="form-grid" style={{ marginBottom: 16 }}>
-        <div className="form-field">
-          <label>Categoria</label>
-          <div className="chip-group">
-            {CATEGORIAS_EVENTO_ADVERSO.map((c) => (
-              <button key={c} type="button" className={`chip ${categoria === c ? 'on' : ''}`} onClick={() => setCategoria(categoria === c ? '' : c)}>{c}</button>
-            ))}
-          </div>
+    <div className="clinical-split">
+      <aside className="timeline-pane">
+        <div className="pane-header">
+          <span><i className="ph ph-warning-octagon" /> Ocorrências Registradas</span>
         </div>
-        <div className="form-field">
-          <label>Gravidade</label>
-          <div className="chip-group">
-            {GRAVIDADES_EVENTO_ADVERSO.map((g) => (
-              <button key={g} type="button" className={`chip ${gravidade === g ? 'on' : ''}`} onClick={() => setGravidade(gravidade === g ? '' : g)}>{g}</button>
-            ))}
-          </div>
-        </div>
-        <div className="form-field span-2"><label>Descrição *</label><textarea rows={3} value={descricao} onChange={(e) => setDescricao(e.target.value)} /></div>
-        <div className="form-field span-2"><label>Ação imediata tomada</label><textarea rows={2} value={acaoImediata} onChange={(e) => setAcaoImediata(e.target.value)} /></div>
-        <div className="form-field">
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <input type="checkbox" checked={anonimo} onChange={(e) => setAnonimo(e.target.checked)} />
-            Registrar como anônimo
-          </label>
-        </div>
-      </div>
-      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !categoria || !gravidade || !descricao.trim()}>
-        {salvando ? 'Registrando...' : 'Registrar evento'}
-      </button>
-
-      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
-      {carregando ? (
-        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
-      ) : lista.length === 0 ? (
-        <p style={{ color: 'var(--c-text-muted)' }}>Nenhum evento adverso registrado.</p>
-      ) : (
-        lista.map((e) => (
-          <div key={e.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <strong>{e.categoria} · {e.gravidade}</strong>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>{new Date(e.ocorrido_em).toLocaleString('pt-BR')}</span>
-                {onImprimir && (
-                  <button
-                    type="button"
-                    className="btn-copiar"
-                    style={{ padding: '3px 8px', fontSize: 11 }}
-                    onClick={() => onImprimir({
+        <div className="timeline-list">
+          {carregando ? (
+            <p style={{ fontSize: 11, color: '#94A3B8' }}>Carregando...</p>
+          ) : lista.length === 0 ? (
+            <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhum evento adverso registrado.</p>
+          ) : lista.map((e) => (
+            <div
+              key={e.id}
+              className={`tl-item ${itemExpandido === e.id ? 'expanded' : ''}`}
+              onClick={() => setItemExpandido((atual) => (atual === e.id ? null : e.id))}
+            >
+              <div className="tl-date">
+                {new Date(e.ocorrido_em).toLocaleString('pt-BR')}
+                <i className={`ph ph-caret-${itemExpandido === e.id ? 'up' : 'down'}`} />
+              </div>
+              <div className="tl-author">
+                <i className="ph ph-user" /> {e.anonimo ? 'Relato anônimo' : (e.enfermeiros?.nome_exibicao || e.enfermeiros?.nome || '—')}
+              </div>
+              <div className="tl-preview">
+                <strong>{e.categoria} · {e.gravidade}</strong><br />
+                {e.descricao}
+                {e.acao_imediata && <><br /><em>Ação imediata: {e.acao_imediata}</em></>}
+              </div>
+              {onImprimir && (
+                <button
+                  type="button"
+                  className="tl-print"
+                  onClick={(ev) => {
+                    ev.stopPropagation()
+                    onImprimir({
                       classificacao: `${e.categoria} (${e.gravidade})`,
                       descricao: e.descricao,
                       conduta: e.acao_imediata || 'Ações imediatas adotadas conforme protocolo institucional.',
                       desfecho: 'Paciente sob observação contínua da equipe de enfermagem.',
                       criado_em: e.ocorrido_em,
-                    })}
-                  >
-                    🖨️ Imprimir
-                  </button>
-                )}
-              </div>
+                    })
+                  }}
+                >
+                  <i className="ph ph-printer" /> Imprimir
+                </button>
+              )}
             </div>
-            <div style={{ marginTop: 4 }}>{e.descricao}</div>
-            {e.acao_imediata && <div style={{ color: 'var(--c-text-muted)', fontSize: 12.5, marginTop: 2 }}>Ação imediata: {e.acao_imediata}</div>}
-            <div style={{ color: 'var(--c-text-muted)', fontSize: 12, marginTop: 4 }}>
-              {e.anonimo ? 'Relato anônimo' : (e.enfermeiros?.nome_exibicao || e.enfermeiros?.nome || '—')}
+          ))}
+        </div>
+      </aside>
+
+      <div className="clinical-card">
+        <div className="cc-header">
+          <div className="cc-title">
+            <h2><i className="ph ph-warning-circle" /> Registrar Nova Intercorrência / Evento Adverso</h2>
+            <p>Cultura justa de notificação — o objetivo é identificar falhas do processo, não punir quem relata. Pode ser registrado como anônimo.</p>
+          </div>
+        </div>
+
+        <div className="cc-body">
+          <div className="form-group">
+            <label>Classificação / Tipo de Evento:</label>
+            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {CATEGORIAS_EVENTO_ADVERSO.map((c) => (
+                <label key={c} className="checkbox-item">
+                  <input type="radio" name="categoria-evento" checked={categoria === c} onChange={() => setCategoria(c)} /> {c}
+                </label>
+              ))}
             </div>
           </div>
-        ))
-      )}
+
+          <div className="form-group">
+            <label>Gravidade:</label>
+            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {GRAVIDADES_EVENTO_ADVERSO.map((g) => (
+                <label key={g} className="checkbox-item">
+                  <input type="radio" name="gravidade-evento" checked={gravidade === g} onChange={() => setGravidade(g)} /> {g}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label><i className="ph ph-text-align-left" /> Descrição Detalhada do Evento e Queixas do Paciente *</label>
+            <textarea className="large" style={{ minHeight: 100 }} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Descreva os sinais objetivos, sintomas relatados pelo paciente ou familiar..." />
+          </div>
+
+          <div className="form-group">
+            <label><i className="ph ph-first-aid" /> Ação Imediata Tomada</label>
+            <textarea style={{ minHeight: 70 }} value={acaoImediata} onChange={(e) => setAcaoImediata(e.target.value)} placeholder="Descreva as medidas imediatas adotadas pela enfermagem..." />
+          </div>
+
+          <label className="checkbox-item">
+            <input type="checkbox" checked={anonimo} onChange={(e) => setAnonimo(e.target.checked)} /> Registrar como anônimo
+          </label>
+
+          {erro && (
+            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+              <div className="info" style={{ color: '#DC2626' }}>
+                <i className="ph ph-warning" /> {erro}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="cc-footer">
+          <span />
+          <button className="btn-save-print" onClick={registrar} disabled={salvando || !categoria || !gravidade || !descricao.trim()}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Registrando...' : 'Registrar evento'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
-
