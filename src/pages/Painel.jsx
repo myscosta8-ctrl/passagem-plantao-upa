@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import RealocarModal from './RealocarModal'
-import { ModalInternar, PainelTabela, PainelCards, usePainelState } from './painel/index.js'
+import { ModalInternar, PainelTabela, PainelCards, PainelControles, usePainelState } from './painel/index.js'
 import './Painel.css'
 
 const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
@@ -54,10 +54,17 @@ export default function Painel({ plantao, setoresIds }) {
             Selecione um leito para internar, editar ou realocar um paciente.
           </p>
         </div>
-        <div className="visualizacao-toggle">
-          <button className={visualizacao === 'cards' ? 'on' : ''} onClick={() => setVisualizacao('cards')}><i className="ph ph-squares-four" /> Cards</button>
-          <button className={visualizacao === 'tabela' ? 'on' : ''} onClick={() => setVisualizacao('tabela')}><i className="ph ph-list-dashes" /> Lista</button>
-        </div>
+        <PainelControles
+          setoresVisiveis={setoresVisiveis}
+          busca={buscaTabela}
+          onBusca={setBuscaTabela}
+          setorFiltro={setorFiltro}
+          onSetorFiltro={setSetorFiltro}
+          statusFiltro={statusFiltro}
+          onStatusFiltro={setStatusFiltro}
+          visualizacao={visualizacao}
+          onVisualizacao={setVisualizacao}
+        />
       </div>
       <div style={{ borderBottom: '1px solid var(--c-border)', marginBottom: 20 }} />
 
@@ -74,11 +81,8 @@ export default function Painel({ plantao, setoresIds }) {
           leitos={leitos}
           pacientesPorLeito={pacientesPorLeito}
           busca={buscaTabela}
-          onBusca={setBuscaTabela}
           setorFiltro={setorFiltro}
-          onSetorFiltro={setSetorFiltro}
           statusFiltro={statusFiltro}
-          onStatusFiltro={setStatusFiltro}
           onAbrirLeito={(leito) => {
             const paciente = pacientesPorLeito[leito.id]
             if (paciente) {
@@ -96,6 +100,9 @@ export default function Painel({ plantao, setoresIds }) {
           leitos={leitos}
           pacientesPorLeito={pacientesPorLeito}
           passagemPorPaciente={passagemPorPaciente}
+          busca={buscaTabela}
+          setorFiltro={setorFiltro}
+          statusFiltro={statusFiltro}
           menuAcoesLeitoId={menuAcoesLeitoId}
           setMenuAcoesLeitoId={setMenuAcoesLeitoId}
           onAbrirPassagem={abrirPassagem}

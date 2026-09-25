@@ -1,5 +1,6 @@
 export { default as ModalInternar } from './ModalInternar'
 export { default as PainelTabela } from './PainelTabela'
 export { default as PainelCards } from './PainelCards'
+export { default as PainelControles } from './PainelControles'
 export { usePainelState } from './usePainelState'
 export * from './constantes'

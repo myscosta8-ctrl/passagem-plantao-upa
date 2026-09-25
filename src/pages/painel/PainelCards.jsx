@@ -1,10 +1,14 @@
 import IndicadoresClinicos from '../../components/IndicadoresClinicos'
+import { normalizarNome } from './constantes'
 
 export default function PainelCards({
   setoresVisiveis,
   leitos,
   pacientesPorLeito,
   passagemPorPaciente,
+  busca,
+  setorFiltro,
+  statusFiltro,
   menuAcoesLeitoId,
   setMenuAcoesLeitoId,
   onAbrirPassagem,
@@ -12,15 +16,29 @@ export default function PainelCards({
   onAbrirRealocar,
   onAbrirLeitoExtra,
 }) {
+  const buscaNorm = normalizarNome(busca || '')
+
   return (
     <>
-      {setoresVisiveis.map((setor) => {
+      {setoresVisiveis
+        .filter((setor) => !setorFiltro || setor.id === setorFiltro)
+        .map((setor) => {
         const leitosDoSetor = leitos
           .filter((l) => l.setor_id === setor.id)
+          .filter((l) => {
+            const paciente = pacientesPorLeito[l.id]
+            if (statusFiltro === 'ocupado' && !paciente) return false
+            if (statusFiltro === 'vazio' && paciente) return false
+            if (statusFiltro === 'internado' && paciente?.status_internacao !== 'Internado') return false
+            if (statusFiltro === 'observacao' && paciente?.status_internacao !== 'Em observação') return false
+            if (buscaNorm && !(paciente && normalizarNome(paciente.nome).includes(buscaNorm))) return false
+            return true
+          })
           .sort((a, b) => {
             if (a.tipo !== b.tipo) return a.tipo === 'extra' ? 1 : -1
             return parseInt(a.numero, 10) - parseInt(b.numero, 10) || a.numero.localeCompare(b.numero)
           })
+        if (leitosDoSetor.length === 0) return null
         const ocupados = leitosDoSetor.filter((l) => pacientesPorLeito[l.id]).length
 
         return (

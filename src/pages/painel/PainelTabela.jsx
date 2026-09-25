@@ -5,11 +5,8 @@ export default function PainelTabela({
   leitos,
   pacientesPorLeito,
   busca,
-  onBusca,
   setorFiltro,
-  onSetorFiltro,
   statusFiltro,
-  onStatusFiltro,
   onAbrirLeito,
 }) {
   const buscaNorm = normalizarNome(busca || '')
@@ -36,30 +33,6 @@ export default function PainelTabela({
 
   return (
     <div>
-      <div className="tabela-filtros">
-        <div className="tabela-filtro-campo">
-          <label>Setor</label>
-          <select value={setorFiltro} onChange={(e) => onSetorFiltro(e.target.value)}>
-            <option value="">Todos os setores</option>
-            {setoresVisiveis.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
-          </select>
-        </div>
-        <div className="tabela-filtro-campo">
-          <label>Status</label>
-          <select value={statusFiltro} onChange={(e) => onStatusFiltro(e.target.value)}>
-            <option value="">Todos</option>
-            <option value="ocupado">Ocupados</option>
-            <option value="vazio">Vazios</option>
-            <option value="internado">Internado</option>
-            <option value="observacao">Em observação</option>
-          </select>
-        </div>
-        <div className="tabela-filtro-campo" style={{ flexGrow: 1 }}>
-          <label>Buscar paciente</label>
-          <input type="text" placeholder="Nome do paciente..." value={busca} onChange={(e) => onBusca(e.target.value)} />
-        </div>
-      </div>
-
       <div className="tabela-painel-wrap">
         <table className="tabela-painel">
           <thead>
