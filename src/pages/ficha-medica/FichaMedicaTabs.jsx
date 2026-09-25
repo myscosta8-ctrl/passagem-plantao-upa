@@ -1,5 +1,5 @@
 export const ABAS_PRINCIPAIS = [
-  { chave: 'consulta', rotulo: '1. Anamnese & Admissão', icon: 'ph-stethoscope' },
+  { chave: 'consulta', rotulo: '1. Admissão Médica', icon: 'ph-stethoscope' },
   { chave: 'aih', rotulo: '2. Laudo de AIH', icon: 'ph-hospital' },
   { chave: 'plano', rotulo: '3. Plano Terapêutico', icon: 'ph-strategy' },
   { chave: 'evolucao', rotulo: '4. Evolução Diária', icon: 'ph-activity' },

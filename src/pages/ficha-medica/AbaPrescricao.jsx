@@ -101,16 +101,25 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
 
           <div className="calc-row">
             <div className="calc-box">
-              <label>Apresentação (mg)</label>
-              <input type="number" value={calc.apresentacaoMg} onChange={(e) => onChange('apresentacaoMg', e.target.value)} />
+              <label>Apresentação</label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="number" value={calc.apresentacaoMg} onChange={(e) => onChange('apresentacaoMg', e.target.value)} />
+                <span style={{ fontSize: 11, fontWeight: 700 }}>mg</span>
+              </div>
             </div>
             <div className="calc-box">
-              <label>Diluente Inicial (mL)</label>
-              <input type="number" value={calc.diluenteMl} onChange={(e) => onChange('diluenteMl', e.target.value)} />
+              <label>Diluente da Ampola</label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="number" value={calc.diluenteMl} onChange={(e) => onChange('diluenteMl', e.target.value)} />
+                <span style={{ fontSize: 11, fontWeight: 700 }}>mL (AD)</span>
+              </div>
             </div>
             <div className="calc-box">
-              <label>Soro Rediluição (mL)</label>
-              <input type="number" value={calc.soroMl} onChange={(e) => onChange('soroMl', e.target.value)} placeholder="Opcional" />
+              <label>Soro de Rediluição</label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="number" value={calc.soroMl} onChange={(e) => onChange('soroMl', e.target.value)} placeholder="Opcional" />
+                <span style={{ fontSize: 11, fontWeight: 700 }}>mL (SF)</span>
+              </div>
             </div>
           </div>
 
@@ -120,7 +129,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
               <strong>{doseTotalMg ? `${doseTotalMg.toFixed(0)} mg` : '—'}</strong>
             </div>
             <div className="calc-result-highlight" style={{ flex: 1, background: '#FFF1F2', borderColor: '#FECDD3' }}>
-              <span style={{ color: '#BE123C' }}>Volume a Aspirar</span>
+              <span style={{ color: '#BE123C' }}>Volume a Aspirar{concentracaoMgMl ? ` (${concentracaoMgMl.toFixed(0)}mg/mL)` : ''}</span>
               <strong style={{ color: '#BE123C' }}>{volumeAspirarMl ? `${volumeAspirarMl.toFixed(1)} mL` : '—'}</strong>
             </div>
           </div>
@@ -327,7 +336,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
             {/* GRUPO 2: MEDICAMENTOS */}
             <div className="presc-group">
               <div className="presc-group-header">
-                <h3><i className="ph ph-syringe" /> 2. Medicamentos</h3>
+                <h3><i className="ph ph-pill" /> 2. Medicamentos</h3>
                 <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
               </div>
               <div className="presc-list">
