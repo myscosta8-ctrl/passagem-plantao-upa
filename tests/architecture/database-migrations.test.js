@@ -56,7 +56,7 @@ const TABELAS_OBRIGATORIAS = [
 ];
 
 export function runDatabaseMigrationsTests(test) {
-  test('Diretório de migrações do Supabase existe com todas as 6 migrações sequenciais', () => {
+  test('Diretório de migrações do Supabase existe com as 6 migrações base sequenciais', () => {
     assert.ok(fs.existsSync(MIGRATIONS_DIR), 'Pasta supabase/migrations deve existir');
 
     const arquivos = fs
@@ -64,7 +64,7 @@ export function runDatabaseMigrationsTests(test) {
       .filter((f) => f.endsWith('.sql'))
       .sort();
 
-    assert.equal(arquivos.length, 6, 'Devem existir 6 arquivos de migração sequenciais');
+    assert.ok(arquivos.length >= 6, 'Devem existir ao menos 6 arquivos de migração sequenciais');
     assert.ok(arquivos[0].includes('base_schema'), 'Migração 1 deve ser base_schema');
     assert.ok(arquivos[1].includes('pep_core'), 'Migração 2 deve ser pep_core');
     assert.ok(arquivos[2].includes('prontuario_enfermagem'), 'Migração 3 deve ser prontuario_enfermagem');

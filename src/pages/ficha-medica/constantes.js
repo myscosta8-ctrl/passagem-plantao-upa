@@ -113,6 +113,12 @@ export const EVOLUCAO_VAZIA = {
   aguarda_exames_texto: '',
   data_prevista_alta: '',
   conduta_medica: '',
+  sv_pa_sistolica: '',
+  sv_pa_diastolica: '',
+  sv_fc: '',
+  sv_fr: '',
+  sv_temperatura: '',
+  sv_spo2: '',
 };
 
 export const RISCO_TEV_OPCOES = ['Baixo risco', 'Moderado risco', 'Alto risco'];
