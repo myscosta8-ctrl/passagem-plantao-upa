@@ -473,8 +473,8 @@
   font-weight: 600;
   color: #0F172A;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 6px;
 }
 .atendimento-medico-container .form-group input,
 .atendimento-medico-container .form-group textarea,
