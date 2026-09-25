@@ -279,16 +279,16 @@ Imprimir" adicionado em `AbaFormNovo.jsx`, seguindo o modelo visual padrão dos 
   são sincronizadas).
 - `12-transferencia-sbar-design.html` e `14-transferencia-paciente-design.html` em
   `mockups-fase2/` são arquivos idênticos (duplicata, provável resquício de renumeração).
-- **Pendente de decisão explícita do usuário, pausado em 25/09:** transformar o
-  `EspacoPaciente.jsx` de modal flutuante para página cheia (fiel a
-  `proposta-espaco-paciente-3-pilares.html`, que não usa overlay/modal) e remover a aba
-  "Passagem de Plantão" individual do card do paciente, migrando a edição de
-  diagnóstico/status/Manchester/pendências para dentro da tela "Passagem de Plantão" do
-  menu lateral, com casca visual de prontuário. Essa mudança tem grande escopo (toca
-  `EspacoPaciente.jsx`, `PassagemForm.jsx`, `Painel.jsx`, `PainelCards.jsx`,
-  `PainelTabela.jsx`, `PassagemColetiva.jsx`, `PassagemColetivaTela.jsx`) e foi
-  interrompida para primeiro fazer este mapeamento geral — retomar só com confirmação
-  explícita do usuário sobre o plano exato antes de implementar.
+- ✅ **Concluído (commit `b80bae8`, 25/09):** `EspacoPaciente.jsx` convertido de modal
+  flutuante para página cheia, fiel a `proposta-espaco-paciente-3-pilares.html`. Removida a
+  aba "Passagem de Plantão" individual do card do paciente — ficam só "Prontuário de
+  Enfermagem"/"Prontuário Médico". A edição de diagnóstico/status/Manchester/pendências
+  (`PassagemForm.jsx`) não foi apagada: ganhou casca visual de prontuário (`clinical-card`)
+  e passou a abrir por um botão "Editar Passagem" em cada card da grade coletiva
+  (`PassagemColetiva.jsx`/`PassagemColetivaTela.jsx`), no mesmo padrão de drawer que já
+  existia em `Pendencias.jsx`. **Risco assumido conscientemente:** essa edição deixa de
+  estar acessível a partir do Painel de Leitos — só fica disponível dentro da tela
+  "Passagem de Plantão" do menu lateral.
 
 ## Pendências antigas (ainda não feitas, não esquecer)
 
