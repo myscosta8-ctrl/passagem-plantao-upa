@@ -101,7 +101,7 @@
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 14px 16px;
 }
 
 .form-grid-3 {
@@ -110,13 +110,13 @@
 
 .form-field label {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
   color: var(--c-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 7px;
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
 }
 
 .form-field input[type="text"],
@@ -126,13 +126,15 @@
 .form-field select,
 .form-field textarea {
   width: 100%;
-  padding: 7px 2px;
-  border: none;
-  border-bottom: 1.5px solid var(--c-border);
-  border-radius: 0;
-  background: transparent;
+  padding: 8px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  background: var(--c-surface);
   color: var(--c-text-primary);
-  font-size: 13.5px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .form-field input:focus,
@@ -140,6 +142,7 @@
 .form-field textarea:focus {
   outline: none;
   border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px var(--c-primary-light);
 }
 
 .form-field textarea {
@@ -164,12 +167,16 @@
   border: none;
   border-radius: var(--r-sm);
   background: transparent;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-family: var(--font-ui);
+  font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
   color: var(--c-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.toggle-btn:hover {
+  background: var(--c-surface-inset);
 }
 
 .toggle-btn.on {
@@ -190,14 +197,18 @@
 .chip {
   padding: 6px 12px;
   border: 1px solid var(--c-border);
-  border-radius: var(--r-sm);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  border-radius: 20px;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  background: transparent;
+  background: var(--c-surface);
   color: var(--c-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.chip:hover {
+  border-color: var(--c-primary);
 }
 
 .chip.on {
