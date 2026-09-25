@@ -303,6 +303,24 @@ Imprimir" adicionado em `AbaFormNovo.jsx`, seguindo o modelo visual padrão dos 
   de localStorage) — a tela sempre abre limpa, na grade. `abrirPassagem`/`fecharPassagem`
   continuam funcionando normalmente, só pararam de persistir/ler do localStorage.
 
+- ✅ **Concluído (25/09):** porte literal do mockup 12 para a grade da Passagem de
+  Plantão Coletiva, por decisão explícita do usuário ("apareptemente vc se recusa a
+  implementar o projeto originalmente"). Antes, `PassagemColetiva.css` usava os tokens
+  genéricos do tema do app (`--c-primary` azul, colunas em "chips" com fundo/borda) em vez
+  das cores/estrutura próprias do mockup (teal `--enf-primary: #0D9488` para acentos de
+  enfermagem, colunas de texto simples sem caixa, larguras de coluna
+  `210px 220px 200px 1fr`). Reescritos `PassagemColetiva.css` (classes e valores idênticos
+  ao `<style>` de `12-passagem-plantao-design.html`: `.bed-card`, `.bc-header`,
+  `.bc-content`, `.col-block`, `.vitals-row`, `.v-cell`, `.device-text`,
+  `.balance-summary`, `.pending-input`, `.q-chip`, `.sector-control-card`, `.sec-pill`,
+  `.filter-chip` etc.) e `PassagemColetiva.jsx` (estrutura DOM igual à do mockup). Mantido
+  fora do escopo, por já ter sido decisão registrada antes: modo Tabela/Detalhe (só existe
+  "Grade"), painel lateral de histórico, e a linha "Entrega/Assume" do mockup (não
+  fabricamos nome de enfermeiro assumindo o plantão — não é rastreado no schema; mostramos
+  só turno + enfermeiro logado, dados reais). Adicionado "Conferir Todos" em lote (não
+  estava na lista de exclusões, e usa a mesma função real `marcarPassagemConferida` já
+  usada individualmente).
+
 ## Pendências antigas (ainda não feitas, não esquecer)
 
 - `proposta-design-system-vitaloop.html` duplicado (raiz do projeto + dentro de

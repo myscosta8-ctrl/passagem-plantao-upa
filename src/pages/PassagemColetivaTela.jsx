@@ -41,6 +41,8 @@ export default function PassagemColetivaTela({ plantao, setoresIds }) {
       <div style={{ borderBottom: '1px solid var(--c-border)', marginBottom: 20 }} />
 
       <PassagemColetiva
+        plantao={plantao}
+        enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
         setoresVisiveis={setoresVisiveis}
         leitos={leitos}
         pacientesPorLeito={pacientesPorLeito}
