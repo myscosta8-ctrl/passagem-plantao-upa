@@ -24,7 +24,6 @@ const ABAS_MEDICAS = [
 ];
 
 const ABAS_CLINICAS = [
-  'AbaAdmissao.jsx',
   'AbaEvolucao.jsx',
   'AbaBalancoHidrico.jsx',
   'AbaDispositivos.jsx',

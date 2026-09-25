@@ -1,10 +1,9 @@
 export const ABAS_PRINCIPAIS = [
-  { chave: 'admissao', rotulo: '1. Admissão', icon: 'ph-clipboard-text' },
-  { chave: 'admissaoEnfermagem', rotulo: '2. Admissão de Enfermagem', icon: 'ph-notepad' },
-  { chave: 'sinaisVitais', rotulo: '3. Sinais Vitais', icon: 'ph-heartbeat' },
-  { chave: 'evolucao', rotulo: '4. Evolução', icon: 'ph-activity' },
-  { chave: 'dispositivos', rotulo: '5. Dispositivos', icon: 'ph-plugs' },
-  { chave: 'balanco', rotulo: '6. Balanço Hídrico', icon: 'ph-drop' },
+  { chave: 'admissaoEnfermagem', rotulo: '1. Admissão de Enfermagem', icon: 'ph-notepad' },
+  { chave: 'sinaisVitais', rotulo: '2. Sinais Vitais', icon: 'ph-heartbeat' },
+  { chave: 'evolucao', rotulo: '3. Evolução', icon: 'ph-activity' },
+  { chave: 'dispositivos', rotulo: '4. Dispositivos', icon: 'ph-plugs' },
+  { chave: 'balanco', rotulo: '5. Balanço Hídrico', icon: 'ph-drop' },
 ];
 
 export const ABAS_SECUNDARIAS = [

@@ -1,4 +1,3 @@
-import AbaAdmissao from './AbaAdmissao';
 import AbaHistoricoEnfermagem from '../AbaHistoricoEnfermagem';
 import AbaSinaisVitais from './AbaSinaisVitais';
 import AbaEvolucao from './AbaEvolucao';
@@ -11,9 +10,6 @@ import AbaSbar from './AbaSbar';
 import AbaEventosAdversos from './AbaEventosAdversos';
 
 export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImprimir }) {
-  if (aba === 'admissao') {
-    return <AbaAdmissao atendimento={atendimento} autorId={autorId} />;
-  }
   if (aba === 'admissaoEnfermagem') {
     return (
       <AbaHistoricoEnfermagem
