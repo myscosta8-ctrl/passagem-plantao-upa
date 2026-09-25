@@ -119,6 +119,7 @@ export const EVOLUCAO_VAZIA = {
   sv_fr: '',
   sv_temperatura: '',
   sv_spo2: '',
+  sv_hgt: '',
 };
 
 export const RISCO_TEV_OPCOES = ['Baixo risco', 'Moderado risco', 'Alto risco'];

@@ -48,6 +48,7 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
                 registro.sv_fr != null ? `FR: ${registro.sv_fr} irpm` : null,
                 registro.sv_spo2 != null ? `SpO2: ${registro.sv_spo2}%` : null,
                 registro.sv_temperatura != null ? `Tax: ${registro.sv_temperatura}°C` : null,
+                registro.sv_hgt != null ? `HGT: ${registro.sv_hgt} mg/dL` : null,
               ].filter(Boolean)
               return sv.length > 0 ? <div style={{ marginBottom: '3px' }}><b>Sinais Vitais:</b> {sv.join(' · ')}.</div> : null
             })()}
