@@ -15,6 +15,8 @@ export default function PassagemColetivaTela({ plantao, setoresIds }) {
     leitos,
     pacientesPorLeito,
     passagemPorPaciente,
+    sinaisVitaisPorPaciente,
+    balancoPorPaciente,
     modalPassagem,
     modalRealocar,
     setModalRealocar,
@@ -43,6 +45,8 @@ export default function PassagemColetivaTela({ plantao, setoresIds }) {
         leitos={leitos}
         pacientesPorLeito={pacientesPorLeito}
         passagemPorPaciente={passagemPorPaciente}
+        sinaisVitaisPorPaciente={sinaisVitaisPorPaciente}
+        balancoPorPaciente={balancoPorPaciente}
         enfermeiroId={enfermeiro?.id}
         onAbrirPassagem={abrirPassagem}
         onEditarPassagem={(paciente, leito) => setModalPassagemForm({ paciente, leito })}

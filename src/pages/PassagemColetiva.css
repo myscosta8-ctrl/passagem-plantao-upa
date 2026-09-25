@@ -53,11 +53,44 @@
   color: var(--c-primary);
 }
 
+.pc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.pc-toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-compact-tool {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.15s;
+}
+
+.btn-compact-tool:hover {
+  background: var(--c-surface-inset);
+  color: var(--c-text-primary);
+}
+
 .pc-filter-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 18px;
 }
 
 .pc-chip {
@@ -83,10 +116,10 @@
   color: #fff;
 }
 
-.pc-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+.pc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .pc-card {
@@ -94,8 +127,6 @@
   border: 1px solid var(--c-border);
   border-radius: 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
 }
 
@@ -107,9 +138,35 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--c-border-light);
   background: var(--c-surface-inset);
+}
+
+.pc-header-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pc-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pc-btn-toggle {
+  background: none;
+  border: none;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
 }
 
 .pc-leito-numero {
@@ -121,6 +178,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.pc-paciente-hd-inline {
+  font-size: 12px;
+  color: var(--c-text-secondary);
 }
 
 .pc-status-badge {
@@ -146,7 +208,6 @@
 
 .pc-card-body {
   padding: 12px 14px;
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -193,31 +254,162 @@
   color: var(--c-text-primary);
 }
 
-.pc-pendencia {
-  font-size: 12px;
-  color: #92400E;
-  background: #FFFBEB;
-  border: 1px solid #FDE68A;
-  padding: 8px 10px;
-  border-radius: 6px;
+.pc-content {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 6px;
+}
+
+@media (max-width: 1100px) {
+  .pc-content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.pc-col {
+  background: var(--c-surface-inset);
+  border: 1px solid var(--c-border-light);
+  border-radius: 8px;
+  padding: 10px 12px;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 6px;
 }
 
-.pc-card-footer {
-  border-top: 1px solid var(--c-border-light);
-  padding: 10px 14px;
+.pc-col-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  background: var(--c-surface-inset);
+  align-items: center;
+  gap: 6px;
+}
+
+.pc-col-vazio {
+  font-size: 11.5px;
+  color: var(--c-text-muted);
+}
+
+.pc-vitals-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pc-v-cell {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-light);
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 48px;
+}
+
+.pc-v-cell .lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+}
+
+.pc-v-cell .val {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--c-text-primary);
+}
+
+.pc-device-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--c-text-secondary);
+}
+
+.pc-device-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pc-device-list i {
+  color: #16A34A;
+}
+
+.pc-balanco-tag {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-self: flex-start;
+}
+
+.pc-balanco-tag.positivo {
+  background: #DCFCE7;
+  color: #166534;
+}
+
+.pc-balanco-tag.negativo {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.pc-col-pendencia {
+  grid-column: span 2;
+}
+
+@media (max-width: 1100px) {
+  .pc-col-pendencia {
+    grid-column: span 2;
+  }
+}
+
+.pc-pending-input {
+  width: 100%;
+  min-height: 60px;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  resize: vertical;
+  background: var(--c-surface);
+  color: var(--c-text-primary);
+}
+
+.pc-quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pc-q-chip {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-secondary);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.pc-q-chip:hover {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 
 .pc-btn-conferir,
 .pc-btn-detalhes {
-  flex: 1;
-  padding: 7px 10px;
+  padding: 7px 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
@@ -227,6 +419,7 @@
   justify-content: center;
   gap: 6px;
   transition: 0.15s ease;
+  white-space: nowrap;
 }
 
 .pc-btn-conferir {

@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
 import { pepEstaAtivo } from '../../lib/pepConfig'
-import { carregarLeitosOcupadosPep, internarPacientePep } from '../../lib/pepAtendimentos'
+import {
+  carregarLeitosOcupadosPep, internarPacientePep,
+  listarUltimosSinaisVitaisPorAtendimentos, listarBalancoPorAtendimentos,
+} from '../../lib/pepAtendimentos'
 
 export function usePainelState({ plantao }) {
   const { enfermeiro } = useAuth()
@@ -10,6 +13,8 @@ export function usePainelState({ plantao }) {
   const [leitos, setLeitos] = useState([])
   const [pacientesPorLeito, setPacientesPorLeito] = useState({})
   const [passagemPorPaciente, setPassagemPorPaciente] = useState({})
+  const [sinaisVitaisPorPaciente, setSinaisVitaisPorPaciente] = useState({})
+  const [balancoPorPaciente, setBalancoPorPaciente] = useState({})
   const [modalLeito, setModalLeito] = useState(null) // internar rápido
   const [erroInternar, setErroInternar] = useState('')
   const [erroGeral, setErroGeral] = useState('')
@@ -87,6 +92,13 @@ export function usePainelState({ plantao }) {
       setPacientesPorLeito(mapa)
       setPassagemPorPaciente(passagemMapa)
       restaurarModalSalvo(mapa, listaLeitos ?? [])
+      const atendimentoIds = Object.values(mapa).map((p) => p.id)
+      const [svMapa, balancoMapa] = await Promise.all([
+        listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds),
+        listarBalancoPorAtendimentos(atendimentoIds),
+      ])
+      setSinaisVitaisPorPaciente(svMapa)
+      setBalancoPorPaciente(balancoMapa)
       setCarregando(false)
       return
     }
@@ -184,6 +196,8 @@ export function usePainelState({ plantao }) {
     leitos,
     pacientesPorLeito,
     passagemPorPaciente,
+    sinaisVitaisPorPaciente,
+    balancoPorPaciente,
     modalLeito,
     setModalLeito,
     erroInternar,

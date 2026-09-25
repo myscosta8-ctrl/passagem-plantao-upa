@@ -47,12 +47,15 @@ export async function carregarLeitosOcupadosPep() {
   const pessoaIds = [...new Set((atendimentos ?? []).map((a) => a.pessoa_id))]
   const [{ data: pessoas }, { data: alergiasAtivas }] = await Promise.all([
     supabase.from('pessoas').select('*').in('id', pessoaIds),
-    supabase.from('alergias').select('pessoa_id').eq('status', 'ativa').in('pessoa_id', pessoaIds),
+    supabase.from('alergias').select('pessoa_id, substancia').eq('status', 'ativa').in('pessoa_id', pessoaIds),
   ])
 
   const pessoaPorId = Object.fromEntries((pessoas ?? []).map((p) => [p.id, p]))
   const internacaoPorAtendimento = Object.fromEntries((internacoes ?? []).map((i) => [i.atendimento_id, i]))
-  const temAlergiaAtiva = new Set((alergiasAtivas ?? []).map((a) => a.pessoa_id))
+  const alergiaPorPessoa = {}
+  for (const a of alergiasAtivas ?? []) {
+    if (!alergiaPorPessoa[a.pessoa_id]) alergiaPorPessoa[a.pessoa_id] = a.substancia
+  }
 
   const pacientesPorLeito = {}
   for (const ocupacao of ocupacoes) {
@@ -71,7 +74,10 @@ export async function carregarLeitosOcupadosPep() {
       idade: idadeExibida(pessoa),
       sexo: pessoa.sexo,
       data_admissao: internacao?.internado_em ? internacao.internado_em.slice(0, 10) : null,
-      alergias: temAlergiaAtiva.has(pessoa.id),
+      internado_em: internacao?.internado_em ?? null,
+      numero_atendimento: atendimento.numero_atendimento ?? null,
+      alergias: !!alergiaPorPessoa[pessoa.id],
+      alergia_substancia: alergiaPorPessoa[pessoa.id] || null,
       status_internacao: atendimento.status_internacao ?? 'Em observação',
       status: 'internado',
       leito_atual_id: ocupacao.leito_id,
@@ -93,6 +99,47 @@ export async function carregarLeitosOcupadosPep() {
   }
 
   return { pacientesPorLeito, passagemPorPaciente }
+}
+
+// Último registro de sinais vitais de cada atendimento — usado só pra exibição
+// na grade da Passagem de Plantão Coletiva (não duplica o registro em si, que
+// continua sendo feito na aba própria de Sinais Vitais da Enfermagem).
+export async function listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds) {
+  if (!atendimentoIds?.length) return {}
+  const { data } = await supabase
+    .from('sinais_vitais')
+    .select('*')
+    .in('atendimento_id', atendimentoIds)
+    .order('registrado_em', { ascending: false })
+  const porAtendimento = {}
+  for (const sv of data ?? []) {
+    if (!porAtendimento[sv.atendimento_id]) porAtendimento[sv.atendimento_id] = sv
+  }
+  return porAtendimento
+}
+
+// Totais de balanço hídrico (entradas/saídas) de cada atendimento — mesmo
+// dado já usado na aba de Balanço Hídrico, só somado aqui pra exibição rápida
+// na grade coletiva.
+export async function listarBalancoPorAtendimentos(atendimentoIds) {
+  if (!atendimentoIds?.length) return {}
+  const { data } = await supabase
+    .from('balanco_hidrico')
+    .select('atendimento_id, tipo, volume_ml')
+    .in('atendimento_id', atendimentoIds)
+  const porAtendimento = {}
+  for (const registro of data ?? []) {
+    if (!porAtendimento[registro.atendimento_id]) porAtendimento[registro.atendimento_id] = { entradas: 0, saidas: 0 }
+    if (registro.tipo === 'entrada') porAtendimento[registro.atendimento_id].entradas += Number(registro.volume_ml)
+    else porAtendimento[registro.atendimento_id].saidas += Number(registro.volume_ml)
+  }
+  return porAtendimento
+}
+
+// Atualização pontual do campo de pendências direto na grade da Passagem de
+// Plantão Coletiva — não mexe em nenhum outro campo da passagem já salva.
+export async function atualizarPendenciasPassagem(passagemId, pendencias) {
+  return supabase.from('passagens').update({ pendencias: pendencias || null }).eq('id', passagemId)
 }
 
 export async function internarPacientePep({ leito, dados, enfermeiroId: _enfermeiroId }) {
