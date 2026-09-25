@@ -7,6 +7,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
   const [texto, setTexto] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
+  const [itemExpandido, setItemExpandido] = useState(null)
 
   useEffect(() => { carregar() }, [])
 
@@ -32,55 +33,70 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
   }
 
   return (
-    <div className="form-section">
-      <div className="form-section-title">Nova evolução</div>
-      <div className="form-field" style={{ marginBottom: 14 }}>
-        <textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={4} placeholder="Descreva a evolução do paciente..." />
-      </div>
-      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !texto.trim()}>
-        {salvando ? 'Registrando...' : 'Registrar evolução'}
-      </button>
-
-      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
-      {carregando ? (
-        <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
-      ) : historico.length === 0 ? (
-        <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma evolução registrada ainda.</p>
-      ) : (
-        <div className="hist-tabela-wrap">
-          <table className="hist-tabela">
-            <thead>
-              <tr><th>Data/hora</th><th>Autor</th><th>Evolução</th><th>Ações</th></tr>
-            </thead>
-            <tbody>
-              {historico.map((ev) => (
-                <tr key={ev.id}>
-                  <td style={{ color: 'var(--c-text-muted)', verticalAlign: 'top' }}>{new Date(ev.criado_em).toLocaleString('pt-BR')}</td>
-                  <td style={{ color: 'var(--c-primary)', fontWeight: 600, verticalAlign: 'top' }}>
-                    {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}
-                  </td>
-                  <td className="col-larga" style={{ whiteSpace: 'pre-wrap' }}>{ev.texto}</td>
-                  <td style={{ verticalAlign: 'top', whiteSpace: 'nowrap' }}>
-                    {onImprimir && (
-                      <button
-                        type="button"
-                        className="btn-copiar"
-                        style={{ padding: '3px 8px', fontSize: 11 }}
-                        onClick={() => onImprimir(ev)}
-                      >
-                        🖨️ Imprimir (SAE)
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="clinical-split">
+      <aside className="timeline-pane">
+        <div className="pane-header">
+          <span><i className="ph ph-clock-counter-clockwise" /> Anotações de Turnos</span>
         </div>
-      )}
+        <div className="timeline-list">
+          {carregando ? (
+            <p style={{ fontSize: 11, color: '#94A3B8' }}>Carregando...</p>
+          ) : historico.length === 0 ? (
+            <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhuma evolução registrada ainda.</p>
+          ) : historico.map((ev) => (
+            <div
+              key={ev.id}
+              className={`tl-item ${itemExpandido === ev.id ? 'expanded' : ''}`}
+              onClick={() => setItemExpandido((atual) => (atual === ev.id ? null : ev.id))}
+            >
+              <div className="tl-date">
+                {new Date(ev.criado_em).toLocaleString('pt-BR')}
+                <i className={`ph ph-caret-${itemExpandido === ev.id ? 'up' : 'down'}`} />
+              </div>
+              <div className="tl-author">
+                <i className="ph ph-user" /> {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}
+              </div>
+              <div className="tl-preview">{ev.texto}</div>
+              {onImprimir && (
+                <button type="button" className="tl-print" onClick={(e) => { e.stopPropagation(); onImprimir(ev) }}>
+                  <i className="ph ph-printer" /> Imprimir (SAE)
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      <div className="clinical-card">
+        <div className="cc-header">
+          <div className="cc-title">
+            <h2><i className="ph ph-activity" /> Nova Evolução do Enfermeiro (SAE)</h2>
+            <p>Registro descritivo da evolução de enfermagem no plantão.</p>
+          </div>
+        </div>
+
+        <div className="cc-body">
+          <div className="form-group">
+            <label><i className="ph ph-text-align-left" /> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
+            <textarea className="large" style={{ minHeight: 140 }} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Descreva a evolução do paciente..." />
+          </div>
+
+          {erro && (
+            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+              <div className="info" style={{ color: '#DC2626' }}>
+                <i className="ph ph-warning" /> {erro}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="cc-footer">
+          <span />
+          <button className="btn-save-print" onClick={registrar} disabled={salvando || !texto.trim()}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Registrando...' : 'Registrar evolução'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
-
-
