@@ -84,7 +84,7 @@ Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
 Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada abaixo.
 
-### Fase 1 (redesenho de conteúdo por módulo) — **15 de 16 módulos feitos**
+### Fase 1 (redesenho de conteúdo por módulo) — **16 de 16 módulos feitos (item 10 excluído do escopo a pedido do usuário)**
 
 | Módulo do mockup | Status | Evidência |
 |---|---|---|
@@ -103,7 +103,8 @@ Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada a
 | 13 — Nota de Intercorrência de Enfermagem | ✅ Concluído (commit `7ec2bf0`) | `AbaEventosAdversos.jsx` reescrito no padrão split-view (timeline + `clinical-card`). Categoria e gravidade viraram radio real (seleção única). Ícones Phosphor. Fora do escopo: horário exato da ocorrência, médico plantonista comunicado + horário da notificação, grade de sinais vitais no momento do evento, campo de desfecho/evolução pós-conduta — campos novos, sem coluna no schema atual de `eventos_adversos`. |
 | 16 — Solicitação de Exames & APAC | ✅ Concluído (commit `1ff8a4d`) | `AbaExames.jsx` (lab/img/ecg) e `AbaApac.jsx` (laudo APAC, 52 campos SUS) reescritos com o framework compartilhado (`clinical-card`/`form-section-box`/`checkbox-group`), ícones Phosphor. Catálogos de exames, protocolos rápidos (`aplicarCombo`/`aplicarComboUsg`) e toda a lógica de salvar/imprimir preservados verbatim. Fora do escopo: o mockup 16 mescla as 4 modalidades (lab/img/ecg/APAC) em uma única tela com seletor inline — a arquitetura atual de duas abas separadas (Exames vs APAC) foi mantida, por ser mudança estrutural de app, não reskin visual. |
 | 11 — Balanço Hídrico 24h | ✅ Concluído (commit `8e09671`) | `AbaBalancoHidrico.jsx` reescrito com o framework compartilhado (`clinical-card`/`form-section-box`/`checkbox-group`), cards de métrica cumulativa (entradas/saídas/balanço) no lugar do título de texto simples. Tipo e via viraram radio real. Ícones Phosphor. Fora do escopo: o mockup usa uma grade fixa de tabelas com células editáveis e horários/itens pré-preenchidos (ex.: "Soro Fisiológico 250mL às 08:00") — modelo de dados diferente (grade de turno editável) do log de lançamentos discretos que o sistema tem hoje, e o exemplo do mockup usa dado clínico fabricado (mesmo padrão do bug crítico já corrigido). Mantido o padrão atual de registro em lista + histórico. |
-| 10, 14 (demais módulos de funcionalidade nova, Fase 2) | ❌ Não iniciado | — |
+| 14 — Transferência Estruturada (SBAR) | ✅ Concluído (commit `ee52d15`) | `AbaSbar.jsx` reescrito no padrão split-view (timeline + `clinical-card`), campos existentes agrupados visualmente em pilares S (Situação) / A (Avaliação) / R (Recomendações), com cores de identificação do SBAR. Toggle-buttons/chips viraram checkbox e radio reais. Ícones Phosphor. Fora do escopo: pilar B (Background/Histórico) do mockup com antecedentes e condutas realizadas na UPA, checklist de pertences do paciente e avaliação neurológica detalhada — nenhum desses campos existe no schema de `transferencias_sbar` hoje. |
+| 10 — Checagem/Aprazamento (Cardex) | **Excluído do escopo a pedido do usuário** | — |
 
 ## 📋 Registro consolidado — funcionalidades deixadas de fora do redesenho (revisar p/ priorizar na Fase 2)
 
