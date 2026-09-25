@@ -1,25 +1,25 @@
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
+// Espelha literalmente as opções de mockups-fase2/07-plano-terapeutico-design.html
+// (seções 4 e 5), para o impresso refletir exatamente o que foi marcado na tela.
 const PLANO_PROTOCOLOS_PADRAO = [
-  { nome: 'IDENTIFICAÇÃO DO PACIENTE', obrigatorio: true },
-  { nome: 'PREVENÇÃO DE QUEDAS (Grades elevadas)', obrigatorio: true },
-  { nome: 'PREVENÇÃO DE LPP (Mudança decúbito)', obrigatorio: true },
-  { nome: 'CONTROLE DA DOR', chave: 'dor' },
-  { nome: 'TEV — TROMBOEMBOLISMO VENOSO', chave: 'tev' },
-  { nome: 'SEPSE / CHOQUE SÉPTICO', chave: 'sepse' },
-  { nome: 'AVC — ACIDENTE VASCULAR CEREBRAL', chave: 'avc' },
-  { nome: 'SÍNDROME CORONARIANA / DOR TORÁCICA', chave: 'coronariana' },
-  { nome: 'INSUFICIÊNCIA RESPIRATÓRIA / VIA AÉREA', chave: 'respirat' },
-  { nome: 'EMERGÊNCIAS GLICÊMICAS', chave: 'glic' },
+  { nome: 'IDENTIFICAÇÃO SEGURA', chave: 'identificação segura' },
+  { nome: 'PREVENÇÃO DE QUEDA', chave: 'prevenção de queda' },
+  { nome: 'PREVENÇÃO DE LPP', chave: 'prevenção de lpp' },
+  { nome: 'CONTROLE DA DOR', chave: 'controle da dor' },
+  { nome: 'TCE GRAVE', chave: 'tce grave' },
+  { nome: 'TEV CLÍNICO / CIRÚRGICO', chave: 'tev' },
+  { nome: 'JEJUM / DIETA ZERO', chave: 'jejum' },
+  { nome: 'CIRURGIA SEGURA', chave: 'cirurgia segura' },
 ]
 
 const PLANO_EQUIPE_PADRAO = [
   { nome: 'ENFERMAGEM', chave: 'enfermagem' },
-  { nome: 'FISIOTERAPIA RESPIRATÓRIA', chave: 'fisioterapia' },
-  { nome: 'SERVIÇO SOCIAL', chave: 'social' },
-  { nome: 'NUTRIÇÃO CLÍNICA', chave: 'nutri' },
-  { nome: 'FARMÁCIA CLÍNICA', chave: 'farm' },
-  { nome: 'TRANSPORTE / REGULAÇÃO', chave: 'transporte' },
+  { nome: 'FISIOTERAPIA RESP/MOTORA', chave: 'fisioterapia' },
+  { nome: 'SERVIÇO SOCIAL', chave: 'serviço social' },
+  { nome: 'NUTRIÇÃO CLÍNICA', chave: 'nutrição' },
+  { nome: 'PSICOLOGIA HOSPITALAR', chave: 'psicologia' },
+  { nome: 'EQ. TRANSPORTE (SAMU)', chave: 'samu' },
 ]
 
 export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
@@ -63,17 +63,8 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
               <div className="metas-lista">
                 {problemas.map((p, i) => (
                   <div key={i} className="metas-item">
-                    <span>&bull; <b>{p.descricao}:</b> {p.meta} {p.conduta ? `(${p.conduta})` : ''}</span>
-                    <b>{p.prazo || 'CONTÍNUO'}</b>
-                  </div>
-                ))}
-              </div>
-            ) : registro.objetivos_terapeuticos ? (
-              <div className="metas-lista">
-                {registro.objetivos_terapeuticos.split('\n').filter(Boolean).map((linha, idx) => (
-                  <div key={idx} className="metas-item">
-                    <span>&bull; {linha}</span>
-                    <b>PREVISTO</b>
+                    <span>&bull; {p.descricao}</span>
+                    <b>{p.prazo === '1' ? '01 DIA' : p.prazo === '2' ? '02 DIAS' : p.prazo === '3' ? '03 DIAS' : (p.prazo || 'CONTÍNUO')}</b>
                   </div>
                 ))}
               </div>
@@ -97,24 +88,14 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
           <div className="med-secao-body">
             <div className="proto-grid">
               {PLANO_PROTOCOLOS_PADRAO.map((p) => {
-                const ativo = p.obrigatorio || protocolosSelecionados.some((s) => s.toLowerCase().includes(p.chave || p.nome.toLowerCase()))
+                const ativo = protocolosSelecionados.some((s) => s.toLowerCase().includes(p.chave))
                 return (
                   <div key={p.nome} className={`proto-item ${ativo ? 'ativo' : 'inativo'}`}>
                     <b>{ativo ? '[ X ]' : '[   ]'}</b> {p.nome}
                   </div>
                 )
               })}
-              {extra.protocolo_outro && (
-                <div className="proto-item ativo">
-                  <b>[ X ]</b> Outro: {extra.protocolo_outro}
-                </div>
-              )}
             </div>
-            {extra.medidas_seguranca_texto && (
-              <div style={{ marginTop: '3px', paddingTop: '2px', borderTop: '1px dashed #e2e8f0', fontSize: '8.2px' }}>
-                <b>Medidas de Segurança Assistencial:</b> {extra.medidas_seguranca_texto}
-              </div>
-            )}
           </div>
         </div>
 
@@ -128,25 +109,20 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
                 </span>
                 <span className="sub">Tempo Previsto na UPA</span>
                 <span style={{ fontSize: '8px', color: '#334155', marginTop: '3px' }}>
-                  {extra.criterios_alta ? `Critério de alta: ${extra.criterios_alta}` : 'Estabilização clínica e definição de desfecho'}
+                  {extra.observacao_alta ? `Condicionante da alta: ${extra.observacao_alta}` : 'Estabilização clínica e definição de desfecho'}
                 </span>
               </div>
               <div>
                 <div style={{ fontWeight: 700, marginBottom: '3px' }}>EQUIPE MULTIPROFISSIONAL ENVOLVIDA:</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5px 6px', fontSize: '8.5px' }}>
                   {PLANO_EQUIPE_PADRAO.map((eq) => {
-                    const ativo = eq.chave === 'enfermagem' || equipeSelecionada.some((s) => s.toLowerCase().includes(eq.chave))
+                    const ativo = equipeSelecionada.some((s) => s.toLowerCase().includes(eq.chave))
                     return (
                       <div key={eq.nome} style={{ color: ativo ? '#0f172a' : '#64748b', fontWeight: ativo ? 700 : 400 }}>
                         {ativo ? '[ X ]' : '[   ]'} {eq.nome}
                       </div>
                     )
                   })}
-                  {extra.equipe_outros && (
-                    <div style={{ color: '#0f172a', fontWeight: 700 }}>
-                      [ X ] Outro: {extra.equipe_outros}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

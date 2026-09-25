@@ -179,19 +179,39 @@ export const SANGUE_VAZIA = {
   hemopa_hora: '',
 };
 
+// Protocolos institucionais elegíveis — alinhado literalmente com
+// mockups-fase2/07-plano-terapeutico-design.html (seção 4).
 export const PROTOCOLOS_OPCOES = [
-  'TEV — Tromboembolismo Venoso',
-  'Dor torácica / Síndrome Coronariana Aguda',
-  'AVC — Acidente Vascular Cerebral',
-  'SEPSE / Choque Séptico',
-  'Anafilaxia',
-  'Insuficiência Respiratória / Via Aérea',
-  'Emergências glicêmicas',
+  { nome: 'IDENTIFICAÇÃO SEGURA', descricao: 'Obrigatório a todos os pacientes' },
+  { nome: 'PREVENÇÃO DE QUEDA', descricao: 'Leito com grades elevadas' },
+  { nome: 'PREVENÇÃO DE LPP', descricao: 'Mudança de decúbito 2/2h e colchão especial' },
+  { nome: 'CONTROLE DA DOR', descricao: 'Analgesia e sedação escalonada' },
+  { nome: 'TCE GRAVE', descricao: 'Vigilância neurológica contínua e PPC' },
+  { nome: 'TEV CLÍNICO / CIRÚRGICO', descricao: 'Profilaxia mecânica/farmacológica' },
+  { nome: 'JEJUM / DIETA ZERO', descricao: 'Aguardando abordagem cirúrgica ou instável' },
+  { nome: 'CIRURGIA SEGURA', descricao: 'Aplicação de checklist cirúrgico' },
 ];
 
-export const EQUIPE_OPCOES = ['Enfermagem', 'Fisioterapia', 'Nutrição', 'Serviço Social', 'Psicologia'];
+// Equipe multiprofissional — alinhado com a seção 5 do mockup.
+export const EQUIPE_OPCOES = [
+  'Enfermagem',
+  'Fisioterapia Resp/Motora',
+  'Serviço Social',
+  'Nutrição Clínica',
+  'Psicologia Hospitalar',
+  'Eq. Transporte (SAMU)',
+];
 
-export const PROBLEMA_VAZIO = { descricao: '', meta: '', conduta: '', prazo: '' };
+// Tempo de permanência previsto — select fixo, igual ao mockup (valor
+// numérico de dias armazenado; "5+" é gravado como 5).
+export const TEMPO_INTERNACAO_OPCOES = [
+  { value: '1', label: '01 DIA (Até 24h)' },
+  { value: '2', label: '02 DIAS (Até 48h)' },
+  { value: '3', label: '03 DIAS (Até 72h)' },
+  { value: '5', label: 'Até 5+ Dias (Depende de Regulação)' },
+];
+
+export const PROBLEMA_VAZIO = { descricao: '', prazo: '1' };
 
 export const ACOES_AUDITORIA = {
   diagnostico_cid_atualizado: 'Diagnóstico (CID-10) atualizado',

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { buscarPlanoTerapeutico, salvarPlanoTerapeutico } from '../../lib/pepMedico';
-import { PROTOCOLOS_OPCOES, EQUIPE_OPCOES, PROBLEMA_VAZIO } from './constantes';
+import { PROTOCOLOS_OPCOES, EQUIPE_OPCOES, TEMPO_INTERNACAO_OPCOES, PROBLEMA_VAZIO } from './constantes';
 
 // Kits de protocolo institucional: preenchem SOMENTE as caixas de protocolo
 // elegível e equipe multidisciplinar (bundles de cuidado padronizados pela
@@ -9,18 +9,16 @@ import { PROTOCOLOS_OPCOES, EQUIPE_OPCOES, PROBLEMA_VAZIO } from './constantes';
 // do quadro real do paciente, para não repetir o padrão do bug de dado
 // fabricado já corrigido em outras abas (commit a3c5953).
 const KITS_PROTOCOLO = [
-  { chave: 'sepse', titulo: 'Sepse / Choque Séptico', icon: 'ph-virus', protocolos: ['SEPSE / Choque Séptico', 'TEV — Tromboembolismo Venoso'], equipe: ['Enfermagem', 'Fisioterapia'] },
-  { chave: 'sca', titulo: 'Síndrome Coronariana Aguda', icon: 'ph-heartbeat', protocolos: ['Dor torácica / Síndrome Coronariana Aguda', 'TEV — Tromboembolismo Venoso'], equipe: ['Enfermagem'] },
-  { chave: 'avc', titulo: 'AVC — Acidente Vascular Cerebral', icon: 'ph-brain', protocolos: ['AVC — Acidente Vascular Cerebral', 'TEV — Tromboembolismo Venoso'], equipe: ['Enfermagem', 'Fisioterapia', 'Serviço Social'] },
+  { chave: 'sepse', titulo: 'Sepse / Choque Séptico', icon: 'ph-virus', protocolos: ['IDENTIFICAÇÃO SEGURA', 'PREVENÇÃO DE QUEDA', 'PREVENÇÃO DE LPP', 'TEV CLÍNICO / CIRÚRGICO'], equipe: ['Enfermagem', 'Fisioterapia Resp/Motora'] },
+  { chave: 'sca', titulo: 'Síndrome Coronariana Aguda', icon: 'ph-heartbeat', protocolos: ['IDENTIFICAÇÃO SEGURA', 'PREVENÇÃO DE QUEDA', 'PREVENÇÃO DE LPP', 'CONTROLE DA DOR', 'TEV CLÍNICO / CIRÚRGICO'], equipe: ['Enfermagem'] },
+  { chave: 'avc', titulo: 'AVC — Acidente Vascular Cerebral', icon: 'ph-brain', protocolos: ['IDENTIFICAÇÃO SEGURA', 'PREVENÇÃO DE QUEDA', 'PREVENÇÃO DE LPP', 'TCE GRAVE', 'TEV CLÍNICO / CIRÚRGICO'], equipe: ['Enfermagem', 'Fisioterapia Resp/Motora', 'Serviço Social'] },
 ]
 
 export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState({
-    diagnostico_principal_cid: '', diagnosticos_texto: '', motivo_internacao: '', objetivos_terapeuticos: '', protocolos_elegiveis: [],
-    protocolo_outro: '', medidas_seguranca_texto: '',
-    tempo_internacao_previsto_dias: '', equipe_multidisciplinar: [], equipe_outros: '',
-    problemas_ativos: [], comorbidades_antecedentes: '', medicacoes_uso_continuo: '',
-    criterios_alta: '', data_reavaliacao_prevista: '', feedback_equipe: '',
+    diagnostico_principal_cid: '', diagnosticos_texto: '', motivo_internacao: '',
+    protocolos_elegiveis: [], tempo_internacao_previsto_dias: '1', observacao_alta: '',
+    equipe_multidisciplinar: [], problemas_ativos: [],
   })
   const [salvo, setSalvo] = useState(null)
   const [carregando, setCarregando] = useState(true)
@@ -34,17 +32,12 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
         setDados({
           diagnostico_principal_cid: p.diagnostico_principal_cid || '',
           diagnosticos_texto: extra.diagnosticos_texto || '',
-          motivo_internacao: p.motivo_internacao || '', objetivos_terapeuticos: p.objetivos_terapeuticos || '',
-          protocolos_elegiveis: p.protocolos_elegiveis || [], protocolo_outro: extra.protocolo_outro || '',
-          medidas_seguranca_texto: extra.medidas_seguranca_texto || '',
-          tempo_internacao_previsto_dias: p.tempo_internacao_previsto_dias || '',
-          equipe_multidisciplinar: p.equipe_multidisciplinar || [], equipe_outros: extra.equipe_outros || '',
+          motivo_internacao: p.motivo_internacao || '',
+          protocolos_elegiveis: p.protocolos_elegiveis || [],
+          tempo_internacao_previsto_dias: p.tempo_internacao_previsto_dias ? String(p.tempo_internacao_previsto_dias) : '1',
+          observacao_alta: extra.observacao_alta || '',
+          equipe_multidisciplinar: p.equipe_multidisciplinar || [],
           problemas_ativos: extra.problemas_ativos || [],
-          comorbidades_antecedentes: extra.comorbidades_antecedentes || '',
-          medicacoes_uso_continuo: extra.medicacoes_uso_continuo || '',
-          criterios_alta: extra.criterios_alta || '',
-          data_reavaliacao_prevista: extra.data_reavaliacao_prevista || '',
-          feedback_equipe: extra.feedback_equipe || '',
         })
         setSalvo(p)
       }
@@ -81,14 +74,14 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
   async function salvar(imprimir = false) {
     setSalvando(true)
     const {
-      diagnostico_principal_cid, motivo_internacao, objetivos_terapeuticos, protocolos_elegiveis,
+      diagnostico_principal_cid, motivo_internacao, protocolos_elegiveis,
       tempo_internacao_previsto_dias, equipe_multidisciplinar, ...extra
     } = dados
     const { data } = await salvarPlanoTerapeutico({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         diagnostico_principal_cid: diagnostico_principal_cid || null,
-        motivo_internacao, objetivos_terapeuticos, protocolos_elegiveis,
+        motivo_internacao, protocolos_elegiveis,
         tempo_internacao_previsto_dias: tempo_internacao_previsto_dias ? Number(tempo_internacao_previsto_dias) : null,
         equipe_multidisciplinar,
         campos_extra: extra,
@@ -110,7 +103,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
           <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.4 }}>
             Selecione um Kit para marcar rapidamente os protocolos e a equipe padrão do bundle institucional.
           </p>
-          
+
           {KITS_PROTOCOLO.map((kit) => (
             <button key={kit.chave} type="button" className="template-btn" onClick={() => aplicarKit(kit)}>
               <div>
@@ -132,11 +125,11 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
         </div>
 
         <div className="cc-body">
-          <div className="form-section">
+          <div className="form-section" style={{ marginTop: 8 }}>
             <div className="form-section-title">1. Diagnósticos Clínicos e Hipóteses Ativas</div>
             <div className="form-group" style={{ marginBottom: 16 }}>
-              <label>Diagnóstico Principal (CID-10)</label>
-              <input type="text" className="form-control" placeholder="Ex: S06.5 — Traumatismo Cranioencefálico..." value={dados.diagnostico_principal_cid} onChange={(e) => set('diagnostico_principal_cid', e.target.value)} />
+              <label>Diagnóstico Principal</label>
+              <input type="text" className="form-control" placeholder="Ex: S06.5 — Traumatismo Cranioencefálico (TCE) Grave..." value={dados.diagnostico_principal_cid} onChange={(e) => set('diagnostico_principal_cid', e.target.value)} />
             </div>
             <div className="form-group">
               <label>Diagnósticos Secundários / Comorbidades</label>
@@ -145,102 +138,78 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
           </div>
 
           <div className="form-section">
-            <div className="form-section-title">2. Avaliação Clínica e Contexto</div>
-            <div className="form-group" style={{ marginBottom: 16 }}>
-              <label>Motivo da Internação Atual</label>
-              <textarea className="form-control-area" rows="2" placeholder="Descreva por que o paciente precisou internar neste momento..." value={dados.motivo_internacao} onChange={(e) => set('motivo_internacao', e.target.value)} />
-            </div>
-            <div className="form-row">
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Comorbidades Crônicas Relevantes</label>
-                <textarea className="form-control-area" rows="2" value={dados.comorbidades_antecedentes} onChange={(e) => set('comorbidades_antecedentes', e.target.value)} />
-              </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Medicações de Uso Contínuo</label>
-                <textarea className="form-control-area" rows="2" value={dados.medicacoes_uso_continuo} onChange={(e) => set('medicacoes_uso_continuo', e.target.value)} />
-              </div>
+            <div className="form-section-title">2. Motivo da Permanência / Internação</div>
+            <div className="form-group">
+              <textarea className="form-control-area" rows="3" placeholder="Qual a causa-base que justifica a observação contínua ou regulação?" value={dados.motivo_internacao} onChange={(e) => set('motivo_internacao', e.target.value)} />
             </div>
           </div>
 
           <div className="form-section">
-            <div className="form-section-title">3. Metas e Problemas Ativos</div>
-            <div className="form-group" style={{ marginBottom: 16 }}>
-              <label>Objetivos Terapêuticos Gerais</label>
-              <textarea className="form-control-area" rows="2" placeholder="Aonde queremos chegar com esta internação?" value={dados.objetivos_terapeuticos} onChange={(e) => set('objetivos_terapeuticos', e.target.value)} />
-            </div>
-            
-            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-main)', marginBottom: 8, display: 'block' }}>Problemas Específicos e Metas de Curto Prazo</label>
+            <div className="form-section-title">3. Objetivos da Terapêutica (Metas e Tempos)</div>
             <div className="metas-list">
               {dados.problemas_ativos.map((p, i) => (
                 <div key={i} className="meta-row">
-                  <div className="form-group" style={{ flex: 1 }}><input type="text" className="form-control" placeholder="Descreva o problema / diagnóstico..." value={p.descricao} onChange={(e) => setProblema(i, 'descricao', e.target.value)} /></div>
-                  <div className="form-group" style={{ flex: 1 }}><input type="text" className="form-control" placeholder="Meta associada / Intervenção..." value={p.meta} onChange={(e) => setProblema(i, 'meta', e.target.value)} /></div>
+                  <div className="form-group" style={{ flex: 1 }}><input type="text" className="form-control" placeholder="Descreva o objetivo terapêutico..." value={p.descricao} onChange={(e) => setProblema(i, 'descricao', e.target.value)} /></div>
+                  <div className="form-group"><select className="form-control" style={{ width: 140 }} value={p.prazo} onChange={(e) => setProblema(i, 'prazo', e.target.value)}>
+                    <option value="1">01 DIA</option>
+                    <option value="2">02 DIAS</option>
+                    <option value="3">03 DIAS</option>
+                    <option value="CONTÍNUO">CONTÍNUO</option>
+                  </select></div>
                   <button type="button" className="btn-remove-meta" onClick={() => removerProblema(i)}><i className="ph ph-trash" /></button>
                 </div>
               ))}
             </div>
             <button type="button" className="btn-add-meta" onClick={adicionarProblema}>
-              <i className="ph ph-plus" /> Adicionar Meta / Problema
+              <i className="ph ph-plus" /> Adicionar Nova Meta
             </button>
           </div>
 
           <div className="form-section">
-            <div className="form-section-title">4. Protocolos Institucionais Elegíveis</div>
+            <div className="form-section-title">4. Elegível para Protocolos Institucionais</div>
             <div className="check-grid">
               {PROTOCOLOS_OPCOES.map((p) => {
-                const checked = dados.protocolos_elegiveis.includes(p)
+                const checked = dados.protocolos_elegiveis.includes(p.nome)
                 return (
-                  <label key={p} className="check-item" style={{ borderColor: checked ? 'var(--primary)' : 'var(--border-light)' }}>
-                    <input type="checkbox" checked={checked} onChange={() => toggleLista('protocolos_elegiveis', p)} />
+                  <label key={p.nome} className="check-item" style={{ borderColor: checked ? 'var(--primary)' : 'var(--border-light)' }}>
+                    <input type="checkbox" checked={checked} onChange={() => toggleLista('protocolos_elegiveis', p.nome)} />
                     <div>
-                      <strong>{p}</strong>
+                      <strong>{p.nome}</strong>
+                      <span>{p.descricao}</span>
                     </div>
                   </label>
                 )
               })}
             </div>
-            <div className="form-group" style={{ marginTop: 12 }}>
-              <label>Outro Protocolo (Especifique)</label>
-              <input type="text" className="form-control" value={dados.protocolo_outro} onChange={(e) => set('protocolo_outro', e.target.value)} />
-            </div>
           </div>
 
           <div className="form-section">
-            <div className="form-section-title">5. Planejamento de Alta e Desospitalização</div>
-            <div className="form-row" style={{ marginBottom: 16 }}>
+            <div className="form-section-title">5. Previsão de Alta e Equipe Multidisciplinar</div>
+            <div className="form-row" style={{ marginBottom: 20 }}>
               <div className="form-group" style={{ flex: 1 }}>
-                <label>Previsão de Tempo de Internação (Dias)</label>
-                <input type="number" className="form-control" placeholder="Ex: 5" value={dados.tempo_internacao_previsto_dias} onChange={(e) => set('tempo_internacao_previsto_dias', e.target.value)} />
+                <label>Tempo de Permanência Previsto (Na UPA)</label>
+                <select className="form-control" value={dados.tempo_internacao_previsto_dias} onChange={(e) => set('tempo_internacao_previsto_dias', e.target.value)}>
+                  {TEMPO_INTERNACAO_OPCOES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
               </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Data Prevista para Reavaliação</label>
-                <input type="date" className="form-control" value={dados.data_reavaliacao_prevista} onChange={(e) => set('data_reavaliacao_prevista', e.target.value)} />
+              <div className="form-group" style={{ flex: 2 }}>
+                <label>Observação / Condicionante da Alta</label>
+                <input type="text" className="form-control" placeholder="Ex: Até efetivação de transferência inter-hospitalar via SER..." value={dados.observacao_alta} onChange={(e) => set('observacao_alta', e.target.value)} />
               </div>
             </div>
 
-            <div className="form-group" style={{ marginBottom: 16 }}>
-              <label>Critérios Clínicos para Alta</label>
-              <textarea className="form-control-area" rows="2" placeholder="O que o paciente precisa atingir para receber alta?" value={dados.criterios_alta} onChange={(e) => set('criterios_alta', e.target.value)} />
-            </div>
-
-            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-main)', marginBottom: 8, display: 'block' }}>Equipe Multidisciplinar Necessária</label>
-            <div className="equipe-grid">
-              {EQUIPE_OPCOES.map((e) => {
-                const checked = dados.equipe_multidisciplinar.includes(e)
-                return (
-                  <label key={e} className="check-item" style={{ borderColor: checked ? 'var(--primary)' : 'var(--border-light)' }}>
-                    <input type="checkbox" checked={checked} onChange={() => toggleLista('equipe_multidisciplinar', e)} />
-                    <div><strong>{e}</strong></div>
+            <div className="form-group">
+              <label>Equipe Multiprofissional Envolvida</label>
+              <div className="equipe-grid">
+                {EQUIPE_OPCOES.map((eq) => (
+                  <label key={eq} style={{ display: 'flex', gap: 8 }}>
+                    <input type="checkbox" checked={dados.equipe_multidisciplinar.includes(eq)} onChange={() => toggleLista('equipe_multidisciplinar', eq)} /> {eq}
                   </label>
-                )
-              })}
-            </div>
-            <div className="form-group" style={{ marginTop: 12 }}>
-              <label>Outra Equipe</label>
-              <input type="text" className="form-control" value={dados.equipe_outros} onChange={(e) => set('equipe_outros', e.target.value)} />
+                ))}
+              </div>
             </div>
           </div>
-          
+
           {sucesso && (
             <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0', marginTop: 16 }}>
               <div className="info" style={{ color: '#166534' }}>
