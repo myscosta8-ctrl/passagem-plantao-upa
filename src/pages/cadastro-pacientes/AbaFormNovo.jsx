@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import { useAuth } from '../../lib/AuthContext'
 import {
   buscarPessoas,
   criarPessoaCompleta,
@@ -11,7 +12,34 @@ import CamposIdentidade from './CamposIdentidade'
 import CamposAtendimento from './CamposAtendimento'
 import { PESSOA_VAZIA, ATENDIMENTO_VAZIO } from './constantes'
 
+function imprimirFichaIdentificacao({ pessoa, atendimento, atd, setores, responsavelRecepcao }) {
+  const setorNome = setores.find((s) => String(s.id) === String(atd.setor_id))?.nome
+  localStorage.setItem('ficha_identificacao_dados', JSON.stringify({
+    prontuario_numero: pessoa.prontuario_numero,
+    numero_atendimento: atendimento?.numero_atendimento,
+    tipo_entrada: 'Demanda Espontânea',
+    nome: pessoa.nome,
+    nome_mae: pessoa.nome_mae,
+    sexo: pessoa.sexo,
+    raca: pessoa.raca_cor,
+    rg: pessoa.rg,
+    cpf: pessoa.cpf,
+    cns: pessoa.cns,
+    data_nascimento: pessoa.data_nascimento,
+    endereco: pessoa.endereco,
+    endereco_numero: pessoa.endereco_numero,
+    bairro: pessoa.bairro,
+    cidade: pessoa.cidade,
+    telefone: pessoa.telefone,
+    medico_notificante: atd.medico,
+    setor_nome: setorNome,
+    responsavel_recepcao: responsavelRecepcao,
+  }))
+  window.open('./modelos_impressao_html/22-ficha-identificacao-termos.html', '_blank')
+}
+
 export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdicao, onCadastrado }) {
+  const { enfermeiro } = useAuth()
   const [dados, setDados] = useState(() => {
     if (pessoaInicial) {
       return {
@@ -65,7 +93,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
   function setA(campo, valor) { setAtd((prev) => ({ ...prev, [campo]: valor })) }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     if (!dados.nome.trim()) {
       setErro('Nome completo é obrigatório.')
       return
@@ -73,6 +101,8 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
     setErro('')
     setSucesso(null)
     setSalvando(true)
+
+    const responsavelRecepcao = enfermeiro?.nome_exibicao || enfermeiro?.nome || ''
 
     // Se estiver completando um cadastro existente
     if (pessoaInicial) {
@@ -88,6 +118,9 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
         prontuario: pessoaInicial.prontuario_numero || '—',
         atendimento: 'Atualizado com sucesso',
       })
+      if (imprimir) {
+        imprimirFichaIdentificacao({ pessoa: { ...pessoaInicial, ...dados }, atendimento: null, atd, setores, responsavelRecepcao })
+      }
       onCadastrado?.()
       return
     }
@@ -117,6 +150,9 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
     }
 
     setSucesso({ nome: pessoa.nome, prontuario: pessoa.prontuario_numero, atendimento: atendimento.numero_atendimento })
+    if (imprimir) {
+      imprimirFichaIdentificacao({ pessoa, atendimento, atd, setores, responsavelRecepcao })
+    }
     setDados(PESSOA_VAZIA)
     setAtd(ATENDIMENTO_VAZIO)
     onCadastrado?.()
@@ -186,15 +222,20 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-        {pessoaInicial && (
-          <button type="button" className="modal-btn-secondary" onClick={onCancelarEdicao}>
-            Cancelar
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 20 }}>
+        {pessoaInicial ? (
+          <button type="button" className="btn-cancel" onClick={onCancelarEdicao}>
+            <i className="ph ph-x-circle" /> Cancelar
           </button>
-        )}
-        <button className="submit-btn" style={{ maxWidth: 260 }} onClick={salvar} disabled={salvando}>
-          {salvando ? 'Salvando...' : pessoaInicial ? 'Salvar alterações' : 'Cadastrar paciente'}
-        </button>
+        ) : <span />}
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : pessoaInicial ? 'Salvar alterações' : 'Cadastrar paciente'}
+          </button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+          </button>
+        </div>
       </div>
     </div>
   )
