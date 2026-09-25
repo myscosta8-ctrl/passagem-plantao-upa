@@ -19,13 +19,22 @@ export default function Sidebar({
   onEncerrarPlantao,
   encerrandoPlantao,
   onLogout,
+  aberto: abertoProp,
+  onFechar,
 }) {
   const [tema, setTema] = useState(lerTemaSalvo)
-  // Menu fechado por padrão — fica escondido inteiro (não como faixa de
-  // ícones), só aparece como drawer flutuante ao clicar no hambúrguer fixo.
-  // Fiel ao mockup 12: `.main-sidebar` some por completo (translateX),
-  // reaberto pelo `.btn-menu-hamburguer` do topo.
-  const [aberto, setAberto] = useState(false)
+  const [abertoInterno, setAbertoInterno] = useState(false)
+
+  const isControlado = abertoProp !== undefined
+  const aberto = isControlado ? abertoProp : abertoInterno
+
+  const fechar = () => {
+    if (isControlado) {
+      onFechar?.()
+    } else {
+      setAbertoInterno(false)
+    }
+  }
 
   function trocarTema() {
     setTema(alternarTema())
@@ -35,20 +44,19 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Hambúrguer fixo — único elemento do menu visível por padrão; a
-          sidebar inteira fica escondida até abrir. */}
-      <button
-        type="button"
-        className="sidebar-hamburguer-fixo"
-        onClick={() => setAberto(true)}
-        title="Abrir menu"
-        aria-label="Abrir menu"
-      >
-        <i className="ph ph-list" />
-        <span>Menu</span>
-      </button>
+      {!isControlado && (
+        <button
+          type="button"
+          className="floating-btn"
+          onClick={() => setAbertoInterno((v) => !v)}
+          title="Abrir menu"
+          aria-label="Abrir menu"
+        >
+          <i className="ph ph-list" />
+        </button>
+      )}
 
-      {aberto && <div className="sidebar-backdrop" onClick={() => setAberto(false)} />}
+      {aberto && <div className="sidebar-backdrop" onClick={fechar} />}
 
       <aside className={`sidebar ${aberto ? 'aberto' : ''}`} id="sidebar">
       {/* Topo com botão de fechar */}
@@ -60,7 +68,7 @@ export default function Sidebar({
         <button
           type="button"
           className="sidebar-fechar"
-          onClick={() => setAberto(false)}
+          onClick={fechar}
           title="Fechar menu"
           aria-label="Fechar menu"
         >
@@ -69,7 +77,7 @@ export default function Sidebar({
       </div>
 
       {/* Corpo de Navegação */}
-      <nav className="sidebar-corpo" onClick={() => setAberto(false)}>
+      <nav className="sidebar-corpo" onClick={fechar}>
         {/* GRUPO ASSISTENCIAL */}
         <div className="sidebar-grupo-label">Assistencial</div>
         <button

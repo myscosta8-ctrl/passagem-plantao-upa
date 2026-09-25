@@ -97,7 +97,7 @@ export default function EspacoPaciente({
     <div className="espaco-paciente-overlay" onClick={onFechar}>
       <div className="espaco-paciente-modal" onClick={(e) => e.stopPropagation()}>
         {/* Topo unificado do paciente */}
-        <div className="espaco-paciente-topo">
+        <div className="espaco-paciente-topo" style={{ display: pilarAtivo === 'medico' ? 'none' : 'flex' }}>
           <div className="espaco-paciente-info">
             <div className="espaco-paciente-nome">{paciente?.nome || 'Paciente sem nome'}</div>
             <div className="espaco-paciente-meta">
@@ -117,7 +117,7 @@ export default function EspacoPaciente({
         </div>
 
         {/* Pilares do Espaço do Paciente */}
-        <div className="espaco-paciente-pilares">
+        <div className="espaco-paciente-pilares" style={{ display: pilarAtivo === 'medico' ? 'none' : 'flex' }}>
           <div
             className={`espaco-paciente-pilar ${pilarAtivo === 'enfermagem' ? 'ativo' : ''}`}
             onClick={() => trocarPilar('enfermagem')}

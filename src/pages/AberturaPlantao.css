@@ -5,8 +5,9 @@
 
 .topbar {
   background: var(--c-surface);
-  border-bottom: 1.5px solid var(--c-text-primary);
-  padding: 12px 20px;
+  border-bottom: 1px solid var(--c-border);
+  padding: 0 24px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;

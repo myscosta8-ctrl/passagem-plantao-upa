@@ -14,10 +14,10 @@ export default function PainelControles({
   const [filtroAberto, setFiltroAberto] = useState(false)
 
   return (
-    <div className="painel-controles">
+    <div className="painel-controls">
       <div className="search-bar">
         <i className="ph ph-magnifying-glass" />
-        <input type="text" placeholder="Buscar paciente ou leito..." value={busca} onChange={(e) => onBusca(e.target.value)} />
+        <input type="text" className="search-input" placeholder="Buscar paciente ou leito..." value={busca} onChange={(e) => onBusca(e.target.value)} />
       </div>
       <div style={{ position: 'relative' }}>
         <button type="button" className={`control-btn ${filtroAberto ? 'active' : ''}`} onClick={() => setFiltroAberto((v) => !v)}>

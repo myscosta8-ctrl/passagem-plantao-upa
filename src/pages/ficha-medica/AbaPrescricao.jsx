@@ -46,8 +46,8 @@ const ITEM_VAZIO = { medicamento_nome: '', dose: '', dose_unidade: '', via: 'VO'
 const ORIENTACAO_VAZIA = { texto: '', frequencia: '' }
 const CALC_VAZIA = { pesoKg: '', doseAlvoMgKg: '', apresentacaoMg: '', diluenteMl: '', soroMl: '' }
 
-function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar }) {
-  const pesoKg = Number(calc.pesoKg) || 0
+function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar, pacienteNome, pacientePeso }) {
+  const pesoKg = Number(calc.pesoKg) || pacientePeso || 0
   const doseAlvoMgKg = Number(calc.doseAlvoMgKg) || 0
   const apresentacaoMg = Number(calc.apresentacaoMg) || 0
   const diluenteMl = Number(calc.diluenteMl) || 0
@@ -64,59 +64,80 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
   const podeAplicar = doseTotalMg > 0 && volumeAspirarMl > 0
 
   return (
-    <div className="form-section-box" style={{ background: '#FFFBEB', borderColor: '#FDE68A', gridColumn: 'span 2' }}>
-      <div className="form-section-box-title"><i className="ph ph-calculator" /> Calculadora de Dose Pediátrica (EV/IM)</div>
-
-      <div className="assess-grid">
-        <div className="form-group">
-          <label>Peso do paciente (kg)</label>
-          <input type="number" step="0.1" value={calc.pesoKg} onChange={(e) => onChange('pesoKg', e.target.value)} />
+    <div className="modal-overlay">
+      <div className="modal-calc">
+        <div className="modal-header">
+          <h3><i className="ph ph-calculator"></i> Calculadora Pediátrica Injetável</h3>
+          <button type="button" className="modal-close" onClick={onCancelar}><i className="ph ph-x"></i></button>
         </div>
-        <div className="form-group">
-          <label>Dose alvo (mg/kg)</label>
-          <input type="number" step="0.1" value={calc.doseAlvoMgKg} onChange={(e) => onChange('doseAlvoMgKg', e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Apresentação da ampola (mg)</label>
-          <input type="number" value={calc.apresentacaoMg} onChange={(e) => onChange('apresentacaoMg', e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Diluente inicial (mL)</label>
-          <input type="number" value={calc.diluenteMl} onChange={(e) => onChange('diluenteMl', e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Soro de rediluição (mL, opcional)</label>
-          <input type="number" value={calc.soroMl} onChange={(e) => onChange('soroMl', e.target.value)} />
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: 160, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '10px 14px', textAlign: 'center' }}>
-          <div style={{ fontSize: 10.5, fontWeight: 700, color: '#1D4ED8', textTransform: 'uppercase' }}>Dose Total Resultante</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: '#1D4ED8' }}>{doseTotalMg ? `${doseTotalMg.toFixed(0)} mg` : '—'}</div>
-        </div>
-        <div style={{ flex: 1, minWidth: 160, background: '#FFF1F2', border: '1px solid #FECDD3', borderRadius: 8, padding: '10px 14px', textAlign: 'center' }}>
-          <div style={{ fontSize: 10.5, fontWeight: 700, color: '#BE123C', textTransform: 'uppercase' }}>Volume a Aspirar</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: '#BE123C' }}>{volumeAspirarMl ? `${volumeAspirarMl.toFixed(1)} mL` : '—'}</div>
-        </div>
-      </div>
-
-      {textoFinal && (
-        <div className="form-group">
-          <label>Texto final sugerido para enfermagem</label>
-          <div style={{ background: '#F8FAFC', border: '1px dashed var(--border-strong, #CBD5E1)', borderRadius: 8, padding: 12, fontSize: 12.5, fontFamily: 'monospace' }}>
-            {textoFinal}
+        
+        <div className="modal-body">
+          <div className="calc-info-bar">
+            <div className="calc-info-item">
+              <label>Paciente</label>
+              <span>{pacienteNome || 'Paciente'}</span>
+            </div>
+            <div className="calc-info-item" style={{ alignItems: 'flex-end' }}>
+              <label>Peso (Base de Cálculo)</label>
+              <span style={{ fontSize: 18 }}>
+                <input type="number" step="0.1" style={{ width: 60, border: 'none', background: 'transparent', textAlign: 'right', fontWeight: 700, color: '#D97706', outline: 'none' }} value={calc.pesoKg || pacientePeso || ''} onChange={(e) => onChange('pesoKg', e.target.value)} /> kg
+              </span>
+            </div>
           </div>
-        </div>
-      )}
 
-      <div style={{ display: 'flex', gap: 10 }}>
-        <button type="button" className="btn-cancel" onClick={onCancelar}>
-          <i className="ph ph-x" /> Cancelar
-        </button>
-        <button type="button" className="btn-add-chip" onClick={onAplicar} disabled={!podeAplicar}>
-          <i className="ph ph-check" /> Aplicar à Prescrição
-        </button>
+          <div className="calc-row">
+            <div className="calc-box" style={{ flex: 2 }}>
+              <label>Medicação Selecionada</label>
+              <input type="text" value={item.medicamento_nome || 'Selecione a medicação'} readOnly style={{ background: '#F8FAFC', fontWeight: 600 }} />
+            </div>
+            <div className="calc-box" style={{ flex: 1 }}>
+              <label>Dose Alvo (mg/kg)</label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="number" step="0.1" value={calc.doseAlvoMgKg} onChange={(e) => onChange('doseAlvoMgKg', e.target.value)} />
+                <span style={{ fontSize: 11, fontWeight: 700 }}>mg</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="calc-row">
+            <div className="calc-box">
+              <label>Apresentação (mg)</label>
+              <input type="number" value={calc.apresentacaoMg} onChange={(e) => onChange('apresentacaoMg', e.target.value)} />
+            </div>
+            <div className="calc-box">
+              <label>Diluente Inicial (mL)</label>
+              <input type="number" value={calc.diluenteMl} onChange={(e) => onChange('diluenteMl', e.target.value)} />
+            </div>
+            <div className="calc-box">
+              <label>Soro Rediluição (mL)</label>
+              <input type="number" value={calc.soroMl} onChange={(e) => onChange('soroMl', e.target.value)} placeholder="Opcional" />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div className="calc-result-highlight" style={{ flex: 1 }}>
+              <span>Dose Total Resultante</span>
+              <strong>{doseTotalMg ? `${doseTotalMg.toFixed(0)} mg` : '—'}</strong>
+            </div>
+            <div className="calc-result-highlight" style={{ flex: 1, background: '#FFF1F2', borderColor: '#FECDD3' }}>
+              <span style={{ color: '#BE123C' }}>Volume a Aspirar</span>
+              <strong style={{ color: '#BE123C' }}>{volumeAspirarMl ? `${volumeAspirarMl.toFixed(1)} mL` : '—'}</strong>
+            </div>
+          </div>
+
+          {textoFinal && (
+            <div className="calc-final-text">
+              {textoFinal}
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button type="button" className="btn-outline" onClick={onCancelar}>Cancelar</button>
+          <button type="button" className="btn-apply" onClick={onAplicar} disabled={!podeAplicar}>
+            <i className="ph ph-check" /> Aplicar
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -242,181 +263,245 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
   }
 
   return (
-    <div className="clinical-card" style={{ flex: 1 }}>
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-pill" /> Prescrição Médica Hospitalar</h2>
-          <p>Válida por 24 horas a partir da assinatura.</p>
+    <div className="clinical-split">
+      <aside className="tools-pane">
+        <div className="pane-header">
+          <span><i className="ph ph-magic-wand"></i> Prescrição Inteligente</span>
         </div>
-      </div>
+        <div className="tools-body">
+          <div className="search-med">
+            <i className="ph ph-magnifying-glass"></i>
+            <input type="text" placeholder="Buscar medicamento no catálogo..." />
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <h3 style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
+              <i className="ph ph-list-plus" /> Adicionar Rápido
+            </h3>
+            <button type="button" className="template-btn" onClick={adicionarItem} style={{ width: '100%' }}>
+              <div>
+                <strong>Novo Medicamento</strong>
+                <span>Prescrever item manual</span>
+              </div>
+              <span style={{ color: '#1D4ED8', fontSize: 16 }}>+</span>
+            </button>
+            <button type="button" className="template-btn" onClick={adicionarOrientacao} style={{ width: '100%' }}>
+              <div>
+                <strong>Nova Orientação</strong>
+                <span>Adicionar cuidado de enf.</span>
+              </div>
+              <span style={{ color: '#1D4ED8', fontSize: 16 }}>+</span>
+            </button>
+          </div>
+        </div>
+      </aside>
 
-      <div className="cc-body">
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-fork-knife" /> Dieta</div>
-          <div className="form-group">
-            <input type="text" placeholder="ex: Dieta oral livre, Dieta enteral padrão..." value={dieta} onChange={(e) => setDieta(e.target.value)} />
+      <div className="clinical-card" style={{ flex: 1 }}>
+        <div className="cc-header">
+          <div className="cc-title">
+            <h2><i className="ph ph-pill" /> Prescrição Médica Hospitalar</h2>
+            <p>Válida por 24 horas a partir da assinatura.</p>
           </div>
         </div>
 
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-syringe" /> Medicamentos</div>
-          {itens.map((it, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12, paddingBottom: 12, borderBottom: '1px dashed var(--border-strong)' }}>
-              <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label>Medicamento</label>
-                <AutocompleteMedicamento
-                  catalogo={catalogo}
-                  valor={it.medicamento_nome}
-                  onChange={(v) => setItem(i, 'medicamento_nome', v)}
-                  onSelecionar={(m) => selecionarMedicamento(i, m)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Dose</label>
-                <input type="number" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>Unidade</label>
-                <input type="text" placeholder="mg, ml..." value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label><i className="ph ph-syringe" /> Via</label>
-                <select value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)}>
-                  {VIAS.map((v) => <option key={v} value={v}>{v}</option>)}
-                </select>
-              </div>
-              <div className="form-group">
-                <label><i className="ph ph-clock" /> Frequência</label>
-                <input type="text" placeholder="ex: 8/8h" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>Duração</label>
-                <input type="text" placeholder="ex: 7 dias" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
-              </div>
-              <label className="checkbox-item">
-                <input type="checkbox" checked={it.sn_aplic} onChange={(e) => setItem(i, 'sn_aplic', e.target.checked)} /> Se necessário (SN)
-              </label>
-              <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label>Instruções / diluição</label>
-                <input type="text" placeholder="ex: Diluir em 100mL SF 0,9% e correr em 30 minutos" value={it.diluicao} onChange={(e) => setItem(i, 'diluicao', e.target.value)} />
-              </div>
-              <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label>Instruções gerais</label>
-                <input type="text" value={it.instrucoes} onChange={(e) => setItem(i, 'instrucoes', e.target.value)} />
-              </div>
-              <button type="button" className="btn-add-chip" style={{ justifySelf: 'flex-start' }} onClick={() => (calcAberto === i ? fecharCalculadora() : abrirCalculadora(i))}>
-                <i className="ph ph-calculator" /> Calc. Pediátrica (EV/IM)
-              </button>
-              {itens.length > 1 && (
-                <button type="button" className="btn-cancel" style={{ justifySelf: 'flex-start' }} onClick={() => removerItem(i)}>
-                  <i className="ph ph-trash" /> Remover
-                </button>
-              )}
-              {calcAberto === i && (
-                <CalculadoraDosePediatrica
-                  item={it}
-                  calc={calc}
-                  onChange={(campo, valor) => setCalc((prev) => ({ ...prev, [campo]: valor }))}
-                  onAplicar={() => aplicarCalculadora(i)}
-                  onCancelar={fecharCalculadora}
-                />
-              )}
+        <div className="cc-body" id="presc-accordion" style={{ padding: 0 }}>
+          {erro && (
+            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA', margin: '16px 20px 0' }}>
+              <div className="info" style={{ color: '#DC2626' }}><i className="ph ph-warning" /> {erro}</div>
             </div>
-          ))}
-          <button type="button" className="btn-add-chip" onClick={adicionarItem}>
-            <i className="ph ph-plus" /> Adicionar medicamento
-          </button>
-        </div>
-
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-first-aid-kit" /> Orientação de enfermagem</div>
-          {orientacaoEnfermagem.map((o, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: 12, marginBottom: 8, alignItems: 'flex-end' }}>
-              <div className="form-group">
-                <label>Orientação</label>
-                <input type="text" placeholder="ex: Monitorização contínua" value={o.texto} onChange={(e) => setOrientacao(i, 'texto', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label><i className="ph ph-clock" /> Frequência</label>
-                <input type="text" placeholder="ex: 6/6h, Contínuo..." value={o.frequencia} onChange={(e) => setOrientacao(i, 'frequencia', e.target.value)} />
-              </div>
-              {orientacaoEnfermagem.length > 1 && (
-                <button type="button" className="btn-cancel" onClick={() => removerOrientacao(i)}>
-                  <i className="ph ph-trash" />
-                </button>
-              )}
-            </div>
-          ))}
-          <button type="button" className="btn-add-chip" onClick={adicionarOrientacao}>
-            <i className="ph ph-plus" /> Adicionar orientação
-          </button>
-        </div>
-
-        <div className="assess-grid">
-          <div className="form-group">
-            <label><i className="ph ph-users-three" /> Avaliação multidisciplinar</label>
-            <textarea value={avaliacaoMultidisciplinar} onChange={(e) => setAvaliacaoMultidisciplinar(e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label><i className="ph ph-drop" /> Hemocomponente</label>
-            <textarea value={hemocomponente} onChange={(e) => setHemocomponente(e.target.value)} />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label><i className="ph ph-note" /> Observações</label>
-          <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} />
-        </div>
-
-        {erro && (
-          <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-            <div className="info" style={{ color: '#DC2626' }}>
-              <i className="ph ph-warning" /> {erro}
-            </div>
-          </div>
-        )}
-
-        <div>
-          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico</div>
-          {carregando ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p>
-          ) : historico.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma prescrição registrada ainda.</p>
-          ) : (
-            historico.map((p) => (
-              <div key={p.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontWeight: 600 }}>
-                    {(p.prescricao_itens ?? []).map((it) => it.medicamento_nome).join(', ')}
-                  </span>
-                  <span style={{ fontSize: 11, color: p.status === 'cancelada' ? '#DC2626' : 'var(--text-muted)' }}>
-                    {p.status}
-                  </span>
-                </div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
-                  {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} · {new Date(p.criado_em).toLocaleString('pt-BR')}
-                </div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                  <button type="button" className="btn-save-draft" onClick={() => onImprimir(p)}>
-                    <i className="ph ph-printer" /> Imprimir
-                  </button>
-                  {p.status === 'ativa' && (
-                    <button type="button" className="btn-cancel" onClick={() => cancelar(p.id)}>
-                      <i className="ph ph-x-circle" /> Cancelar prescrição
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
           )}
-        </div>
-      </div>
 
-      <div className="cc-footer">
-        <span />
-        <button className="btn-save-print" onClick={salvar} disabled={salvando}>
-          <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Registrar prescrição'}
-        </button>
+          <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            
+            {/* GRUPO 1: DIETA */}
+            <div className="presc-group">
+              <div className="presc-group-header">
+                <h3><i className="ph ph-fork-knife" /> 1. Dieta</h3>
+                <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
+              </div>
+              <div className="presc-list" style={{ padding: '12px 16px' }}>
+                <input type="text" className="form-control" placeholder="ex: Dieta oral livre, Dieta enteral padrão..." value={dieta} onChange={(e) => setDieta(e.target.value)} />
+              </div>
+            </div>
+
+            {/* GRUPO 2: MEDICAMENTOS */}
+            <div className="presc-group">
+              <div className="presc-group-header">
+                <h3><i className="ph ph-syringe" /> 2. Medicamentos</h3>
+                <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
+              </div>
+              <div className="presc-list">
+                {itens.map((it, i) => (
+                  <div key={i} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                    
+                    {/* Exibição consolidada (Item já parcialmente preenchido) */}
+                    {it.medicamento_nome && (
+                      <div className="presc-item">
+                        <div className="item-num">{String(i + 1).padStart(2, '0')}</div>
+                        <div className="item-details">
+                          <div className="item-name">{it.medicamento_nome} {it.dose && `- ${it.dose} ${it.dose_unidade}`}</div>
+                          <div className="item-sub">
+                            <span><i className="ph ph-syringe"></i> {it.via || 'Via não def.'}</span>
+                            <span><i className="ph ph-clock"></i> {it.frequencia || 'Frequência não def.'}</span>
+                            {it.diluicao && <span><strong>Posologia:</strong> {it.diluicao}</span>}
+                            {it.instrucoes && <span><strong>Instruções:</strong> {it.instrucoes}</span>}
+                          </div>
+                        </div>
+                        <div className="item-actions">
+                          {itens.length > 1 && (
+                            <button type="button" onClick={() => removerItem(i)}><i className="ph ph-trash" /></button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Formulário de Edição no estilo Input Row */}
+                    <div className="presc-input-row" style={{ gridTemplateColumns: '24px 1fr 1fr', alignItems: 'start' }}>
+                      <div className="item-num">{String(i + 1).padStart(2, '0')}</div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <AutocompleteMedicamento
+                          catalogo={catalogo}
+                          valor={it.medicamento_nome}
+                          onChange={(v) => setItem(i, 'medicamento_nome', v)}
+                          onSelecionar={(m) => selecionarMedicamento(i, m)}
+                        />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                          <input type="number" className="form-control" placeholder="Dose" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
+                          <input type="text" className="form-control" placeholder="Unidade (mg, ml)" value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} />
+                          <select className="form-control" value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)}>
+                            {VIAS.map((v) => <option key={v} value={v}>{v}</option>)}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                          <input type="text" className="form-control" placeholder="Frequência (ex: 8/8h)" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} />
+                          <input type="text" className="form-control" placeholder="Duração (ex: 7 dias)" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
+                        </div>
+                        <input type="text" className="form-control" placeholder="Instruções / diluição" value={it.diluicao} onChange={(e) => setItem(i, 'diluicao', e.target.value)} />
+                      </div>
+
+                      <div style={{ gridColumn: '2 / -1', display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <label className="checkbox-item" style={{ fontSize: 11, fontWeight: 600 }}>
+                          <input type="checkbox" checked={it.sn_aplic} onChange={(e) => setItem(i, 'sn_aplic', e.target.checked)} /> SN (Se Necessário)
+                        </label>
+                        <button type="button" className="btn-calc-ped" onClick={() => abrirCalculadora(i)}>
+                          <i className="ph ph-calculator" /> Calc. Pediátrica
+                        </button>
+                      </div>
+                    </div>
+
+                    {calcAberto === i && (
+                      <CalculadoraDosePediatrica
+                        item={it}
+                        calc={calc}
+                        pacienteNome={atendimento?.paciente?.nome}
+                        pacientePeso={atendimento?.paciente?.peso}
+                        onChange={(campo, valor) => setCalc((prev) => ({ ...prev, [campo]: valor }))}
+                        onAplicar={() => aplicarCalculadora(i)}
+                        onCancelar={fecharCalculadora}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* GRUPO 3: ORIENTAÇÕES */}
+            <div className="presc-group">
+              <div className="presc-group-header">
+                <h3><i className="ph ph-first-aid-kit" /> 3. Cuidados e Orientações de Enfermagem</h3>
+                <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
+              </div>
+              <div className="presc-list" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {orientacaoEnfermagem.map((o, i) => (
+                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: 12, alignItems: 'center' }}>
+                    <input type="text" className="form-control" placeholder="ex: Monitorização contínua" value={o.texto} onChange={(e) => setOrientacao(i, 'texto', e.target.value)} />
+                    <input type="text" className="form-control" placeholder="Frequência (ex: 6/6h)" value={o.frequencia} onChange={(e) => setOrientacao(i, 'frequencia', e.target.value)} />
+                    {orientacaoEnfermagem.length > 1 && (
+                      <button type="button" className="btn-cancel" style={{ padding: '6px 10px' }} onClick={() => removerOrientacao(i)}><i className="ph ph-trash" /></button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* GRUPO 4: MULTIDISCIPLINAR E HEMOCOMPONENTES */}
+            <div className="presc-group">
+              <div className="presc-group-header">
+                <h3><i className="ph ph-users-three" /> 4. Avaliação Multidisciplinar e Hemocomponentes</h3>
+                <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
+              </div>
+              <div className="presc-list" style={{ padding: '12px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 6, display: 'block' }}>Avaliação Multidisciplinar</label>
+                  <textarea className="form-control-area" rows={2} value={avaliacaoMultidisciplinar} onChange={(e) => setAvaliacaoMultidisciplinar(e.target.value)} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 6, display: 'block' }}>Hemocomponente</label>
+                  <textarea className="form-control-area" rows={2} value={hemocomponente} onChange={(e) => setHemocomponente(e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            {/* GRUPO 5: OBSERVAÇÕES */}
+            <div className="presc-group">
+              <div className="presc-group-header">
+                <h3><i className="ph ph-note" /> 5. Observações da Prescrição</h3>
+                <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
+              </div>
+              <div className="presc-list" style={{ padding: '12px 16px' }}>
+                <textarea className="form-control-area" rows={2} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} />
+              </div>
+            </div>
+
+            {/* HISTÓRICO */}
+            {historico.length > 0 && (
+              <div className="presc-group">
+                <div className="presc-group-header">
+                  <h3><i className="ph ph-clock-counter-clockwise" /> Histórico de Prescrições Anteriores</h3>
+                  <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
+                </div>
+                <div className="presc-list" style={{ padding: '12px 16px' }}>
+                  {historico.map((p) => (
+                    <div key={p.id} style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: 12, marginBottom: 12, fontSize: 12.5 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ fontWeight: 600 }}>
+                          {(p.prescricao_itens ?? []).map((it) => it.medicamento_nome).join(', ')}
+                        </span>
+                        <span style={{ fontSize: 11, color: p.status === 'cancelada' ? '#DC2626' : 'var(--text-muted)' }}>
+                          {p.status}
+                        </span>
+                      </div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
+                        Prescrito por {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} • {new Date(p.criado_em).toLocaleString('pt-BR')}
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => onImprimir(p)}>
+                          <i className="ph ph-printer" /> Imprimir 2ª via
+                        </button>
+                        {p.status === 'ativa' && (
+                          <button type="button" className="btn-cancel" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => cancelar(p.id)}>
+                            <i className="ph ph-x-circle" /> Cancelar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+
+        <div className="cc-footer">
+          <span />
+          <button type="button" className="btn-save-print" onClick={salvar} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Registrar e Assinar Prescrição'}
+          </button>
+        </div>
       </div>
     </div>
   )

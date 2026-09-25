@@ -11,33 +11,31 @@
   background: var(--c-bg, #F4F6F5);
 }
 
-.sidebar-hamburguer-fixo {
+.floating-btn {
   position: fixed;
-  top: 12px;
-  left: 12px;
-  z-index: 210;
-  background: #F1F5F9;
-  border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #0F172A;
+  top: 14px;
+  left: 16px;
+  z-index: 230;
+  background: transparent;
+  border: none;
+  color: #334155;
   cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: 0.15s;
+  justify-content: center;
+  transition: 0.2s ease;
 }
 
-.sidebar-hamburguer-fixo i {
-  font-size: 16px;
+.floating-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1D4ED8;
 }
 
-.sidebar-hamburguer-fixo:hover {
-  background: #E2E8F0;
-  border-color: #94A3B8;
+.floating-btn i {
+  font-size: 24px;
 }
 
 .sidebar-backdrop {
@@ -173,9 +171,10 @@
 }
 
 .sidebar-item.ativo {
-  background: rgba(13, 148, 136, 0.2);
-  color: #2DD4BF;
+  background: #1D4ED8;
+  color: #ffffff;
   font-weight: 600;
+  box-shadow: inset 4px 0 0 #ffffff;
 }
 
 .sidebar-item-icone {
@@ -190,7 +189,7 @@
 }
 
 .sidebar-item.ativo .sidebar-item-icone {
-  color: #2DD4BF;
+  color: #ffffff;
 }
 
 .sidebar-item:hover .sidebar-item-icone {

@@ -300,6 +300,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
               </label>
               <input
                 type="text"
+                className="form-control"
                 placeholder="Ex: Febre alta e tosse há 3 dias"
                 value={dados.queixa_principal}
                 onChange={(e) => set('queixa_principal', e.target.value)}
@@ -312,6 +313,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
                 <span className="badge-auto">Passagem Automática para AIH</span>
               </label>
               <textarea
+                className="form-control-area"
                 rows={4}
                 placeholder="Descreva a evolução cronológica dos sintomas..."
                 value={dados.historia_doenca_atual}
@@ -361,6 +363,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
                 <span className="badge-auto">Sincroniza com Justificativa da AIH</span>
               </label>
               <textarea
+                className="form-control-area"
                 rows={5}
                 placeholder="Geral, ACV, AR, Abdome..."
                 value={dados.exame_geral}
@@ -382,6 +385,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
               </label>
               <input
                 type="text"
+                className="form-control"
                 style={{ fontWeight: 700, color: '#1D4ED8' }}
                 value={dados.hipotese_diagnostica}
                 onChange={(e) => set('hipotese_diagnostica', e.target.value)}
@@ -391,6 +395,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             <div className="form-group">
               <label>Conduta Inicial de Admissão Médica</label>
               <textarea
+                className="form-control-area"
                 rows={3}
                 placeholder="Ex: Internação em leito de observação pediátrica, prescrição..."
                 value={dados.conduta_inicial}

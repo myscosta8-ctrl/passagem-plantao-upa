@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 
 export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome }) {
   const [relogio, setRelogio] = useState('');
@@ -14,26 +14,22 @@ export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome
   }, []);
 
   return (
-    <header className="topbar">
+    <header className="topbar no-print">
       <div className="topbar-left">
         <button type="button" className="btn-voltar" onClick={onFechar}>
-          ← Painel de Leitos
+          <i className="ph ph-arrow-left" /> Painel de Leitos
         </button>
         <div className="breadcrumb">
           <span>Prontuário Eletrônico</span>
-          <span>&gt;</span>
+          <i className="ph ph-caret-right" />
           <span>Atendimento Médico</span>
-          <span>&gt;</span>
+          <i className="ph ph-caret-right" />
           <span className="current">{rotuloAbaAtual}</span>
         </div>
       </div>
       <div className="topbar-right">
-        <div className="sys-time">
-          <i className="ph ph-clock" /> {relogio}
-        </div>
-        <div className="top-avatar">
-          {medicoNome?.slice(0, 2)?.toUpperCase() || 'DR'}
-        </div>
+        <div className="sys-time"><i className="ph ph-clock" /> {relogio}</div>
+        <div className="top-avatar">AD</div>
       </div>
     </header>
   );

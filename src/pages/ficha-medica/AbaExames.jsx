@@ -306,208 +306,188 @@ export default function AbaExames({ atendimento }) {
   }
 
   return (
-    <div className="clinical-card" style={{ flex: 1 }}>
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-flask" /> Solicitação de Exames</h2>
+    <div className="clinical-split">
+      {/* SIDEBAR DE MODALIDADES */}
+      <aside className="tools-pane">
+        <div className="pane-header">
+          <span><i className="ph ph-list-dashes" /> Modalidades</span>
         </div>
-      </div>
-
-      <div className="cc-body">
-        {/* SELETOR DE MODALIDADE (COM BLOQUEIO MÚTUO RIGOROSO) */}
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button type="button" className={`btn-add-chip ${modalidade === 'lab' ? 'on' : ''}`} onClick={() => setModalidade('lab')}>
-            <i className="ph ph-flask" /> 1. Laboratório Interno
-            <span style={{ background: 'rgba(0,0,0,0.12)', padding: '1px 7px', borderRadius: 10, fontSize: 11, fontWeight: 700 }}>{countLab}</span>
-          </button>
-          <button type="button" className={`btn-add-chip ${modalidade === 'img' ? 'on' : ''}`} onClick={() => setModalidade('img')}>
-            <i className="ph ph-x-ray" /> 2. Imagem & Radiologia (RX)
-            <span style={{ background: 'rgba(0,0,0,0.12)', padding: '1px 7px', borderRadius: 10, fontSize: 11, fontWeight: 700 }}>{countImg}</span>
-          </button>
-          <button type="button" className={`btn-add-chip ${modalidade === 'ecg' ? 'on' : ''}`} onClick={() => setModalidade('ecg')}>
-            <i className="ph ph-heartbeat" /> 3. Eletrocardiograma (ECG)
-            <span style={{ background: 'rgba(0,0,0,0.12)', padding: '1px 7px', borderRadius: 10, fontSize: 11, fontWeight: 700 }}>{countEcg}</span>
-          </button>
+        <div className="tools-body">
+          <div className="summary-box">
+            <h3><i className="ph ph-funnel" /> Selecione o Formulário</h3>
+            <div className="modality-nav">
+              <button type="button" className={`modality-btn ${modalidade === 'lab' ? 'active' : ''}`} onClick={() => setModalidade('lab')}>
+                <span><i className="ph ph-flask" /> 1. Laboratório Interno</span>
+                <span className="modality-badge">{countLab} exames</span>
+              </button>
+              <button type="button" className={`modality-btn ${modalidade === 'img' ? 'active' : ''}`} onClick={() => setModalidade('img')}>
+                <span><i className="ph ph-scan" /> 2. Imagem & Radiologia</span>
+                <span className="modality-badge">{countImg} exames</span>
+              </button>
+              <button type="button" className={`modality-btn ${modalidade === 'ecg' ? 'active' : ''}`} onClick={() => setModalidade('ecg')}>
+                <span><i className="ph ph-heartbeat" /> 3. Eletrocardiograma</span>
+                <span className="modality-badge">{countEcg} traçado</span>
+              </button>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: 12 }}>
+            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.4 }}>
+              Atalhos Rápidos de Marcação (Bundles Clínicos):
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <button type="button" className="template-btn" onClick={() => aplicarCombo('sepse')}>
+                <div><strong><i className="ph ph-virus" /> Sepse / Choque</strong></div>
+              </button>
+              <button type="button" className="template-btn" onClick={() => aplicarCombo('abdome')}>
+                <div><strong><i className="ph ph-warning" /> Abdome Agudo</strong></div>
+              </button>
+            </div>
+          </div>
         </div>
+      </aside>
 
-        {/* BLOQUEIO INSTITUCIONAL MÚTUO */}
-        <div className="allergy-alert" style={{ background: '#FFFBEB', borderColor: '#FDE68A' }}>
-          <div className="info" style={{ color: '#92400E' }}>
-            <i className="ph ph-warning" /> <strong>Regra Institucional de Separação Física:</strong> Laboratório de Análises Clínicas, Radiologia Digital e ECG são setores distintos. Guias mistas são bloqueadas institucionalmente — cada setor recebe sua requisição oficial exclusiva.
+      <div className="clinical-card" style={{ flex: 1 }}>
+        <div className="cc-header">
+          <div className="cc-title-area">
+            <h2>
+              {modalidade === 'lab' && <><i className="ph ph-flask" /> Solicitação de Exames Laboratoriais</>}
+              {modalidade === 'img' && <><i className="ph ph-x-ray" /> Solicitação de Imagem / Radiografia</>}
+              {modalidade === 'ecg' && <><i className="ph ph-heartbeat" /> Eletrocardiograma (ECG)</>}
+            </h2>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+              Apenas exames essenciais para manejo da emergência.
+            </span>
           </div>
         </div>
 
-        {/* PROTOCOLOS RÁPIDOS */}
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-lightning" /> Protocolos Rápidos de Emergência (Preenchimento Automático)</div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button type="button" className="btn-add-chip" onClick={() => aplicarCombo('sepse')}>
-              <i className="ph ph-shield-warning" /> Combo Sepse / IRA (Laboratório)
-            </button>
-            <button type="button" className="btn-add-chip" onClick={() => aplicarCombo('abdome')}>
-              <i className="ph ph-magnifying-glass" /> Rotina Abdome Agudo (Radiologia)
-            </button>
-            <button type="button" className="btn-add-chip" onClick={() => aplicarCombo('ecg_urgencia')}>
-              <i className="ph ph-heart-straight" /> Protocolo ECG 12D (Métodos Gráficos)
-            </button>
-          </div>
-        </div>
-
-        {/* ======================================================== */}
-        {/* SUB-ABA 1: LABORATÓRIO INTERNO */}
-        {/* ======================================================== */}
-        {modalidade === 'lab' && (
-          <>
-            <div className="assess-grid">
-              <div className="form-group">
-                <label>Caráter da Coleta</label>
-                <select value={prioridade} onChange={(e) => setPrioridade(e.target.value)}>
-                  <option value="urgencia">Urgência / Emergência (Imediata)</option>
-                  <option value="rotina">Rotina de Enfermaria</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Local de Coleta</label>
-                <input type="text" value={`Leito ${atendimento.leito_numero || '—'} · Posto Interno`} readOnly />
-              </div>
+        <div className="cc-body">
+          {/* JUSTIFICATIVA CLINICA GERAL E INFORMAÇÕES ADICIONAIS */}
+          <div className="form-section">
+            <div className="form-section-title">
+              <span className="st-left"><i className="ph ph-file-text" /> 1. Contexto e Justificativa Clínica</span>
             </div>
-
-            {EXAMES_LAB_CATALOGO.map((grupo) => (
-              <div key={grupo.grupo} className="form-section-box">
-                <div className="form-section-box-title">{grupo.grupo}</div>
-                <div className="checkbox-group" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '8px 16px' }}>
-                  {grupo.itens.map((it) => (
-                    <label key={it.nome} className="checkbox-item">
-                      <input type="checkbox" checked={!!labSelecionados[it.nome]} onChange={() => toggleLab(it.nome)} /> {it.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            <div className="form-group">
-              <label>Justificativa Clínica / Hipótese Diagnóstica (Laboratório) *</label>
-              <textarea value={labJustificativa} onChange={(e) => setLabJustificativa(e.target.value)} />
+            <div className="form-group" style={{ marginBottom: 12 }}>
+              <label>Justificativa Clínica / Hipótese Diagnóstica</label>
+              {modalidade === 'lab' && <textarea className="form-control-area" rows="3" value={labJustificativa} onChange={e => setLabJustificativa(e.target.value)} />}
+              {modalidade === 'img' && <textarea className="form-control-area" rows="3" value={imgJustificativa} onChange={e => setImgJustificativa(e.target.value)} />}
+              {modalidade === 'ecg' && <textarea className="form-control-area" rows="3" value={ecgJustificativa} onChange={e => setEcgJustificativa(e.target.value)} />}
             </div>
-          </>
-        )}
-
-        {/* ======================================================== */}
-        {/* SUB-ABA 2: RADIOLOGIA DIGITAL (RX) */}
-        {/* ======================================================== */}
-        {modalidade === 'img' && (
-          <>
-            <div className="assess-grid">
+            <div className="grid-2">
               <div className="form-group">
-                <label>Caráter do Exame</label>
-                <select value={prioridade} onChange={(e) => setPrioridade(e.target.value)}>
-                  <option value="urgencia">Urgência / Emergência</option>
-                  <option value="eletivo">Eletivo Interno</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Condição de Mobilidade / Transporte</label>
-                <select value={transporte} onChange={(e) => setTransporte(e.target.value)}>
-                  <option value="maca">Maca / Leito (Sem deambulação)</option>
-                  <option value="cadeira">Cadeira de Rodas</option>
-                  <option value="deambulando">Deambulando com auxílio</option>
-                </select>
-              </div>
-            </div>
-
-            {EXAMES_IMG_CATALOGO.map((grupo) => (
-              <div key={grupo.grupo} className="form-section-box">
-                <div className="form-section-box-title">{grupo.grupo}</div>
-                <div className="checkbox-group" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '8px 16px' }}>
-                  {grupo.itens.map((it) => (
-                    <label key={it.nome} className="checkbox-item">
-                      <input type="checkbox" checked={!!imgSelecionados[it.nome]} onChange={() => toggleImg(it.nome)} /> {it.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            <div className="form-group">
-              <label>Indicação Clínica & Alertas para o Técnico em Radiologia (CRTR) *</label>
-              <textarea value={imgJustificativa} onChange={(e) => setImgJustificativa(e.target.value)} />
-            </div>
-          </>
-        )}
-
-        {/* ======================================================== */}
-        {/* SUB-ABA 3: ELETROCARDIOGRAMA (ECG) */}
-        {/* ======================================================== */}
-        {modalidade === 'ecg' && (
-          <>
-            <div className="assess-grid">
-              <div className="form-group">
-                <label>Caráter do Exame</label>
-                <select value={prioridade} onChange={(e) => setPrioridade(e.target.value)}>
+                <label>Caráter de Solicitação</label>
+                <select className="form-control" value={prioridade} onChange={e => setPrioridade(e.target.value)}>
                   <option value="urgencia">Urgência / Emergência (Imediato)</option>
-                  <option value="rotina">Rotina de Acompanhamento</option>
+                  <option value="rotina">Rotina de Enfermaria (Manhã seguinte)</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>Local de Realização</label>
-                <select defaultValue="leito">
-                  <option value="leito">Beira do Leito (Sala Amarela)</option>
-                  <option value="sala_ecg">Sala de ECG / Métodos Gráficos</option>
-                  <option value="sala_vermelha">Sala Vermelha (Emergência Crítica)</option>
+                <label>Condição de Transporte do Paciente</label>
+                <select className="form-control" value={transporte} onChange={e => setTransporte(e.target.value)}>
+                  <option value="maca">Transporte em Maca (Instável / Risco de Queda)</option>
+                  <option value="cadeira">Cadeira de Rodas</option>
+                  <option value="ambulante">Ambulante (Deambulando)</option>
+                  <option value="leito">Exame no Leito (Leito de Estabilização)</option>
                 </select>
               </div>
             </div>
+          </div>
 
-            {EXAMES_ECG_CATALOGO.map((grupo) => (
-              <div key={grupo.grupo} className="form-section-box">
-                <div className="form-section-box-title">{grupo.grupo}</div>
-                <div className="checkbox-group" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '8px 16px' }}>
-                  {grupo.itens.map((it) => (
-                    <label key={it.nome} className="checkbox-item">
-                      <input type="checkbox" checked={!!ecgSelecionados[it.nome]} onChange={() => toggleEcg(it.nome)} /> {it.label}
+          {/* CATALOGO LABORATÓRIO */}
+          {modalidade === 'lab' && EXAMES_LAB_CATALOGO.map((grupo, idx) => (
+            <div className="form-section" key={idx}>
+              <div className="form-section-title">
+                <span className="st-left"><i className="ph ph-test-tube" /> {grupo.grupo}</span>
+              </div>
+              <div className="grid-2">
+                {grupo.itens.map((it) => {
+                  const checked = !!labSelecionados[it.nome]
+                  return (
+                    <label key={it.nome} className="check-item" style={{ borderColor: checked ? 'var(--primary)' : 'var(--border-light)' }}>
+                      <input type="checkbox" checked={checked} onChange={() => toggleLab(it.nome)} />
+                      <div>
+                        <strong>{it.label}</strong>
+                        <span>{it.amostra}</span>
+                      </div>
                     </label>
-                  ))}
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+
+          {/* CATALOGO IMAGEM */}
+          {modalidade === 'img' && EXAMES_IMG_CATALOGO.map((grupo, idx) => (
+            <div className="form-section" key={idx}>
+              <div className="form-section-title">
+                <span className="st-left"><i className="ph ph-scan" /> {grupo.grupo}</span>
+              </div>
+              <div className="grid-2">
+                {grupo.itens.map((it) => {
+                  const checked = !!imgSelecionados[it.nome]
+                  return (
+                    <label key={it.nome} className="check-item" style={{ borderColor: checked ? 'var(--primary)' : 'var(--border-light)' }}>
+                      <input type="checkbox" checked={checked} onChange={() => toggleImg(it.nome)} />
+                      <div>
+                        <strong>{it.label}</strong>
+                        <span>{it.projecao}</span>
+                      </div>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+
+          {/* CATALOGO ECG */}
+          {modalidade === 'ecg' && EXAMES_ECG_CATALOGO.map((grupo, idx) => (
+            <div className="form-section" key={idx}>
+              <div className="form-section-title">
+                <span className="st-left"><i className="ph ph-heartbeat" /> {grupo.grupo}</span>
+              </div>
+              <div className="grid-2">
+                {grupo.itens.map((it) => {
+                  const checked = !!ecgSelecionados[it.nome]
+                  return (
+                    <label key={it.nome} className="check-item" style={{ borderColor: checked ? 'var(--primary)' : 'var(--border-light)' }}>
+                      <input type="checkbox" checked={checked} onChange={() => toggleEcg(it.nome)} />
+                      <div>
+                        <strong>{it.label}</strong>
+                        <span>{it.projecao}</span>
+                      </div>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+
+          {/* HISTÓRICO RÁPIDO */}
+          <div style={{ marginTop: 24 }}>
+            <h3 style={{ fontSize: 13, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, borderBottom: '1px solid var(--border-light)', paddingBottom: 8 }}>
+              <i className="ph ph-clock-counter-clockwise" /> Histórico de Solicitações (Este Atendimento)
+            </h3>
+            {historico.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma solicitação ainda.</p>
+            ) : historico.map((h) => (
+              <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border-light)', fontSize: 12 }}>
+                <div>
+                  <strong>{h.nome_exame}</strong> <span style={{ color: 'var(--text-muted)' }}>— {h.preparo}</span>
+                  <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>Solicitado por: {h.enfermeiros?.nome_exibicao || h.enfermeiros?.nome} • {new Date(h.criado_em).toLocaleString('pt-BR')}</div>
                 </div>
               </div>
             ))}
+          </div>
 
-            <div className="form-group">
-              <label>Indicação Clínica & Hipótese Diagnóstica (ECG) *</label>
-              <textarea value={ecgJustificativa} onChange={(e) => setEcgJustificativa(e.target.value)} />
-            </div>
-          </>
-        )}
-
-        {/* HISTÓRICO DE EXAMES SOLICITADOS */}
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-clock-counter-clockwise" /> Histórico de Exames Deste Atendimento</div>
-          {historico.length === 0 ? (
-            <p style={{ color: 'var(--c-text-muted)', fontSize: 12.5 }}>Nenhuma requisição emitida anteriormente para este leito.</p>
-          ) : (
-            historico.map((e) => (
-              <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
-                <div>
-                  <strong>{e.nome}</strong>
-                  <div style={{ fontSize: 11.5, color: 'var(--c-text-muted)' }}>
-                    {e.local || 'UPA 24h'} · {e.preparo || 'Rotina'} · {new Date(e.solicitado_em || e.criado_em).toLocaleString('pt-BR')}
-                  </div>
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4, background: 'var(--c-surface)', border: '1px solid var(--c-border-light)' }}>
-                  {e.status || 'Solicitado'}
-                </span>
-              </div>
-            ))
-          )}
         </div>
-      </div>
 
-      <div className="cc-footer">
-        <span />
-        <button type="button" className="btn-save-print" onClick={salvarEImprimir} disabled={salvando}>
-          <i className="ph ph-printer" />
-          {salvando ? 'Emitindo...' : modalidade === 'lab' ? 'Salvar & Imprimir Requisição Laboratorial (Modelo 19)' : modalidade === 'img' ? 'Salvar & Imprimir Requisição de Imagem (Modelo 20)' : 'Salvar & Imprimir Requisição de ECG (Modelo 21)'}
-        </button>
+        <div className="cc-footer">
+          <span />
+          <button type="button" className="btn-save-print" onClick={salvarEImprimir} disabled={salvando}>
+            <i className="ph ph-printer" /> {salvando ? 'Emitindo...' : 'Salvar e Imprimir Requisição (' + (modalidade === 'lab' ? countLab : modalidade === 'img' ? countImg : countEcg) + ' itens)'}
+          </button>
+        </div>
       </div>
     </div>
-  );
+  )
 }

@@ -14,6 +14,7 @@ export default function Painel({ plantao, setoresIds }) {
     passagemPorPaciente,
     modalLeito,
     setModalLeito,
+    cancelarModalInternar,
     erroInternar,
     setErroInternar,
     erroGeral,
@@ -46,13 +47,11 @@ export default function Painel({ plantao, setoresIds }) {
   const setoresVisiveis = setores.filter((s) => setoresIds.includes(s.id))
 
   return (
-    <div className="page" style={{ maxWidth: 1400 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <h1 className="page-title">Painel do plantão</h1>
-          <p className="page-subtitle" style={{ marginBottom: 0, paddingBottom: 0, border: 'none' }}>
-            Selecione um leito para internar, editar ou realocar um paciente.
-          </p>
+    <div className="workspace">
+      <div className="painel-header">
+        <div className="painel-title">
+          <h1>Painel do Plantão</h1>
+          <p>Visão geral de ocupação, classificação de risco e admissão de pacientes da UPA.</p>
         </div>
         <PainelControles
           setoresVisiveis={setoresVisiveis}
@@ -66,7 +65,6 @@ export default function Painel({ plantao, setoresIds }) {
           onVisualizacao={setVisualizacao}
         />
       </div>
-      <div style={{ borderBottom: '1px solid var(--c-border)', marginBottom: 20 }} />
 
       {erroGeral && (
         <div className="error-box" style={{ marginBottom: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -118,7 +116,7 @@ export default function Painel({ plantao, setoresIds }) {
           setorNome={setores.find((s) => s.id === modalLeito.setor_id)?.nome}
           pacientesExistentes={Object.values(pacientesPorLeito)}
           erroExterno={erroInternar}
-          onCancelar={() => { setModalLeito(null); setErroInternar('') }}
+          onCancelar={cancelarModalInternar}
           onConfirmar={(dados) => internarPaciente(modalLeito, dados)}
         />
       )}

@@ -123,16 +123,16 @@ export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir })
           <div className="assess-grid">
             <div className="form-group">
               <label><i className="ph ph-virus" /> Diagnósticos (incluir todos, o principal na primeira linha)</label>
-              <textarea value={dados.diagnosticos} onChange={(e) => set('diagnosticos', e.target.value)} />
+              <input type="text" className="form-control" value={dados.diagnosticos} onChange={(e) => set('diagnosticos', e.target.value)} />
             </div>
             <div className="form-group">
               <label><i className="ph ph-heartbeat" /> História da doença atual</label>
-              <textarea value={dados.historia_doenca_atual} onChange={(e) => set('historia_doenca_atual', e.target.value)} />
+              <input type="text" className="form-control" value={dados.historia_doenca_atual} onChange={(e) => set('historia_doenca_atual', e.target.value)} />
             </div>
           </div>
 
           <div className="checkbox-group">
-            <label style={{ fontWeight: 700, color: '#0F172A', fontSize: 12.5 }}>Comorbidades e alertas:</label>
+            <label style={{ fontWeight: 700, color: '#0F172A', fontSize: 13 }}>Risco e Avaliação Rápida:</label>
             <label className="checkbox-item">
               <input type="checkbox" checked={dados.comorbidades} onChange={(e) => set('comorbidades', e.target.checked)} /> Comorbidades
             </label>
@@ -153,91 +153,91 @@ export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir })
           {dados.comorbidades && (
             <div className="form-group">
               <label>Especificar comorbidades</label>
-              <input type="text" value={dados.comorbidades_texto} onChange={(e) => set('comorbidades_texto', e.target.value)} />
+              <input type="text" className="form-control" value={dados.comorbidades_texto} onChange={(e) => set('comorbidades_texto', e.target.value)} />
             </div>
           )}
           {dados.reconciliacao_medicamentosa && (
             <div className="form-group">
               <label>Itens reconciliados em prescrição</label>
-              <input type="text" value={dados.reconciliacao_texto} onChange={(e) => set('reconciliacao_texto', e.target.value)} />
+              <input type="text" className="form-control" value={dados.reconciliacao_texto} onChange={(e) => set('reconciliacao_texto', e.target.value)} />
             </div>
           )}
           {dados.alergias && (
             <div className="form-group">
               <label>Qual medicação</label>
-              <input type="text" value={dados.alergias_texto} onChange={(e) => set('alergias_texto', e.target.value)} />
+              <input type="text" className="form-control" value={dados.alergias_texto} onChange={(e) => set('alergias_texto', e.target.value)} />
             </div>
           )}
           {dados.aguarda_exames && (
             <div className="form-group">
               <label>Especificar exames aguardados</label>
-              <input type="text" value={dados.aguarda_exames_texto} onChange={(e) => set('aguarda_exames_texto', e.target.value)} />
+              <input type="text" className="form-control" value={dados.aguarda_exames_texto} onChange={(e) => set('aguarda_exames_texto', e.target.value)} />
             </div>
           )}
 
           <div className="assess-grid">
             <div className="form-group">
               <label><i className="ph ph-warning" /> Risco para TEV</label>
-              <select value={dados.risco_tev} onChange={(e) => set('risco_tev', e.target.value)}>
+              <select className="form-control" value={dados.risco_tev} onChange={(e) => set('risco_tev', e.target.value)}>
                 <option value="">—</option>
                 {RISCO_TEV_OPCOES.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div className="form-group">
               <label><i className="ph ph-pill" /> Antibioticoterapia atual (nome, início, duração)</label>
-              <input type="text" value={dados.antibioticoterapia} onChange={(e) => set('antibioticoterapia', e.target.value)} />
+              <input type="text" className="form-control" value={dados.antibioticoterapia} onChange={(e) => set('antibioticoterapia', e.target.value)} />
             </div>
           </div>
 
-          <div className="form-section-box">
-            <div className="form-section-box-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span><i className="ph ph-heartbeat" /> Sinais Vitais</span>
-              <button type="button" className="btn-add-chip" onClick={puxarSinaisVitaisDaEnfermagem} disabled={puxandoSv}>
-                <i className="ph ph-arrow-down-left" /> {puxandoSv ? 'Buscando...' : 'Puxar da Enfermagem'}
-              </button>
+          <div className="form-section-box" style={{ border: 'none', background: 'transparent', padding: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}><i className="ph ph-thermometer" style={{ color: '#DC2626' }} /> Sinais Vitais Atuais</h3>
+              <span style={{ fontSize: '12px', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }} onClick={puxarSinaisVitaisDaEnfermagem}>
+                <i className="ph ph-arrows-clockwise" /> {puxandoSv ? 'Buscando...' : 'Puxar da Enfermagem'}
+              </span>
             </div>
             {svInfo && (
               <p style={{ fontSize: 11.5, color: '#64748B', margin: '0 0 10px' }}>{svInfo}</p>
             )}
-            <div className="assess-grid">
-              <div className="form-group"><label>PA sistólica</label><input type="number" value={dados.sv_pa_sistolica} onChange={(e) => set('sv_pa_sistolica', e.target.value)} /></div>
-              <div className="form-group"><label>PA diastólica</label><input type="number" value={dados.sv_pa_diastolica} onChange={(e) => set('sv_pa_diastolica', e.target.value)} /></div>
-              <div className="form-group"><label>FC</label><input type="number" value={dados.sv_fc} onChange={(e) => set('sv_fc', e.target.value)} /></div>
-              <div className="form-group"><label>FR</label><input type="number" value={dados.sv_fr} onChange={(e) => set('sv_fr', e.target.value)} /></div>
-              <div className="form-group"><label>Temperatura</label><input type="number" step="0.1" value={dados.sv_temperatura} onChange={(e) => set('sv_temperatura', e.target.value)} /></div>
-              <div className="form-group"><label>SpO2</label><input type="number" value={dados.sv_spo2} onChange={(e) => set('sv_spo2', e.target.value)} /></div>
+            <div className="vitals-grid">
+              <div className="vital-box"><label>PA sistólica</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_pa_sistolica} onChange={(e) => set('sv_pa_sistolica', e.target.value)} /><span>mmHg</span></div></div>
+              <div className="vital-box"><label>PA diastólica</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_pa_diastolica} onChange={(e) => set('sv_pa_diastolica', e.target.value)} /><span>mmHg</span></div></div>
+              <div className="vital-box"><label>FC</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_fc} onChange={(e) => set('sv_fc', e.target.value)} /><span>bpm</span></div></div>
+              <div className="vital-box"><label>FR</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_fr} onChange={(e) => set('sv_fr', e.target.value)} /><span>irpm</span></div></div>
+              <div className="vital-box"><label>Temperatura</label><div className="vital-input-wrapper"><input type="number" step="0.1" value={dados.sv_temperatura} onChange={(e) => set('sv_temperatura', e.target.value)} /><span>°C</span></div></div>
+              <div className="vital-box"><label>SpO2</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_spo2} onChange={(e) => set('sv_spo2', e.target.value)} /><span>%</span></div></div>
             </div>
           </div>
 
           <div className="form-group">
             <label><i className="ph ph-text-align-left" /> Evolução Clínica do Dia e Queixas *</label>
-            <textarea className="large" style={{ minHeight: 120 }} value={dados.evolucao_dia} onChange={(e) => set('evolucao_dia', e.target.value)} />
+            <textarea className="form-control-area large" placeholder="Descreva o estado geral, queixas, evolução do quadro..." value={dados.evolucao_dia} onChange={(e) => set('evolucao_dia', e.target.value)} />
           </div>
 
           <div className="form-group">
             <label><i className="ph ph-stethoscope" /> Exame Físico Dirigido *</label>
-            <textarea value={dados.exame_fisico} onChange={(e) => set('exame_fisico', e.target.value)} />
+            <textarea className="form-control-area" placeholder="Ex: Bom estado geral, corado, hidratado..." value={dados.exame_fisico} onChange={(e) => set('exame_fisico', e.target.value)} />
           </div>
 
           <div className="assess-grid">
             <div className="form-group">
               <label><i className="ph ph-list-checks" /> Plano terapêutico (objetivos da terapêutica, atualizados)</label>
-              <textarea value={dados.plano_terapeutico} onChange={(e) => set('plano_terapeutico', e.target.value)} />
+              <textarea className="form-control-area" placeholder="Conduta, exames solicitados, pendências de leito..." value={dados.plano_terapeutico} onChange={(e) => set('plano_terapeutico', e.target.value)} />
             </div>
             <div className="form-group">
               <label><i className="ph ph-flask" /> Laboratório / cultura / exames de imagem</label>
-              <textarea value={dados.exames_laboratorio} onChange={(e) => set('exames_laboratorio', e.target.value)} />
+              <textarea className="form-control-area" value={dados.exames_laboratorio} onChange={(e) => set('exames_laboratorio', e.target.value)} />
             </div>
           </div>
 
           <div className="assess-grid">
             <div className="form-group">
               <label><i className="ph ph-calendar-check" /> Data prevista da alta hospitalar</label>
-              <input type="date" value={dados.data_prevista_alta} onChange={(e) => set('data_prevista_alta', e.target.value)} />
+              <input type="date" className="form-control" value={dados.data_prevista_alta} onChange={(e) => set('data_prevista_alta', e.target.value)} />
             </div>
             <div className="form-group">
               <label><i className="ph ph-clipboard-text" /> Conduta médica</label>
-              <textarea value={dados.conduta_medica} onChange={(e) => set('conduta_medica', e.target.value)} />
+              <textarea className="form-control-area" value={dados.conduta_medica} onChange={(e) => set('conduta_medica', e.target.value)} />
             </div>
           </div>
 

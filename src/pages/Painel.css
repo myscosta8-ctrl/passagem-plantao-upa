@@ -1,359 +1,222 @@
 /* =====================================================================
-   PAINEL DE LEITOS — DESIGN SYSTEM FASE 2
-   Fiel ao mockup mockups-fase2/01-painel-leitos-design.html
+   PAINEL DE LEITOS — 100% FIEL A mockups-fase2/01-painel-leitos-design.html
    ===================================================================== */
 
-.setor-secao {
-  margin-bottom: 32px;
-}
-
-.setor-secao-titulo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--c-text-primary);
-  border-bottom: 2px solid var(--border-strong);
-  padding-bottom: 10px;
-  margin-bottom: 16px;
-}
-
-.setor-secao-titulo .count {
-  background: var(--border-light);
-  color: var(--c-text-secondary);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 12px;
-}
-
-/* GRID DE LEITOS */
-.leitos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 18px;
-}
-
-/* CARDS DE LEITO - ESTILO ENTERPRISE */
-.leito-card {
-  background: var(--c-surface);
-  border: 1px solid var(--border-strong);
-  border-radius: 10px;
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 180px;
-}
-
-.leito-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: #94A3B8;
-}
-
-/* Faixa de Risco (Manchester) no topo */
-.risk-bar {
-  height: 6px;
-  width: 100%;
-  background: #CBD5E1;
-}
-.risk-bar.risk-vermelho { background: var(--mc-vermelho); }
-.risk-bar.risk-laranja  { background: var(--mc-laranja); }
-.risk-bar.risk-amarelo  { background: var(--mc-amarelo); }
-.risk-bar.risk-verde    { background: var(--mc-verde); }
-.risk-bar.risk-azul     { background: var(--mc-azul); }
-
-.leito-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px 6px;
-}
-
-.leito-numero {
-  font-family: var(--font-ui);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.leito-numero.extra {
-  color: var(--c-danger);
-}
-
-.leito-menu-acoes {
-  position: relative;
-}
-
-.leito-menu-botao {
-  background: none;
-  border: none;
-  color: var(--c-text-muted);
-  font-size: 16px;
-  line-height: 1;
-  padding: 2px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.leito-menu-botao:hover {
-  background: var(--c-surface-inset);
-  color: var(--c-text-primary);
-}
-
-.leito-menu-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 25;
-  background: var(--c-surface);
-  border: 1px solid var(--border-strong);
-  border-radius: 8px;
-  box-shadow: var(--shadow-lg);
-  min-width: 170px;
-  overflow: hidden;
-}
-
-.leito-menu-dropdown button {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 9px 12px;
-  background: none;
-  border: none;
-  font-size: 13px;
-  color: var(--c-text-primary);
-  cursor: pointer;
-}
-
-.leito-menu-dropdown button:hover {
-  background: var(--c-primary-light);
-  color: var(--c-primary);
-}
-
-.leito-card-body {
-  padding: 6px 14px 14px;
+/* MAIN E TOPBAR */
+.main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  min-width: 0;
+  transition: 0.3s ease;
+  height: 100vh;
+  overflow: hidden;
+  background: #F1F5F9;
 }
 
-.leito-paciente-nome {
-  font-family: var(--font-ui);
-  font-weight: 700;
-  font-size: 14.5px;
-  color: var(--c-text-primary);
-  line-height: 1.3;
+.topbar {
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  z-index: 40;
+  flex-shrink: 0;
+  transition: 0.3s ease;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar-hamburguer-btn {
+  background: transparent;
+  border: none;
+  color: #334155;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.topbar-hamburguer-btn:hover {
+  background: #F1F5F9;
+  color: #1D4ED8;
+}
+
+.breadcrumb {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
-}
-
-.leito-paciente-meta {
-  font-size: 11.5px;
-  color: var(--c-text-muted);
+  font-size: 13.5px;
+  color: #64748B;
   font-weight: 500;
 }
 
-.leito-paciente-diag {
-  font-size: 12px;
-  color: var(--c-text-secondary);
-  line-height: 1.4;
-  background: var(--c-surface-inset);
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border-light);
+.breadcrumb i {
+  font-size: 15px;
+  color: #64748B;
 }
 
-.status-badge {
-  font-family: var(--font-ui);
-  font-size: 10.5px;
+.breadcrumb span.current {
+  color: #0F172A;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 7px;
-  border-radius: 4px;
 }
 
-.status-badge.internado {
-  background: #DBEAFE;
-  color: #1E40AF;
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.sys-time {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  padding-right: 20px;
+  border-right: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sys-time i {
+  font-size: 15px;
+}
+
+.top-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
   border: 1px solid #BFDBFE;
 }
 
-.status-badge.observacao {
-  background: #FEF3C7;
-  color: #92400E;
-  border: 1px solid #FDE68A;
-}
-
-.status-badge.alerta {
-  background: var(--mc-vermelho-bg);
-  color: var(--mc-vermelho);
-  border: 1px solid #FECACA;
-}
-
-.leito-paciente-pendencia {
-  font-size: 11.5px;
-  color: #92400E;
-  background: #FFFBEB;
-  border-left: 3px solid #F59E0B;
-  padding: 4px 8px;
-  border-radius: 0 4px 4px 0;
-  line-height: 1.4;
-}
-
-.leito-ultima-alteracao {
-  font-size: 10.5px;
-  color: var(--c-text-muted);
-  margin-top: auto;
-  padding-top: 4px;
-}
-
-/* LEITO VAZIO */
-.leito-card.vazio {
-  background: #FAFAFA;
-  border: 2px dashed var(--border-strong);
-  box-shadow: none;
-  justify-content: center;
-  align-items: center;
-  padding: 30px 16px;
-  text-align: center;
-}
-
-.leito-card.vazio:hover {
-  border-color: var(--c-primary);
-  background: var(--c-primary-light);
-}
-
-.leito-vazio-card {
+/* -----------------------------------------
+   WORKSPACE - PAINEL DE LEITOS
+----------------------------------------- */
+.main-viewport {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
+  overflow: hidden;
+  position: relative;
 }
-
-.vazio-icon {
-  font-size: 26px;
-  margin-bottom: 4px;
-}
-
-.vazio-title {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--c-text-secondary);
-}
-
-.vazio-subtitle {
-  font-size: 11.5px;
-  color: var(--c-text-muted);
-}
-
-.leito-add-extra {
-  border: 2px dashed var(--border-strong);
-  border-radius: 10px;
-  padding: 16px;
+.workspace {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 40px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--c-text-muted);
-  font-family: var(--font-ui);
-  font-weight: 600;
-  font-size: 13px;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 140px;
+  flex-direction: column;
+  background: #F1F5F9;
+  width: 100%;
 }
 
-.leito-add-extra:hover {
-  border-color: var(--c-primary);
-  color: var(--c-primary);
-  background: var(--c-primary-light);
-}
-
-/* CABEÇALHO: BUSCA + FILTRAR + TOGGLE (visíveis nos dois modos) */
-.painel-controles {
+/* CABEÇALHO DO PAINEL */
+.painel-header {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 32px;
   flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+}
+
+.painel-title h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.painel-title p {
+  font-size: 14px;
+  color: #334155;
+  margin: 0;
+}
+
+/* Filtros e Controles */
+.painel-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.control-btn {
+  background: #ffffff;
+  border: 1px solid #CBD5E1;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: 0.2s;
+}
+
+.control-btn:hover {
+  background: #F8FAFC;
+  border-color: #1D4ED8;
+  color: #1D4ED8;
+}
+
+.control-btn.active {
+  background: #EFF6FF;
+  border-color: #1D4ED8;
+  color: #1D4ED8;
 }
 
 .search-bar {
   position: relative;
-  display: flex;
-  align-items: center;
 }
 
 .search-bar i {
   position: absolute;
   left: 12px;
-  color: var(--c-text-muted);
+  top: 11px;
+  color: #64748B;
   font-size: 16px;
 }
 
-.search-bar input {
-  width: 260px;
-  padding: 8px 12px 8px 36px;
-  border: 1px solid var(--border-strong);
+.search-bar .search-input {
+  width: 280px;
+  padding: 9px 12px 9px 36px !important;
+  border: 1px solid #CBD5E1;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 13.5px;
   outline: none;
-  background: var(--c-surface);
-  color: var(--c-text-primary);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+  background: #ffffff;
+  color: #0F172A;
 }
 
-.search-bar input:focus {
-  border-color: var(--c-primary);
-  box-shadow: 0 0 0 3px var(--c-primary-light);
-}
-
-.control-btn {
-  background: var(--c-surface);
-  border: 1px solid var(--border-strong);
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--c-text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: var(--shadow-sm);
-  transition: 0.2s;
-}
-
-.control-btn:hover {
-  background: var(--c-surface-inset);
-  border-color: var(--c-primary);
-  color: var(--c-primary);
-}
-
-.control-btn.active {
-  background: var(--c-primary-light);
-  border-color: var(--c-primary);
-  color: var(--c-primary);
+.search-bar .search-input:focus {
+  border-color: #1D4ED8;
+  box-shadow: 0 0 0 3px #EFF6FF;
 }
 
 .painel-filtro-dropdown {
@@ -361,10 +224,10 @@
   top: calc(100% + 6px);
   right: 0;
   z-index: 30;
-  background: var(--c-surface);
-  border: 1px solid var(--border-strong);
+  background: #ffffff;
+  border: 1px solid #CBD5E1;
   border-radius: 10px;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -372,11 +235,351 @@
   min-width: 220px;
 }
 
-/* ===================== VISUALIZAÇÃO EM TABELA ===================== */
+/* SETORES */
+.setor-section,
+.setor-secao {
+  margin-bottom: 40px;
+}
 
+.setor-header,
+.setor-secao-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #CBD5E1;
+  padding-bottom: 12px;
+}
+
+.setor-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.setor-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.setor-badge,
+.setor-secao-titulo .count {
+  background: #E2E8F0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.btn-setor-extra {
+  background: #ffffff;
+  border: 1px dashed #94A3B8;
+  color: #1D4ED8;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
+}
+
+.btn-setor-extra:hover {
+  background: #EFF6FF;
+  border-color: #1D4ED8;
+  border-style: solid;
+}
+
+/* GRID DE LEITOS */
+.leitos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* CARDS DE LEITO - ESTILO ENTERPRISE */
+.leito-card {
+  background: #ffffff;
+  border: 1px solid #CBD5E1;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 190px;
+}
+
+.leito-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  border-color: #94A3B8;
+}
+
+/* Faixa de Risco (Manchester) no topo */
+.risk-bar {
+  height: 6px;
+  width: 100%;
+  background: #64748B;
+  flex-shrink: 0;
+}
+.risk-vermelho { background: #DC2626; }
+.risk-laranja  { background: #EA580C; }
+.risk-amarelo  { background: #EAB308; }
+.risk-verde    { background: #16A34A; }
+.risk-azul     { background: #2563EB; }
+
+.leito-header,
+.leito-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px 8px;
+}
+
+.leito-numero {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.leito-numero i {
+  font-size: 15px;
+}
+
+.leito-numero.extra {
+  color: #DC2626;
+}
+
+.leito-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.status-internado {
+  background: #DBEAFE;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+}
+
+.status-observacao {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+
+.leito-body,
+.leito-card-body {
+  padding: 4px 16px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.paciente-nome,
+.leito-paciente-nome {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 6px;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.paciente-meta,
+.leito-paciente-meta {
+  font-size: 12.5px;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.paciente-meta i,
+.leito-paciente-meta i {
+  color: #64748B;
+  font-size: 15px;
+}
+
+.paciente-hd,
+.leito-paciente-diag {
+  font-size: 12.5px;
+  color: #334155;
+  background: #F8FAFC;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+  margin-top: auto;
+}
+
+.paciente-hd strong,
+.leito-paciente-diag strong {
+  color: #0F172A;
+  font-weight: 600;
+}
+
+.leito-footer {
+  border-top: 1px solid #E2E8F0;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #FAFAF9;
+  font-size: 11.5px;
+  color: #64748B;
+  font-weight: 500;
+  margin-top: auto;
+  position: relative;
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-info i {
+  font-size: 14px;
+}
+
+.action-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #64748B;
+  transition: 0.2s;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn:hover {
+  color: #1D4ED8;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.leito-menu-acoes {
+  position: relative;
+}
+
+.leito-menu-dropdown {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: 0;
+  z-index: 25;
+  background: #ffffff;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  min-width: 170px;
+  overflow: hidden;
+}
+
+.leito-menu-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #0F172A;
+  cursor: pointer;
+}
+
+.leito-menu-dropdown button:hover {
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+/* LEITO VAZIO */
+.leito-card.leito-vazio,
+.leito-card.vazio {
+  background: transparent;
+  border: 2px dashed #CBD5E1;
+  box-shadow: none;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 16px;
+  text-align: center;
+  min-height: 190px;
+}
+
+.leito-card.leito-vazio:hover,
+.leito-card.vazio:hover {
+  border-color: #1D4ED8;
+  background: #EFF6FF;
+}
+
+.leito-card.leito-vazio .risk-bar,
+.leito-card.vazio .risk-bar {
+  display: none;
+}
+
+.vazio-icon {
+  font-size: 32px;
+  color: #64748B;
+  margin-bottom: 12px;
+  transition: 0.2s;
+}
+
+.vazio-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 4px;
+  transition: 0.2s;
+}
+
+.vazio-subtitle {
+  font-size: 12px;
+  color: #64748B;
+}
+
+.leito-card.leito-vazio:hover .vazio-icon,
+.leito-card.leito-vazio:hover .vazio-title,
+.leito-card.vazio:hover .vazio-icon,
+.leito-card.vazio:hover .vazio-title {
+  color: #1D4ED8;
+}
+
+/* ===================== VISUALIZAÇÃO EM TABELA ===================== */
 .visualizacao-toggle {
   display: flex;
-  background: var(--border-light);
+  background: #E2E8F0;
   border-radius: 8px;
   padding: 3px;
   gap: 3px;
@@ -384,65 +587,34 @@
 }
 
 .visualizacao-toggle button {
-  font-family: var(--font-ui);
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 12.5px;
   font-weight: 600;
   padding: 6px 14px;
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--c-text-secondary);
+  color: #334155;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   transition: all 0.15s ease;
 }
 
 .visualizacao-toggle button.on {
   background: #ffffff;
-  color: var(--c-primary);
+  color: #1D4ED8;
   font-weight: 700;
-  box-shadow: var(--shadow-sm);
-}
-
-.tabela-filtros {
-  display: flex;
-  gap: 16px;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  background: var(--c-surface);
-  border: 1px solid var(--border-strong);
-  border-radius: 10px;
-  padding: 14px 16px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-sm);
-}
-
-.tabela-filtro-campo label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 5px;
-}
-
-.tabela-filtro-campo select,
-.tabela-filtro-campo input {
-  font-size: 13px;
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
-  padding: 7px 10px;
-  background: var(--c-surface-inset);
-  color: var(--c-text-primary);
-  min-width: 160px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .tabela-painel-wrap {
-  background: var(--c-surface);
-  border: 1px solid var(--border-strong);
+  background: #ffffff;
+  border: 1px solid #CBD5E1;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .tabela-painel {
@@ -452,14 +624,14 @@
 
 .tabela-painel thead tr {
   background: #F8FAFC;
-  border-bottom: 1px solid var(--border-strong);
+  border-bottom: 1px solid #CBD5E1;
 }
 
 .tabela-painel th {
   padding: 10px 14px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--c-text-muted);
+  color: #64748B;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-align: left;
@@ -468,11 +640,19 @@
 .tabela-painel td {
   padding: 12px 14px;
   font-size: 13px;
-  border-bottom: 1px solid var(--border-light);
-  color: var(--c-text-primary);
+  border-bottom: 1px solid #E2E8F0;
+  color: #0F172A;
 }
 
 .tabela-painel tr:hover td {
   background: #F8FAFC;
   cursor: pointer;
+}
+
+.tabela-painel-rodape {
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #64748B;
+  background: #FAFAF9;
+  border-top: 1px solid #E2E8F0;
 }

@@ -102,158 +102,165 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir 
   if (carregando) return <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
 
   return (
-    <div className="clinical-card" style={{ flex: 1 }}>
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-strategy" /> Plano Terapêutico Hospitalar</h2>
-        </div>
-      </div>
-
-      <div className="cc-body">
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-lightning" /> Kits de Protocolo Institucional</div>
-          <p style={{ fontSize: 11.5, color: '#64748B', margin: '0 0 10px' }}>
-            Pré-marca os protocolos elegíveis e a equipe multidisciplinar padrão do bundle. Diagnóstico, motivo, objetivos e metas continuam de preenchimento manual — nunca são fabricados automaticamente.
+    <div className="clinical-split">
+      <aside className="tools-pane">
+        <div className="pane-header"><i className="ph ph-magic-wand" /> Auto-preenchimento</div>
+        <div className="tools-body">
+          <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.4 }}>
+            Selecione um Kit para marcar rapidamente os protocolos e a equipe padrão do bundle institucional.
           </p>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {KITS_PROTOCOLO.map((kit) => (
-              <button key={kit.chave} type="button" className="btn-add-chip" onClick={() => aplicarKit(kit)}>
-                <i className={`ph ${kit.icon}`} /> Kit {kit.titulo}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-virus" /> 1. Diagnósticos clínicos e hipóteses ativas</div>
-          <div className="assess-grid">
-            <div className="form-group">
-              <label>Diagnóstico principal (CID-10)</label>
-              <input type="text" placeholder="Ex: J18.9" value={dados.diagnostico_principal_cid} onChange={(e) => set('diagnostico_principal_cid', e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label>Diagnósticos (descrição livre)</label>
-              <input type="text" value={dados.diagnosticos_texto} onChange={(e) => set('diagnosticos_texto', e.target.value)} />
-            </div>
-          </div>
-        </div>
-
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> 2. Motivo da internação</div>
-          <textarea value={dados.motivo_internacao} onChange={(e) => set('motivo_internacao', e.target.value)} />
-        </div>
-
-        <div className="assess-grid">
-          <div className="form-group">
-            <label><i className="ph ph-heartbeat" /> Comorbidades / antecedentes relevantes</label>
-            <textarea value={dados.comorbidades_antecedentes} onChange={(e) => set('comorbidades_antecedentes', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label><i className="ph ph-pill" /> Medicações em uso contínuo</label>
-            <textarea value={dados.medicacoes_uso_continuo} onChange={(e) => set('medicacoes_uso_continuo', e.target.value)} />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label><i className="ph ph-target" /> Objetivos terapêuticos gerais — aonde queremos chegar</label>
-          <textarea value={dados.objetivos_terapeuticos} onChange={(e) => set('objetivos_terapeuticos', e.target.value)} />
-        </div>
-
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-list-checks" /> 3. Problemas ativos — por quais meios e em quanto tempo</div>
-          {dados.problemas_ativos.map((p, i) => (
-            <div key={i} style={{ border: '1px solid var(--border-light)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
-              <div className="assess-grid">
-                <div className="form-group"><label>Problema / diagnóstico</label><input type="text" value={p.descricao} onChange={(e) => setProblema(i, 'descricao', e.target.value)} /></div>
-                <div className="form-group"><label>Meta</label><input type="text" value={p.meta} onChange={(e) => setProblema(i, 'meta', e.target.value)} /></div>
+          
+          {KITS_PROTOCOLO.map((kit) => (
+            <button key={kit.chave} type="button" className="template-btn" onClick={() => aplicarKit(kit)}>
+              <div>
+                <strong><i className={"ph " + kit.icon} /> Kit {kit.titulo}</strong>
+                <span>Aplica bundle de protocolos e equipe sugerida.</span>
               </div>
-              <div className="assess-grid" style={{ marginTop: 12 }}>
-                <div className="form-group"><label>Prazo</label><input type="text" placeholder="Ex: 48h" value={p.prazo} onChange={(e) => setProblema(i, 'prazo', e.target.value)} /></div>
-                <div className="form-group"><label>Conduta / meios</label><input type="text" value={p.conduta} onChange={(e) => setProblema(i, 'conduta', e.target.value)} /></div>
-              </div>
-              <button type="button" className="btn-cancel" onClick={() => removerProblema(i)} style={{ marginTop: 8 }}>
-                <i className="ph ph-trash" /> Remover
-              </button>
-            </div>
-          ))}
-          <button type="button" className="btn-add-chip" onClick={adicionarProblema}>
-            <i className="ph ph-plus" /> Adicionar problema
-          </button>
-        </div>
-
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-shield-check" /> 4. Protocolos clínicos elegíveis</div>
-          <div className="checkbox-group" style={{ flexWrap: 'wrap' }}>
-            {PROTOCOLOS_OPCOES.map((p) => (
-              <label key={p} className="checkbox-item">
-                <input type="checkbox" checked={dados.protocolos_elegiveis.includes(p)} onChange={() => toggleLista('protocolos_elegiveis', p)} /> {p}
-              </label>
-            ))}
-          </div>
-          <div className="form-group" style={{ marginTop: 12 }}>
-            <label>Outro protocolo institucional</label>
-            <input type="text" value={dados.protocolo_outro} onChange={(e) => set('protocolo_outro', e.target.value)} />
-          </div>
-          <div className="form-group" style={{ marginTop: 12 }}>
-            <label>Medidas de segurança assistencial — aplicadas / pertinentes</label>
-            <textarea value={dados.medidas_seguranca_texto} onChange={(e) => set('medidas_seguranca_texto', e.target.value)} />
-          </div>
-        </div>
-
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-users-three" /> 5. Previsão de alta e equipe multidisciplinar</div>
-          <div className="assess-grid">
-            <div className="form-group">
-              <label>Tempo de internação previsto (dias)</label>
-              <input type="number" value={dados.tempo_internacao_previsto_dias} onChange={(e) => set('tempo_internacao_previsto_dias', e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label>Reavaliação prevista</label>
-              <input type="date" value={dados.data_reavaliacao_prevista} onChange={(e) => set('data_reavaliacao_prevista', e.target.value)} />
-            </div>
-          </div>
-
-          <div className="checkbox-group" style={{ flexWrap: 'wrap', marginTop: 12 }}>
-            {EQUIPE_OPCOES.map((e) => (
-              <label key={e} className="checkbox-item">
-                <input type="checkbox" checked={dados.equipe_multidisciplinar.includes(e)} onChange={() => toggleLista('equipe_multidisciplinar', e)} /> {e}
-              </label>
-            ))}
-          </div>
-          <div className="form-group" style={{ marginTop: 12 }}>
-            <label>Outros profissionais envolvidos</label>
-            <input type="text" value={dados.equipe_outros} onChange={(e) => set('equipe_outros', e.target.value)} />
-          </div>
-          <div className="form-group" style={{ marginTop: 12 }}>
-            <label>Critérios de alta — como saberemos que chegou</label>
-            <textarea value={dados.criterios_alta} onChange={(e) => set('criterios_alta', e.target.value)} />
-          </div>
-          <div className="form-group" style={{ marginTop: 12 }}>
-            <label>Feedback da equipe multiprofissional</label>
-            <textarea value={dados.feedback_equipe} onChange={(e) => set('feedback_equipe', e.target.value)} />
-          </div>
-        </div>
-
-        {sucesso && (
-          <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
-            <div className="info" style={{ color: '#166534' }}>
-              <i className="ph ph-check-circle" /> Plano terapêutico salvo.
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="cc-footer">
-        <span />
-        <div style={{ display: 'flex', gap: 12 }}>
-          {salvo && (
-            <button type="button" className="btn-save-draft" onClick={() => onImprimir(salvo)}>
-              <i className="ph ph-printer" /> Imprimir
+              <i className="ph ph-caret-right" style={{ color: 'var(--primary)', fontSize: 16 }} />
             </button>
+          ))}
+        </div>
+      </aside>
+
+      <div className="clinical-card">
+        <div className="cc-header">
+          <div className="cc-title-area">
+            <h2><i className="ph ph-strategy" /> Plano Terapêutico Hospitalar</h2>
+            {salvo && <span style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>Última alteração: {new Date(salvo.atualizado_em || salvo.criado_em).toLocaleString('pt-BR')}</span>}
+          </div>
+        </div>
+
+        <div className="cc-body">
+          <div className="form-section">
+            <div className="form-section-title">1. Diagnósticos Clínicos e Hipóteses Ativas</div>
+            <div className="form-group" style={{ marginBottom: 16 }}>
+              <label>Diagnóstico Principal (CID-10)</label>
+              <input type="text" className="form-control" placeholder="Ex: S06.5 — Traumatismo Cranioencefálico..." value={dados.diagnostico_principal_cid} onChange={(e) => set('diagnostico_principal_cid', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Diagnósticos Secundários / Comorbidades</label>
+              <textarea className="form-control-area" rows="2" placeholder="Ex: Fratura com afundamento de calota craniana..." value={dados.diagnosticos_texto} onChange={(e) => set('diagnosticos_texto', e.target.value)} />
+            </div>
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">2. Avaliação Clínica e Contexto</div>
+            <div className="form-group" style={{ marginBottom: 16 }}>
+              <label>Motivo da Internação Atual</label>
+              <textarea className="form-control-area" rows="2" placeholder="Descreva por que o paciente precisou internar neste momento..." value={dados.motivo_internacao} onChange={(e) => set('motivo_internacao', e.target.value)} />
+            </div>
+            <div className="form-row">
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Comorbidades Crônicas Relevantes</label>
+                <textarea className="form-control-area" rows="2" value={dados.comorbidades_antecedentes} onChange={(e) => set('comorbidades_antecedentes', e.target.value)} />
+              </div>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Medicações de Uso Contínuo</label>
+                <textarea className="form-control-area" rows="2" value={dados.medicacoes_uso_continuo} onChange={(e) => set('medicacoes_uso_continuo', e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">3. Metas e Problemas Ativos</div>
+            <div className="form-group" style={{ marginBottom: 16 }}>
+              <label>Objetivos Terapêuticos Gerais</label>
+              <textarea className="form-control-area" rows="2" placeholder="Aonde queremos chegar com esta internação?" value={dados.objetivos_terapeuticos} onChange={(e) => set('objetivos_terapeuticos', e.target.value)} />
+            </div>
+            
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-main)', marginBottom: 8, display: 'block' }}>Problemas Específicos e Metas de Curto Prazo</label>
+            <div className="metas-list">
+              {dados.problemas_ativos.map((p, i) => (
+                <div key={i} className="meta-row">
+                  <div className="form-group" style={{ flex: 1 }}><input type="text" className="form-control" placeholder="Descreva o problema / diagnóstico..." value={p.descricao} onChange={(e) => setProblema(i, 'descricao', e.target.value)} /></div>
+                  <div className="form-group" style={{ flex: 1 }}><input type="text" className="form-control" placeholder="Meta associada / Intervenção..." value={p.meta} onChange={(e) => setProblema(i, 'meta', e.target.value)} /></div>
+                  <button type="button" className="btn-remove-meta" onClick={() => removerProblema(i)}><i className="ph ph-trash" /></button>
+                </div>
+              ))}
+            </div>
+            <button type="button" className="btn-add-meta" onClick={adicionarProblema}>
+              <i className="ph ph-plus" /> Adicionar Meta / Problema
+            </button>
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">4. Protocolos Institucionais Elegíveis</div>
+            <div className="check-grid">
+              {PROTOCOLOS_OPCOES.map((p) => {
+                const checked = dados.protocolos_elegiveis.includes(p)
+                return (
+                  <label key={p} className="check-item" style={{ borderColor: checked ? 'var(--primary)' : 'var(--border-light)' }}>
+                    <input type="checkbox" checked={checked} onChange={() => toggleLista('protocolos_elegiveis', p)} />
+                    <div>
+                      <strong>{p}</strong>
+                    </div>
+                  </label>
+                )
+              })}
+            </div>
+            <div className="form-group" style={{ marginTop: 12 }}>
+              <label>Outro Protocolo (Especifique)</label>
+              <input type="text" className="form-control" value={dados.protocolo_outro} onChange={(e) => set('protocolo_outro', e.target.value)} />
+            </div>
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">5. Planejamento de Alta e Desospitalização</div>
+            <div className="form-row" style={{ marginBottom: 16 }}>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Previsão de Tempo de Internação (Dias)</label>
+                <input type="number" className="form-control" placeholder="Ex: 5" value={dados.tempo_internacao_previsto_dias} onChange={(e) => set('tempo_internacao_previsto_dias', e.target.value)} />
+              </div>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Data Prevista para Reavaliação</label>
+                <input type="date" className="form-control" value={dados.data_reavaliacao_prevista} onChange={(e) => set('data_reavaliacao_prevista', e.target.value)} />
+              </div>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 16 }}>
+              <label>Critérios Clínicos para Alta</label>
+              <textarea className="form-control-area" rows="2" placeholder="O que o paciente precisa atingir para receber alta?" value={dados.criterios_alta} onChange={(e) => set('criterios_alta', e.target.value)} />
+            </div>
+
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-main)', marginBottom: 8, display: 'block' }}>Equipe Multidisciplinar Necessária</label>
+            <div className="equipe-grid">
+              {EQUIPE_OPCOES.map((e) => {
+                const checked = dados.equipe_multidisciplinar.includes(e)
+                return (
+                  <label key={e} className="check-item" style={{ borderColor: checked ? 'var(--primary)' : 'var(--border-light)' }}>
+                    <input type="checkbox" checked={checked} onChange={() => toggleLista('equipe_multidisciplinar', e)} />
+                    <div><strong>{e}</strong></div>
+                  </label>
+                )
+              })}
+            </div>
+            <div className="form-group" style={{ marginTop: 12 }}>
+              <label>Outra Equipe</label>
+              <input type="text" className="form-control" value={dados.equipe_outros} onChange={(e) => set('equipe_outros', e.target.value)} />
+            </div>
+          </div>
+          
+          {sucesso && (
+            <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0', marginTop: 16 }}>
+              <div className="info" style={{ color: '#166534' }}>
+                <i className="ph ph-check-circle" /> Plano terapêutico salvo com sucesso.
+              </div>
+            </div>
           )}
-          <button className="btn-save-print" onClick={salvar} disabled={salvando}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar plano'}
-          </button>
+        </div>
+
+        <div className="cc-footer">
+          <span />
+          <div style={{ display: 'flex', gap: 12 }}>
+            {salvo && (
+              <button type="button" className="btn-save-draft" onClick={() => onImprimir(salvo)}>
+                <i className="ph ph-printer" /> Imprimir
+              </button>
+            )}
+            <button type="button" className="btn-save-print" onClick={salvar} disabled={salvando}>
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Plano Terapêutico'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

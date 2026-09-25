@@ -28,24 +28,23 @@ async function purgarHistoricoAntigo() {
   await supabase.from('plantoes').delete().lt('data', limite)
 }
 
-// Leitos extras (superlotação) que ficaram vazios por mais de 3h se autoexcluem,
-// pra não acumular leito criado e esquecido no sistema.
+// Leitos extras que não possuem paciente ativo desaparecem automaticamente
 async function limparLeitosExtrasNaoUsados() {
-  const tresHorasAtras = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
   const { data: candidatos } = await supabase
     .from('leitos')
     .select('id')
     .eq('tipo', 'extra')
-    .lt('criado_em', tresHorasAtras)
   if (!candidatos?.length) return
 
   const ids = candidatos.map((l) => l.id)
-  const { data: ocupados } = await supabase
-    .from('pacientes')
-    .select('leito_atual_id')
-    .eq('status', 'internado')
-    .in('leito_atual_id', ids)
-  const ocupadosSet = new Set((ocupados ?? []).map((p) => p.leito_atual_id))
+  const [{ data: ocupadosPacientes }, { data: ocupacoesPep }] = await Promise.all([
+    supabase.from('pacientes').select('leito_atual_id').eq('status', 'internado').in('leito_atual_id', ids),
+    supabase.from('leito_ocupacoes').select('leito_id').eq('status', 'ativo').in('leito_id', ids),
+  ])
+  const ocupadosSet = new Set([
+    ...(ocupadosPacientes ?? []).map((p) => p.leito_atual_id),
+    ...(ocupacoesPep ?? []).map((o) => o.leito_id),
+  ])
   const paraExcluir = ids.filter((id) => !ocupadosSet.has(id))
   if (paraExcluir.length) await supabase.from('leitos').delete().in('id', paraExcluir)
 }
@@ -62,6 +61,29 @@ const TELAS_VALIDAS = [
   'ajuda', 'conta', 'profissionais', 'passagemColetiva',
 ]
 const LIMITE_HORAS_TELA_SALVA = 4
+
+const TITULO_TELA = {
+  painel: 'Painel de Leitos',
+  recepcao: 'Recepção',
+  passagemColetiva: 'Passagem de Plantão',
+  historico: 'Histórico',
+  altas: 'Desfechos',
+  indicadoresClinicos: 'Indicadores Clínicos',
+  pendencias: 'Pendências',
+  compartilhar: 'Compartilhar Plantão',
+  equipe: 'Painel de Equipe',
+  profissionais: 'Gerenciar Profissionais',
+  conta: 'Minha Conta',
+  ajuda: 'Ajuda',
+  print1: 'Impressão — Grupo 1',
+  print2: 'Impressão — Grupo 2',
+}
+
+function iniciais(nome) {
+  if (!nome) return 'MC'
+  const partes = nome.trim().split(/\s+/)
+  return ((partes[0]?.[0] || '') + (partes[1]?.[0] || '')).toUpperCase()
+}
 
 function lerTelaSalva() {
   try {
@@ -92,6 +114,19 @@ export default function Home() {
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
+  const [horaFormatada, setHoraFormatada] = useState('')
+
+  useEffect(() => {
+    function atualizarHora() {
+      const agora = new Date()
+      const d = agora.toLocaleDateString('pt-BR')
+      const h = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      setHoraFormatada(`${d} ${h}`)
+    }
+    atualizarHora()
+    const timer = setInterval(atualizarHora, 30000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     try {
@@ -105,6 +140,7 @@ export default function Home() {
   const [encerrando, setEncerrando] = useState(false)
   const [contaMenuAberto, setContaMenuAberto] = useState(false)
   const [modalConfirmar, setModalConfirmar] = useState(null)
+  const [sidebarAberta, setSidebarAberta] = useState(false)
 
   useEffect(() => {
     if (ehMedico || ehRecepcao) {
@@ -121,8 +157,10 @@ export default function Home() {
   }, [])
 
   async function carregarTodosSetoresIds() {
-    const { data: setores } = await supabase.from('setores').select('id')
-    return (setores ?? []).map((s) => s.id)
+    const { data: setores } = await supabase.from('setores').select('id').in('id', [1, 2, 3, 4])
+    if (setores && setores.length > 0) return setores.map((s) => s.id)
+    const { data: todos } = await supabase.from('setores').select('id')
+    return (todos ?? []).map((s) => s.id)
   }
 
   function turnoAtualPorHora() {
@@ -253,54 +291,89 @@ export default function Home() {
   return (
     <div className="app-shell-sidebar-layout">
       <Sidebar
+        aberto={sidebarAberta}
+        onFechar={() => setSidebarAberta(false)}
         enfermeiro={enfermeiro}
         isAdmin={isAdmin}
         podeAdministrar={podeEncerrarQualquerPlantonista}
         plantaoAberto={Boolean(plantao && setoresIds)}
         plantao={plantao}
         telaAtual={tela}
-        onNavegar={setTela}
+        onNavegar={(t) => {
+          setTela(t)
+          setSidebarAberta(false)
+        }}
         onEncerrarPlantao={encerrarPlantao}
         encerrandoPlantao={encerrando}
         onLogout={logout}
       />
-      <main className="app-shell-conteudo shell">
-        <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
-          {tela === 'ajuda' ? (
-            <Ajuda onVoltar={() => setTela('painel')} />
-          ) : tela === 'conta' ? (
-            <MinhaConta onVoltar={() => setTela('painel')} />
-          ) : tela === 'recepcao' ? (
-            <CadastroPacientes onVoltar={() => setTela('painel')} />
-          ) : (
-            <>
-              {!plantao && (
-                <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
-                  Não foi possível abrir o plantão. Verifique a conexão e recarregue a página.
-                </div>
-              )}
+      <div className="main-content">
+        <header className="topbar">
+          <div className="topbar-left">
+            <button
+              type="button"
+              className="topbar-hamburguer-btn"
+              onClick={() => setSidebarAberta((v) => !v)}
+              title="Abrir menu"
+              aria-label="Abrir menu"
+            >
+              <i className="ph ph-list" />
+            </button>
+            <div className="breadcrumb">
+              <i className="ph ph-house" />
+              <span>Prontuário Eletrônico</span>
+              <i className="ph ph-caret-right" />
+              <span className="current">{TITULO_TELA[tela] || 'Painel de Leitos'}</span>
+            </div>
+          </div>
+          <div className="topbar-right">
+            <div className="sys-time">
+              <i className="ph ph-clock" /> {horaFormatada}
+            </div>
+            <div className="top-avatar" title={enfermeiro?.nome_exibicao || enfermeiro?.nome}>
+              {iniciais(enfermeiro?.nome_exibicao || enfermeiro?.nome)}
+            </div>
+          </div>
+        </header>
 
-              {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
-              {plantao && setoresIds && tela === 'passagemColetiva' && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} />}
-              {plantao && setoresIds && tela === 'print1' && (
-                <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('painel')} />
-              )}
-              {plantao && setoresIds && tela === 'print2' && (
-                <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('painel')} />
-              )}
-              {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
-              {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
-              {plantao && setoresIds && tela === 'indicadoresClinicos' && <IndicadoresPainel onVoltar={() => setTela('painel')} />}
-              {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
-              {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
-              {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
-              {plantao && setoresIds && tela === 'profissionais' && podeEncerrarQualquerPlantonista && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
-            </>
-          )}
-        </Suspense>
+        <main className="main-viewport">
+          <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
+            {tela === 'ajuda' ? (
+              <Ajuda onVoltar={() => setTela('painel')} />
+            ) : tela === 'conta' ? (
+              <MinhaConta onVoltar={() => setTela('painel')} />
+            ) : tela === 'recepcao' ? (
+              <CadastroPacientes onVoltar={() => setTela('painel')} />
+            ) : (
+              <>
+                {!plantao && (
+                  <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+                    Não foi possível abrir o plantão. Verifique a conexão e recarregue a página.
+                  </div>
+                )}
 
-        {modalConfirmar && <ConfirmModal {...modalConfirmar} onCancelar={() => setModalConfirmar(null)} />}
-      </main>
+                {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
+                {plantao && setoresIds && tela === 'passagemColetiva' && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} />}
+                {plantao && setoresIds && tela === 'print1' && (
+                  <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('painel')} />
+                )}
+                {plantao && setoresIds && tela === 'print2' && (
+                  <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('painel')} />
+                )}
+                {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
+                {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
+                {plantao && setoresIds && tela === 'indicadoresClinicos' && <IndicadoresPainel onVoltar={() => setTela('painel')} />}
+                {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
+                {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
+                {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
+                {plantao && setoresIds && tela === 'profissionais' && podeEncerrarQualquerPlantonista && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
+              </>
+            )}
+          </Suspense>
+
+          {modalConfirmar && <ConfirmModal {...modalConfirmar} onCancelar={() => setModalConfirmar(null)} />}
+        </main>
+      </div>
     </div>
   )
 }

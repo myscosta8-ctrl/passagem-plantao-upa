@@ -50,15 +50,32 @@ export function usePainelState() {
       .from('leitos')
       .select('*')
       .eq('ativo', true)
-      .order('numero')
+      .order('id')
 
-    setSetores(listaSetores ?? [])
-    setLeitos(listaLeitos ?? [])
+    // Filtrar apenas os 4 setores canônicos da UPA (Sala Vermelha, Internação, Pediátrico, Observação)
+    const setoresOficiais = (listaSetores ?? []).filter((s) => [1, 2, 3, 4].includes(s.id))
+    setSetores(setoresOficiais.length > 0 ? setoresOficiais : (listaSetores ?? []))
 
     if (pepAtivo) {
       const { pacientesPorLeito: mapa, passagemPorPaciente: passagemMapa } = await carregarLeitosOcupadosPep()
       setPacientesPorLeito(mapa)
       setPassagemPorPaciente(passagemMapa)
+
+      // Leitos extras não utilizados devem desaparecer automaticamente
+      const extrasDesocupados = (listaLeitos ?? []).filter((l) => l.tipo === 'extra' && !mapa[l.id])
+      if (extrasDesocupados.length > 0) {
+        const idsDesocupados = extrasDesocupados.map((l) => l.id)
+        await supabase.from('leitos').delete().in('id', idsDesocupados)
+      }
+
+      // Manter leitos oficiais (1 a 36) e extras apenas se estiverem ocupados
+      const leitosFiltrados = (listaLeitos ?? []).filter((l) => {
+        if (l.id <= 36) return true
+        if (l.tipo === 'extra' && mapa[l.id]) return true
+        return false
+      })
+      setLeitos(leitosFiltrados)
+
       const atendimentoIds = Object.values(mapa).map((p) => p.id)
       const [svMapa, balancoMapa] = await Promise.all([
         listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds),
@@ -80,6 +97,21 @@ export function usePainelState() {
       if (p.leito_atual_id) mapa[p.leito_atual_id] = p
     }
     setPacientesPorLeito(mapa)
+
+    // Leitos extras não utilizados devem desaparecer automaticamente
+    const extrasDesocupados = (listaLeitos ?? []).filter((l) => l.tipo === 'extra' && !mapa[l.id])
+    if (extrasDesocupados.length > 0) {
+      const idsDesocupados = extrasDesocupados.map((l) => l.id)
+      await supabase.from('leitos').delete().in('id', idsDesocupados)
+    }
+
+    // Manter leitos oficiais (1 a 36) e extras apenas se estiverem ocupados
+    const leitosFiltrados = (listaLeitos ?? []).filter((l) => {
+      if (l.id <= 36) return true
+      if (l.tipo === 'extra' && mapa[l.id]) return true
+      return false
+    })
+    setLeitos(leitosFiltrados)
 
     const ids = (listaPacientes ?? []).map((p) => p.id)
     if (ids.length > 0) {
@@ -105,15 +137,27 @@ export function usePainelState() {
     const numeroExtra = leitosDoSetor.filter((l) => l.tipo === 'extra').length + 1
     const { data: novo, error } = await supabase
       .from('leitos')
-      .insert({ setor_id: setorId, numero: `Extra ${numeroExtra}`, tipo: 'extra' })
+      .insert({ setor_id: setorId, numero: `Extra ${numeroExtra}`, tipo: 'extra', ativo: true })
       .select()
       .single()
-    if (!error) {
+    if (!error && novo) {
       setLeitos((prev) => [...prev, novo])
+      // Abre imediatamente o modal de admissão para ocupar o leito extra
+      setModalLeito(novo)
     } else {
       setErroGeral('Não foi possível abrir o leito extra. Tente de novo, e se persistir, avise o suporte.')
       console.error('Erro ao abrir leito extra:', error)
     }
+  }
+
+  async function cancelarModalInternar() {
+    if (modalLeito?.tipo === 'extra' && !pacientesPorLeito[modalLeito.id]) {
+      const extraId = modalLeito.id
+      setLeitos((prev) => prev.filter((l) => l.id !== extraId))
+      await supabase.from('leitos').delete().eq('id', extraId)
+    }
+    setModalLeito(null)
+    setErroInternar('')
   }
 
   async function internarPaciente(leito, dados) {
@@ -166,6 +210,7 @@ export function usePainelState() {
     balancoPorPaciente,
     modalLeito,
     setModalLeito,
+    cancelarModalInternar,
     erroInternar,
     setErroInternar,
     erroGeral,

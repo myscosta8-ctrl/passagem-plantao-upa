@@ -127,9 +127,11 @@
 /* Área de conteúdo do pilar ativo */
 .espaco-paciente-conteudo {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden; /* Let the children handle scroll */
   background: var(--c-bg);
-  padding: 16px 20px 40px;
+  padding: 0; /* Removed padding so FichaMedica can go edge-to-edge */
+  display: flex;
+  flex-direction: column;
 }
 
 .espaco-paciente-loading {
