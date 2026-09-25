@@ -25,6 +25,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
   const [intercorrencia, setIntercorrencia] = useState(false)
   const [enfermeiroRecebe, setEnfermeiroRecebe] = useState('')
   const [sv, setSv] = useState({ pa_sistolica: '', pa_diastolica: '', fc: '', fr: '', temperatura: '', spo2: '' })
+  const [itemExpandido, setItemExpandido] = useState(null)
 
   useEffect(() => { carregarTudo() }, [])
 
@@ -76,100 +77,157 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
     carregarTudo()
   }
 
-  if (carregando) return <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+  if (carregando) return <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
 
   return (
-    <div className="form-section">
-      <div className="form-section-title">Nova transferência (SBAR)</div>
-      {!ocupacao && (
-        <div className="error-box" style={{ marginBottom: 14 }}>Não foi possível identificar o leito atual deste atendimento.</div>
-      )}
-      <div className="form-grid" style={{ marginBottom: 16 }}>
-        <div className="form-field">
-          <label>Setor de destino *</label>
-          <select value={setorDestinoId} onChange={(e) => setSetorDestinoId(e.target.value)}>
-            <option value="">—</option>
-            {setores.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
-          </select>
+    <div className="clinical-split">
+      <aside className="timeline-pane">
+        <div className="pane-header">
+          <span><i className="ph ph-arrows-left-right" /> Transferências Registradas</span>
         </div>
-        <div className="form-field">
-          <label>Enfermeiro(a) que recebe</label>
-          <select value={enfermeiroRecebe} onChange={(e) => setEnfermeiroRecebe(e.target.value)}>
-            <option value="">A preencher no destino</option>
-            {enfermeiros.map((e) => <option key={e.id} value={e.id}>{e.nome_exibicao || e.nome}</option>)}
-          </select>
+        <div className="timeline-list">
+          {historico.length === 0 ? (
+            <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhuma transferência registrada ainda.</p>
+          ) : historico.map((r) => (
+            <div
+              key={r.id}
+              className={`tl-item ${itemExpandido === r.id ? 'expanded' : ''}`}
+              onClick={() => setItemExpandido((atual) => (atual === r.id ? null : r.id))}
+            >
+              <div className="tl-date">
+                {new Date(r.criado_em).toLocaleString('pt-BR')}
+                <i className={`ph ph-caret-${itemExpandido === r.id ? 'up' : 'down'}`} />
+              </div>
+              <div className="tl-author">
+                <i className="ph ph-user" /> {r.entrega?.nome_exibicao || r.entrega?.nome || 'Enfermagem'}
+              </div>
+              <div className="tl-preview">
+                <strong>Para {r.setores?.nome || '—'}</strong>
+              </div>
+              {onImprimir && (
+                <button type="button" className="tl-print" onClick={(e) => { e.stopPropagation(); onImprimir(r) }}>
+                  <i className="ph ph-printer" /> Imprimir
+                </button>
+              )}
+            </div>
+          ))}
         </div>
-        <div className="form-field span-3"><label>S — Situação (impressão diagnóstica) *</label><textarea value={impressaoDiagnostica} onChange={(e) => setImpressaoDiagnostica(e.target.value)} /></div>
+      </aside>
 
-        <div className="form-field"><label>PA sistólica</label><input type="number" value={sv.pa_sistolica} onChange={(e) => setSv((p) => ({ ...p, pa_sistolica: e.target.value }))} /></div>
-        <div className="form-field"><label>PA diastólica</label><input type="number" value={sv.pa_diastolica} onChange={(e) => setSv((p) => ({ ...p, pa_diastolica: e.target.value }))} /></div>
-        <div className="form-field"><label>FC</label><input type="number" value={sv.fc} onChange={(e) => setSv((p) => ({ ...p, fc: e.target.value }))} /></div>
-        <div className="form-field"><label>FR</label><input type="number" value={sv.fr} onChange={(e) => setSv((p) => ({ ...p, fr: e.target.value }))} /></div>
-        <div className="form-field"><label>Temperatura</label><input type="number" step="0.1" value={sv.temperatura} onChange={(e) => setSv((p) => ({ ...p, temperatura: e.target.value }))} /></div>
-        <div className="form-field"><label>SpO2</label><input type="number" value={sv.spo2} onChange={(e) => setSv((p) => ({ ...p, spo2: e.target.value }))} /></div>
+      <div className="clinical-card">
+        <div className="cc-header">
+          <div className="cc-title">
+            <h2><i className="ph ph-ambulance" /> Nova Transferência Estruturada (Metodologia SBAR)</h2>
+            <p>Situação, Avaliação e Recomendações para a equipe que recebe o paciente.</p>
+          </div>
+        </div>
 
-        <div className="form-field">
-          <label>Nível de consciência</label>
-          <div className="chip-group">
-            {NIVEIS_CONSCIENCIA.map((n) => (
-              <button key={n} type="button" className={`chip ${nivelConsciencia === n ? 'on' : ''}`} onClick={() => setNivelConsciencia(nivelConsciencia === n ? '' : n)}>{n}</button>
-            ))}
-          </div>
-        </div>
-        <div className="form-field">
-          <label>Alergia</label>
-          <div className="toggle-group">
-            <button type="button" className={`toggle-btn ${!alergia ? 'on' : ''}`} onClick={() => setAlergia(false)}>Não</button>
-            <button type="button" className={`toggle-btn ${alergia ? 'on' : ''}`} onClick={() => setAlergia(true)}>Sim</button>
-          </div>
-        </div>
-        <div className="form-field">
-          <label>Suporte ventilatório</label>
-          <div className="toggle-group">
-            <button type="button" className={`toggle-btn ${!suporteVentilatorio ? 'on' : ''}`} onClick={() => setSuporteVentilatorio(false)}>Não</button>
-            <button type="button" className={`toggle-btn ${suporteVentilatorio ? 'on' : ''}`} onClick={() => setSuporteVentilatorio(true)}>Sim</button>
-          </div>
-        </div>
-        <div className="form-field">
-          <label>Isolamento</label>
-          <div className="toggle-group">
-            <button type="button" className={`toggle-btn ${!isolamento ? 'on' : ''}`} onClick={() => setIsolamento(false)}>Não</button>
-            <button type="button" className={`toggle-btn ${isolamento ? 'on' : ''}`} onClick={() => setIsolamento(true)}>Sim</button>
-          </div>
-        </div>
-        <div className="form-field">
-          <label>Intercorrência no transporte</label>
-          <div className="toggle-group">
-            <button type="button" className={`toggle-btn ${!intercorrencia ? 'on' : ''}`} onClick={() => setIntercorrencia(false)}>Não</button>
-            <button type="button" className={`toggle-btn ${intercorrencia ? 'on' : ''}`} onClick={() => setIntercorrencia(true)}>Sim</button>
-          </div>
-        </div>
-        <div className="form-field span-2"><label>Dispositivos</label><input type="text" value={dispositivos} onChange={(e) => setDispositivos(e.target.value)} /></div>
-        <div className="form-field span-3"><label>R — Recomendações</label><textarea value={recomendacoes} onChange={(e) => setRecomendacoes(e.target.value)} /></div>
-      </div>
-      {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !ocupacao}>
-        {salvando ? 'Registrando...' : 'Registrar transferência'}
-      </button>
-
-      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
-      {historico.length === 0 ? (
-        <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma transferência registrada ainda.</p>
-      ) : (
-        historico.map((r) => (
-          <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '10px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
-            <div>
-              <div style={{ fontWeight: 600 }}>Para {r.setores?.nome || '—'}</div>
-              <div style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>
-                {r.entrega?.nome_exibicao || r.entrega?.nome} · {new Date(r.criado_em).toLocaleString('pt-BR')}
+        <div className="cc-body">
+          {!ocupacao && (
+            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+              <div className="info" style={{ color: '#DC2626' }}>
+                <i className="ph ph-warning" /> Não foi possível identificar o leito atual deste atendimento.
               </div>
             </div>
-            <button type="button" className="btn-fechar" onClick={() => onImprimir(r)}>Imprimir</button>
+          )}
+
+          <div className="form-section-box">
+            <div className="form-section-box-title" style={{ color: '#0284C7' }}>
+              <i className="ph ph-letter-circle-s" /> S — Situação
+            </div>
+            <div className="assess-grid">
+              <div className="form-group">
+                <label>Setor de destino *</label>
+                <select value={setorDestinoId} onChange={(e) => setSetorDestinoId(e.target.value)}>
+                  <option value="">—</option>
+                  {setores.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Enfermeiro(a) que recebe</label>
+                <select value={enfermeiroRecebe} onChange={(e) => setEnfermeiroRecebe(e.target.value)}>
+                  <option value="">A preencher no destino</option>
+                  {enfermeiros.map((e) => <option key={e.id} value={e.id}>{e.nome_exibicao || e.nome}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Impressão diagnóstica *</label>
+              <textarea value={impressaoDiagnostica} onChange={(e) => setImpressaoDiagnostica(e.target.value)} />
+            </div>
           </div>
-        ))
-      )}
+
+          <div className="form-section-box">
+            <div className="form-section-box-title" style={{ color: '#0D9488' }}>
+              <i className="ph ph-letter-circle-a" /> A — Avaliação no Momento do Embarque
+            </div>
+            <div className="assess-grid">
+              <div className="form-group"><label>PA sistólica</label><input type="number" value={sv.pa_sistolica} onChange={(e) => setSv((p) => ({ ...p, pa_sistolica: e.target.value }))} /></div>
+              <div className="form-group"><label>PA diastólica</label><input type="number" value={sv.pa_diastolica} onChange={(e) => setSv((p) => ({ ...p, pa_diastolica: e.target.value }))} /></div>
+              <div className="form-group"><label>FC</label><input type="number" value={sv.fc} onChange={(e) => setSv((p) => ({ ...p, fc: e.target.value }))} /></div>
+              <div className="form-group"><label>FR</label><input type="number" value={sv.fr} onChange={(e) => setSv((p) => ({ ...p, fr: e.target.value }))} /></div>
+              <div className="form-group"><label>Temperatura</label><input type="number" step="0.1" value={sv.temperatura} onChange={(e) => setSv((p) => ({ ...p, temperatura: e.target.value }))} /></div>
+              <div className="form-group"><label>SpO2</label><input type="number" value={sv.spo2} onChange={(e) => setSv((p) => ({ ...p, spo2: e.target.value }))} /></div>
+            </div>
+
+            <div className="form-group">
+              <label>Nível de consciência:</label>
+              <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                {NIVEIS_CONSCIENCIA.map((n) => (
+                  <label key={n} className="checkbox-item">
+                    <input type="radio" name="sbar-consciencia" checked={nivelConsciencia === n} onChange={() => setNivelConsciencia(nivelConsciencia === n ? '' : n)} /> {n}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              <label className="checkbox-item">
+                <input type="checkbox" checked={alergia} onChange={(e) => setAlergia(e.target.checked)} /> Alergia
+              </label>
+              <label className="checkbox-item">
+                <input type="checkbox" checked={suporteVentilatorio} onChange={(e) => setSuporteVentilatorio(e.target.checked)} /> Suporte ventilatório
+              </label>
+              <label className="checkbox-item">
+                <input type="checkbox" checked={isolamento} onChange={(e) => setIsolamento(e.target.checked)} /> Isolamento
+              </label>
+              <label className="checkbox-item">
+                <input type="checkbox" checked={intercorrencia} onChange={(e) => setIntercorrencia(e.target.checked)} /> Intercorrência no transporte
+              </label>
+            </div>
+
+            <div className="form-group">
+              <label>Dispositivos</label>
+              <input type="text" value={dispositivos} onChange={(e) => setDispositivos(e.target.value)} />
+            </div>
+          </div>
+
+          <div className="form-section-box">
+            <div className="form-section-box-title" style={{ color: '#D97706' }}>
+              <i className="ph ph-letter-circle-r" /> R — Recomendações
+            </div>
+            <div className="form-group">
+              <label>Recomendações para a equipe que recebe</label>
+              <textarea value={recomendacoes} onChange={(e) => setRecomendacoes(e.target.value)} />
+            </div>
+          </div>
+
+          {erro && (
+            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+              <div className="info" style={{ color: '#DC2626' }}>
+                <i className="ph ph-warning" /> {erro}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="cc-footer">
+          <span />
+          <button className="btn-save-print" onClick={registrar} disabled={salvando || !ocupacao}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Registrando...' : 'Registrar transferência'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
-
-
