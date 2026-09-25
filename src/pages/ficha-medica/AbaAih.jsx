@@ -8,7 +8,7 @@ const PROCEDIMENTOS_RAPIDOS = [
   { cod: '0303010069', codFormatado: '03.03.01.006-9', desc: 'TRATAMENTO DE TRANSTORNOS DIGESTIVOS / DIARREIA AGUDA', rotulo: 'Transtornos Digestivos' },
 ];
 
-export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmissao }) {
+export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -256,10 +256,11 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
                       <span>{new Date(h.criado_em).toLocaleDateString('pt-BR')}</span>
                       <button
                         type="button"
-                        style={{ border: 'none', background: 'transparent', color: '#1D4ED8', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                        className="btn-icon-circle"
+                        title="Imprimir"
                         onClick={() => onImprimir(h)}
                       >
-                        <i className="ph ph-printer" /> Imprimir
+                        <i className="ph ph-printer" />
                       </button>
                     </div>
                   </div>
@@ -279,6 +280,11 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
             </h2>
             <span>
               Documento Oficial: Laudo AIH Oficial (Modelo 16) &bull; Estabelecimento: <strong>UPA 24H BREVES (CNES 0296796)</strong>
+              {medicoNome && (
+                <>
+                  {' '}&bull; Médico: <strong>{medicoNome}{medicoCrm ? ` — CRM/PA ${medicoCrm}` : ''}</strong>
+                </>
+              )}
             </span>
           </div>
         </div>
@@ -419,10 +425,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
             <div className="aih-grid" style={{ marginTop: 4 }}>
               <div className="col-12">
                 <div className="form-group">
-                  <label>
-                    20 - PRINCIPAIS SINAIS E SINTOMAS CLÍNICOS *
-                    <span className="badge-auto">Preenchido da Admissão</span>
-                  </label>
+                  <label>20 - PRINCIPAIS SINAIS E SINTOMAS CLÍNICOS *</label>
                   <textarea
                     rows={3}
                     style={{ width: '100%' }}
@@ -485,7 +488,6 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
                 <div className="aih-field-box highlight">
                   <div className="aih-field-header">
                     <label>24 - CID-10 PRINCIPAL</label>
-                    <span className="badge-auto">Da Admissão</span>
                   </div>
                   <input
                     type="text"
@@ -500,7 +502,6 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
                 <div className="aih-field-box">
                   <div className="aih-field-header">
                     <label>25 - CID-10 SECUNDÁRIO (COMORBIDADES)</label>
-                    <span className="badge-auto">Automático</span>
                   </div>
                   <input
                     type="text"
@@ -574,7 +575,9 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
               <div className="col-8">
                 <div className="aih-field-box readonly">
                   <div className="aih-field-header"><label>33 - NOME DO PROFISSIONAL SOLICITANTE</label></div>
-                  <div className="aih-field-value">DR. PLANTONISTA &bull; CRM-PA: 1234 (UPA 24H BREVES)</div>
+                  <div className="aih-field-value">
+                    {medicoNome ? `${medicoNome.toUpperCase()}${medicoCrm ? ` \u2022 CRM-PA: ${medicoCrm}` : ''} (UPA 24H BREVES)` : 'NÃO INFORMADO'}
+                  </div>
                 </div>
               </div>
               <div className="col-4">
@@ -677,22 +680,13 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
             <button
               type="button"
               className="btn-cancel"
-              onClick={() => onIrParaAdmissao && onIrParaAdmissao()}
+              onClick={onFechar}
             >
               <i className="ph ph-x-circle" /> Cancelar
             </button>
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
-            {onIrParaAdmissao && (
-              <button
-                type="button"
-                className="btn-next-tab"
-                onClick={onIrParaAdmissao}
-              >
-                ← Voltar para Admissão
-              </button>
-            )}
             <button
               type="button"
               className="btn-save-draft"
@@ -707,7 +701,7 @@ export default function AbaAih({ atendimento, medicoId, onImprimir, onIrParaAdmi
               onClick={() => salvar(true)}
               disabled={salvando}
             >
-              <i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir Laudo AIH"}
+              <i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir"}
             </button>
           </div>
         </div>

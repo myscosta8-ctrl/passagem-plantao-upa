@@ -10,7 +10,7 @@ function agoraParaInput() {
 
 const SV_VAZIO = { pa_sistolica: '', pa_diastolica: '', fc: '', fr: '', temperatura: '', spo2: '' }
 
-export default function AbaEventosAdversos({ atendimento, autorId, onImprimir }) {
+export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, onFechar }) {
   const [lista, setLista] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [categoria, setCategoria] = useState('')
@@ -35,11 +35,11 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
     setCarregando(false)
   }
 
-  async function registrar() {
+  async function registrar(imprimir = false) {
     if (!categoria || !gravidade || !descricao.trim()) return
     setErro('')
     setSalvando(true)
-    const { error } = await registrarEventoAdverso({
+    const { data, error } = await registrarEventoAdverso({
       atendimentoId: atendimento.atendimento_id, relatorId: autorId, anonimo,
       categoria, gravidade, descricao: descricao.trim(), acaoImediata: acaoImediata.trim(),
       ocorridoEm: ocorridoEm ? new Date(ocorridoEm).toISOString() : null,
@@ -54,6 +54,7 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
       console.error(error)
       return
     }
+    if (imprimir && data) onImprimir(data)
     setCategoria(''); setGravidade(''); setDescricao(''); setAcaoImediata(''); setAnonimo(false)
     setOcorridoEm(agoraParaInput()); setMedicoComunicado(false); setHorarioComunicacaoMedico('')
     setSv({ ...SV_VAZIO }); setDesfechoEvolucao('')
@@ -203,10 +204,19 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir })
         </div>
 
         <div className="cc-footer">
-          <span />
-          <button className="btn-save-print" onClick={registrar} disabled={salvando || !categoria || !gravidade || !descricao.trim()}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Registrando...' : 'Registrar evento'}
-          </button>
+          <div>
+            <button type="button" className="btn-cancel" onClick={onFechar}>
+              <i className="ph ph-x-circle" /> Cancelar
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando || !categoria || !gravidade || !descricao.trim()}>
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando || !categoria || !gravidade || !descricao.trim()}>
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

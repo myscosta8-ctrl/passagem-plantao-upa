@@ -25,7 +25,7 @@ const MODELOS = {
   }
 };
 
-export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrParaAih }) {
+export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -189,7 +189,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
                 <strong>Pneumonia Pediátrica</strong>
                 <span>Preenche HDA + EF completo</span>
               </div>
-              <span style={{ color: '#1D4ED8', fontSize: 16 }}>+</span>
+              <i className="ph ph-plus-circle" style={{ color: '#1D4ED8', fontSize: 16 }} />
             </button>
             <button
               type="button"
@@ -200,7 +200,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
                 <strong>Bronquiolite / Asma Grave</strong>
                 <span>Cibrose, sibilos e oxigenoterapia</span>
               </div>
-              <span style={{ color: '#1D4ED8', fontSize: 16 }}>+</span>
+              <i className="ph ph-plus-circle" style={{ color: '#1D4ED8', fontSize: 16 }} />
             </button>
             <button
               type="button"
@@ -211,7 +211,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
                 <strong>Gastroenterite + Desidratação</strong>
                 <span>Vômitos, diarreia e hidratação EV</span>
               </div>
-              <span style={{ color: '#1D4ED8', fontSize: 16 }}>+</span>
+              <i className="ph ph-plus-circle" style={{ color: '#1D4ED8', fontSize: 16 }} />
             </button>
           </div>
 
@@ -233,10 +233,11 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
                       <span>{new Date(h.criado_em).toLocaleDateString('pt-BR')}</span>
                       <button
                         type="button"
-                        style={{ border: 'none', background: 'transparent', color: '#1D4ED8', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                        className="btn-icon-circle"
+                        title="Imprimir"
                         onClick={() => onImprimir(h)}
                       >
-                        <i className="ph ph-printer" /> Imprimir
+                        <i className="ph ph-printer" />
                       </button>
                     </div>
                   </div>
@@ -256,6 +257,11 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             </h2>
             <span>
               Documento Oficial: Consulta / Admissão Médica (Modelo 10) &bull; UPA 24H BREVES (CNES 0296796)
+              {medicoNome && (
+                <>
+                  {' '}&bull; Médico: <strong>{medicoNome}{medicoCrm ? ` — CRM/PA ${medicoCrm}` : ''}</strong>
+                </>
+              )}
             </span>
           </div>
         </div>
@@ -294,10 +300,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             </div>
 
             <div className="form-group" style={{ marginBottom: 12, marginTop: 6 }}>
-              <label>
-                Queixa Principal (QP) *
-                <span className="badge-manual">Preenchimento Clínico</span>
-              </label>
+              <label>Queixa Principal (QP) *</label>
               <input
                 type="text"
                 className="form-control"
@@ -308,10 +311,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             </div>
 
             <div className="form-group">
-              <label>
-                História da Doença Atual (HDA)
-                <span className="badge-auto">Passagem Automática para AIH</span>
-              </label>
+              <label>História da Doença Atual (HDA)</label>
               <textarea
                 className="form-control-area"
                 rows={4}
@@ -329,10 +329,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             </div>
 
             <div className="form-group" style={{ marginTop: 6 }}>
-              <label>
-                Comorbidades / Diagnósticos Secundários
-                <span className="badge-auto">Passa para CIDs Secundários da AIH</span>
-              </label>
+              <label>Comorbidades / Diagnósticos Secundários</label>
               <div className="chip-container">
                 {comorbidades.map((c, i) => (
                   <span key={i} className="chip">
@@ -358,10 +355,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             </div>
 
             <div className="form-group" style={{ marginTop: 6 }}>
-              <label>
-                Achados do Exame Físico
-                <span className="badge-auto">Sincroniza com Justificativa da AIH</span>
-              </label>
+              <label>Achados do Exame Físico</label>
               <textarea
                 className="form-control-area"
                 rows={5}
@@ -379,10 +373,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             </div>
 
             <div className="form-group" style={{ marginTop: 6, marginBottom: 12 }}>
-              <label>
-                Hipótese Diagnóstica Principal (CID-10) *
-                <span className="badge-auto">Passagem Automática para AIH</span>
-              </label>
+              <label>Hipótese Diagnóstica Principal (CID-10) *</label>
               <input
                 type="text"
                 className="form-control"
@@ -411,7 +402,7 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
             <button
               type="button"
               className="btn-cancel"
-              onClick={() => onIrParaAih && onIrParaAih()}
+              onClick={onFechar}
             >
               <i className="ph ph-x-circle" /> Cancelar
             </button>
@@ -432,17 +423,8 @@ export default function AbaConsulta({ atendimento, medicoId, onImprimir, onIrPar
               onClick={() => salvar(true)}
               disabled={salvando}
             >
-              <i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir Admissão"}
+              <i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir"}
             </button>
-            {onIrParaAih && (
-              <button
-                type="button"
-                className="btn-next-tab"
-                onClick={onIrParaAih}
-              >
-                Ir para Laudo de AIH →
-              </button>
-            )}
           </div>
         </div>
       </div>

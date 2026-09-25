@@ -3,7 +3,7 @@ import { listarAtestadosMedicos, criarAtestadoMedico } from '../../lib/pepMedico
 
 const HOJE = new Date().toISOString().slice(0, 10);
 
-export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir }) {
+export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [cid, setCid] = useState('')
@@ -16,14 +16,14 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir })
   useEffect(() => { carregar() }, [])
   async function carregar() { setCarregando(true); setHistorico(await listarAtestadosMedicos(atendimento.atendimento_id)); setCarregando(false) }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     if (!diasAfastamento) {
       setErro('Informe a quantidade de dias de afastamento.')
       return
     }
     setErro('')
     setSalvando(true)
-    const { error } = await criarAtestadoMedico({
+    const { data, error } = await criarAtestadoMedico({
       atendimentoId: atendimento.atendimento_id,
       criadoPor: medicoId,
       dados: {
@@ -35,6 +35,7 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir })
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    if (imprimir && data) onImprimir(data)
     setCid(''); setDiasAfastamento(''); setDataInicio(HOJE); setTextoLivre('')
     carregar()
   }
@@ -105,10 +106,19 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir })
       </div>
 
       <div className="cc-footer">
-        <span />
-        <button className="btn-save-print" onClick={salvar} disabled={salvando}>
-          <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Registrar atestado'}
-        </button>
+        <div>
+          <button type="button" className="btn-cancel" onClick={onFechar}>
+            <i className="ph ph-x-circle" /> Cancelar
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+          </button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+          </button>
+        </div>
       </div>
     </div>
   )

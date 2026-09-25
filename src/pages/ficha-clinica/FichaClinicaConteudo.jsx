@@ -9,7 +9,7 @@ import AbaIsolamento from './AbaIsolamento';
 import AbaSbar from './AbaSbar';
 import AbaEventosAdversos from './AbaEventosAdversos';
 
-export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImprimir }) {
+export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImprimir, onFechar }) {
   if (aba === 'admissaoEnfermagem') {
     return (
       <AbaHistoricoEnfermagem
@@ -19,35 +19,36 @@ export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImpr
           tipo: registro._variante === 'projeto' ? 'historico_enfermagem_projeto' : 'historico_enfermagem_fiel',
           registro,
         })}
+        onFechar={onFechar}
       />
     );
   }
   if (aba === 'sinaisVitais') {
-    return <AbaSinaisVitais atendimento={atendimento} autorId={autorId} />;
+    return <AbaSinaisVitais atendimento={atendimento} autorId={autorId} onFechar={onFechar} />;
   }
   if (aba === 'evolucao') {
-    return <AbaEvolucao atendimento={atendimento} autorId={autorId} onImprimir={(registro) => onImprimir({ tipo: 'evolucao_sae', registro })} />;
+    return <AbaEvolucao atendimento={atendimento} autorId={autorId} onImprimir={(registro) => onImprimir({ tipo: 'evolucao_sae', registro })} onFechar={onFechar} />;
   }
   if (aba === 'dispositivos') {
-    return <AbaDispositivos atendimento={atendimento} />;
+    return <AbaDispositivos atendimento={atendimento} onFechar={onFechar} />;
   }
   if (aba === 'balanco') {
-    return <AbaBalancoHidrico atendimento={atendimento} autorId={autorId} onImprimir={(registro) => onImprimir({ tipo: 'balanco', registro })} />;
+    return <AbaBalancoHidrico atendimento={atendimento} autorId={autorId} onImprimir={(registro) => onImprimir({ tipo: 'balanco', registro })} onFechar={onFechar} />;
   }
   if (aba === 'escalas') {
-    return <AbaEscalas atendimento={atendimento} />;
+    return <AbaEscalas atendimento={atendimento} onFechar={onFechar} />;
   }
   if (aba === 'alergias') {
-    return <AbaAlergias atendimento={atendimento} />;
+    return <AbaAlergias atendimento={atendimento} onFechar={onFechar} />;
   }
   if (aba === 'isolamento') {
-    return <AbaIsolamento atendimento={atendimento} autorId={autorId} />;
+    return <AbaIsolamento atendimento={atendimento} autorId={autorId} onFechar={onFechar} />;
   }
   if (aba === 'sbar') {
-    return <AbaSbar atendimento={atendimento} autorId={autorId} onImprimir={(registro) => onImprimir({ tipo: 'sbar', registro })} />;
+    return <AbaSbar atendimento={atendimento} autorId={autorId} onImprimir={(registro) => onImprimir({ tipo: 'sbar', registro })} onFechar={onFechar} />;
   }
   if (aba === 'eventosAdversos') {
-    return <AbaEventosAdversos atendimento={atendimento} autorId={autorId} onImprimir={(registro) => onImprimir({ tipo: 'intercorrencia', registro })} />;
+    return <AbaEventosAdversos atendimento={atendimento} autorId={autorId} onImprimir={(registro) => onImprimir({ tipo: 'intercorrencia', registro })} onFechar={onFechar} />;
   }
   return null;
 }

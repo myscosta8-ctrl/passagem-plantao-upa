@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { listarAlergias, registrarAlergia, inativarAlergia } from '../../lib/pepClinico';
 import { GRAVIDADES } from './constantes';
 
-export default function AbaAlergias({ atendimento }) {
+export default function AbaAlergias({ atendimento, onFechar }) {
   const [lista, setLista] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [substancia, setSubstancia] = useState('')
@@ -60,9 +60,14 @@ export default function AbaAlergias({ atendimento }) {
         </div>
       </div>
       {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !substancia.trim()}>
-        {salvando ? 'Registrando...' : 'Registrar alergia'}
-      </button>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button type="button" className="btn-cancel" onClick={onFechar}>
+          <i className="ph ph-x-circle" /> Cancelar
+        </button>
+        <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !substancia.trim()}>
+          {salvando ? 'Salvando...' : 'Salvar'}
+        </button>
+      </div>
 
       <div className="form-section-title" style={{ marginTop: 24 }}>Ativas</div>
       {carregando ? (

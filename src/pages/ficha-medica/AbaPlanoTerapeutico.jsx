@@ -14,7 +14,7 @@ const KITS_PROTOCOLO = [
   { chave: 'avc', titulo: 'AVC — Acidente Vascular Cerebral', icon: 'ph-brain', protocolos: ['AVC — Acidente Vascular Cerebral', 'TEV — Tromboembolismo Venoso'], equipe: ['Enfermagem', 'Fisioterapia', 'Serviço Social'] },
 ]
 
-export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir }) {
+export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState({
     diagnostico_principal_cid: '', diagnosticos_texto: '', motivo_internacao: '', objetivos_terapeuticos: '', protocolos_elegiveis: [],
     protocolo_outro: '', medidas_seguranca_texto: '',
@@ -78,7 +78,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir 
     setDados((prev) => ({ ...prev, problemas_ativos: prev.problemas_ativos.filter((_, idx) => idx !== i) }))
   }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     setSalvando(true)
     const {
       diagnostico_principal_cid, motivo_internacao, objetivos_terapeuticos, protocolos_elegiveis,
@@ -97,6 +97,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir 
     setSalvando(false)
     setSucesso(true)
     setSalvo(data)
+    if (imprimir && data) onImprimir(data)
   }
 
   if (carregando) return <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
@@ -250,15 +251,22 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir 
         </div>
 
         <div className="cc-footer">
-          <span />
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div>
+            <button type="button" className="btn-cancel" onClick={onFechar}>
+              <i className="ph ph-x-circle" /> Cancelar
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
             {salvo && (
               <button type="button" className="btn-save-draft" onClick={() => onImprimir(salvo)}>
-                <i className="ph ph-printer" /> Imprimir
+                <i className="ph ph-printer" /> Reimprimir
               </button>
             )}
-            <button type="button" className="btn-save-print" onClick={salvar} disabled={salvando}>
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Plano Terapêutico'}
+            <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
             </button>
           </div>
         </div>

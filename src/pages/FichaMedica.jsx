@@ -41,9 +41,12 @@ export default function FichaMedica({ atendimento, onFechar, initialTab = 'consu
         <FichaMedicaConteudo
           atendimento={atendimento}
           medicoId={enfermeiro?.id}
+          medicoNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
+          medicoCrm={enfermeiro?.crm}
           aba={aba}
           onSelecionarAba={setAba}
           onImprimir={setImprimindo}
+          onFechar={onFechar}
         />
       </div>
     </div>

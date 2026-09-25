@@ -47,6 +47,7 @@ export default function FichaClinica({ atendimento, onFechar }) {
           autorId={enfermeiro?.id}
           aba={aba}
           onImprimir={setImprimindo}
+          onFechar={onFechar}
         />
       </div>
     </div>

@@ -51,7 +51,7 @@ function TabelaBalanco({ titulo, icon, corHeader, linhas, colunaItem, opcoesVia,
   )
 }
 
-export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir }) {
+export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [novaEntrada, setNovaEntrada] = useState({ ...NOVA_LINHA_VAZIA })
@@ -167,14 +167,18 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir }) 
       </div>
 
       <div className="cc-footer">
-        <span />
+        <div>
+          <button type="button" className="btn-cancel" onClick={onFechar}>
+            <i className="ph ph-x-circle" /> Cancelar
+          </button>
+        </div>
         {onImprimir && (
           <button
             type="button"
             className="btn-save-print"
             onClick={() => onImprimir({ historico, totalEntradas, totalSaidas, saldo })}
           >
-            <i className="ph ph-printer" /> Imprimir Balanço 24h
+            <i className="ph ph-printer" /> Salvar e Imprimir
           </button>
         )}
       </div>

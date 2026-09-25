@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listarRegulacao, registrarRegulacao, buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao, listarCatalogoCid } from '../../lib/pepMedico';
 
-export default function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
+export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [abertura, setAbertura] = useState(null)
@@ -46,11 +46,11 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
     carregar()
   }
 
-  async function registrar() {
+  async function registrar(imprimir = false) {
     if (!evolucao.trim()) return
     setErro('')
     setSalvando(true)
-    const { error } = await registrarRegulacao({
+    const { data, error } = await registrarRegulacao({
       atendimentoId: atendimento.atendimento_id, atualizadoPor: medicoId,
       dados: {
         evolucao: evolucao.trim(), pendencias: pendencias || null, conduta: conduta || null,
@@ -63,6 +63,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível registrar a atualização.'); return }
+    if (imprimir && data) onImprimir(data)
     setEvolucao(''); setPendencias(''); setConduta(''); setNumeroSer('')
     setDiagnosticoRegulado(''); setMudancaDiagnostico(false); setNovoDiagnostico('')
     setPa({ pas: '', pad: '' }); setFc(''); setFr(''); setTemp(''); setSpo2(''); setHgt('')
@@ -128,7 +129,9 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir }) {
       </div>
       {erro && <p style={{ color: 'var(--color-danger, #c0392b)', fontSize: 13 }}>{erro}</p>}
       <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button className="modal-btn-primary" onClick={registrar} disabled={salvando || !evolucao.trim()}>{salvando ? 'Registrando...' : 'Registrar atualização'}</button>
+        <button type="button" className="modal-btn-secondary" onClick={onFechar}>Cancelar</button>
+        <button className="modal-btn-secondary" onClick={() => registrar(false)} disabled={salvando || !evolucao.trim()}>{salvando ? 'Salvando...' : 'Salvar'}</button>
+        <button className="modal-btn-primary" onClick={() => registrar(true)} disabled={salvando || !evolucao.trim()}>{salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
       </div>
 
       <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>

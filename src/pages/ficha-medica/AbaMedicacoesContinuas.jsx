@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listarMedicacoesContinuas, registrarMedicacaoContinua, suspenderMedicacaoContinua } from '../../lib/pepMedico';
 
-export default function AbaMedicacoesContinuas({ atendimento, medicoId }) {
+export default function AbaMedicacoesContinuas({ atendimento, medicoId, onFechar }) {
   const [lista, setLista] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [medicamento, setMedicamento] = useState('')
@@ -56,6 +56,7 @@ export default function AbaMedicacoesContinuas({ atendimento, medicoId }) {
       </div>
       {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
       <div className="modal-actions" style={{ marginTop: 14 }}>
+        <button type="button" className="modal-btn-secondary" onClick={onFechar}>Cancelar</button>
         <button className="modal-btn-primary" onClick={adicionar} disabled={salvando || !medicamento.trim()}>{salvando ? 'Salvando...' : '+ Adicionar'}</button>
       </div>
 

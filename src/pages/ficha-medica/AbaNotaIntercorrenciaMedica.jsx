@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listarNotasIntercorrenciaMedica, criarNotaIntercorrenciaMedica } from '../../lib/pepMedico';
 
-export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onImprimir }) {
+export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [notas, setNotas] = useState('')
@@ -11,16 +11,17 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
   useEffect(() => { carregar() }, [])
   async function carregar() { setCarregando(true); setHistorico(await listarNotasIntercorrenciaMedica(atendimento.atendimento_id)); setCarregando(false) }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     if (!notas.trim()) { setErro('Preencha a nota.'); return }
     setErro('')
     setSalvando(true)
-    const { error } = await criarNotaIntercorrenciaMedica({
+    const { data, error } = await criarNotaIntercorrenciaMedica({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: { notas: notas.trim() },
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    if (imprimir && data) onImprimir(data)
     setNotas('')
     carregar()
   }
@@ -33,7 +34,9 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
       </div>
       {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
       <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Registrar nota'}</button>
+        <button type="button" className="modal-btn-secondary" onClick={onFechar}>Cancelar</button>
+        <button className="modal-btn-secondary" onClick={() => salvar(false)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</button>
+        <button className="modal-btn-primary" onClick={() => salvar(true)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
       </div>
 
       <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>

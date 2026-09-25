@@ -3,7 +3,7 @@ import { listarEvolucoesMedicas, criarEvolucaoMedica } from '../../lib/pepMedico
 import { listarSinaisVitais } from '../../lib/pepClinico';
 import { EVOLUCAO_VAZIA, RISCO_TEV_OPCOES } from './constantes';
 
-export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir }) {
+export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(EVOLUCAO_VAZIA)
@@ -39,14 +39,14 @@ export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir })
     setSvInfo(`Puxado de ${new Date(ultimo.registrado_em).toLocaleString('pt-BR')} — ${ultimo.enfermeiros?.nome_exibicao || ultimo.enfermeiros?.nome || 'Enfermagem'}. Os campos podem ser editados abaixo.`)
   }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     if (!dados.evolucao_dia.trim() || !dados.exame_fisico.trim()) {
       setErro('Preencha ao menos a evolução do dia e o exame físico.')
       return
     }
     setErro('')
     setSalvando(true)
-    const { error } = await criarEvolucaoMedica({
+    const { data, error } = await criarEvolucaoMedica({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         diagnosticos: dados.diagnosticos || null, historia_doenca_atual: dados.historia_doenca_atual || null,
@@ -71,6 +71,7 @@ export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir })
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    if (imprimir && data) onImprimir(data)
     setDados(EVOLUCAO_VAZIA)
     setSvInfo('')
     carregar()
@@ -251,10 +252,19 @@ export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir })
         </div>
 
         <div className="cc-footer">
-          <span />
-          <button className="btn-save-print" onClick={salvar} disabled={salvando}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Registrar evolução'}
-          </button>
+          <div>
+            <button type="button" className="btn-cancel" onClick={onFechar}>
+              <i className="ph ph-x-circle" /> Cancelar
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

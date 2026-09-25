@@ -62,7 +62,7 @@ const APAC_VAZIA = {
   executante_cnes: '',
 };
 
-export default function AbaApac({ atendimento, medicoId, onImprimir }) {
+export default function AbaApac({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [dados, setDados] = useState(APAC_VAZIA);
@@ -612,15 +612,17 @@ export default function AbaApac({ atendimento, medicoId, onImprimir }) {
       </div>
 
       <div className="cc-footer">
-        <button type="button" className="btn-cancel" onClick={descartar} disabled={salvando}>
-          <i className="ph ph-trash" /> Descartar / Limpar
-        </button>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div>
+          <button type="button" className="btn-cancel" onClick={onFechar}>
+            <i className="ph ph-x-circle" /> Cancelar
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
           </button>
           <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
-            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar & Imprimir Laudo APAC (Modelo 18)'}
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
           </button>
         </div>
       </div>

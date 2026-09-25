@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { buscarSumarioAlta, salvarSumarioAlta } from '../../lib/pepMedico';
 
-export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir }) {
+export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState({
     data_internacao: '', data_alta: '',
     diagnostico_internacao: '', cid_internacao: '',
@@ -30,7 +30,7 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir }) {
 
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     setSalvando(true)
     const { data } = await salvarSumarioAlta({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
@@ -44,6 +44,7 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir }) {
     setSalvando(false)
     setSucesso(true)
     setSalvo(data)
+    if (imprimir && data) onImprimir(data)
   }
 
   if (carregando) return <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
@@ -117,15 +118,22 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir }) {
       </div>
 
       <div className="cc-footer">
-        <span />
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div>
+          <button type="button" className="btn-cancel" onClick={onFechar}>
+            <i className="ph ph-x-circle" /> Cancelar
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
           {salvo && (
             <button type="button" className="btn-save-draft" onClick={() => onImprimir(salvo)}>
-              <i className="ph ph-printer" /> Imprimir
+              <i className="ph ph-printer" /> Reimprimir
             </button>
           )}
-          <button className="btn-save-print" onClick={salvar} disabled={salvando}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar sumário'}
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+          </button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
           </button>
         </div>
       </div>

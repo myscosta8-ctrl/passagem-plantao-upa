@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
 import { SV_VAZIO } from './constantes';
 
-export default function AbaSinaisVitais({ atendimento, autorId }) {
+export default function AbaSinaisVitais({ atendimento, autorId, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(SV_VAZIO)
@@ -47,9 +47,14 @@ export default function AbaSinaisVitais({ atendimento, autorId }) {
         <div className="form-field"><label>Dor (0-10)</label><input type="number" min="0" max="10" value={dados.dor_escala} onChange={(e) => set('dor_escala', e.target.value)} /></div>
       </div>
       {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando}>
-        {salvando ? 'Registrando...' : 'Registrar'}
-      </button>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button type="button" className="btn-cancel" onClick={onFechar}>
+          <i className="ph ph-x-circle" /> Cancelar
+        </button>
+        <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando}>
+          {salvando ? 'Salvando...' : 'Salvar'}
+        </button>
+      </div>
 
       <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
       {carregando ? (

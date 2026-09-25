@@ -16,14 +16,16 @@ import AbaSangue from './AbaSangue';
 import AbaMedicacoesContinuas from './AbaMedicacoesContinuas';
 import AbaAuditoria from './AbaAuditoria';
 
-export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSelecionarAba, onImprimir }) {
+export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome, medicoCrm, aba, onSelecionarAba, onImprimir, onFechar }) {
   if (aba === 'consulta') {
     return (
       <AbaConsulta
         atendimento={atendimento}
         medicoId={medicoId}
+        medicoNome={medicoNome}
+        medicoCrm={medicoCrm}
         onImprimir={(registro) => onImprimir({ tipo: 'consulta', registro })}
-        onIrParaAih={() => onSelecionarAba('aih')}
+        onFechar={onFechar}
       />
     );
   }
@@ -32,8 +34,10 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
       <AbaAih
         atendimento={atendimento}
         medicoId={medicoId}
+        medicoNome={medicoNome}
+        medicoCrm={medicoCrm}
         onImprimir={(registro) => onImprimir({ tipo: 'aih', registro })}
-        onIrParaAdmissao={() => onSelecionarAba('consulta')}
+        onFechar={onFechar}
       />
     );
   }
@@ -43,6 +47,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'plano', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -52,6 +57,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'evolucao', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -61,11 +67,12 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })}
+        onFechar={onFechar}
       />
     );
   }
   if (aba === 'exames') {
-    return <AbaExames atendimento={atendimento} />;
+    return <AbaExames atendimento={atendimento} onFechar={onFechar} />;
   }
   if (aba === 'sangue') {
     return (
@@ -73,6 +80,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'sangue', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -82,6 +90,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'receituario', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -91,6 +100,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'alta', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -100,6 +110,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'apac', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -109,6 +120,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'atestado', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -118,6 +130,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'atm', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -127,6 +140,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'tfd', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -136,6 +150,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'regulacao', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -145,6 +160,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'intercorrencia', registro })}
+        onFechar={onFechar}
       />
     );
   }
@@ -153,6 +169,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, aba, onSele
       <AbaMedicacoesContinuas
         atendimento={atendimento}
         medicoId={medicoId}
+        onFechar={onFechar}
       />
     );
   }

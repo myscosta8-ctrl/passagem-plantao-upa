@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { listarEvolucoes, registrarEvolucao } from '../../lib/pepClinico';
 import { NANDA_OPCOES, NIC_OPCOES } from './constantes';
 
-export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
+export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [texto, setTexto] = useState('')
@@ -28,11 +28,11 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
     setPrescricaoNic((prev) => (prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]))
   }
 
-  async function registrar() {
+  async function registrar(imprimir = false) {
     if (!texto.trim()) return
     setErro('')
     setSalvando(true)
-    const { error } = await registrarEvolucao({
+    const { data, error } = await registrarEvolucao({
       atendimentoId: atendimento.atendimento_id, autorId, texto: texto.trim(),
       diagnosticosNanda, prescricaoNic,
     })
@@ -42,6 +42,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
       console.error(error)
       return
     }
+    if (imprimir && data) onImprimir(data)
     setTexto('')
     setDiagnosticosNanda([])
     setPrescricaoNic([])
@@ -143,10 +144,19 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
         </div>
 
         <div className="cc-footer">
-          <span />
-          <button className="btn-save-print" onClick={registrar} disabled={salvando || !texto.trim()}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Registrando...' : 'Registrar evolução'}
-          </button>
+          <div>
+            <button type="button" className="btn-cancel" onClick={onFechar}>
+              <i className="ph ph-x-circle" /> Cancelar
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando || !texto.trim()}>
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando || !texto.trim()}>
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

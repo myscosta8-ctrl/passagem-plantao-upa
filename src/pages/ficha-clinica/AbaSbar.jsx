@@ -5,7 +5,7 @@ import {
 } from '../../lib/pepClinico';
 import { NIVEIS_CONSCIENCIA } from './constantes';
 
-export default function AbaSbar({ atendimento, autorId, onImprimir }) {
+export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [ocupacao, setOcupacao] = useState(null)
   const [setores, setSetores] = useState([])
@@ -45,7 +45,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
     setCarregando(false)
   }
 
-  async function registrar() {
+  async function registrar(imprimir = false) {
     if (!ocupacao) {
       setErro('Não foi possível identificar o leito atual — recarregue a página.')
       return
@@ -56,7 +56,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
     }
     setErro('')
     setSalvando(true)
-    const { error } = await registrarTransferenciaSbar({
+    const { data, error } = await registrarTransferenciaSbar({
       leitoOcupacaoId: ocupacao.id, setorDestinoId, enfermeiroEntrega: autorId, enfermeiroRecebe: enfermeiroRecebe || null,
       dados: {
         impressao_diagnostica: impressaoDiagnostica.trim(), nivel_consciencia: nivelConsciencia || null,
@@ -71,6 +71,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
       console.error(error)
       return
     }
+    if (imprimir && data) onImprimir(data)
     setSetorDestinoId(''); setImpressaoDiagnostica(''); setNivelConsciencia('')
     setAlergia(false); setSuporteVentilatorio(false); setIsolamento(false)
     setDispositivos(''); setRecomendacoes(''); setIntercorrencia(false); setEnfermeiroRecebe('')
@@ -235,10 +236,19 @@ export default function AbaSbar({ atendimento, autorId, onImprimir }) {
         </div>
 
         <div className="cc-footer">
-          <span />
-          <button className="btn-save-print" onClick={registrar} disabled={salvando || !ocupacao}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Registrando...' : 'Registrar transferência'}
-          </button>
+          <div>
+            <button type="button" className="btn-cancel" onClick={onFechar}>
+              <i className="ph ph-x-circle" /> Cancelar
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando || !ocupacao}>
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando || !ocupacao}>
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

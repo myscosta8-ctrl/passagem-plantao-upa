@@ -137,7 +137,7 @@ const EXAMES_ECG_CATALOGO = [
   }
 ];
 
-export default function AbaExames({ atendimento }) {
+export default function AbaExames({ atendimento, onFechar }) {
   const [modalidade, setModalidade] = useState('lab'); // 'lab' | 'img' | 'ecg'
   const [labSelecionados, setLabSelecionados] = useState(() => {
     const init = {};
@@ -216,7 +216,7 @@ export default function AbaExames({ atendimento }) {
     }
   }
 
-  async function salvarEImprimir() {
+  async function salvar(imprimir = true) {
     setSalvando(true);
     try {
       if (modalidade === 'lab') {
@@ -243,7 +243,7 @@ export default function AbaExames({ atendimento }) {
 
         localStorage.setItem('requisicao_lab_selecionados', JSON.stringify(itens));
         localStorage.setItem('requisicao_lab_justificativa', labJustificativa);
-        window.open('./modelos_impressao_html/19-solicitacao-exames-laboratoriais.html', '_blank');
+        if (imprimir) window.open('./modelos_impressao_html/19-solicitacao-exames-laboratoriais.html', '_blank');
 
       } else if (modalidade === 'img') {
         const itens = [];
@@ -268,7 +268,7 @@ export default function AbaExames({ atendimento }) {
 
         localStorage.setItem('requisicao_img_selecionados', JSON.stringify(itens));
         localStorage.setItem('requisicao_img_justificativa', imgJustificativa);
-        window.open('./modelos_impressao_html/20-solicitacao-exames-imagem-rx.html', '_blank');
+        if (imprimir) window.open('./modelos_impressao_html/20-solicitacao-exames-imagem-rx.html', '_blank');
 
       } else if (modalidade === 'ecg') {
         const itens = [];
@@ -293,7 +293,7 @@ export default function AbaExames({ atendimento }) {
 
         localStorage.setItem('requisicao_ecg_selecionados', JSON.stringify(itens));
         localStorage.setItem('requisicao_ecg_justificativa', ecgJustificativa);
-        window.open('./modelos_impressao_html/21-solicitacao-eletrocardiograma-ecg.html', '_blank');
+        if (imprimir) window.open('./modelos_impressao_html/21-solicitacao-eletrocardiograma-ecg.html', '_blank');
       }
 
       setHistorico(await listarExames(atendimento.atendimento_id));
@@ -482,10 +482,19 @@ export default function AbaExames({ atendimento }) {
         </div>
 
         <div className="cc-footer">
-          <span />
-          <button type="button" className="btn-save-print" onClick={salvarEImprimir} disabled={salvando}>
-            <i className="ph ph-printer" /> {salvando ? 'Emitindo...' : 'Salvar e Imprimir Requisição (' + (modalidade === 'lab' ? countLab : modalidade === 'img' ? countImg : countEcg) + ' itens)'}
-          </button>
+          <div>
+            <button type="button" className="btn-cancel" onClick={onFechar}>
+              <i className="ph ph-x-circle" /> Cancelar
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+              <i className="ph ph-printer" /> {salvando ? 'Emitindo...' : 'Salvar e Imprimir (' + (modalidade === 'lab' ? countLab : modalidade === 'img' ? countImg : countEcg) + ' itens)'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

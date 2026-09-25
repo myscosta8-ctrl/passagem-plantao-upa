@@ -144,7 +144,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
 }
 
 
-export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
+export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [observacoes, setObservacoes] = useState('')
@@ -222,7 +222,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
     setOrientacaoEnfermagem((prev) => prev.filter((_, idx) => idx !== i))
   }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     const validos = itens.filter((it) => it.medicamento_nome.trim())
     if (validos.length === 0) {
       setErro('Adicione pelo menos um medicamento.')
@@ -230,7 +230,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
     }
     setErro('')
     setSalvando(true)
-    const { error } = await criarPrescricao({
+    const { data, error } = await criarPrescricao({
       atendimentoId: atendimento.atendimento_id,
       pessoaId: atendimento.pessoa_id,
       medicoId,
@@ -248,6 +248,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
       setErro('Não foi possível salvar a prescrição. Tente de novo.')
       return
     }
+    if (imprimir && data) onImprimir(data)
     setObservacoes('')
     setDieta('')
     setItens([{ ...ITEM_VAZIO }])
@@ -497,10 +498,19 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
         </div>
 
         <div className="cc-footer">
-          <span />
-          <button type="button" className="btn-save-print" onClick={salvar} disabled={salvando}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Registrar e Assinar Prescrição'}
-          </button>
+          <div>
+            <button type="button" className="btn-cancel" onClick={onFechar}>
+              <i className="ph ph-x-circle" /> Cancelar
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

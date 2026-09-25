@@ -120,7 +120,7 @@ function SecaoColapsavel({ secao, aberta, onToggle, children }) {
   )
 }
 
-export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprimir }) {
+export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState(HISTORICO_ENFERMAGEM_VAZIO)
   const [salvo, setSalvo] = useState(null)
   const [carregando, setCarregando] = useState(true)
@@ -177,7 +177,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
   function adicionarMedicamento() { setDados((prev) => ({ ...prev, medicamentos_uso: [...prev.medicamentos_uso, { ...MEDICAMENTO_USO_VAZIO }] })) }
   function removerMedicamento(i) { setDados((prev) => ({ ...prev, medicamentos_uso: prev.medicamentos_uso.filter((_, idx) => idx !== i) })) }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     setSalvando(true)
     const { data } = await salvarHistoricoEnfermagem({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
@@ -195,6 +195,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
     setSalvando(false)
     setSucesso(true)
     setSalvo(data)
+    if (imprimir && data) onImprimir({ ...data, _variante: 'fiel' })
   }
 
   if (carregando) return <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
@@ -390,20 +391,27 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
         </div>
 
         <div className="cc-footer">
-          <span />
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div>
+            <button type="button" className="btn-cancel" onClick={onFechar}>
+              <i className="ph ph-x-circle" /> Cancelar
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {salvo && (
               <button type="button" className="btn-save-draft" onClick={() => onImprimir({ ...salvo, _variante: 'fiel' })}>
-                <i className="ph ph-printer" /> Imprimir (modelo oficial)
+                <i className="ph ph-printer" /> Reimprimir (modelo oficial)
               </button>
             )}
             {salvo && (
               <button type="button" className="btn-save-draft" onClick={() => onImprimir({ ...salvo, _variante: 'projeto' })}>
-                <i className="ph ph-printer" /> Imprimir (layout do projeto)
+                <i className="ph ph-printer" /> Reimprimir (layout do projeto)
               </button>
             )}
-            <button className="btn-save-print" onClick={salvar} disabled={salvando}>
+            <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
               <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
             </button>
           </div>
         </div>

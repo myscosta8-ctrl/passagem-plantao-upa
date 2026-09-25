@@ -3,7 +3,7 @@ import { listarEscalas, registrarEscala } from '../../lib/pepClinico';
 import { BRADEN_CAMPOS, MORSE_CAMPOS, riscoBraden, riscoMorse, riscoClasse } from './constantes';
 
 
-export default function AbaEscalas({ atendimento }) {
+export default function AbaEscalas({ atendimento, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [tipo, setTipo] = useState('braden')
@@ -79,9 +79,14 @@ export default function AbaEscalas({ atendimento }) {
       </p>
 
       {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !completo}>
-        {salvando ? 'Registrando...' : 'Registrar avaliação'}
-      </button>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button type="button" className="btn-cancel" onClick={onFechar}>
+          <i className="ph ph-x-circle" /> Cancelar
+        </button>
+        <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !completo}>
+          {salvando ? 'Salvando...' : 'Salvar'}
+        </button>
+      </div>
 
       <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
       {carregando ? (

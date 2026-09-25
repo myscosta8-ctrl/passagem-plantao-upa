@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { listarAtm, criarAtm } from '../../lib/pepMedico';
 import { ATM_VAZIA } from './constantes';
 
-export default function AbaAtm({ atendimento, medicoId, onImprimir }) {
+export default function AbaAtm({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(ATM_VAZIA)
@@ -13,7 +13,7 @@ export default function AbaAtm({ atendimento, medicoId, onImprimir }) {
   async function carregar() { setCarregando(true); setHistorico(await listarAtm(atendimento.atendimento_id)); setCarregando(false) }
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     if (!dados.medicamento.trim() || !dados.justificativa_clinica.trim()) {
       setErro('Preencha ao menos o medicamento e a justificativa clínica.')
       return
@@ -23,7 +23,7 @@ export default function AbaAtm({ atendimento, medicoId, onImprimir }) {
     const {
       medicamento, posologia, dose, intervalo, tempo_uso_dias, justificativa_clinica, ...extra
     } = dados
-    const { error } = await criarAtm({
+    const { data, error } = await criarAtm({
       atendimentoId: atendimento.atendimento_id, solicitanteId: medicoId,
       dados: {
         medicamento, posologia, dose, intervalo, justificativa_clinica,
@@ -33,6 +33,7 @@ export default function AbaAtm({ atendimento, medicoId, onImprimir }) {
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    if (imprimir && data) onImprimir(data)
     setDados(ATM_VAZIA)
     carregar()
   }
@@ -60,7 +61,9 @@ export default function AbaAtm({ atendimento, medicoId, onImprimir }) {
       </div>
       {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
       <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Registrar solicitação'}</button>
+        <button type="button" className="modal-btn-secondary" onClick={onFechar}>Cancelar</button>
+        <button className="modal-btn-secondary" onClick={() => salvar(false)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</button>
+        <button className="modal-btn-primary" onClick={() => salvar(true)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
       </div>
 
       <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { listarDispositivos, inserirDispositivo, removerDispositivo } from '../../lib/pepClinico';
 import { TIPOS_DISPOSITIVO } from './constantes';
 
-export default function AbaDispositivos({ atendimento }) {
+export default function AbaDispositivos({ atendimento, onFechar }) {
   const [lista, setLista] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [tipo, setTipo] = useState('')
@@ -66,9 +66,14 @@ export default function AbaDispositivos({ atendimento }) {
         <div className="form-field"><label>Troca prevista</label><input type="date" value={trocaPrevista} onChange={(e) => setTrocaPrevista(e.target.value)} /></div>
       </div>
       {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={inserir} disabled={salvando || !tipo}>
-        {salvando ? 'Registrando...' : 'Registrar dispositivo'}
-      </button>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button type="button" className="btn-cancel" onClick={onFechar}>
+          <i className="ph ph-x-circle" /> Cancelar
+        </button>
+        <button className="submit-btn" style={{ maxWidth: 240 }} onClick={inserir} disabled={salvando || !tipo}>
+          {salvando ? 'Salvando...' : 'Salvar'}
+        </button>
+      </div>
 
       <div className="form-section-title" style={{ marginTop: 24 }}>Ativos</div>
       {carregando ? (

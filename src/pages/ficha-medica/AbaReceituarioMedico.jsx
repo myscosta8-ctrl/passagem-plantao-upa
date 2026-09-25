@@ -49,7 +49,7 @@ function classificarReceita(itens) {
   return 'simples'
 }
 
-export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir }) {
+export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [itens, setItens] = useState([{ ...RECEITA_ITEM_VAZIO }])
@@ -91,17 +91,18 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
     }));
   }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     const validos = itens.filter((it) => it.medicamento.trim())
     if (validos.length === 0) { setErro('Adicione ao menos um medicamento.'); return }
     setErro('')
     setSalvando(true)
-    const { error } = await criarReceitaMedica({
+    const { data, error } = await criarReceitaMedica({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: { itens: validos, tipo: classificarReceita(validos) },
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    if (imprimir && data) onImprimir(data)
     setItens([{ ...RECEITA_ITEM_VAZIO }])
     carregar()
   }
@@ -237,10 +238,19 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
       </div>
 
       <div className="cc-footer">
-        <span />
-        <button className="btn-save-print" onClick={salvar} disabled={salvando}>
-          <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Registrar receituário'}
-        </button>
+        <div>
+          <button type="button" className="btn-cancel" onClick={onFechar}>
+            <i className="ph ph-x-circle" /> Cancelar
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+          </button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+          </button>
+        </div>
       </div>
     </div>
   )

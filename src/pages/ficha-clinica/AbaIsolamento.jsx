@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { listarIsolamentos, registrarIsolamento, encerrarIsolamento } from '../../lib/pepClinico';
 import { TIPOS_ISOLAMENTO } from './constantes';
 
-export default function AbaIsolamento({ atendimento, autorId }) {
+export default function AbaIsolamento({ atendimento, autorId, onFechar }) {
   const [lista, setLista] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [tipo, setTipo] = useState('')
@@ -60,9 +60,14 @@ export default function AbaIsolamento({ atendimento, autorId }) {
         <div className="form-field"><label>Patógeno suspeito</label><input type="text" value={patogeno} onChange={(e) => setPatogeno(e.target.value)} /></div>
       </div>
       {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !tipo}>
-        {salvando ? 'Registrando...' : 'Registrar isolamento'}
-      </button>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button type="button" className="btn-cancel" onClick={onFechar}>
+          <i className="ph ph-x-circle" /> Cancelar
+        </button>
+        <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !tipo}>
+          {salvando ? 'Salvando...' : 'Salvar'}
+        </button>
+      </div>
 
       <div className="form-section-title" style={{ marginTop: 24 }}>Ativos</div>
       {carregando ? (

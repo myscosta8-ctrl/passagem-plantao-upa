@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { listarTfd, criarTfd } from '../../lib/pepMedico';
 import { TFD_VAZIA } from './constantes';
 
-export default function AbaTfd({ atendimento, medicoId, onImprimir }) {
+export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(TFD_VAZIA)
@@ -13,7 +13,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir }) {
   async function carregar() { setCarregando(true); setHistorico(await listarTfd(atendimento.atendimento_id)); setCarregando(false) }
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     if (!dados.diagnostico.trim() || !dados.tratamento_indicado.trim()) {
       setErro('Preencha ao menos o diagnóstico e o tratamento indicado.')
       return
@@ -25,7 +25,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir }) {
       tratamento_realizado, tratamento_indicado, tempo_provavel_dias,
       acompanhante_nome, acompanhante_relacao, ...extra
     } = dados
-    const { error } = await criarTfd({
+    const { data, error } = await criarTfd({
       atendimentoId: atendimento.atendimento_id, profissionalResponsavel: medicoId,
       dados: {
         historia_doenca_atual, exame_fisico, diagnostico, exame_complementar,
@@ -37,6 +37,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir }) {
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    if (imprimir && data) onImprimir(data)
     setDados(TFD_VAZIA)
     carregar()
   }
@@ -60,7 +61,9 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir }) {
       </div>
       {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
       <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button className="modal-btn-primary" onClick={salvar} disabled={salvando}>{salvando ? 'Salvando...' : 'Registrar laudo'}</button>
+        <button type="button" className="modal-btn-secondary" onClick={onFechar}>Cancelar</button>
+        <button className="modal-btn-secondary" onClick={() => salvar(false)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</button>
+        <button className="modal-btn-primary" onClick={() => salvar(true)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
       </div>
 
       <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>

@@ -16,7 +16,7 @@ const PROTOCOLOS_TRANSFUSIONAIS = [
   { chave: 'plaquetopenia', titulo: 'Plaquetopenia Severa', icon: 'ph-warning', hemocomponente: 'Concentrado de plaquetas pobre em leucócitos(+ 60 ml/unid)', quantidade: '05 UNIDADES', urgencia: 'urgencia' },
 ]
 
-export default function AbaSangue({ atendimento, medicoId, onImprimir }) {
+export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(SANGUE_VAZIA)
@@ -41,7 +41,7 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir }) {
     }))
   }
 
-  async function salvar() {
+  async function salvar(imprimir = false) {
     if (!dados.indicacao_clinica.trim()) {
       setErro('Preencha ao menos a indicação clínica.')
       return
@@ -49,12 +49,13 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir }) {
     setErro('')
     setSalvando(true)
     const { indicacao_clinica, ...extra } = dados
-    const { error } = await criarSolicitacaoSangue({
+    const { data, error } = await criarSolicitacaoSangue({
       atendimentoId: atendimento.atendimento_id, solicitadoPor: medicoId,
       dados: { indicacao_clinica, campos_extra: extra },
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    if (imprimir && data) onImprimir(data)
     setDados(SANGUE_VAZIA)
     carregar()
   }
@@ -274,10 +275,19 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir }) {
       </div>
 
       <div className="cc-footer">
-        <span />
-        <button className="btn-save-print" onClick={salvar} disabled={salvando}>
-          <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Registrar solicitação'}
-        </button>
+        <div>
+          <button type="button" className="btn-cancel" onClick={onFechar}>
+            <i className="ph ph-x-circle" /> Cancelar
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+          </button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+          </button>
+        </div>
       </div>
     </div>
   )
