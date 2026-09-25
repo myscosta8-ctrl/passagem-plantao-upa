@@ -9,6 +9,26 @@ export const SV_VAZIO = {
   dor_escala: '',
 };
 
+export const NANDA_OPCOES = [
+  'Mobilidade Física Prejudicada',
+  'Risco de Queda',
+  'Risco de Integridade da Pele Prejudicada',
+  'Comunicação Verbal Prejudicada',
+  'Risco de Aspiração',
+  'Risco de Infecção',
+  'Padrão Respiratório Ineficaz',
+  'Débito Cardíaco Diminuído',
+];
+
+export const NIC_OPCOES = [
+  { texto: 'Mudança de decúbito e posicionamento no leito com coxins', frequencia: '2/2 horas' },
+  { texto: 'Manter cabeceira elevada a 30° - 45°', frequencia: 'Contínuo' },
+  { texto: 'Manter grades laterais do leito sempre elevadas', frequencia: 'Contínuo' },
+  { texto: 'Aferir sinais vitais completos e registrar parâmetros', frequencia: '4/4 horas' },
+  { texto: 'Avaliar e inspecionar inserção do AVP quanto a sinais de flebite', frequencia: 'Por turno' },
+  { texto: 'Balanço hídrico rigoroso (entradas e saídas)', frequencia: '24 horas' },
+];
+
 export const VIAS_ENTRADA = ['Oral', 'Dieta enteral', 'EV', 'Outra'];
 export const VIAS_SAIDA = ['Diurese', 'Vômito', 'Dreno', 'Evacuação', 'Outra'];
 

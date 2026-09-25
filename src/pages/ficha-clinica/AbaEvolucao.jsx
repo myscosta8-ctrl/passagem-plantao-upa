@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { listarEvolucoes, registrarEvolucao } from '../../lib/pepClinico';
+import { NANDA_OPCOES, NIC_OPCOES } from './constantes';
 
 export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [texto, setTexto] = useState('')
+  const [diagnosticosNanda, setDiagnosticosNanda] = useState([])
+  const [prescricaoNic, setPrescricaoNic] = useState([])
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [itemExpandido, setItemExpandido] = useState(null)
@@ -17,11 +20,22 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
     setCarregando(false)
   }
 
+  function toggleNanda(item) {
+    setDiagnosticosNanda((prev) => (prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]))
+  }
+
+  function toggleNic(item) {
+    setPrescricaoNic((prev) => (prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]))
+  }
+
   async function registrar() {
     if (!texto.trim()) return
     setErro('')
     setSalvando(true)
-    const { error } = await registrarEvolucao({ atendimentoId: atendimento.atendimento_id, autorId, texto: texto.trim() })
+    const { error } = await registrarEvolucao({
+      atendimentoId: atendimento.atendimento_id, autorId, texto: texto.trim(),
+      diagnosticosNanda, prescricaoNic,
+    })
     setSalvando(false)
     if (error) {
       setErro('Não foi possível registrar. Tente de novo.')
@@ -29,6 +43,8 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
       return
     }
     setTexto('')
+    setDiagnosticosNanda([])
+    setPrescricaoNic([])
     carregar()
   }
 
@@ -56,6 +72,11 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
               <div className="tl-author">
                 <i className="ph ph-user" /> {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}
               </div>
+              {ev.diagnosticos_nanda?.length > 0 && (
+                <div className="tl-preview" style={{ marginBottom: 4 }}>
+                  <strong>NANDA-I:</strong> {ev.diagnosticos_nanda.join(', ')}
+                </div>
+              )}
               <div className="tl-preview">{ev.texto}</div>
               {onImprimir && (
                 <button type="button" className="tl-print" onClick={(e) => { e.stopPropagation(); onImprimir(ev) }}>
@@ -71,11 +92,42 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir }) {
         <div className="cc-header">
           <div className="cc-title">
             <h2><i className="ph ph-activity" /> Nova Evolução do Enfermeiro (SAE)</h2>
-            <p>Registro descritivo da evolução de enfermagem no plantão.</p>
+            <p>Sistematização da Assistência com Diagnósticos NANDA e Prescrição de Cuidados NIC.</p>
           </div>
         </div>
 
         <div className="cc-body">
+          <div className="form-section-box">
+            <div className="form-section-box-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span><i className="ph ph-stethoscope" /> Diagnósticos de Enfermagem (NANDA-I)</span>
+              <span style={{ fontSize: 10.5, color: '#94A3B8', fontWeight: 400, textTransform: 'none' }}>Selecione os títulos prioritários</span>
+            </div>
+            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {NANDA_OPCOES.map((n) => (
+                <label key={n} className="checkbox-item">
+                  <input type="checkbox" checked={diagnosticosNanda.includes(n)} onChange={() => toggleNanda(n)} /> {n}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-section-box">
+            <div className="form-section-box-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span><i className="ph ph-list-checks" /> Prescrição de Enfermagem e Cuidados (NIC)</span>
+              <span style={{ fontSize: 10.5, color: '#94A3B8', fontWeight: 400, textTransform: 'none' }}>Aprazamento pelo Enfermeiro</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {NIC_OPCOES.map((n) => (
+                <label key={n.texto} className="checkbox-item" style={{ justifyContent: 'space-between', width: '100%' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={prescricaoNic.includes(n.texto)} onChange={() => toggleNic(n.texto)} /> {n.texto}
+                  </span>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: '#0F766E', background: '#CCFBF1', padding: '2px 8px', borderRadius: 4 }}>{n.frequencia}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           <div className="form-group">
             <label><i className="ph ph-text-align-left" /> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
             <textarea className="large" style={{ minHeight: 140 }} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Descreva a evolução do paciente..." />

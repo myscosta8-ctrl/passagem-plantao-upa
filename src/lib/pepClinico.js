@@ -74,10 +74,14 @@ export async function listarEvolucoes(atendimentoId) {
   return data ?? []
 }
 
-export async function registrarEvolucao({ atendimentoId, autorId, texto }) {
+export async function registrarEvolucao({ atendimentoId, autorId, texto, diagnosticosNanda, prescricaoNic }) {
   return supabase
     .from('evolucoes')
-    .insert({ atendimento_id: atendimentoId, autor_id: autorId, autor_tipo: 'enfermagem', tipo: 'enfermagem', texto })
+    .insert({
+      atendimento_id: atendimentoId, autor_id: autorId, autor_tipo: 'enfermagem', tipo: 'enfermagem', texto,
+      diagnosticos_nanda: diagnosticosNanda?.length ? diagnosticosNanda : null,
+      prescricao_nic: prescricaoNic?.length ? prescricaoNic : null,
+    })
     .select()
     .single()
 }
