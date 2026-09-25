@@ -84,7 +84,7 @@ Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
 Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada abaixo.
 
-### Fase 1 (redesenho de conteúdo por módulo) — **10 de 16 módulos feitos**
+### Fase 1 (redesenho de conteúdo por módulo) — **11 de 16 módulos feitos**
 
 | Módulo do mockup | Status | Evidência |
 |---|---|---|
@@ -98,7 +98,7 @@ Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada a
 | 07 — Plano Terapêutico | ✅ Concluído (commit `02fa5d3`) | Reescrito com framework compartilhado, protocolos/equipe viraram checkbox real. Fora do escopo: "Kits de auto-preenchimento" (TCE/Sepse/IAM) do mockup — funcionalidade nova, e o kit de exemplo usa texto clínico fabricado como valor automático, o mesmo padrão do bug crítico corrigido antes (commit `a3c5953`). |
 | 08 — Admissão de Enfermagem | ✅ Concluído (commit `38a4455`) | Reescrito com o mesmo framework do Prontuário Médico (já disponível, roda dentro do mesmo `.atendimento-medico-container`), ícones Phosphor. Fora do escopo: sub-abas com filtro de seção, expandir/recolher todas, painel lateral com escalas/dispositivos/alergias de outras abas — interação nova, não só visual. |
 | 15 — Solicitação de Hemoterapia | ✅ Concluído (commit `e64bb67`) | Reescrito com framework compartilhado; hemocomponentes em tabela real, urgência virou radio, Sim/Não viraram `<select>` (mesma escolha do mockup). Fora do escopo: sidebar com hemograma "puxado" de outra fonte e botões de protocolo transfusional — cruzamento de dados não mapeado hoje, e os textos de indicação clínica dos protocolos são fabricados (mesmo padrão do bug crítico já corrigido). |
-| 12 — Passagem de Plantão coletiva | ❌ Não iniciado | Pendente — usuário pediu atenção redobrada: dados salvos em produção precisam sobreviver ao redesenho |
+| 12 — Passagem de Plantão coletiva | ✅ Primeiro incremento (commit `e67bc7e`) | Usuário escolheu explicitamente construir a grade coletiva nova (não só reskin do formulário existente). Novo componente `PassagemColetiva.jsx` (presentacional, reusa dados já carregados por `usePainelState`, sem duplicar busca), 3º modo de visualização no Painel. Inclui: pills de setor, chips de filtro (todos/pendências/a conferir/conferidos), cards com dados reais reaproveitando `IndicadoresClinicos`, toggle "Conferido" (carimbo de revisão reversível, novas colunas `conferido_por`/`conferido_em` em `passagens`, migração aditiva já aplicada em produção) e botão "Detalhes" que abre o `PassagemForm.jsx`/`EspacoPaciente` existente sem nenhuma alteração. **Nenhum dado de produção foi alterado ou apagado** — só colunas novas, nullable. Fora deste incremento (fica para revisão): chips de pendência rápida, botão "sincronizar sinais vitais", modo tabela/foco, painel lateral com histórico de plantões. |
 | 09 a 16 (demais módulos de funcionalidade nova, Fase 2) | ❌ Não iniciado | — |
 
 ## 📋 Registro consolidado — funcionalidades deixadas de fora do redesenho (revisar p/ priorizar na Fase 2)
