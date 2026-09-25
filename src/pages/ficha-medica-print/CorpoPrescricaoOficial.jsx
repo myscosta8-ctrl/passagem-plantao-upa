@@ -65,11 +65,12 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
           }
         </div>
 
-        <div className="pr-secao-titulo">Avaliação multidisciplinar</div>
-        <div className="pr-caixa">{cf.avaliacao_multidisciplinar || 'Nenhuma avaliação multidisciplinar registrada no momento.'}</div>
-
-        <div className="pr-secao-titulo">Hemocomponente</div>
-        <div className="pr-caixa">{cf.hemocomponente || 'Nenhum hemocomponente prescrito no momento.'}</div>
+        <div className="pr-secao-titulo">Hemocomponentes e Derivados</div>
+        <div className="pr-caixa">
+          {cf.hemocomponentes?.length > 0
+            ? cf.hemocomponentes.map((h, i) => `${i + 1} — ${h.tipo}${h.quantidade ? ` (${h.quantidade})` : ''}`).join(' • ') + (cf.hemocomponente_obs ? ` • ${cf.hemocomponente_obs}` : '')
+            : (cf.hemocomponente || 'Nenhum hemocomponente prescrito no momento.')}
+        </div>
 
         {registro.observacoes && (
           <>

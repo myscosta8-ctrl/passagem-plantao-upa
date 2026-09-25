@@ -1118,3 +1118,12 @@
 .atendimento-medico-container .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .atendimento-medico-container .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
 
+
+/* Hemocomponentes e Derivados (Prescrição Médica) — chips de seleção rápida */
+.atendimento-medico-container .hemo-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.atendimento-medico-container .hemo-chip { display: flex; align-items: center; gap: 6px; }
+.atendimento-medico-container .hemo-chip-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border-strong, #CBD5E1); background: #fff; color: var(--text-secondary, #334155); font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.15s; white-space: nowrap; }
+.atendimento-medico-container .hemo-chip-btn:hover { border-color: var(--primary, #1D4ED8); }
+.atendimento-medico-container .hemo-chip-btn i { font-size: 14px; }
+.atendimento-medico-container .hemo-chip.ativo .hemo-chip-btn { background: #EFF6FF; border-color: var(--primary, #1D4ED8); color: var(--primary, #1D4ED8); }
+.atendimento-medico-container .hemo-chip-qtd { width: 110px; padding: 7px 10px; font-size: 11px; border: 1px solid var(--primary, #1D4ED8); border-radius: 20px; outline: none; text-align: center; }

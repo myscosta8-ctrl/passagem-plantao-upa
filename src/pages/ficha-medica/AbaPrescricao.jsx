@@ -44,6 +44,12 @@ function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar }) {
 
 const ITEM_VAZIO = { medicamento_nome: '', dose: '', dose_unidade: '', via: 'VO', frequencia: '', duracao: '', instrucoes: '', sn_aplic: false, horario_aplicacao: '', diluicao: '' }
 const ORIENTACAO_VAZIA = { texto: '', frequencia: '' }
+const HEMO_OPCOES_RAPIDAS = [
+  { chave: 'hemacias', label: 'Concentrado de Hemácias', icon: 'ph-drop' },
+  { chave: 'plasma', label: 'Plasma Fresco Congelado', icon: 'ph-flask' },
+  { chave: 'plaquetas', label: 'Concentrado de Plaquetas', icon: 'ph-circle-dashed' },
+  { chave: 'crio', label: 'Crioprecipitado', icon: 'ph-snowflake' },
+]
 const CALC_VAZIA = { pesoKg: '', doseAlvoMgKg: '', apresentacaoMg: '', diluenteMl: '', soroMl: '' }
 
 function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar, pacienteNome, pacientePeso }) {
@@ -160,8 +166,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
   const [dieta, setDieta] = useState('')
   const [itens, setItens] = useState([{ ...ITEM_VAZIO }])
   const [orientacaoEnfermagem, setOrientacaoEnfermagem] = useState([{ ...ORIENTACAO_VAZIA }])
-  const [avaliacaoMultidisciplinar, setAvaliacaoMultidisciplinar] = useState('')
-  const [hemocomponente, setHemocomponente] = useState('')
+  const [hemocomponentes, setHemocomponentes] = useState({})
+  const [hemocomponenteObs, setHemocomponenteObs] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
@@ -236,6 +242,14 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
     setOrientacaoEnfermagem((prev) => prev.filter((_, idx) => idx !== i))
   }
 
+  function toggleHemo(chave) {
+    setHemocomponentes((prev) => ({ ...prev, [chave]: { ...prev[chave], marcado: !prev[chave]?.marcado } }))
+  }
+
+  function setHemoQtd(chave, valor) {
+    setHemocomponentes((prev) => ({ ...prev, [chave]: { ...prev[chave], quantidade: valor } }))
+  }
+
   async function salvar(imprimir = false) {
     const validos = itens.filter((it) => it.medicamento_nome.trim())
     if (validos.length === 0) {
@@ -253,8 +267,10 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
       camposPrescricao: {
         dieta: dieta || null,
         orientacao_enfermagem: orientacaoEnfermagem.filter((o) => o.texto.trim()),
-        avaliacao_multidisciplinar: avaliacaoMultidisciplinar || null,
-        hemocomponente: hemocomponente || null,
+        hemocomponentes: HEMO_OPCOES_RAPIDAS
+          .filter((h) => hemocomponentes[h.chave]?.marcado)
+          .map((h) => ({ tipo: h.label, quantidade: hemocomponentes[h.chave]?.quantidade || '' })),
+        hemocomponente_obs: hemocomponenteObs || null,
       },
     })
     setSalvando(false)
@@ -267,8 +283,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
     setDieta('')
     setItens([{ ...ITEM_VAZIO }])
     setOrientacaoEnfermagem([{ ...ORIENTACAO_VAZIA }])
-    setAvaliacaoMultidisciplinar('')
-    setHemocomponente('')
+    setHemocomponentes({})
+    setHemocomponenteObs('')
     carregar()
   }
 
@@ -443,21 +459,41 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
               </div>
             </div>
 
-            {/* GRUPO 4: MULTIDISCIPLINAR E HEMOCOMPONENTES */}
-            <div className={`presc-group${gruposFechados.multi ? ' collapsed' : ''}`}>
-              <div className="presc-group-header" onClick={() => toggleGrupo('multi')}>
-                <h3><i className="ph ph-users-three" /> 4. Avaliação Multidisciplinar e Hemocomponentes</h3>
+            {/* GRUPO 4: HEMOCOMPONENTES E DERIVADOS */}
+            <div className={`presc-group${gruposFechados.hemo ? ' collapsed' : ''}`}>
+              <div className="presc-group-header" onClick={() => toggleGrupo('hemo')}>
+                <h3><i className="ph ph-drop" /> 4. Hemocomponentes e Derivados</h3>
                 <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
               </div>
-              <div className="presc-list" style={{ padding: '12px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 6, display: 'block' }}>Avaliação Multidisciplinar</label>
-                  <textarea className="form-control-area" rows={2} value={avaliacaoMultidisciplinar} onChange={(e) => setAvaliacaoMultidisciplinar(e.target.value)} />
+              <div className="presc-list" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div className="hemo-chips">
+                  {HEMO_OPCOES_RAPIDAS.map((h) => {
+                    const ativo = !!hemocomponentes[h.chave]?.marcado
+                    return (
+                      <div key={h.chave} className={`hemo-chip${ativo ? ' ativo' : ''}`}>
+                        <button type="button" className="hemo-chip-btn" onClick={() => toggleHemo(h.chave)}>
+                          <i className={`ph ${h.icon}`} /> {h.label}
+                        </button>
+                        {ativo && (
+                          <input
+                            type="text"
+                            className="hemo-chip-qtd"
+                            placeholder="Qtd (ex: 2 unid.)"
+                            value={hemocomponentes[h.chave]?.quantidade || ''}
+                            onChange={(e) => setHemoQtd(h.chave, e.target.value)}
+                          />
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 6, display: 'block' }}>Hemocomponente</label>
-                  <textarea className="form-control-area" rows={2} value={hemocomponente} onChange={(e) => setHemocomponente(e.target.value)} />
-                </div>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Outro hemocomponente ou observação (opcional)"
+                  value={hemocomponenteObs}
+                  onChange={(e) => setHemocomponenteObs(e.target.value)}
+                />
               </div>
             </div>
 
