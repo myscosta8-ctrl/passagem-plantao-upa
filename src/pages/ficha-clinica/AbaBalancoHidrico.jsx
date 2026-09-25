@@ -2,13 +2,60 @@ import { useEffect, useState } from 'react';
 import { listarBalancoHidrico, registrarBalancoHidrico } from '../../lib/pepClinico';
 import { VIAS_ENTRADA, VIAS_SAIDA } from './constantes';
 
+const NOVA_LINHA_VAZIA = { via: '', volume: '', observacao: '' }
+
+function TabelaBalanco({ titulo, icon, corHeader, linhas, colunaItem, opcoesVia, novaLinha, onNovaLinha, onAdicionar, salvando, totalTurno }) {
+  return (
+    <div style={{ border: '1px solid #CBD5E1', borderRadius: 8, overflow: 'hidden', background: '#fff', flex: 1, minWidth: 280 }}>
+      <div style={{ padding: '8px 12px', fontSize: 12, fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: corHeader.bg, color: corHeader.text }}>
+        <span><i className={`ph ${icon}`} /> {titulo}</span>
+        <span style={{ fontSize: 11 }}>Total: <strong>{totalTurno} mL</strong></span>
+      </div>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+        <thead>
+          <tr style={{ background: '#F1F5F9' }}>
+            <th style={{ padding: '6px 8px', fontSize: 10.5, fontWeight: 700, color: '#64748B', textAlign: 'left', textTransform: 'uppercase' }}>Hora</th>
+            <th style={{ padding: '6px 8px', fontSize: 10.5, fontWeight: 700, color: '#64748B', textAlign: 'left', textTransform: 'uppercase' }}>{colunaItem}</th>
+            <th style={{ padding: '6px 8px', fontSize: 10.5, fontWeight: 700, color: '#64748B', textAlign: 'right', textTransform: 'uppercase' }}>Volume (mL)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {linhas.map((h) => (
+            <tr key={h.id} style={{ borderBottom: '1px solid #E2E8F0' }}>
+              <td style={{ padding: '6px 8px', color: '#64748B' }}>{new Date(h.registrado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
+              <td style={{ padding: '6px 8px' }}>
+                <strong>{h.via}</strong>{h.observacao ? ` — ${h.observacao}` : ''}
+              </td>
+              <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700 }}>{h.volume_ml}</td>
+            </tr>
+          ))}
+          <tr>
+            <td style={{ padding: '6px 8px', color: '#94A3B8', fontSize: 11 }}>Agora</td>
+            <td style={{ padding: '6px 8px' }}>
+              <select value={novaLinha.via} onChange={(e) => onNovaLinha({ ...novaLinha, via: e.target.value })} style={{ width: '100%', marginBottom: 4 }}>
+                <option value="">Selecione...</option>
+                {opcoesVia.map((v) => <option key={v} value={v}>{v}</option>)}
+              </select>
+              <input type="text" placeholder="Observação (opcional)" value={novaLinha.observacao} onChange={(e) => onNovaLinha({ ...novaLinha, observacao: e.target.value })} style={{ width: '100%' }} />
+            </td>
+            <td style={{ padding: '6px 8px', textAlign: 'right' }}>
+              <input type="number" placeholder="mL" value={novaLinha.volume} onChange={(e) => onNovaLinha({ ...novaLinha, volume: e.target.value })} style={{ width: 70, textAlign: 'right', marginBottom: 4 }} />
+              <button type="button" className="btn-add-chip" onClick={onAdicionar} disabled={salvando || !novaLinha.via || !novaLinha.volume} style={{ width: '100%', justifyContent: 'center' }}>
+                <i className="ph ph-plus" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
-  const [tipo, setTipo] = useState('entrada')
-  const [via, setVia] = useState('')
-  const [volume, setVolume] = useState('')
-  const [observacao, setObservacao] = useState('')
+  const [novaEntrada, setNovaEntrada] = useState({ ...NOVA_LINHA_VAZIA })
+  const [novaSaida, setNovaSaida] = useState({ ...NOVA_LINHA_VAZIA })
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
 
@@ -20,12 +67,12 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir }) 
     setCarregando(false)
   }
 
-  async function registrar() {
-    if (!via || !volume) return
+  async function adicionarLinha(tipo, linha, limpar) {
+    if (!linha.via || !linha.volume) return
     setErro('')
     setSalvando(true)
     const { error } = await registrarBalancoHidrico({
-      atendimentoId: atendimento.atendimento_id, registradoPor: autorId, tipo, via, volumeMl: volume, observacao,
+      atendimentoId: atendimento.atendimento_id, registradoPor: autorId, tipo, via: linha.via, volumeMl: linha.volume, observacao: linha.observacao,
     })
     setSalvando(false)
     if (error) {
@@ -33,23 +80,22 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir }) 
       console.error(error)
       return
     }
-    setVia('')
-    setVolume('')
-    setObservacao('')
+    limpar()
     carregar()
   }
 
-  const totalEntradas = historico.filter((h) => h.tipo === 'entrada').reduce((s, h) => s + Number(h.volume_ml), 0)
-  const totalSaidas = historico.filter((h) => h.tipo === 'saida').reduce((s, h) => s + Number(h.volume_ml), 0)
+  const entradas = historico.filter((h) => h.tipo === 'entrada')
+  const saidas = historico.filter((h) => h.tipo === 'saida')
+  const totalEntradas = entradas.reduce((s, h) => s + Number(h.volume_ml), 0)
+  const totalSaidas = saidas.reduce((s, h) => s + Number(h.volume_ml), 0)
   const saldo = totalEntradas - totalSaidas
-  const opcoesVia = tipo === 'entrada' ? VIAS_ENTRADA : VIAS_SAIDA
 
   return (
     <div className="clinical-card">
       <div className="cc-header">
         <div className="cc-title">
           <h2><i className="ph ph-drop" /> Balanço Hídrico 24h</h2>
-          <p>Registro de entradas e saídas do atendimento, com totalização cumulativa.</p>
+          <p>Grade de entradas e saídas do atendimento, com totalização cumulativa.</p>
         </div>
       </div>
 
@@ -78,84 +124,46 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir }) 
           </div>
         </div>
 
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-plus-circle" /> Novo Registro</div>
-
-          <div className="form-group">
-            <label>Tipo:</label>
-            <div className="checkbox-group" style={{ flexDirection: 'row' }}>
-              <label className="checkbox-item">
-                <input type="radio" name="bh-tipo" checked={tipo === 'entrada'} onChange={() => { setTipo('entrada'); setVia('') }} /> Entrada
-              </label>
-              <label className="checkbox-item">
-                <input type="radio" name="bh-tipo" checked={tipo === 'saida'} onChange={() => { setTipo('saida'); setVia('') }} /> Saída
-              </label>
+        {erro && (
+          <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+            <div className="info" style={{ color: '#DC2626' }}>
+              <i className="ph ph-warning" /> {erro}
             </div>
           </div>
+        )}
 
-          <div className="form-group">
-            <label>Via:</label>
-            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {opcoesVia.map((v) => (
-                <label key={v} className="checkbox-item">
-                  <input type="radio" name="bh-via" checked={via === v} onChange={() => setVia(v)} /> {v}
-                </label>
-              ))}
-            </div>
+        {carregando ? (
+          <p style={{ fontSize: 11, color: '#94A3B8' }}>Carregando...</p>
+        ) : (
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            <TabelaBalanco
+              titulo="Entradas / Ingesta / Soluções (mL)"
+              icon="ph-plus-circle"
+              corHeader={{ bg: '#E0F2FE', text: '#0369A1' }}
+              linhas={entradas}
+              colunaItem="Via / Observação"
+              opcoesVia={VIAS_ENTRADA}
+              novaLinha={novaEntrada}
+              onNovaLinha={setNovaEntrada}
+              onAdicionar={() => adicionarLinha('entrada', novaEntrada, () => setNovaEntrada({ ...NOVA_LINHA_VAZIA }))}
+              salvando={salvando}
+              totalTurno={totalEntradas}
+            />
+            <TabelaBalanco
+              titulo="Saídas / Eliminações / Drenagens (mL)"
+              icon="ph-minus-circle"
+              corHeader={{ bg: '#FEF3C7', text: '#92400E' }}
+              linhas={saidas}
+              colunaItem="Tipo / Aspecto"
+              opcoesVia={VIAS_SAIDA}
+              novaLinha={novaSaida}
+              onNovaLinha={setNovaSaida}
+              onAdicionar={() => adicionarLinha('saida', novaSaida, () => setNovaSaida({ ...NOVA_LINHA_VAZIA }))}
+              salvando={salvando}
+              totalTurno={totalSaidas}
+            />
           </div>
-
-          <div className="assess-grid">
-            <div className="form-group">
-              <label>Volume (mL)</label>
-              <input type="number" value={volume} onChange={(e) => setVolume(e.target.value)} />
-            </div>
-            <div className="form-group" style={{ gridColumn: 'span 2' }}>
-              <label>Observação</label>
-              <input type="text" value={observacao} onChange={(e) => setObservacao(e.target.value)} />
-            </div>
-          </div>
-
-          {erro && (
-            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-              <div className="info" style={{ color: '#DC2626' }}>
-                <i className="ph ph-warning" /> {erro}
-              </div>
-            </div>
-          )}
-
-          <button type="button" className="btn-add-chip" onClick={registrar} disabled={salvando || !via || !volume}>
-            <i className="ph ph-plus" /> {salvando ? 'Registrando...' : 'Registrar'}
-          </button>
-        </div>
-
-        <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-clock-counter-clockwise" /> Histórico de Lançamentos</div>
-          {carregando ? (
-            <p style={{ fontSize: 11, color: '#94A3B8' }}>Carregando...</p>
-          ) : historico.length === 0 ? (
-            <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhum registro ainda.</p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {historico.map((h) => (
-                <div
-                  key={h.id}
-                  style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 6, padding: '8px 12px', fontSize: 12,
-                  }}
-                >
-                  <div>
-                    <span style={{ color: '#94A3B8', marginRight: 10 }}>{new Date(h.registrado_em).toLocaleString('pt-BR')}</span>
-                    <strong style={{ color: h.tipo === 'entrada' ? '#0284C7' : '#DC2626' }}>{h.tipo === 'entrada' ? 'Entrada' : 'Saída'}</strong>
-                    {' · '}{h.via}
-                    {h.observacao && <span style={{ color: '#64748B' }}> — {h.observacao}</span>}
-                  </div>
-                  <strong>{h.tipo === 'entrada' ? '+' : '−'}{h.volume_ml} mL</strong>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       <div className="cc-footer">
