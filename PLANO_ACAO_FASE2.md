@@ -84,7 +84,7 @@ Verificado lendo o código atual, não supondo pelas mensagens de commit.
 
 Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada abaixo.
 
-### Fase 1 (redesenho de conteúdo por módulo) — **14 de 16 módulos feitos**
+### Fase 1 (redesenho de conteúdo por módulo) — **15 de 16 módulos feitos**
 
 | Módulo do mockup | Status | Evidência |
 |---|---|---|
@@ -102,7 +102,8 @@ Próximo passo do plano: **Fase 1**, módulo por módulo, na ordem já listada a
 | 09 — Evolução de Enfermagem (SAE) | ✅ Concluído (commit `707a64a`) | `AbaEvolucao.jsx` reescrito no padrão split-view (timeline + `clinical-card`), mesmo framework de Evolução Médica, dentro do mesmo `.atendimento-medico-container`. Ícones Phosphor. Fora do escopo: grade de sinais vitais do turno do mockup (já existe em aba própria, `AbaSinaisVitais`, evitando duplicar entrada do mesmo dado), chips de diagnóstico NANDA-I e checklist de prescrição de enfermagem NIC — funcionalidades novas, sem schema hoje, pertencem à Fase 2. |
 | 13 — Nota de Intercorrência de Enfermagem | ✅ Concluído (commit `7ec2bf0`) | `AbaEventosAdversos.jsx` reescrito no padrão split-view (timeline + `clinical-card`). Categoria e gravidade viraram radio real (seleção única). Ícones Phosphor. Fora do escopo: horário exato da ocorrência, médico plantonista comunicado + horário da notificação, grade de sinais vitais no momento do evento, campo de desfecho/evolução pós-conduta — campos novos, sem coluna no schema atual de `eventos_adversos`. |
 | 16 — Solicitação de Exames & APAC | ✅ Concluído (commit `1ff8a4d`) | `AbaExames.jsx` (lab/img/ecg) e `AbaApac.jsx` (laudo APAC, 52 campos SUS) reescritos com o framework compartilhado (`clinical-card`/`form-section-box`/`checkbox-group`), ícones Phosphor. Catálogos de exames, protocolos rápidos (`aplicarCombo`/`aplicarComboUsg`) e toda a lógica de salvar/imprimir preservados verbatim. Fora do escopo: o mockup 16 mescla as 4 modalidades (lab/img/ecg/APAC) em uma única tela com seletor inline — a arquitetura atual de duas abas separadas (Exames vs APAC) foi mantida, por ser mudança estrutural de app, não reskin visual. |
-| 10, 11, 14 (demais módulos de funcionalidade nova, Fase 2) | ❌ Não iniciado | — |
+| 11 — Balanço Hídrico 24h | ✅ Concluído (commit `8e09671`) | `AbaBalancoHidrico.jsx` reescrito com o framework compartilhado (`clinical-card`/`form-section-box`/`checkbox-group`), cards de métrica cumulativa (entradas/saídas/balanço) no lugar do título de texto simples. Tipo e via viraram radio real. Ícones Phosphor. Fora do escopo: o mockup usa uma grade fixa de tabelas com células editáveis e horários/itens pré-preenchidos (ex.: "Soro Fisiológico 250mL às 08:00") — modelo de dados diferente (grade de turno editável) do log de lançamentos discretos que o sistema tem hoje, e o exemplo do mockup usa dado clínico fabricado (mesmo padrão do bug crítico já corrigido). Mantido o padrão atual de registro em lista + histórico. |
+| 10, 14 (demais módulos de funcionalidade nova, Fase 2) | ❌ Não iniciado | — |
 
 ## 📋 Registro consolidado — funcionalidades deixadas de fora do redesenho (revisar p/ priorizar na Fase 2)
 
