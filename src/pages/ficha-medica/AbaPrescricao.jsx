@@ -44,6 +44,83 @@ function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar }) {
 
 const ITEM_VAZIO = { medicamento_nome: '', dose: '', dose_unidade: '', via: 'VO', frequencia: '', duracao: '', instrucoes: '', sn_aplic: false, horario_aplicacao: '', diluicao: '' }
 const ORIENTACAO_VAZIA = { texto: '', frequencia: '' }
+const CALC_VAZIA = { pesoKg: '', doseAlvoMgKg: '', apresentacaoMg: '', diluenteMl: '', soroMl: '' }
+
+function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar }) {
+  const pesoKg = Number(calc.pesoKg) || 0
+  const doseAlvoMgKg = Number(calc.doseAlvoMgKg) || 0
+  const apresentacaoMg = Number(calc.apresentacaoMg) || 0
+  const diluenteMl = Number(calc.diluenteMl) || 0
+  const soroMl = Number(calc.soroMl) || 0
+
+  const doseTotalMg = pesoKg && doseAlvoMgKg ? pesoKg * doseAlvoMgKg : 0
+  const concentracaoMgMl = apresentacaoMg && diluenteMl ? apresentacaoMg / diluenteMl : 0
+  const volumeAspirarMl = doseTotalMg && concentracaoMgMl ? doseTotalMg / concentracaoMgMl : 0
+
+  const textoFinal = doseTotalMg && volumeAspirarMl
+    ? `${item.medicamento_nome || 'Medicação'} — Diluir em ${diluenteMl} mL (AD/Diluente). Aspirar ${volumeAspirarMl.toFixed(1)} mL (${doseTotalMg.toFixed(0)} mg)${soroMl ? ` e rediluir em ${soroMl} mL de SF 0,9%` : ''}. Administrar conforme via prescrita.`
+    : ''
+
+  const podeAplicar = doseTotalMg > 0 && volumeAspirarMl > 0
+
+  return (
+    <div className="form-section-box" style={{ background: '#FFFBEB', borderColor: '#FDE68A', gridColumn: 'span 2' }}>
+      <div className="form-section-box-title"><i className="ph ph-calculator" /> Calculadora de Dose Pediátrica (EV/IM)</div>
+
+      <div className="assess-grid">
+        <div className="form-group">
+          <label>Peso do paciente (kg)</label>
+          <input type="number" step="0.1" value={calc.pesoKg} onChange={(e) => onChange('pesoKg', e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>Dose alvo (mg/kg)</label>
+          <input type="number" step="0.1" value={calc.doseAlvoMgKg} onChange={(e) => onChange('doseAlvoMgKg', e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>Apresentação da ampola (mg)</label>
+          <input type="number" value={calc.apresentacaoMg} onChange={(e) => onChange('apresentacaoMg', e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>Diluente inicial (mL)</label>
+          <input type="number" value={calc.diluenteMl} onChange={(e) => onChange('diluenteMl', e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>Soro de rediluição (mL, opcional)</label>
+          <input type="number" value={calc.soroMl} onChange={(e) => onChange('soroMl', e.target.value)} />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 160, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '10px 14px', textAlign: 'center' }}>
+          <div style={{ fontSize: 10.5, fontWeight: 700, color: '#1D4ED8', textTransform: 'uppercase' }}>Dose Total Resultante</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#1D4ED8' }}>{doseTotalMg ? `${doseTotalMg.toFixed(0)} mg` : '—'}</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 160, background: '#FFF1F2', border: '1px solid #FECDD3', borderRadius: 8, padding: '10px 14px', textAlign: 'center' }}>
+          <div style={{ fontSize: 10.5, fontWeight: 700, color: '#BE123C', textTransform: 'uppercase' }}>Volume a Aspirar</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#BE123C' }}>{volumeAspirarMl ? `${volumeAspirarMl.toFixed(1)} mL` : '—'}</div>
+        </div>
+      </div>
+
+      {textoFinal && (
+        <div className="form-group">
+          <label>Texto final sugerido para enfermagem</label>
+          <div style={{ background: '#F8FAFC', border: '1px dashed var(--border-strong, #CBD5E1)', borderRadius: 8, padding: 12, fontSize: 12.5, fontFamily: 'monospace' }}>
+            {textoFinal}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button type="button" className="btn-cancel" onClick={onCancelar}>
+          <i className="ph ph-x" /> Cancelar
+        </button>
+        <button type="button" className="btn-add-chip" onClick={onAplicar} disabled={!podeAplicar}>
+          <i className="ph ph-check" /> Aplicar à Prescrição
+        </button>
+      </div>
+    </div>
+  )
+}
 
 
 export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
@@ -58,6 +135,8 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
+  const [calcAberto, setCalcAberto] = useState(null)
+  const [calc, setCalc] = useState({ ...CALC_VAZIA })
 
   useEffect(() => { carregar() }, [])
   useEffect(() => { listarCatalogoMedicamentos().then(setCatalogo) }, [])
@@ -82,6 +161,32 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
 
   function removerItem(i) {
     setItens((prev) => prev.filter((_, idx) => idx !== i))
+    if (calcAberto === i) setCalcAberto(null)
+  }
+
+  function abrirCalculadora(i) {
+    setCalc({ ...CALC_VAZIA })
+    setCalcAberto(i)
+  }
+
+  function fecharCalculadora() {
+    setCalcAberto(null)
+  }
+
+  function aplicarCalculadora(i) {
+    const pesoKg = Number(calc.pesoKg) || 0
+    const doseAlvoMgKg = Number(calc.doseAlvoMgKg) || 0
+    const apresentacaoMg = Number(calc.apresentacaoMg) || 0
+    const diluenteMl = Number(calc.diluenteMl) || 0
+    const soroMl = Number(calc.soroMl) || 0
+    const doseTotalMg = pesoKg && doseAlvoMgKg ? pesoKg * doseAlvoMgKg : 0
+    const concentracaoMgMl = apresentacaoMg && diluenteMl ? apresentacaoMg / diluenteMl : 0
+    const volumeAspirarMl = doseTotalMg && concentracaoMgMl ? doseTotalMg / concentracaoMgMl : 0
+    if (!doseTotalMg || !volumeAspirarMl) return
+    const nomeMedicamento = itens[i]?.medicamento_nome || 'Medicação'
+    const textoFinal = `${nomeMedicamento} — Diluir em ${diluenteMl} mL (AD/Diluente). Aspirar ${volumeAspirarMl.toFixed(1)} mL (${doseTotalMg.toFixed(0)} mg)${soroMl ? ` e rediluir em ${soroMl} mL de SF 0,9%` : ''}. Administrar conforme via prescrita.`
+    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, dose: doseTotalMg.toFixed(0), dose_unidade: 'mg', diluicao: textoFinal } : it)))
+    setCalcAberto(null)
   }
 
   function setOrientacao(i, campo, valor) {
@@ -199,10 +304,22 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir }) {
                 <label>Instruções gerais</label>
                 <input type="text" value={it.instrucoes} onChange={(e) => setItem(i, 'instrucoes', e.target.value)} />
               </div>
+              <button type="button" className="btn-add-chip" style={{ justifySelf: 'flex-start' }} onClick={() => (calcAberto === i ? fecharCalculadora() : abrirCalculadora(i))}>
+                <i className="ph ph-calculator" /> Calc. Pediátrica (EV/IM)
+              </button>
               {itens.length > 1 && (
                 <button type="button" className="btn-cancel" style={{ justifySelf: 'flex-start' }} onClick={() => removerItem(i)}>
                   <i className="ph ph-trash" /> Remover
                 </button>
+              )}
+              {calcAberto === i && (
+                <CalculadoraDosePediatrica
+                  item={it}
+                  calc={calc}
+                  onChange={(campo, valor) => setCalc((prev) => ({ ...prev, [campo]: valor }))}
+                  onAplicar={() => aplicarCalculadora(i)}
+                  onCancelar={fecharCalculadora}
+                />
               )}
             </div>
           ))}
