@@ -78,7 +78,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome,
         medicoId={medicoId}
         medicoNome={medicoNome}
         medicoCrm={medicoCrm}
-        onImprimir={(registro) => onImprimir({ tipo: 'apac', registro })}
+        onImprimir={(registro, tipo = 'apac') => onImprimir({ tipo, registro })}
         onFechar={onFechar}
         abrirApacCompleto={aba === 'apac'}
       />

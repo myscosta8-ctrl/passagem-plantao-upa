@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { buscarCabecalhoImpressao } from '../lib/pepMedico'
 import './PrintView.css'
+import CorpoRequisicaoExamesOficial from './ficha-medica-print/CorpoRequisicaoExamesOficial'
 
 import { limparPrefixo } from './ficha-medica-print/helpersSus'
 import CorpoConsultaOficial from './ficha-medica-print/CorpoConsultaOficial'
@@ -99,6 +100,9 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
     intercorrencia: <CorpoNotaIntercorrenciaOficial {...propsComuns} />,
     receituario: <CorpoReceituarioOficial {...propsComuns} />,
     atestado: <CorpoAtestadoOficial {...propsComuns} />,
+    exame_lab: <CorpoRequisicaoExamesOficial modalidade="lab" {...propsComuns} />,
+    exame_img: <CorpoRequisicaoExamesOficial modalidade="img" {...propsComuns} />,
+    exame_ecg: <CorpoRequisicaoExamesOficial modalidade="ecg" {...propsComuns} />,
   }
 
   if (mapaCorpos[tipo]) {

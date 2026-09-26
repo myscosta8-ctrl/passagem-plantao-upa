@@ -331,16 +331,20 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           return;
         }
 
-        await criarExame({
+        const { data: reg, error: erroEx } = await criarExame({
           atendimentoId: atendimento.atendimento_id,
           nome: `Requisição Laboratorial (${itens.length} exames)`,
           preparo: prioridade.lab === 'urgencia' ? 'Urgência' : 'Rotina',
+          solicitadoPor: medicoId,
+          modalidade: 'lab',
+          exames: itens,
+          justificativa: labJustificativa,
+          urgencia: prioridade.lab === 'urgencia' ? 'Urgência' : 'Rotina',
           local: 'Laboratório Interno UPA 24h',
         });
 
-        localStorage.setItem('requisicao_lab_selecionados', JSON.stringify(itens));
-        localStorage.setItem('requisicao_lab_justificativa', labJustificativa);
-        if (imprimir) window.open('./modelos_impressao_html/19-solicitacao-exames-laboratoriais.html', '_blank');
+        if (erroEx) { console.error(erroEx); alert('Não foi possível registrar a requisição. Tente novamente.'); setSalvando(false); return; }
+        if (imprimir && reg) onImprimir?.(reg, 'exame_lab');
 
       } else if (modalidade === 'img') {
         const itens = [];
@@ -356,16 +360,20 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           return;
         }
 
-        await criarExame({
+        const { data: reg, error: erroEx } = await criarExame({
           atendimentoId: atendimento.atendimento_id,
           nome: `Requisição de Radiologia (${itens.length} exames)`,
           preparo: prioridade.img === 'urgencia' ? 'Urgência' : 'Eletivo',
+          solicitadoPor: medicoId,
+          modalidade: 'img',
+          exames: itens,
+          justificativa: imgJustificativa,
+          urgencia: prioridade.img === 'urgencia' ? 'Urgência' : 'Eletivo',
           local: 'Radiologia Digital UPA 24h',
         });
 
-        localStorage.setItem('requisicao_img_selecionados', JSON.stringify(itens));
-        localStorage.setItem('requisicao_img_justificativa', imgJustificativa);
-        if (imprimir) window.open('./modelos_impressao_html/20-solicitacao-exames-imagem-rx.html', '_blank');
+        if (erroEx) { console.error(erroEx); alert('Não foi possível registrar a requisição. Tente novamente.'); setSalvando(false); return; }
+        if (imprimir && reg) onImprimir?.(reg, 'exame_img');
 
       } else if (modalidade === 'ecg') {
         const itens = [];
@@ -381,16 +389,20 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           return;
         }
 
-        await criarExame({
+        const { data: reg, error: erroEx } = await criarExame({
           atendimentoId: atendimento.atendimento_id,
           nome: `Requisição de ECG (${itens.length} traçados)`,
           preparo: 'Urgência / Emergência',
+          solicitadoPor: medicoId,
+          modalidade: 'ecg',
+          exames: itens,
+          justificativa: ecgJustificativa,
+          urgencia: 'Urgência / Emergência',
           local: 'Métodos Gráficos UPA 24h',
         });
 
-        localStorage.setItem('requisicao_ecg_selecionados', JSON.stringify(itens));
-        localStorage.setItem('requisicao_ecg_justificativa', ecgJustificativa);
-        if (imprimir) window.open('./modelos_impressao_html/21-solicitacao-eletrocardiograma-ecg.html', '_blank');
+        if (erroEx) { console.error(erroEx); alert('Não foi possível registrar a requisição. Tente novamente.'); setSalvando(false); return; }
+        if (imprimir && reg) onImprimir?.(reg, 'exame_ecg');
 
       } else if (modalidade === 'apac') {
         if (!apacDados.procedimento_nome.trim() || !apacDados.justificativa.trim()) {
@@ -399,7 +411,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           return;
         }
 
-        const { error } = await criarApac({
+        const { data, error } = await criarApac({
           atendimentoId: atendimento.atendimento_id,
           solicitanteId: medicoId,
           dados: {
@@ -427,8 +439,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           return;
         }
 
-        localStorage.setItem('requisicao_apac_dados', JSON.stringify(apacDados));
-        if (imprimir) window.open('./modelos_impressao_html/18-laudo-apac-procedimento-ambulatorial.html', '_blank');
+        if (imprimir && data) onImprimir?.(data, 'apac');
       }
 
       setHistorico(await listarExames(atendimento.atendimento_id));
@@ -760,9 +771,12 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
               ) : historico.map((h) => (
                 <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border-light)', fontSize: 12 }}>
                   <div>
-                    <strong>{h.nome_exame}</strong> <span style={{ color: 'var(--text-muted)' }}>— {h.preparo}</span>
-                    <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>Solicitado por: {h.enfermeiros?.nome_exibicao || h.enfermeiros?.nome} • {new Date(h.criado_em).toLocaleString('pt-BR')}</div>
+                    <strong>{h.nome}</strong> <span style={{ color: 'var(--text-muted)' }}>— {h.preparo}</span>
+                    <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>Solicitado por: {h.enfermeiros?.nome_exibicao || h.enfermeiros?.nome || '—'} • {new Date(h.criado_em).toLocaleString('pt-BR')}</div>
                   </div>
+                  {Array.isArray(h.exames) && ['lab', 'img', 'ecg'].includes(h.modalidade) && (
+                    <button type="button" className="btn-save-draft" style={{ alignSelf: 'center' }} onClick={() => onImprimir?.(h, `exame_${h.modalidade}`)}><i className="ph ph-printer" /> Imprimir</button>
+                  )}
                 </div>
               ))}
             </div>

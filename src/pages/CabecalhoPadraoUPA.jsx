@@ -68,7 +68,7 @@ export default function CabecalhoPadraoUPA({ titulo, pessoa = {}, atendimento = 
           <div className="pr-campo" style={{ flexBasis: '65%' }}>
             <b>{rotuloProf}</b> {prof?.nome_exibicao || prof?.nome || ''} {docConselho ? <>&nbsp; <b>{docConselho}</b></> : ''}
           </div>
-          <div className="pr-campo" style={{ flexBasis: '35%' }}><b>ALERGIA:</b> Nenhuma informada</div>
+          <div className="pr-campo" style={{ flexBasis: '35%' }}><b>ALERGIA:</b> {pessoa.alergias_ativas?.length ? pessoa.alergias_ativas.join(', ') : ''}</div>
         </div>
         <div className="pr-linha">
           <div className="pr-campo" style={{ flexBasis: '15%' }}><b>LEITO:</b> {leitoNumero || ''}</div>

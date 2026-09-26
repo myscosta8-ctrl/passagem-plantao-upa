@@ -142,8 +142,9 @@ export async function buscarCabecalhoImpressao(atendimentoId) {
     .eq('atendimento_id', atendimentoId)
     .eq('status', 'ativo')
     .maybeSingle()
+  const { data: alergias } = await supabase.from('alergias').select('substancia').eq('pessoa_id', atendimento.pessoa_id).eq('status', 'ativa')
   return {
-    pessoa,
+    pessoa: { ...pessoa, alergias_ativas: (alergias ?? []).map((a) => a.substancia).filter(Boolean) },
     atendimento,
     idade: calcularIdade(pessoa.data_nascimento) ?? pessoa.idade_informada ?? null,
     leitoNumero: ocupacao?.leitos?.numero ?? null,
@@ -215,15 +216,17 @@ export async function atualizarDiagnosticoCid(atendimentoId, cid, autorId) {
 // `passagens` — um atendimento pode ter vários em paralelo.
 
 export async function listarExames(atendimentoId) {
-  const { data } = await supabase.from('exames_solicitados').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  const { data } = await supabase.from('exames_solicitados').select('*, enfermeiros!exames_solicitados_solicitado_por_fkey(nome_exibicao, nome, crm)').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
   return data ?? []
 }
 
-export async function criarExame({ atendimentoId, nome, preparo, agendadoPara, local }) {
+export async function criarExame({ atendimentoId, nome, preparo, agendadoPara, local, solicitadoPor, modalidade, exames, justificativa, urgencia }) {
   return supabase.from('exames_solicitados').insert({
     atendimento_id: atendimentoId, nome, preparo: preparo || null,
     agendado_para: agendadoPara || null, local: local || null, status: 'a_realizar',
-  }).select().single()
+    solicitado_por: solicitadoPor || null, modalidade: modalidade || null, tipo: modalidade || null,
+    exames: exames || null, justificativa_clinica: justificativa || null, urgencia: urgencia || null,
+  }).select('*, enfermeiros!exames_solicitados_solicitado_por_fkey(nome_exibicao, nome, crm)').single()
 }
 
 export async function atualizarExame(id, { status, resultado }) {
