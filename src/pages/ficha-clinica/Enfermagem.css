@@ -112,8 +112,8 @@
 .enf-theme .topbar .btn-voltar { background: transparent; border: 1px solid #CBD5E1; border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 6px; }
 .enf-theme .topbar .sys-time { font-size: 11px; font-weight: 600; color: #64748B; padding-right: 14px; border-right: 1px solid #E2E8F0; }
 .enf-theme .topbar-right { gap: 14px; }
-.enf-theme .btn-pilar { background: #fff; border: 1px solid #CBD5E1; border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #1D4ED8; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.enf-theme .btn-pilar:hover { background: #EFF6FF; border-color: #1D4ED8; }
+.enf-theme .btn-pilar { background: #fff; border: 1px solid #CBD5E1; border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #0D9488; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.enf-theme .btn-pilar:hover { background: #F0FDFA; border-color: #0D9488; }
 .enf-theme .workspace { padding: 12px 18px; gap: 12px; }
 
 /* PATIENT BANNER (mockup 08) */

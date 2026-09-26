@@ -53,7 +53,7 @@
 
 .topbar-hamburguer-btn:hover {
   background: #F1F5F9;
-  color: #1D4ED8;
+  color: #0D9488;
 }
 
 .breadcrumb {
@@ -100,14 +100,14 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #EFF6FF;
-  color: #1D4ED8;
+  background: #F0FDFA;
+  color: #0D9488;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 13px;
-  border: 1px solid #BFDBFE;
+  border: 1px solid #99F6E4;
 }
 
 /* -----------------------------------------
@@ -180,14 +180,14 @@
 
 .control-btn:hover {
   background: #F8FAFC;
-  border-color: #1D4ED8;
-  color: #1D4ED8;
+  border-color: #0D9488;
+  color: #0D9488;
 }
 
 .control-btn.active {
-  background: #EFF6FF;
-  border-color: #1D4ED8;
-  color: #1D4ED8;
+  background: #F0FDFA;
+  border-color: #0D9488;
+  color: #0D9488;
 }
 
 .search-bar {
@@ -215,8 +215,8 @@
 }
 
 .search-bar .search-input:focus {
-  border-color: #1D4ED8;
-  box-shadow: 0 0 0 3px #EFF6FF;
+  border-color: #0D9488;
+  box-shadow: 0 0 0 3px #F0FDFA;
 }
 
 .painel-filtro-dropdown {
@@ -278,7 +278,7 @@
 .btn-setor-extra {
   background: #ffffff;
   border: 1px dashed #94A3B8;
-  color: #1D4ED8;
+  color: #0D9488;
   font-size: 12px;
   font-weight: 600;
   padding: 5px 12px;
@@ -292,8 +292,8 @@
 }
 
 .btn-setor-extra:hover {
-  background: #EFF6FF;
-  border-color: #1D4ED8;
+  background: #F0FDFA;
+  border-color: #0D9488;
   border-style: solid;
 }
 
@@ -336,7 +336,7 @@
 .risk-laranja  { background: #EA580C; }
 .risk-amarelo  { background: #EAB308; }
 .risk-verde    { background: #16A34A; }
-.risk-azul     { background: #2563EB; }
+.risk-azul     { background: #0D9488; }
 
 .leito-header,
 .leito-card-header {
@@ -375,9 +375,9 @@
 }
 
 .status-internado {
-  background: #DBEAFE;
-  color: #1E40AF;
-  border: 1px solid #BFDBFE;
+  background: #CCFBF1;
+  color: #0F766E;
+  border: 1px solid #99F6E4;
 }
 
 .status-observacao {
@@ -485,7 +485,7 @@
 }
 
 .action-btn:hover {
-  color: #1D4ED8;
+  color: #0D9488;
   background: rgba(0, 0, 0, 0.05);
 }
 
@@ -521,8 +521,8 @@
 }
 
 .leito-menu-dropdown button:hover {
-  background: #EFF6FF;
-  color: #1D4ED8;
+  background: #F0FDFA;
+  color: #0D9488;
 }
 
 /* LEITO VAZIO */
@@ -540,8 +540,8 @@
 
 .leito-card.leito-vazio:hover,
 .leito-card.vazio:hover {
-  border-color: #1D4ED8;
-  background: #EFF6FF;
+  border-color: #0D9488;
+  background: #F0FDFA;
 }
 
 .leito-card.leito-vazio .risk-bar,
@@ -573,7 +573,7 @@
 .leito-card.leito-vazio:hover .vazio-title,
 .leito-card.vazio:hover .vazio-icon,
 .leito-card.vazio:hover .vazio-title {
-  color: #1D4ED8;
+  color: #0D9488;
 }
 
 /* ===================== VISUALIZAÇÃO EM TABELA ===================== */

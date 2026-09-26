@@ -189,7 +189,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
                 <strong>Pneumonia Pediátrica</strong>
                 <span>Preenche HDA + EF completo</span>
               </div>
-              <i className="ph ph-plus-circle" style={{ color: '#1D4ED8', fontSize: 16 }} />
+              <i className="ph ph-plus-circle" style={{ color: '#0D9488', fontSize: 16 }} />
             </button>
             <button
               type="button"
@@ -200,7 +200,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
                 <strong>Bronquiolite / Asma Grave</strong>
                 <span>Cibrose, sibilos e oxigenoterapia</span>
               </div>
-              <i className="ph ph-plus-circle" style={{ color: '#1D4ED8', fontSize: 16 }} />
+              <i className="ph ph-plus-circle" style={{ color: '#0D9488', fontSize: 16 }} />
             </button>
             <button
               type="button"
@@ -211,7 +211,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
                 <strong>Gastroenterite + Desidratação</strong>
                 <span>Vômitos, diarreia e hidratação EV</span>
               </div>
-              <i className="ph ph-plus-circle" style={{ color: '#1D4ED8', fontSize: 16 }} />
+              <i className="ph ph-plus-circle" style={{ color: '#0D9488', fontSize: 16 }} />
             </button>
           </div>
 
@@ -377,7 +377,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
               <input
                 type="text"
                 className="form-control"
-                style={{ fontWeight: 700, color: '#1D4ED8' }}
+                style={{ fontWeight: 700, color: '#0D9488' }}
                 value={dados.hipotese_diagnostica}
                 onChange={(e) => set('hipotese_diagnostica', e.target.value)}
               />

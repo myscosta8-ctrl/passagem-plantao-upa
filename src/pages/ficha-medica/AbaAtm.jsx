@@ -115,7 +115,7 @@ export default function AbaAtm({ atendimento, medicoId, onImprimir, onFechar }) 
           <div className="assess-grid" style={{ gridTemplateColumns: '1fr', marginTop: 12 }}>
             <div className="form-group">
               <label>Medicamento solicitado *
-                {origemPrescricao && <span className="badge-2vias" style={{ background: '#DBEAFE', color: '#1E40AF' }}>Da prescrição</span>}
+                {origemPrescricao && <span className="badge-2vias" style={{ background: '#CCFBF1', color: '#0F766E' }}>Da prescrição</span>}
                 {dados.medicamento && !restritoAtual && <span className="badge-2vias">Fora da lista restrita</span>}
               </label>
               <input type="text" list="atm-restritos" value={dados.medicamento} onChange={(e) => set('medicamento', e.target.value)} />

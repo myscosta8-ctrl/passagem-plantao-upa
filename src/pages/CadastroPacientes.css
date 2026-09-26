@@ -33,8 +33,8 @@
 }
 .btn-save-draft {
   background: #fff;
-  border: 1px solid #1D4ED8;
-  color: #1D4ED8;
+  border: 1px solid #0D9488;
+  color: #0D9488;
   padding: 7px 16px;
   border-radius: 6px;
   font-weight: 600;
@@ -46,10 +46,10 @@
   transition: 0.2s;
 }
 .btn-save-draft:hover {
-  background: #EFF6FF;
+  background: #F0FDFA;
 }
 .btn-save-print {
-  background: #1D4ED8;
+  background: #0D9488;
   color: white;
   border: none;
   padding: 7px 16px;
@@ -64,7 +64,7 @@
   transition: 0.2s;
 }
 .btn-save-print:hover {
-  background: #1E40AF;
+  background: #0F766E;
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);
 }
 

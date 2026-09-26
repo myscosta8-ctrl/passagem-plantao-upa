@@ -31,7 +31,7 @@
 
 .floating-btn:hover {
   background: rgba(0, 0, 0, 0.05);
-  color: #1D4ED8;
+  color: #0D9488;
 }
 
 .floating-btn i {
@@ -171,7 +171,7 @@
 }
 
 .sidebar-item.ativo {
-  background: #1D4ED8;
+  background: #0D9488;
   color: #ffffff;
   font-weight: 600;
   box-shadow: inset 4px 0 0 #ffffff;

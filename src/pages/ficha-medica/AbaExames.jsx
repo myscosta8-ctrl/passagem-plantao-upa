@@ -500,7 +500,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
                 <i className="ph ph-shield-warning" style={{ color: '#d97706' }} /> Combo Sepse / IRA (Lab)
               </button>
               <button type="button" className="btn-cancel" style={{ justifyContent: 'flex-start', width: '100%', textAlign: 'left' }} onClick={() => aplicarProtocolo('abdome')}>
-                <i className="ph ph-scan" style={{ color: '#1d4ed8' }} /> Rotina Abdome Agudo (RX)
+                <i className="ph ph-scan" style={{ color: '#0D9488' }} /> Rotina Abdome Agudo (RX)
               </button>
               <button type="button" className="btn-cancel" style={{ justifyContent: 'flex-start', width: '100%', textAlign: 'left' }} onClick={() => aplicarProtocolo('ecg_urgencia')}>
                 <i className="ph ph-heartbeat" style={{ color: '#dc2626' }} /> Protocolo ECG 12D (ECG)
@@ -579,8 +579,8 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           {/* 4ª MODALIDADE: LAUDO APAC — funcional de verdade (salva em apac_solicitacoes) */}
           {modalidade === 'apac' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div className="allergy-alert" style={{ background: '#EFF6FF', borderColor: '#BFDBFE' }}>
-                <div className="info" style={{ color: '#1E3A8A', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, width: '100%' }}>
+              <div className="allergy-alert" style={{ background: '#F0FDFA', borderColor: '#99F6E4' }}>
+                <div className="info" style={{ color: '#0F766E', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, width: '100%' }}>
                   <span><i className="ph ph-file-text" /> Laudo oficial do Ministério da Saúde com os 52 campos (paciente, procedimentos secundários, autorização e executante).</span>
                   <button type="button" className="btn-save-print" onClick={() => setApacCompleto(true)}>
                     <i className="ph ph-arrow-square-out" /> Abrir Laudo APAC Completo
@@ -590,7 +590,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
               <div className="form-section">
                 <div className="form-section-title">
                   <span className="st-left"><i className="ph ph-buildings" /> Estabelecimento Solicitante (Campos 1 e 2)</span>
-                  <span style={{ fontSize: 11, color: '#1e3a8a', fontWeight: 700 }}>Regulação Externa SUS / SER-PA</span>
+                  <span style={{ fontSize: 11, color: '#0F766E', fontWeight: 700 }}>Regulação Externa SUS / SER-PA</span>
                 </div>
                 <div className="grid-2">
                   <div className="form-group">

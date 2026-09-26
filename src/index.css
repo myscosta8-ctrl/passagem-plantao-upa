@@ -7,12 +7,12 @@
 
 :root {
   /* PALETA PRIMÁRIA E MARCA (Hospitalar Enterprise) */
-  --c-primary:        #1D4ED8;
-  --c-primary-hover:  #1E3A8A;
+  --c-primary:        #0D9488;
+  --c-primary-hover:  #0F766E;
   --c-primary-dark:   #0B192C;
-  --c-primary-mid:    #1D4ED8;
-  --c-primary-light:  #EFF6FF;
-  --c-primary-border: #BFDBFE;
+  --c-primary-mid:    #0D9488;
+  --c-primary-light:  #F0FDFA;
+  --c-primary-border: #99F6E4;
 
   /* SUPERFÍCIES */
   --c-bg:             #F1F5F9;
@@ -60,7 +60,7 @@
   --c-info:           #0284C7;
   --c-info-light:     #E0F2FE;
   --c-info-border:    #BAE6FD;
-  --c-acao-light:     #EFF6FF;
+  --c-acao-light:     #F0FDFA;
 
   /* TIPOGRAFIA */
   --font-ui:          'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -119,12 +119,12 @@
 
 /* ===================== TEMA ESCURO ===================== */
 :root[data-tema="escuro"] {
-  --c-primary:        #3B82F6;
-  --c-primary-hover:  #60A5FA;
+  --c-primary:        #14B8A6;
+  --c-primary-hover:  #2DD4BF;
   --c-primary-dark:   #0F172A;
-  --c-primary-mid:    #3B82F6;
-  --c-primary-light:  rgba(59, 130, 246, 0.16);
-  --c-primary-border: #1E3A8A;
+  --c-primary-mid:    #14B8A6;
+  --c-primary-light:  rgba(20, 184, 166, 0.16);
+  --c-primary-border: #0F766E;
 
   --c-bg:             #0B1320;
   --c-surface:        #152238;
