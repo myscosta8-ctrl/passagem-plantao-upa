@@ -320,5 +320,5 @@
 
 /* Banner compartilhado com o Prontuário Médico: variáveis próprias (fora do .enf-theme) */
 .enf-banner { --enf-primary: #0D9488; --enf-hover: #0F766E; --enf-badge: #CCFBF1; --danger: #DC2626; --danger-light: #FEF2F2; }
-.enf-banner .pb-pediatrico { background: #EFF6FF; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }
+.enf-banner .pb-pediatrico { background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }
 .enf-banner .pb-classificacao { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }

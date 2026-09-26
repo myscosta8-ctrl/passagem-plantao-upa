@@ -46,7 +46,7 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
                 (registro.sv_pa_sistolica || registro.sv_pa_diastolica) ? `PA: ${registro.sv_pa_sistolica ?? '—'}x${registro.sv_pa_diastolica ?? '—'} mmHg` : null,
                 registro.sv_fc != null ? `FC: ${registro.sv_fc} bpm` : null,
                 registro.sv_fr != null ? `FR: ${registro.sv_fr} irpm` : null,
-                registro.sv_spo2 != null ? `SpO2: ${registro.sv_spo2}%` : null,
+                registro.sv_spo2 != null ? `SpO₂: ${registro.sv_spo2}%` : null,
                 registro.sv_temperatura != null ? `Tax: ${registro.sv_temperatura}°C` : null,
                 registro.sv_hgt != null ? `HGT: ${registro.sv_hgt} mg/dL` : null,
               ].filter(Boolean)

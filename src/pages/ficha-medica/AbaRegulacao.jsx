@@ -67,7 +67,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
     carregar()
   }
 
-  const SINAIS = [['pas', 'PA sistólica'], ['pad', 'PA diastólica'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['temp', 'Tax (°C)'], ['spo2', 'SpO2 (%)'], ['hgt', 'HGT (mg/dL)']]
+  const SINAIS = [['pas', 'PA sistólica'], ['pad', 'PA diastólica'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['temp', 'Tax (°C)'], ['spo2', 'SpO₂ (%)'], ['hgt', 'HGT (mg/dL)']]
 
   return (
     <div className="clinical-card" style={{ flex: 1 }}>

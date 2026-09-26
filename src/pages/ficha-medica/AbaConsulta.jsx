@@ -5,16 +5,16 @@ const MODELOS = {
   pediatria: {
     qp: 'Febre alta, tosse e falta de ar há 3 dias',
     hda: 'Mãe relata que a criança iniciou quadro de febre alta (aferido 39.2ºC na triagem) há 3 dias, responsiva parcialmente a antitérmicos. Evoluiu nas últimas 24h com tosse produtiva e taquipneia. Apresenta recusa alimentar, hipoatividade e prostração.',
-    ef: 'Geral: REG, hipoativo, acianótico, anictérico, febril ao toque, taquipneico leve (FR: 28 irpm).\nACV: RCRM em 2T, bulhas normofonéticas, sem sopros. FC: 110 bpm.\nAR: Murmúrio vesicular presente bilateralmente, com estertores crepitantes em base pulmonar direita e tiragem intercostal leve. SpO2: 97% em ar ambiente.\nAbdome: Flácido, indolor à palpação, sem visceromegalias, RHA presentes.\nOroscopia: Sem placas purulentas em amígdalas.',
+    ef: 'Geral: REG, hipoativo, acianótico, anictérico, febril ao toque, taquipneico leve (FR: 28 irpm).\nACV: RCRM em 2T, bulhas normofonéticas, sem sopros. FC: 110 bpm.\nAR: Murmúrio vesicular presente bilateralmente, com estertores crepitantes em base pulmonar direita e tiragem intercostal leve. SpO₂: 97% em ar ambiente.\nAbdome: Flácido, indolor à palpação, sem visceromegalias, RHA presentes.\nOroscopia: Sem placas purulentas em amígdalas.',
     cid: 'J15.9 - Pneumonia bacteriana não especificada',
     conduta: 'Paciente admitido em leito de observação pediátrica da UPA 24h Breves. Iniciada antibioticoterapia parenteral (Ampicilina + Sulbactam EV), suporte de O2 sob cateter nasal SN, hidratação venosa e monitorização contínua. Solicitado Laudo de AIH para autorização de leito hospitalar.',
   },
   bronquiolite: {
     qp: 'Cansaço intenso, chiado no peito e tosse seca há 2 dias',
     hda: 'Paciente com quadro de coriza há 4 dias que evoluiu com piora progressiva do padrão respiratório, sibilos audíveis sem estetoscópio e dificuldade para mamar/alimentar-se. Sem melhora após inalação em domicílio.',
-    ef: 'Geral: REG, taquidispneico, batimento de asa nasal presente, tiragem subcostal e intercostal moderada. Palidez cutânea leve.\nAR: Murmúrio vesicular difuso com tempo expiratório prolongado e sibilos bilaterais disseminados. SpO2: 93% em ar ambiente.\nACV: Taquicárdico (FC: 140 bpm), bulhas normofonéticas sem sopros.',
+    ef: 'Geral: REG, taquidispneico, batimento de asa nasal presente, tiragem subcostal e intercostal moderada. Palidez cutânea leve.\nAR: Murmúrio vesicular difuso com tempo expiratório prolongado e sibilos bilaterais disseminados. SpO₂: 93% em ar ambiente.\nACV: Taquicárdico (FC: 140 bpm), bulhas normofonéticas sem sopros.',
     cid: 'J21.9 - Bronquiolite aguda não especificada',
-    conduta: 'Internação em leito de observação. Oxigenoterapia sob cateter nasal a 2 L/min para manter SpO2 > 94%. Nebulização com broncodilatador conforme protocolo. Hidratação venosa e cabeceira elevada a 30°.',
+    conduta: 'Internação em leito de observação. Oxigenoterapia sob cateter nasal a 2 L/min para manter SpO₂ > 94%. Nebulização com broncodilatador conforme protocolo. Hidratação venosa e cabeceira elevada a 30°.',
   },
   desidratacao: {
     qp: 'Vômitos incoercíveis e diarreia líquida profusa há 24 horas',

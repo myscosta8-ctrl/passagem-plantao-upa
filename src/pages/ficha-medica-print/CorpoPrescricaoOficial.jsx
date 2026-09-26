@@ -109,7 +109,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
         </div>
 
         <div className="doc-rodape-sistema">
-          <span>Prescrição Médica Hospitalar — Sistema Vitaloop / UPA 24h Breves</span>
+          <span>Prescrição Médica Hospitalar — Prontuário Eletrônico / UPA 24h Breves</span>
           <span>Validade: 24 Horas &bull; Documento Oficial &bull; Folha Única (Paisagem) &bull; Página 1 de 1</span>
         </div>
       </div>

@@ -49,8 +49,8 @@ export default function CorpoTfdOficial({ registro, pessoa, atendimento, idade, 
           <div className="med-secao-header">2. Exame Físico Geral e Específico Dirigido</div>
           <div className="med-secao-body" style={{ minHeight: '22mm', whiteSpace: 'pre-wrap' }}>
             {registro.exame_fisico && <div><b>Estado Geral:</b> {registro.exame_fisico}</div>}
-            {[cf.sv_pa && `PA: ${cf.sv_pa} mmHg`, cf.sv_fc && `FC: ${cf.sv_fc} bpm`, cf.sv_fr && `FR: ${cf.sv_fr} irpm`, cf.sv_spo2 && `SpO2: ${cf.sv_spo2}%`, cf.sv_tax && `Tax: ${cf.sv_tax} °C`, cf.sv_hgt && `HGT: ${cf.sv_hgt} mg/dL`].filter(Boolean).length > 0 && (
-              <div style={{ fontWeight: 700, margin: '2px 0' }}>{[cf.sv_pa && `PA: ${cf.sv_pa} mmHg`, cf.sv_fc && `FC: ${cf.sv_fc} bpm`, cf.sv_fr && `FR: ${cf.sv_fr} irpm`, cf.sv_spo2 && `SpO2: ${cf.sv_spo2}%`, cf.sv_tax && `Tax: ${cf.sv_tax} °C`, cf.sv_hgt && `HGT: ${cf.sv_hgt} mg/dL`].filter(Boolean).join('   •   ')}</div>
+            {[cf.sv_pa && `PA: ${cf.sv_pa} mmHg`, cf.sv_fc && `FC: ${cf.sv_fc} bpm`, cf.sv_fr && `FR: ${cf.sv_fr} irpm`, cf.sv_spo2 && `SpO₂: ${cf.sv_spo2}%`, cf.sv_tax && `Tax: ${cf.sv_tax} °C`, cf.sv_hgt && `HGT: ${cf.sv_hgt} mg/dL`].filter(Boolean).length > 0 && (
+              <div style={{ fontWeight: 700, margin: '2px 0' }}>{[cf.sv_pa && `PA: ${cf.sv_pa} mmHg`, cf.sv_fc && `FC: ${cf.sv_fc} bpm`, cf.sv_fr && `FR: ${cf.sv_fr} irpm`, cf.sv_spo2 && `SpO₂: ${cf.sv_spo2}%`, cf.sv_tax && `Tax: ${cf.sv_tax} °C`, cf.sv_hgt && `HGT: ${cf.sv_hgt} mg/dL`].filter(Boolean).join('   •   ')}</div>
             )}
             {cf.avaliacao_segmentar && <div><b>Avaliação Segmentar:</b> {cf.avaliacao_segmentar}</div>}
             {cf.exame_dirigido && <div><b>Exame Dirigido:</b> {cf.exame_dirigido}</div>}

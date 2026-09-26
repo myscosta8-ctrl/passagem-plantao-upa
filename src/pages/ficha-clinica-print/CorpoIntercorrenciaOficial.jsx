@@ -50,7 +50,7 @@ export default function CorpoIntercorrenciaOficial({ registro, pessoa, atendimen
                     <th>PA (mmHg)</th>
                     <th>FC (bpm)</th>
                     <th>FR (irpm)</th>
-                    <th>Temp (°C)</th>
+                    <th>Tax (°C)</th>
                     <th>SpO₂ (%)</th>
                     <th>HGT (mg/dL)</th>
                   </tr>

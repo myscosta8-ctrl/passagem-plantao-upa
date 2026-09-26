@@ -2,7 +2,7 @@ import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
 export default function CorpoNotaIntercorrenciaOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const sv = registro.sinais_vitais_evento || {}
-  const linhaSv = [sv.pa && `PA ${sv.pa} mmHg`, sv.fc && `FC ${sv.fc} bpm`, sv.fr && `FR ${sv.fr} irpm`, sv.spo2 && `SpO2 ${sv.spo2}%`, sv.temp && `Tax ${sv.temp} °C`, sv.hgt && `HGT ${sv.hgt} mg/dL`].filter(Boolean).join(' • ')
+  const linhaSv = [sv.pa && `PA ${sv.pa} mmHg`, sv.fc && `FC ${sv.fc} bpm`, sv.fr && `FR ${sv.fr} irpm`, sv.spo2 && `SpO₂ ${sv.spo2}%`, sv.temp && `Tax ${sv.temp} °C`, sv.hgt && `HGT ${sv.hgt} mg/dL`].filter(Boolean).join(' • ')
 
   return (
     <div className="notm-page">

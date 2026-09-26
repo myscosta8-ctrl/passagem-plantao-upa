@@ -210,7 +210,7 @@
   align-items: center;
   justify-content: center;
   font-size: 9px;
-  font-family: var(--font-mono, monospace);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
 .sus-comb .digito + .digito {
@@ -229,7 +229,7 @@
 }
 
 .sus-checkbox .caixa {
-  font-family: var(--font-mono, monospace);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-weight: 700;
 }
 
@@ -276,7 +276,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono, monospace);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 9px;
   margin-left: 3px;
 }

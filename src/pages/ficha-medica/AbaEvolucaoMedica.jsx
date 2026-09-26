@@ -175,7 +175,7 @@ export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir, o
               <div className="vital-box"><label>F. Cardíaca</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_fc} onChange={(e) => set('sv_fc', e.target.value)} /><span>bpm</span></div></div>
               <div className="vital-box"><label>F. Respiratória</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_fr} onChange={(e) => set('sv_fr', e.target.value)} /><span>irpm</span></div></div>
               <div className="vital-box"><label>Temperatura</label><div className="vital-input-wrapper"><input type="number" step="0.1" value={dados.sv_temperatura} onChange={(e) => set('sv_temperatura', e.target.value)} /><span>°C</span></div></div>
-              <div className="vital-box"><label>Sat O₂</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_spo2} onChange={(e) => set('sv_spo2', e.target.value)} /><span>%</span></div></div>
+              <div className="vital-box"><label>SpO₂</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_spo2} onChange={(e) => set('sv_spo2', e.target.value)} /><span>%</span></div></div>
               <div className="vital-box"><label>HGT</label><div className="vital-input-wrapper"><input type="number" value={dados.sv_hgt} onChange={(e) => set('sv_hgt', e.target.value)} /><span>mg/dL</span></div></div>
             </div>
           </div>

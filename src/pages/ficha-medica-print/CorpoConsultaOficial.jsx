@@ -44,7 +44,7 @@ export default function CorpoConsultaOficial({ registro, pessoa, atendimento, id
                 <div><b>PA:</b> {sv.pa || '—'} mmHg</div>
                 <div><b>FC:</b> {sv.fc || '—'} bpm</div>
                 <div><b>FR:</b> {sv.fr || '—'} irpm</div>
-                <div><b>SpO2:</b> {sv.spo2 || '—'}%</div>
+                <div><b>SpO₂:</b> {sv.spo2 || '—'}%</div>
                 <div><b>Tax:</b> {sv.temp || '—'} °C</div>
                 <div><b>HGT/Dor:</b> {sv.hgt ? `${sv.hgt} mg/dL` : (sv.dor ? `Dor ${sv.dor}/10` : '—')}</div>
               </div>

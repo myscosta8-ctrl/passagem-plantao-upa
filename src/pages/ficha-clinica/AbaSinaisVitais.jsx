@@ -41,7 +41,7 @@ export default function AbaSinaisVitais({ atendimento, autorId, onFechar }) {
         <div className="form-field"><label>PA diastólica</label><input type="number" value={dados.pa_diastolica} onChange={(e) => set('pa_diastolica', e.target.value)} /></div>
         <div className="form-field"><label>FC</label><input type="number" value={dados.fc} onChange={(e) => set('fc', e.target.value)} /></div>
         <div className="form-field"><label>FR</label><input type="number" value={dados.fr} onChange={(e) => set('fr', e.target.value)} /></div>
-        <div className="form-field"><label>SpO2</label><input type="number" value={dados.spo2} onChange={(e) => set('spo2', e.target.value)} /></div>
+        <div className="form-field"><label>SpO₂</label><input type="number" value={dados.spo2} onChange={(e) => set('spo2', e.target.value)} /></div>
         <div className="form-field"><label>Temperatura</label><input type="number" step="0.1" value={dados.temperatura} onChange={(e) => set('temperatura', e.target.value)} /></div>
         <div className="form-field"><label>Glicemia</label><input type="number" value={dados.glicemia} onChange={(e) => set('glicemia', e.target.value)} /></div>
         <div className="form-field"><label>Dor (0-10)</label><input type="number" min="0" max="10" value={dados.dor_escala} onChange={(e) => set('dor_escala', e.target.value)} /></div>
@@ -66,7 +66,7 @@ export default function AbaSinaisVitais({ atendimento, autorId, onFechar }) {
           <table className="hist-tabela">
             <thead>
               <tr>
-                <th>Data/hora</th><th>PA</th><th>FC</th><th>FR</th><th>SpO2</th><th>Temp.</th><th>Glicemia</th><th>Dor</th>
+                <th>Data/hora</th><th>PA</th><th>FC</th><th>FR</th><th>SpO₂</th><th>Tax (°C)</th><th>Glicemia</th><th>Dor</th>
               </tr>
             </thead>
             <tbody>

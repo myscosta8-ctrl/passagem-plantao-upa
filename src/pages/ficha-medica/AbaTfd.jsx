@@ -3,7 +3,7 @@ import { listarTfd, criarTfd } from '../../lib/pepMedico';
 import { TFD_VAZIA } from './constantes';
 
 // Laudo Médico de Tratamento Fora de Domicílio — impresso 13-tratamento-fora-domicilio-tfd.html.
-const SV = [['pa', 'PA (mmHg)', '120/80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO2 (%)'], ['tax', 'Tax (°C)'], ['hgt', 'HGT (mg/dL)']]
+const SV = [['pa', 'PA (mmHg)', '120/80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO₂ (%)'], ['tax', 'Tax (°C)'], ['hgt', 'HGT (mg/dL)']]
 const TRANSPORTES = ['Fluvial', 'Terrestre', 'Aéreo', 'Fluvial / Terrestre com Acompanhante', 'Aéreo (UTI aérea)']
 
 export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) {

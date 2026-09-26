@@ -11,7 +11,7 @@ const SV_CAMPOS = [
   ['fc', 'F. Cardíaca', 'bpm'],
   ['fr', 'F. Respiratória', 'irpm'],
   ['temperatura', 'Temperatura', '°C'],
-  ['spo2', 'Sat O₂', '%'],
+  ['spo2', 'SpO₂', '%'],
   ['glicemia', 'HGT / Glicemia', 'mg/dL'],
   ['dor_escala', 'Dor (EVA 0-10)', ''],
 ];
@@ -20,7 +20,7 @@ const nicTexto = (n) => `${n.texto} (${n.frequencia})`;
 function resumoSv(s) {
   return [
     s.pa && `PA ${s.pa} mmHg`, s.fc && `FC ${s.fc} bpm`, s.fr && `FR ${s.fr} irpm`, s.temperatura && `Tax ${s.temperatura} °C`,
-    s.spo2 && `SpO2 ${s.spo2}%`, s.glicemia && `HGT ${s.glicemia} mg/dL`, s.dor_escala !== '' && `Dor EVA ${s.dor_escala}/10`,
+    s.spo2 && `SpO₂ ${s.spo2}%`, s.glicemia && `HGT ${s.glicemia} mg/dL`, s.dor_escala !== '' && `Dor EVA ${s.dor_escala}/10`,
   ].filter(Boolean).join(' • ');
 }
 

@@ -72,7 +72,7 @@ export default function ResumoPaciente({ atendimento }) {
           <>
             <div className="resumo-bloco-valor">
               PA {ultimoSv.pa_sistolica ?? '—'}/{ultimoSv.pa_diastolica ?? '—'} · FC {ultimoSv.fc ?? '—'}<br />
-              FR {ultimoSv.fr ?? '—'} · SpO2 {ultimoSv.spo2 ?? '—'}{ultimoSv.temperatura ? ` · ${ultimoSv.temperatura}°C` : ''}
+              FR {ultimoSv.fr ?? '—'} · SpO₂ {ultimoSv.spo2 ?? '—'}{ultimoSv.temperatura ? ` · ${ultimoSv.temperatura}°C` : ''}
             </div>
             <div className="resumo-bloco-nota">{formatarRelativo(ultimoSv.registrado_em)}</div>
           </>

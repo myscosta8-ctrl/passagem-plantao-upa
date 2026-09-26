@@ -42,7 +42,7 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
     carregar()
   }
 
-  const sv = [['pa', 'PA (mmHg)', '120x80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO2 (%)'], ['temp', 'Tax (°C)'], ['hgt', 'HGT (mg/dL)']]
+  const sv = [['pa', 'PA (mmHg)', '120x80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO₂ (%)'], ['temp', 'Tax (°C)'], ['hgt', 'HGT (mg/dL)']]
 
   return (
     <div className="clinical-card" style={{ flex: 1 }}>

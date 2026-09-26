@@ -380,16 +380,16 @@
 
 .submit-btn {
   width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: var(--r-md);
-  background: var(--c-primary);
+  padding: 9px 16px;
+  border: 1px solid #0D9488;
+  border-radius: 6px;
+  background: #0D9488;
   color: white;
-  font-weight: 700;
-  font-size: 13.5px;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: var(--font-ui);
+  text-transform: none;
+  letter-spacing: 0;
   cursor: pointer;
   transition: background 0.15s;
 }
