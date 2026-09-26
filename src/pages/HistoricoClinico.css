@@ -51,3 +51,13 @@
   body.hc-imprimindo .hc-print-overlay { position: absolute; inset: 0; overflow: visible; }
   body.hc-imprimindo .hc-print-overlay .no-print { display: none !important; }
 }
+
+/* Gaveta lateral: não ocupa espaço da tela de evolução */
+.hc-gaveta-fundo { position: fixed; inset: 0; z-index: 2500; background: rgba(15, 23, 42, .35); display: flex; justify-content: flex-end; }
+.hc-gaveta { width: min(680px, 100vw); height: 100%; background: #fff; box-shadow: -8px 0 24px rgba(0,0,0,.12); display: flex; flex-direction: column; animation: hc-entrar .18s ease-out; }
+@keyframes hc-entrar { from { transform: translateX(40px); opacity: .6; } to { transform: none; opacity: 1; } }
+.hc-gaveta-topo { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E2E8F0; font-size: 14px; font-weight: 700; color: #0F172A; }
+.hc-gaveta-topo i.ph-clock-counter-clockwise { color: #0D9488; }
+.hc-fechar { border: 1px solid #CBD5E1; background: #fff; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #334155; }
+.hc-gaveta .hc-corpo { border-top: none; overflow-y: auto; flex: 1; }
+.hc-gaveta .hc-bloco-corpo { max-height: none; }

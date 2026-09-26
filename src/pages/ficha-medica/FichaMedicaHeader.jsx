@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome, medicoCrm, onTrocarPilar }) {
+export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome, medicoCrm, onTrocarPilar, onAbrirHistorico }) {
   const [relogio, setRelogio] = useState('');
 
   useEffect(() => {
@@ -24,6 +24,11 @@ export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome
         {onTrocarPilar && (
           <button type="button" className="btn-pilar" onClick={onTrocarPilar} title="Abrir o Prontuário de Enfermagem deste paciente">
             <i className="ph ph-stethoscope" /> Prontuário de Enfermagem
+          </button>
+        )}
+        {onAbrirHistorico && (
+          <button type="button" className="btn-pilar" onClick={onAbrirHistorico} title="Consultar o histórico clínico do paciente">
+            <i className="ph ph-clock-counter-clockwise" /> Histórico Clínico
           </button>
         )}
         <div className="sys-time"><i className="ph ph-clock" /> {relogio}</div>

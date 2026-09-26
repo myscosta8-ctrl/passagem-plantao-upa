@@ -13,6 +13,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
   const { enfermeiro } = useAuth();
   const [aba, setAba] = useState(initialTab);
   const [imprimindo, setImprimindo] = useState(null);
+  const [historicoAberto, setHistoricoAberto] = useState(false);
 
   if (imprimindo) {
     return (
@@ -42,13 +43,15 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
         medicoNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
         medicoCrm={enfermeiro?.crm}
         onTrocarPilar={onTrocarPilar}
+        onAbrirHistorico={() => setHistoricoAberto(true)}
       />
+      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} />
       <div className="workspace">
         <BannerPacienteEnf atendimento={atendimento} />
         {!podeCriar && (
           <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos médicos, mas não criá-los.</div>
         )}
-        <HistoricoClinico atendimento={atendimento} />
+
         <FichaMedicaTabs aba={aba} onSelecionarAba={setAba} />
         <FichaMedicaConteudo
           atendimento={atendimento}

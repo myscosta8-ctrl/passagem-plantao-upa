@@ -86,8 +86,7 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
   )
 }
 
-export default function HistoricoClinico({ atendimento }) {
-  const [aberto, setAberto] = useState(false)
+export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
   const [busca, setBusca] = useState('')
   const [filtroArea, setFiltroArea] = useState('todos')
   const [imprimindo, setImprimindo] = useState(null)
@@ -118,13 +117,16 @@ export default function HistoricoClinico({ atendimento }) {
     )
   }
 
+  if (!aberto) return null
+
   return (
-    <div className="hc-card no-print">
-      <button type="button" className="hc-topo" onClick={() => setAberto((v) => !v)}>
-        <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
-        <span className="hc-topo-dica">{aberto ? 'Recolher' : 'Expandir para consultar evoluções, admissões, alta e demais registros'} <i className={`ph ph-caret-${aberto ? 'up' : 'down'}`} /></span>
-      </button>
-      {aberto && (
+    <div className="hc-gaveta-fundo no-print" onClick={onFechar}>
+      <aside className="hc-gaveta" onClick={(e) => e.stopPropagation()}>
+        <div className="hc-gaveta-topo">
+          <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
+          <button type="button" className="hc-fechar" onClick={onFechar} title="Fechar"><i className="ph ph-x" /></button>
+        </div>
+      {(
         <div className="hc-corpo">
           <div className="hc-filtros">
             <div className="hc-busca"><i className="ph ph-magnifying-glass" /><input type="text" placeholder="Pesquisar no histórico (texto, tipo de documento ou profissional)..." value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
@@ -139,6 +141,7 @@ export default function HistoricoClinico({ atendimento }) {
           <p className="hc-nota">Exames, Prescrição Médica e AIH continuam no histórico da própria aba.</p>
         </div>
       )}
+      </aside>
     </div>
   )
 }

@@ -15,6 +15,7 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar }) {
   const { enfermeiro } = useAuth();
   const [aba, setAba] = useState('admissaoEnfermagem');
   const [imprimindo, setImprimindo] = useState(null);
+  const [historicoAberto, setHistoricoAberto] = useState(false);
 
   if (imprimindo) {
     return (
@@ -44,13 +45,15 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar }) {
         enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
         enfermeiroCoren={enfermeiro?.coren}
         onTrocarPilar={onTrocarPilar}
+        onAbrirHistorico={() => setHistoricoAberto(true)}
       />
+      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} />
       <div className="workspace">
         <BannerPacienteEnf atendimento={atendimento} />
         {!podeCriar && (
           <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos de enfermagem, mas não criá-los.</div>
         )}
-        <HistoricoClinico atendimento={atendimento} />
+
         <FichaClinicaTabs aba={aba} onSelecionarAba={setAba} />
         <FichaClinicaConteudo
           atendimento={atendimento}
