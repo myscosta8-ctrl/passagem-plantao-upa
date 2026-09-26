@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarReceitasMedicas, criarReceitaMedica, listarCatalogoMedicamentos } from '../../lib/pepMedico';
+import { listarReceitasMedicas, criarReceitaMedica, listarCatalogoMedicamentos, buscarCabecalhoImpressao } from '../../lib/pepMedico';
 import { RECEITA_ITEM_VAZIO, VIAS_RECEITA, TAGS_INSTRUCAO, RECEITA_TIPO_LABEL } from './constantes';
 
 function AutocompleteMedicamentoReceita({ catalogo, valor, onChange, onSelecionar }) {
@@ -32,7 +32,7 @@ function AutocompleteMedicamentoReceita({ catalogo, valor, onChange, onSeleciona
               <span className="autocomplete-item-nome">{m.nome}</span>
               <span className="autocomplete-item-sub">
                 {m.forma_farmaceutica}
-                {m.controlado ? ' · Controlado' : ''}
+                {m.controlado ? ' · Controlado (Lista C1)' : ''}
                 {m.antimicrobiano ? ' · Antimicrobiano' : ''}
               </span>
             </button>
@@ -44,15 +44,22 @@ function AutocompleteMedicamentoReceita({ catalogo, valor, onChange, onSeleciona
 }
 
 function classificarReceita(itens) {
-  if (itens.some((it) => it.controlado)) return 'controle_especial'
   if (itens.some((it) => it.antimicrobiano)) return 'antimicrobiano'
   return 'simples'
 }
 
-export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir, onFechar }) {
+export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir, onFechar, subTabExterno, onSubTab, onPulseControle }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
-  const [itens, setItens] = useState([{ ...RECEITA_ITEM_VAZIO }])
+  const [subTabInterno, setSubTabInterno] = useState('simples') // 'simples' | 'controle'
+  const controlado = subTabExterno !== undefined
+  const subTab = controlado ? subTabExterno : subTabInterno
+  const setSubTab = controlado ? onSubTab : setSubTabInterno
+  const [itensSimples, setItensSimples] = useState([{ ...RECEITA_ITEM_VAZIO }])
+  const [itensControle, setItensControle] = useState([])
+  const [enderecoPaciente, setEnderecoPaciente] = useState('')
+  const [pulseControle, setPulseControle] = useState(false)
+  const [aviso, setAviso] = useState(null) // { medicamento }
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
@@ -60,22 +67,53 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
 
   useEffect(() => { carregar() }, [])
   useEffect(() => { listarCatalogoMedicamentos().then(setCatalogo) }, [])
+  useEffect(() => {
+    buscarCabecalhoImpressao(atendimento.atendimento_id).then(({ pessoa }) => {
+      const partes = [pessoa?.endereco, pessoa?.endereco_numero, pessoa?.bairro, pessoa?.cidade].filter(Boolean)
+      if (partes.length > 0) setEnderecoPaciente(partes.join(', '))
+    }).catch(() => {})
+  }, [atendimento.atendimento_id])
+
   async function carregar() { setCarregando(true); setHistorico(await listarReceitasMedicas(atendimento.atendimento_id)); setCarregando(false) }
 
-  function setItem(i, campo, valor) {
-    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, [campo]: valor } : it)))
-  }
-  function selecionarMedicamento(i, m) {
-    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, medicamento: m.nome, via: m.via_padrao || it.via, controlado: !!m.controlado, antimicrobiano: !!m.antimicrobiano } : it)))
-  }
-  function adicionarItem() { setItens((prev) => [...prev, { ...RECEITA_ITEM_VAZIO }]) }
-  function removerItem(i) { setItens((prev) => prev.filter((_, idx) => idx !== i)) }
+  const itensAtivos = subTab === 'simples' ? itensSimples : itensControle
+  const setItensAtivos = subTab === 'simples' ? setItensSimples : setItensControle
 
-  const tipoClassificado = classificarReceita(itens)
+  function setItem(i, campo, valor) {
+    setItensAtivos((prev) => prev.map((it, idx) => (idx === i ? { ...it, [campo]: valor } : it)))
+  }
+
+  function selecionarMedicamento(i, m) {
+    const dadosMed = { medicamento: m.nome, via: m.via_padrao || 'ORAL', controlado: !!m.controlado, antimicrobiano: !!m.antimicrobiano }
+
+    if (subTab === 'simples' && m.controlado) {
+      // Bloqueio de mistura (Portaria 344/98): medicamento de Lista C1 não pode
+      // entrar na receita comum — move automaticamente para o Controle Especial.
+      setItensSimples((prev) => {
+        const resto = prev.filter((_, idx) => idx !== i)
+        return resto.length > 0 ? resto : [{ ...RECEITA_ITEM_VAZIO }]
+      })
+      setItensControle((prev) => [...prev, { ...RECEITA_ITEM_VAZIO, ...dadosMed }])
+      setAviso({ medicamento: m.nome })
+      setPulseControle(true)
+      onPulseControle?.(true)
+      setTimeout(() => setAviso(null), 5000)
+      setTimeout(() => { setPulseControle(false); onPulseControle?.(false) }, 3000)
+      setTimeout(() => setSubTab('controle'), 1500)
+      return
+    }
+
+    setItensAtivos((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...dadosMed } : it)))
+  }
+
+  function adicionarItem() { setItensAtivos((prev) => [...prev, { ...RECEITA_ITEM_VAZIO }]) }
+  function removerItem(i) { setItensAtivos((prev) => prev.filter((_, idx) => idx !== i)) }
+
+  const tipoClassificado = subTab === 'controle' ? 'controle_especial' : classificarReceita(itensSimples)
   const historicoFiltrado = filtroTipo === 'todas' ? historico : historico.filter((r) => r.tipo === filtroTipo)
 
   function appendTag(i, tag) {
-    setItens(prev => prev.map((it, idx) => {
+    setItensAtivos(prev => prev.map((it, idx) => {
       if (idx !== i) return it;
       let cur = it.instrucao || '';
       cur = cur.trim();
@@ -92,18 +130,27 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
   }
 
   async function salvar(imprimir = false) {
-    const validos = itens.filter((it) => it.medicamento.trim())
+    const validos = itensAtivos.filter((it) => it.medicamento.trim())
     if (validos.length === 0) { setErro('Adicione ao menos um medicamento.'); return }
+    if (subTab === 'controle' && !enderecoPaciente.trim()) {
+      setErro('Endereço do paciente é obrigatório para o receituário de Controle Especial (Portaria 344/98).')
+      return
+    }
     setErro('')
     setSalvando(true)
+    const dados = { itens: validos, tipo: subTab === 'controle' ? 'controle_especial' : classificarReceita(validos) }
+    // A tabela receitas_medicas não tem coluna própria de endereço; guardamos
+    // no campo livre orientacoes_gerais para não exigir migration de schema.
+    if (subTab === 'controle') dados.orientacoes_gerais = `Endereço do paciente: ${enderecoPaciente}`
     const { data, error } = await criarReceitaMedica({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
-      dados: { itens: validos, tipo: classificarReceita(validos) },
+      dados,
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    setItens([{ ...RECEITA_ITEM_VAZIO }])
+    if (subTab === 'simples') setItensSimples([{ ...RECEITA_ITEM_VAZIO }])
+    else setItensControle([])
     carregar()
   }
 
@@ -112,28 +159,51 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
       <div className="cc-header">
         <div className="cc-title">
           <h2><i className="ph ph-file-text" /> Receituário Médico</h2>
-          <p>Impressão em 2 vias — paciente e farmácia. Classificação de controlado/antimicrobiano é automática, a partir do catálogo.</p>
+          <p>Receita Simples e Controle Especial são fluxos e impressões separados — Lista C1 não pode ser misturada com receita comum (Portaria 344/98).</p>
         </div>
+        {!controlado && <div className="doc-subtabs">
+          <button type="button" className={'doc-tab' + (subTab === 'simples' ? ' active' : '')} onClick={() => setSubTab('simples')}>
+            <i className="ph ph-pill" /> Receita Simples (Branca)
+          </button>
+          <button type="button" className={'doc-tab' + (subTab === 'controle' ? ' active' : '') + (pulseControle ? ' highlight-pulse' : '')} onClick={() => setSubTab('controle')}>
+            <i className="ph ph-warning-circle" /> Controle Especial (2 Vias) {itensControle.length > 0 && `(${itensControle.length})`}
+          </button>
+        </div>}
       </div>
 
       <div className="cc-body">
+        {aviso && (
+          <div className="allergy-alert" style={{ background: '#FFF7ED', borderColor: '#FDE68A' }}>
+            <div className="info" style={{ color: '#92400E' }}>
+              <i className="ph ph-warning-circle" /> <strong>Bloqueio de Mistura (Portaria 344/98):</strong> {aviso.medicamento} pertence à Lista C1 e não pode ser misturada com a receita comum — movida automaticamente para o Receituário de Controle Especial.
+            </div>
+          </div>
+        )}
+
         <div className="allergy-alert" style={{
           background: tipoClassificado === 'controle_especial' ? '#FEF2F2' : tipoClassificado === 'antimicrobiano' ? '#FFFBEB' : '#F0FDF4',
           borderColor: tipoClassificado === 'controle_especial' ? '#FECACA' : tipoClassificado === 'antimicrobiano' ? '#FDE68A' : '#BBF7D0',
         }}>
           <div className="info" style={{ color: tipoClassificado === 'controle_especial' ? '#DC2626' : tipoClassificado === 'antimicrobiano' ? '#92400E' : '#166534' }}>
-            <i className="ph ph-tag" /> Classificação desta receita: <strong>{RECEITA_TIPO_LABEL[tipoClassificado]}</strong>
-            {tipoClassificado === 'controle_especial' && ' — exige receituário de controle especial (Portaria 344/98), 2 vias'}
+            <i className="ph ph-tag" /> Classificação desta guia: <strong>{RECEITA_TIPO_LABEL[tipoClassificado]}</strong>
+            {tipoClassificado === 'controle_especial' && <> — exige receituário de controle especial (Portaria 344/98) <span className="badge-2vias">Imprime em 2 Vias</span></>}
           </div>
         </div>
 
-        {itens.map((it, i) => (
+        {subTab === 'controle' && (
+          <div className="form-group" style={{ background: '#F8FAFC', padding: 12, borderRadius: 8, border: '1px solid var(--border-light, #E2E8F0)' }}>
+            <label>Endereço do Paciente (obrigatório para Receita de Controle Especial) *</label>
+            <input type="text" placeholder="Rua, número, bairro, cidade" value={enderecoPaciente} onChange={(e) => setEnderecoPaciente(e.target.value)} />
+          </div>
+        )}
+
+        {itensAtivos.map((it, i) => (
           <div key={i} className="form-section-box">
             <div className="form-section-box-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span><i className="ph ph-pill" /> {i + 1}) Medicamento</span>
               {(it.controlado || it.antimicrobiano) && (
                 <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: it.controlado ? '#FEE2E2' : '#FEF3C7', color: it.controlado ? '#DC2626' : '#92400E' }}>
-                  {it.controlado ? 'Controlado' : 'Antimicrobiano'}
+                  {it.controlado ? 'Controlado (Lista C1)' : 'Antimicrobiano'}
                 </span>
               )}
             </div>
@@ -156,8 +226,12 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
                 </select>
               </div>
               <div className="form-group">
-                <label>Instrução de uso</label>
+                <label>Posologia / Instrução de uso</label>
                 <input type="text" placeholder="Ex: Tomar 1 comprimido ao dia" value={it.instrucao} onChange={(e) => setItem(i, 'instrucao', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Quantidade</label>
+                <input type="text" placeholder="Ex: 01 (um) Frasco" value={it.quantidade || ''} onChange={(e) => setItem(i, 'quantidade', e.target.value)} />
               </div>
             </div>
 
@@ -179,7 +253,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
               </div>
             </div>
 
-            {itens.length > 1 && (
+            {itensAtivos.length > 1 && (
               <button type="button" className="btn-cancel" style={{ marginTop: 12 }} onClick={() => removerItem(i)}>
                 <i className="ph ph-trash" /> Remover item
               </button>

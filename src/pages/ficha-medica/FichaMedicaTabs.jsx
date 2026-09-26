@@ -14,9 +14,7 @@ export const ABAS_SECUNDARIAS = [
   { chave: 'atm', rotulo: 'ATM (Antimicrobianos)' },
   { chave: 'tfd', rotulo: 'TFD (Tratamento Fora Domicílio)' },
   { chave: 'intercorrencia', rotulo: 'Nota de Intercorrência' },
-  { chave: 'alta', rotulo: 'Sumário de Alta' },
   { chave: 'apac', rotulo: 'APAC' },
-  { chave: 'atestado', rotulo: 'Atestado Médico' },
   { chave: 'medicacoesContinuas', rotulo: 'Medicações Contínuas' },
   { chave: 'auditoria', rotulo: 'Auditoria' },
 ];

@@ -5,10 +5,8 @@ import AbaExames from './AbaExames';
 import AbaPlanoTerapeutico from './AbaPlanoTerapeutico';
 import AbaEvolucaoMedica from './AbaEvolucaoMedica';
 import AbaNotaIntercorrenciaMedica from './AbaNotaIntercorrenciaMedica';
-import AbaReceituarioMedico from './AbaReceituarioMedico';
-import AbaSumarioAlta from './AbaSumarioAlta';
+import AbaDocumentosAlta from './AbaDocumentosAlta';
 import AbaApac from './AbaApac';
-import AbaAtestadoMedico from './AbaAtestadoMedico';
 import AbaAtm from './AbaAtm';
 import AbaTfd from './AbaTfd';
 import AbaRegulacao from './AbaRegulacao';
@@ -85,24 +83,10 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome,
     );
   }
   if (aba === 'receituario') {
-    return (
-      <AbaReceituarioMedico
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'receituario', registro })}
-        onFechar={onFechar}
-      />
-    );
+    return <AbaDocumentosAlta key="receituario" atendimento={atendimento} medicoId={medicoId} onImprimir={onImprimir} onFechar={onFechar} docInicial="simples" />;
   }
   if (aba === 'alta') {
-    return (
-      <AbaSumarioAlta
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'alta', registro })}
-        onFechar={onFechar}
-      />
-    );
+    return <AbaDocumentosAlta key="alta" atendimento={atendimento} medicoId={medicoId} onImprimir={onImprimir} onFechar={onFechar} docInicial="sumario" />;
   }
   if (aba === 'apac') {
     return (
@@ -115,14 +99,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome,
     );
   }
   if (aba === 'atestado') {
-    return (
-      <AbaAtestadoMedico
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'atestado', registro })}
-        onFechar={onFechar}
-      />
-    );
+    return <AbaDocumentosAlta key="atestado" atendimento={atendimento} medicoId={medicoId} onImprimir={onImprimir} onFechar={onFechar} docInicial="atestado" />;
   }
   if (aba === 'atm') {
     return (

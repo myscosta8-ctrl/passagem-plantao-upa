@@ -219,7 +219,7 @@ export const ACOES_AUDITORIA = {
   duplicata_fundida: 'Cadastros duplicados fundidos',
 };
 
-export const RECEITA_ITEM_VAZIO = { medicamento: '', instrucao: '', via: 'ORAL', controlado: false, antimicrobiano: false };
+export const RECEITA_ITEM_VAZIO = { medicamento: '', instrucao: '', quantidade: '', via: 'ORAL', controlado: false, antimicrobiano: false };
 
 export const RECEITA_TIPO_LABEL = {
   simples: 'Receita Simples',
