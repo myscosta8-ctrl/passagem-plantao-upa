@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { carregarLeitosOcupadosPep } from '../lib/pepAtendimentos'
+import { carregarLeitosOcupadosPep, carregarResumoProntuario } from '../lib/pepAtendimentos'
 import './PrintView.css'
 import './PassagemImpresso.css'
 
@@ -38,6 +38,7 @@ async function carregarDados(plantao, viaHistorico) {
       .select('*, atendimentos(numero_atendimento, status_internacao, pessoas(nome))')
       .eq('plantao_id', plantao.id)
     linhas = (passagens ?? []).map((p) => ({
+      atendimentoId: p.atendimento_id,
       leitoId: p.leito_id,
       setorId: p.setor_id,
       nome: p.atendimentos?.pessoas?.nome || '',
@@ -51,6 +52,7 @@ async function carregarDados(plantao, viaHistorico) {
     linhas = Object.entries(pacientesPorLeito).map(([leitoId, pac]) => {
       const leito = (leitos ?? []).find((l) => String(l.id) === String(leitoId))
       return {
+        atendimentoId: pac.id,
         leitoId: Number(leitoId),
         setorId: leito?.setor_id,
         nome: pac.nome,
@@ -61,6 +63,9 @@ async function carregarDados(plantao, viaHistorico) {
       }
     })
   }
+
+  const resumos = await carregarResumoProntuario(linhas.map((l) => l.atendimentoId))
+  linhas.forEach((l) => { l.prontuario = resumos[l.atendimentoId]?.itens || [] })
 
   const plantonistas = (equipe ?? []).map((e) => e.profissionais).filter(Boolean).sort((a, b) => a.nome.localeCompare(b.nome))
   return { setores: setores ?? [], leitos: leitos ?? [], linhas, plantonistas, chefe }
@@ -99,7 +104,7 @@ function observacoes(p, alergia) {
 function CartaoLeito({ leito, linha }) {
   const p = linha.passagem || {}
   const disp = [...(Array.isArray(p.dispositivos) ? p.dispositivos : [])]
-  const obs = observacoes(linha.passagem, linha.alergia)
+  const obs = [...observacoes(linha.passagem, linha.alergia), ...(linha.prontuario || []).map((t) => { const i = t.indexOf(': '); return [t.slice(0, i), t.slice(i + 2)] })]
   const curat = p.curativo_realizado === true ? 'S' : p.curativo_realizado === false ? 'N' : '—'
   return (
     <div className="bed-card">

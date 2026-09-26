@@ -543,3 +543,20 @@
 .pc-page .disp-chip:hover { background: var(--enf-light); }
 .pc-page .disp-chip.on { background: var(--enf-light); border-color: var(--enf-primary); color: var(--enf-hover); }
 .pc-page .disp-input { min-height: 44px; }
+
+/* Campos do formulário da passagem dentro do card (antes na aba lateral) */
+.pc-page .bc-content.bc-content-3 { grid-template-columns: 1.1fr 1fr 1.1fr; }
+@media (max-width: 1100px) { .pc-page .bc-content.bc-content-3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) { .pc-page .bc-content.bc-content-3 { grid-template-columns: 1fr; } }
+.pc-page .pc-campo { display: flex; flex-direction: column; gap: 3px; margin-bottom: 7px; min-width: 0; }
+.pc-page .pc-campo > label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; }
+.pc-page .pc-linha2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pc-page .pc-input { width: 100%; border: 1px solid var(--border-strong); border-radius: 4px; padding: 4px 7px; font-size: 12px; font-family: inherit; background: #fff; color: var(--text-main); }
+.pc-page .pc-input:focus { outline: none; border-color: var(--enf-primary); box-shadow: 0 0 0 2px rgba(13,148,136,.12); }
+.pc-page .pc-simnao { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 4px; overflow: hidden; width: fit-content; }
+.pc-page .pc-simnao button { border: none; background: #fff; padding: 4px 14px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+.pc-page .pc-simnao button + button { border-left: 1px solid var(--border-strong); }
+.pc-page .pc-simnao button.on { background: var(--enf-primary); color: #fff; }
+.pc-page .pc-resumo { margin-top: 6px; border-top: 1px dashed var(--border-light); padding-top: 6px; }
+.pc-page .pc-resumo-titulo { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 3px; }
+.pc-page .pc-resumo-lista { margin: 0; padding-left: 14px; font-size: 11.5px; color: var(--text-main); line-height: 1.45; }

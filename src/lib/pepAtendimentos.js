@@ -139,7 +139,9 @@ export async function listarBalancoPorAtendimentos(atendimentoIds) {
 // Atualização pontual do campo de pendências direto na grade da Passagem de
 // Plantão Coletiva — não mexe em nenhum outro campo da passagem já salva.
 export async function atualizarCamposPassagem(passagemId, campos) {
-  const permitidos = ['pendencias', 'dispositivos', 'dispositivos_detalhe']
+  const permitidos = ['pendencias', 'dispositivos', 'dispositivos_detalhe', 'curativo_realizado', 'nivel_consciencia',
+    'avp_data_insercao', 'avp_hora_insercao', 'leito_liberado_outro_hospital', 'leito_liberado_hospital',
+    'leito_liberado_transporte', 'alta_sala_vermelha', 'alta_sala_vermelha_data', 'alta_sala_vermelha_hora']
   const dados = Object.fromEntries(Object.entries(campos).filter(([k]) => permitidos.includes(k)))
   if (Object.keys(dados).length === 0) return { error: null }
   return supabase.from('passagens').update(dados).eq('id', passagemId)
@@ -488,4 +490,25 @@ export async function marcarPassagemConferida({ passagemId, enfermeiroId, confer
     .eq('id', passagemId)
     .select()
     .single()
+}
+
+// Resumo do prontuário usado na Passagem de Plantão (tela e impresso):
+// exames, sorologias, hemoterapia e regulação de vários atendimentos de uma vez.
+const ROTULO_EXAME = { a_realizar: 'A realizar', aguardando_laudo: 'Aguardando laudo', resultado_disponivel: 'Resultado disponível', concluido: 'Concluído' }
+const ROTULO_SOROLOGIA = { coleta_pendente: 'Coleta pendente', aguardando_resultado: 'Aguardando resultado', resultado_disponivel: 'Resultado disponível' }
+export async function carregarResumoProntuario(atendimentoIds) {
+  const ids = (atendimentoIds || []).filter(Boolean)
+  if (!ids.length) return {}
+  const [ex, so, he, at] = await Promise.all([
+    supabase.from('exames_solicitados').select('atendimento_id, nome, local, status').in('atendimento_id', ids).order('criado_em'),
+    supabase.from('sorologias_notificaveis').select('atendimento_id, agravo, status').in('atendimento_id', ids).order('criado_em'),
+    supabase.from('solicitacoes_hemoterapia').select('atendimento_id, tipo, quantidade, transfundido_em').in('atendimento_id', ids).order('criado_em'),
+    supabase.from('atendimentos').select('id, regulacao_flag, regulacao_tipo').in('id', ids),
+  ])
+  const mapa = Object.fromEntries(ids.map((id) => [id, { itens: [] }]))
+  for (const e of ex.data ?? []) mapa[e.atendimento_id]?.itens.push(`Exame: ${e.nome}${e.local ? ` · ${e.local}` : ''} · ${ROTULO_EXAME[e.status] || e.status || ''}`)
+  for (const s2 of so.data ?? []) mapa[s2.atendimento_id]?.itens.push(`Sorologia: ${s2.agravo} · ${ROTULO_SOROLOGIA[s2.status] || s2.status || ''}`)
+  for (const h of he.data ?? []) mapa[h.atendimento_id]?.itens.push(`Hemoterapia: ${h.tipo}${h.quantidade ? ` · ${h.quantidade}` : ''} · ${h.transfundido_em ? 'transfundido' : 'aguardando transfusão'}`)
+  for (const a of at.data ?? []) if (a.regulacao_flag) mapa[a.id]?.itens.push(`Regulação: aberta${a.regulacao_tipo ? ` · ${a.regulacao_tipo}` : ''}`)
+  return mapa
 }

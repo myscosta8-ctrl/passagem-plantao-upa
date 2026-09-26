@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { marcarPassagemConferida, atualizarCamposPassagem, salvarPassagemPep } from '../lib/pepAtendimentos'
-import { DISPOSITIVOS_OPCOES } from './passagem-form/constantes'
+import { DISPOSITIVOS_OPCOES, NIVEIS_CONSCIENCIA } from './passagem-form/constantes'
+import { carregarResumoProntuario } from '../lib/pepAtendimentos'
 import './PassagemColetiva.css'
 
 // Cópia literal de mockups-fase2/12-passagem-plantao-design.html, com os
@@ -58,6 +59,7 @@ export default function PassagemColetiva({
   const [rascunhos, setRascunhos] = useState({}) // passagemId -> { pendencias?, dispositivos?, dispositivos_detalhe? }
   const [salvando, setSalvando] = useState(false)
   const [msg, setMsg] = useState(null)
+  const [resumos, setResumos] = useState({})
 
   const setorAtivo = setoresVisiveis.find((s) => s.id === setorAtivoId) || setoresVisiveis[0]
   const leitosDoSetor = setorAtivo
@@ -68,6 +70,13 @@ export default function PassagemColetiva({
   // equipe poder preencher direto no card; ela é criada ao Salvar.
   const passagemEditavel = (paciente, leito) => passagemPorPaciente[paciente.id]
     || { id: `novo:${paciente.id}`, _novo: true, atendimento_id: paciente.id, leito_id: leito.id, setor_id: leito.setor_id }
+  // Exames / sorologias / hemoterapia / regulação do prontuário, de uma vez para o setor.
+  const idsAtendimentosSetor = leitosComPaciente.map((l) => pacientesPorLeito[l.id]?.id).filter(Boolean).join(',')
+  useEffect(() => {
+    if (!idsAtendimentosSetor) return
+    carregarResumoProntuario(idsAtendimentosSetor.split(',')).then((m) => setResumos((prev) => ({ ...prev, ...m })))
+  }, [idsAtendimentosSetor])
+
   const passagemDoLeito = (leito) => { const p = pacientesPorLeito[leito.id]; return p ? passagemPorPaciente[p.id] : null }
 
   // Valor atual de um campo: rascunho se houver, senão o gravado.
@@ -130,8 +139,7 @@ export default function PassagemColetiva({
     setSalvando(true); setMsg(null)
     const res = await Promise.all(Object.entries(rascunhos).map(([id, campos]) => {
       const { _meta, ...limpo } = campos
-      if ('pendencias' in limpo) limpo.pendencias = limpo.pendencias.trim() || null
-      if ('dispositivos_detalhe' in limpo) limpo.dispositivos_detalhe = limpo.dispositivos_detalhe.trim() || null
+      for (const k of Object.keys(limpo)) if (typeof limpo[k] === 'string') limpo[k] = limpo[k].trim() || null
       if (id.startsWith('novo:')) {
         return salvarPassagemPep({ ..._meta, plantao_id: plantao.id, enfermeiro_id: enfermeiroId, criado_por: enfermeiroId, ...limpo })
       }
@@ -166,6 +174,82 @@ export default function PassagemColetiva({
           ))}
         </div>
         <textarea className="pending-input disp-input" value={detalheDe(ps)} onChange={(e) => editar(ps, 'dispositivos_detalhe', e.target.value)} placeholder="Detalhe: local, calibre, data de inserção, cuidados..." />
+      </>
+    )
+  }
+
+  function SimNao({ ps, k }) {
+    const v = campo(ps, k)
+    return (
+      <div className="pc-simnao">
+        <button type="button" className={v === false ? 'on' : ''} onClick={() => editar(ps, k, v === false ? null : false)}>Não</button>
+        <button type="button" className={v === true ? 'on' : ''} onClick={() => editar(ps, k, v === true ? null : true)}>Sim</button>
+      </div>
+    )
+  }
+
+  function blocoAssistencia(ps) {
+    const lista = dispositivosDe(ps)
+    return (
+      <>
+        <div className="pc-linha2">
+          <div className="pc-campo"><label>Curativo realizado</label><SimNao ps={ps} k="curativo_realizado" /></div>
+          <div className="pc-campo">
+            <label>Nível de consciência</label>
+            <select className="pc-input" value={campo(ps, 'nivel_consciencia') || ''} onChange={(e) => editar(ps, 'nivel_consciencia', e.target.value)}>
+              <option value="">—</option>
+              {NIVEIS_CONSCIENCIA.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="pc-campo">
+          <label>Dispositivos invasivos</label>
+          <div className="disp-chips">
+            {DISPOSITIVOS_OPCOES.map((d) => (
+              <button key={d} type="button" className={`disp-chip ${lista.includes(d) ? 'on' : ''}`} onClick={() => toggleDispositivo(ps, d)}>
+                <i className={`ph ${lista.includes(d) ? 'ph-check' : 'ph-plus'}`} /> {d}
+              </button>
+            ))}
+          </div>
+        </div>
+        {lista.includes('AVP') && (
+          <div className="pc-linha2">
+            <div className="pc-campo"><label>Inserção do AVP — data</label><input className="pc-input" type="date" value={campo(ps, 'avp_data_insercao') || ''} onChange={(e) => editar(ps, 'avp_data_insercao', e.target.value)} /></div>
+            <div className="pc-campo"><label>Hora</label><input className="pc-input" type="time" value={campo(ps, 'avp_hora_insercao') || ''} onChange={(e) => editar(ps, 'avp_hora_insercao', e.target.value)} /></div>
+          </div>
+        )}
+        <div className="pc-campo">
+          <label>Detalhe dos dispositivos (nº, tamanho)</label>
+          <input className="pc-input" type="text" placeholder="ex: AVP nº 20, SVD nº 16" value={detalheDe(ps)} onChange={(e) => editar(ps, 'dispositivos_detalhe', e.target.value)} />
+        </div>
+      </>
+    )
+  }
+
+  function blocoTransferencia(ps, atendimentoId) {
+    const r = resumos[atendimentoId]
+    return (
+      <>
+        <div className="pc-campo"><label>Leito liberado p/ outro hospital</label><SimNao ps={ps} k="leito_liberado_outro_hospital" /></div>
+        {campo(ps, 'leito_liberado_outro_hospital') === true && (
+          <div className="pc-linha2">
+            <div className="pc-campo"><label>Qual hospital</label><input className="pc-input" type="text" value={campo(ps, 'leito_liberado_hospital') || ''} onChange={(e) => editar(ps, 'leito_liberado_hospital', e.target.value)} /></div>
+            <div className="pc-campo"><label>Transporte</label><input className="pc-input" type="text" placeholder="SAMU, ambulância..." value={campo(ps, 'leito_liberado_transporte') || ''} onChange={(e) => editar(ps, 'leito_liberado_transporte', e.target.value)} /></div>
+          </div>
+        )}
+        <div className="pc-campo"><label>Alta Sala Vermelha</label><SimNao ps={ps} k="alta_sala_vermelha" /></div>
+        {campo(ps, 'alta_sala_vermelha') === true && (
+          <div className="pc-linha2">
+            <div className="pc-campo"><label>Data da alta</label><input className="pc-input" type="date" value={campo(ps, 'alta_sala_vermelha_data') || ''} onChange={(e) => editar(ps, 'alta_sala_vermelha_data', e.target.value)} /></div>
+            <div className="pc-campo"><label>Horário</label><input className="pc-input" type="time" value={campo(ps, 'alta_sala_vermelha_hora') || ''} onChange={(e) => editar(ps, 'alta_sala_vermelha_hora', e.target.value)} /></div>
+          </div>
+        )}
+        <div className="pc-resumo">
+          <div className="pc-resumo-titulo"><i className="ph ph-file-text" /> Do prontuário (somente leitura)</div>
+          {!r ? <p className="col-vazio">Carregando...</p> : r.itens.length === 0 ? <p className="col-vazio">Sem exames, sorologias, hemoterapia ou regulação.</p> : (
+            <ul className="pc-resumo-lista">{r.itens.map((t, i) => <li key={i}>{t}</li>)}</ul>
+          )}
+        </div>
       </>
     )
   }
@@ -276,13 +360,18 @@ export default function PassagemColetiva({
                         <i className={`ph ${conferido ? 'ph-check' : 'ph-hourglass'}`} /> {conferido ? 'Conferido' : 'A Conferir'}
                       </button>
                       <button type="button" className="btn-view-patient" onClick={() => abrirFoco(leito.id)}><i className="ph ph-magnifying-glass" /> Detalhes</button>
+                      <button type="button" className="btn-view-patient" onClick={() => onAbrirPassagem(paciente, leito)}><i className="ph ph-folder-open" /> Prontuário</button>
                     </div>
                   </div>
 
-                  <div className="bc-content bc-content-2">
+                  <div className="bc-content bc-content-3">
                     <div className="col-block">
-                      <div className="col-title"><i className="ph ph-needle" /> Dispositivos & Cuidados</div>
-                      {blocoDispositivos(passagemEditavel(paciente, leito))}
+                      <div className="col-title"><i className="ph ph-first-aid-kit" /> Assistência</div>
+                      {blocoAssistencia(passagemEditavel(paciente, leito))}
+                    </div>
+                    <div className="col-block">
+                      <div className="col-title"><i className="ph ph-ambulance" /> Transferência & Prontuário</div>
+                      {blocoTransferencia(passagemEditavel(paciente, leito), paciente.id)}
                     </div>
                     <div className="col-block col-block-pending">
                       <div className="col-title"><i className="ph ph-warning-circle" /> Pendências para o Próximo Turno</div>
@@ -372,7 +461,6 @@ export default function PassagemColetiva({
                       </p>
                     </div>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      <button type="button" className="btn-compact-tool" onClick={() => onEditarPassagem(p, leitoFoco)}><i className="ph ph-note-pencil" /> Editar Passagem</button>
                       <button type="button" className="btn-compact-tool" onClick={() => onAbrirPassagem(p, leitoFoco)}><i className="ph ph-folder-open" /> Abrir Prontuário</button>
                     </div>
                   </div>
@@ -385,8 +473,9 @@ export default function PassagemColetiva({
 
                   <div className="fd-grid">
                     <div className="fd-box">
-                      <h4><i className="ph ph-needle" /> Dispositivos & Cuidados</h4>
-                      {blocoDispositivos(passagemEditavel(p, leitoFoco))}
+                      <h4><i className="ph ph-first-aid-kit" /> Assistência & Transferência</h4>
+                      {blocoAssistencia(passagemEditavel(p, leitoFoco))}
+                      <div style={{ marginTop: 10 }}>{blocoTransferencia(passagemEditavel(p, leitoFoco), p.id)}</div>
                     </div>
                     <div className="fd-box">
                       <h4><i className="ph ph-clock-counter-clockwise" /> Última Passagem</h4>
