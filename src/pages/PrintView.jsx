@@ -7,7 +7,7 @@ import './PassagemImpresso.css'
 // Passagem de Plantão de Enfermagem (multi-leitos) — modelo oficial
 // modelos_impressao_html/15-passagem-plantao.html. Usado para os dois grupos
 // (Sala Vermelha + Internação / Pediátrico + Observação). Além dos campos do
-// modelo (HD, curativo, nível de consciência, acompanhante, dispositivos, obs),
+// modelo (HD, curativo, nível de consciência, dispositivos, obs — acompanhante retirado),
 // sai tudo o que foi preenchido no formulário lateral da passagem.
 const GRUPOS = {
   grupo1: { titulo: 'Sala Vermelha + Internação', setoresNomes: ['Sala Vermelha', 'Internação'] },
@@ -92,7 +92,7 @@ function observacoes(p, alergia) {
   if (p.alta_sala_vermelha) itens.push(['Alta Sala Vermelha', [dataBR(p.alta_sala_vermelha_data), p.alta_sala_vermelha_hora].filter(Boolean).join(' ') || 'Sim'])
   if (p.cuidados) itens.push(['Cuidados', p.cuidados])
   if (p.intercorrencias) itens.push(['Intercorrências', p.intercorrencias])
-  if (p.pendencias) itens.push(['Obs', p.pendencias])
+  if (p.pendencias) itens.unshift(['Obs', p.pendencias])
   return itens
 }
 
@@ -112,20 +112,16 @@ function CartaoLeito({ leito, linha }) {
       <div className="bc-metrics-row">
         <span>Curat: <b>{curat}</b></span>
         <span>NC: <b>{p.nivel_consciencia || '—'}</b></span>
-        <span>Acomp: <b>{sn(p.acompanhante)}</b></span>
       </div>
-      {(disp.length > 0 || p.dispositivos_detalhe) && (
-        <div className="bc-disp-list">
-          <span className="bc-label">Disp:</span>{' '}
-          {disp.map((d) => <span key={d} className="disp-pill">{d}</span>)}
-          {p.dispositivos_detalhe && <span className="disp-detalhe">{p.dispositivos_detalhe}</span>}
-        </div>
-      )}
-      {obs.length > 0 && (
-        <div className="bc-obs">
-          {obs.map(([r, v], i) => <span key={i}><b>{r}:</b> {v}{i < obs.length - 1 ? ' · ' : ''}</span>)}
-        </div>
-      )}
+      <div className="bc-disp-list">
+        <span className="bc-label">Disp:</span>{' '}
+        {disp.map((d) => <span key={d} className="disp-pill">{d}</span>)}
+        {p.dispositivos_detalhe && <span className="disp-pill">{p.dispositivos_detalhe}</span>}
+        {disp.length === 0 && !p.dispositivos_detalhe && '—'}
+      </div>
+      <div className="bc-obs">
+        <b>Obs:</b> {obs.length === 0 ? '—' : obs.map(([r, v], i) => <span key={i}>{r === 'Obs' ? v : <><b>{r}:</b> {v}</>}{i < obs.length - 1 ? '; ' : ''}</span>)}
+      </div>
     </div>
   )
 }

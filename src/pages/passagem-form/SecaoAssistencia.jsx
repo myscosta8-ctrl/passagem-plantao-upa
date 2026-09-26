@@ -73,10 +73,6 @@ export default function SecaoAssistencia({ passagem, set, toggleDispositivo }) {
             />
           </div>
         )}
-        <div className="form-field span-3">
-          <label>Acompanhante presente</label>
-          <SimNao valor={passagem.acompanhante} onChange={(v) => set('acompanhante', v)} />
-        </div>
       </div>
     </div>
   )
