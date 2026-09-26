@@ -630,3 +630,22 @@
   background: #FAFAF9;
   border-top: 1px solid #E2E8F0;
 }
+
+/* Topo principal em telas estreitas: continua numa linha só (uma regra
+   antiga de AberturaPlantao.css empilhava o topo abaixo de 640px). */
+.main-content > .topbar { flex-wrap: nowrap; gap: 12px; }
+.main-content > .topbar .topbar-left { min-width: 0; }
+.main-content > .topbar .breadcrumb { min-width: 0; white-space: nowrap; overflow: hidden; }
+.main-content > .topbar .breadcrumb span.current { overflow: hidden; text-overflow: ellipsis; }
+.main-content > .topbar .topbar-right { flex-shrink: 0; }
+@media (max-width: 760px) {
+  .main-content > .topbar { flex-direction: row; align-items: center; padding: 0 12px; min-height: 56px; height: 56px; }
+  .main-content > .topbar .topbar-right { gap: 10px; }
+  .main-content > .topbar .sys-time { padding-right: 10px; }
+  .main-content > .topbar .breadcrumb > i.ph-house,
+  .main-content > .topbar .breadcrumb > span:not(.current),
+  .main-content > .topbar .breadcrumb > i.ph-caret-right { display: none; }
+}
+@media (max-width: 480px) {
+  .main-content > .topbar .sys-time { display: none; }
+}
