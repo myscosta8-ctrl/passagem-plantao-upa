@@ -1,187 +1,187 @@
 import { useEffect, useState } from 'react';
 import { listarBalancoHidrico, registrarBalancoHidrico } from '../../lib/pepClinico';
-import { VIAS_ENTRADA, VIAS_SAIDA } from './constantes';
 
-const NOVA_LINHA_VAZIA = { via: '', volume: '', observacao: '' }
+// Balanço Hídrico 24h — mockups-fase2/11-balanco-hidrico-design.html.
+// Entrada: item/solução em `observacao`, via em `via`.
+// Saída: tipo de eliminação em `via`, aspecto em `observacao`.
+const ITENS_ENTRADA = ['Soro Fisiológico 0.9%', 'Soro Glicosado 5%', 'Ringer Lactato', 'Dieta via oral', 'Água ingerida', 'Dieta enteral', 'Medicação EV (diluente)', 'Hemocomponente'];
+const VIAS_ENTRADA = ['Via Oral', 'EV (AVP)', 'EV (CVC)', 'SNE / SNG', 'GTT', 'SC'];
+const TIPOS_SAIDA = ['Diurese (Urinol)', 'Diurese (SVD)', 'Vômitos / Êmese', 'Evacuação', 'Dreno', 'Drenagem SNG', 'Sangramento'];
+const ASPECTOS = ['Clara', 'Amarelo claro', 'Concentrada', 'Hematúrica', 'Serosa', 'Sanguinolenta', 'Biliosa', 'Ausente'];
 
-function TabelaBalanco({ titulo, icon, corHeader, linhas, colunaItem, opcoesVia, novaLinha, onNovaLinha, onAdicionar, salvando, totalTurno }) {
+const agoraHHMM = () => new Date().toTimeString().slice(0, 5);
+const LINHA_VAZIA = () => ({ hora: agoraHHMM(), item: '', via: '', volume: '' });
+const hora = (d) => new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+const fmt = (n) => n.toLocaleString('pt-BR');
+
+function turnoAtual() {
+  const h = new Date().getHours();
+  return h >= 7 && h < 13 ? 'Manhã' : h >= 13 && h < 19 ? 'Tarde' : 'Noite';
+}
+function noTurnoAtual(d) {
+  const agora = new Date(); const dt = new Date(d); const h = dt.getHours();
+  if (agora - dt > 12 * 3600 * 1000) return false;
+  const t = h >= 7 && h < 13 ? 'Manhã' : h >= 13 && h < 19 ? 'Tarde' : 'Noite';
+  return t === turnoAtual();
+}
+function dataComHora(hhmm) {
+  const [h, m] = String(hhmm || '').split(':').map(Number);
+  const d = new Date();
+  if (Number.isFinite(h)) d.setHours(h, Number.isFinite(m) ? m : 0, 0, 0);
+  if (d > new Date()) d.setDate(d.getDate() - 1); // hora "no futuro" = ontem (plantão noturno)
+  return d.toISOString();
+}
+
+function Tabela({ tipo, titulo, icon, cols, linhas, nova, setNova, itens, vias, parcial }) {
   return (
-    <div style={{ border: '1px solid #CBD5E1', borderRadius: 8, overflow: 'hidden', background: '#fff', flex: 1, minWidth: 280 }}>
-      <div style={{ padding: '8px 12px', fontSize: 12, fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: corHeader.bg, color: corHeader.text }}>
-        <span><i className={`ph ${icon}`} /> {titulo}</span>
-        <span style={{ fontSize: 11 }}>Total: <strong>{totalTurno} mL</strong></span>
+    <div className="bh-box">
+      <div className={'bh-box-header ' + (tipo === 'entrada' ? 'entradas' : 'saidas')}>
+        <span><i className={'ph ' + icon} /> {titulo}</span>
+        <span style={{ fontSize: 11 }}>Total Parcial {turnoAtual()}: <strong>{fmt(parcial)} mL</strong></span>
       </div>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-        <thead>
-          <tr style={{ background: '#F1F5F9' }}>
-            <th style={{ padding: '6px 8px', fontSize: 10.5, fontWeight: 700, color: '#64748B', textAlign: 'left', textTransform: 'uppercase' }}>Hora</th>
-            <th style={{ padding: '6px 8px', fontSize: 10.5, fontWeight: 700, color: '#64748B', textAlign: 'left', textTransform: 'uppercase' }}>{colunaItem}</th>
-            <th style={{ padding: '6px 8px', fontSize: 10.5, fontWeight: 700, color: '#64748B', textAlign: 'right', textTransform: 'uppercase' }}>Volume (mL)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {linhas.map((h) => (
-            <tr key={h.id} style={{ borderBottom: '1px solid #E2E8F0' }}>
-              <td style={{ padding: '6px 8px', color: '#64748B' }}>{new Date(h.registrado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
-              <td style={{ padding: '6px 8px' }}>
-                <strong>{h.via}</strong>{h.observacao ? ` — ${h.observacao}` : ''}
-              </td>
-              <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700 }}>{h.volume_ml}</td>
+      <div style={{ overflowX: 'auto' }}>
+        <table className="bh-table">
+          <thead>
+            <tr>
+              <th style={{ width: '15%' }}>Hora</th>
+              <th style={{ width: '35%' }}>{cols[0]}</th>
+              <th style={{ width: '25%' }}>{cols[1]}</th>
+              <th style={{ width: '25%', textAlign: 'right' }}>Volume (mL)</th>
             </tr>
-          ))}
-          <tr>
-            <td style={{ padding: '6px 8px', color: '#94A3B8', fontSize: 11 }}>Agora</td>
-            <td style={{ padding: '6px 8px' }}>
-              <select value={novaLinha.via} onChange={(e) => onNovaLinha({ ...novaLinha, via: e.target.value })} style={{ width: '100%', marginBottom: 4 }}>
-                <option value="">Selecione...</option>
-                {opcoesVia.map((v) => <option key={v} value={v}>{v}</option>)}
-              </select>
-              <input type="text" placeholder="Observação (opcional)" value={novaLinha.observacao} onChange={(e) => onNovaLinha({ ...novaLinha, observacao: e.target.value })} style={{ width: '100%' }} />
-            </td>
-            <td style={{ padding: '6px 8px', textAlign: 'right' }}>
-              <input type="number" placeholder="mL" value={novaLinha.volume} onChange={(e) => onNovaLinha({ ...novaLinha, volume: e.target.value })} style={{ width: 70, textAlign: 'right', marginBottom: 4 }} />
-              <button type="button" className="btn-add-chip" onClick={onAdicionar} disabled={salvando || !novaLinha.via || !novaLinha.volume} style={{ width: '100%', justifyContent: 'center' }}>
-                <i className="ph ph-plus" />
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {linhas.length === 0 && (
+              <tr><td colSpan={4} style={{ color: '#94A3B8', fontSize: 11.5 }}>Nenhum lançamento nas últimas 24h.</td></tr>
+            )}
+            {linhas.map((h) => (
+              <tr key={h.id}>
+                <td><strong>{hora(h.registrado_em)}</strong></td>
+                <td>{tipo === 'entrada' ? (h.observacao || '—') : h.via}</td>
+                <td>{tipo === 'entrada' ? h.via : (h.observacao || '—')}</td>
+                <td style={{ textAlign: 'right', fontWeight: 700 }}>{fmt(Number(h.volume_ml))}</td>
+              </tr>
+            ))}
+            <tr className="bh-nova">
+              <td><input type="time" className="bh-in-hora" value={nova.hora} onChange={(e) => setNova({ ...nova, hora: e.target.value })} /></td>
+              <td>
+                <input type="text" className="bh-in-txt" list={`bh-itens-${tipo}`} placeholder={tipo === 'entrada' ? 'Solução / item' : 'Tipo de eliminação'} value={nova.item} onChange={(e) => setNova({ ...nova, item: e.target.value })} />
+                <datalist id={`bh-itens-${tipo}`}>{itens.map((i) => <option key={i} value={i} />)}</datalist>
+              </td>
+              <td>
+                <input type="text" className="bh-in-txt" list={`bh-vias-${tipo}`} placeholder={tipo === 'entrada' ? 'Via' : 'Aspecto'} value={nova.via} onChange={(e) => setNova({ ...nova, via: e.target.value })} />
+                <datalist id={`bh-vias-${tipo}`}>{vias.map((i) => <option key={i} value={i} />)}</datalist>
+              </td>
+              <td style={{ textAlign: 'right' }}><input type="number" min="0" placeholder="mL" value={nova.volume} onChange={(e) => setNova({ ...nova, volume: e.target.value })} /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  )
+  );
 }
 
 export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
-  const [carregando, setCarregando] = useState(true)
-  const [novaEntrada, setNovaEntrada] = useState({ ...NOVA_LINHA_VAZIA })
-  const [novaSaida, setNovaSaida] = useState({ ...NOVA_LINHA_VAZIA })
-  const [salvando, setSalvando] = useState(false)
-  const [erro, setErro] = useState('')
+  const [historico, setHistorico] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [novaEntrada, setNovaEntrada] = useState(LINHA_VAZIA);
+  const [novaSaida, setNovaSaida] = useState(LINHA_VAZIA);
+  const [salvando, setSalvando] = useState(false);
+  const [msg, setMsg] = useState(null);
 
-  useEffect(() => { carregar() }, [])
-
+  useEffect(() => { carregar(); }, []);
   async function carregar() {
-    setCarregando(true)
-    setHistorico(await listarBalancoHidrico(atendimento.atendimento_id))
-    setCarregando(false)
+    setCarregando(true);
+    setHistorico(await listarBalancoHidrico(atendimento.atendimento_id));
+    setCarregando(false);
   }
 
-  async function adicionarLinha(tipo, linha, limpar) {
-    if (!linha.via || !linha.volume) return
-    setErro('')
-    setSalvando(true)
-    const { error } = await registrarBalancoHidrico({
-      atendimentoId: atendimento.atendimento_id, registradoPor: autorId, tipo, via: linha.via, volumeMl: linha.volume, observacao: linha.observacao,
-    })
-    setSalvando(false)
-    if (error) {
-      setErro('Não foi possível registrar. Tente de novo.')
-      console.error(error)
-      return
+  const limite = Date.now() - 24 * 3600 * 1000;
+  const ult24 = historico.filter((h) => new Date(h.registrado_em).getTime() >= limite).sort((a, b) => new Date(a.registrado_em) - new Date(b.registrado_em));
+  const entradas = ult24.filter((h) => h.tipo === 'entrada');
+  const saidas = ult24.filter((h) => h.tipo === 'saida');
+  const soma = (l) => l.reduce((s, h) => s + Number(h.volume_ml || 0), 0);
+  const totalEntradas = soma(entradas);
+  const totalSaidas = soma(saidas);
+  const saldo = totalEntradas - totalSaidas;
+
+  async function salvar(imprimir = false) {
+    setMsg(null);
+    const pendentes = [];
+    const ok = (l) => l.volume !== '' && Number(l.volume) >= 0 && l.item.trim();
+    if (ok(novaEntrada)) pendentes.push({ tipo: 'entrada', via: novaEntrada.via.trim() || '—', observacao: novaEntrada.item.trim(), volume: novaEntrada.volume, hora: novaEntrada.hora });
+    if (ok(novaSaida)) pendentes.push({ tipo: 'saida', via: novaSaida.item.trim(), observacao: novaSaida.via.trim(), volume: novaSaida.volume, hora: novaSaida.hora });
+    const incompleta = [novaEntrada, novaSaida].some((l) => (l.item.trim() || l.volume !== '') && !ok(l));
+    if (incompleta) { setMsg({ erro: true, t: 'Preencha o item/tipo e o volume da linha antes de salvar.' }); return; }
+    if (pendentes.length === 0 && !imprimir) { setMsg({ erro: true, t: 'Nenhum lançamento novo para salvar.' }); return; }
+
+    setSalvando(true);
+    for (const p of pendentes) {
+      const { error } = await registrarBalancoHidrico({
+        atendimentoId: atendimento.atendimento_id, registradoPor: autorId,
+        tipo: p.tipo, via: p.via, volumeMl: p.volume, observacao: p.observacao, registradoEm: dataComHora(p.hora),
+      });
+      if (error) { console.error(error); setSalvando(false); setMsg({ erro: true, t: 'Não foi possível registrar. Tente de novo.' }); return; }
     }
-    limpar()
-    carregar()
+    setSalvando(false);
+    setNovaEntrada(LINHA_VAZIA()); setNovaSaida(LINHA_VAZIA());
+    const lista = await listarBalancoHidrico(atendimento.atendimento_id);
+    setHistorico(lista);
+    if (pendentes.length) setMsg({ t: `${pendentes.length} lançamento(s) registrado(s).` });
+    if (imprimir) {
+      const l24 = lista.filter((h) => new Date(h.registrado_em).getTime() >= Date.now() - 24 * 3600 * 1000);
+      const te = soma(l24.filter((h) => h.tipo === 'entrada')); const ts = soma(l24.filter((h) => h.tipo === 'saida'));
+      onImprimir({ historico: l24, totalEntradas: te, totalSaidas: ts, saldo: te - ts });
+    }
   }
-
-  const entradas = historico.filter((h) => h.tipo === 'entrada')
-  const saidas = historico.filter((h) => h.tipo === 'saida')
-  const totalEntradas = entradas.reduce((s, h) => s + Number(h.volume_ml), 0)
-  const totalSaidas = saidas.reduce((s, h) => s + Number(h.volume_ml), 0)
-  const saldo = totalEntradas - totalSaidas
 
   return (
-    <div className="clinical-card">
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-drop" /> Balanço Hídrico 24h</h2>
-          <p>Grade de entradas e saídas do atendimento, com totalização cumulativa.</p>
+    <div className="bh-container">
+      <div className="bh-summary-strip">
+        <div className="bh-card-metric">
+          <div className="metric-icon in"><i className="ph ph-arrow-down-left" /></div>
+          <div className="metric-info"><span className="metric-label">Total Ganhos / Entradas</span><span className="metric-val">{fmt(totalEntradas)} mL</span></div>
         </div>
-      </div>
-
-      <div className="cc-body">
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#E0F2FE', border: '1px solid #BAE6FD', borderRadius: 8, padding: '8px 16px' }}>
-            <i className="ph ph-arrow-down-left" style={{ fontSize: 20, color: '#0284C7' }} />
-            <div>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Total Entradas</div>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>{totalEntradas} mL</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 8, padding: '8px 16px' }}>
-            <i className="ph ph-arrow-up-right" style={{ fontSize: 20, color: '#D97706' }} />
-            <div>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Total Saídas</div>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>{totalSaidas} mL</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: saldo >= 0 ? '#DCFCE7' : '#FEE2E2', border: `1px solid ${saldo >= 0 ? '#BBF7D0' : '#FECACA'}`, borderRadius: 8, padding: '8px 16px' }}>
-            <i className="ph ph-scales" style={{ fontSize: 20, color: saldo >= 0 ? '#16A34A' : '#DC2626' }} />
-            <div>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Balanço Cumulativo</div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: saldo >= 0 ? '#16A34A' : '#DC2626' }}>{saldo >= 0 ? '+' : '−'} {Math.abs(saldo)} mL</div>
-            </div>
+        <div className="bh-card-metric">
+          <div className="metric-icon out"><i className="ph ph-arrow-up-right" /></div>
+          <div className="metric-info"><span className="metric-label">Total Perdas / Saídas</span><span className="metric-val">{fmt(totalSaidas)} mL</span></div>
+        </div>
+        <div className="bh-card-metric">
+          <div className={'metric-icon ' + (saldo < 0 ? 'negative' : 'balance')}><i className="ph ph-scales" /></div>
+          <div className="metric-info">
+            <span className="metric-label">Balanço Cumulativo 24h</span>
+            <span className="metric-val" style={{ color: saldo < 0 ? 'var(--danger)' : 'var(--success)' }}>{saldo < 0 ? '−' : '+'} {fmt(Math.abs(saldo))} mL</span>
           </div>
         </div>
-
-        {erro && (
-          <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-            <div className="info" style={{ color: '#DC2626' }}>
-              <i className="ph ph-warning" /> {erro}
-            </div>
-          </div>
-        )}
-
-        {carregando ? (
-          <p style={{ fontSize: 11, color: '#94A3B8' }}>Carregando...</p>
-        ) : (
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            <TabelaBalanco
-              titulo="Entradas / Ingesta / Soluções (mL)"
-              icon="ph-plus-circle"
-              corHeader={{ bg: '#E0F2FE', text: '#0369A1' }}
-              linhas={entradas}
-              colunaItem="Via / Observação"
-              opcoesVia={VIAS_ENTRADA}
-              novaLinha={novaEntrada}
-              onNovaLinha={setNovaEntrada}
-              onAdicionar={() => adicionarLinha('entrada', novaEntrada, () => setNovaEntrada({ ...NOVA_LINHA_VAZIA }))}
-              salvando={salvando}
-              totalTurno={totalEntradas}
-            />
-            <TabelaBalanco
-              titulo="Saídas / Eliminações / Drenagens (mL)"
-              icon="ph-minus-circle"
-              corHeader={{ bg: '#FEF3C7', text: '#92400E' }}
-              linhas={saidas}
-              colunaItem="Tipo / Aspecto"
-              opcoesVia={VIAS_SAIDA}
-              novaLinha={novaSaida}
-              onNovaLinha={setNovaSaida}
-              onAdicionar={() => adicionarLinha('saida', novaSaida, () => setNovaSaida({ ...NOVA_LINHA_VAZIA }))}
-              salvando={salvando}
-              totalTurno={totalSaidas}
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="cc-footer">
         <div>
-          <button type="button" className="btn-cancel" onClick={onFechar}>
-            <i className="ph ph-x-circle" /> Cancelar
+          <button type="button" className="btn-toggle-sidebar" onClick={() => onImprimir({ historico: ult24, totalEntradas, totalSaidas, saldo })}>
+            <i className="ph ph-printer" /> Visualizar Impresso Oficial 24h
           </button>
         </div>
-        {onImprimir && (
-          <button
-            type="button"
-            className="btn-save-print"
-            onClick={() => onImprimir({ historico, totalEntradas, totalSaidas, saldo })}
-          >
-            <i className="ph ph-printer" /> Salvar e Imprimir
-          </button>
+      </div>
+
+      <div className="bh-body">
+        {carregando ? <p className="qs-vazio">Carregando...</p> : (
+          <div className="bh-tables-split">
+            <Tabela tipo="entrada" titulo="Entradas / Ingesta / Soluções (mL)" icon="ph-plus-circle" cols={['Solução / Item', 'Via']}
+              linhas={entradas} nova={novaEntrada} setNova={setNovaEntrada} itens={ITENS_ENTRADA} vias={VIAS_ENTRADA} parcial={soma(entradas.filter((h) => noTurnoAtual(h.registrado_em)))} />
+            <Tabela tipo="saida" titulo="Saídas / Eliminações / Drenagens (mL)" icon="ph-minus-circle" cols={['Tipo de Eliminação', 'Aspecto']}
+              linhas={saidas} nova={novaSaida} setNova={setNovaSaida} itens={TIPOS_SAIDA} vias={ASPECTOS} parcial={soma(saidas.filter((h) => noTurnoAtual(h.registrado_em)))} />
+          </div>
         )}
+        {msg && (
+          <div className="condicional-box" style={msg.erro ? { background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' } : undefined}>
+            <span style={{ fontSize: 12.5, fontWeight: 600 }}><i className={'ph ' + (msg.erro ? 'ph-warning' : 'ph-check-circle')} /> {msg.t}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="bh-footer">
+        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+        </div>
       </div>
     </div>
-  )
+  );
 }

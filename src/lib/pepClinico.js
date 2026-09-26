@@ -129,7 +129,7 @@ export async function listarBalancoHidrico(atendimentoId) {
   return data ?? []
 }
 
-export async function registrarBalancoHidrico({ atendimentoId, registradoPor, tipo, via, volumeMl, observacao }) {
+export async function registrarBalancoHidrico({ atendimentoId, registradoPor, tipo, via, volumeMl, observacao, registradoEm }) {
   return supabase
     .from('balanco_hidrico')
     .insert({
@@ -139,6 +139,7 @@ export async function registrarBalancoHidrico({ atendimentoId, registradoPor, ti
       via,
       volume_ml: Number(volumeMl),
       observacao: observacao || null,
+      ...(registradoEm ? { registrado_em: registradoEm } : {}),
     })
     .select()
     .single()

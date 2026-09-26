@@ -1,12 +1,64 @@
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
+const HORAS_DIA = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+const HORAS_NOITE = [19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6]
+const LINHAS_GANHO = ['vo', 'sne', 'sg', 'sf', 'med', 'outros_ganhos']
+const LINHAS_PERDA = ['diurese', 'drenos', 'vomitos', 'fezes', 'aspiracao', 'outras_perdas']
+
+function sem(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() }
+function linhaGanho(h) {
+  const t = sem(`${h.observacao} ${h.via}`)
+  if (/glicos|\bsg\b/.test(t)) return 'sg'
+  if (/fisiol|\bsf\b|ringer/.test(t)) return 'sf'
+  if (/sne|sng|enteral|sonda|gtt/.test(t)) return 'sne'
+  if (/medica|dilu/.test(t)) return 'med'
+  if (/oral|\bvo\b|dieta|agua|cha|lanche/.test(t)) return 'vo'
+  return 'outros_ganhos'
+}
+function linhaPerda(h) {
+  const t = sem(`${h.via} ${h.observacao}`)
+  if (/diurese|urin|svd/.test(t)) return 'diurese'
+  if (/dreno|sng/.test(t)) return 'drenos'
+  if (/vomit|emese/.test(t)) return 'vomitos'
+  if (/fez|evacua|diarr/.test(t)) return 'fezes'
+  if (/aspira/.test(t)) return 'aspiracao'
+  return 'outras_perdas'
+}
+function montarGrade(historico) {
+  const entradas = {}, saidas = {}, totais = {}
+  const add = (obj, k, v) => { obj[k] = (obj[k] || 0) + v }
+  for (const h of historico) {
+    const hora = new Date(h.registrado_em).getHours()
+    const v = Number(h.volume_ml || 0)
+    const iDia = HORAS_DIA.indexOf(hora), iNoite = HORAS_NOITE.indexOf(hora)
+    const sufixo = iDia >= 0 ? `d${iDia}` : `n${iNoite}`
+    const periodo = iDia >= 0 ? 'sub_dia' : 'sub_noite'
+    const ganho = h.tipo === 'entrada'
+    const linha = ganho ? linhaGanho(h) : linhaPerda(h)
+    add(ganho ? entradas : saidas, `${linha}_${sufixo}`, v)
+    add(totais, `${linha}_${periodo}`, v)
+    add(totais, `${linha}_total`, v)
+    const grupo = ganho ? 'ganhos' : 'perdas'
+    add(totais, `${grupo}_${sufixo}`, v)
+    add(totais, `${grupo}_${periodo}`, v)
+    add(totais, `${grupo}_total_24h`, v)
+    add(totais, `bh_${sufixo}`, ganho ? v : -v)
+    add(totais, `bh_${periodo}`, ganho ? v : -v)
+    add(totais, 'bh_total_24h', ganho ? v : -v)
+  }
+  return { entradas, saidas, totais }
+}
+
 export default function CorpoBalancoHidricoOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const enf = registro.enfermeiros || medico || {}
   const diurnoHoras = ['07h', '08h', '09h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h']
   const noturnoHoras = ['19h', '20h', '21h', '22h', '23h', '00h', '01h', '02h', '03h', '04h', '05h', '06h']
-  const entradas = registro.entradas || {}
-  const saidas = registro.saidas || {}
-  const totais = registro.totais || {}
+  // A tela envia os lançamentos (registro.historico); aqui eles viram a grade
+  // hora a hora do impresso oficial 05.
+  const grade = registro.historico ? montarGrade(registro.historico) : null
+  const entradas = grade ? grade.entradas : (registro.entradas || {})
+  const saidas = grade ? grade.saidas : (registro.saidas || {})
+  const totais = grade ? grade.totais : (registro.totais || {})
 
   return (
     <div className="bh-page">
@@ -118,7 +170,7 @@ export default function CorpoBalancoHidricoOficial({ registro, pessoa, atendimen
             <div className="hora-envio"><b>Fechamento das 24 Horas:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : (dataHora.split(' ')[1] || dataHora)}</div>
             <div style={{ fontSize: '8px', color: '#334155', marginTop: 2 }}>
               Balanço Hídrico Acumulado:{' '}
-              <b style={{ color: '#0369a1' }}>{totais.bh_total_24h || '0 mL'}</b>
+              <b style={{ color: '#0369a1' }}>{totais.bh_total_24h != null ? `${totais.bh_total_24h > 0 ? '+' : ''}${totais.bh_total_24h} mL` : '0 mL'}</b>
             </div>
           </div>
           <div className="doc-bloco-assinatura">
