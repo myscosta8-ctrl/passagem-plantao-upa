@@ -2,6 +2,7 @@ import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
 export default function CorpoSbarOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const sv = registro.sinais_vitais || {}
+  const cf = registro.campos_extra || {}
   const entrega = registro.entrega || medico || {}
   const recebe = registro.recebe || {}
 
@@ -21,99 +22,67 @@ export default function CorpoSbarOficial({ registro, pessoa, atendimento, idade,
 
       <div className="doc-corpo">
         <div className="sbar-corpo">
-          {/* S — SITUAÇÃO */}
+          {/* Logística da transferência (mockup 14) — só dados registrados. */}
           <div className="sbar-secao">
-            <div className="sbar-secao-header">
-              <span className="sbar-badge">S</span> 1. Situação (Motivo e Diagnóstico da Transferência)
-            </div>
-            <div className="sbar-secao-body">
-              <div><b>Setor de Destino:</b> {registro.setores?.nome || registro.setor_destino || 'Setor de internação / Retaguarda'}</div>
-              <div style={{ marginTop: 3 }}><b>Impressão Diagnóstica / Motivo da Transferência:</b> {registro.impressao_diagnostica || 'Transferência para leito de observação / continuidade de assistência.'}</div>
-            </div>
-          </div>
-
-          {/* B — BREVE HISTÓRICO */}
-          <div className="sbar-secao">
-            <div className="sbar-secao-header">
-              <span className="sbar-badge">B</span> 2. Breve Histórico (Background & Condições Clínicas Prévias)
-            </div>
+            <div className="sbar-secao-header"><span className="sbar-badge">⇄</span> Logística da Transferência — Regulação e Transporte</div>
             <div className="sbar-secao-body">
               <div className="sbar-grid-3">
-                <div className="sbar-card-mini">
-                  <div className="card-header">Comorbidades / Antecedentes</div>
-                  <div className="card-body">{registro.comorbidades || pessoa.comorbidades || 'Nenhuma comorbidade relatada.'}</div>
-                </div>
-                <div className="sbar-card-mini">
-                  <div className="card-header">Alergias Conhecidas</div>
-                  <div className="card-body">
-                    <span className="check-item"><span className="check-box-fiel">{!registro.alergia ? 'X' : ''}</span> Nega</span>
-                    <span className="check-item"><span className="check-box-fiel">{registro.alergia ? 'X' : ''}</span> Sim: {registro.alergia_quais || 'Não especificada'}</span>
-                  </div>
-                </div>
-                <div className="sbar-card-mini">
-                  <div className="card-header">Precaução / Isolamento</div>
-                  <div className="card-body">
-                    <span className="check-item"><span className="check-box-fiel">{!registro.isolamento ? 'X' : ''}</span> Padrão</span>
-                    <span className="check-item"><span className="check-box-fiel">{registro.isolamento ? 'X' : ''}</span> Específico: {registro.isolamento_tipo || 'Contato / Gotículas'}</span>
-                  </div>
-                </div>
+                <div><b>Destino:</b> {cf.hospital_destino || registro.setores?.nome || '—'}{cf.setor_destino ? ` — ${cf.setor_destino}` : ''}</div>
+                <div><b>Protocolo Regulação:</b> {cf.protocolo || '—'}</div>
+                <div><b>Transporte:</b> {cf.transporte || '—'}</div>
+                <div><b>Médico(a) do Transporte:</b> {cf.medico_transporte || '—'}</div>
+                <div><b>Enfermeiro(a) do Transporte:</b> {cf.enfermeiro_transporte || '—'}</div>
               </div>
             </div>
           </div>
 
-          {/* A — AVALIAÇÃO */}
           <div className="sbar-secao">
-            <div className="sbar-secao-header">
-              <span className="sbar-badge">A</span> 3. Avaliação Clínica Atual (Assessment)
+            <div className="sbar-secao-header"><span className="sbar-badge">S</span> 1. Situação (Motivo e Diagnóstico da Transferência)</div>
+            <div className="sbar-secao-body">
+              <div><b>Diagnóstico Principal de Saída:</b> {registro.impressao_diagnostica || '—'}</div>
+              {cf.motivo && <div style={{ marginTop: 3 }}><b>Motivo da Transferência:</b> {cf.motivo}</div>}
+              {registro.situacao && <div style={{ marginTop: 3, whiteSpace: 'pre-wrap' }}><b>Situação Atual:</b> {registro.situacao}</div>}
             </div>
+          </div>
+
+          <div className="sbar-secao">
+            <div className="sbar-secao-header"><span className="sbar-badge">B</span> 2. Breve Histórico (Antecedentes e Condutas na UPA)</div>
+            <div className="sbar-secao-body">
+              <div style={{ whiteSpace: 'pre-wrap' }}><b>Antecedentes / Comorbidades:</b> {registro.breve_historico || '—'}</div>
+              <div style={{ marginTop: 3 }}><b>Alergias:</b> {cf.alergias || (registro.alergia ? 'Sim' : 'Nenhuma registrada')}</div>
+              {cf.condutas && <div style={{ marginTop: 3, whiteSpace: 'pre-wrap' }}><b>Condutas Realizadas na UPA:</b> {cf.condutas}</div>}
+            </div>
+          </div>
+
+          <div className="sbar-secao">
+            <div className="sbar-secao-header"><span className="sbar-badge">A</span> 3. Avaliação no Momento do Embarque</div>
             <div className="sbar-secao-body">
               <table className="sbar-tabela-sv">
-                <thead>
-                  <tr>
-                    <th>PA (mmHg)</th>
-                    <th>FC (bpm)</th>
-                    <th>FR (irpm)</th>
-                    <th>Temp (°C)</th>
-                    <th>SpO₂ (%)</th>
-                    <th>HGT (mg/dL)</th>
-                    <th>Escala de Dor</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>PA (mmHg)</th><th>FC (bpm)</th><th>SpO₂ / Suporte</th><th>HGT (mg/dL)</th></tr></thead>
                 <tbody>
                   <tr>
-                    <td>{sv.pa_sistolica && sv.pa_diastolica ? `${sv.pa_sistolica}x${sv.pa_diastolica}` : '120x80'}</td>
-                    <td>{sv.fc ? `${sv.fc} bpm` : '78 bpm'}</td>
-                    <td>{sv.fr ? `${sv.fr} irpm` : '18 irpm'}</td>
-                    <td>{sv.temperatura ? `${sv.temperatura} °C` : '36.5 °C'}</td>
-                    <td>{sv.spo2 ? `${sv.spo2} %` : '98 % (AA)'}</td>
-                    <td>{sv.hgt ? `${sv.hgt} mg/dL` : '108 mg/dL'}</td>
-                    <td>{sv.dor ? `${sv.dor}/10` : '0/10 (Ausente)'}</td>
+                    <td>{sv.pa_sistolica && sv.pa_diastolica ? `${sv.pa_sistolica}x${sv.pa_diastolica}` : '—'}</td>
+                    <td>{sv.fc || '—'}</td>
+                    <td>{sv.spo2 || '—'}</td>
+                    <td>{sv.hgt || '—'}</td>
                   </tr>
                 </tbody>
               </table>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: 5 }}>
-                <div><b>Nível de Consciência:</b> {registro.nivel_consciencia || 'Alerta, orientado no tempo e espaço (Glasgow 15).'}</div>
-                <div><b>Suporte Ventilatório:</b> {registro.suporte_ventilatorio ? 'Em uso de oxigenoterapia' : 'Ar ambiente (sem suporte).'}</div>
-              </div>
-              <div style={{ marginTop: 4 }}>
-                <b>Dispositivos Invasivos:</b> {registro.dispositivos || 'Acesso venoso periférico em MSE com Jelco 20G pérvio.'}
-              </div>
+              {registro.avaliacao && <div style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}><b>Avaliação Neurológica:</b> {registro.avaliacao}</div>}
+              {registro.dispositivos && <div style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}><b>Acessos e Drogas em Infusão:</b> {registro.dispositivos}</div>}
             </div>
           </div>
 
-          {/* R — RECOMENDAÇÕES */}
           <div className="sbar-secao">
-            <div className="sbar-secao-header">
-              <span className="sbar-badge">R</span> 4. Recomendações e Plano Imediato no Destino
-            </div>
+            <div className="sbar-secao-header"><span className="sbar-badge">R</span> 4. Recomendações e Checklist de Saída</div>
             <div className="sbar-secao-body">
-              <div><b>Plano e Cuidados Imediatos:</b> {registro.recomendacoes || 'Manter monitorização e aguardar reavaliação médica no setor.'}</div>
-              <div style={{ marginTop: 4 }}>
-                <b>Intercorrências no Transporte:</b>{' '}
-                <span className="check-item"><span className="check-box-fiel">{!registro.intercorrencia_transporte ? 'X' : ''}</span> Não houve</span>
-                <span className="check-item"><span className="check-box-fiel">{registro.intercorrencia_transporte ? 'X' : ''}</span> Houve intercorrência</span>
-              </div>
+              <div style={{ whiteSpace: 'pre-wrap' }}><b>Cuidados Críticos Durante o Transporte:</b> {registro.recomendacoes || '—'}</div>
+              {(cf.checklist || []).length > 0 && (
+                <div style={{ marginTop: 4 }}>
+                  <b>Checklist conferido:</b>
+                  {cf.checklist.map((c) => <span key={c} className="check-item"><span className="check-box-fiel">X</span> {c}</span>)}
+                </div>
+              )}
             </div>
           </div>
         </div>

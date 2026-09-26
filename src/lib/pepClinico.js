@@ -275,14 +275,16 @@ export async function listarEnfermeirosAtivos() {
 }
 
 export async function listarTransferenciasSbar(atendimentoId) {
+  // Transferências novas guardam atendimento_id; as antigas só o leito_ocupacao_id.
   const { data: ocupacoes } = await supabase.from('leito_ocupacoes').select('id').eq('atendimento_id', atendimentoId)
   const ids = (ocupacoes ?? []).map((o) => o.id)
-  if (ids.length === 0) return []
-  const { data } = await supabase
+  const filtro = ids.length ? `atendimento_id.eq.${atendimentoId},leito_ocupacao_id.in.(${ids.join(',')})` : `atendimento_id.eq.${atendimentoId}`
+  const { data, error } = await supabase
     .from('transferencias_sbar')
-    .select('*, setores(nome), entrega:enfermeiro_entrega(nome_exibicao, nome), recebe:enfermeiro_recebe(nome_exibicao, nome)')
-    .in('leito_ocupacao_id', ids)
+    .select('*, setores:setor_destino_id(nome), entrega:enfermeiro_entrega(nome_exibicao, nome, coren), recebe:enfermeiro_recebe(nome_exibicao, nome)')
+    .or(filtro)
     .order('criado_em', { ascending: false })
+  if (error) console.error('Erro ao listar transferências SBAR:', error)
   return data ?? []
 }
 
@@ -290,7 +292,7 @@ export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestino
   return supabase
     .from('transferencias_sbar')
     .insert({
-      leito_ocupacao_id: leitoOcupacaoId, setor_destino_id: setorDestinoId,
+      leito_ocupacao_id: leitoOcupacaoId || null, setor_destino_id: setorDestinoId || null,
       enfermeiro_entrega: enfermeiroEntrega, enfermeiro_recebe: enfermeiroRecebe || null,
       ...dados,
     })

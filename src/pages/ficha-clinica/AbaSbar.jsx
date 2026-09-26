@@ -1,256 +1,232 @@
 import { useEffect, useState } from 'react';
-import {
-  buscarOcupacaoAtiva, listarSetoresParaTransferencia, listarEnfermeirosAtivos,
-  listarTransferenciasSbar, registrarTransferenciaSbar
-} from '../../lib/pepClinico';
-import { NIVEIS_CONSCIENCIA } from './constantes';
+import { buscarOcupacaoAtiva, listarTransferenciasSbar, registrarTransferenciaSbar, listarAlergias, listarSinaisVitais } from '../../lib/pepClinico';
+
+// Transferência Estruturada do Paciente (SBAR) — mockups-fase2/14-transferencia-paciente-design.html,
+// impresso modelos_impressao_html/03-transferencia-paciente-sbar.html.
+// Colunas próprias: impressao_diagnostica (S), situacao, breve_historico (B), avaliacao (A),
+// dispositivos, sinais_vitais, recomendacoes (R). Logística, motivo, condutas e checklist em campos_extra.
+const TRANSPORTES = ['USA — Suporte Avançado (UTI Móvel Samu)', 'USB — Suporte Básico', 'Aeromédico (Helicóptero / Avião)', 'Ambulância Branca UPA', 'Fluvial (Ambulancha)'];
+const CHECKLIST = [
+  'Cópia Integral do Prontuário e Ficha de Admissão',
+  'CD / Laudos dos Exames de Imagem',
+  'Resultados Impressos dos Exames Laboratoriais',
+  'Pertences Pessoais e Documentos entregues ao familiar/transporte',
+  'Termo de Consentimento e Transferência Assinado',
+  'Pulseira de Identificação e Alergia Conferidas no Leito',
+];
+const SECOES = [
+  { chave: 'reg', rotulo: '1. Regulação & Transporte', icon: 'ph-ambulance' },
+  { chave: 's', rotulo: '2. Situação (S)', icon: 'ph-letter-circle-s' },
+  { chave: 'b', rotulo: '3. Breve Histórico (B)', icon: 'ph-letter-circle-b' },
+  { chave: 'a', rotulo: '4. Avaliação de Embarque (A)', icon: 'ph-letter-circle-a' },
+  { chave: 'r', rotulo: '5. Recomendações & Pertences (R)', icon: 'ph-letter-circle-r' },
+];
+const VAZIO = {
+  hospital_destino: '', setor_destino: '', protocolo: '', transporte: '', medico_transporte: '', enfermeiro_transporte: '',
+  diagnostico: '', motivo: '', situacao: '',
+  antecedentes: '', condutas: '',
+  pa: '', fc: '', spo2: '', hgt: '', neuro: '', acessos: '',
+  cuidados: '', checklist: [],
+};
 
 export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
-  const [ocupacao, setOcupacao] = useState(null)
-  const [setores, setSetores] = useState([])
-  const [enfermeiros, setEnfermeiros] = useState([])
-  const [carregando, setCarregando] = useState(true)
-  const [salvando, setSalvando] = useState(false)
-  const [erro, setErro] = useState('')
+  const [d, setD] = useState(VAZIO);
+  const [historico, setHistorico] = useState([]);
+  const [ocupacao, setOcupacao] = useState(null);
+  const [alergias, setAlergias] = useState([]);
+  const [filtro, setFiltro] = useState('todas');
+  const [recolhidas, setRecolhidas] = useState(() => new Set());
+  const [salvando, setSalvando] = useState(false);
+  const [msg, setMsg] = useState(null);
 
-  const [setorDestinoId, setSetorDestinoId] = useState('')
-  const [impressaoDiagnostica, setImpressaoDiagnostica] = useState('')
-  const [nivelConsciencia, setNivelConsciencia] = useState('')
-  const [alergia, setAlergia] = useState(false)
-  const [suporteVentilatorio, setSuporteVentilatorio] = useState(false)
-  const [isolamento, setIsolamento] = useState(false)
-  const [dispositivos, setDispositivos] = useState('')
-  const [recomendacoes, setRecomendacoes] = useState('')
-  const [intercorrencia, setIntercorrencia] = useState(false)
-  const [breveHistorico, setBreveHistorico] = useState('')
-  const [enfermeiroRecebe, setEnfermeiroRecebe] = useState('')
-  const [sv, setSv] = useState({ pa_sistolica: '', pa_diastolica: '', fc: '', fr: '', temperatura: '', spo2: '' })
-  const [itemExpandido, setItemExpandido] = useState(null)
+  useEffect(() => {
+    buscarOcupacaoAtiva(atendimento.atendimento_id).then(setOcupacao);
+    listarTransferenciasSbar(atendimento.atendimento_id).then(setHistorico);
+    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => setAlergias(l.filter((a) => a.status !== 'inativa')));
+    // Pré-preenche o embarque com a última aferição (editável).
+    listarSinaisVitais(atendimento.atendimento_id).then((l) => {
+      const s = l[0]; if (!s) return;
+      setD((p) => ({
+        ...p,
+        pa: p.pa || (s.pa_sistolica && s.pa_diastolica ? `${s.pa_sistolica}/${s.pa_diastolica}` : ''),
+        fc: p.fc || (s.fc ?? ''), spo2: p.spo2 || (s.spo2 ?? ''), hgt: p.hgt || (s.glicemia ?? ''),
+      }));
+    });
+  }, [atendimento.atendimento_id]);
 
-  useEffect(() => { carregarTudo() }, [])
+  const set = (k, v) => setD((p) => ({ ...p, [k]: v }));
+  const visivel = (c) => filtro === 'todas' || filtro === c;
+  const recolhida = (c) => recolhidas.has(c);
+  const toggle = (c) => setRecolhidas((prev) => { const n = new Set(prev); n.has(c) ? n.delete(c) : n.add(c); return n; });
+  const todasRecolhidas = SECOES.every((s) => recolhidas.has(s.chave));
+  const toggleTodas = () => setRecolhidas(todasRecolhidas ? new Set() : new Set(SECOES.map((s) => s.chave)));
+  const alergiaTxt = alergias.map((a) => `${String(a.substancia).toUpperCase()}${a.reacao ? ` (${a.reacao})` : ''}`).join('; ');
 
-  async function carregarTudo() {
-    setCarregando(true)
-    const [oc, setoresLista, enfLista, hist] = await Promise.all([
-      buscarOcupacaoAtiva(atendimento.atendimento_id),
-      listarSetoresParaTransferencia(),
-      listarEnfermeirosAtivos(),
-      listarTransferenciasSbar(atendimento.atendimento_id),
-    ])
-    setOcupacao(oc)
-    setSetores(setoresLista)
-    setEnfermeiros(enfLista)
-    setHistorico(hist)
-    setCarregando(false)
-  }
-
-  async function registrar(imprimir = false) {
-    if (!ocupacao) {
-      setErro('Não foi possível identificar o leito atual — recarregue a página.')
-      return
-    }
-    if (!setorDestinoId || !impressaoDiagnostica.trim()) {
-      setErro('Preencha ao menos o setor de destino e a situação (impressão diagnóstica).')
-      return
-    }
-    setErro('')
-    setSalvando(true)
+  async function salvar(imprimir = false) {
+    if (!d.hospital_destino.trim() || !d.diagnostico.trim()) { setMsg({ erro: true, t: 'Preencha ao menos o hospital/serviço de destino e o diagnóstico principal de saída.' }); return; }
+    setMsg(null); setSalvando(true);
+    const [pas, pad] = String(d.pa).split(/[x/]/i).map((x) => x.trim());
     const { data, error } = await registrarTransferenciaSbar({
-      leitoOcupacaoId: ocupacao.id, setorDestinoId, enfermeiroEntrega: autorId, enfermeiroRecebe: enfermeiroRecebe || null,
+      leitoOcupacaoId: ocupacao?.id || null, setorDestinoId: null, enfermeiroEntrega: autorId, enfermeiroRecebe: null,
       dados: {
-        impressao_diagnostica: impressaoDiagnostica.trim(), nivel_consciencia: nivelConsciencia || null,
-        alergia, suporte_ventilatorio: suporteVentilatorio, isolamento, dispositivos: dispositivos || null,
-        recomendacoes: recomendacoes || null, intercorrencia_transporte: intercorrencia,
-        sinais_vitais: sv, breve_historico: breveHistorico.trim() || null,
+        atendimento_id: atendimento.atendimento_id,
+        impressao_diagnostica: d.diagnostico.trim(), situacao: d.situacao || null,
+        breve_historico: d.antecedentes || null,
+        alergia: alergias.length > 0,
+        avaliacao: d.neuro || null, dispositivos: d.acessos || null,
+        sinais_vitais: { pa_sistolica: pas || null, pa_diastolica: pad || null, fc: d.fc || null, spo2: d.spo2 || null, hgt: d.hgt || null },
+        recomendacoes: d.cuidados || null,
+        campos_extra: {
+          hospital_destino: d.hospital_destino, setor_destino: d.setor_destino, protocolo: d.protocolo, transporte: d.transporte,
+          medico_transporte: d.medico_transporte, enfermeiro_transporte: d.enfermeiro_transporte,
+          motivo: d.motivo, condutas: d.condutas, alergias: alergiaTxt, checklist: d.checklist,
+        },
       },
-    })
-    setSalvando(false)
-    if (error) {
-      setErro('Não foi possível salvar. Tente de novo.')
-      console.error(error)
-      return
-    }
-    if (imprimir && data) onImprimir(data)
-    setSetorDestinoId(''); setImpressaoDiagnostica(''); setNivelConsciencia('')
-    setAlergia(false); setSuporteVentilatorio(false); setIsolamento(false)
-    setDispositivos(''); setRecomendacoes(''); setIntercorrencia(false); setEnfermeiroRecebe('')
-    setBreveHistorico('')
-    setSv({ pa_sistolica: '', pa_diastolica: '', fc: '', fr: '', temperatura: '', spo2: '' })
-    carregarTudo()
+    });
+    setSalvando(false);
+    if (error) { console.error(error); setMsg({ erro: true, t: 'Não foi possível salvar a transferência. Tente de novo.' }); return; }
+    setMsg({ t: 'Transferência SBAR registrada.' });
+    listarTransferenciasSbar(atendimento.atendimento_id).then(setHistorico);
+    if (imprimir && data) onImprimir(data);
   }
 
-  if (carregando) return <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>
+  const campo = (k, rotulo, icon, props = {}) => (
+    <div className="enf-group">
+      <label>{icon && <i className={'ph ' + icon} />} {rotulo}</label>
+      {props.area
+        ? <textarea className="enf-control" rows={props.rows || 2} value={d[k]} onChange={(e) => set(k, e.target.value)} />
+        : <input className="enf-control" type="text" style={props.style} placeholder={props.ph || ''} value={d[k]} onChange={(e) => set(k, e.target.value)} />}
+    </div>
+  );
+  const pilar = (chave, classe, badge, titulo, corpo) => visivel(chave) && (
+    <section key={chave} className={'sbar-section' + (recolhida(chave) ? ' collapsed' : '')}>
+      <div className={'pillar-header ' + classe} onClick={() => toggle(chave)}>
+        <div className="ph-left"><div className="pillar-badge">{badge}</div><span>{titulo}</span></div>
+        <div className="ph-right"><span>{recolhida(chave) ? 'Expandir' : 'Recolher'}</span><i className="ph ph-caret-down" /></div>
+      </div>
+      {!recolhida(chave) && <div className="pillar-body">{corpo}</div>}
+    </section>
+  );
+  const ultima = historico[0];
 
   return (
-    <div className="clinical-split">
-      <aside className="timeline-pane">
-        <div className="pane-header">
-          <span><i className="ph ph-arrows-left-right" /> Transferências Registradas</span>
+    <div className="transfer-card">
+      <div className="tc-header">
+        <div className="tc-title">
+          <h2><i className="ph ph-arrows-left-right" /> Transferência Estruturada do Paciente (Metodologia SBAR)</h2>
+          <p>Instrumento oficial de transição de cuidado e regulação inter-hospitalar (Padrão OMS).</p>
         </div>
-        <div className="timeline-list">
-          {historico.length === 0 ? (
-            <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhuma transferência registrada ainda.</p>
-          ) : historico.map((r) => (
-            <div
-              key={r.id}
-              className={`tl-item ${itemExpandido === r.id ? 'expanded' : ''}`}
-              onClick={() => setItemExpandido((atual) => (atual === r.id ? null : r.id))}
-            >
-              <div className="tl-date">
-                {new Date(r.criado_em).toLocaleString('pt-BR')}
-                <i className={`ph ph-caret-${itemExpandido === r.id ? 'up' : 'down'}`} />
-              </div>
-              <div className="tl-author">
-                <i className="ph ph-user" /> {r.entrega?.nome_exibicao || r.entrega?.nome || 'Enfermagem'}
-              </div>
-              <div className="tl-preview">
-                <strong>Para {r.setores?.nome || '—'}</strong>
-                {r.breve_historico && <><br /><em>Histórico: {r.breve_historico}</em></>}
-              </div>
-              {onImprimir && (
-                <button type="button" className="tl-print" onClick={(e) => { e.stopPropagation(); onImprimir(r) }}>
-                  <i className="ph ph-printer" /> Imprimir
-                </button>
-              )}
-            </div>
-          ))}
+        <div className="ac-actions">
+          <button type="button" className="btn-toggle-sidebar" onClick={toggleTodas}>
+            <i className={'ph ' + (todasRecolhidas ? 'ph-arrows-out-line-horizontal' : 'ph-arrows-in-line-horizontal')} /> {todasRecolhidas ? 'Expandir Todos' : 'Recolher Todos'}
+          </button>
+          <button type="button" className="btn-toggle-sidebar" disabled={!ultima} title={ultima ? `Última: ${new Date(ultima.criado_em).toLocaleString('pt-BR')}` : 'Nenhuma transferência registrada'} onClick={() => ultima && onImprimir(ultima)}>
+            <i className="ph ph-printer" /> Visualizar Impresso SBAR Oficial
+          </button>
         </div>
-      </aside>
+      </div>
 
-      <div className="clinical-card">
-        <div className="cc-header">
-          <div className="cc-title">
-            <h2><i className="ph ph-ambulance" /> Nova Transferência Estruturada (Metodologia SBAR)</h2>
-            <p>Situação, Avaliação e Recomendações para a equipe que recebe o paciente.</p>
-          </div>
-        </div>
+      <div className="transfer-subtabs">
+        <button type="button" className={'transfer-tab' + (filtro === 'todas' ? ' active' : '')} onClick={() => setFiltro('todas')}><i className="ph ph-list-dashes" /> Formulário SBAR Completo</button>
+        {SECOES.map((s) => (
+          <button key={s.chave} type="button" className={'transfer-tab' + (filtro === s.chave ? ' active' : '')} onClick={() => { setFiltro(s.chave); setRecolhidas(new Set()); }}>
+            <i className={'ph ' + s.icon} /> {s.rotulo}
+          </button>
+        ))}
+      </div>
 
-        <div className="cc-body">
-          {!ocupacao && (
-            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-              <div className="info" style={{ color: '#DC2626' }}>
-                <i className="ph ph-warning" /> Não foi possível identificar o leito atual deste atendimento.
-              </div>
+      <div className="tc-body">
+        {pilar('reg', 'reg', <i className="ph ph-ambulance" />, 'LOGÍSTICA DA TRANSFERÊNCIA — Regulação SUS e Transporte', (
+          <>
+            <div className="grid-3">
+              {campo('hospital_destino', 'Hospital / Serviço de Destino *', 'ph-buildings')}
+              {campo('setor_destino', 'Setor de Destino', 'ph-door')}
+              {campo('protocolo', 'Protocolo SUS Fácil / Regulação', 'ph-barcode', { style: { fontWeight: 700, color: '#0284C7' } })}
             </div>
-          )}
-
-          <div className="form-section-box">
-            <div className="form-section-box-title" style={{ color: '#0284C7' }}>
-              <i className="ph ph-letter-circle-s" /> S — Situação
-            </div>
-            <div className="assess-grid">
-              <div className="form-group">
-                <label>Setor de destino *</label>
-                <select value={setorDestinoId} onChange={(e) => setSetorDestinoId(e.target.value)}>
-                  <option value="">—</option>
-                  {setores.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
+            <div className="grid-3">
+              <div className="enf-group">
+                <label><i className="ph ph-truck" /> Tipo de Transporte</label>
+                <select className="enf-control" value={d.transporte} onChange={(e) => set('transporte', e.target.value)}>
+                  <option value="">Selecione...</option>
+                  {TRANSPORTES.map((t) => <option key={t}>{t}</option>)}
                 </select>
               </div>
-              <div className="form-group">
-                <label>Enfermeiro(a) que recebe</label>
-                <select value={enfermeiroRecebe} onChange={(e) => setEnfermeiroRecebe(e.target.value)}>
-                  <option value="">A preencher no destino</option>
-                  {enfermeiros.map((e) => <option key={e.id} value={e.id}>{e.nome_exibicao || e.nome}</option>)}
-                </select>
+              {campo('medico_transporte', 'Médico(a) do Transporte', 'ph-user-gear', { ph: 'Nome (CRM)' })}
+              {campo('enfermeiro_transporte', 'Enfermeiro(a) do Transporte', 'ph-stethoscope', { ph: 'Nome (COREN)' })}
+            </div>
+          </>
+        ))}
+
+        {pilar('s', 's', 'S', 'SITUAÇÃO (Situation) — Identificação e Motivo Imediato', (
+          <>
+            <div className="grid-2">
+              {campo('diagnostico', 'Diagnóstico Principal de Saída *')}
+              {campo('motivo', 'Motivo da Solicitação da Vaga / Transferência')}
+            </div>
+            {campo('situacao', 'Tempo de Admissão na UPA e Situação Atual', null, { area: true })}
+          </>
+        ))}
+
+        {pilar('b', 'b', 'B', 'BREVE HISTÓRICO (Background) — Antecedentes e Condutas Realizadas na UPA', (
+          <>
+            {campo('antecedentes', 'Antecedentes Pessoais, Comorbidades e Cirurgias', null, { area: true })}
+            {alergias.length > 0 ? (
+              <div className="alergia-box"><strong><i className="ph ph-warning" /> ALERGIA CONFIRMADA:</strong> {alergiaTxt}</div>
+            ) : (
+              <div className="qs-vazio">Nenhuma alergia registrada no cadastro do paciente.</div>
+            )}
+            {campo('condutas', 'Condutas e Procedimentos já Executados na UPA', null, { area: true })}
+          </>
+        ))}
+
+        {pilar('a', 'a', 'A', 'AVALIAÇÃO (Assessment) — Exame Clínico no Momento do Embarque', (
+          <>
+            <div className="grid-4">
+              {campo('pa', 'PA de Embarque', null, { ph: '120/80', style: { fontWeight: 700 } })}
+              {campo('fc', 'FC de Embarque', null, { ph: 'bpm', style: { fontWeight: 700 } })}
+              {campo('spo2', 'SpO₂ / Suporte', null, { ph: '% (suporte)', style: { fontWeight: 700 } })}
+              {campo('hgt', 'Glicemia (HGT)', null, { ph: 'mg/dL', style: { fontWeight: 700 } })}
+            </div>
+            <div className="grid-2">
+              {campo('neuro', 'Avaliação Neurológica', 'ph-brain', { area: true })}
+              {campo('acessos', 'Acessos e Drogas em Infusão', 'ph-needle', { area: true })}
+            </div>
+          </>
+        ))}
+
+        {pilar('r', 'r', 'R', 'RECOMENDAÇÕES (Recommendation) — Orientações de Transporte & Checklist', (
+          <>
+            {campo('cuidados', 'Cuidados Críticos e Metas Durante o Transporte', null, { area: true })}
+            <div>
+              <label className="enf-label forte">Checklist de Conferência e Pertences de Saída:</label>
+              <div className="grid-2">
+                {CHECKLIST.map((c) => {
+                  const on = d.checklist.includes(c);
+                  return (
+                    <label key={c} className={'check-item' + (on ? ' active' : '')}>
+                      <input type="checkbox" checked={on} onChange={() => set('checklist', on ? d.checklist.filter((x) => x !== c) : [...d.checklist, c])} /> {c}
+                    </label>
+                  );
+                })}
               </div>
             </div>
-            <div className="form-group">
-              <label>Impressão diagnóstica *</label>
-              <textarea value={impressaoDiagnostica} onChange={(e) => setImpressaoDiagnostica(e.target.value)} />
-            </div>
+          </>
+        ))}
+
+        {msg && (
+          <div className="condicional-box" style={msg.erro ? { background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' } : undefined}>
+            <span style={{ fontSize: 12.5, fontWeight: 600 }}><i className={'ph ' + (msg.erro ? 'ph-warning' : 'ph-check-circle')} /> {msg.t}</span>
           </div>
+        )}
+      </div>
 
-          <div className="form-section-box">
-            <div className="form-section-box-title" style={{ color: '#4F46E5' }}>
-              <i className="ph ph-letter-circle-b" /> B — Breve Histórico
-            </div>
-            <div className="form-group">
-              <label>Antecedentes pessoais, comorbidades, cirurgias e condutas já realizadas na UPA</label>
-              <textarea value={breveHistorico} onChange={(e) => setBreveHistorico(e.target.value)} placeholder="Antecedentes relevantes e o que já foi feito neste atendimento antes da transferência..." />
-            </div>
-          </div>
-
-          <div className="form-section-box">
-            <div className="form-section-box-title" style={{ color: '#0D9488' }}>
-              <i className="ph ph-letter-circle-a" /> A — Avaliação no Momento do Embarque
-            </div>
-            <div className="assess-grid">
-              <div className="form-group"><label>PA sistólica</label><input type="number" value={sv.pa_sistolica} onChange={(e) => setSv((p) => ({ ...p, pa_sistolica: e.target.value }))} /></div>
-              <div className="form-group"><label>PA diastólica</label><input type="number" value={sv.pa_diastolica} onChange={(e) => setSv((p) => ({ ...p, pa_diastolica: e.target.value }))} /></div>
-              <div className="form-group"><label>FC</label><input type="number" value={sv.fc} onChange={(e) => setSv((p) => ({ ...p, fc: e.target.value }))} /></div>
-              <div className="form-group"><label>FR</label><input type="number" value={sv.fr} onChange={(e) => setSv((p) => ({ ...p, fr: e.target.value }))} /></div>
-              <div className="form-group"><label>Temperatura</label><input type="number" step="0.1" value={sv.temperatura} onChange={(e) => setSv((p) => ({ ...p, temperatura: e.target.value }))} /></div>
-              <div className="form-group"><label>SpO2</label><input type="number" value={sv.spo2} onChange={(e) => setSv((p) => ({ ...p, spo2: e.target.value }))} /></div>
-            </div>
-
-            <div className="form-group">
-              <label>Nível de consciência:</label>
-              <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                {NIVEIS_CONSCIENCIA.map((n) => (
-                  <label key={n} className="checkbox-item">
-                    <input type="radio" name="sbar-consciencia" checked={nivelConsciencia === n} onChange={() => setNivelConsciencia(nivelConsciencia === n ? '' : n)} /> {n}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              <label className="checkbox-item">
-                <input type="checkbox" checked={alergia} onChange={(e) => setAlergia(e.target.checked)} /> Alergia
-              </label>
-              <label className="checkbox-item">
-                <input type="checkbox" checked={suporteVentilatorio} onChange={(e) => setSuporteVentilatorio(e.target.checked)} /> Suporte ventilatório
-              </label>
-              <label className="checkbox-item">
-                <input type="checkbox" checked={isolamento} onChange={(e) => setIsolamento(e.target.checked)} /> Isolamento
-              </label>
-              <label className="checkbox-item">
-                <input type="checkbox" checked={intercorrencia} onChange={(e) => setIntercorrencia(e.target.checked)} /> Intercorrência no transporte
-              </label>
-            </div>
-
-            <div className="form-group">
-              <label>Dispositivos</label>
-              <input type="text" value={dispositivos} onChange={(e) => setDispositivos(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="form-section-box">
-            <div className="form-section-box-title" style={{ color: '#D97706' }}>
-              <i className="ph ph-letter-circle-r" /> R — Recomendações
-            </div>
-            <div className="form-group">
-              <label>Recomendações para a equipe que recebe</label>
-              <textarea value={recomendacoes} onChange={(e) => setRecomendacoes(e.target.value)} />
-            </div>
-          </div>
-
-          {erro && (
-            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-              <div className="info" style={{ color: '#DC2626' }}>
-                <i className="ph ph-warning" /> {erro}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="cc-footer">
-          <div>
-            <button type="button" className="btn-cancel" onClick={onFechar}>
-              <i className="ph ph-x-circle" /> Cancelar
-            </button>
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando || !ocupacao}>
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
-            </button>
-            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando || !ocupacao}>
-              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
-            </button>
-          </div>
+      <div className="tc-footer">
+        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir SBAR'}</button>
         </div>
       </div>
     </div>
-  )
+  );
 }
