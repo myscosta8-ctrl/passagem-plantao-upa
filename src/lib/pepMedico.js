@@ -526,3 +526,11 @@ export async function buscarAutorRegistro(registro) {
   const { data } = await supabase.from('enfermeiros').select('nome_exibicao, nome, crm, coren').eq('id', id).maybeSingle()
   return data
 }
+
+// Mensagem clara para erro ao salvar (CID fora do catálogo, sessão expirada, etc.).
+export function mensagemErroSalvar(error, documento = 'o registro') {
+  const txt = `${error?.message || ''} ${error?.details || ''}`
+  if (error?.code === '23503' && /cid/i.test(txt)) return 'CID não encontrado na tabela CID-10. Confira o código (ex.: J18.9) e tente de novo.'
+  if (error?.code === '42501' || /JWT|permission|row-level/i.test(txt)) return 'Sua sessão expirou ou não tem permissão. Entre novamente no sistema.'
+  return `Não foi possível salvar ${documento}. Tente de novo.`
+}

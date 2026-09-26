@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { buscarSumarioAlta, salvarSumarioAlta } from '../../lib/pepMedico';
+import { buscarSumarioAlta, salvarSumarioAlta, mensagemErroSalvar } from '../../lib/pepMedico';
 
 export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState({
@@ -12,6 +12,7 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
+  const [erro, setErro] = useState('')
 
   useEffect(() => {
     buscarSumarioAlta(atendimento.atendimento_id).then((s) => {
@@ -32,7 +33,7 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
 
   async function salvar(imprimir = false) {
     setSalvando(true)
-    const { data } = await salvarSumarioAlta({
+    const { data, error } = await salvarSumarioAlta({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         data_internacao: dados.data_internacao || null, data_alta: dados.data_alta || null,
@@ -42,6 +43,8 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
       },
     })
     setSalvando(false)
+    if (error || !data) { console.error(error); setSucesso(false); setErro(mensagemErroSalvar(error, 'o sumário de alta')); return }
+    setErro('')
     setSucesso(true)
     setSalvo(data)
     if (imprimir && data) onImprimir(data)
@@ -108,6 +111,11 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
           <textarea value={dados.orientacoes_continuidade} onChange={(e) => set('orientacoes_continuidade', e.target.value)} />
         </div>
 
+        {erro && (
+  <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA', marginTop: 16 }}>
+    <div className="info" style={{ color: '#991B1B' }}><i className="ph ph-warning" /> {erro}</div>
+  </div>
+)}
         {sucesso && (
           <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
             <div className="info" style={{ color: '#166534' }}>

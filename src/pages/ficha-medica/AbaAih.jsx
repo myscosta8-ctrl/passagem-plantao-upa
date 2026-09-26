@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarAih, criarAih, listarConsultas, buscarCabecalhoImpressao } from '../../lib/pepMedico';
+import { listarAih, criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar } from '../../lib/pepMedico';
 import { AIH_VAZIA } from './constantes';
 
 const PROCEDIMENTOS_RAPIDOS = [
@@ -142,7 +142,8 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     });
     setSalvando(false);
     if (error) {
-      setErro('Não foi possível salvar o Laudo de AIH. Verifique a conexão e tente novamente.');
+      console.error(error);
+      setErro(mensagemErroSalvar(error, 'o Laudo de AIH'));
       return;
     }
     setSucesso('Laudo de AIH registrado com sucesso!');

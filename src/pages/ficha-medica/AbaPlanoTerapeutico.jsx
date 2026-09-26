@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { buscarPlanoTerapeutico, salvarPlanoTerapeutico } from '../../lib/pepMedico';
+import { buscarPlanoTerapeutico, salvarPlanoTerapeutico, mensagemErroSalvar } from '../../lib/pepMedico';
 import { PROTOCOLOS_OPCOES, EQUIPE_OPCOES, TEMPO_INTERNACAO_OPCOES, PROBLEMA_VAZIO } from './constantes';
 
 // Kits de protocolo institucional: preenchem SOMENTE as caixas de protocolo
@@ -24,6 +24,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
+  const [erro, setErro] = useState('')
 
   useEffect(() => {
     buscarPlanoTerapeutico(atendimento.atendimento_id).then((p) => {
@@ -77,7 +78,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
       diagnostico_principal_cid, motivo_internacao, protocolos_elegiveis,
       tempo_internacao_previsto_dias, equipe_multidisciplinar, ...extra
     } = dados
-    const { data } = await salvarPlanoTerapeutico({
+    const { data, error } = await salvarPlanoTerapeutico({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         diagnostico_principal_cid: diagnostico_principal_cid || null,
@@ -88,6 +89,8 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
       },
     })
     setSalvando(false)
+    if (error || !data) { console.error(error); setSucesso(false); setErro(mensagemErroSalvar(error, 'o plano terapêutico')); return }
+    setErro('')
     setSucesso(true)
     setSalvo(data)
     if (imprimir && data) onImprimir(data)
@@ -210,6 +213,11 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
             </div>
           </div>
 
+          {erro && (
+    <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA', marginTop: 16 }}>
+      <div className="info" style={{ color: '#991B1B' }}><i className="ph ph-warning" /> {erro}</div>
+    </div>
+  )}
           {sucesso && (
             <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0', marginTop: 16 }}>
               <div className="info" style={{ color: '#166534' }}>
