@@ -1,6 +1,6 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome, onTrocarPilar }) {
+export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome, medicoCrm, onTrocarPilar }) {
   const [relogio, setRelogio] = useState('');
 
   useEffect(() => {
@@ -22,12 +22,16 @@ export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome
       </div>
       <div className="topbar-right">
         {onTrocarPilar && (
-          <button type="button" className="btn-voltar" onClick={onTrocarPilar} title="Abrir o Prontuário de Enfermagem deste paciente" style={{ color: '#0D9488', borderColor: '#0D9488' }}>
+          <button type="button" className="btn-pilar" onClick={onTrocarPilar} title="Abrir o Prontuário de Enfermagem deste paciente">
             <i className="ph ph-stethoscope" /> Prontuário de Enfermagem
           </button>
         )}
         <div className="sys-time"><i className="ph ph-clock" /> {relogio}</div>
-        <div className="top-avatar">AD</div>
+        {medicoNome && (
+          <div className="enf-avatar">
+            <i className="ph ph-first-aid-kit" /> {medicoNome}{medicoCrm ? ` (CRM ${medicoCrm})` : ''}
+          </div>
+        )}
       </div>
     </header>
   );

@@ -35,6 +35,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
         onFechar={onFechar}
         rotuloAbaAtual={rotuloAbaAtual}
         medicoNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
+        medicoCrm={enfermeiro?.crm}
         onTrocarPilar={onTrocarPilar}
       />
       <div className="workspace">
