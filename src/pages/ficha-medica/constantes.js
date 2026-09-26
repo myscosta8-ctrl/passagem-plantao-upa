@@ -269,6 +269,14 @@ export const TFD_VAZIA = {
   identidade: '',
   profissao: '',
   numero_laudo: '',
+  carater: '',
+  acompanhante_rg: '',
+  sv_pa: '', sv_fc: '', sv_fr: '', sv_spo2: '', sv_tax: '', sv_hgt: '',
+  avaliacao_segmentar: '',
+  exame_dirigido: '',
+  diagnostico_secundario: '',
+  justificativa_tfd: '',
+  meio_transporte: '',
 };
 
 // Antimicrobianos de uso restrito institucional (Controle Obrigatório UPA Breves)

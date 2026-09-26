@@ -1,7 +1,8 @@
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
 export default function CorpoNotaIntercorrenciaOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
-  const cf = registro.campos_extra || {}
+  const sv = registro.sinais_vitais_evento || {}
+  const linhaSv = [sv.pa && `PA ${sv.pa} mmHg`, sv.fc && `FC ${sv.fc} bpm`, sv.fr && `FR ${sv.fr} irpm`, sv.spo2 && `SpO2 ${sv.spo2}%`, sv.temp && `Tax ${sv.temp} °C`, sv.hgt && `HGT ${sv.hgt} mg/dL`].filter(Boolean).join(' • ')
 
   return (
     <div className="notm-page">
@@ -14,28 +15,28 @@ export default function CorpoNotaIntercorrenciaOficial({ registro, pessoa, atend
         <div className="notm-secao" style={{ marginTop: '2px' }}>
           <div className="notm-secao-header">1. Motivo do Chamado e Descrição da Intercorrência</div>
           <div className="notm-secao-body" style={{ minHeight: '30mm', whiteSpace: 'pre-wrap' }}>
-            {cf.motivo_chamado || registro.notas || 'Solicitada avaliação médica pela equipe de enfermagem por intercorrência clínica no setor.'}
+            {registro.descricao_evento || ''}
           </div>
         </div>
 
         <div className="notm-secao">
           <div className="notm-secao-header">2. Exame Físico no Momento da Avaliação</div>
           <div className="notm-secao-body" style={{ minHeight: '26mm', whiteSpace: 'pre-wrap' }}>
-            {cf.exame_fisico || 'Paciente avaliado à beira do leito. Sinais vitais aferidos, parâmetros hemodinâmicos e ventilatórios monitorizados sem sinais agudos de colapso.'}
+            {linhaSv && <div style={{ fontWeight: 700, marginBottom: '2px' }}>{linhaSv}</div>}{sv.exame_fisico || ''}
           </div>
         </div>
 
         <div className="notm-secao">
           <div className="notm-secao-header">3. Condutas Médicas Tomadas</div>
           <div className="notm-secao-body" style={{ minHeight: '26mm', whiteSpace: 'pre-wrap' }}>
-            {cf.condutas || 'Instituídas medidas sintomáticas e medicamentosas de urgência para reversão do quadro conforme prescrição médica.'}
+            {registro.conduta_tomada || ''}
           </div>
         </div>
 
         <div className="notm-secao notm-secao-expansivel">
           <div className="notm-secao-header">4. Reavaliação e Desfecho</div>
           <div className="notm-secao-body" style={{ minHeight: '26mm', whiteSpace: 'pre-wrap' }}>
-            {cf.desfecho || 'Paciente reavaliado após intervenção clínica com resposta favorável, permanecendo em leito sob vigilância da equipe assistencial.'}
+            {registro.notas || ''}
           </div>
         </div>
       </div>

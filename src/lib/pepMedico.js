@@ -306,14 +306,22 @@ export async function salvarSumarioAlta({ atendimentoId, criadoPor, dados }) {
 export async function listarApac(atendimentoId) {
   const { data } = await supabase
     .from('apac_solicitacoes')
-    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .select('*, enfermeiros!apac_solicitacoes_solicitado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('solicitado_em', { ascending: false })
   return data ?? []
 }
 
 export async function criarApac({ atendimentoId, solicitanteId, dados }) {
-  return supabase.from('apac_solicitacoes').insert({ atendimento_id: atendimentoId, solicitado_por: solicitanteId, ...dados }).select().single()
+  const inserir = (d) => supabase.from('apac_solicitacoes').insert({ atendimento_id: atendimentoId, solicitado_por: solicitanteId, ...d }).select().single()
+  const res = await inserir(dados)
+  // cid_principal/cid_secundario têm FK para o catálogo de CID; um código fora do
+  // catálogo não pode travar o laudo — grava sem a coluna (o CID digitado continua
+  // em campos_formulario e sai na impressão).
+  if (res.error?.code === '23503' && /cid_/.test(res.error.message || '')) {
+    return inserir({ ...dados, cid_principal: null, cid_secundario: null })
+  }
+  return res
 }
 
 // ===================== ATM (antibiótico de uso restrito) =====================

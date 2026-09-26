@@ -3,7 +3,7 @@ import { useAuth } from '../lib/AuthContext';
 const FichaMedicaPrint = lazy(() => import('./FichaMedicaPrint'));
 import PatientBanner from './ficha-medica/PatientBanner';
 import FichaMedicaHeader from './ficha-medica/FichaMedicaHeader';
-import FichaMedicaTabs, { ABAS_PRINCIPAIS, ABAS_SECUNDARIAS } from './ficha-medica/FichaMedicaTabs';
+import FichaMedicaTabs, { ABAS_PRINCIPAIS } from './ficha-medica/FichaMedicaTabs';
 import FichaMedicaConteudo from './ficha-medica/FichaMedicaConteudo';
 import './ficha-medica/AtendimentoMedico.css';
 
@@ -25,7 +25,7 @@ export default function FichaMedica({ atendimento, onFechar, initialTab = 'consu
     );
   }
 
-  const abaAtivaObj = ABAS_PRINCIPAIS.find((a) => a.chave === aba) || ABAS_SECUNDARIAS.find((a) => a.chave === aba);
+  const abaAtivaObj = ABAS_PRINCIPAIS.find((a) => a.chave === aba);
   const rotuloAbaAtual = abaAtivaObj ? abaAtivaObj.rotulo : 'Atendimento Médico';
 
   return (

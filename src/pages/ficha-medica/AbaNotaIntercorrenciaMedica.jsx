@@ -1,60 +1,121 @@
 import { useEffect, useState } from 'react';
 import { listarNotasIntercorrenciaMedica, criarNotaIntercorrenciaMedica } from '../../lib/pepMedico';
 
+// Nota de Intercorrência Médica — impresso 09-nota-intercorrencia-medica.html.
+// Colunas: descricao_evento (1), sinais_vitais_evento jsonb (2: exame físico + SV),
+// conduta_tomada (3), notas (4: reavaliação e desfecho).
+const VAZIA = {
+  descricao: '', exame_fisico: '', pa: '', fc: '', fr: '', spo2: '', temp: '', hgt: '',
+  condutas: '', desfecho: '',
+};
+
 export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onImprimir, onFechar }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
-  const [notas, setNotas] = useState('')
+  const [d, setD] = useState(VAZIA)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
 
   useEffect(() => { carregar() }, [])
   async function carregar() { setCarregando(true); setHistorico(await listarNotasIntercorrenciaMedica(atendimento.atendimento_id)); setCarregando(false) }
+  const set = (campo, valor) => setD((p) => ({ ...p, [campo]: valor }))
 
   async function salvar(imprimir = false) {
-    if (!notas.trim()) { setErro('Preencha a nota.'); return }
+    if (!d.descricao.trim() || !d.condutas.trim()) { setErro('Preencha ao menos o motivo/descrição da intercorrência e as condutas tomadas.'); return }
     setErro('')
     setSalvando(true)
     const { data, error } = await criarNotaIntercorrenciaMedica({
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
-      dados: { notas: notas.trim() },
+      dados: {
+        medico_id: medicoId,
+        data_hora: new Date().toISOString(),
+        descricao_evento: d.descricao.trim(),
+        sinais_vitais_evento: { exame_fisico: d.exame_fisico, pa: d.pa, fc: d.fc, fr: d.fr, spo2: d.spo2, temp: d.temp, hgt: d.hgt },
+        conduta_tomada: d.condutas.trim(),
+        notas: d.desfecho.trim() || null,
+      },
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    setNotas('')
+    setD(VAZIA)
     carregar()
   }
 
+  const sv = [['pa', 'PA (mmHg)', '120x80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO2 (%)'], ['temp', 'Tax (°C)'], ['hgt', 'HGT (mg/dL)']]
+
   return (
-    <div className="form-section">
-      <div className="form-section-title">Nova nota de intercorrência médica</div>
-      <div className="form-grid">
-        <div className="form-field span-3"><label>Notas *</label><textarea rows={6} value={notas} onChange={(e) => setNotas(e.target.value)} /></div>
-      </div>
-      {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
-      <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button type="button" className="modal-btn-secondary" onClick={onFechar}>Cancelar</button>
-        <button className="modal-btn-secondary" onClick={() => salvar(false)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</button>
-        <button className="modal-btn-primary" onClick={() => salvar(true)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+    <div className="clinical-card" style={{ flex: 1 }}>
+      <div className="cc-header">
+        <div className="cc-title">
+          <h2><i className="ph ph-siren" /> Nota de Intercorrência Médica</h2>
+          <p>Registro de avaliação médica solicitada por intercorrência no setor.</p>
+        </div>
       </div>
 
-      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
-      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : historico.length === 0 ? (
-        <p style={{ color: 'var(--color-text-muted)' }}>Nenhuma nota registrada ainda.</p>
-      ) : historico.map((n) => (
-        <div key={n.id} style={{ borderBottom: '1px solid var(--color-border)', padding: '10px 0', fontSize: 13 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <p style={{ margin: '0 0 4px', whiteSpace: 'pre-wrap' }}>{n.notas}</p>
-              <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
-                {n.enfermeiros?.nome_exibicao || n.enfermeiros?.nome} · {new Date(n.criado_em).toLocaleString('pt-BR')}
-              </div>
-            </div>
-            <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(n)}>Imprimir</button>
+      <div className="cc-body">
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-bell-ringing" /> 1. Motivo do Chamado e Descrição da Intercorrência *</div>
+          <div className="form-group">
+            <textarea className="form-control-area" rows="4" value={d.descricao} onChange={(e) => set('descricao', e.target.value)} placeholder="Quem solicitou, horário, queixa e achados no momento do chamado." />
           </div>
         </div>
-      ))}
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-stethoscope" /> 2. Exame Físico no Momento da Avaliação</div>
+          <div className="assess-grid" style={{ gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
+            {sv.map(([k, rotulo, ph]) => (
+              <div key={k} className="form-group"><label>{rotulo}</label><input type="text" placeholder={ph || ''} value={d[k]} onChange={(e) => set(k, e.target.value)} /></div>
+            ))}
+          </div>
+          <div className="form-group" style={{ marginTop: 12 }}>
+            <textarea className="form-control-area" rows="3" value={d.exame_fisico} onChange={(e) => set('exame_fisico', e.target.value)} placeholder="Estado geral, neurológico, cardiorrespiratório, abdome, extremidades." />
+          </div>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-first-aid" /> 3. Condutas Médicas Tomadas *</div>
+          <div className="form-group">
+            <textarea className="form-control-area" rows="4" value={d.condutas} onChange={(e) => set('condutas', e.target.value)} placeholder="Medicações administradas, exames solicitados, cuidados e monitorização." />
+          </div>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-arrows-clockwise" /> 4. Reavaliação e Desfecho</div>
+          <div className="form-group">
+            <textarea className="form-control-area" rows="3" value={d.desfecho} onChange={(e) => set('desfecho', e.target.value)} placeholder="Resposta às medidas, novos sinais vitais e destino do paciente." />
+          </div>
+        </div>
+
+        {erro && (
+          <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+            <div className="info" style={{ color: '#DC2626' }}><i className="ph ph-warning" /> {erro}</div>
+          </div>
+        )}
+
+        <div>
+          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico de Intercorrências</div>
+          {carregando ? <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p> : historico.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma nota registrada ainda.</p>
+          ) : historico.map((n) => (
+            <div key={n.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5, display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+              <div>
+                <p style={{ margin: '0 0 4px', whiteSpace: 'pre-wrap' }}>{n.descricao_evento || n.notas}</p>
+                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{n.enfermeiros?.nome_exibicao || n.enfermeiros?.nome} · {new Date(n.data_hora || n.criado_em).toLocaleString('pt-BR')}</div>
+              </div>
+              <button type="button" className="btn-save-draft" onClick={() => onImprimir(n)}><i className="ph ph-printer" /> Imprimir</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="cc-footer">
+        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+        </div>
+      </div>
     </div>
   )
 }

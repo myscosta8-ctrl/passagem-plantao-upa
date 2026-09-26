@@ -5,14 +5,14 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
   const enderecoCompleto = [pessoa.endereco, pessoa.endereco_numero, pessoa.bairro].filter(Boolean).join(', ')
   const cidPrincipal = registro.cid_principal || cf.cid_principal || ''
   const cidSecundario = registro.cid_secundario || cf.cid_secundario || ''
-  const procNome = registro.procedimento_nome || cf.procedimento_nome || 'ULTRASSONOGRAFIA DE ABDOME TOTAL'
-  const procCod = registro.procedimento_codigo || cf.procedimento_codigo || '02.05.02.004-6'
+  const procNome = registro.procedimento_nome || cf.procedimento_nome || ''
+  const procCod = registro.procedimento_codigo || cf.procedimento_codigo || ''
   const qtd = registro.quantidade || cf.quantidade || 1
-  const diag = cf.descricao_diagnostico || registro.descricao_diagnostico || 'INSUFICIÊNCIA RENAL AGUDA E DOR ABDOMINAL AGUDA A ESCLARECER'
+  const diag = cf.descricao_diagnostico || registro.descricao_diagnostico || ''
   const just = registro.justificativa || cf.justificativa || ''
-  const medNome = medico?.nome_exibicao || medico?.nome || cf.profissional_solicitante_nome || 'DR. MARCELO FONTES DA SILVA'
-  const medDoc = cf.profissional_documento_numero || '700123456789012'
-  const medCrm = medico?.crm ? `CRM ${medico.crm}` : (cf.profissional_crm || 'CRM/PA 12345')
+  const medNome = cf.profissional_solicitante_nome || medico?.nome_exibicao || medico?.nome || ''
+  const medDoc = cf.profissional_documento_numero || ''
+  const medCrm = cf.profissional_crm || (medico?.crm ? `CRM ${medico.crm}` : '')
 
   return (
     <div className="sus-page" style={{ fontSize: '9px', lineHeight: 1.25 }}>
@@ -102,16 +102,19 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
                 </td>
               </tr>
               {/* Linhas secundárias 18 a 32 */}
-              <tr style={{ borderBottom: '1px solid #777', color: '#999' }}>
-                <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '7.5px' }}>18 - CÓDIGO</span>—</td>
-                <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '7.5px' }}>19 - NOME DO PROCEDIMENTO SECUNDÁRIO</span>-------------------------------------------------------------------------------------</td>
-                <td style={{ textAlign: 'center', padding: '2px 6px' }}><span className="cap" style={{ fontSize: '7px' }}>20 - QTE</span>--</td>
-              </tr>
-              <tr style={{ borderBottom: '1px solid #777', color: '#999' }}>
-                <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '7.5px' }}>21 - CÓDIGO</span>—</td>
-                <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '7.5px' }}>22 - NOME DO PROCEDIMENTO SECUNDÁRIO</span>-------------------------------------------------------------------------------------</td>
-                <td style={{ textAlign: 'center', padding: '2px 6px' }}><span className="cap" style={{ fontSize: '7px' }}>23 - QTE</span>--</td>
-              </tr>
+              {[1, 2, 3, 4, 5].map((n) => {
+                const base = 18 + (n - 1) * 3
+                const cod = cf[`procedimento_secundario_${n}_cod`] || ''
+                const nome = cf[`procedimento_secundario_${n}_nome`] || ''
+                const q = cf[`procedimento_secundario_${n}_qtd`] || ''
+                return (
+                  <tr key={n} style={{ borderBottom: '1px solid #777', color: nome ? '#000' : '#999' }}>
+                    <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '7.5px' }}>{base} - CÓDIGO</span>{cod || '—'}</td>
+                    <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '7.5px' }}>{base + 1} - NOME DO PROCEDIMENTO SECUNDÁRIO</span>{nome ? <b>{nome}</b> : '—'}</td>
+                    <td style={{ textAlign: 'center', padding: '2px 6px' }}><span className="cap" style={{ fontSize: '7px' }}>{base + 2} - QTE</span>{q ? String(q).padStart(2, '0') : '--'}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -141,7 +144,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
             <div className="sus-field" style={{ flexBasis: '100%' }}>
               <span className="cap">37 - HISTÓRICO / JUSTIFICATIVA CLÍNICA (CAMPO OFICIAL SUS)</span>
               <div style={{ border: '1px solid #666', borderRadius: '2px', padding: '6px 8px', fontSize: '9px', fontWeight: 600, minHeight: '45px', textAlign: 'justify', lineHeight: 1.35 }}>
-                {just || 'PACIENTE COM INDICAÇÃO DE EXAME AMBULATORIAL REGULADO PELO SUS PARA ESCLARECIMENTO DIAGNÓSTICO E CONDUTA MÉDICA.'}
+                {just}
               </div>
             </div>
           </div>
@@ -152,8 +155,8 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
           <div className="sus-secao-titulo" style={{ fontSize: '8px', fontWeight: 900 }}>SOLICITAÇÃO</div>
           <div className="sus-grid" style={{ alignItems: 'flex-end' }}>
             <CampoSus cap="38 - NOME DO PROFISSIONAL SOLICITANTE" val={medNome} w={2.3} />
-            <CampoSus cap="39 - DATA" val={dataHora.split(',')[0]} w={1} />
-            <CampoComb cap="40 - ( X ) CNS ( ) CPF · 41 - Nº DOC. PROFISSIONAL" val={medDoc} digitos={15} w={1.8} />
+            <CampoSus cap="39 - DATA" val={cf.data_solicitacao ? new Date(cf.data_solicitacao + 'T00:00:00').toLocaleDateString('pt-BR') : dataHora.split(',')[0]} w={1} />
+            <CampoComb cap={`40 - (${(cf.profissional_documento_tipo || 'CNS') === 'CNS' ? 'X' : ' '}) CNS (${cf.profissional_documento_tipo === 'CPF' ? 'X' : ' '}) CPF · 41 - Nº DOC. PROFISSIONAL`} val={medDoc} digitos={15} w={1.8} />
             <div className="sus-field" style={{ flexGrow: 2, flexBasis: 0, textAlign: 'center', borderLeft: '1px solid #777', paddingLeft: '8px' }}>
               <span className="cap">42 - ASSINATURA E CARIMBO (Nº REGISTRO CONSELHO)</span>
               <div style={{ borderTop: '1.3px solid #000', width: '85%', margin: '22px auto 2px' }} />
@@ -168,7 +171,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
           <div className="sus-grid">
             <CampoSus cap="43 - NOME DO PROFISSIONAL AUTORIZADOR" val={cf.autorizador_nome || '\u00A0'} w={2.3} />
             <CampoSus cap="44 - CÓD. ÓRGÃO EMISSOR" val={cf.autorizador_codigo_orgao_emissor || '\u00A0'} w={1} />
-            <CampoComb cap="45 - ( ) CNS ( ) CPF · 46 - Nº DOC." val={cf.autorizador_documento_numero || ''} digitos={15} w={1.8} />
+            <CampoComb cap={`45 - (${cf.autorizador_documento_tipo === 'CNS' ? 'X' : ' '}) CNS (${cf.autorizador_documento_tipo === 'CPF' ? 'X' : ' '}) CPF · 46 - Nº DOC.`} val={cf.autorizador_documento_numero || ''} digitos={15} w={1.8} />
             <div className="sus-field" style={{ flexGrow: 2, flexBasis: 0, textAlign: 'center', borderLeft: '1px solid #777', paddingLeft: '8px' }}>
               <span className="cap">48 - ASSINATURA E CARIMBO</span>
               <div style={{ borderTop: '1.3px solid #000', width: '85%', margin: '22px auto 2px' }} />
@@ -186,7 +189,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
         <div className="sus-secao" style={{ border: '1.2px solid #000', padding: '3px 6px' }}>
           <div className="sus-secao-titulo" style={{ fontSize: '8px', fontWeight: 900 }}>IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE ( EXECUTANTE )</div>
           <div className="sus-grid">
-            <CampoSus cap="51 - NOME FANTASIA DO ESTABELECIMENTO" val={cf.executante_nome || 'CENTRO DE DIAGNÓSTICO POR IMAGEM / REDE REGULADA SUS'} w={3.5} />
+            <CampoSus cap="51 - NOME FANTASIA DO ESTABELECIMENTO" val={cf.executante_nome || ''} w={3.5} />
             <CampoComb cap="52 - CNES" val={cf.executante_cnes || ''} digitos={7} w={1.5} />
           </div>
         </div>

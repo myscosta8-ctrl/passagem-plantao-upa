@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarExames, criarExame, buscarCabecalhoImpressao, criarApac } from '../../lib/pepMedico';
+import AbaApac from './AbaApac';
 
 // ==========================================
 // CATÁLOGO COMPLETO FIEL AO MOCKUP FASE 2
@@ -195,7 +196,8 @@ const APAC_VAZIA = {
   justificativa: '',
 };
 
-export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm, onFechar }) {
+export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar, abrirApacCompleto = false }) {
+  const [apacCompleto, setApacCompleto] = useState(abrirApacCompleto);
   const [modalidade, setModalidade] = useState('lab'); // 'lab' | 'img' | 'ecg' | 'apac'
   const [labSelecionados, setLabSelecionados] = useState(() => {
     const init = {};
@@ -440,6 +442,20 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
 
   const cfg = MODALIDADE_CONFIG[modalidade];
 
+  if (apacCompleto) {
+    return (
+      <AbaApac
+        atendimento={atendimento}
+        medicoId={medicoId}
+        medicoNome={medicoNome}
+        medicoCrm={medicoCrm}
+        onImprimir={onImprimir}
+        onFechar={() => { setApacCompleto(false); setModalidade('apac'); }}
+        rotuloFechar="Voltar para Exames"
+      />
+    );
+  }
+
   return (
     <div className="clinical-split">
       <aside className="tools-pane">
@@ -563,6 +579,14 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           {/* 4ª MODALIDADE: LAUDO APAC — funcional de verdade (salva em apac_solicitacoes) */}
           {modalidade === 'apac' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div className="allergy-alert" style={{ background: '#EFF6FF', borderColor: '#BFDBFE' }}>
+                <div className="info" style={{ color: '#1E3A8A', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, width: '100%' }}>
+                  <span><i className="ph ph-file-text" /> Laudo oficial do Ministério da Saúde com os 52 campos (paciente, procedimentos secundários, autorização e executante).</span>
+                  <button type="button" className="btn-save-print" onClick={() => setApacCompleto(true)}>
+                    <i className="ph ph-arrow-square-out" /> Abrir Laudo APAC Completo
+                  </button>
+                </div>
+              </div>
               <div className="form-section">
                 <div className="form-section-title">
                   <span className="st-left"><i className="ph ph-buildings" /> Estabelecimento Solicitante (Campos 1 e 2)</span>
@@ -641,7 +665,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
               </div>
 
               <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0 }}>
-                Este é um resumo rápido da APAC (campos essenciais). O formulário oficial completo (52 campos, dados do paciente e da autorização) fica na aba "Laudo APAC" do prontuário.
+                Este é um resumo rápido da APAC (campos essenciais). Para o laudo oficial com todos os 52 campos, use o botão "Abrir Laudo APAC Completo" acima.
               </p>
             </div>
           )}

@@ -1,18 +1,11 @@
 import AbaConsulta from './AbaConsulta';
-import AbaPrescricao from './AbaPrescricao';
 import AbaAih from './AbaAih';
 import AbaExames from './AbaExames';
 import AbaPlanoTerapeutico from './AbaPlanoTerapeutico';
-import AbaEvolucaoMedica from './AbaEvolucaoMedica';
-import AbaNotaIntercorrenciaMedica from './AbaNotaIntercorrenciaMedica';
 import AbaDocumentosAlta from './AbaDocumentosAlta';
-import AbaApac from './AbaApac';
-import AbaAtm from './AbaAtm';
-import AbaTfd from './AbaTfd';
-import AbaRegulacao from './AbaRegulacao';
+import AbaEvolucoesMedicas from './AbaEvolucoesMedicas';
+import AbaPrescricaoMedica from './AbaPrescricaoMedica';
 import AbaSangue from './AbaSangue';
-import AbaMedicacoesContinuas from './AbaMedicacoesContinuas';
-import AbaAuditoria from './AbaAuditoria';
 
 export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome, medicoCrm, aba, onSelecionarAba, onImprimir, onFechar }) {
   if (aba === 'consulta') {
@@ -49,30 +42,6 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome,
       />
     );
   }
-  if (aba === 'evolucao') {
-    return (
-      <AbaEvolucaoMedica
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'evolucao', registro })}
-        onFechar={onFechar}
-      />
-    );
-  }
-  if (aba === 'prescricao') {
-    return (
-      <AbaPrescricao
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })}
-        onAbrirAtm={() => onSelecionarAba('atm')}
-        onFechar={onFechar}
-      />
-    );
-  }
-  if (aba === 'exames') {
-    return <AbaExames atendimento={atendimento} medicoId={medicoId} medicoNome={medicoNome} medicoCrm={medicoCrm} onFechar={onFechar} />;
-  }
   if (aba === 'sangue') {
     return (
       <AbaSangue
@@ -89,70 +58,31 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome,
   if (aba === 'alta') {
     return <AbaDocumentosAlta key="alta" atendimento={atendimento} medicoId={medicoId} onImprimir={onImprimir} onFechar={onFechar} docInicial="sumario" />;
   }
-  if (aba === 'apac') {
-    return (
-      <AbaApac
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'apac', registro })}
-        onFechar={onFechar}
-      />
-    );
-  }
   if (aba === 'atestado') {
     return <AbaDocumentosAlta key="atestado" atendimento={atendimento} medicoId={medicoId} onImprimir={onImprimir} onFechar={onFechar} docInicial="atestado" />;
   }
-  if (aba === 'atm') {
+  // 4. Evoluções Médicas (Evolução Diária, Atualização de Quadro/SISREG, Intercorrência, TFD)
+  if (['evolucao', 'regulacao', 'intercorrencia', 'tfd'].includes(aba)) {
+    return <AbaEvolucoesMedicas key={aba} atendimento={atendimento} medicoId={medicoId} onImprimir={onImprimir} onFechar={onFechar} docInicial={aba} />;
+  }
+  // 5. Prescrição Médica (+ ATM escondida, só com antimicrobiano restrito)
+  if (aba === 'prescricao' || aba === 'atm') {
+    return <AbaPrescricaoMedica key={aba} atendimento={atendimento} medicoId={medicoId} onImprimir={onImprimir} onFechar={onFechar} docInicial={aba} />;
+  }
+  // 6. Exames & APAC (o laudo completo de APAC abre por botão dentro da guia APAC)
+  if (aba === 'exames' || aba === 'apac') {
     return (
-      <AbaAtm
+      <AbaExames
+        key={aba}
         atendimento={atendimento}
         medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'atm', registro })}
+        medicoNome={medicoNome}
+        medicoCrm={medicoCrm}
+        onImprimir={(registro) => onImprimir({ tipo: 'apac', registro })}
         onFechar={onFechar}
+        abrirApacCompleto={aba === 'apac'}
       />
     );
-  }
-  if (aba === 'tfd') {
-    return (
-      <AbaTfd
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'tfd', registro })}
-        onFechar={onFechar}
-      />
-    );
-  }
-  if (aba === 'regulacao') {
-    return (
-      <AbaRegulacao
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'regulacao', registro })}
-        onFechar={onFechar}
-      />
-    );
-  }
-  if (aba === 'intercorrencia') {
-    return (
-      <AbaNotaIntercorrenciaMedica
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onImprimir={(registro) => onImprimir({ tipo: 'intercorrencia', registro })}
-        onFechar={onFechar}
-      />
-    );
-  }
-  if (aba === 'medicacoesContinuas') {
-    return (
-      <AbaMedicacoesContinuas
-        atendimento={atendimento}
-        medicoId={medicoId}
-        onFechar={onFechar}
-      />
-    );
-  }
-  if (aba === 'auditoria') {
-    return <AbaAuditoria atendimento={atendimento} />;
   }
   return null;
 }

@@ -1,68 +1,40 @@
 import { useEffect, useState } from 'react';
-import { listarApac, criarApac } from '../../lib/pepMedico';
+import { listarApac, criarApac, buscarCabecalhoImpressao } from '../../lib/pepMedico';
+
+// Laudo para Solicitação/Autorização de Procedimento Ambulatorial (APAC) —
+// documento oficial do Ministério da Saúde, impresso 18-laudo-apac-procedimento-ambulatorial.html.
+// Todos os 52 campos do laudo estão aqui; os que vêm do cadastro são pré-preenchidos
+// com os dados reais do paciente e do médico logado, e podem ser corrigidos.
+const SECUNDARIOS = [1, 2, 3, 4, 5]; // campos 18-20, 21-23, 24-26, 27-29, 30-32
 
 const APAC_VAZIA = {
-  // Estabelecimento (1 e 2)
+  // 1-2 Estabelecimento solicitante
   estabelecimento_solicitante_nome: 'UPA 24 HORAS BREVES',
   estabelecimento_solicitante_cnes: '0296796',
-
-  // Paciente (3 a 14)
-  paciente_nome: '',
-  prontuario_numero: '',
-  paciente_cns: '',
-  data_nascimento: '',
-  sexo: 'M',
-  nome_mae: '',
-  telefone: '',
-  endereco: '',
-  municipio: 'BREVES',
-  ibge_municipio: '1501808',
-  uf: 'PA',
-  cep: '68800-000',
-
-  // Procedimento Principal (15 a 17)
-  procedimento_codigo: '',
-  procedimento_nome: '',
-  quantidade: '1',
-
-  // Procedimentos Secundários opcionais (18 a 32)
-  procedimento_secundario_1_cod: '',
-  procedimento_secundario_1_nome: '',
-  procedimento_secundario_1_qtd: '',
-  procedimento_secundario_2_cod: '',
-  procedimento_secundario_2_nome: '',
-  procedimento_secundario_2_qtd: '',
-
-  // Justificativa e Diagnóstico (33 a 37)
-  descricao_diagnostico: '',
-  cid_principal: '',
-  cid_secundario: '',
-  cid_causas_associadas: '',
-  justificativa: '',
-
-  // Profissional Solicitante (38 a 42)
-  profissional_solicitante_nome: '',
-  data_solicitacao: new Date().toISOString().slice(0, 10),
-  profissional_documento_tipo: 'CNS',
-  profissional_documento_numero: '',
-  profissional_crm: '',
-
-  // Autorização (43 a 50)
-  autorizador_nome: '',
-  autorizador_codigo_orgao_emissor: '',
-  autorizador_documento_tipo: 'CNS',
-  autorizador_documento_numero: '',
-  data_autorizacao: '',
-  numero_autorizacao: '',
-  validade_inicio: '',
-  validade_fim: '',
-
-  // Executante (51 e 52)
-  executante_nome: 'CENTRO DE DIAGNÓSTICO POR IMAGEM / REDE REGULADA SUS',
-  executante_cnes: '',
+  // 3-14 Paciente
+  paciente_nome: '', prontuario_numero: '', paciente_cns: '', data_nascimento: '', sexo: '',
+  nome_mae: '', telefone: '', endereco: '', municipio: '', ibge_municipio: '', uf: '', cep: '',
+  // 15-17 Procedimento principal
+  procedimento_codigo: '', procedimento_nome: '', quantidade: '1',
+  // 18-32 Procedimentos secundários
+  ...Object.fromEntries(SECUNDARIOS.flatMap((n) => [
+    [`procedimento_secundario_${n}_cod`, ''], [`procedimento_secundario_${n}_nome`, ''], [`procedimento_secundario_${n}_qtd`, ''],
+  ])),
+  // 33-37 Justificativa
+  descricao_diagnostico: '', cid_principal: '', cid_secundario: '', cid_causas_associadas: '', justificativa: '',
+  // 38-42 Solicitação
+  profissional_solicitante_nome: '', data_solicitacao: new Date().toISOString().slice(0, 10),
+  profissional_documento_tipo: 'CNS', profissional_documento_numero: '', profissional_crm: '',
+  // 43-50 Autorização
+  autorizador_nome: '', autorizador_codigo_orgao_emissor: '', autorizador_documento_tipo: '', autorizador_documento_numero: '',
+  data_autorizacao: '', numero_autorizacao: '', validade_inicio: '', validade_fim: '',
+  // 51-52 Estabelecimento executante
+  executante_nome: '', executante_cnes: '',
 };
 
-export default function AbaApac({ atendimento, medicoId, onImprimir, onFechar }) {
+const soDigitos = (v) => String(v || '').replace(/\D/g, '');
+
+export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar, rotuloFechar = 'Cancelar' }) {
   const [historico, setHistorico] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [dados, setDados] = useState(APAC_VAZIA);
@@ -70,74 +42,55 @@ export default function AbaApac({ atendimento, medicoId, onImprimir, onFechar })
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
 
-  useEffect(() => {
-    carregar();
-    inicializarComDadosAtendimento();
-  }, [atendimento?.atendimento_id]);
+  useEffect(() => { carregar(); preencherDoCadastro(); }, [atendimento?.atendimento_id]);
 
   async function carregar() {
     setCarregando(true);
-    const lista = await listarApac(atendimento.atendimento_id);
-    setHistorico(lista);
+    setHistorico(await listarApac(atendimento.atendimento_id));
     setCarregando(false);
   }
 
-  function inicializarComDadosAtendimento() {
-    if (!atendimento) return;
-    const p = atendimento.pessoa || atendimento.paciente || {};
-    setDados((prev) => ({
-      ...prev,
-      paciente_nome: p.nome || prev.paciente_nome,
-      prontuario_numero: (p.prontuario_numero || atendimento.numero_atendimento || '').replace(/\D/g, ''),
-      paciente_cns: (p.cns || '').replace(/\D/g, ''),
-      data_nascimento: p.data_nascimento ? p.data_nascimento.slice(0, 10) : prev.data_nascimento,
-      sexo: p.sexo || prev.sexo,
-      nome_mae: p.nome_mae || prev.nome_mae,
-      telefone: p.telefone || prev.telefone,
-      endereco: [p.endereco, p.endereco_numero, p.bairro].filter(Boolean).join(', ') || prev.endereco,
-      municipio: p.municipio || prev.municipio,
-      ibge_municipio: p.ibge_municipio || prev.ibge_municipio,
-      uf: p.uf || prev.uf,
-      cep: (p.cep || prev.cep).replace(/\D/g, ''),
-      profissional_solicitante_nome: prev.profissional_solicitante_nome || 'DR. MARCELO FONTES DA SILVA',
-      profissional_documento_numero: prev.profissional_documento_numero || '700123456789012',
-      profissional_crm: prev.profissional_crm || 'CRM/PA 12345',
-    }));
+  async function preencherDoCadastro() {
+    const base = { ...APAC_VAZIA, profissional_solicitante_nome: medicoNome || '', profissional_crm: medicoCrm ? `CRM ${medicoCrm}` : '' };
+    try {
+      // O proxy local às vezes devolve 502; tenta de novo antes de desistir.
+      const cab = await buscarCabecalhoImpressao(atendimento.atendimento_id)
+        .catch(() => new Promise((r) => setTimeout(r, 1500)).then(() => buscarCabecalhoImpressao(atendimento.atendimento_id)));
+      const { pessoa: p, atendimento: a } = cab;
+      setDados({
+        ...base,
+        paciente_nome: p?.nome || '',
+        prontuario_numero: p?.prontuario_numero || a?.numero_atendimento || '',
+        paciente_cns: soDigitos(p?.cns),
+        data_nascimento: p?.data_nascimento ? p.data_nascimento.slice(0, 10) : '',
+        sexo: ['M', 'F'].includes(String(p?.sexo || '').charAt(0).toUpperCase()) ? String(p.sexo).charAt(0).toUpperCase() : '',
+        nome_mae: p?.nome_mae || '',
+        telefone: p?.telefone || p?.telefone_contato || '',
+        endereco: [p?.endereco, p?.endereco_numero, p?.bairro].filter(Boolean).join(', '),
+        municipio: p?.cidade || '',
+        ibge_municipio: p?.municipio_ibge || '',
+        uf: p?.uf || '',
+        cep: soDigitos(p?.cep),
+      });
+    } catch {
+      setDados(base);
+    }
   }
 
-  function set(campo, valor) {
-    setDados((prev) => ({ ...prev, [campo]: valor }));
-  }
-
-  function aplicarComboUsg() {
-    setDados((prev) => ({
-      ...prev,
-      procedimento_codigo: '02.05.02.004-6',
-      procedimento_nome: 'ULTRASSONOGRAFIA DE ABDOME TOTAL',
-      quantidade: '1',
-      descricao_diagnostico: 'INSUFICIÊNCIA RENAL AGUDA E DOR ABDOMINAL AGUDA A ESCLARECER',
-      cid_principal: 'N17.9',
-      cid_secundario: 'R10.4',
-      justificativa:
-        'PACIENTE APRESENTANDO QUADRO DE INSUFICIÊNCIA RENAL AGUDA COM OLIGÚRIA PERSISTENTE, DOR ABDOMINAL EM FLANCOS E FOSSA ILÍACA, ASSOCIADO A ELEVAÇÃO EXPRESSIVA DE ESCÓRIAS NITROGENADAS (UREIA: 142 mg/dL, CREATININA: 3.4 mg/dL). SOLICITA-SE ULTRASSONOGRAFIA DE ABDOME TOTAL EM CARÁTER DE REGULAÇÃO AMBULATORIAL / URGÊNCIA PARA AVALIAÇÃO DE PARÊNQUIMA RENAL, EXCLUSÃO DE UROPATIA OBSTRUTIVA (HIDRONEFROSE) E OUTRAS CAUSAS DE ABDOME AGUDO. PACIENTE SOB VIGILÂNCIA NA UPA 24H BREVES AGUARDANDO LIBERAÇÃO DO EXAME REGULADO.',
-    }));
-  }
+  const set = (campo, valor) => setDados((prev) => ({ ...prev, [campo]: valor }));
 
   async function salvar(imprimir = false) {
     if (!dados.procedimento_nome.trim() || !dados.justificativa.trim()) {
-      setErro('Preencha ao menos o procedimento principal e a justificativa clínica oficial.');
+      setErro('Preencha ao menos o procedimento principal (16) e a justificativa clínica (37).');
       return;
     }
-    setErro('');
-    setSucesso('');
-    setSalvando(true);
-
-    const payload = {
+    setErro(''); setSucesso(''); setSalvando(true);
+    const { data, error } = await criarApac({
       atendimentoId: atendimento.atendimento_id,
       solicitanteId: medicoId,
       dados: {
         procedimento_nome: dados.procedimento_nome,
-        procedimento_codigo: dados.procedimento_codigo,
+        procedimento_codigo: dados.procedimento_codigo || null,
         quantidade: dados.quantidade ? Number(dados.quantidade) : 1,
         cid_principal: dados.cid_principal || null,
         cid_secundario: dados.cid_secundario || null,
@@ -147,483 +100,178 @@ export default function AbaApac({ atendimento, medicoId, onImprimir, onFechar })
         validade_fim: dados.validade_fim || null,
         campos_formulario: dados,
       },
-    };
-
-    const { data: apacCriada, error } = await criarApac(payload);
+    });
     setSalvando(false);
-
-    if (error) {
-      console.error(error);
-      setErro('Não foi possível registrar a APAC no sistema. Verifique os dados e tente novamente.');
-      return;
-    }
-
-    setSucesso('Solicitação de APAC registrada com sucesso!');
-    localStorage.setItem('requisicao_apac_dados', JSON.stringify(dados));
-
-    if (imprimir) {
-      // Dispara impressão pelo modelo 18 oficial em HTML
-      window.open('./modelos_impressao_html/18-laudo-apac-procedimento-ambulatorial.html', '_blank');
-      if (onImprimir && apacCriada) {
-        onImprimir({ ...apacCriada, tipo: 'apac' });
-      }
-    }
-
+    if (error) { console.error(error); setErro('Não foi possível registrar a APAC. Verifique os dados e tente novamente.'); return; }
+    setSucesso('Laudo de APAC registrado.');
+    if (imprimir && data) onImprimir?.(data);
     carregar();
   }
 
-  function descartar() {
-    if (window.confirm('Deseja realmente limpar todos os campos do formulário APAC?')) {
-      setDados(APAC_VAZIA);
-      inicializarComDadosAtendimento();
-      setErro('');
-      setSucesso('');
-    }
-  }
+  const input = (k, rotulo, props = {}) => (
+    <div className="form-group" style={props.span ? { gridColumn: `span ${props.span}` } : undefined}>
+      <label>{rotulo}</label>
+      <input
+        type={props.type || 'text'}
+        value={dados[k]}
+        placeholder={props.ph || ''}
+        readOnly={props.readOnly}
+        onChange={(e) => set(k, props.upper ? e.target.value.toUpperCase() : e.target.value)}
+      />
+    </div>
+  );
+  const docTipo = (k, rotulo) => (
+    <div className="form-group">
+      <label>{rotulo}</label>
+      <div style={{ display: 'flex', gap: 6 }}>
+        {['CNS', 'CPF'].map((t) => (
+          <button key={t} type="button" className={'btn-add-chip' + (dados[k] === t ? ' on' : '')} onClick={() => set(k, dados[k] === t ? '' : t)}>{t}</button>
+        ))}
+      </div>
+    </div>
+  );
+  const secao = (icone, titulo, conteudo) => (
+    <div className="form-section-box">
+      <div className="form-section-box-title"><i className={'ph ' + icone} /> {titulo}</div>
+      {conteudo}
+    </div>
+  );
+  const grade = (cols, filhos, mt) => <div className="assess-grid" style={{ gridTemplateColumns: cols, marginTop: mt ? 12 : 0 }}>{filhos}</div>;
 
   return (
-    <div className="clinical-card">
+    <div className="clinical-card" style={{ flex: 1 }}>
       <div className="cc-header">
         <div className="cc-title">
-          <h2><i className="ph ph-clipboard-text" /> Laudo para Solicitação / Autorização de Procedimento Ambulatorial (APAC)</h2>
-          <p>Formulário oficial SUS (52 campos) · Modelo 18 · Destinado à Regulação Externa / Exames Especializados</p>
+          <h2><i className="ph ph-file-text" /> Laudo para Solicitação / Autorização de Procedimento Ambulatorial (APAC)</h2>
+          <p>Documento oficial do Ministério da Saúde · 52 campos · Modelo 18</p>
         </div>
-        <button
-          type="button"
-          className="btn-add-chip"
-          onClick={aplicarComboUsg}
-        >
-          <i className="ph ph-lightning" /> Preencher APAC - USG Total (Exemplo Oficial)
-        </button>
       </div>
 
       <div className="cc-body">
-      {erro && (
-        <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-          <div className="info" style={{ color: '#DC2626' }}>
-            <i className="ph ph-warning" /> {erro}
-          </div>
-        </div>
-      )}
-      {sucesso && (
-        <div className="allergy-alert" style={{ background: '#ECFDF5', borderColor: '#A7F3D0' }}>
-          <div className="info" style={{ color: '#065F46' }}>
-            <i className="ph ph-check-circle" /> {sucesso}
-          </div>
-        </div>
-      )}
+        {secao('ph-buildings', 'Identificação do Estabelecimento de Saúde (Solicitante) — Campos 1 e 2', grade('3fr 1fr', <>
+          {input('estabelecimento_solicitante_nome', '1 - Nome do estabelecimento de saúde')}
+          {input('estabelecimento_solicitante_cnes', '2 - CNES')}
+        </>))}
 
-      {/* SEÇÃO 1: ESTABELECIMENTO SOLICITANTE (CAMPOS 1 E 2) */}
-      <div className="form-section-box">
-        <div className="form-section-box-title">
-          1. Identificação do Estabelecimento de Saúde Solicitante (Campos 1 e 2)
-        </div>
-        <div className="form-grid">
-          <div className="form-field span-3">
-            <label>1 - Nome do Estabelecimento de Saúde Solicitante *</label>
-            <input
-              type="text"
-              value={dados.estabelecimento_solicitante_nome}
-              onChange={(e) => set('estabelecimento_solicitante_nome', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>2 - CNES Solicitante *</label>
-            <input
-              type="text"
-              value={dados.estabelecimento_solicitante_cnes}
-              onChange={(e) => set('estabelecimento_solicitante_cnes', e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
+        {secao('ph-user', 'Identificação do Paciente — Campos 3 a 14', <>
+          {grade('3fr 1fr 1.4fr', <>
+            {input('paciente_nome', '3 - Nome do paciente', { upper: true })}
+            {input('prontuario_numero', '4 - Nº do prontuário')}
+            {input('paciente_cns', '5 - Cartão Nacional de Saúde (CNS)')}
+          </>)}
+          {grade('1fr 1fr 2.4fr 1.4fr', <>
+            {input('data_nascimento', '6 - Data de nascimento', { type: 'date' })}
+            <div className="form-group"><label>7 - Sexo</label>
+              <select value={dados.sexo} onChange={(e) => set('sexo', e.target.value)}>
+                <option value="">—</option><option value="M">Masculino</option><option value="F">Feminino</option>
+              </select>
+            </div>
+            {input('nome_mae', '8 - Nome da mãe ou responsável', { upper: true })}
+            {input('telefone', '9 - Telefone de contato')}
+          </>, true)}
+          {grade('2.6fr 1.4fr 1fr 0.6fr 1fr', <>
+            {input('endereco', '10 - Endereço (rua, nº, bairro)')}
+            {input('municipio', '11 - Município de residência', { upper: true })}
+            {input('ibge_municipio', '12 - Cód. IBGE município')}
+            {input('uf', '13 - UF', { upper: true })}
+            {input('cep', '14 - CEP')}
+          </>, true)}
+        </>)}
 
-      {/* SEÇÃO 2: IDENTIFICAÇÃO DO PACIENTE (CAMPOS 3 A 14) */}
-      <div className="form-section-box">
-        <div className="form-section-box-title">
-          2. Identificação do Paciente (Campos 3 a 14)
-        </div>
-        <div className="form-grid">
-          <div className="form-field span-2">
-            <label>3 - Nome Completo do Paciente *</label>
-            <input
-              type="text"
-              value={dados.paciente_nome}
-              onChange={(e) => set('paciente_nome', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>4 - Nº do Prontuário</label>
-            <input
-              type="text"
-              value={dados.prontuario_numero}
-              onChange={(e) => set('prontuario_numero', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>5 - Cartão Nacional de Saúde (CNS) *</label>
-            <input
-              type="text"
-              value={dados.paciente_cns}
-              onChange={(e) => set('paciente_cns', e.target.value)}
-            />
-          </div>
-
-          <div className="form-field">
-            <label>6 - Data de Nascimento</label>
-            <input
-              type="date"
-              value={dados.data_nascimento}
-              onChange={(e) => set('data_nascimento', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>7 - Sexo</label>
-            <select value={dados.sexo} onChange={(e) => set('sexo', e.target.value)}>
-              <option value="M">Masculino</option>
-              <option value="F">Feminino</option>
-            </select>
-          </div>
-          <div className="form-field span-2">
-            <label>8 - Nome da Mãe ou Responsável</label>
-            <input
-              type="text"
-              value={dados.nome_mae}
-              onChange={(e) => set('nome_mae', e.target.value)}
-            />
-          </div>
-
-          <div className="form-field span-2">
-            <label>9 - Telefone de Contato</label>
-            <input
-              type="text"
-              value={dados.telefone}
-              onChange={(e) => set('telefone', e.target.value)}
-              placeholder="(91) 98000-0000"
-            />
-          </div>
-          <div className="form-field span-2">
-            <label>10 - Endereço Completo (Rua, Nº, Bairro)</label>
-            <input
-              type="text"
-              value={dados.endereco}
-              onChange={(e) => set('endereco', e.target.value)}
-            />
-          </div>
-
-          <div className="form-field">
-            <label>11 - Município de Residência</label>
-            <input
-              type="text"
-              value={dados.municipio}
-              onChange={(e) => set('municipio', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>12 - Cód. IBGE Município</label>
-            <input
-              type="text"
-              value={dados.ibge_municipio}
-              onChange={(e) => set('ibge_municipio', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>13 - UF</label>
-            <input
-              type="text"
-              value={dados.uf}
-              onChange={(e) => set('uf', e.target.value)}
-              maxLength={2}
-            />
-          </div>
-          <div className="form-field">
-            <label>14 - CEP</label>
-            <input
-              type="text"
-              value={dados.cep}
-              onChange={(e) => set('cep', e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* SEÇÃO 3: PROCEDIMENTO SOLICITADO (CAMPOS 15 A 32) */}
-      <div className="form-section-box">
-        <div className="form-section-box-title">
-          3. Procedimento Principal e Secundários Solicitados (Campos 15 a 32)
-        </div>
-        <div className="form-grid">
-          <div className="form-field">
-            <label>15 - Código do Procedimento (SIGTAP) *</label>
-            <input
-              type="text"
-              value={dados.procedimento_codigo}
-              onChange={(e) => set('procedimento_codigo', e.target.value)}
-              placeholder="ex: 02.05.02.004-6"
-            />
-          </div>
-          <div className="form-field span-2">
-            <label>16 - Nome do Procedimento Principal *</label>
-            <input
-              type="text"
-              value={dados.procedimento_nome}
-              onChange={(e) => set('procedimento_nome', e.target.value)}
-              placeholder="ex: ULTRASSONOGRAFIA DE ABDOME TOTAL"
-            />
-          </div>
-          <div className="form-field">
-            <label>17 - Quantidade *</label>
-            <input
-              type="number"
-              min="1"
-              value={dados.quantidade}
-              onChange={(e) => set('quantidade', e.target.value)}
-            />
-          </div>
-
-          {/* Secundário 1 opcional */}
-          <div className="form-field">
-            <label>18 - Código Secundário 1</label>
-            <input
-              type="text"
-              value={dados.procedimento_secundario_1_cod}
-              onChange={(e) => set('procedimento_secundario_1_cod', e.target.value)}
-            />
-          </div>
-          <div className="form-field span-2">
-            <label>19 - Nome do Procedimento Secundário 1</label>
-            <input
-              type="text"
-              value={dados.procedimento_secundario_1_nome}
-              onChange={(e) => set('procedimento_secundario_1_nome', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>20 - Qtd Sec. 1</label>
-            <input
-              type="number"
-              value={dados.procedimento_secundario_1_qtd}
-              onChange={(e) => set('procedimento_secundario_1_qtd', e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* SEÇÃO 4: JUSTIFICATIVA DO(S) PROCEDIMENTO(S) (CAMPOS 33 A 37) */}
-      <div className="form-section-box">
-        <div className="form-section-box-title">
-          4. Justificativa e Diagnóstico Clínico (Campos 33 a 37)
-        </div>
-        <div className="form-grid">
-          <div className="form-field span-2">
-            <label>33 - Descrição do Diagnóstico *</label>
-            <input
-              type="text"
-              value={dados.descricao_diagnostico}
-              onChange={(e) => set('descricao_diagnostico', e.target.value)}
-              placeholder="ex: INSUFICIÊNCIA RENAL AGUDA E DOR ABDOMINAL AGUDA A ESCLARECER"
-            />
-          </div>
-          <div className="form-field">
-            <label>34 - CID-10 Principal</label>
-            <input
-              type="text"
-              value={dados.cid_principal}
-              onChange={(e) => set('cid_principal', e.target.value.toUpperCase())}
-              placeholder="ex: N17.9"
-            />
-          </div>
-          <div className="form-field">
-            <label>35 - CID-10 Secundário</label>
-            <input
-              type="text"
-              value={dados.cid_secundario}
-              onChange={(e) => set('cid_secundario', e.target.value.toUpperCase())}
-              placeholder="ex: R10.4"
-            />
-          </div>
-
-          <div className="form-field span-4">
-            <label>37 - Histórico / Justificativa Clínica Oficial (Campo Obrigatório SUS) *</label>
-            <textarea
-              rows={4}
-              value={dados.justificativa}
-              onChange={(e) => set('justificativa', e.target.value)}
-              placeholder="Descreva detalhadamente o quadro clínico, parâmetros de gravidade, indicação do exame e necessidade de regulação ambulatorial..."
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* SEÇÃO 5: PROFISSIONAL SOLICITANTE (CAMPOS 38 A 42) */}
-      <div className="form-section-box">
-        <div className="form-section-box-title">
-          5. Profissional Solicitante (Campos 38 a 42)
-        </div>
-        <div className="form-grid">
-          <div className="form-field span-2">
-            <label>38 - Nome do Profissional Solicitante</label>
-            <input
-              type="text"
-              value={dados.profissional_solicitante_nome}
-              onChange={(e) => set('profissional_solicitante_nome', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>39 - Data da Solicitação</label>
-            <input
-              type="date"
-              value={dados.data_solicitacao}
-              onChange={(e) => set('data_solicitacao', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>41 - Documento Profissional (CNS / CPF)</label>
-            <input
-              type="text"
-              value={dados.profissional_documento_numero}
-              onChange={(e) => set('profissional_documento_numero', e.target.value)}
-            />
-          </div>
-          <div className="form-field span-2">
-            <label>42 - Registro do Conselho (CRM / UF)</label>
-            <input
-              type="text"
-              value={dados.profissional_crm}
-              onChange={(e) => set('profissional_crm', e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* SEÇÃO 6 E 7: AUTORIZAÇÃO & ESTABELECIMENTO EXECUTANTE (CAMPOS 43 A 52) */}
-      <div className="form-section-box">
-        <div className="form-section-box-title">
-          6 e 7. Autorização e Estabelecimento Executante (Regulação SUS / Campos 43 a 52)
-        </div>
-        <div className="form-grid">
-          <div className="form-field span-2">
-            <label>49 - Nº da Autorização (APAC) (Quando emitido pela regulação)</label>
-            <input
-              type="text"
-              value={dados.numero_autorizacao}
-              onChange={(e) => set('numero_autorizacao', e.target.value)}
-              placeholder="ex: 1526001234567"
-            />
-          </div>
-          <div className="form-field">
-            <label>50 - Validade Início</label>
-            <input
-              type="date"
-              value={dados.validade_inicio}
-              onChange={(e) => set('validade_inicio', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>50 - Validade Fim</label>
-            <input
-              type="date"
-              value={dados.validade_fim}
-              onChange={(e) => set('validade_fim', e.target.value)}
-            />
-          </div>
-
-          <div className="form-field span-3">
-            <label>51 - Nome Fantasia do Estabelecimento Executante</label>
-            <input
-              type="text"
-              value={dados.executante_nome}
-              onChange={(e) => set('executante_nome', e.target.value)}
-            />
-          </div>
-          <div className="form-field">
-            <label>52 - CNES Executante</label>
-            <input
-              type="text"
-              value={dados.executante_cnes}
-              onChange={(e) => set('executante_cnes', e.target.value)}
-              placeholder="ex: 2012345"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* HISTÓRICO DE SOLICITAÇÕES APAC */}
-      <div className="form-section-box">
-        <div className="form-section-box-title">
-          <i className="ph ph-clock-counter-clockwise" /> Histórico de Solicitações de APAC deste Atendimento
-        </div>
-
-        {carregando ? (
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Carregando histórico...</p>
-        ) : historico.length === 0 ? (
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Nenhuma solicitação de APAC registrada anteriormente para este atendimento.</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {historico.map((a) => (
-              <div
-                key={a.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  background: '#f8fafc',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: 6,
-                  padding: '10px 14px',
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: '#0f172a' }}>
-                    {a.procedimento_nome} {a.procedimento_codigo ? `(${a.procedimento_codigo})` : ''}
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 2 }}>
-                    Solicitado por: <strong>{a.enfermeiros?.nome_exibicao || a.enfermeiros?.nome || 'Médico'}</strong> · {new Date(a.solicitado_em).toLocaleString('pt-BR')}
-                    {a.numero_autorizacao && ` · Autorização: ${a.numero_autorizacao}`}
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="btn-add-chip"
-                  onClick={() => {
-                    localStorage.setItem('requisicao_apac_dados', JSON.stringify({
-                      ...dados,
-                      procedimento_nome: a.procedimento_nome,
-                      procedimento_codigo: a.procedimento_codigo,
-                      quantidade: a.quantidade,
-                      cid_principal: a.cid_principal,
-                      cid_secundario: a.cid_secundario,
-                      justificativa: a.justificativa,
-                      numero_autorizacao: a.numero_autorizacao,
-                      ...a.campos_formulario,
-                    }));
-                    window.open('./modelos_impressao_html/18-laudo-apac-procedimento-ambulatorial.html', '_blank');
-                    if (onImprimir) onImprimir({ ...a, tipo: 'apac' });
-                  }}
-                >
-                  <i className="ph ph-printer" /> Imprimir Modelo 18
-                </button>
+        {secao('ph-list-numbers', 'Procedimento Solicitado — Campos 15 a 32', <>
+          {grade('1.2fr 3fr 0.6fr', <>
+            {input('procedimento_codigo', '15 - Código (SIGTAP) *', { ph: 'Ex: 02.05.02.004-6' })}
+            {input('procedimento_nome', '16 - Nome do procedimento principal *', { upper: true })}
+            {input('quantidade', '17 - Qte *', { type: 'number' })}
+          </>)}
+          {SECUNDARIOS.map((n) => {
+            const c = 18 + (n - 1) * 3;
+            return (
+              <div key={n}>
+                {grade('1.2fr 3fr 0.6fr', <>
+                  {input(`procedimento_secundario_${n}_cod`, `${c} - Código (secundário ${n})`)}
+                  {input(`procedimento_secundario_${n}_nome`, `${c + 1} - Nome do procedimento secundário ${n}`, { upper: true })}
+                  {input(`procedimento_secundario_${n}_qtd`, `${c + 2} - Qte`, { type: 'number' })}
+                </>, true)}
               </div>
-            ))}
+            );
+          })}
+        </>)}
+
+        {secao('ph-clipboard-text', 'Justificativa do(s) Procedimento(s) Solicitado(s) — Campos 33 a 37', <>
+          {grade('2.4fr 1fr 1fr 1fr', <>
+            {input('descricao_diagnostico', '33 - Descrição do diagnóstico', { upper: true })}
+            {input('cid_principal', '34 - CID-10 principal', { upper: true })}
+            {input('cid_secundario', '35 - CID-10 secundário', { upper: true })}
+            {input('cid_causas_associadas', '36 - CID-10 causas associadas', { upper: true })}
+          </>)}
+          <div className="form-group" style={{ marginTop: 12 }}>
+            <label>37 - Histórico / justificativa clínica *</label>
+            <textarea className="form-control-area" rows="5" value={dados.justificativa} onChange={(e) => set('justificativa', e.target.value)} />
+          </div>
+        </>)}
+
+        {secao('ph-stethoscope', 'Solicitação — Campos 38 a 42', grade('2.2fr 1fr 0.9fr 1.4fr 1.2fr', <>
+          {input('profissional_solicitante_nome', '38 - Nome do profissional solicitante', { upper: true })}
+          {input('data_solicitacao', '39 - Data', { type: 'date' })}
+          {docTipo('profissional_documento_tipo', '40 - Documento')}
+          {input('profissional_documento_numero', '41 - Nº documento (CNS/CPF) do solicitante')}
+          {input('profissional_crm', '42 - Registro no conselho (CRM/UF)')}
+        </>))}
+
+        {secao('ph-seal-check', 'Autorização — Campos 43 a 50 (preenchido pela regulação)', <>
+          {grade('2.2fr 1fr 0.9fr 1.4fr', <>
+            {input('autorizador_nome', '43 - Nome do profissional autorizador', { upper: true })}
+            {input('autorizador_codigo_orgao_emissor', '44 - Cód. órgão emissor')}
+            {docTipo('autorizador_documento_tipo', '45 - Documento')}
+            {input('autorizador_documento_numero', '46 - Nº documento do autorizador')}
+          </>)}
+          {grade('1fr 1.6fr 1fr 1fr', <>
+            {input('data_autorizacao', '47 - Data da autorização', { type: 'date' })}
+            {input('numero_autorizacao', '49 - Nº da autorização (APAC)')}
+            {input('validade_inicio', '50 - Validade: início', { type: 'date' })}
+            {input('validade_fim', '50 - Validade: fim', { type: 'date' })}
+          </>, true)}
+          <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '8px 0 0' }}>48 - Assinatura e carimbo do autorizador: no documento impresso.</p>
+        </>)}
+
+        {secao('ph-hospital', 'Identificação do Estabelecimento de Saúde (Executante) — Campos 51 e 52', grade('3fr 1fr', <>
+          {input('executante_nome', '51 - Nome fantasia do estabelecimento', { upper: true })}
+          {input('executante_cnes', '52 - CNES')}
+        </>))}
+
+        {erro && (
+          <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+            <div className="info" style={{ color: '#DC2626' }}><i className="ph ph-warning" /> {erro}</div>
           </div>
         )}
-      </div>
+        {sucesso && (
+          <div className="allergy-alert" style={{ background: '#ECFDF5', borderColor: '#A7F3D0' }}>
+            <div className="info" style={{ color: '#065F46' }}><i className="ph ph-check-circle" /> {sucesso}</div>
+          </div>
+        )}
+
+        <div>
+          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico de APAC</div>
+          {carregando ? <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p> : historico.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma APAC registrada ainda.</p>
+          ) : historico.map((a) => (
+            <div key={a.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5, display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+              <div>
+                <div style={{ fontWeight: 600 }}>{a.procedimento_codigo ? `${a.procedimento_codigo} — ` : ''}{a.procedimento_nome}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{new Date(a.criado_em).toLocaleString('pt-BR')}{a.numero_autorizacao ? ` · APAC nº ${a.numero_autorizacao}` : ''}</div>
+              </div>
+              <button type="button" className="btn-save-draft" onClick={() => onImprimir?.(a)}><i className="ph ph-printer" /> Imprimir</button>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="cc-footer">
-        <div>
-          <button type="button" className="btn-cancel" onClick={onFechar}>
-            <i className="ph ph-x-circle" /> Cancelar
-          </button>
-        </div>
+        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> {rotuloFechar}</button>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
-          </button>
-          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
-            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
-          </button>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
         </div>
       </div>
     </div>
