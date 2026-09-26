@@ -1178,7 +1178,7 @@
   .atendimento-medico-container .workspace { overflow-y: auto; overflow-x: hidden; }
   .atendimento-medico-container .clinical-split { flex-direction: column; overflow: visible; flex: 0 0 auto; }
   .atendimento-medico-container .tools-pane { width: 100%; max-height: none; overflow: visible; }
-  .atendimento-medico-container .clinical-card { flex: 0 0 auto; overflow: visible; min-height: 60vh; }
+  .atendimento-medico-container .clinical-card { flex: 0 0 auto; overflow: visible; }
   .atendimento-medico-container .cc-body { overflow: visible; }
   .atendimento-medico-container .workspace > div[style*="flex: 1"],
   .atendimento-medico-container .workspace div[style*="min-height: 0"] { flex: 0 0 auto !important; min-height: auto !important; }

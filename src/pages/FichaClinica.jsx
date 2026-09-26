@@ -4,7 +4,7 @@ const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'));
 import PatientBanner from './ficha-medica/PatientBanner';
 import ResumoPaciente from './ficha-clinica/ResumoPaciente';
 import FichaClinicaHeader from './ficha-clinica/FichaClinicaHeader';
-import FichaClinicaTabs, { ABAS_PRINCIPAIS, ABAS_SECUNDARIAS } from './ficha-clinica/FichaClinicaTabs';
+import FichaClinicaTabs, { ABAS_PRINCIPAIS } from './ficha-clinica/FichaClinicaTabs';
 import FichaClinicaConteudo from './ficha-clinica/FichaClinicaConteudo';
 import './ficha-medica/AtendimentoMedico.css';
 import './PassagemForm.css';
@@ -28,7 +28,7 @@ export default function FichaClinica({ atendimento, onFechar }) {
     );
   }
 
-  const abaAtivaObj = ABAS_PRINCIPAIS.find((a) => a.chave === aba) || ABAS_SECUNDARIAS.find((a) => a.chave === aba);
+  const abaAtivaObj = ABAS_PRINCIPAIS.find((a) => a.chave === aba);
   const rotuloAbaAtual = abaAtivaObj ? abaAtivaObj.rotulo : 'Atendimento de Enfermagem';
 
   return (
