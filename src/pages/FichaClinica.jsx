@@ -2,13 +2,13 @@ import { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../lib/AuthContext';
 const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'));
 import PatientBanner from './ficha-medica/PatientBanner';
-import ResumoPaciente from './ficha-clinica/ResumoPaciente';
 import FichaClinicaHeader from './ficha-clinica/FichaClinicaHeader';
 import FichaClinicaTabs, { ABAS_PRINCIPAIS } from './ficha-clinica/FichaClinicaTabs';
 import FichaClinicaConteudo from './ficha-clinica/FichaClinicaConteudo';
 import './ficha-medica/AtendimentoMedico.css';
 import './PassagemForm.css';
 import './FichaClinica.css';
+import './ficha-clinica/Enfermagem.css';
 
 export default function FichaClinica({ atendimento, onFechar }) {
   const { enfermeiro } = useAuth();
@@ -29,18 +29,18 @@ export default function FichaClinica({ atendimento, onFechar }) {
   }
 
   const abaAtivaObj = ABAS_PRINCIPAIS.find((a) => a.chave === aba);
-  const rotuloAbaAtual = abaAtivaObj ? abaAtivaObj.rotulo : 'Atendimento de Enfermagem';
+  const rotuloAbaAtual = abaAtivaObj ? (abaAtivaObj.titulo || abaAtivaObj.rotulo) : 'Atendimento de Enfermagem';
 
   return (
-    <div className="atendimento-medico-container" onClick={(e) => e.stopPropagation()}>
+    <div className="atendimento-medico-container enf-theme" onClick={(e) => e.stopPropagation()}>
       <FichaClinicaHeader
         onFechar={onFechar}
         rotuloAbaAtual={rotuloAbaAtual}
         enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
+        enfermeiroCoren={enfermeiro?.coren}
       />
       <div className="workspace">
         <PatientBanner atendimento={atendimento} />
-        <ResumoPaciente atendimento={atendimento} />
         <FichaClinicaTabs aba={aba} onSelecionarAba={setAba} />
         <FichaClinicaConteudo
           atendimento={atendimento}

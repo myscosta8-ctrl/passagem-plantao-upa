@@ -1,0 +1,107 @@
+/* ============================================================
+   MÓDULO DE ENFERMAGEM — tema e componentes dos mockups 08–14
+   (mockups-fase2/08-admissao-enfermagem-design.html). Escopo: .enf-theme
+   ============================================================ */
+.enf-theme {
+  --enf-primary: #0D9488;
+  --enf-hover: #0F766E;
+  --enf-light: #F0FDFA;
+  --enf-badge: #CCFBF1;
+  --danger: #DC2626;
+  --danger-light: #FEF2F2;
+  --success: #16A34A;
+  --success-light: #DCFCE7;
+  background: #F1F5F9;
+}
+
+/* Topbar, abas e banner no teal da enfermagem */
+.enf-theme .breadcrumb .current { color: var(--enf-primary); font-weight: 700; }
+.enf-theme .enf-avatar { padding: 4px 10px; border-radius: 20px; background: var(--enf-light); color: var(--enf-primary); border: 1px solid var(--enf-primary); display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 11px; white-space: nowrap; }
+.enf-theme .clinical-tabs .tab-btn { flex: 1; min-width: 140px; justify-content: center; }
+.enf-theme .clinical-tabs .tab-btn.active { color: var(--enf-primary); }
+.enf-theme .patient-banner { border: 1px solid var(--enf-primary); border-left: 6px solid var(--enf-primary); }
+
+/* SPLIT */
+.enf-theme .adm-split { display: flex; gap: 16px; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
+
+/* SIDEBAR "Escalas e Protocolos" */
+.enf-theme .quick-sidebar { width: 270px; min-width: 250px; background: #fff; border: 1px solid #CBD5E1; border-radius: 10px; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,.05); overflow: hidden; }
+.enf-theme .qs-header { padding: 10px 14px; border-bottom: 1px solid #CBD5E1; background: #F8FAFC; font-weight: 700; color: #0F172A; display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; flex-shrink: 0; }
+.enf-theme .qs-header span { display: flex; align-items: center; gap: 8px; }
+.enf-theme .qs-header i { color: var(--enf-primary); font-size: 16px; }
+.enf-theme .qs-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+.enf-theme .scale-card { border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; background: #FAFAFA; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+.enf-theme .scale-title { font-size: 12px; font-weight: 700; color: #0F172A; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.enf-theme .scale-badge { font-size: 10px; padding: 3px 7px; border-radius: 4px; font-weight: 700; white-space: nowrap; }
+.enf-theme .scale-badge.risco-alto { background: var(--danger-light); color: var(--danger); border: 1px solid #FECACA; }
+.enf-theme .scale-badge.risco-medio { background: #FEF08A; color: #854D0E; border: 1px solid #FDE047; }
+.enf-theme .scale-badge.risco-baixo { background: var(--success-light); color: var(--success); border: 1px solid #BBF7D0; }
+.enf-theme .scale-badge.sem-dado { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; }
+.enf-theme .scale-desc { font-size: 11px; color: #334155; line-height: 1.4; margin: 0; }
+.enf-theme .qs-label { font-size: 11.5px; font-weight: 700; color: #0F172A; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.enf-theme .qs-label span { display: flex; align-items: center; gap: 6px; }
+.enf-theme .qs-gerenciar { background: none; border: none; color: var(--enf-primary); font-size: 10.5px; font-weight: 700; cursor: pointer; text-transform: none; padding: 0; }
+.enf-theme .device-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; padding: 8px 10px; background: #fff; border: 1px solid #E2E8F0; border-radius: 6px; }
+.enf-theme .device-item strong { color: #0F172A; font-weight: 600; font-size: 12px; }
+.enf-theme .device-item span.sub { font-size: 10.5px; color: #64748B; }
+.enf-theme .alergia-box { padding: 10px 12px; background: var(--danger-light); border: 1px solid #FECACA; border-radius: 6px; font-size: 12px; color: #991B1B; line-height: 1.4; }
+.enf-theme .qs-vazio { font-size: 11px; color: #94A3B8; }
+
+/* CARD PRINCIPAL */
+.enf-theme .admissao-card { flex: 1; min-width: 0; background: #fff; border: 1px solid #CBD5E1; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.05); display: flex; flex-direction: column; overflow: hidden; }
+.enf-theme .ac-header { padding: 12px 20px; border-bottom: 1px solid #CBD5E1; background: #F8FAFC; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
+.enf-theme .ac-title h2 { font-size: 16px; font-weight: 700; color: #0F172A; display: flex; align-items: center; gap: 8px; margin: 0; }
+.enf-theme .ac-title h2 i { color: var(--enf-primary); font-size: 20px; }
+.enf-theme .ac-title p { font-size: 11.5px; color: #334155; margin: 2px 0 0; }
+.enf-theme .ac-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.enf-theme .btn-toggle-sidebar { background: #fff; border: 1px solid #CBD5E1; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: .2s; white-space: nowrap; }
+.enf-theme .btn-toggle-sidebar:hover { background: #E2E8F0; color: #0F172A; }
+.enf-theme .btn-toggle-sidebar.enf { background: var(--enf-light); color: var(--enf-primary); border-color: var(--enf-primary); }
+
+.enf-theme .adm-subtabs { display: flex; gap: 6px; background: #F1F5F9; padding: 6px 16px; border-bottom: 1px solid #CBD5E1; overflow-x: auto; flex-shrink: 0; }
+.enf-theme .adm-tab { padding: 7px 14px; border: 1px solid transparent; background: transparent; color: #334155; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: .15s; }
+.enf-theme .adm-tab:hover { background: rgba(255,255,255,.8); color: #0F172A; }
+.enf-theme .adm-tab.active { background: #fff; color: var(--enf-primary); border-color: #CBD5E1; box-shadow: 0 1px 2px rgba(0,0,0,.05); font-weight: 700; }
+
+.enf-theme .ac-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; flex: 1; overflow-y: auto; min-height: 0; }
+.enf-theme .adm-section { border: 1px solid #CBD5E1; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.02); flex-shrink: 0; width: 100%; display: flex; flex-direction: column; }
+.enf-theme .adm-section-header { background: #F8FAFC; padding: 12px 18px; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #0F172A; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; transition: .2s; border-radius: 8px 8px 0 0; }
+.enf-theme .adm-section-header:hover { background: var(--enf-light); color: var(--enf-hover); }
+.enf-theme .sh-left { display: flex; align-items: center; gap: 8px; }
+.enf-theme .sh-left i { color: var(--enf-primary); font-size: 16px; }
+.enf-theme .sh-right { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #64748B; font-weight: 600; }
+.enf-theme .sh-right i { transition: transform .2s ease; font-size: 15px; color: var(--enf-primary); }
+.enf-theme .adm-section.collapsed .adm-section-header { border-bottom: none; border-radius: 8px; }
+.enf-theme .adm-section.collapsed .sh-right i { transform: rotate(-90deg); }
+.enf-theme .adm-section-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; background: #fff; border-radius: 0 0 8px 8px; }
+
+.enf-theme .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.enf-theme .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.enf-theme .enf-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.enf-theme .enf-group > label, .enf-theme .enf-label { font-size: 12px; font-weight: 600; color: #0F172A; display: flex; align-items: center; gap: 6px; text-transform: none; }
+.enf-theme .enf-label.forte { font-weight: 700; margin-bottom: 8px; }
+.enf-theme .enf-group > label i, .enf-theme .enf-label i { color: var(--enf-primary); font-size: 14px; }
+.enf-theme .enf-control { width: 100%; min-height: 38px; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 13px; background: #FAFAFA; color: #0F172A; outline: none; transition: .2s; box-sizing: border-box; font-family: inherit; }
+.enf-theme .enf-control:focus { background: #fff; border-color: var(--enf-primary); box-shadow: 0 0 0 3px var(--enf-light); }
+.enf-theme select.enf-control { cursor: pointer; height: 38px; }
+.enf-theme textarea.enf-control { min-height: 64px; line-height: 1.45; resize: vertical; padding: 10px 12px; }
+
+.enf-theme .check-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.enf-theme .check-item { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 12.5px; color: #0F172A; cursor: pointer; user-select: none; transition: .15s; text-transform: none; font-weight: 500; }
+.enf-theme .check-item:hover { background: var(--enf-light); border-color: var(--enf-primary); }
+.enf-theme .check-item input { width: 16px; height: 16px; accent-color: var(--enf-primary); cursor: pointer; margin: 0; }
+.enf-theme .check-item.active { background: var(--enf-light); border-color: var(--enf-primary); font-weight: 600; color: var(--enf-hover); }
+.enf-theme .check-item.alerta { border-color: #FCA5A5; background: #FEF2F2; }
+.enf-theme .check-item.alerta strong { color: #991B1B; }
+.enf-theme .condicional-box { background: var(--enf-light); border: 1px solid var(--enf-badge); padding: 12px 14px; border-radius: 6px; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.enf-theme .condicional-box label { font-size: 12px; font-weight: 700; color: var(--enf-hover); display: flex; align-items: center; gap: 6px; }
+.enf-theme .adm-nav { display: flex; justify-content: space-between; padding-top: 6px; gap: 8px; }
+
+.enf-theme .ac-footer { padding: 12px 20px; background: #F8FAFC; border-top: 1px solid #CBD5E1; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+@media (max-width: 960px) {
+  .enf-theme .adm-split { flex-direction: column; overflow: visible; flex: 0 0 auto; }
+  .enf-theme .quick-sidebar { width: 100%; min-width: 0; }
+  .enf-theme .admissao-card { overflow: visible; }
+  .enf-theme .ac-body { overflow: visible; padding: 14px; }
+}

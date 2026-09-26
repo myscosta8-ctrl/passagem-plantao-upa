@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function FichaClinicaHeader({ onFechar, rotuloAbaAtual, enfermeiroNome }) {
+export default function FichaClinicaHeader({ onFechar, rotuloAbaAtual, enfermeiroNome, enfermeiroCoren }) {
   const [relogio, setRelogio] = useState('');
 
   useEffect(() => {
@@ -17,23 +17,22 @@ export default function FichaClinicaHeader({ onFechar, rotuloAbaAtual, enfermeir
     <header className="topbar">
       <div className="topbar-left">
         <button type="button" className="btn-voltar" onClick={onFechar}>
-          ← Painel de Leitos
+          <i className="ph ph-arrow-left" /> Painel de Leitos
         </button>
         <div className="breadcrumb">
-          <span>Prontuário Eletrônico</span>
-          <span>&gt;</span>
-          <span>Atendimento de Enfermagem</span>
-          <span>&gt;</span>
+          <i className="ph ph-caret-right" />
+          <span>Módulo de Enfermagem</span>
+          <i className="ph ph-caret-right" />
           <span className="current">{rotuloAbaAtual}</span>
         </div>
       </div>
       <div className="topbar-right">
-        <div className="sys-time">
-          <i className="ph ph-clock" /> {relogio}
-        </div>
-        <div className="top-avatar">
-          {enfermeiroNome?.slice(0, 2)?.toUpperCase() || 'EN'}
-        </div>
+        <div className="sys-time"><i className="ph ph-clock" /> {relogio}</div>
+        {enfermeiroNome && (
+          <div className="enf-avatar">
+            <i className="ph ph-stethoscope" /> Enf. {enfermeiroNome}{enfermeiroCoren ? ` (COREN/PA ${enfermeiroCoren})` : ''}
+          </div>
+        )}
       </div>
     </header>
   );

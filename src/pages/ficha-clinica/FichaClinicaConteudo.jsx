@@ -1,10 +1,7 @@
 import AbaHistoricoEnfermagem from '../AbaHistoricoEnfermagem';
 import AbaSinaisVitais from './AbaSinaisVitais';
 import AbaEvolucao from './AbaEvolucao';
-import AbaDispositivos from './AbaDispositivos';
 import AbaBalancoHidrico from './AbaBalancoHidrico';
-import AbaEscalas from './AbaEscalas';
-import AbaAlergias from './AbaAlergias';
 import AbaIsolamento from './AbaIsolamento';
 import AbaSbar from './AbaSbar';
 import AbaEventosAdversos from './AbaEventosAdversos';
@@ -16,29 +13,17 @@ import PainelSubAbas from './PainelSubAbas';
 export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImprimir, onFechar }) {
   const comum = { atendimento, autorId, onFechar };
 
+  // Admissão (mockup 08): alergias, dispositivos e escalas ficam no painel lateral da própria tela.
   if (['admissaoEnfermagem', 'dispositivos', 'escalas', 'alergias'].includes(aba)) {
     return (
-      <PainelSubAbas
-        key={aba}
-        titulo="Admissão de Enfermagem"
-        icon="ph-notepad"
-        docInicial={aba}
-        docs={[
-          { chave: 'admissaoEnfermagem', rotulo: 'Admissão (SAE)', icon: 'ph-notepad', render: () => (
-            <AbaHistoricoEnfermagem
-              atendimento={atendimento}
-              medicoId={autorId}
-              onImprimir={(registro) => onImprimir({
-                tipo: registro._variante === 'projeto' ? 'historico_enfermagem_projeto' : 'historico_enfermagem_fiel',
-                registro,
-              })}
-              onFechar={onFechar}
-            />
-          ) },
-          { chave: 'alergias', rotulo: 'Alergias', icon: 'ph-warning-octagon', envolver: true, render: () => <AbaAlergias {...comum} /> },
-          { chave: 'dispositivos', rotulo: 'Dispositivos Invasivos', icon: 'ph-plugs', envolver: true, render: () => <AbaDispositivos {...comum} /> },
-          { chave: 'escalas', rotulo: 'Escalas de Risco', icon: 'ph-chart-bar', envolver: true, render: () => <AbaEscalas {...comum} /> },
-        ]}
+      <AbaHistoricoEnfermagem
+        atendimento={atendimento}
+        medicoId={autorId}
+        onImprimir={(registro) => onImprimir({
+          tipo: registro._variante === 'projeto' ? 'historico_enfermagem_projeto' : 'historico_enfermagem_fiel',
+          registro,
+        })}
+        onFechar={onFechar}
       />
     );
   }
