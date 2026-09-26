@@ -173,7 +173,7 @@ export default function Home() {
   async function buscarOuAbrirPlantao(hoje, turno) {
     const { data: existente } = await supabase
       .from('plantoes')
-      .select('id, data, turno, status, created_at')
+      .select('id, data, turno, status, created_at, enfermeiro_chefe_id')
       .eq('data', hoje)
       .eq('turno', turno)
       .maybeSingle()
@@ -202,7 +202,7 @@ export default function Home() {
 
     const { data: abertos } = await supabase
       .from('plantao_profissionais')
-      .select('plantoes!inner(id, data, turno, status, created_at)')
+      .select('plantoes!inner(id, data, turno, status, created_at, enfermeiro_chefe_id)')
       .eq('profissional_id', enfermeiro.id)
       .eq('encerrado', false)
       .order('created_at', { foreignTable: 'plantoes', ascending: false })
