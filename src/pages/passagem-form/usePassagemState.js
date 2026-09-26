@@ -192,15 +192,8 @@ export function usePassagemState({ paciente, leito, setorNome, plantaoId, enferm
 
     let error
     if (pepAtivo) {
-      const statusFinal = statusTravado ? 'Internado' : identificacao.status_internacao
-      const { error: erroId } = await salvarIdentificacaoPep({
-        atendimentoId: paciente.id,
-        pessoaId: paciente.pessoa_id,
-        identificacao: { ...identificacao, status_internacao: statusFinal },
-      })
-      if (erroId) {
-        error = erroId
-      } else {
+      // Identificação não é mais editada aqui (fica só no Cadastro de Pacientes).
+      {
         const payload = {
           plantao_id: plantaoId,
           atendimento_id: paciente.id,
@@ -214,26 +207,7 @@ export function usePassagemState({ paciente, leito, setorNome, plantaoId, enferm
         error = resultado.error
       }
     } else {
-      const statusInternacaoNovo = statusTravado ? 'Internado' : identificacao.status_internacao
-      const saiuDeObservacao = paciente.status_internacao === 'Em observação' && statusInternacaoNovo !== 'Em observação'
-
-      await supabase
-        .from('pacientes')
-        .update({
-          nome: identificacao.nome,
-          diagnostico: identificacao.diagnostico,
-          idade: identificacao.idade || null,
-          sexo: identificacao.sexo || null,
-          data_admissao: identificacao.data_admissao || null,
-          alergias: identificacao.alergias,
-          alergias_obs: identificacao.alergias_obs,
-          status_internacao: statusInternacaoNovo,
-          ...(saiuDeObservacao ? { data_conduta_definida: new Date().toISOString() } : {}),
-          updated_at: new Date().toISOString(),
-          ultima_alteracao_por: enfermeiroId,
-          ultima_alteracao_em: new Date().toISOString(),
-        })
-        .eq('id', paciente.id)
+      // Identificação não é mais editada aqui (fica só no Cadastro de Pacientes).
 
       const payload = {
         plantao_id: plantaoId,

@@ -4,7 +4,6 @@ import './ficha-medica/AtendimentoMedico.css'
 
 import {
   usePassagemState,
-  SecaoIdentificacao,
   SecaoAssistencia,
   SecaoTransferencia,
   SecaoResumoProntuario,
@@ -63,11 +62,6 @@ export default function PassagemForm({ paciente, leito, setorNome, plantaoId, en
         </div>
 
         <div className="cc-body">
-          <SecaoIdentificacao
-            identificacao={identificacao}
-            setId={setId}
-            statusTravado={statusTravado}
-          />
 
           <SecaoAssistencia
             passagem={passagem}
