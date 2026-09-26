@@ -52,7 +52,7 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
         <div className="med-secao">
           <div className="med-secao-header">2. Motivo da Permanência / Internação (Causa-base que justifica a observação)</div>
           <div className="med-secao-body" style={{ minHeight: '14mm', whiteSpace: 'pre-wrap' }}>
-            {registro.motivo_internacao || 'Paciente em observação clínica e estabilização na unidade.'}
+            {registro.motivo_internacao || ''}
           </div>
         </div>
 
@@ -69,16 +69,7 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
                 ))}
               </div>
             ) : (
-              <div className="metas-lista">
-                <div className="metas-item">
-                  <span>&bull; Estabilização hemodinâmica e monitorização de parâmetros vitais</span>
-                  <b>CONTÍNUO</b>
-                </div>
-                <div className="metas-item">
-                  <span>&bull; Rastreio propedêutico e resposta clínica às condutas instituídas</span>
-                  <b>24 HORAS</b>
-                </div>
-              </div>
+              <div className="metas-lista" style={{ minHeight: 40 }} />
             )}
           </div>
         </div>

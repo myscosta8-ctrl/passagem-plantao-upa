@@ -32,7 +32,7 @@ export default function CorpoConsultaOficial({ registro, pessoa, atendimento, id
         <div className="cons-secao">
           <div className="cons-secao-header">2. Antecedentes Pessoais, Comorbidades e Alergias</div>
           <div className="cons-secao-body" style={{ minHeight: '18mm', whiteSpace: 'pre-wrap' }}>
-            {registro.antecedentes || cf.antecedentes || 'Nega comorbidades prévias ou alergias medicamentosas conhecidas.'}
+            {registro.antecedentes || cf.antecedentes || ''}
           </div>
         </div>
 
@@ -49,21 +49,21 @@ export default function CorpoConsultaOficial({ registro, pessoa, atendimento, id
                 <div><b>HGT/Dor:</b> {sv.hgt ? `${sv.hgt} mg/dL` : (sv.dor ? `Dor ${sv.dor}/10` : '—')}</div>
               </div>
             )}
-            {cf.exame_geral || registro.exame_geral || 'Bom estado geral, consciente, orientado em tempo e espaço, corado, hidratado, anictérico, acianótico e afebril. Aparelho cardiovascular: RCR em 2 tempos com bulhas normofonéticas sem sopros. Aparelho respiratório: Murmúrio vesicular preservado bilateralmente, sem ruídos adventícios. Abdome: Plano, flácido, indolor à palpação, ruídos hidroaéreos presentes. Extremidades: Aquecidas, boa perfusão periférica, sem edemas.'}
+            {cf.exame_geral || registro.exame_geral || ''}
           </div>
         </div>
 
         <div className="cons-secao">
           <div className="cons-secao-header">4. Hipóteses Diagnósticas</div>
           <div className="cons-secao-body" style={{ minHeight: '16mm', whiteSpace: 'pre-wrap' }}>
-            {registro.hipotese_diagnostica || 'A esclarecer durante a permanência / observação clínica na UPA.'}
+            {registro.hipotese_diagnostica || ''}
           </div>
         </div>
 
         <div className="cons-secao cons-secao-expansivel">
           <div className="cons-secao-header">5. Conduta Inicial na Admissão</div>
           <div className="cons-secao-body" style={{ minHeight: '22mm', whiteSpace: 'pre-wrap' }}>
-            {registro.conduta_inicial || registro.plano_terapeutico || cf.conduta || '1. Admissão em leito de observação clínica na UPA 24h Breves.\n2. Prescrição de medidas de suporte, sintomáticos e hidratação.\n3. Solicitação de exames laboratoriais e complementares conforme protocolo institucional.\n4. Reavaliação clínica seriada e monitorização contínua de sinais vitais.'}
+            {registro.conduta_inicial || registro.plano_terapeutico || cf.conduta || ''}
           </div>
         </div>
       </div>

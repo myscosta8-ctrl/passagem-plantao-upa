@@ -22,7 +22,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
         />
 
         <div className="pr-secao-titulo">Dieta</div>
-        <div className="pr-caixa">{cf.dieta || '1 — Dieta oral branda hipossódica / fracionada.'}</div>
+        <div className="pr-caixa">{cf.dieta || ''}</div>
 
         <div className="pr-secao-titulo">Medicamentos</div>
         <table className="pr-tabela pr-tabela-salutem">
@@ -60,7 +60,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
         <div className="pr-secao-titulo">Orientação enfermagem</div>
         <div className="pr-caixa">
           {orientacoes.length === 0
-            ? '1 — Monitorização de sinais vitais de 2/2 horas • 2 — Manter cabeceira elevada a 30°-45° e precaução padrão.'
+            ? ''
             : orientacoes.map((o, i) => `${i + 1} — ${o.texto}${o.frequencia ? ` (${o.frequencia})` : ''}`).join(' • ')
           }
         </div>

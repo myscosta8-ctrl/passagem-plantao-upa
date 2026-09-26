@@ -191,7 +191,7 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
                 <b>Alergia:</b> {registro.alergia ? `Sim (${registro.alergia_quais || 'Não especificadas'})` : 'Nega alergias conhecidas'}
               </div>
               {v2 && (
-                <div><b>Antecedentes:</b> {listaV2(ic.antecedentes) || 'Nega'}</div>
+                <div><b>Antecedentes:</b> {listaV2(ic.antecedentes) || '—'}</div>
               )}
               {!v2 && INFO_COMPLEMENTARES_CAMPOS.map((c) => {
                 const v = ic[c.key] || {}

@@ -27,9 +27,9 @@ export default function CorpoRegulacaoOficial({ registro, pessoa, atendimento, i
       <div className="doc-corpo">
         {/* Bloco de Identificação da Regulação */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '4px', background: '#f8fafc', padding: '5px 8px', border: '1px solid #cbd5e1', borderRadius: '4px', marginTop: '3mm', marginBottom: '2mm', fontSize: '9px' }}>
-          <div><b>Nº SOLICITAÇÃO NO SER:</b> <span style={{ color: '#0284c7', fontWeight: 700 }}>{registro.numero_solicitacao_ser || 'Em processamento'}</span></div>
+          <div><b>Nº SOLICITAÇÃO NO SER:</b> <span style={{ color: '#0284c7', fontWeight: 700 }}>{registro.numero_solicitacao_ser || ''}</span></div>
           <div><b>DATA DO CADASTRO:</b> {dataCadastro}</div>
-          <div style={{ gridColumn: '1 / -1' }}><b>DIAGNÓSTICO REGULADO:</b> {registro.diagnostico_regulado || 'Aguardando parecer/definição'}</div>
+          <div style={{ gridColumn: '1 / -1' }}><b>DIAGNÓSTICO REGULADO:</b> {registro.diagnostico_regulado || ''}</div>
           <div style={{ gridColumn: '1 / -1' }}>
             <b>MUDANÇA DE DIAGNÓSTICO?</b> SIM (<SerCheck marcado={registro.mudanca_diagnostico} />) NÃO (<SerCheck marcado={!registro.mudanca_diagnostico} />)
             {registro.mudanca_diagnostico && <span> &nbsp;&nbsp;<b>NOVO DIAGNÓSTICO:</b> {registro.novo_diagnostico_cid || ''}</span>}
@@ -47,15 +47,15 @@ export default function CorpoRegulacaoOficial({ registro, pessoa, atendimento, i
 
         <div className="serf-secao">
           <div className="serf-secao-titulo">1 – EVOLUÇÃO CLÍNICA DIÁRIA / SITUAÇÃO ATUAL</div>
-          <div className="serf-secao-corpo">{registro.evolucao || 'Sem alterações registradas no período.'}</div>
+          <div className="serf-secao-corpo">{registro.evolucao || ''}</div>
         </div>
         <div className="serf-secao">
           <div className="serf-secao-titulo">2 – PENDÊNCIAS / LAUDOS / EXAMES AGUARDADOS</div>
-          <div className="serf-secao-corpo">{registro.pendencias || 'Nenhuma pendência diagnóstica relatada.'}</div>
+          <div className="serf-secao-corpo">{registro.pendencias || ''}</div>
         </div>
         <div className="serf-secao">
           <div className="serf-secao-titulo">3 – CONDUTA MÉDICA / PLANO TERAPÊUTICO</div>
-          <div className="serf-secao-corpo">{registro.conduta || 'Mantida conduta prévia e suporte clínico.'}</div>
+          <div className="serf-secao-corpo">{registro.conduta || ''}</div>
         </div>
       </div>
 

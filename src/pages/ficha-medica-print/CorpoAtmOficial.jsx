@@ -40,7 +40,7 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
         <div className="med-secao">
           <div className="med-secao-header">2. Justificativa Clínica para o Uso de Antimicrobiano Restrito</div>
           <div className="med-secao-body">
-            {registro.justificativa_clinica || cf.justificativa || 'Paciente com infecção grave/refratária necessitando de escalonamento terapêutico conforme protocolo institucional da CCIH.'}
+            {registro.justificativa_clinica || cf.justificativa || ''}
           </div>
         </div>
 
@@ -48,13 +48,13 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
           <div className="med-secao-header">3. Tratamento Antimicrobiano Proposto</div>
           <div className="med-secao-body">
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-              <div><b>TRATAMENTO PRETENDIDO:</b> {cf.tratamento_pretendido || 'Terapêutica antimicrobiana escalonada'}</div>
+              <div><b>TRATAMENTO PRETENDIDO:</b> {cf.tratamento_pretendido || ''}</div>
               <div><b>VIA:</b> <span style={{ color: '#0369a1', fontWeight: 700 }}>{cf.via || registro.via || '—'}</span></div>
             </div>
             <div style={{ fontSize: 10, marginBottom: 2 }}>
               <b>MEDICAMENTO SOLICITADO:</b> <span style={{ fontWeight: 700, color: '#b91c1c', fontSize: '10.5px' }}>{registro.medicamento || '—'}</span>
             </div>
-            <div><b>POSOLOGIA / INFUSÃO:</b> {registro.posologia || 'Conforme prescrição médica e protocolo de infusão da CCIH.'}</div>
+            <div><b>POSOLOGIA / INFUSÃO:</b> {registro.posologia || ''}</div>
 
             <div className="grid-tratamento">
               <div><b>DOSE:</b> {registro.dose || '—'}</div>
@@ -94,7 +94,7 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
                 <div>[ {cf.parecer_estoque === 'indisponivel' ? 'X' : ' '} ] Não há disponível em estoque quantidade que contemple o tratamento proposto.</div>
               </div>
               <div style={{ marginTop: 3, borderTop: '1px dashed #cbd5e1', paddingTop: 2 }}>
-                <b>OBSERVAÇÕES:</b> {cf.parecer_obs || 'Dispensação avaliada e registrada conforme rotina institucional.'}
+                <b>OBSERVAÇÕES:</b> {cf.parecer_obs || ''}
               </div>
             </div>
           </div>

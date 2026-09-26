@@ -199,31 +199,13 @@ const APAC_VAZIA = {
 export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar, abrirApacCompleto = false }) {
   const [apacCompleto, setApacCompleto] = useState(abrirApacCompleto);
   const [modalidade, setModalidade] = useState('lab'); // 'lab' | 'img' | 'ecg' | 'apac'
-  const [labSelecionados, setLabSelecionados] = useState(() => {
-    const init = {};
-    EXAMES_LAB_CATALOGO.forEach(g => g.itens.forEach(it => { if (it.padrao) init[it.nome] = true; }));
-    return init;
-  });
-  const [imgSelecionados, setImgSelecionados] = useState(() => {
-    const init = {};
-    EXAMES_IMG_CATALOGO.forEach(g => g.itens.forEach(it => { if (it.padrao) init[it.nome] = true; }));
-    return init;
-  });
-  const [ecgSelecionados, setEcgSelecionados] = useState(() => {
-    const init = {};
-    EXAMES_ECG_CATALOGO.forEach(g => g.itens.forEach(it => { if (it.padrao) init[it.nome] = true; }));
-    return init;
-  });
+  const [labSelecionados, setLabSelecionados] = useState({});
+  const [imgSelecionados, setImgSelecionados] = useState({});
+  const [ecgSelecionados, setEcgSelecionados] = useState({});
 
-  const [labJustificativa, setLabJustificativa] = useState(
-    'Paciente admitido na Sala Amarela em vigilância clínica intensiva com dor abdominal em flancos, oligúria e instabilidade metabólica. Suspeita clínica de Insuficiência Renal Aguda (CID N17.9) com distúrbio hidroeletrolítico e ácido-básico. Exames solicitados em caráter de URGÊNCIA para definição de conduta imediata.'
-  );
-  const [imgJustificativa, setImgJustificativa] = useState(
-    'Paciente admitido com quadro agudo de dor abdominal difusa com defesa e parada de eliminação de gases, associado a oligúria e instabilidade. Exames solicitados em caráter de URGÊNCIA para descartar pneumoperitônio, níveis hidroaéreos patológicos e repercussão cardiorrespiratória via Radiografia de Tórax e Rotina de Abdome Agudo.'
-  );
-  const [ecgJustificativa, setEcgJustificativa] = useState(
-    'Paciente admitido na Sala Amarela em vigilância clínica intensiva com dor torácica/abdominal e instabilidade metabólica. Exame solicitado com caráter de URGÊNCIA para rastreio de alterações na repolarização ventricular, sobrecarga de câmaras e arritmias secundárias a desequilíbrio eletrolítico.'
-  );
+  const [labJustificativa, setLabJustificativa] = useState('');
+  const [imgJustificativa, setImgJustificativa] = useState('');
+  const [ecgJustificativa, setEcgJustificativa] = useState('');
   const [radioprotecao, setRadioprotecao] = useState('');
   const [orientacoesEcg, setOrientacoesEcg] = useState('');
 

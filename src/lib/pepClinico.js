@@ -7,7 +7,7 @@ import { supabase } from './supabaseClient.js'
 export async function buscarAdmissao(atendimentoId) {
   const { data } = await supabase
     .from('admissoes_enfermagem')
-    .select('*, enfermeiros(nome_exibicao, nome)')
+    .select('*, enfermeiros!admissoes_enfermagem_autor_id_fkey(nome_exibicao, nome)')
     .eq('atendimento_id', atendimentoId)
     .maybeSingle()
   return data
@@ -296,7 +296,7 @@ export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestino
       enfermeiro_entrega: enfermeiroEntrega, enfermeiro_recebe: enfermeiroRecebe || null,
       ...dados,
     })
-    .select()
+    .select('*, setores:setor_destino_id(nome), entrega:enfermeiro_entrega(nome_exibicao, nome, coren), recebe:enfermeiro_recebe(nome_exibicao, nome)')
     .single()
 }
 

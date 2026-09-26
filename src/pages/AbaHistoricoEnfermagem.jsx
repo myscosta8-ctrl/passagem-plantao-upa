@@ -41,6 +41,29 @@ const VAZIO = {
   intervencoes: [], observacoes: '',
 }
 
+// Converte o registro salvo em historico_enfermagem de volta para o estado do formulário
+// (inverso do que salvar() grava).
+function deBanco(h) {
+  const ic = h.info_complementares || {}
+  const ex = h.exame_fisico && h.exame_fisico.v === 2 ? h.exame_fisico : {}
+  const meds = Array.isArray(h.medicamentos_uso) && h.medicamentos_uso.length ? h.medicamentos_uso.map((m) => ({ ...MEDICAMENTO_USO_VAZIO, ...m })) : [{ ...MEDICAMENTO_USO_VAZIO }]
+  return {
+    ...VAZIO,
+    procedencia: ic.procedencia || h.procedencia || '',
+    acompanhante: ic.acompanhante || '',
+    meio_chegada: ic.meio_chegada || '',
+    motivo: h.motivo_hospitalizacao || '',
+    antecedentes: Array.isArray(ic.antecedentes) ? ic.antecedentes : [],
+    antecedentes_outros: ic.antecedentes_outros || h.outros_info || '',
+    alergia: !!h.alergia,
+    alergia_quais: h.alergia_quais || '',
+    medicamentos_uso: meds,
+    exame: { ...EXAME_VAZIO, ...ex },
+    intervencoes: Array.isArray(ic.intervencoes) ? ic.intervencoes : [],
+    observacoes: h.parecer_obs || '',
+  }
+}
+
 function Checks({ opcoes, valor, onChange, icones = {} }) {
   const sel = valor || []
   const toggle = (op) => onChange(sel.includes(op) ? sel.filter((x) => x !== op) : [...sel, op])

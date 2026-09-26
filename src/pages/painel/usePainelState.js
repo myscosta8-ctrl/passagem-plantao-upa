@@ -117,7 +117,7 @@ export function usePainelState() {
     if (ids.length > 0) {
       const { data: passagens } = await supabase
         .from('passagens')
-        .select('*, enfermeiros(nome_exibicao, nome)')
+        .select('*, enfermeiros!passagens_criado_por_fkey(nome_exibicao, nome)')
         .in('paciente_id', ids)
         .order('criado_em', { ascending: false })
       const ultimaPorPaciente = {}

@@ -62,17 +62,17 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
             <CampoSus cap="6 - DATA DE NASCIMENTO" val={`${pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''}${idade ? ` (${idade} anos)` : ''}`} w={1.2} />
             <div className="sus-field" style={{ flexGrow: 1.2, flexBasis: 0 }}>
               <span className="cap">7 - SEXO</span>
-              <span className="val">{pessoa.sexo === 'M' ? '( X ) MASCULINO  ( ) FEMININO' : '( ) MASCULINO  ( X ) FEMININO'}</span>
+              <span className="val">{pessoa.sexo === 'M' ? '( X ) MASCULINO  ( ) FEMININO' : pessoa.sexo === 'F' ? '( ) MASCULINO  ( X ) FEMININO' : '( ) MASCULINO  ( ) FEMININO'}</span>
             </div>
             <CampoSus cap="8 - NOME DA MÃE OU RESPONSÁVEL" val={pessoa.nome_mae} w={2.2} />
-            <CampoSus cap="9 - TELEFONE DE CONTATO" val={pessoa.telefone || '(91) 98455-1234'} w={1.4} />
+            <CampoSus cap="9 - TELEFONE DE CONTATO" val={pessoa.telefone || ''} w={1.4} />
           </div>
           <div className="sus-grid" style={{ borderTop: '1px solid #777' }}>
-            <CampoSus cap="10 - ENDEREÇO (RUA, Nº, BAIRRO)" val={enderecoCompleto || 'RUA TAJAPURU, Nº 145 — CENTRO'} w={2.5} />
-            <CampoSus cap="11 - MUNICÍPIO DE RESIDÊNCIA" val={pessoa.cidade || 'BREVES'} w={1.2} />
-            <CampoComb cap="12 - CÓD. IBGE MUNICÍPIO" val={cf.ibge_municipio || '1501808'} digitos={7} w={1.1} />
+            <CampoSus cap="10 - ENDEREÇO (RUA, Nº, BAIRRO)" val={enderecoCompleto || ''} w={2.5} />
+            <CampoSus cap="11 - MUNICÍPIO DE RESIDÊNCIA" val={pessoa.cidade || ''} w={1.2} />
+            <CampoComb cap="12 - CÓD. IBGE MUNICÍPIO" val={cf.ibge_municipio || ''} digitos={7} w={1.1} />
             <CampoSus cap="13 - UF" val={pessoa.uf || 'PA'} w={0.4} />
-            <CampoComb cap="14 - CEP" val={pessoa.cep || '68800000'} digitos={8} w={1.2} />
+            <CampoComb cap="14 - CEP" val={pessoa.cep || ''} digitos={8} w={1.2} />
           </div>
         </div>
 

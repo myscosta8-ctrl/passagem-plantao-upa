@@ -154,7 +154,7 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir, on
     if (imprimir) {
       const l24 = lista.filter((h) => new Date(h.registrado_em).getTime() >= Date.now() - 24 * 3600 * 1000);
       const te = soma(l24.filter((h) => h.tipo === 'entrada')); const ts = soma(l24.filter((h) => h.tipo === 'saida'));
-      onImprimir({ historico: l24, totalEntradas: te, totalSaidas: ts, saldo: te - ts });
+      onImprimir({ historico: l24, totalEntradas: te, totalSaidas: ts, saldo: te - ts, registrado_por: autorId });
     }
   }
 
@@ -177,7 +177,7 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir, on
           </div>
         </div>
         <div>
-          <button type="button" className="btn-toggle-sidebar" onClick={() => onImprimir({ historico: ult24, totalEntradas, totalSaidas, saldo })}>
+          <button type="button" className="btn-toggle-sidebar" onClick={() => onImprimir({ historico: ult24, totalEntradas, totalSaidas, saldo, registrado_por: autorId })}>
             <i className="ph ph-printer" /> Visualizar Impresso Oficial 24h
           </button>
         </div>

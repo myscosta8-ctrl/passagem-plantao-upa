@@ -107,10 +107,11 @@ export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consu
   if (error) return { error }
 
   const itensPayload = itens.map((it) => ({ ...it, prescricao_id: prescricao.id }))
-  const { error: erroItens } = await supabase.from('prescricao_itens').insert(itensPayload)
+  const { data: itensSalvos, error: erroItens } = await supabase.from('prescricao_itens').insert(itensPayload).select()
   if (erroItens) return { error: erroItens }
 
-  return { data: prescricao }
+  // Devolve já com os itens (o impresso lê prescricao_itens).
+  return { data: { ...prescricao, prescricao_itens: itensSalvos ?? [] } }
 }
 
 export async function cancelarPrescricao(prescricaoId, medicoId, motivo) {
@@ -271,7 +272,7 @@ export async function marcarTransfundido(id, transfundidoEm) {
 export async function buscarPlanoTerapeutico(atendimentoId) {
   const { data } = await supabase
     .from('planos_terapeuticos')
-    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .select('*, enfermeiros!planos_terapeuticos_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .maybeSingle()
   return data
@@ -290,7 +291,7 @@ export async function salvarPlanoTerapeutico({ atendimentoId, criadoPor, dados }
 export async function buscarSumarioAlta(atendimentoId) {
   const { data } = await supabase
     .from('sumarios_alta')
-    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .select('*, enfermeiros!sumarios_alta_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .maybeSingle()
   return data
@@ -362,7 +363,7 @@ export async function criarTfd({ atendimentoId, profissionalResponsavel, dados }
 export async function listarEvolucoesMedicas(atendimentoId) {
   const { data } = await supabase
     .from('evolucoes_medicas')
-    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .select('*, enfermeiros!evolucoes_medicas_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
   return data ?? []
@@ -377,7 +378,7 @@ export async function criarEvolucaoMedica({ atendimentoId, criadoPor, dados }) {
 export async function buscarHistoricoEnfermagem(atendimentoId) {
   const { data } = await supabase
     .from('historico_enfermagem')
-    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .select('*, enfermeiros!historico_enfermagem_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .maybeSingle()
   return data
@@ -396,7 +397,7 @@ export async function salvarHistoricoEnfermagem({ atendimentoId, criadoPor, dado
 export async function listarNotasIntercorrenciaMedica(atendimentoId) {
   const { data } = await supabase
     .from('notas_intercorrencia_medica')
-    .select('*, enfermeiros(nome_exibicao, nome, crm)')
+    .select('*, enfermeiros!notas_intercorrencia_medica_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
   return data ?? []
@@ -513,4 +514,15 @@ export async function registrarMedicacaoContinua({ pessoaId, medicamento, dose, 
 
 export async function suspenderMedicacaoContinua(id) {
   return supabase.from('medicacoes_continuas').update({ status: 'suspenso' }).eq('id', id)
+}
+
+// Profissional autor de um registro (quando o registro recém-salvo não veio
+// com o join de enfermeiros): procura pela coluna de autoria da tabela.
+const COLUNAS_AUTOR = ['autor_id', 'criado_por', 'enfermeiro_entrega', 'transferido_por', 'solicitado_por', 'solicitante_id', 'medico_id', 'relator_id', 'registrado_por', 'enfermeiro_id', 'profissional_responsavel', 'atualizado_por']
+export async function buscarAutorRegistro(registro) {
+  if (!registro) return null
+  const id = COLUNAS_AUTOR.map((c) => registro[c]).find((v) => typeof v === 'string' && v.length > 20)
+  if (!id) return null
+  const { data } = await supabase.from('enfermeiros').select('nome_exibicao, nome, crm, coren').eq('id', id).maybeSingle()
+  return data
 }

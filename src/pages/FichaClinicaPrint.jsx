@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { buscarCabecalhoImpressao } from '../lib/pepMedico'
+import { buscarCabecalhoImpressao, buscarAutorRegistro } from '../lib/pepMedico'
 import { CorpoHistoricoEnfermagemFiel, CorpoHistoricoEnfermagemProjeto } from './CorpoHistoricoEnfermagem'
 import './PrintView.css'
 
@@ -19,15 +19,19 @@ export {
 
 export default function FichaClinicaPrint({ atendimentoId, tipo, registro = {}, onVoltar }) {
   const [cabecalho, setCabecalho] = useState(null)
+  const [autor, setAutor] = useState(null)
 
   useEffect(() => {
     buscarCabecalhoImpressao(atendimentoId).then(setCabecalho)
   }, [atendimentoId])
+  useEffect(() => {
+    if (!registro?.enfermeiros && !registro?.entrega) buscarAutorRegistro(registro).then(setAutor)
+  }, [registro])
 
   if (!cabecalho) return null
 
   const { pessoa, atendimento, idade, leitoNumero, setorNome } = cabecalho
-  const medico = registro.enfermeiros || registro.entrega || {}
+  const medico = registro.enfermeiros || registro.entrega || autor || {}
   const dataHora = new Date(registro.criado_em || Date.now()).toLocaleString('pt-BR')
 
   const propsComuns = {

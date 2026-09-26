@@ -89,7 +89,7 @@ export async function carregarLeitosOcupadosPep() {
 
   const { data: passagens } = await supabase
     .from('passagens')
-    .select('*, enfermeiros(nome_exibicao, nome)')
+    .select('*, enfermeiros!passagens_criado_por_fkey(nome_exibicao, nome)')
     .in('atendimento_id', atendimentoIds)
     .order('criado_em', { ascending: false })
 
@@ -468,7 +468,7 @@ export async function registrarEventoAuditoria({ atendimentoId, autorId, acao, d
 export async function listarEventosAuditoria(atendimentoId) {
   const { data } = await supabase
     .from('eventos_auditoria')
-    .select('*, enfermeiros(nome_exibicao, nome)')
+    .select('*, enfermeiros!eventos_auditoria_autor_id_fkey(nome_exibicao, nome)')
     .eq('atendimento_id', atendimentoId)
     .order('ocorrido_em', { ascending: false })
   return data ?? []

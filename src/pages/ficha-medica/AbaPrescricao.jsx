@@ -3,7 +3,7 @@ import { listarPrescricoes, criarPrescricao, cancelarPrescricao, listarCatalogoM
 import { VIAS, UNIDADES_DOSE, FREQUENCIAS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, atbRestrito, ATM_PENDENTES_KEY } from './constantes';
 
 
-function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar }) {
+function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
   const [aberto, setAberto] = useState(false)
   const termo = valor.trim().toLowerCase()
   const sugestoes = termo.length >= 2
@@ -15,6 +15,7 @@ function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar }) {
       <input
         type="text"
         value={valor}
+        placeholder={placeholder}
         onChange={(e) => { onChange(e.target.value); setAberto(true) }}
         onFocus={() => setAberto(true)}
         onBlur={() => setAberto(false)}
@@ -196,6 +197,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
+  const [buscaLateral, setBuscaLateral] = useState('')
   const [calcAberto, setCalcAberto] = useState(null)
   const [calc, setCalc] = useState({ ...CALC_VAZIA })
   const [gruposFechados, setGruposFechados] = useState({})
@@ -375,7 +377,13 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
         <div className="tools-body">
           <div className="search-med">
             <i className="ph ph-magnifying-glass"></i>
-            <input type="text" placeholder="Buscar medicamento no catálogo..." />
+            <AutocompleteMedicamento
+              catalogo={catalogo}
+              valor={buscaLateral}
+              placeholder="Buscar medicamento no catálogo..."
+              onChange={setBuscaLateral}
+              onSelecionar={(m) => { selecionarMedicamento(itens.length - 1, m); setBuscaLateral('') }}
+            />
           </div>
           <div style={{ marginTop: 16 }}>
             <h3 style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>

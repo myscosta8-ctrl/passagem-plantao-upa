@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { buscarCabecalhoImpressao } from '../lib/pepMedico'
+import { buscarCabecalhoImpressao, buscarAutorRegistro } from '../lib/pepMedico'
 import './PrintView.css'
 import CorpoRequisicaoExamesOficial from './ficha-medica-print/CorpoRequisicaoExamesOficial'
 
@@ -63,15 +63,19 @@ function BotoesImpressao({ onVoltar }) {
 
 export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVoltar }) {
   const [cabecalho, setCabecalho] = useState(null)
+  const [autor, setAutor] = useState(null)
 
   useEffect(() => {
     buscarCabecalhoImpressao(atendimentoId).then(setCabecalho)
   }, [atendimentoId])
+  useEffect(() => {
+    if (!registro?.enfermeiros) buscarAutorRegistro(registro).then(setAutor)
+  }, [registro])
 
   if (!cabecalho) return null
 
   const { pessoa, atendimento, idade, leitoNumero, setorNome } = cabecalho
-  const medico = registro.enfermeiros
+  const medico = registro.enfermeiros || autor
   const dataHora = new Date(registro.criado_em || registro.solicitado_em || registro.atualizado_em).toLocaleString('pt-BR')
 
   const propsComuns = {

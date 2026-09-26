@@ -20,7 +20,7 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
             )}
             {(registro.reconciliacao_medicamentosa || registro.reconciliacao_texto) && (
               <div style={{ marginTop: '2px', color: '#475569' }}>
-                <b>Reconciliação Medicamentosa:</b> {registro.reconciliacao_texto || 'Realizada'}
+                <b>Reconciliação Medicamentosa:</b> {registro.reconciliacao_texto || ''}
               </div>
             )}
             {registro.alergias_texto && (
@@ -34,7 +34,7 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
         <div className="med-secao">
           <div className="med-secao-header">2. Evolução Clínica do Dia e Queixas Atuais</div>
           <div className="med-secao-body" style={{ minHeight: '26mm', whiteSpace: 'pre-wrap' }}>
-            {registro.evolucao_dia || registro.historia_doenca_atual || 'Paciente estável em leito de observação, sem queixas agudas no momento.'}
+            {registro.evolucao_dia || registro.historia_doenca_atual || ''}
           </div>
         </div>
 
@@ -52,7 +52,7 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
               ].filter(Boolean)
               return sv.length > 0 ? <div style={{ marginBottom: '3px' }}><b>Sinais Vitais:</b> {sv.join(' · ')}.</div> : null
             })()}
-            {registro.exame_fisico || 'Bom estado geral, lúcido e orientado, corado, hidratado, anictérico e acianótico. ACV: RCR 2T BNF sem sopros. AR: MVF universalmente audível. Abdome: Plano, flácido e indolor. Extremidades bem perfundidas sem edema.'}
+            {registro.exame_fisico || ''}
           </div>
         </div>
 
@@ -60,9 +60,9 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
           <div className="med-secao-header">4. Avaliação de Risco e Resultados de Exames</div>
           <div className="med-secao-body">
             <div className="med-grid-3">
-              <div><b>Risco TEV:</b> {registro.risco_tev || 'Baixo risco'}</div>
+              <div><b>Risco TEV:</b> {registro.risco_tev || ''}</div>
               <div><b>Sepse (2 critérios):</b> {registro.criterios_sepse ? 'SIM (Protocolo)' : 'NÃO'}</div>
-              <div><b>Antibioticoterapia:</b> {registro.antibioticoterapia || 'Não em uso'}</div>
+              <div><b>Antibioticoterapia:</b> {registro.antibioticoterapia || ''}</div>
             </div>
             {(registro.exames_laboratorio || registro.aguarda_exames_texto) && (
               <div style={{ marginTop: '3px', paddingTop: '2px', borderTop: '1px dashed #cbd5e1' }}>
@@ -76,7 +76,7 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
         <div className="med-secao med-secao-expansivel">
           <div className="med-secao-header">5. Conduta Médica e Planejamento Terapêutico</div>
           <div className="med-secao-body" style={{ minHeight: '22mm', whiteSpace: 'pre-wrap' }}>
-            {registro.conduta_medica || registro.plano_terapeutico || '1. Manter cuidados gerais e prescrição vigente.\n2. Monitorização contínua de sinais vitais.\n3. Reavaliação clínica e laboratorial conforme evolução.'}
+            {registro.conduta_medica || registro.plano_terapeutico || ''}
             {registro.data_prevista_alta && (
               <div style={{ marginTop: '3px', fontWeight: 700, color: '#15803d' }}>
                 Previsão de Alta: {new Date(registro.data_prevista_alta + 'T00:00:00').toLocaleDateString('pt-BR')}
