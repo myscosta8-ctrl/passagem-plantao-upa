@@ -12,3 +12,11 @@
 @import './print/print-sangue-atm-tfd.css';
 @import './print/print-receituario.css';
 @import './print/print-enfermagem.css';
+
+/* Barra de ações da visualização de impressão — compacta, fixa no topo */
+.barra-impressao { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; }
+.barra-impressao button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: inherit; text-transform: none; letter-spacing: 0; line-height: 1.2; cursor: pointer; width: auto; max-width: none; }
+.barra-impressao .bi-voltar { background: #fff; border: 1px solid #CBD5E1; color: #334155; }
+.barra-impressao .bi-voltar:hover { background: #F1F5F9; }
+.barra-impressao .bi-imprimir { background: #0D9488; border: 1px solid #0D9488; color: #fff; }
+.barra-impressao .bi-imprimir:hover { background: #0F766E; }

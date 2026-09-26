@@ -54,9 +54,9 @@ const TITULOS = {
 
 function BotoesImpressao({ onVoltar }) {
   return (
-    <div className="no-print" style={{ padding: 20, display: 'flex', gap: 10 }}>
-      <button className="submit-btn" style={{ maxWidth: 160 }} onClick={onVoltar}>← Voltar</button>
-      <button className="submit-btn" style={{ maxWidth: 200 }} onClick={() => window.print()}>Imprimir / Salvar PDF</button>
+    <div className="no-print barra-impressao">
+      <button type="button" className="bi-voltar" onClick={onVoltar}><i className="ph ph-arrow-left" /> Voltar</button>
+      <button type="button" className="bi-imprimir" onClick={() => window.print()}><i className="ph ph-printer" /> Imprimir / Salvar PDF</button>
     </div>
   )
 }
