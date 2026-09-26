@@ -7,7 +7,7 @@ import './Painel.css'
 
 const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
 
-export default function PassagemColetivaTela({ plantao, setoresIds }) {
+export default function PassagemColetivaTela({ plantao, setoresIds, onImprimir }) {
   const [modalPassagemForm, setModalPassagemForm] = useState(null)
   const {
     enfermeiro,
@@ -34,9 +34,21 @@ export default function PassagemColetivaTela({ plantao, setoresIds }) {
 
   return (
     <div className="page" style={{ maxWidth: 1400 }}>
-      <div>
-        <h1 className="page-title">Passagem de Plantão</h1>
-        <p className="page-subtitle">Conferência coletiva do setor, turno a turno.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+        <div>
+          <h1 className="page-title">Passagem de Plantão</h1>
+          <p className="page-subtitle">Conferência coletiva do setor, turno a turno.</p>
+        </div>
+        {onImprimir && (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-secondary" onClick={() => onImprimir('print1')} title="Imprimir: Vermelha + Internação">
+              <i className="ph ph-printer" /> Imprimir Vermelha
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={() => onImprimir('print2')} title="Imprimir: Pediátrico + Observação">
+              <i className="ph ph-file-text" /> Imprimir Observação
+            </button>
+          </div>
+        )}
       </div>
       <div style={{ borderBottom: '1px solid var(--c-border)', marginBottom: 20 }} />
 

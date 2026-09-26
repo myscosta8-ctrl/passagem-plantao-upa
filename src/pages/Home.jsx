@@ -353,12 +353,12 @@ export default function Home() {
                 )}
 
                 {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
-                {plantao && setoresIds && tela === 'passagemColetiva' && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} />}
+                {plantao && setoresIds && tela === 'passagemColetiva' && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} onImprimir={setTela} />}
                 {plantao && setoresIds && tela === 'print1' && (
-                  <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('painel')} />
+                  <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('passagemColetiva')} />
                 )}
                 {plantao && setoresIds && tela === 'print2' && (
-                  <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('painel')} />
+                  <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('passagemColetiva')} />
                 )}
                 {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
                 {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}

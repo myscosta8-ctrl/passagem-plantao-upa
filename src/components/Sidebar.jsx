@@ -142,29 +142,6 @@ export default function Sidebar({
           <span className="sidebar-item-texto">Pendências</span>
         </button>
 
-        {plantaoAberto && (
-          <>
-            <button
-              type="button"
-              className={`sidebar-item ${telaAtual === 'print1' ? 'ativo' : ''}`}
-              onClick={() => onNavegar('print1')}
-              title="Imprimir: Vermelha + Internação"
-            >
-              <i className="ph ph-printer sidebar-item-icone" />
-              <span className="sidebar-item-texto">Imprimir Vermelha</span>
-            </button>
-
-            <button
-              type="button"
-              className={`sidebar-item ${telaAtual === 'print2' ? 'ativo' : ''}`}
-              onClick={() => onNavegar('print2')}
-              title="Imprimir: Pediátrico + Observação"
-            >
-              <i className="ph ph-file-text sidebar-item-icone" />
-              <span className="sidebar-item-texto">Imprimir Observação</span>
-            </button>
-          </>
-        )}
 
         {/* GRUPO INDICADORES */}
         <div className="sidebar-grupo-label">Indicadores</div>
