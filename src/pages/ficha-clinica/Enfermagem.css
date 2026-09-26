@@ -117,27 +117,27 @@
 .enf-theme .workspace { padding: 12px 18px; gap: 12px; }
 
 /* PATIENT BANNER (mockup 08) */
-.enf-theme .enf-banner { flex-shrink: 0; background: #fff; border: 1px solid var(--enf-primary); border-left: 6px solid var(--enf-primary); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.05); display: flex; flex-direction: column; padding: 0; }
-.enf-theme .enf-banner .pb-main { padding: 8px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.enf-theme .enf-banner .pb-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.enf-theme .enf-banner .pb-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.enf-theme .enf-banner .pb-name { font-size: 16px; font-weight: 700; color: #0F172A; letter-spacing: -.02em; }
-.enf-theme .enf-banner .pb-badge { background: var(--enf-badge); color: var(--enf-hover); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 4px; }
-.enf-theme .enf-banner .pb-alergia { background: var(--danger-light); color: var(--danger); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 4px; }
-.enf-theme .enf-banner .pb-meta { display: flex; align-items: center; gap: 14px; font-size: 11.5px; color: #334155; font-weight: 500; flex-wrap: wrap; }
-.enf-theme .enf-banner .pb-meta-item { display: flex; align-items: center; gap: 5px; }
-.enf-theme .enf-banner .pb-meta-item i { color: #64748B; font-size: 14px; }
-.enf-theme .enf-banner .pb-hd { font-size: 11.5px; color: #334155; }
-.enf-theme .enf-banner .pb-hd strong { color: #0F172A; }
-.enf-theme .enf-banner .pb-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-.enf-theme .enf-banner .pb-leito { font-size: 13px; font-weight: 700; color: #0F172A; display: flex; align-items: center; gap: 6px; }
-.enf-theme .enf-banner .pb-leito i { color: var(--enf-primary); font-size: 16px; }
-.enf-theme .enf-banner .btn-expand-details { background: transparent; border: 1px solid #CBD5E1; padding: 3px 9px; border-radius: 6px; font-size: 10.5px; font-weight: 600; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-.enf-theme .enf-banner .btn-expand-details:hover { background: #F1F5F9; color: #0F172A; }
-.enf-theme .enf-banner .pb-details { border-top: 1px dashed #CBD5E1; padding: 10px 16px; background: #F8FAFC; border-radius: 0 0 8px 8px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 11px; }
-.enf-theme .enf-banner .detail-item { display: flex; flex-direction: column; gap: 2px; }
-.enf-theme .enf-banner .detail-item label { font-size: 9.5px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .05em; }
-.enf-theme .enf-banner .detail-item span { color: #0F172A; font-weight: 600; }
+.enf-banner { flex-shrink: 0; background: #fff; border: 1px solid var(--enf-primary); border-left: 6px solid var(--enf-primary); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.05); display: flex; flex-direction: column; padding: 0; }
+.enf-banner .pb-main { padding: 8px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.enf-banner .pb-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.enf-banner .pb-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.enf-banner .pb-name { font-size: 16px; font-weight: 700; color: #0F172A; letter-spacing: -.02em; }
+.enf-banner .pb-badge { background: var(--enf-badge); color: var(--enf-hover); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 4px; }
+.enf-banner .pb-alergia { background: var(--danger-light); color: var(--danger); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 4px; }
+.enf-banner .pb-meta { display: flex; align-items: center; gap: 14px; font-size: 11.5px; color: #334155; font-weight: 500; flex-wrap: wrap; }
+.enf-banner .pb-meta-item { display: flex; align-items: center; gap: 5px; }
+.enf-banner .pb-meta-item i { color: #64748B; font-size: 14px; }
+.enf-banner .pb-hd { font-size: 11.5px; color: #334155; }
+.enf-banner .pb-hd strong { color: #0F172A; }
+.enf-banner .pb-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.enf-banner .pb-leito { font-size: 13px; font-weight: 700; color: #0F172A; display: flex; align-items: center; gap: 6px; }
+.enf-banner .pb-leito i { color: var(--enf-primary); font-size: 16px; }
+.enf-banner .btn-expand-details { background: transparent; border: 1px solid #CBD5E1; padding: 3px 9px; border-radius: 6px; font-size: 10.5px; font-weight: 600; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.enf-banner .btn-expand-details:hover { background: #F1F5F9; color: #0F172A; }
+.enf-banner .pb-details { border-top: 1px dashed #CBD5E1; padding: 10px 16px; background: #F8FAFC; border-radius: 0 0 8px 8px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 11px; }
+.enf-banner .detail-item { display: flex; flex-direction: column; gap: 2px; }
+.enf-banner .detail-item label { font-size: 9.5px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .05em; }
+.enf-banner .detail-item span { color: #0F172A; font-weight: 600; }
 
 /* ABAS (mockup 08) */
 .enf-theme .clinical-tabs { display: flex; gap: 6px; background: #E2E8F0; padding: 4px; border-radius: 8px; flex-shrink: 0; overflow-x: auto; }
@@ -147,9 +147,9 @@
 .enf-theme .clinical-tabs .tab-btn.active { background: #fff; color: var(--enf-primary); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
 
 @media (max-width: 960px) {
-  .enf-theme .enf-banner .pb-main { flex-direction: column; }
-  .enf-theme .enf-banner .pb-right { align-items: flex-start; text-align: left; }
-  .enf-theme .enf-banner .pb-details { grid-template-columns: repeat(2, 1fr); }
+  .enf-banner .pb-main { flex-direction: column; }
+  .enf-banner .pb-right { align-items: flex-start; text-align: left; }
+  .enf-banner .pb-details { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* EVOLUÇÃO SAE (mockup 09) */
@@ -317,3 +317,8 @@
   .enf-theme .form-card, .enf-theme .fc-body { overflow: visible; }
   .enf-theme .vitals-row { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* Banner compartilhado com o Prontuário Médico: variáveis próprias (fora do .enf-theme) */
+.enf-banner { --enf-primary: #0D9488; --enf-hover: #0F766E; --enf-badge: #CCFBF1; --danger: #DC2626; --danger-light: #FEF2F2; }
+.enf-banner .pb-pediatrico { background: #EFF6FF; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }
+.enf-banner .pb-classificacao { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }

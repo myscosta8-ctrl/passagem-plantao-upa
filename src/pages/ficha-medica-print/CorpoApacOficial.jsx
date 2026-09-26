@@ -20,8 +20,8 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
         <div className="sus-letterhead-texto">
           <div className="nome" style={{ fontSize: '11px', fontWeight: 800, color: '#000' }}>PREFEITURA MUNICIPAL DE BREVES</div>
           <div style={{ fontSize: '9.5px', fontWeight: 700, color: '#1e3a8a' }}>SECRETARIA MUNICIPAL DE SAÚDE — SEMSA</div>
-          <div style={{ fontSize: '8.5px', color: '#333' }}>UPA 24H — UNIDADE DE PRONTO ATENDIMENTO DR. CARLOS PINTO</div>
-          <div style={{ fontSize: '8px', color: '#555' }}>Rua Wilson Furtado, s/n, Bairro Aeroporto — Breves/PA — CEP: 68800-000 | CNPJ: 11.230.123/0001-45</div>
+          <div style={{ fontSize: '8.5px', color: '#333' }}>UPA 24H BREVES — SECRETARIA MUNICIPAL DE SAÚDE (SEMSA)</div>
+          <div style={{ fontSize: '8px', color: '#555' }}>Travessa Castilhos França, s/n — Breves/PA — CEP: 68.800-000 | CNPJ: 02.967.963/0001-11</div>
         </div>
         <div className="sus-letterhead-logos" style={{ gap: '10px' }}>
           <img src="./logos/brasao-breves.jpg" alt="Prefeitura de Breves" style={{ height: '36px' }} />
@@ -196,7 +196,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
       </div>
 
       <div className="doc-rodape" style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1.2px solid #777', paddingTop: '3px', marginTop: '4px', fontSize: '7.5px', color: '#333' }}>
-        <div>UPA 24H DR. CARLOS PINTO — BREVES/PA | SISTEMA DE REGULAÇÃO AMBULATORIAL SUS / APAC</div>
+        <div>UPA 24H BREVES — BREVES/PA | SISTEMA DE REGULAÇÃO AMBULATORIAL SUS / APAC</div>
         <div>EMISSÃO: {dataHora} — VIA REGULAÇÃO / PACIENTE</div>
       </div>
     </div>

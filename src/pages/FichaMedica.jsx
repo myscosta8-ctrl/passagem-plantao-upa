@@ -1,7 +1,8 @@
 import { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../lib/AuthContext';
 const FichaMedicaPrint = lazy(() => import('./FichaMedicaPrint'));
-import PatientBanner from './ficha-medica/PatientBanner';
+import BannerPacienteEnf from './ficha-clinica/BannerPacienteEnf';
+import './ficha-clinica/Enfermagem.css';
 import FichaMedicaHeader from './ficha-medica/FichaMedicaHeader';
 import FichaMedicaTabs, { ABAS_PRINCIPAIS } from './ficha-medica/FichaMedicaTabs';
 import FichaMedicaConteudo from './ficha-medica/FichaMedicaConteudo';
@@ -37,7 +38,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
         onTrocarPilar={onTrocarPilar}
       />
       <div className="workspace">
-        <PatientBanner atendimento={atendimento} />
+        <BannerPacienteEnf atendimento={atendimento} />
         <FichaMedicaTabs aba={aba} onSelecionarAba={setAba} />
         <FichaMedicaConteudo
           atendimento={atendimento}

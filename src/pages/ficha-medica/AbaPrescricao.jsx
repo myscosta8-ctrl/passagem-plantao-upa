@@ -197,7 +197,6 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
-  const [buscaLateral, setBuscaLateral] = useState('')
   const [calcAberto, setCalcAberto] = useState(null)
   const [calc, setCalc] = useState({ ...CALC_VAZIA })
   const [gruposFechados, setGruposFechados] = useState({})
@@ -370,43 +369,6 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
 
   return (
     <div className="clinical-split">
-      <aside className="tools-pane">
-        <div className="pane-header">
-          <span><i className="ph ph-magic-wand"></i> Prescrição Inteligente</span>
-        </div>
-        <div className="tools-body">
-          <div className="search-med">
-            <i className="ph ph-magnifying-glass"></i>
-            <AutocompleteMedicamento
-              catalogo={catalogo}
-              valor={buscaLateral}
-              placeholder="Buscar medicamento no catálogo..."
-              onChange={setBuscaLateral}
-              onSelecionar={(m) => { selecionarMedicamento(itens.length - 1, m); setBuscaLateral('') }}
-            />
-          </div>
-          <div style={{ marginTop: 16 }}>
-            <h3 style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
-              <i className="ph ph-list-plus" /> Adicionar Rápido
-            </h3>
-            <button type="button" className="template-btn" onClick={adicionarItem} style={{ width: '100%' }}>
-              <div>
-                <strong>Novo Medicamento</strong>
-                <span>Prescrever item manual</span>
-              </div>
-              <span style={{ color: '#0D9488', fontSize: 16 }}>+</span>
-            </button>
-            <button type="button" className="template-btn" onClick={adicionarOrientacao} style={{ width: '100%' }}>
-              <div>
-                <strong>Nova Orientação</strong>
-                <span>Adicionar cuidado de enf.</span>
-              </div>
-              <span style={{ color: '#0D9488', fontSize: 16 }}>+</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-
       <div className="clinical-card" style={{ flex: 1 }}>
         <div className="cc-header">
           <div className="cc-title">

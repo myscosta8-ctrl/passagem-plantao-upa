@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { buscarCabecalhoImpressao, buscarHistoricoEnfermagem } from '../../lib/pepMedico';
 import { listarAlergias, listarSinaisVitais } from '../../lib/pepClinico';
+import { MANCHESTER_CORES, normalizarNome } from '../painel/constantes';
 
 // Banner do paciente do Módulo de Enfermagem — mockup 08 (patient-banner).
 // Tudo vem do banco (pessoas, atendimentos, leito, sinais_vitais, alergias);
@@ -36,20 +37,27 @@ export default function BannerPacienteEnf({ atendimento }) {
   const leito = cab?.leitoNumero || atendimento?.leito_numero;
   const alergiaTxt = alergias.map((x) => x.substancia).join(', ') || pac.alergias_obs;
   const hd = pac.diagnostico || a.queixa_principal;
+  const cns = p.cns || null;
+  const pediatrico = (typeof idade === 'number' && idade < 14) || /ped/i.test(String(setor || ''));
+  const classNome = a.classificacao_risco_cor || pac.classificacao_manchester || null;
+  const classif = classNome ? MANCHESTER_CORES.find((c) => normalizarNome(c.nome) === normalizarNome(classNome)) : null;
+  const estiloBorda = classif ? { borderLeftColor: classif.cor } : undefined;
 
   return (
-    <div className="patient-banner enf-banner">
+    <div className="patient-banner enf-banner" style={estiloBorda}>
       <div className="pb-main">
         <div className="pb-left">
           <div className="pb-header">
             <span className="pb-name">{String(nome).toUpperCase()}</span>
             <span className="pb-badge"><i className="ph ph-shield-check" /> UPA 24H BREVES</span>
+            {pediatrico && <span className="pb-pediatrico">Modo Pediátrico</span>}
             {alergiaTxt && <span className="pb-alergia"><i className="ph ph-warning" /> Alergia: {alergiaTxt}</span>}
           </div>
           <div className="pb-meta">
             <span className="pb-meta-item"><i className="ph ph-identification-card" /> Reg: <strong>#{fmt(limpar(a.numero_atendimento))}</strong></span>
             <span className="pb-meta-item"><i className="ph ph-folder" /> Pront: <strong>#{fmt(limpar(p.prontuario_numero))}</strong></span>
             {(idade || nasc) && <span className="pb-meta-item"><i className="ph ph-user" /> {idade ? `${idade}${String(idade).includes('ano') ? '' : ' anos'}` : ''}{nasc ? ` (${nasc})` : ''}</span>}
+            {cns && <span className="pb-meta-item"><i className="ph ph-identification-badge" /> CNS: <strong>{cns}</strong></span>}
             {sexo && <span className="pb-meta-item"><i className={'ph ' + (sexo === 'Feminino' ? 'ph-gender-female' : 'ph-gender-male')} /> {sexo}</span>}
             {sv && (
               <span className="pb-meta-item"><i className="ph ph-heartbeat" />
@@ -62,6 +70,7 @@ export default function BannerPacienteEnf({ atendimento }) {
           </div>
         </div>
         <div className="pb-right">
+          {classif && <span className="pb-classificacao" style={{ background: classif.cor, color: classif.texto }}>Classificação: {classif.nome}</span>}
           <div className="pb-leito"><i className="ph ph-bed" /> {[setor, leito && `Leito ${String(leito).padStart(2, '0')}`].filter(Boolean).join(' — ') || '—'}</div>
           <button type="button" className="btn-expand-details" onClick={() => setAberto((v) => !v)}>
             <i className={'ph ph-caret-' + (aberto ? 'up' : 'down')} /> {aberto ? 'Ocultar Ficha Completa' : 'Exibir Ficha Completa'}

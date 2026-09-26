@@ -2,6 +2,15 @@ import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
 // Réplica fiel do modelo de Prescrição aprovado (papel A4 paisagem, timbre
 // UPA 24h Breves/SEMSA) — ver pdfs_exemplo/prescricao_preview.html.
+// No impresso, "SN — Se necessário" e "ACM — A critério médico" saem só como SN / ACM.
+function abreviarCondicao(v) {
+  if (!v) return ''
+  const t = String(v).trim()
+  if (/^SN\b/i.test(t) || /se necess[aá]rio/i.test(t)) return 'SN'
+  if (/^ACM\b/i.test(t) || /crit[eé]rio m[eé]dico/i.test(t)) return 'ACM'
+  return t
+}
+
 export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const cf = registro.campos_prescricao || {}
   const itens = registro.prescricao_itens || []
@@ -48,7 +57,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
                   )}
                 </td>
                 <td className="qtd" style={{ textAlign: 'center' }}>{it.dose ? `${it.dose} ${it.dose_unidade || ''}` : ''}</td>
-                <td style={{ textAlign: 'center', fontWeight: 600 }}>{it.sn_acm || it.observacoes || (it.sn_aplic ? 'SN' : '—')}</td>
+                <td style={{ textAlign: 'center', fontWeight: 600 }}>{abreviarCondicao(it.sn_acm || it.observacoes) || (it.sn_aplic ? 'SN' : '—')}</td>
                 <td className="via" style={{ textAlign: 'center' }}>{it.via || ''}</td>
                 <td className="freq" style={{ textAlign: 'center' }}>{it.frequencia || ''}{it.duracao ? ` · ${it.duracao}` : ''}</td>
                 <td className="horario" style={{ textAlign: 'center' }}></td>
