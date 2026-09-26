@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { listarExames, criarExame } from '../../lib/pepMedico';
+import { listarExames, criarExame, buscarCabecalhoImpressao } from '../../lib/pepMedico';
 
 // ==========================================
 // CATÁLOGO COMPLETO FIEL AO MOCKUP FASE 2
+// (mockups-fase2/16-solicitacao-exames-apac-design.html)
 // ==========================================
 const EXAMES_LAB_CATALOGO = [
   {
@@ -82,45 +83,48 @@ const EXAMES_IMG_CATALOGO = [
     grupo: '1. Radiologia Digital — Tórax & Abdome',
     itens: [
       { nome: 'Radiografia de Tórax (Incidências Posteroanterior - PA e Perfil)', label: 'Tórax (PA e Perfil)', projecao: 'Ortostase / Grade Antidifusora', padrao: true },
-      { nome: 'Radiografia de Tórax no Leito (Incidência Anteroposterior - AP)', label: 'Tórax no Leito (AP)', projecao: 'Decúbito Dorsal no Leito' },
-      { nome: 'Rotina Radiológica de Abdome Agudo Completa (Tórax PA em Cúpulas Frênicas + Abdome em Ortostase e Decúbito Dorsal)', label: 'Rotina Radiológica de Abdome Agudo', projecao: 'Ortostático + Decúbito Dorsal', padrao: true },
-      { nome: 'Radiografia Simples de Abdome (Incidência Anteroposterior - AP em Decúbito Dorsal)', label: 'Abdome Simples (AP em Decúbito)', projecao: 'Decúbito Dorsal' },
+      { nome: 'Rotina Radiológica de Abdome Agudo Completa (Tórax PA em Cúpulas Frênicas + Abdome em Ortostase e Decúbito Dorsal)', label: 'Rotina Radiológica de Abdome Agudo Completa (Cúpulas + Abdome em Pé + Decúbito)', projecao: 'Ortostático + Decúbito Dorsal', padrao: true },
+      { nome: 'Radiografia de Tórax no Leito (Incidência Anteroposterior - AP)', label: 'Tórax no Leito (Incidência AP)', projecao: 'Leito / Feixe AP Portátil' },
+      { nome: 'Radiografia Simples de Abdome (Incidência Anteroposterior - AP em Decúbito Dorsal)', label: 'Abdome Simples (AP em Decúbito Dorsal)', projecao: 'Decúbito Dorsal / AP' },
+      { nome: 'Radiografia de Tórax em Decúbito Lateral com Raios Horizontais (Manobra de Laurel)', label: 'Tórax em Decúbito Lateral (Manobra de Laurel)', projecao: 'Decúbito Lateral / Feixe Horizontal' },
+      { nome: 'Radiografia de Arcos Costais / Hemitórax (Incidências AP e Oblíquas)', label: 'Arcos Costais / Gradil Costal (AP e Oblíquas)', projecao: 'AP + Oblíqua Específica' },
     ]
   },
   {
     grupo: '2. Radiologia Digital — Pelve Óssea & Articulação Coxofemoral',
     itens: [
-      { nome: 'Radiografia de Bacia / Pelve Panorâmica (Incidência Anteroposterior - AP)', label: 'Bacia / Pelve Panorâmica (AP)', projecao: 'Decúbito Dorsal / AP' },
-      { nome: 'Radiografia de Articulação Coxofemoral / Quadril (Incidências AP e Lowenstein/Rã)', label: 'Articulação Coxofemoral / Quadril (AP e Rã)', projecao: 'AP + Lowenstein' },
+      { nome: 'Radiografia de Pelve Óssea Panorâmica (Incidência Anteroposterior - AP)', label: 'Pelve Óssea Panorâmica (Incidência AP)', projecao: 'Decúbito Dorsal / AP Panorâmica' },
+      { nome: 'Radiografia de Articulação Coxofemoral / Quadril (Incidências AP e Perfil / Rã)', label: 'Articulação Coxofemoral / Quadril (AP e Perfil / Rã)', projecao: 'AP + Perfil / Posição de Rã (Lauenstein)' },
+      { nome: 'Radiografia de Articulações Sacroilíacas (Incidências Oblíquas Bilaterais)', label: 'Articulações Sacroilíacas (Oblíquas)', projecao: 'Oblíquas Direita e Esquerda' },
     ]
   },
   {
-    grupo: '3. Radiologia Digital — Esqueleto Axial, Coluna Vertebral & Crânio',
+    grupo: '3. Radiologia Digital — Coluna Vertebral & Crânio / Face',
     itens: [
-      { nome: 'Radiografia de Coluna Cervical (Incidências AP, Perfil e Transoral para Odontoide)', label: 'Coluna Cervical (AP, Perfil e Transoral)', projecao: 'AP + Perfil + Transoral' },
+      { nome: 'Radiografia de Coluna Cervical (Incidências AP, Perfil e Transoral / Nadador)', label: 'Coluna Cervical (AP, Perfil e Transoral)', projecao: 'AP + Perfil + Transoral' },
       { nome: 'Radiografia de Coluna Torácica / Dorsal (Incidências AP e Perfil)', label: 'Coluna Torácica (AP e Perfil)', projecao: 'AP + Perfil' },
-      { nome: 'Radiografia de Coluna Lombossacra (Incidências AP e Perfil com Estudo de Transição L5-S1)', label: 'Coluna Lombossacra (AP e Perfil)', projecao: 'AP + Perfil' },
+      { nome: 'Radiografia de Coluna Lombossacra (Incidências AP, Perfil e Dinâmica)', label: 'Coluna Lombossacra (AP e Perfil)', projecao: 'AP + Perfil com L5-S1' },
       { nome: 'Radiografia de Crânio (Incidências Posteroanterior - PA e Perfil)', label: 'Crânio (PA e Perfil)', projecao: 'PA + Perfil' },
-      { nome: 'Radiografia de Seios da Face / Maciço Facial (Incidências de Waters e Caldwell)', label: 'Seios da Face (Incidências de Waters e Caldwell)', projecao: 'Mento-Naso + Fronto-Naso' },
+      { nome: 'Radiografia de Seios da Face / Maciço Facial (Incidências de Waters e Caldwell)', label: 'Seios da Face (Incidências de Waters e Caldwell)', projecao: 'Mento-Naso (Waters) + Fronto-Naso (Caldwell)' },
     ]
   },
   {
-    grupo: '4. Radiologia Digital — Cintura Escapular & Membro Superior',
+    grupo: '4. Radiologia Digital — Cintura Escapular & Segmentos do Membro Superior',
     itens: [
-      { nome: 'Radiografia de Cintura Escapular & Articulação do Ombro (Incidências AP e Axilar)', label: 'Cintura Escapular & Ombro (AP e Axilar)', projecao: 'AP + Axilar' },
-      { nome: 'Radiografia de Clavícula (Incidências AP e Axial com Angulação Cefálica)', label: 'Clavícula (AP e Axial)', projecao: 'AP + Axial' },
-      { nome: 'Radiografia de Braço / Úmero (Incidências AP e Perfil)', label: 'Braço / Úmero (AP e Perfil)', projecao: 'AP + Perfil' },
+      { nome: 'Radiografia de Cintura Escapular & Articulação do Ombro (Incidências AP e Axilar)', label: 'Cintura Escapular & Ombro (AP e Axilar)', projecao: 'AP Verdadeiro + Axilar / Perfil Escapular' },
+      { nome: 'Radiografia de Clavícula (Incidências AP e Axial com Angulação Cefálica)', label: 'Clavícula (AP e Axial)', projecao: 'AP + Axial (Angulação de 15-30°)' },
+      { nome: 'Radiografia de Braço / Úmero (Incidências AP e Perfil)', label: 'Braço / Úmero (AP e Perfil)', projecao: 'AP + Perfil Incluindo Articulações' },
       { nome: 'Radiografia de Cotovelo & Antebraço (Incidências AP e Perfil)', label: 'Cotovelo & Antebraço (AP e Perfil)', projecao: 'AP + Perfil' },
-      { nome: 'Radiografia de Punho e Mão / Quirodáctilos (Incidências PA e Oblíqua)', label: 'Punho e Mão (PA e Oblíqua)', projecao: 'PA + Oblíqua' },
+      { nome: 'Radiografia de Punho e Mão / Quirodáctilos (Incidências PA e Oblíqua)', label: 'Punho e Mão (PA e Oblíqua)', projecao: 'PA + Oblíqua / Perfil' },
     ]
   },
   {
     grupo: '5. Radiologia Digital — Segmentos do Membro Inferior',
     itens: [
-      { nome: 'Radiografia de Coxa / Fêmur (Incidências AP e Perfil)', label: 'Coxa / Fêmur (AP e Perfil)', projecao: 'AP + Perfil' },
-      { nome: 'Radiografia de Articulação do Joelho (Incidências AP e Perfil com Carga)', label: 'Joelho (AP e Perfil com Carga)', projecao: 'AP + Perfil' },
-      { nome: 'Radiografia de Perna / Tíbia e Fíbula (Incidências AP e Perfil)', label: 'Perna / Tíbia e Fíbula (AP e Perfil)', projecao: 'AP + Perfil' },
-      { nome: 'Radiografia de Articulação do Tornozelo e Pé / Pododáctilos (Incidências AP, Perfil e Oblíqua)', label: 'Tornozelo e Pé (AP, Perfil e Oblíqua)', projecao: 'AP + Perfil + Mortise' },
+      { nome: 'Radiografia de Coxa / Fêmur (Incidências AP e Perfil)', label: 'Coxa / Fêmur (AP e Perfil)', projecao: 'AP + Perfil Incluindo Joelho ou Quadril' },
+      { nome: 'Radiografia de Articulação do Joelho (Incidências AP e Perfil com Carga)', label: 'Joelho (AP e Perfil com Carga)', projecao: 'AP + Perfil (Bilateral se Indicado)' },
+      { nome: 'Radiografia de Perna / Tíbia e Fíbula (Incidências AP e Perfil)', label: 'Perna / Tíbia e Fíbula (AP e Perfil)', projecao: 'AP + Perfil Incluindo Articulações' },
+      { nome: 'Radiografia de Articulação do Tornozelo e Pé / Pododáctilos (Incidências AP, Perfil e Oblíqua)', label: 'Tornozelo e Pé (AP, Perfil e Oblíqua)', projecao: 'AP + Perfil + Oblíqua (Mortise)' },
     ]
   }
 ];
@@ -132,12 +136,42 @@ const EXAMES_ECG_CATALOGO = [
       { nome: 'Eletrocardiograma Convencional de 12 Derivações com Registro Contínuo em DII Longo', label: 'Eletrocardiograma Convencional de 12 Derivações com Registro Contínuo em DII Longo', projecao: '12 Derivações Simultâneas + DII Longo', padrao: true },
       { nome: 'Eletrocardiograma com Derivações Direitas e Posteriores (V3R, V4R, V7, V8 e V9)', label: 'Eletrocardiograma com Derivações Direitas e Posteriores (V3R, V4R, V7, V8 e V9)', projecao: 'Derivações Especiais Direitas e Dorsais' },
       { nome: 'Eletrocardiograma Seriado para Protocolo de Síndrome Coronariana Aguda (SCA)', label: 'Eletrocardiograma Seriado (Protocolo de Dor Torácica / SCA)', projecao: 'Traçados Seriados de 15/30 min' },
-      { nome: 'Monitorização Eletrocardiográfica Contínua em Sala de Emergência', label: 'Monitorização Eletrocardiográfica Contínua / Ritmo', projecao: 'Derivação Contínua em Monitor' },
+      { nome: 'Monitorização Eletrocardiográfica Contínua em Sala de Emergência', label: 'Monitorização Eletrocardiográfica Contínua / Ritmo', projecao: 'Derivação Contínua de Ritmo em Monitor Multiparamétrico' },
     ]
   }
 ];
 
-export default function AbaExames({ atendimento, onFechar }) {
+// Configuração por modalidade — espelha literalmente as seções e opções do
+// mockup (Dados do Pedido → Grade de Exames → Justificativa Clínica), em vez
+// de uma única seção genérica de "contexto" compartilhada entre as 3.
+const MODALIDADE_CONFIG = {
+  lab: {
+    tituloDados: 'Dados da Coleta Laboratorial',
+    prioridadeOpcoes: [['urgencia', 'Urgência / Emergência'], ['rotina', 'Rotina de Enfermaria']],
+    tituloJustificativa: 'Justificativa Clínica / Hipótese Diagnóstica (Laboratório)',
+    labelJustificativa: 'Justificativa Clínica / Hipótese Diagnóstica',
+  },
+  img: {
+    tituloDados: 'Dados do Atendimento Radiológico',
+    prioridadeOpcoes: [['urgencia', 'Urgência / Emergência'], ['eletivo', 'Eletivo Interno']],
+    tituloJustificativa: 'Indicação Clínica & Alertas para o Técnico em Radiologia',
+    labelJustificativa: 'Suspeita Diagnóstica / Justificativa',
+  },
+  ecg: {
+    tituloDados: 'Dados da Solicitação de Eletrocardiograma (ECG)',
+    prioridadeOpcoes: [['urgencia', 'Urgência / Emergência (Imediato)'], ['rotina', 'Rotina de Acompanhamento']],
+    tituloJustificativa: 'Indicação Clínica & Hipótese Diagnóstica (ECG)',
+    labelJustificativa: 'Suspeita Diagnóstica / Justificativa Cardiológica',
+  },
+};
+
+const MOBILIDADE_OPCOES = [
+  ['maca', 'Maca / Leito (Sem deambulação)'],
+  ['cadeira', 'Cadeira de Rodas'],
+  ['deambulando', 'Deambulando com auxílio'],
+];
+
+export default function AbaExames({ atendimento, medicoNome, medicoCrm, onFechar }) {
   const [modalidade, setModalidade] = useState('lab'); // 'lab' | 'img' | 'ecg'
   const [labSelecionados, setLabSelecionados] = useState(() => {
     const init = {};
@@ -164,19 +198,34 @@ export default function AbaExames({ atendimento, onFechar }) {
   const [ecgJustificativa, setEcgJustificativa] = useState(
     'Paciente admitido na Sala Amarela em vigilância clínica intensiva com dor torácica/abdominal e instabilidade metabólica. Exame solicitado com caráter de URGÊNCIA para rastreio de alterações na repolarização ventricular, sobrecarga de câmaras e arritmias secundárias a desequilíbrio eletrolítico.'
   );
+  const [radioprotecao, setRadioprotecao] = useState('');
+  const [orientacoesEcg, setOrientacoesEcg] = useState('');
 
-  const [prioridade, setPrioridade] = useState('urgencia');
-  const [transporte, setTransporte] = useState('maca');
+  const [prioridade, setPrioridade] = useState({ lab: 'urgencia', img: 'urgencia', ecg: 'urgencia' });
+  const [mobilidade, setMobilidade] = useState('maca');
+  const [localEcg, setLocalEcg] = useState('leito');
   const [salvando, setSalvando] = useState(false);
   const [historico, setHistorico] = useState([]);
+  const [cabecalho, setCabecalho] = useState(null);
 
   useEffect(() => {
     listarExames(atendimento.atendimento_id).then(setHistorico);
+    buscarCabecalhoImpressao(atendimento.atendimento_id).then(setCabecalho).catch(() => {});
   }, [atendimento.atendimento_id]);
 
   const countLab = Object.values(labSelecionados).filter(Boolean).length;
   const countImg = Object.values(imgSelecionados).filter(Boolean).length;
   const countEcg = Object.values(ecgSelecionados).filter(Boolean).length;
+
+  const localLeito = cabecalho?.setorNome && cabecalho?.leitoNumero
+    ? `Beira do Leito (Sala ${cabecalho.setorNome} ${cabecalho.leitoNumero})`
+    : 'Beira do Leito (Sala/Leito do paciente)';
+  const medicoSolicitante = medicoNome ? `${medicoNome}${medicoCrm ? ` — CRM ${medicoCrm}` : ''}` : 'Médico Solicitante';
+  const dataHoraSolicitacao = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  function togglePrioridade(mod, valor) {
+    setPrioridade((prev) => ({ ...prev, [mod]: valor }));
+  }
 
   function toggleLab(nome) {
     setLabSelecionados(prev => ({ ...prev, [nome]: !prev[nome] }));
@@ -233,11 +282,10 @@ export default function AbaExames({ atendimento, onFechar }) {
           return;
         }
 
-        // Salva histórico no banco
         await criarExame({
           atendimentoId: atendimento.atendimento_id,
           nome: `Requisição Laboratorial (${itens.length} exames)`,
-          preparo: prioridade === 'urgencia' ? 'Urgência' : 'Rotina',
+          preparo: prioridade.lab === 'urgencia' ? 'Urgência' : 'Rotina',
           local: 'Laboratório Interno UPA 24h',
         });
 
@@ -262,7 +310,7 @@ export default function AbaExames({ atendimento, onFechar }) {
         await criarExame({
           atendimentoId: atendimento.atendimento_id,
           nome: `Requisição de Radiologia (${itens.length} exames)`,
-          preparo: prioridade === 'urgencia' ? 'Urgência' : 'Eletivo',
+          preparo: prioridade.img === 'urgencia' ? 'Urgência' : 'Eletivo',
           local: 'Radiologia Digital UPA 24h',
         });
 
@@ -305,6 +353,8 @@ export default function AbaExames({ atendimento, onFechar }) {
     }
   }
 
+  const cfg = MODALIDADE_CONFIG[modalidade];
+
   return (
     <div className="clinical-split">
       {/* SIDEBAR DE MODALIDADES */}
@@ -330,7 +380,7 @@ export default function AbaExames({ atendimento, onFechar }) {
               </button>
             </div>
           </div>
-          
+
           <div style={{ marginTop: 12 }}>
             <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.4 }}>
               Atalhos Rápidos de Marcação (Bundles Clínicos):
@@ -362,38 +412,58 @@ export default function AbaExames({ atendimento, onFechar }) {
         </div>
 
         <div className="cc-body">
-          {/* JUSTIFICATIVA CLINICA GERAL E INFORMAÇÕES ADICIONAIS */}
+          {/* 1. DADOS DO PEDIDO (identificação da coleta/exame) */}
           <div className="form-section">
             <div className="form-section-title">
-              <span className="st-left"><i className="ph ph-file-text" /> 1. Contexto e Justificativa Clínica</span>
+              <span className="st-left"><i className="ph ph-identification-card" /> {cfg.tituloDados}</span>
             </div>
-            <div className="form-group" style={{ marginBottom: 12 }}>
-              <label>Justificativa Clínica / Hipótese Diagnóstica</label>
-              {modalidade === 'lab' && <textarea className="form-control-area" rows="3" value={labJustificativa} onChange={e => setLabJustificativa(e.target.value)} />}
-              {modalidade === 'img' && <textarea className="form-control-area" rows="3" value={imgJustificativa} onChange={e => setImgJustificativa(e.target.value)} />}
-              {modalidade === 'ecg' && <textarea className="form-control-area" rows="3" value={ecgJustificativa} onChange={e => setEcgJustificativa(e.target.value)} />}
-            </div>
-            <div className="grid-2">
+            <div className="grid-4">
               <div className="form-group">
-                <label>Caráter de Solicitação</label>
-                <select className="form-control" value={prioridade} onChange={e => setPrioridade(e.target.value)}>
-                  <option value="urgencia">Urgência / Emergência (Imediato)</option>
-                  <option value="rotina">Rotina de Enfermaria (Manhã seguinte)</option>
+                <label>Caráter {modalidade === 'lab' ? 'da Coleta' : 'do Exame'}</label>
+                <select className="form-control" value={prioridade[modalidade]} onChange={(e) => togglePrioridade(modalidade, e.target.value)}>
+                  {cfg.prioridadeOpcoes.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
+
+              {modalidade === 'lab' && (
+                <div className="form-group">
+                  <label>Local da Coleta</label>
+                  <input type="text" className="form-control" value={localLeito} readOnly />
+                </div>
+              )}
+
+              {modalidade === 'img' && (
+                <div className="form-group">
+                  <label>Condição de Mobilidade</label>
+                  <select className="form-control" value={mobilidade} onChange={(e) => setMobilidade(e.target.value)}>
+                    {MOBILIDADE_OPCOES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  </select>
+                </div>
+              )}
+
+              {modalidade === 'ecg' && (
+                <div className="form-group">
+                  <label>Local de Realização</label>
+                  <select className="form-control" value={localEcg} onChange={(e) => setLocalEcg(e.target.value)}>
+                    <option value="leito">{localLeito}</option>
+                    <option value="sala_ecg">Sala de Eletrocardiografia / Emergência</option>
+                    <option value="vermelha">Sala Vermelha (Emergência Crítica)</option>
+                  </select>
+                </div>
+              )}
+
               <div className="form-group">
-                <label>Condição de Transporte do Paciente</label>
-                <select className="form-control" value={transporte} onChange={e => setTransporte(e.target.value)}>
-                  <option value="maca">Transporte em Maca (Instável / Risco de Queda)</option>
-                  <option value="cadeira">Cadeira de Rodas</option>
-                  <option value="ambulante">Ambulante (Deambulando)</option>
-                  <option value="leito">Exame no Leito (Leito de Estabilização)</option>
-                </select>
+                <label>Data/Hora Solicitação</label>
+                <input type="text" className="form-control" value={dataHoraSolicitacao} readOnly />
+              </div>
+              <div className="form-group">
+                <label>Médico Solicitante</label>
+                <input type="text" className="form-control" value={medicoSolicitante} readOnly />
               </div>
             </div>
           </div>
 
-          {/* CATALOGO LABORATÓRIO */}
+          {/* 2. GRADE DE EXAMES/PROCEDIMENTOS */}
           {modalidade === 'lab' && EXAMES_LAB_CATALOGO.map((grupo, idx) => (
             <div className="form-section" key={idx}>
               <div className="form-section-title">
@@ -416,7 +486,6 @@ export default function AbaExames({ atendimento, onFechar }) {
             </div>
           ))}
 
-          {/* CATALOGO IMAGEM */}
           {modalidade === 'img' && EXAMES_IMG_CATALOGO.map((grupo, idx) => (
             <div className="form-section" key={idx}>
               <div className="form-section-title">
@@ -439,7 +508,6 @@ export default function AbaExames({ atendimento, onFechar }) {
             </div>
           ))}
 
-          {/* CATALOGO ECG */}
           {modalidade === 'ecg' && EXAMES_ECG_CATALOGO.map((grupo, idx) => (
             <div className="form-section" key={idx}>
               <div className="form-section-title">
@@ -461,6 +529,31 @@ export default function AbaExames({ atendimento, onFechar }) {
               </div>
             </div>
           ))}
+
+          {/* 3. JUSTIFICATIVA CLÍNICA (por último, como no mockup) */}
+          <div className="form-section">
+            <div className="form-section-title">
+              <span className="st-left"><i className="ph ph-chat-text" /> {cfg.tituloJustificativa}</span>
+            </div>
+            <div className="form-group" style={{ marginBottom: modalidade === 'lab' ? 0 : 8 }}>
+              <label>{cfg.labelJustificativa}</label>
+              {modalidade === 'lab' && <textarea className="form-control-area" rows="3" value={labJustificativa} onChange={e => setLabJustificativa(e.target.value)} />}
+              {modalidade === 'img' && <textarea className="form-control-area" rows="3" value={imgJustificativa} onChange={e => setImgJustificativa(e.target.value)} />}
+              {modalidade === 'ecg' && <textarea className="form-control-area" rows="3" value={ecgJustificativa} onChange={e => setEcgJustificativa(e.target.value)} />}
+            </div>
+            {modalidade === 'img' && (
+              <div className="form-group">
+                <label>Recomendações Especiais de Radioproteção</label>
+                <input type="text" className="form-control" placeholder="Ex: colimação estrita e proteção gonadal/plumbífera quando indicado..." value={radioprotecao} onChange={(e) => setRadioprotecao(e.target.value)} />
+              </div>
+            )}
+            {modalidade === 'ecg' && (
+              <div className="form-group">
+                <label>Orientações ao Técnico / Enfermagem</label>
+                <input type="text" className="form-control" placeholder="Ex: realizar o traçado em repouso absoluto, anexar fita ao prontuário..." value={orientacoesEcg} onChange={(e) => setOrientacoesEcg(e.target.value)} />
+              </div>
+            )}
+          </div>
 
           {/* HISTÓRICO RÁPIDO */}
           <div style={{ marginTop: 24 }}>

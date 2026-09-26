@@ -72,7 +72,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome,
     );
   }
   if (aba === 'exames') {
-    return <AbaExames atendimento={atendimento} onFechar={onFechar} />;
+    return <AbaExames atendimento={atendimento} medicoNome={medicoNome} medicoCrm={medicoCrm} onFechar={onFechar} />;
   }
   if (aba === 'sangue') {
     return (
