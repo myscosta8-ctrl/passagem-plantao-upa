@@ -308,7 +308,8 @@ export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestino
 export async function listarEventosAdversos(atendimentoId) {
   const { data } = await supabase
     .from('eventos_adversos')
-    .select('*, enfermeiros(nome_exibicao, nome)')
+    // 2 FKs para enfermeiros (relator_id, notificado_por): hint explícito, senão a lista vem vazia.
+    .select('*, enfermeiros!eventos_adversos_relator_id_fkey(nome_exibicao, nome, coren)')
     .eq('atendimento_id', atendimentoId)
     .order('ocorrido_em', { ascending: false })
   return data ?? []
@@ -316,7 +317,7 @@ export async function listarEventosAdversos(atendimentoId) {
 
 export async function registrarEventoAdverso({
   atendimentoId, relatorId, anonimo, categoria, gravidade, descricao, acaoImediata,
-  ocorridoEm, medicoComunicado, horarioComunicacaoMedico, sinaisVitais, desfechoEvolucao,
+  ocorridoEm, medicoComunicado, medicoComunicadoNome, horarioComunicacaoMedico, sinaisVitais, desfechoEvolucao,
 }) {
   return supabase
     .from('eventos_adversos')
@@ -330,6 +331,7 @@ export async function registrarEventoAdverso({
       acao_imediata: acaoImediata || null,
       ocorrido_em: ocorridoEm || new Date().toISOString(),
       medico_comunicado: !!medicoComunicado,
+      medico_comunicado_nome: medicoComunicadoNome || null,
       horario_comunicacao_medico: medicoComunicado ? (horarioComunicacaoMedico || null) : null,
       sv_pa_sistolica: sinaisVitais?.pa_sistolica === '' || sinaisVitais?.pa_sistolica == null ? null : Number(sinaisVitais.pa_sistolica),
       sv_pa_diastolica: sinaisVitais?.pa_diastolica === '' || sinaisVitais?.pa_diastolica == null ? null : Number(sinaisVitais.pa_diastolica),

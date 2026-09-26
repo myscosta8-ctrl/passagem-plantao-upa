@@ -44,7 +44,7 @@ export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImpr
         icon="ph-siren"
         docInicial={aba === 'isolamento' ? 'isolamento' : 'eventosAdversos'}
         docs={[
-          { chave: 'eventosAdversos', rotulo: 'Nota de Intercorrência / Eventos Adversos', icon: 'ph-siren', render: () => <AbaEventosAdversos {...comum} onImprimir={(registro) => onImprimir({ tipo: 'intercorrencia', registro })} /> },
+          { chave: 'eventosAdversos', rotulo: 'Nota de Intercorrência', icon: 'ph-warning-octagon', render: () => <AbaEventosAdversos {...comum} onImprimir={(registro) => onImprimir({ tipo: 'intercorrencia', registro })} /> },
           { chave: 'isolamento', rotulo: 'Isolamento', icon: 'ph-shield-warning', envolver: true, render: () => <AbaIsolamento {...comum} /> },
         ]}
       />

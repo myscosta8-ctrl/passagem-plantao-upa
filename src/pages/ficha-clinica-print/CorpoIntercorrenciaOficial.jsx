@@ -2,7 +2,9 @@ import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
 export default function CorpoIntercorrenciaOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const enf = registro.enfermeiros || medico || {}
-  const sv = registro.sinais_vitais || {}
+  // Colunas reais de eventos_adversos (sv_*); registros antigos podem trazer sinais_vitais.
+  const sv = registro.sinais_vitais || { pa_sistolica: registro.sv_pa_sistolica, pa_diastolica: registro.sv_pa_diastolica, fc: registro.sv_fc, fr: registro.sv_fr, temperatura: registro.sv_temperatura, spo2: registro.sv_spo2 }
+  const hora = (iso) => iso ? new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'
   return (
     <div className="note-page">
       <CabecalhoPadraoUPA
@@ -21,21 +23,21 @@ export default function CorpoIntercorrenciaOficial({ registro, pessoa, atendimen
         <div className="not-corpo">
           <div className="not-secao">
             <div className="not-secao-header">1. Descrição do Evento / Intercorrência</div>
-            <div className="not-secao-body">{registro.descricao || registro.texto || 'Paciente apresentou episódio de intercorrência clínica durante o plantão.'}</div>
+            <div className="not-secao-body">{registro.descricao || registro.texto || ''}</div>
           </div>
 
           <div className="not-grid-campos">
             <div className="not-card-mini">
               <div className="card-header">Classificação do Evento</div>
-              <div className="card-body">{registro.classificacao || 'Intercorrência Clínica Aguda'}</div>
+              <div className="card-body">{registro.categoria || registro.classificacao || '—'}</div>
             </div>
             <div className="not-card-mini">
               <div className="card-header">Médico Notificado</div>
-              <div className="card-body">{registro.medico_notificado || 'Médico Plantonista da UPA'}</div>
+              <div className="card-body">{registro.medico_comunicado_nome || registro.medico_notificado || (registro.medico_comunicado ? 'Sim' : '—')}</div>
             </div>
             <div className="not-card-mini">
               <div className="card-header">Horário da Notificação</div>
-              <div className="card-body">{registro.horario_notificacao || (dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora) || 'Imediato'}</div>
+              <div className="card-body">{registro.horario_comunicacao_medico ? hora(registro.horario_comunicacao_medico) : '—'}</div>
             </div>
           </div>
 
@@ -55,12 +57,12 @@ export default function CorpoIntercorrenciaOficial({ registro, pessoa, atendimen
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{sv.pa_sistolica && sv.pa_diastolica ? `${sv.pa_sistolica}x${sv.pa_diastolica}` : (registro.pa || '120x80')}</td>
-                    <td>{sv.fc || registro.fc || '80'} bpm</td>
-                    <td>{sv.fr || registro.fr || '18'} irpm</td>
-                    <td>{sv.temperatura || registro.temperatura || '36.5'} °C</td>
-                    <td>{sv.spo2 || registro.spo2 || '98'} %</td>
-                    <td>{sv.hgt || registro.hgt || '110'} mg/dL</td>
+                    <td>{sv.pa_sistolica && sv.pa_diastolica ? `${sv.pa_sistolica}x${sv.pa_diastolica}` : '—'}</td>
+                    <td>{sv.fc ? `${sv.fc} bpm` : '—'}</td>
+                    <td>{sv.fr ? `${sv.fr} irpm` : '—'}</td>
+                    <td>{sv.temperatura ? `${sv.temperatura} °C` : '—'}</td>
+                    <td>{sv.spo2 ? `${sv.spo2} %` : '—'}</td>
+                    <td>{sv.hgt ? `${sv.hgt} mg/dL` : '—'}</td>
                   </tr>
                 </tbody>
               </table>
@@ -69,12 +71,12 @@ export default function CorpoIntercorrenciaOficial({ registro, pessoa, atendimen
 
           <div className="not-secao">
             <div className="not-secao-header">3. Condutas de Enfermagem Adotadas e Medicações Administradas</div>
-            <div className="not-secao-body">{registro.conduta || 'Realizada aferição de sinais vitais, posicionamento do paciente em decúbito elevado, comunicado médico plantonista e administrada medicação conforme prescrição médica imediata.'}</div>
+            <div className="not-secao-body">{registro.acao_imediata || registro.conduta || ''}</div>
           </div>
 
           <div className="not-secao">
             <div className="not-secao-header">4. Resposta do Paciente e Desfecho</div>
-            <div className="not-secao-body">{registro.desfecho || 'Paciente estável após medidas tomadas, sem queixas no momento, sob monitorização contínua pela equipe de enfermagem.'}</div>
+            <div className="not-secao-body">{registro.desfecho_evolucao || registro.desfecho || ''}</div>
           </div>
         </div>
       </div>

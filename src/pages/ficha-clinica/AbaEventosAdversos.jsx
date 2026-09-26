@@ -1,224 +1,151 @@
 import { useEffect, useState } from 'react';
 import { listarEventosAdversos, registrarEventoAdverso } from '../../lib/pepClinico';
-import { CATEGORIAS_EVENTO_ADVERSO, GRAVIDADES_EVENTO_ADVERSO } from './constantes';
 
-function agoraParaInput() {
-  const d = new Date()
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
-  return d.toISOString().slice(0, 16)
+// Nota de Intercorrência de Enfermagem — mockups-fase2/13-nota-intercorrencia-enfermagem-design.html,
+// impresso modelos_impressao_html/04-nota-intercorrencia-enfermagem.html.
+const TIPOS = [
+  ['Pico Pressórico', 'ph-heartbeat'],
+  ['Dessaturação / Hipóxia', 'ph-drop'],
+  ['Febre Súbita / Calafrios', 'ph-thermometer'],
+  ['Perda / Obstrução de AVP', 'ph-needle'],
+  ['Queda do Leito', 'ph-warning'],
+  ['Agitação Psicomotora', 'ph-user-focus'],
+  ['Reação Adversa Medicamentosa', 'ph-shield-warning'],
+];
+const SV = [['pa', 'PA (mmHg)', '120/80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO₂ (%)'], ['temperatura', 'Tax (°C)']];
+const agoraHHMM = () => new Date().toTimeString().slice(0, 5);
+const VAZIO = () => ({ tipo: '', hora: agoraHHMM(), medico: '', horaMedico: '', pa: '', fc: '', fr: '', spo2: '', temperatura: '', descricao: '', condutas: '', desfecho: '' });
+
+function isoDeHora(hhmm) {
+  if (!hhmm) return null;
+  const [h, m] = hhmm.split(':').map(Number);
+  const d = new Date(); d.setHours(h, m || 0, 0, 0);
+  if (d > new Date()) d.setDate(d.getDate() - 1);
+  return d.toISOString();
 }
-
-const SV_VAZIO = { pa_sistolica: '', pa_diastolica: '', fc: '', fr: '', temperatura: '', spo2: '' }
+const num = (v) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : ''; };
 
 export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, onFechar }) {
-  const [lista, setLista] = useState([])
-  const [carregando, setCarregando] = useState(true)
-  const [categoria, setCategoria] = useState('')
-  const [gravidade, setGravidade] = useState('')
-  const [descricao, setDescricao] = useState('')
-  const [acaoImediata, setAcaoImediata] = useState('')
-  const [anonimo, setAnonimo] = useState(false)
-  const [ocorridoEm, setOcorridoEm] = useState(agoraParaInput)
-  const [medicoComunicado, setMedicoComunicado] = useState(false)
-  const [horarioComunicacaoMedico, setHorarioComunicacaoMedico] = useState('')
-  const [sv, setSv] = useState({ ...SV_VAZIO })
-  const [desfechoEvolucao, setDesfechoEvolucao] = useState('')
-  const [salvando, setSalvando] = useState(false)
-  const [erro, setErro] = useState('')
-  const [itemExpandido, setItemExpandido] = useState(null)
+  const [lista, setLista] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [d, setD] = useState(VAZIO);
+  const [salvando, setSalvando] = useState(false);
+  const [msg, setMsg] = useState(null);
 
-  useEffect(() => { carregar() }, [])
-
-  async function carregar() {
-    setCarregando(true)
-    setLista(await listarEventosAdversos(atendimento.atendimento_id))
-    setCarregando(false)
-  }
+  useEffect(() => { carregar(); }, []);
+  async function carregar() { setCarregando(true); setLista(await listarEventosAdversos(atendimento.atendimento_id)); setCarregando(false); }
+  const set = (k, v) => setD((p) => ({ ...p, [k]: v }));
 
   async function registrar(imprimir = false) {
-    if (!categoria || !gravidade || !descricao.trim()) return
-    setErro('')
-    setSalvando(true)
+    if (!d.tipo || !d.descricao.trim()) { setMsg({ erro: true, t: 'Selecione o tipo de evento e descreva a intercorrência.' }); return; }
+    setMsg(null); setSalvando(true);
+    const [pas, pad] = String(d.pa).split(/[x/]/i).map((x) => x.trim());
     const { data, error } = await registrarEventoAdverso({
-      atendimentoId: atendimento.atendimento_id, relatorId: autorId, anonimo,
-      categoria, gravidade, descricao: descricao.trim(), acaoImediata: acaoImediata.trim(),
-      ocorridoEm: ocorridoEm ? new Date(ocorridoEm).toISOString() : null,
-      medicoComunicado,
-      horarioComunicacaoMedico: horarioComunicacaoMedico ? new Date(horarioComunicacaoMedico).toISOString() : null,
-      sinaisVitais: sv,
-      desfechoEvolucao: desfechoEvolucao.trim(),
-    })
-    setSalvando(false)
-    if (error) {
-      setErro('Não foi possível registrar. Tente de novo.')
-      console.error(error)
-      return
-    }
-    if (imprimir && data) onImprimir(data)
-    setCategoria(''); setGravidade(''); setDescricao(''); setAcaoImediata(''); setAnonimo(false)
-    setOcorridoEm(agoraParaInput()); setMedicoComunicado(false); setHorarioComunicacaoMedico('')
-    setSv({ ...SV_VAZIO }); setDesfechoEvolucao('')
-    carregar()
+      atendimentoId: atendimento.atendimento_id, relatorId: autorId, anonimo: false,
+      categoria: d.tipo, gravidade: 'Não classificada', descricao: d.descricao.trim(), acaoImediata: d.condutas.trim(),
+      ocorridoEm: isoDeHora(d.hora),
+      medicoComunicado: !!d.medico.trim(), medicoComunicadoNome: d.medico.trim(), horarioComunicacaoMedico: isoDeHora(d.horaMedico),
+      sinaisVitais: { pa_sistolica: num(pas), pa_diastolica: num(pad), fc: num(d.fc), fr: num(d.fr), spo2: num(d.spo2), temperatura: num(d.temperatura) },
+      desfechoEvolucao: d.desfecho.trim(),
+    });
+    setSalvando(false);
+    if (error) { console.error(error); setMsg({ erro: true, t: 'Não foi possível registrar. Tente de novo.' }); return; }
+    setMsg({ t: 'Intercorrência registrada.' });
+    if (imprimir && data) onImprimir(data);
+    setD(VAZIO());
+    carregar();
   }
 
+  const ultima = lista[0];
+  const hhmm = (iso) => new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às');
+
   return (
-    <div className="clinical-split">
-      <aside className="timeline-pane">
-        <div className="pane-header">
+    <div className="clinical-split sae-split">
+      <aside className="history-pane">
+        <div className="hp-header">
           <span><i className="ph ph-warning-octagon" /> Ocorrências Registradas</span>
+          <span style={{ fontSize: 10, color: '#64748B' }}>24h</span>
         </div>
-        <div className="timeline-list">
-          {carregando ? (
-            <p style={{ fontSize: 11, color: '#94A3B8' }}>Carregando...</p>
-          ) : lista.length === 0 ? (
-            <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhum evento adverso registrado.</p>
-          ) : lista.map((e) => (
-            <div
-              key={e.id}
-              className={`tl-item ${itemExpandido === e.id ? 'expanded' : ''}`}
-              onClick={() => setItemExpandido((atual) => (atual === e.id ? null : e.id))}
-            >
-              <div className="tl-date">
-                {new Date(e.ocorrido_em).toLocaleString('pt-BR')}
-                <i className={`ph ph-caret-${itemExpandido === e.id ? 'up' : 'down'}`} />
+        <div className="history-list">
+          {carregando ? <p className="qs-vazio">Carregando...</p> : lista.length === 0 ? <p className="qs-vazio">Nenhuma intercorrência registrada.</p> : lista.map((e) => (
+            <div key={e.id} className="inc-card" onClick={() => onImprimir(e)} title="Clique para imprimir">
+              <div className="inc-time">
+                <span>{hhmm(e.ocorrido_em)}</span>
+                {e.medico_comunicado && <span>Médico comunicado</span>}
               </div>
-              <div className="tl-author">
-                <i className="ph ph-user" /> {e.anonimo ? 'Relato anônimo' : (e.enfermeiros?.nome_exibicao || e.enfermeiros?.nome || '—')}
-              </div>
-              <div className="tl-preview">
-                <strong>{e.categoria} · {e.gravidade}</strong><br />
-                {e.descricao}
-                {e.acao_imediata && <><br /><em>Ação imediata: {e.acao_imediata}</em></>}
-                {e.medico_comunicado && (
-                  <><br /><em>Médico comunicado{e.horario_comunicacao_medico ? ` às ${new Date(e.horario_comunicacao_medico).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : ''}</em></>
-                )}
-                {e.desfecho_evolucao && <><br /><em>Desfecho: {e.desfecho_evolucao}</em></>}
-              </div>
-              {onImprimir && (
-                <button
-                  type="button"
-                  className="tl-print"
-                  onClick={(ev) => {
-                    ev.stopPropagation()
-                    onImprimir({
-                      classificacao: `${e.categoria} (${e.gravidade})`,
-                      descricao: e.descricao,
-                      conduta: e.acao_imediata || 'Ações imediatas adotadas conforme protocolo institucional.',
-                      desfecho: e.desfecho_evolucao || 'Paciente sob observação contínua da equipe de enfermagem.',
-                      criado_em: e.ocorrido_em,
-                    })
-                  }}
-                >
-                  <i className="ph ph-printer" /> Imprimir
-                </button>
-              )}
+              <div className="inc-title">{e.categoria}</div>
+              <div className="inc-desc">{e.descricao}{e.desfecho_evolucao ? ` — ${e.desfecho_evolucao}` : ''}</div>
             </div>
           ))}
         </div>
       </aside>
 
-      <div className="clinical-card">
-        <div className="cc-header">
-          <div className="cc-title">
-            <h2><i className="ph ph-warning-circle" /> Registrar Nova Intercorrência / Evento Adverso</h2>
-            <p>Cultura justa de notificação — o objetivo é identificar falhas do processo, não punir quem relata. Pode ser registrado como anônimo.</p>
+      <div className="form-card">
+        <div className="fc-header">
+          <div className="fc-title">
+            <h2><i className="ph ph-warning-circle" /> Registrar Nova Intercorrência Clínica</h2>
+            <p>Documento oficial para registro imediato de eventos agudos e resposta assistencial.</p>
           </div>
+          <button type="button" className="btn-toggle-sidebar" disabled={!ultima} onClick={() => ultima && onImprimir(ultima)}>
+            <i className="ph ph-printer" /> Visualizar Impresso Oficial
+          </button>
         </div>
 
-        <div className="cc-body">
-          <div className="form-group">
-            <label><i className="ph ph-clock" /> Horário exato da ocorrência</label>
-            <input type="datetime-local" value={ocorridoEm} onChange={(e) => setOcorridoEm(e.target.value)} />
-          </div>
-
-          <div className="form-group">
-            <label>Classificação / Tipo de Evento:</label>
-            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {CATEGORIAS_EVENTO_ADVERSO.map((c) => (
-                <label key={c} className="checkbox-item">
-                  <input type="radio" name="categoria-evento" checked={categoria === c} onChange={() => setCategoria(c)} /> {c}
-                </label>
+        <div className="fc-body">
+          <div className="enf-group">
+            <label>Classificação / Tipo de Evento Agudo:</label>
+            <div className="type-chips">
+              {TIPOS.map(([t, icon]) => (
+                <button key={t} type="button" className={'type-chip' + (d.tipo === t ? ' selected' : '')} onClick={() => set('tipo', d.tipo === t ? '' : t)}>
+                  <i className={'ph ' + icon} /> {t}
+                </button>
               ))}
             </div>
           </div>
 
-          <div className="form-group">
-            <label>Gravidade:</label>
-            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {GRAVIDADES_EVENTO_ADVERSO.map((g) => (
-                <label key={g} className="checkbox-item">
-                  <input type="radio" name="gravidade-evento" checked={gravidade === g} onChange={() => setGravidade(g)} /> {g}
-                </label>
+          <div className="grid-3">
+            <div className="enf-group"><label>Horário Exato da Ocorrência</label><input className="enf-control" type="time" value={d.hora} onChange={(e) => set('hora', e.target.value)} /></div>
+            <div className="enf-group"><label>Médico Plantonista Comunicado</label><input className="enf-control" type="text" placeholder="Nome (CRM)" value={d.medico} onChange={(e) => set('medico', e.target.value)} /></div>
+            <div className="enf-group"><label>Horário da Notificação Médica</label><input className="enf-control" type="time" value={d.horaMedico} onChange={(e) => set('horaMedico', e.target.value)} /></div>
+          </div>
+
+          <div className="enf-group">
+            <label>Sinais Vitais Durante o Evento:</label>
+            <div className="vitals-row">
+              {SV.map(([k, r, ph]) => (
+                <div key={k} className="vr-item"><label>{r}</label><input type="text" placeholder={ph || ''} value={d[k]} onChange={(e) => set(k, e.target.value)} /></div>
               ))}
             </div>
           </div>
 
-          <div className="form-group">
-            <label><i className="ph ph-text-align-left" /> Descrição Detalhada do Evento e Queixas do Paciente *</label>
-            <textarea className="large" style={{ minHeight: 100 }} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Descreva os sinais objetivos, sintomas relatados pelo paciente ou familiar..." />
+          <div className="enf-group">
+            <label>Descrição Detalhada do Evento Agudo e Queixas do Paciente *</label>
+            <textarea className="enf-control" rows="3" placeholder="Descreva os sinais objetivos, sintomas relatados pelo paciente ou familiar..." value={d.descricao} onChange={(e) => set('descricao', e.target.value)} />
+          </div>
+          <div className="enf-group">
+            <label>Condutas Assistenciais Imediatas de Enfermagem</label>
+            <textarea className="enf-control" rows="3" placeholder="Descreva as medidas imediatas adotadas pela enfermagem..." value={d.condutas} onChange={(e) => set('condutas', e.target.value)} />
+          </div>
+          <div className="enf-group">
+            <label>Evolução do Quadro / Desfecho Pós-Conduta</label>
+            <input className="enf-control" type="text" value={d.desfecho} onChange={(e) => set('desfecho', e.target.value)} />
           </div>
 
-          <div className="form-section-box">
-            <div className="form-section-box-title"><i className="ph ph-heartbeat" /> Sinais Vitais no Momento do Evento</div>
-            <div className="assess-grid">
-              <div className="form-group"><label>PA sistólica</label><input type="number" value={sv.pa_sistolica} onChange={(e) => setSv((p) => ({ ...p, pa_sistolica: e.target.value }))} /></div>
-              <div className="form-group"><label>PA diastólica</label><input type="number" value={sv.pa_diastolica} onChange={(e) => setSv((p) => ({ ...p, pa_diastolica: e.target.value }))} /></div>
-              <div className="form-group"><label>FC</label><input type="number" value={sv.fc} onChange={(e) => setSv((p) => ({ ...p, fc: e.target.value }))} /></div>
-              <div className="form-group"><label>FR</label><input type="number" value={sv.fr} onChange={(e) => setSv((p) => ({ ...p, fr: e.target.value }))} /></div>
-              <div className="form-group"><label>Temperatura</label><input type="number" step="0.1" value={sv.temperatura} onChange={(e) => setSv((p) => ({ ...p, temperatura: e.target.value }))} /></div>
-              <div className="form-group"><label>SpO2</label><input type="number" value={sv.spo2} onChange={(e) => setSv((p) => ({ ...p, spo2: e.target.value }))} /></div>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label><i className="ph ph-first-aid" /> Ação Imediata Tomada</label>
-            <textarea style={{ minHeight: 70 }} value={acaoImediata} onChange={(e) => setAcaoImediata(e.target.value)} placeholder="Descreva as medidas imediatas adotadas pela enfermagem..." />
-          </div>
-
-          <div className="form-group">
-            <label><i className="ph ph-notepad" /> Desfecho / Evolução Pós-Conduta</label>
-            <textarea style={{ minHeight: 70 }} value={desfechoEvolucao} onChange={(e) => setDesfechoEvolucao(e.target.value)} placeholder="Como o paciente evoluiu após a conduta adotada..." />
-          </div>
-
-          <label className="checkbox-item">
-            <input type="checkbox" checked={medicoComunicado} onChange={(e) => setMedicoComunicado(e.target.checked)} /> Médico plantonista comunicado
-          </label>
-          {medicoComunicado && (
-            <div className="form-group">
-              <label>Horário da comunicação ao médico</label>
-              <input type="datetime-local" value={horarioComunicacaoMedico} onChange={(e) => setHorarioComunicacaoMedico(e.target.value)} />
-            </div>
-          )}
-
-          <label className="checkbox-item">
-            <input type="checkbox" checked={anonimo} onChange={(e) => setAnonimo(e.target.checked)} /> Registrar como anônimo
-          </label>
-
-          {erro && (
-            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-              <div className="info" style={{ color: '#DC2626' }}>
-                <i className="ph ph-warning" /> {erro}
-              </div>
+          {msg && (
+            <div className="condicional-box" style={msg.erro ? { background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' } : undefined}>
+              <span style={{ fontSize: 12.5, fontWeight: 600 }}><i className={'ph ' + (msg.erro ? 'ph-warning' : 'ph-check-circle')} /> {msg.t}</span>
             </div>
           )}
         </div>
 
-        <div className="cc-footer">
-          <div>
-            <button type="button" className="btn-cancel" onClick={onFechar}>
-              <i className="ph ph-x-circle" /> Cancelar
-            </button>
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando || !categoria || !gravidade || !descricao.trim()}>
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
-            </button>
-            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando || !categoria || !gravidade || !descricao.trim()}>
-              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
-            </button>
+        <div className="fc-footer">
+          <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
+            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
