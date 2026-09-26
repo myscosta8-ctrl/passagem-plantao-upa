@@ -39,8 +39,13 @@ export function AuthProvider({ children }) {
       .select('*')
       .eq('id', enfermeiroId)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.error('Erro ao buscar perfil:', error)
         setEnfermeiro(data ?? null)
+        setProfileLoading(false)
+      })
+      .catch((err) => {
+        console.error('Erro fatal ao buscar perfil:', err)
         setProfileLoading(false)
       })
   }, [enfermeiroId])
