@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prontuário Médico — UPA 24h (Enterprise)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg-app: #F1F5F9;
+  --bg-surface: #ffffff;
+  --border-light: #E2E8F0;
+  --border-strong: #CBD5E1;
+  
+  --text-main: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+
+  --primary: #1D4ED8;
+  --primary-hover: #1E3A8A;
+  --primary-light: #EFF6FF;
+
+  --mc-laranja:  #EA580C;
+  --mc-laranja-light: #FFEDD5;
+
+  --danger: #DC2626;
+  --danger-light: #FEF2F2;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-app); color: var(--text-main); font-size: 14px; height: 100vh; display: flex; overflow: hidden; }
+
+/* MAIN E TOPBAR */
+.main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.topbar { height: 50px; background: var(--bg-surface); border-bottom: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: var(--shadow-sm); z-index: 40; flex-shrink: 0; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.breadcrumb span.current { color: var(--text-main); font-weight: 600; }
+.btn-voltar { background: transparent; border: 1px solid var(--border-strong); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+.btn-voltar:hover { background: var(--border-light); color: var(--text-main); }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.sys-time { font-size: 11px; font-weight: 600; color: var(--text-muted); padding-right: 16px; border-right: 1px solid var(--border-light); }
+.top-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
+
+/* -----------------------------------------
+   WORKSPACE - PRONTUÁRIO MÉDICO
+----------------------------------------- */
+/* Agora o workspace é fixo e gerencia a rolagem interna de suas colunas */
+.workspace { flex: 1; overflow: hidden; padding: 10px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* 1. PATIENT BANNER (Identificação COMPLETA) - Fixo no Topo */
+.patient-banner { flex-shrink: 0; background: var(--bg-surface); border: 1px solid var(--mc-laranja); border-left: 6px solid var(--mc-laranja); border-radius: 8px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+.pb-main { padding: 6px 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+.pb-left { display: flex; flex-direction: column; gap: 2px; }
+.pb-header { display: flex; align-items: center; gap: 8px; }
+.pb-name { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; }
+.pb-badge { background: var(--mc-laranja-light); color: #9A3412; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 4px; }
+.pb-alergia { background: var(--danger-light); color: var(--danger); font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.pb-meta { display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+.pb-meta-item { display: flex; align-items: center; gap: 4px; }
+.pb-meta-item i { color: var(--text-muted); font-size: 13px; }
+.pb-hd { margin-top: 0; font-size: 11px; color: var(--text-secondary); }
+.pb-hd strong { color: var(--text-main); }
+.pb-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.pb-leito { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 4px; }
+.pb-leito i { color: var(--primary); }
+.pb-admissao { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+.btn-expand-details { background: transparent; border: 1px solid var(--border-strong); padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+.btn-expand-details:hover { background: var(--bg-app); color: var(--text-main); }
+
+/* Dados Oficiais - Gaveta */
+.pb-details { border-top: 1px dashed var(--border-strong); padding: 10px 16px; background: #F8FAFC; border-radius: 0 0 8px 8px; display: none; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 11px; }
+.detail-item { display: flex; flex-direction: column; gap: 2px; }
+.detail-item label { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.detail-item span { color: var(--text-main); font-weight: 500; }
+
+/* 2. NAVEGAÇÃO DO PRONTUÁRIO (Tabs) - Fixa no Topo */
+.clinical-tabs { display: flex; gap: 4px; background: var(--border-light); padding: 4px; border-radius: 8px; flex-shrink: 0; }
+.tab-btn { flex: 1; padding: 6px 12px; border: none; background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.tab-btn:hover { background: rgba(255,255,255,0.5); color: var(--text-main); }
+.tab-btn.active { background: var(--bg-surface); color: var(--primary); box-shadow: var(--shadow-sm); }
+
+/* 3. SPLIT VIEW: Histórico x Nova Evolução */
+/* O container pega todo o espaço restante e permite a rolagem apenas das colunas internas */
+.clinical-split { display: flex; gap: 16px; flex: 1; min-height: 0; overflow: hidden; }
+
+/* Lado Esquerdo: Timeline de Evoluções */
+.timeline-pane { width: 280px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 12px; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: var(--shadow-sm); overflow: hidden; }
+.pane-header { padding: 10px 14px; border-bottom: 1px solid var(--border-strong); background: #F8FAFC; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.pane-header span { font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.pane-header i { color: var(--primary); font-size: 15px; }
+.timeline-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+.tl-item { padding-left: 16px; border-left: 2px solid var(--border-strong); position: relative; cursor: pointer; transition: 0.2s; }
+.tl-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); border: 2px solid var(--bg-surface); transition: 0.2s; }
+.tl-item:hover::before { background: var(--primary); }
+.tl-item.active { border-left-color: var(--primary); }
+.tl-item.active::before { background: var(--primary); }
+
+.tl-date { font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center; }
+.tl-author { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.tl-preview { font-size: 11px; color: var(--text-main); margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; background: #F8FAFC; padding: 8px; border-radius: 6px; border: 1px solid transparent; transition: 0.2s; line-height: 1.4; }
+.tl-item:hover .tl-preview { border-color: var(--border-strong); }
+
+/* ESTADO EXPANDIDO (Quando Clicado) */
+.tl-item.expanded .tl-preview { display: block; -webkit-line-clamp: unset; background: #ffffff; border-color: var(--primary); box-shadow: var(--shadow-sm); }
+.tl-item.expanded .tl-date { color: var(--primary); }
+
+/* Lado Direito: Formulário da Evolução */
+.clinical-card { flex: 1; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 12px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; overflow: hidden; }
+.cc-header { padding: 10px 16px; border-bottom: 1px solid var(--border-strong); background: #F8FAFC; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.cc-title h2 { font-size: 15px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.cc-title h2 i { color: var(--primary); }
+.cc-title p { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+.cc-body { padding: 24px 32px; display: flex; flex-direction: column; gap: 24px; flex: 1; overflow-y: auto; }
+
+/* Grid de Sinais Vitais - Reduzidos e em linha única */
+.vitals-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.vital-box { border: 1px solid var(--border-strong); border-radius: 6px; padding: 8px 12px; background: #F8FAFC; position: relative; }
+.vital-box label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px; }
+.vital-input-wrapper { display: flex; align-items: baseline; gap: 4px; }
+.vital-input-wrapper input { width: 100%; border: none; background: transparent; font-size: 16px; font-weight: 700; color: var(--text-main); outline: none; }
+.vital-input-wrapper span { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+/* Grid Diagnósticos / Avaliação */
+.assess-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group label { font-size: 14px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+.form-group label i { color: var(--primary); }
+.form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; outline: none; background: #F8FAFC; color: var(--text-main); transition: 0.2s; font-family: 'Inter', sans-serif; }
+.form-control:focus { background: #fff; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+.form-control-area { width: 100%; padding: 14px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; outline: none; background: #F8FAFC; color: var(--text-main); transition: 0.2s; min-height: 120px; font-family: 'Inter', sans-serif; resize: vertical; line-height: 1.5; }
+.form-control-area:focus { background: #fff; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.form-control-area.large { min-height: 180px; }
+
+.checkbox-group { display: flex; gap: 24px; padding: 12px 16px; background: #F8FAFC; border: 1px solid var(--border-strong); border-radius: 8px; align-items: center; }
+.checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--text-secondary); cursor: pointer; }
+.checkbox-item input { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+
+.cc-footer { padding: 12px 20px; background: #F8FAFC; border-top: 1px solid var(--border-strong); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.btn-cancel { background: #fff; border: 1px solid var(--danger); color: var(--danger); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-cancel:hover { background: var(--danger-light); }
+.btn-save-draft { background: #fff; border: 1px solid var(--primary); color: var(--primary); padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-save-draft:hover { background: var(--primary-light); }
+.btn-save-print { background: var(--primary); color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm); transition: 0.2s; }
+.btn-save-print:hover { background: var(--primary-hover); box-shadow: var(--shadow-md); }
+
+</style>
+</head>
+<body>
+
+<main class="main-content">
+  <header class="topbar">
+    <div class="topbar-left" style="display: flex; gap: 16px; align-items: center;">
+      <button class="btn-voltar"><i class="ph ph-arrow-left"></i> Voltar ao Painel</button>
+      <div class="breadcrumb">
+        <span>Prontuário Eletrônico</span>
+        <i class="ph ph-caret-right"></i>
+        <span class="current">Atendimento Médico</span>
+      </div>
+    </div>
+    
+    <div class="topbar-right">
+      <div class="sys-time"><i class="ph ph-clock"></i> 21/09/2026 23:05</div>
+      <div class="top-avatar">DR</div>
+    </div>
+  </header>
+
+  <div class="workspace">
+      
+      <!-- 1. PATIENT BANNER COM DADOS OFICIAIS (Expandido p/ exemplo) -->
+      <div class="patient-banner">
+        <div class="pb-main">
+          <div class="pb-left">
+            <div class="pb-header">
+              <h1 class="pb-name">João Pereira Souza</h1>
+              <div class="pb-badge"><i class="ph ph-warning-circle"></i> Risco Laranja</div>
+              <div class="pb-alergia"><i class="ph ph-warning-octagon"></i> Alérgico (Dipirona)</div>
+            </div>
+            <div class="pb-meta">
+              <div class="pb-meta-item"><i class="ph ph-identification-card"></i> 62 anos (20/05/1964)</div>
+              <div class="pb-meta-item"><i class="ph ph-gender-male"></i> Masculino</div>
+              <div class="pb-meta-item"><i class="ph ph-credit-card"></i> CNS: 700.0000.0000.0000</div>
+            </div>
+            <div class="pb-hd">
+              <strong>HD Atual:</strong> Suspeita de AVE Isquêmico. Aguardando vaga UTI.
+            </div>
+          </div>
+          <div class="pb-right">
+            <div class="pb-leito"><i class="ph ph-bed"></i> Sala Amarela - Leito 02</div>
+            <div class="pb-admissao">Internado desde: 20/09/2026 às 23:15</div>
+            <button class="btn-expand-details" onclick="toggleDetails()"><i class="ph ph-caret-down"></i> <span id="toggle-lbl">Ocultar Ficha Oficial</span></button>
+          </div>
+        </div>
+        
+        <!-- Bloco de Dados Oficiais Integrados (O que faltava) -->
+        <div class="pb-details" id="ficha-oficial">
+          <div class="detail-item">
+            <label>Nome da Mãe</label>
+            <span>Maria Auxiliadora Pereira</span>
+          </div>
+          <div class="detail-item">
+            <label>RG / CPF</label>
+            <span>1234567 PC/PA — 000.000.000-00</span>
+          </div>
+          <div class="detail-item">
+            <label>Endereço Completo</label>
+            <span>Av. Rio Branco, 400 - Centro, Breves/PA</span>
+          </div>
+          <div class="detail-item">
+            <label>Telefone de Contato</label>
+            <span>(91) 99999-0000 (Filha: Ana)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. CLINICAL TABS -->
+      <div class="clinical-tabs">
+        <button class="tab-btn"><i class="ph ph-stethoscope"></i> Anamnese e Admissão</button>
+        <button class="tab-btn active"><i class="ph ph-activity"></i> Evolução Diária</button>
+        <button class="tab-btn"><i class="ph ph-pill"></i> Prescrição Médica</button>
+        <button class="tab-btn"><i class="ph ph-file-text"></i> Receituário / Alta</button>
+      </div>
+
+      <!-- 3. SPLIT VIEW -->
+      <div class="clinical-split">
+        
+        <!-- TIMELINE (Histórico do Paciente) -->
+        <aside class="timeline-pane">
+          <div class="pane-header">
+            <span><i class="ph ph-clock-counter-clockwise"></i> Histórico Clínico</span>
+          </div>
+          <div class="timeline-list">
+            
+            <div class="tl-item" onclick="this.classList.toggle('expanded')">
+              <div class="tl-date">Hoje, 08:30 <i class="ph ph-caret-down"></i></div>
+              <div class="tl-author"><i class="ph ph-user-md"></i> Dr. Marcos Costa (CRM/PA 1234)</div>
+              <div class="tl-preview">Evolução: Paciente acordado, referindo melhora discreta da hemiparesia. Pressão arterial mantida em 150/90. Mantido protocolo para controle pressórico. Pupilas isocóricas e fotorreagentes.
+              
+Exame Físico: RCR 2T BNF. Murmúrio vesicular presente sem ruídos adventícios. Abdome flácido.
+              
+Conduta: Mantida prescrição anterior. Solicitado parecer da neurologia do Hospital Regional.</div>
+            </div>
+
+            <div class="tl-item" onclick="this.classList.toggle('expanded')">
+              <div class="tl-date">Ontem, 23:45 <i class="ph ph-caret-down"></i></div>
+              <div class="tl-author"><i class="ph ph-user-md"></i> Dr. Carlos Silva (CRM/PA 5678)</div>
+              <div class="tl-preview">Admissão: Paciente admitido na sala amarela com quadro súbito de déficit motor em dimídio direito. HD: AVEi. Solicitado TC de crânio.
+              
+Conduta: Início protocolo de AVE. Monitorização cardíaca e O2.</div>
+            </div>
+
+            <div class="tl-item" onclick="this.classList.toggle('expanded')">
+              <div class="tl-date">Ontem, 23:15 <i class="ph ph-caret-down"></i></div>
+              <div class="tl-author"><i class="ph ph-thermometer"></i> Enf. Júlia Mendes</div>
+              <div class="tl-preview">Triagem: Classificado como Laranja. Queixa principal: "Boca torta e fraqueza no braço". Sinais vitais: PA 180/100, FC 98, FR 20, Sat 96%. Paciente relata início dos sintomas há cerca de 1 hora. Trazido pela filha Ana. Histórico de hipertensão.</div>
+            </div>
+
+          </div>
+        </aside>
+
+        <!-- NOVO DOCUMENTO -->
+        <div class="clinical-card">
+          <div class="cc-header">
+            <div class="cc-title">
+              <h2><i class="ph ph-activity"></i> Nova Evolução Médica Diária</h2>
+              <p>Preencha os dados da evolução. Todos os campos compõem o documento oficial.</p>
+            </div>
+          </div>
+
+          <div class="cc-body">
+            
+            <div class="assess-grid">
+              <div class="form-group">
+                <label><i class="ph ph-virus"></i> Diagnósticos Ativos (CID-10 / HD)</label>
+                <input type="text" class="form-control" value="Suspeita de AVE Isquêmico">
+              </div>
+              <div class="form-group">
+                <label><i class="ph ph-heartbeat"></i> Comorbidades / Antecedentes</label>
+                <input type="text" class="form-control" value="HAS (uso irregular de losartana), DM2">
+              </div>
+            </div>
+
+            <div class="checkbox-group">
+              <label style="font-weight: 700; color: var(--text-main); font-size: 13px;">Risco e Avaliação Rápida:</label>
+              <label class="checkbox-item">
+                <input type="checkbox" checked> Risco TEV
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox"> Protocolo Sepse (2+ critérios)
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox"> Uso de Antimicrobianos
+              </label>
+            </div>
+
+            <!-- Sinais Vitais -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px;">
+                <h3 style="font-size: 14px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;"><i class="ph ph-thermometer" style="color: var(--danger);"></i> Sinais Vitais Atuais</h3>
+                <span style="font-size: 12px; color: var(--text-muted); cursor: pointer;"><i class="ph ph-arrows-clockwise"></i> Puxar da Enfermagem</span>
+              </div>
+              <div class="vitals-grid">
+                <div class="vital-box"><label>P. Arterial</label><div class="vital-input-wrapper"><input type="text" value="150/90"><span>mmHg</span></div></div>
+                <div class="vital-box"><label>F. Cardíaca</label><div class="vital-input-wrapper"><input type="text" value="88"><span>bpm</span></div></div>
+                <div class="vital-box"><label>F. Respiratória</label><div class="vital-input-wrapper"><input type="text" value="16"><span>irpm</span></div></div>
+                <div class="vital-box"><label>Temperatura</label><div class="vital-input-wrapper"><input type="text" value="36.5"><span>°C</span></div></div>
+                <div class="vital-box"><label>Sat O₂</label><div class="vital-input-wrapper"><input type="text" value="98"><span>%</span></div></div>
+                <div class="vital-box"><label>HGT</label><div class="vital-input-wrapper"><input type="text" value="115"><span>mg/dL</span></div></div>
+              </div>
+            </div>
+
+            <!-- Campos de Texto Oficiais -->
+            <div class="form-group">
+              <label><i class="ph ph-text-align-left"></i> Evolução Clínica do Dia e Queixas</label>
+              <textarea class="form-control-area large" placeholder="Descreva o estado geral, queixas, evolução do quadro..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label><i class="ph ph-stethoscope"></i> Exame Físico Dirigido</label>
+              <textarea class="form-control-area" placeholder="Ex: Bom estado geral, corado, hidratado..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label><i class="ph ph-list-checks"></i> Conduta Médica / Plano Terapêutico</label>
+              <textarea class="form-control-area" placeholder="Conduta, exames solicitados, pendências de leito..."></textarea>
+            </div>
+
+          </div>
+
+          <div class="cc-footer">
+            <button class="btn-cancel" onclick="window.history.back()"><i class="ph ph-x-circle"></i> Cancelar</button>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn-save-draft" onclick="alert('Evolução médica salva como rascunho com sucesso!')"><i class="ph ph-floppy-disk"></i> Salvar</button>
+              <button class="btn-save-print" onclick="alert('Evolução médica salva e enviada para impressão!'); window.open('../modelos_impressao_html/07-evolucao-medica-diaria.html', '_blank')"><i class="ph ph-printer"></i> Salvar e Imprimir</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+  </div>
+</main>
+
+<script>
+  function toggleDetails() {
+    const ficha = document.getElementById('ficha-oficial');
+    const lbl = document.getElementById('toggle-lbl');
+    if (ficha.style.display === 'none') {
+      ficha.style.display = 'grid';
+      lbl.innerText = 'Ocultar Ficha Oficial';
+    } else {
+      ficha.style.display = 'none';
+      lbl.innerText = 'Exibir Ficha Oficial';
+    }
+  }
+</script>
+
+</body>
+</html>

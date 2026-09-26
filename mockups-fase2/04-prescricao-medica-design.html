@@ -134,7 +134,10 @@ body { background: var(--bg-app); color: var(--text-main); font-size: 14px; heig
 .item-actions button { background: transparent; border: none; color: var(--danger); font-size: 15px; cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s; }
 .item-actions button:hover { background: var(--danger-light); }
 
-.presc-input-row { display: grid; grid-template-columns: 24px 1fr 120px 150px auto; gap: 12px; padding: 10px 16px; background: var(--primary-light); align-items: center; border-top: 1px dashed var(--primary); }
+.presc-input-row { display: flex; flex-direction: column; gap: 12px; padding: 16px; background: var(--primary-light); border: 1px dashed var(--primary); border-radius: 8px; margin-top: 8px; }
+.presc-input-grid-1 { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.presc-input-grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+.presc-input-grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
 .presc-input-row .item-num { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
 .presc-input-row input, .presc-input-row select { padding: 6px 10px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 11px; outline: none; }
 .btn-confirm-add { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
@@ -287,9 +290,48 @@ body { background: var(--bg-app); color: var(--text-main); font-size: 14px; heig
                 <div class="item-actions"><button><i class="ph ph-trash"></i></button></div>
               </div>
 
-              <!-- Input Row para um novo Medicamento Injetável -->
+              
+              <!-- Input Row COMPLETA (Sincronizada com PDF) -->
               <div class="presc-input-row">
-                <div class="item-num">02</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <div class="item-num" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">02</div>
+                    <strong style="color: var(--primary); font-size: 13px;">Adicionar Medicamento</strong>
+                  </div>
+                  <button class="btn-calc-ped" onclick="openModal()"><i class="ph ph-calculator"></i> Calc. Pediátrica (EV/IM)</button>
+                </div>
+                
+                <div class="presc-input-grid-1">
+                  <input type="text" value="Ceftriaxona 1g, Frasco-ampola" placeholder="Buscar medicamento...">
+                </div>
+
+                <div class="presc-input-grid-2">
+                  <input type="text" placeholder="Instruções / Diluição (Ex: Diluir em 10mL AD e fazer lento)">
+                  <div style="display: flex; align-items: center; background: #FFFFFF; padding: 0 10px; border-radius: 6px; border: 1px solid var(--border-strong);">
+                    <label style="font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                      <input type="checkbox"> SN / ACM (Se Necessário)
+                    </label>
+                  </div>
+                </div>
+
+                <div class="presc-input-grid-4">
+                  <input type="number" placeholder="Qtd (Dose)">
+                  <input type="text" placeholder="Und (Ex: amp, fr, cp)">
+                  <select>
+                    <option>Via...</option>
+                    <option selected>EV</option>
+                    <option>VO</option>
+                    <option>IM</option>
+                    <option>SC</option>
+                  </select>
+                  <input type="text" placeholder="Freq (Ex: 6/6h, ACM)">
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+                  <button class="btn-confirm-add"><i class="ph ph-plus"></i> Confirmar Adição</button>
+                </div>
+              </div>
+
                 <input type="text" value="Ceftriaxona 1g, Frasco-ampola" readonly>
                 <button class="btn-calc-ped" onclick="openModal()"><i class="ph ph-calculator"></i> Calc. Pediátrica (EV/IM)</button>
                 <input type="text" placeholder="Ex: Ver na Calc." readonly style="background: #F8FAFC;">
