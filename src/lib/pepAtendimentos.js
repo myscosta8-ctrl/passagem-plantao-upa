@@ -138,6 +138,13 @@ export async function listarBalancoPorAtendimentos(atendimentoIds) {
 
 // Atualização pontual do campo de pendências direto na grade da Passagem de
 // Plantão Coletiva — não mexe em nenhum outro campo da passagem já salva.
+export async function atualizarCamposPassagem(passagemId, campos) {
+  const permitidos = ['pendencias', 'dispositivos', 'dispositivos_detalhe']
+  const dados = Object.fromEntries(Object.entries(campos).filter(([k]) => permitidos.includes(k)))
+  if (Object.keys(dados).length === 0) return { error: null }
+  return supabase.from('passagens').update(dados).eq('id', passagemId)
+}
+
 export async function atualizarPendenciasPassagem(passagemId, pendencias) {
   return supabase.from('passagens').update({ pendencias: pendencias || null }).eq('id', passagemId)
 }

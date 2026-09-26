@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import { marcarPassagemConferida, atualizarPendenciasPassagem } from '../lib/pepAtendimentos'
-import IndicadoresClinicos from '../components/IndicadoresClinicos'
+import { marcarPassagemConferida, atualizarCamposPassagem, salvarPassagemPep } from '../lib/pepAtendimentos'
+import { DISPOSITIVOS_OPCOES } from './passagem-form/constantes'
 import './PassagemColetiva.css'
 
-// Porte de mockups-fase2/12-passagem-plantao-design.html: barra do setor com
-// ações e seletor Grade/Tabela/Detalhe, cards de leito em 4 colunas, matriz
-// sintética, visão de foco por leito e rodapé Cancelar/Salvar/Salvar e Imprimir.
-// Só dados reais — a linha "Entrega ➔ Assume" do mockup não existe porque o
-// schema não registra quem assume o turno.
+// Cópia literal de mockups-fase2/12-passagem-plantao-design.html, com os
+// ajustes pedidos: sem "Entrega ➔ Assume", sem Sinais Vitais e Balanço
+// Hídrico, Dispositivos editável direto no card e os dois impressos dos
+// setores na barra de ações.
 const CHIPS_PENDENCIA_RAPIDA = [
   'Reavaliar sinais vitais',
   'Comunicar médico se alteração',
@@ -20,14 +19,8 @@ const GRUPOS_IMPRESSAO = [
   { tela: 'print2', setores: ['Pediátrico', 'Observação/Internação'] },
 ]
 
-// Classificação visual simples dos sinais (só cor, não interpreta clinicamente).
-function nivelPa(s, d) { if (s == null) return ''; if (s >= 180 || s < 90 || d >= 110) return 'alert'; if (s >= 140 || d >= 90) return 'warn'; return '' }
-function nivelFc(v) { if (v == null) return ''; if (v > 120 || v < 50) return 'alert'; if (v > 100 || v < 60) return 'warn'; return '' }
-function nivelSpo2(v) { if (v == null) return ''; if (v < 90) return 'alert'; if (v < 94) return 'warn'; return '' }
-function nivelTemp(v) { if (v == null) return ''; if (v >= 38 || v < 35) return 'alert'; if (v >= 37.5) return 'warn'; return '' }
-
 function permanencia(paciente) {
-  const ini = paciente.data_admissao || paciente.criado_em || paciente.created_at
+  const ini = paciente.internado_em || paciente.data_admissao || paciente.criado_em || paciente.created_at
   if (!ini) return null
   const h = Math.floor((Date.now() - new Date(ini).getTime()) / 3600000)
   if (!Number.isFinite(h) || h < 0) return null
@@ -35,25 +28,19 @@ function permanencia(paciente) {
 }
 
 function textoAlergia(p) {
+  if (p.alergia_substancia) return p.alergia_substancia
   if (p.alergias_obs) return p.alergias_obs
   if (typeof p.alergias === 'string' && p.alergias.trim()) return p.alergias
   return null
 }
 const temAlergia = (p) => !!(p.alergias_obs || (typeof p.alergias === 'string' ? p.alergias.trim() : p.alergias))
 
-const listaDispositivos = (ps) => [...(Array.isArray(ps?.dispositivos) ? ps.dispositivos : []), ...(ps?.dispositivos_detalhe ? [ps.dispositivos_detalhe] : [])]
-const fmtSaldo = (s) => `${s >= 0 ? '+' : '−'}${Math.abs(s)} mL`
-const fmtHora = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-
 export default function PassagemColetiva({
   plantao,
-  enfermeiroNome,
   setoresVisiveis,
   leitos,
   pacientesPorLeito,
   passagemPorPaciente,
-  sinaisVitaisPorPaciente,
-  balancoPorPaciente,
   enfermeiroId,
   onAbrirPassagem,
   onEditarPassagem,
@@ -67,9 +54,8 @@ export default function PassagemColetiva({
   const [focoLeitoId, setFocoLeitoId] = useState(null)
   const [conferindoId, setConferindoId] = useState(null)
   const [conferindoTodos, setConferindoTodos] = useState(false)
-  const [sincronizando, setSincronizando] = useState(false)
   const [recolhidos, setRecolhidos] = useState(() => new Set())
-  const [pendenciaEmEdicao, setPendenciaEmEdicao] = useState({})
+  const [rascunhos, setRascunhos] = useState({}) // passagemId -> { pendencias?, dispositivos?, dispositivos_detalhe? }
   const [salvando, setSalvando] = useState(false)
   const [msg, setMsg] = useState(null)
 
@@ -78,19 +64,32 @@ export default function PassagemColetiva({
     ? leitos.filter((l) => l.setor_id === setorAtivo.id).sort((a, b) => parseInt(a.numero, 10) - parseInt(b.numero, 10) || String(a.numero).localeCompare(String(b.numero)))
     : []
   const leitosComPaciente = leitosDoSetor.filter((l) => pacientesPorLeito[l.id])
-
+  // Sem passagem neste atendimento ainda: usa uma "passagem virtual" para a
+  // equipe poder preencher direto no card; ela é criada ao Salvar.
+  const passagemEditavel = (paciente, leito) => passagemPorPaciente[paciente.id]
+    || { id: `novo:${paciente.id}`, _novo: true, atendimento_id: paciente.id, leito_id: leito.id, setor_id: leito.setor_id }
   const passagemDoLeito = (leito) => { const p = pacientesPorLeito[leito.id]; return p ? passagemPorPaciente[p.id] : null }
+
+  // Valor atual de um campo: rascunho se houver, senão o gravado.
+  const campo = (ps, k) => (ps && rascunhos[ps.id] && k in rascunhos[ps.id] ? rascunhos[ps.id][k] : ps?.[k])
+  const pendenciaDe = (ps) => campo(ps, 'pendencias') || ''
+  const dispositivosDe = (ps) => (Array.isArray(campo(ps, 'dispositivos')) ? campo(ps, 'dispositivos') : [])
+  const detalheDe = (ps) => campo(ps, 'dispositivos_detalhe') || ''
+  const editar = (ps, k, v) => setRascunhos((prev) => ({
+    ...prev,
+    [ps.id]: { ...prev[ps.id], [k]: v, ...(ps._novo ? { _meta: { atendimento_id: ps.atendimento_id, leito_id: ps.leito_id, setor_id: ps.setor_id } } : {}) },
+  }))
 
   const contagens = {
     todos: leitosComPaciente.length,
-    pendencias: leitosComPaciente.filter((l) => passagemDoLeito(l)?.pendencias?.trim()).length,
+    pendencias: leitosComPaciente.filter((l) => pendenciaDe(passagemDoLeito(l)).trim()).length,
     'a-conferir': leitosComPaciente.filter((l) => !passagemDoLeito(l)?.conferido_em).length,
     conferidos: leitosComPaciente.filter((l) => passagemDoLeito(l)?.conferido_em).length,
   }
 
   const leitosFiltrados = leitosComPaciente.filter((l) => {
     const p = passagemDoLeito(l)
-    if (filtro === 'pendencias') return !!p?.pendencias?.trim()
+    if (filtro === 'pendencias') return !!pendenciaDe(p).trim()
     if (filtro === 'a-conferir') return !p?.conferido_em
     if (filtro === 'conferidos') return !!p?.conferido_em
     return true
@@ -113,36 +112,36 @@ export default function PassagemColetiva({
     setConferindoTodos(false)
   }
 
-  async function sincronizar() {
-    setSincronizando(true)
-    await onRecarregar?.()
-    setSincronizando(false)
-  }
-
   const toggleRecolhido = (id) => setRecolhidos((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
 
-  const textoPendencia = (ps) => (ps && ps.id in pendenciaEmEdicao ? pendenciaEmEdicao[ps.id] : ps?.pendencias || '')
-  const editarPendencia = (id, t) => setPendenciaEmEdicao((prev) => ({ ...prev, [id]: t }))
   function adicionarChip(ps, chip) {
-    const atual = textoPendencia(ps)
-    editarPendencia(ps.id, atual + (atual.trim() ? ' · ' : '') + chip)
+    const atual = pendenciaDe(ps)
+    editar(ps, 'pendencias', atual + (atual.trim() ? ' · ' : '') + chip)
+  }
+  function toggleDispositivo(ps, d) {
+    const atual = dispositivosDe(ps)
+    editar(ps, 'dispositivos', atual.includes(d) ? atual.filter((x) => x !== d) : [...atual, d])
   }
 
-  const alteradas = Object.entries(pendenciaEmEdicao).filter(([id, t]) => {
-    const ps = Object.values(passagemPorPaciente).find((p) => String(p?.id) === String(id))
-    return ps && t !== (ps.pendencias || '')
-  })
+  const alterados = Object.keys(rascunhos).length
 
   async function salvarTudo() {
-    if (alteradas.length === 0) return true
+    if (alterados === 0) return true
     setSalvando(true); setMsg(null)
-    const res = await Promise.all(alteradas.map(([id, t]) => atualizarPendenciasPassagem(id, t.trim())))
-    const falhou = res.some((r) => r?.error)
+    const res = await Promise.all(Object.entries(rascunhos).map(([id, campos]) => {
+      const { _meta, ...limpo } = campos
+      if ('pendencias' in limpo) limpo.pendencias = limpo.pendencias.trim() || null
+      if ('dispositivos_detalhe' in limpo) limpo.dispositivos_detalhe = limpo.dispositivos_detalhe.trim() || null
+      if (id.startsWith('novo:')) {
+        return salvarPassagemPep({ ..._meta, plantao_id: plantao.id, enfermeiro_id: enfermeiroId, criado_por: enfermeiroId, ...limpo })
+      }
+      return atualizarCamposPassagem(id, limpo)
+    }))
     setSalvando(false)
-    if (falhou) { setMsg({ erro: true, t: 'Algumas pendências não foram salvas. Tente de novo.' }); return false }
-    setPendenciaEmEdicao({})
+    if (res.some((r) => r?.error)) { setMsg({ erro: true, t: 'Algumas alterações não foram salvas. Tente de novo.' }); return false }
+    setRascunhos({})
     await onRecarregar?.()
-    setMsg({ t: `${alteradas.length} pendência(s) salva(s).` })
+    setMsg({ t: 'Alterações salvas.' })
     return true
   }
 
@@ -153,26 +152,36 @@ export default function PassagemColetiva({
   }
 
   function abrirFoco(leitoId) { setFocoLeitoId(leitoId); setModo('focus') }
+  const leitoFoco = leitosFiltrados.find((l) => l.id === focoLeitoId) || leitosFiltrados[0]
 
-  const leitoFoco = leitosComPaciente.find((l) => l.id === focoLeitoId) || leitosComPaciente[0]
-
-  function renderVitais(sv) {
-    if (!sv) return <p className="col-vazio">Nenhum registro ainda.</p>
-    const extras = [sv.fr != null && `FR ${sv.fr} irpm`, sv.temperatura != null && `Temp ${sv.temperatura}°C`, sv.dor_escala != null && `Dor ${sv.dor_escala}/10`].filter(Boolean)
+  function blocoDispositivos(ps) {
+    const lista = dispositivosDe(ps)
     return (
       <>
-        <div className="vitals-row">
-          <div className={`v-cell ${nivelPa(sv.pa_sistolica, sv.pa_diastolica)}`}><span className="lbl">PA</span><span className="val">{sv.pa_sistolica ?? '—'}/{sv.pa_diastolica ?? '—'}</span></div>
-          <div className={`v-cell ${nivelFc(sv.fc)}`}><span className="lbl">FC</span><span className="val">{sv.fc ?? '—'}</span></div>
-          <div className={`v-cell ${nivelSpo2(sv.spo2)}`}><span className="lbl">SpO₂</span><span className="val">{sv.spo2 != null ? `${sv.spo2}%` : '—'}</span></div>
-          {sv.glicemia != null
-            ? <div className="v-cell"><span className="lbl">HGT</span><span className="val">{sv.glicemia}</span></div>
-            : <div className={`v-cell ${nivelTemp(sv.temperatura)}`}><span className="lbl">Temp</span><span className="val">{sv.temperatura != null ? `${sv.temperatura}°C` : '—'}</span></div>}
+        <div className="disp-chips">
+          {DISPOSITIVOS_OPCOES.map((d) => (
+            <button key={d} type="button" className={`disp-chip ${lista.includes(d) ? 'on' : ''}`} onClick={() => toggleDispositivo(ps, d)}>
+              <i className={`ph ${lista.includes(d) ? 'ph-check' : 'ph-plus'}`} /> {d}
+            </button>
+          ))}
         </div>
-        {extras.length > 0 && <span className="vitals-extra">{extras.join(' · ')}</span>}
+        <textarea className="pending-input disp-input" value={detalheDe(ps)} onChange={(e) => editar(ps, 'dispositivos_detalhe', e.target.value)} placeholder="Detalhe: local, calibre, data de inserção, cuidados..." />
       </>
     )
   }
+
+  function blocoPendencias(ps) {
+    return (
+      <>
+        <textarea className="pending-input" value={pendenciaDe(ps)} onChange={(e) => editar(ps, 'pendencias', e.target.value)} placeholder="O que o próximo turno precisa saber..." />
+        <div className="quick-chips">
+          {CHIPS_PENDENCIA_RAPIDA.map((c) => <span key={c} className="q-chip" onClick={() => adicionarChip(ps, c)}>+ {c}</span>)}
+        </div>
+      </>
+    )
+  }
+
+  const resumoDisp = (ps) => [...dispositivosDe(ps), detalheDe(ps)].filter(Boolean).join(' · ')
 
   return (
     <div className="pc-page">
@@ -192,24 +201,19 @@ export default function PassagemColetiva({
           </div>
 
           <div className="scc-actions">
-            {modo === 'cards' && (
-              <button type="button" className="btn-compact-tool" onClick={() => (recolhidos.size > 0 ? setRecolhidos(new Set()) : setRecolhidos(new Set(leitosFiltrados.map((l) => l.id))))}>
-                <i className={`ph ${recolhidos.size > 0 ? 'ph-arrows-out-line-vertical' : 'ph-arrows-in-line-vertical'}`} /> {recolhidos.size > 0 ? 'Expandir Todos' : 'Recolher Todos'}
-              </button>
-            )}
-            <button type="button" className="btn-compact-tool primary" onClick={sincronizar} disabled={sincronizando} title="Recarregar sinais vitais e balanço hídrico">
-              <i className="ph ph-arrows-clockwise" /> {sincronizando ? 'Sincronizando...' : 'Sincronizar Sinais & Balanço'}
+            <button type="button" className="btn-compact-tool" onClick={() => (recolhidos.size > 0 ? setRecolhidos(new Set()) : setRecolhidos(new Set(leitosFiltrados.map((l) => l.id))))} title="Recolher ou expandir todos os leitos">
+              <i className={`ph ${recolhidos.size > 0 ? 'ph-arrows-out-line-vertical' : 'ph-arrows-in-line-vertical'}`} /> {recolhidos.size > 0 ? 'Expandir Todos' : 'Recolher Todos'}
             </button>
             <button type="button" className="btn-compact-tool" onClick={conferirTodos} disabled={conferindoTodos || contagens['a-conferir'] === 0}>
               <i className="ph ph-check-square" /> {conferindoTodos ? 'Conferindo...' : 'Conferir Todos'}
             </button>
             {onImprimir && (
               <>
-                <button type="button" className="btn-compact-tool" onClick={() => onImprimir('print1')} title="Imprimir: Vermelha + Internação">
-                  <i className="ph ph-printer" /> Imprimir Vermelha
+                <button type="button" className="btn-compact-tool primary" onClick={() => onImprimir('print1')}>
+                  <i className="ph ph-printer" /> Imprimir Sala Vermelha e Internação
                 </button>
-                <button type="button" className="btn-compact-tool" onClick={() => onImprimir('print2')} title="Imprimir: Pediátrico + Observação">
-                  <i className="ph ph-file-text" /> Imprimir Observação
+                <button type="button" className="btn-compact-tool primary" onClick={() => onImprimir('print2')}>
+                  <i className="ph ph-printer" /> Imprimir Pediatria e Observação
                 </button>
               </>
             )}
@@ -224,12 +228,6 @@ export default function PassagemColetiva({
         <div className="scc-meta">
           <div className="team-flow">
             {plantao?.turno && <span>Turno: <strong>{plantao.turno}</strong></span>}
-            {enfermeiroNome && (
-              <>
-                <span style={{ color: 'var(--border-strong)' }}>·</span>
-                <span>Entrega: <strong>{enfermeiroNome}</strong></span>
-              </>
-            )}
           </div>
           <div className="filter-row">
             <span style={{ fontSize: 11, color: 'var(--text-muted)', marginRight: 4 }}>Filtro:</span>
@@ -251,13 +249,10 @@ export default function PassagemColetiva({
               const passagem = passagemPorPaciente[paciente.id]
               const conferido = !!passagem?.conferido_em
               const recolhido = recolhidos.has(leito.id)
-              const sv = sinaisVitaisPorPaciente?.[paciente.id]
-              const balanco = balancoPorPaciente?.[paciente.id]
-              const saldo = balanco ? balanco.entradas - balanco.saidas : null
-              const pendencia = textoPendencia(passagem)
               const alergia = temAlergia(paciente)
               const perm = permanencia(paciente)
-              const disp = listaDispositivos(passagem)
+              const pend = pendenciaDe(passagemEditavel(paciente, leito))
+              const disp = resumoDisp(passagemEditavel(paciente, leito))
 
               return (
                 <article key={leito.id} className={`bed-card ${conferido ? 'checked' : ''} ${alergia ? 'has-alert' : ''} ${recolhido ? 'collapsed' : ''}`}>
@@ -267,60 +262,33 @@ export default function PassagemColetiva({
                         <i className={`ph ${recolhido ? 'ph-caret-right' : 'ph-caret-down'}`} />
                       </button>
                       <span className="bed-tag">Leito {leito.numero}</span>
-                      <span className="patient-title" onClick={() => toggleRecolhido(leito.id)}>{paciente.nome}{paciente.idade ? `, ${paciente.idade}a` : ''}</span>
+                      <span className="patient-title" onClick={() => toggleRecolhido(leito.id)} title="Clique para recolher/expandir">{paciente.nome}{paciente.idade ? `, ${paciente.idade}a` : ''}</span>
                       {alergia && <span className="tag-alergia"><i className="ph ph-prohibit" /> Alergia{textoAlergia(paciente) ? `: ${textoAlergia(paciente)}` : ''}</span>}
-                      {perm && <span className="patient-meta-text">Permanência: {perm}</span>}
+                      {(paciente.numero_atendimento || perm) && <span className="patient-meta-text">{[paciente.numero_atendimento && `Reg: #${paciente.numero_atendimento}`, perm && `Permanência: ${perm}`].filter(Boolean).join(' · ')}</span>}
                       <span className="patient-hd-text"><strong>HD:</strong> {paciente.diagnostico || passagem?.diagnostico || 'Sem diagnóstico registrado'}</span>
                       <div className="collapsed-summary">
-                        {sv && <span>• PA {sv.pa_sistolica ?? '—'}/{sv.pa_diastolica ?? '—'} · SpO₂ {sv.spo2 ?? '—'}%</span>}
-                        {balanco && <span>· BH {fmtSaldo(saldo)}</span>}
-                        {pendencia.trim() && <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>· Com pendência</span>}
+                        {disp && <span>• {disp}</span>}
+                        {pend.trim() && <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>· Com pendência</span>}
                       </div>
                     </div>
                     <div className="bc-header-right">
                       <button type="button" className={`btn-status-toggle ${conferido ? 'active' : ''}`} onClick={() => toggleConferido(passagem)} disabled={!passagem || conferindoId === passagem?.id}>
                         <i className={`ph ${conferido ? 'ph-check' : 'ph-hourglass'}`} /> {conferido ? 'Conferido' : 'A Conferir'}
                       </button>
-                      <button type="button" className="btn-view-patient" onClick={() => onEditarPassagem(paciente, leito)}><i className="ph ph-note-pencil" /> Editar</button>
                       <button type="button" className="btn-view-patient" onClick={() => abrirFoco(leito.id)}><i className="ph ph-magnifying-glass" /> Detalhes</button>
                     </div>
                   </div>
 
-                  <div className="bc-content">
-                    <div className="col-block">
-                      <div className="col-title"><i className="ph ph-heartbeat" /> Sinais Vitais{sv ? ` (${fmtHora(sv.registrado_em)})` : ''}</div>
-                      {renderVitais(sv)}
-                    </div>
+                  <div className="bc-content bc-content-2">
                     <div className="col-block">
                       <div className="col-title"><i className="ph ph-needle" /> Dispositivos & Cuidados</div>
-                      {disp.length > 0 || passagem?.cuidados ? (
-                        <ul className="device-text">
-                          {disp.map((d) => <li key={d}><i className="ph ph-check" /> {d}</li>)}
-                          {passagem?.cuidados && <li><i className="ph ph-check" /> {passagem.cuidados}</li>}
-                        </ul>
-                      ) : <p className="col-vazio">Nenhum dispositivo registrado.</p>}
-                    </div>
-                    <div className="col-block">
-                      <div className="col-title"><i className="ph ph-drop" /> Balanço Hídrico</div>
-                      {balanco ? (
-                        <div className="balance-summary">
-                          <div>Ingesta: <strong>{balanco.entradas} mL</strong> · Diurese: <strong>{balanco.saidas} mL</strong></div>
-                          <span className={`bal-tag ${saldo < 0 ? 'negativo' : ''}`}>Balanço: {fmtSaldo(saldo)}</span>
-                        </div>
-                      ) : <p className="col-vazio">Nenhum lançamento ainda.</p>}
+                      {blocoDispositivos(passagemEditavel(paciente, leito))}
                     </div>
                     <div className="col-block col-block-pending">
                       <div className="col-title"><i className="ph ph-warning-circle" /> Pendências para o Próximo Turno</div>
-                      <textarea className="pending-input" value={pendencia} disabled={!passagem} onChange={(e) => editarPendencia(passagem.id, e.target.value)} placeholder={passagem ? 'O que o próximo turno precisa saber...' : 'Sem passagem registrada — use Editar.'} />
-                      {passagem && (
-                        <div className="quick-chips">
-                          {CHIPS_PENDENCIA_RAPIDA.map((c) => <span key={c} className="q-chip" onClick={() => adicionarChip(passagem, c)}>+ {c}</span>)}
-                        </div>
-                      )}
+                      {blocoPendencias(passagemEditavel(paciente, leito))}
                     </div>
                   </div>
-
-                  {!recolhido && <IndicadoresClinicos passagem={passagem} />}
                 </article>
               )
             })}
@@ -333,11 +301,9 @@ export default function PassagemColetiva({
               <thead>
                 <tr>
                   <th style={{ width: 75 }}>Leito</th>
-                  <th style={{ width: 190 }}>Paciente</th>
-                  <th style={{ width: 170 }}>HD Principal</th>
-                  <th style={{ width: 130 }}>Sinais Vitais</th>
-                  <th style={{ width: 140 }}>Dispositivos</th>
-                  <th style={{ width: 90 }}>Balanço</th>
+                  <th style={{ width: 210 }}>Paciente</th>
+                  <th style={{ width: 180 }}>HD Principal</th>
+                  <th style={{ width: 200 }}>Dispositivos</th>
                   <th>Pendências</th>
                   <th style={{ width: 100, textAlign: 'center' }}>Status</th>
                 </tr>
@@ -349,26 +315,21 @@ export default function PassagemColetiva({
                     return filtro === 'todos' ? (
                       <tr key={leito.id} className="vago">
                         <td><strong>Leito {leito.numero}</strong></td>
-                        <td colSpan={6}><span style={{ color: 'var(--text-muted)' }}>[ Leito vago ]</span></td>
+                        <td colSpan={4}><span style={{ color: 'var(--text-muted)' }}>[ Leito vago ]</span></td>
                         <td style={{ textAlign: 'center' }}><span style={{ color: 'var(--text-muted)', fontSize: 11 }}>Vago</span></td>
                       </tr>
                     ) : null
                   }
                   if (!leitosFiltrados.includes(leito)) return null
                   const ps = passagemPorPaciente[paciente.id]
-                  const sv = sinaisVitaisPorPaciente?.[paciente.id]
-                  const bal = balancoPorPaciente?.[paciente.id]
-                  const saldo = bal ? bal.entradas - bal.saidas : null
                   const ok = !!ps?.conferido_em
                   return (
                     <tr key={leito.id} className={ok ? 'checked' : ''} onClick={() => abrirFoco(leito.id)} style={{ cursor: 'pointer' }}>
                       <td><strong>Leito {leito.numero}</strong></td>
                       <td><strong>{paciente.nome}</strong>{paciente.idade ? `, ${paciente.idade}a` : ''} {temAlergia(paciente) && <span className="tag-alergia" style={{ fontSize: 9 }}>{textoAlergia(paciente) || 'Alergia'}</span>}</td>
                       <td>{paciente.diagnostico || ps?.diagnostico || '—'}</td>
-                      <td>{sv ? `PA ${sv.pa_sistolica ?? '—'}/${sv.pa_diastolica ?? '—'} · SpO₂ ${sv.spo2 ?? '—'}%` : '—'}</td>
-                      <td>{listaDispositivos(ps).join(' · ') || '—'}</td>
-                      <td>{bal ? <strong style={{ color: saldo < 0 ? 'var(--danger)' : 'var(--success)' }}>{fmtSaldo(saldo)}</strong> : '—'}</td>
-                      <td>{textoPendencia(ps) || '—'}</td>
+                      <td>{resumoDisp(ps) || '—'}</td>
+                      <td>{pendenciaDe(ps) || '—'}</td>
                       <td style={{ textAlign: 'center' }}>
                         {ok ? <span style={{ color: 'var(--success)', fontWeight: 700 }}>✓ Conferido</span> : <span style={{ color: 'var(--warning-amber)', fontWeight: 700 }}>⏳ A Conferir</span>}
                       </td>
@@ -399,9 +360,6 @@ export default function PassagemColetiva({
             {leitoFoco ? (() => {
               const p = pacientesPorLeito[leitoFoco.id]
               const ps = passagemPorPaciente[p.id]
-              const sv = sinaisVitaisPorPaciente?.[p.id]
-              const bal = balancoPorPaciente?.[p.id]
-              const pend = textoPendencia(ps)
               return (
                 <div className="focus-detail-pane">
                   <div className="fd-head">
@@ -427,44 +385,24 @@ export default function PassagemColetiva({
 
                   <div className="fd-grid">
                     <div className="fd-box">
-                      <h4><i className="ph ph-heartbeat" /> Sinais Vitais{sv ? ` (${fmtHora(sv.registrado_em)})` : ''}</h4>
-                      {renderVitais(sv)}
-                    </div>
-                    <div className="fd-box">
-                      <h4><i className="ph ph-drop" /> Balanço Hídrico</h4>
-                      {bal
-                        ? <p>Ingesta: <strong>{bal.entradas} mL</strong> · Diurese: <strong>{bal.saidas} mL</strong> · Balanço: <strong>{fmtSaldo(bal.entradas - bal.saidas)}</strong></p>
-                        : <p className="col-vazio">Nenhum lançamento ainda.</p>}
-                    </div>
-                    <div className="fd-box">
-                      <h4><i className="ph ph-activity" /> Estado do Turno</h4>
-                      {ps?.nivel_consciencia || ps?.intercorrencias || ps?.exames_texto ? (
-                        <p>
-                          {ps.nivel_consciencia && <>Consciência: {ps.nivel_consciencia}<br /></>}
-                          {ps.intercorrencias && <>Intercorrências: {ps.intercorrencias}<br /></>}
-                          {ps.exames_texto && <>Exames: {ps.exames_texto}</>}
-                        </p>
-                      ) : <p className="col-vazio">Nada registrado na passagem.</p>}
-                    </div>
-                    <div className="fd-box">
                       <h4><i className="ph ph-needle" /> Dispositivos & Cuidados</h4>
-                      {listaDispositivos(ps).length > 0 || ps?.cuidados
-                        ? <p>{[...listaDispositivos(ps), ps?.cuidados].filter(Boolean).join(' · ')}</p>
-                        : <p className="col-vazio">Nenhum dispositivo registrado.</p>}
+                      {blocoDispositivos(passagemEditavel(p, leitoFoco))}
+                    </div>
+                    <div className="fd-box">
+                      <h4><i className="ph ph-clock-counter-clockwise" /> Última Passagem</h4>
+                      {ps ? (
+                        <p>
+                          {ps.enfermeiros && <>Registrada por {ps.enfermeiros.nome_exibicao || ps.enfermeiros.nome} em {new Date(ps.atualizado_em || ps.criado_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}.<br /></>}
+                          {ps.nivel_consciencia && <>Consciência: {ps.nivel_consciencia}<br /></>}
+                          {ps.intercorrencias && <>Intercorrências: {ps.intercorrencias}</>}
+                        </p>
+                      ) : <p className="col-vazio">Nenhuma passagem registrada.</p>}
                     </div>
                   </div>
 
                   <div className="fd-box fd-pend">
                     <h4><i className="ph ph-list-checks" /> Pendências para o Próximo Turno</h4>
-                    {ps ? (
-                      <>
-                        <textarea className="pending-input" value={pend} onChange={(e) => editarPendencia(ps.id, e.target.value)} placeholder="O que o próximo turno precisa saber..." />
-                        <div className="quick-chips">
-                          {CHIPS_PENDENCIA_RAPIDA.map((c) => <span key={c} className="q-chip" onClick={() => adicionarChip(ps, c)}>+ {c}</span>)}
-                        </div>
-                      </>
-                    ) : <p className="col-vazio">Sem passagem registrada para este paciente — use Editar Passagem.</p>}
-                    {ps?.enfermeiros && <p className="fd-autor">Última passagem: {ps.enfermeiros.nome_exibicao || ps.enfermeiros.nome} · {new Date(ps.atualizado_em || ps.criado_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>}
+                    {blocoPendencias(passagemEditavel(p, leitoFoco))}
                   </div>
                 </div>
               )
@@ -477,7 +415,7 @@ export default function PassagemColetiva({
           {msg && <span className={`pc-msg ${msg.erro ? 'erro' : ''}`}>{msg.t}</span>}
           <div style={{ display: 'flex', gap: 12 }}>
             <button type="button" className="btn-save-draft" onClick={salvarTudo} disabled={salvando}>
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : `Salvar${alteradas.length ? ` (${alteradas.length})` : ''}`}
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : `Salvar${alterados ? ` (${alterados})` : ''}`}
             </button>
             <button type="button" className="btn-save-print" onClick={salvarEImprimir} disabled={salvando}>
               <i className="ph ph-printer" /> Salvar e Imprimir
