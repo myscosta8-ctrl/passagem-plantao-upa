@@ -460,6 +460,11 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                     )}
                   </div>
                 ))}
+                <div style={{ padding: '10px 16px' }}>
+                  <button type="button" className="btn-add-chip" onClick={adicionarItem}>
+                    <i className="ph ph-plus" /> Adicionar medicamento
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -479,6 +484,11 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                     )}
                   </div>
                 ))}
+                <div>
+                  <button type="button" className="btn-add-chip" onClick={adicionarOrientacao}>
+                    <i className="ph ph-plus" /> Adicionar orientação
+                  </button>
+                </div>
               </div>
             </div>
 
