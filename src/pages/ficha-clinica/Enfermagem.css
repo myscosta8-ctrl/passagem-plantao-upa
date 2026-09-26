@@ -105,3 +105,49 @@
   .enf-theme .admissao-card { overflow: visible; }
   .enf-theme .ac-body { overflow: visible; padding: 14px; }
 }
+
+/* TOPBAR (mockup 08) */
+.enf-theme .topbar { height: 50px; padding: 0 16px; box-shadow: 0 1px 2px rgba(0,0,0,.05); border-bottom: 1px solid #CBD5E1; }
+.enf-theme .topbar .breadcrumb { font-size: 12px; color: #64748B; font-weight: 500; gap: 8px; display: flex; align-items: center; }
+.enf-theme .topbar .btn-voltar { background: transparent; border: 1px solid #CBD5E1; border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 6px; }
+.enf-theme .topbar .sys-time { font-size: 11px; font-weight: 600; color: #64748B; padding-right: 14px; border-right: 1px solid #E2E8F0; }
+.enf-theme .topbar-right { gap: 14px; }
+.enf-theme .btn-pilar { background: #fff; border: 1px solid #CBD5E1; border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #1D4ED8; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.enf-theme .btn-pilar:hover { background: #EFF6FF; border-color: #1D4ED8; }
+.enf-theme .workspace { padding: 12px 18px; gap: 12px; }
+
+/* PATIENT BANNER (mockup 08) */
+.enf-theme .enf-banner { flex-shrink: 0; background: #fff; border: 1px solid var(--enf-primary); border-left: 6px solid var(--enf-primary); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.05); display: flex; flex-direction: column; padding: 0; }
+.enf-theme .enf-banner .pb-main { padding: 8px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.enf-theme .enf-banner .pb-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.enf-theme .enf-banner .pb-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.enf-theme .enf-banner .pb-name { font-size: 16px; font-weight: 700; color: #0F172A; letter-spacing: -.02em; }
+.enf-theme .enf-banner .pb-badge { background: var(--enf-badge); color: var(--enf-hover); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 4px; }
+.enf-theme .enf-banner .pb-alergia { background: var(--danger-light); color: var(--danger); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 4px; }
+.enf-theme .enf-banner .pb-meta { display: flex; align-items: center; gap: 14px; font-size: 11.5px; color: #334155; font-weight: 500; flex-wrap: wrap; }
+.enf-theme .enf-banner .pb-meta-item { display: flex; align-items: center; gap: 5px; }
+.enf-theme .enf-banner .pb-meta-item i { color: #64748B; font-size: 14px; }
+.enf-theme .enf-banner .pb-hd { font-size: 11.5px; color: #334155; }
+.enf-theme .enf-banner .pb-hd strong { color: #0F172A; }
+.enf-theme .enf-banner .pb-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.enf-theme .enf-banner .pb-leito { font-size: 13px; font-weight: 700; color: #0F172A; display: flex; align-items: center; gap: 6px; }
+.enf-theme .enf-banner .pb-leito i { color: var(--enf-primary); font-size: 16px; }
+.enf-theme .enf-banner .btn-expand-details { background: transparent; border: 1px solid #CBD5E1; padding: 3px 9px; border-radius: 6px; font-size: 10.5px; font-weight: 600; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.enf-theme .enf-banner .btn-expand-details:hover { background: #F1F5F9; color: #0F172A; }
+.enf-theme .enf-banner .pb-details { border-top: 1px dashed #CBD5E1; padding: 10px 16px; background: #F8FAFC; border-radius: 0 0 8px 8px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 11px; }
+.enf-theme .enf-banner .detail-item { display: flex; flex-direction: column; gap: 2px; }
+.enf-theme .enf-banner .detail-item label { font-size: 9.5px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .05em; }
+.enf-theme .enf-banner .detail-item span { color: #0F172A; font-weight: 600; }
+
+/* ABAS (mockup 08) */
+.enf-theme .clinical-tabs { display: flex; gap: 6px; background: #E2E8F0; padding: 4px; border-radius: 8px; flex-shrink: 0; overflow-x: auto; }
+.enf-theme .clinical-tabs .tab-btn { flex: 1; min-width: 140px; padding: 8px 12px; border: none; background: transparent; color: #334155; font-size: 12.5px; font-weight: 600; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+.enf-theme .clinical-tabs .tab-btn i { font-size: 15px; }
+.enf-theme .clinical-tabs .tab-btn:hover { background: rgba(255,255,255,.7); color: #0F172A; }
+.enf-theme .clinical-tabs .tab-btn.active { background: #fff; color: var(--enf-primary); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+
+@media (max-width: 960px) {
+  .enf-theme .enf-banner .pb-main { flex-direction: column; }
+  .enf-theme .enf-banner .pb-right { align-items: flex-start; text-align: left; }
+  .enf-theme .enf-banner .pb-details { grid-template-columns: repeat(2, 1fr); }
+}

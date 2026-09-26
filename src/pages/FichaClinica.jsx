@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../lib/AuthContext';
 const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'));
-import PatientBanner from './ficha-medica/PatientBanner';
+import BannerPacienteEnf from './ficha-clinica/BannerPacienteEnf';
 import FichaClinicaHeader from './ficha-clinica/FichaClinicaHeader';
 import FichaClinicaTabs, { ABAS_PRINCIPAIS } from './ficha-clinica/FichaClinicaTabs';
 import FichaClinicaConteudo from './ficha-clinica/FichaClinicaConteudo';
@@ -10,7 +10,7 @@ import './PassagemForm.css';
 import './FichaClinica.css';
 import './ficha-clinica/Enfermagem.css';
 
-export default function FichaClinica({ atendimento, onFechar }) {
+export default function FichaClinica({ atendimento, onFechar, onTrocarPilar }) {
   const { enfermeiro } = useAuth();
   const [aba, setAba] = useState('admissaoEnfermagem');
   const [imprimindo, setImprimindo] = useState(null);
@@ -38,9 +38,10 @@ export default function FichaClinica({ atendimento, onFechar }) {
         rotuloAbaAtual={rotuloAbaAtual}
         enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
         enfermeiroCoren={enfermeiro?.coren}
+        onTrocarPilar={onTrocarPilar}
       />
       <div className="workspace">
-        <PatientBanner atendimento={atendimento} />
+        <BannerPacienteEnf atendimento={atendimento} />
         <FichaClinicaTabs aba={aba} onSelecionarAba={setAba} />
         <FichaClinicaConteudo
           atendimento={atendimento}

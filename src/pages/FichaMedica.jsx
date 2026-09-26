@@ -7,7 +7,7 @@ import FichaMedicaTabs, { ABAS_PRINCIPAIS } from './ficha-medica/FichaMedicaTabs
 import FichaMedicaConteudo from './ficha-medica/FichaMedicaConteudo';
 import './ficha-medica/AtendimentoMedico.css';
 
-export default function FichaMedica({ atendimento, onFechar, initialTab = 'consulta' }) {
+export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, initialTab = 'consulta' }) {
   const { enfermeiro } = useAuth();
   const [aba, setAba] = useState(initialTab);
   const [imprimindo, setImprimindo] = useState(null);
@@ -34,6 +34,7 @@ export default function FichaMedica({ atendimento, onFechar, initialTab = 'consu
         onFechar={onFechar}
         rotuloAbaAtual={rotuloAbaAtual}
         medicoNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
+        onTrocarPilar={onTrocarPilar}
       />
       <div className="workspace">
         <PatientBanner atendimento={atendimento} />
