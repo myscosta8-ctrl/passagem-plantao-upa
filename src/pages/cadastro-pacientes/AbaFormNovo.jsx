@@ -11,31 +11,19 @@ import {
 import CamposIdentidade from './CamposIdentidade'
 import CamposAtendimento from './CamposAtendimento'
 import { PESSOA_VAZIA, ATENDIMENTO_VAZIO } from './constantes'
+import FichaIdentificacaoPrint from './FichaIdentificacaoPrint'
 
-function imprimirFichaIdentificacao({ pessoa, atendimento, atd, setores, responsavelRecepcao }) {
-  const setorNome = setores.find((s) => String(s.id) === String(atd.setor_id))?.nome
-  localStorage.setItem('ficha_identificacao_dados', JSON.stringify({
-    prontuario_numero: pessoa.prontuario_numero,
+// Dados reais do cadastro para a Ficha de Identificação e Termos (modelo 22).
+function montarDadosFicha({ pessoa, atendimento, atd, setores, responsavelRecepcao }) {
+  return {
+    ...pessoa,
     numero_atendimento: atendimento?.numero_atendimento,
-    tipo_entrada: 'Demanda Espontânea',
-    nome: pessoa.nome,
-    nome_mae: pessoa.nome_mae,
-    sexo: pessoa.sexo,
-    raca: pessoa.raca_cor,
-    rg: pessoa.rg,
-    cpf: pessoa.cpf,
-    cns: pessoa.cns,
-    data_nascimento: pessoa.data_nascimento,
-    endereco: pessoa.endereco,
-    endereco_numero: pessoa.endereco_numero,
-    bairro: pessoa.bairro,
-    cidade: pessoa.cidade,
-    telefone: pessoa.telefone,
-    medico_notificante: atd.medico,
-    setor_nome: setorNome,
+    data_internacao: atendimento?.criado_em,
+    medico: atd.medico,
+    setor_nome: setores.find((s) => String(s.id) === String(atd.setor_id))?.nome,
+    responsavel: { nome: atd.responsavelNome, rg: atd.responsavelRg, relacao: atd.responsavelRelacao, endereco: atd.responsavelEndereco },
     responsavel_recepcao: responsavelRecepcao,
-  }))
-  window.open('./modelos_impressao_html/22-ficha-identificacao-termos.html', '_blank')
+  }
 }
 
 export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdicao, onCadastrado }) {
@@ -63,6 +51,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
   })
 
   const [atd, setAtd] = useState(ATENDIMENTO_VAZIO)
+  const [fichaImpressao, setFichaImpressao] = useState(null)
   const [setores, setSetores] = useState([])
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
@@ -119,7 +108,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
         atendimento: 'Atualizado com sucesso',
       })
       if (imprimir) {
-        imprimirFichaIdentificacao({ pessoa: { ...pessoaInicial, ...dados }, atendimento: null, atd, setores, responsavelRecepcao })
+        setFichaImpressao(montarDadosFicha({ pessoa: { ...pessoaInicial, ...dados }, atendimento: null, atd, setores, responsavelRecepcao }))
       }
       onCadastrado?.()
       return
@@ -151,7 +140,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
 
     setSucesso({ nome: pessoa.nome, prontuario: pessoa.prontuario_numero, atendimento: atendimento.numero_atendimento })
     if (imprimir) {
-      imprimirFichaIdentificacao({ pessoa, atendimento, atd, setores, responsavelRecepcao })
+      setFichaImpressao(montarDadosFicha({ pessoa, atendimento, atd, setores, responsavelRecepcao }))
     }
     setDados(PESSOA_VAZIA)
     setAtd(ATENDIMENTO_VAZIO)
@@ -160,6 +149,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
 
   return (
     <div className="card">
+      {fichaImpressao && <FichaIdentificacaoPrint dados={fichaImpressao} onFechar={() => setFichaImpressao(null)} />}
       {pessoaInicial && (
         <div className="error-box" style={{ marginBottom: 18, background: 'var(--c-primary-light)', color: 'var(--c-primary)', borderLeftColor: 'var(--c-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
