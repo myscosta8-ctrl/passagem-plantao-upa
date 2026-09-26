@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../lib/AuthContext';
+import HistoricoClinico from './HistoricoClinico';
 const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'));
 import BannerPacienteEnf from './ficha-clinica/BannerPacienteEnf';
 import FichaClinicaHeader from './ficha-clinica/FichaClinicaHeader';
@@ -31,8 +32,12 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar }) {
   const abaAtivaObj = ABAS_PRINCIPAIS.find((a) => a.chave === aba);
   const rotuloAbaAtual = abaAtivaObj ? (abaAtivaObj.titulo || abaAtivaObj.rotulo) : 'Atendimento de Enfermagem';
 
+  // Médico só consulta documentos de enfermagem e vice-versa (também bloqueado no banco).
+  const perfil = enfermeiro?.role === 'admin' ? 'admin' : (enfermeiro?.tipo || 'enfermagem');
+  const podeCriar = ['enfermagem', 'admin'].includes(perfil);
+
   return (
-    <div className="atendimento-medico-container enf-theme" onClick={(e) => e.stopPropagation()}>
+    <div className={'atendimento-medico-container enf-theme' + (podeCriar ? '' : ' somente-leitura')} onClick={(e) => e.stopPropagation()}>
       <FichaClinicaHeader
         onFechar={onFechar}
         rotuloAbaAtual={rotuloAbaAtual}
@@ -42,6 +47,10 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar }) {
       />
       <div className="workspace">
         <BannerPacienteEnf atendimento={atendimento} />
+        {!podeCriar && (
+          <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos de enfermagem, mas não criá-los.</div>
+        )}
+        <HistoricoClinico atendimento={atendimento} />
         <FichaClinicaTabs aba={aba} onSelecionarAba={setAba} />
         <FichaClinicaConteudo
           atendimento={atendimento}

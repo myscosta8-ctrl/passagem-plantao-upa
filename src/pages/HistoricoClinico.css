@@ -1,0 +1,53 @@
+/* Histórico Clínico do Paciente — mesma linguagem visual do banner (verde #0D9488) */
+.hc-card { background: #fff; border: 1px solid #CBD5E1; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.05); flex-shrink: 0; }
+.hc-topo { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 16px; background: transparent; border: none; cursor: pointer; font-size: 13px; font-weight: 700; color: #0F172A; text-align: left; }
+.hc-topo i { color: #0D9488; }
+.hc-topo-dica { font-size: 11px; font-weight: 600; color: #64748B; display: flex; align-items: center; gap: 6px; }
+.hc-corpo { border-top: 1px solid #E2E8F0; padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
+.hc-filtros { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.hc-busca { flex: 1; min-width: 240px; display: flex; align-items: center; gap: 8px; background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 6px; padding: 6px 10px; }
+.hc-busca i { color: #64748B; }
+.hc-busca input { border: none; background: transparent; outline: none; width: 100%; font-size: 12.5px; }
+.hc-areas { display: flex; gap: 2px; background: #F1F5F9; padding: 2px; border-radius: 6px; border: 1px solid #E2E8F0; }
+.hc-areas button { border: none; background: transparent; padding: 4px 10px; font-size: 11.5px; font-weight: 600; color: #334155; border-radius: 4px; cursor: pointer; }
+.hc-areas button.ativo { background: #fff; color: #0D9488; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.hc-bloco { border: 1px solid #E2E8F0; border-radius: 6px; overflow: hidden; }
+.hc-bloco-topo { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #F8FAFC; border: none; cursor: pointer; text-align: left; }
+.hc-bloco-titulo { font-size: 12.5px; font-weight: 700; color: #0F172A; }
+.hc-bloco-sub { font-size: 11px; color: #64748B; flex: 1; }
+.hc-contador { background: #CCFBF1; color: #0F766E; font-size: 10.5px; font-weight: 700; border-radius: 10px; padding: 1px 8px; }
+.hc-bloco-corpo { padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 6px; max-height: 460px; overflow-y: auto; }
+.hc-vazio { font-size: 12px; color: #64748B; margin: 4px 0; }
+.hc-atendimento { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+.hc-atendimento-topo { font-size: 11.5px; font-weight: 700; color: #334155; background: #F1F5F9; border-radius: 4px; padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
+.hc-item { border: 1px solid #E2E8F0; border-left: 4px solid #0D9488; border-radius: 6px; background: #fff; }
+.hc-item.medico { border-left-color: #1D4ED8; }
+.hc-item-topo { display: flex; align-items: center; gap: 10px; padding: 6px 10px; cursor: pointer; flex-wrap: wrap; }
+.hc-data { font-size: 11px; font-weight: 700; color: #334155; min-width: 118px; }
+.hc-tipo { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: #CCFBF1; color: #0F766E; }
+.hc-tipo.medico { background: #DBEAFE; color: #1E40AF; }
+.hc-autor { font-size: 11px; color: #64748B; flex: 1; }
+.hc-item-topo > i { color: #64748B; }
+.hc-resumo { font-size: 12px; color: #0F172A; padding: 0 10px 7px; line-height: 1.45; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hc-resumo.aberto { display: block; }
+.hc-acoes { padding: 0 10px 8px; }
+.hc-btn { border: 1px solid #0D9488; background: #F0FDFA; color: #0F766E; border-radius: 6px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.hc-nota { font-size: 10.5px; color: #64748B; margin: 0; }
+.hc-print-overlay { position: fixed; inset: 0; z-index: 3000; background: #fff; overflow: auto; }
+
+/* Modo somente leitura: o profissional pode consultar e imprimir, mas não criar */
+.somente-leitura .cc-footer, .somente-leitura .fc-footer, .somente-leitura .sc-footer,
+.somente-leitura .ac-footer, .somente-leitura .tc-footer, .somente-leitura .bh-footer { display: none !important; }
+.somente-leitura .workspace input, .somente-leitura .workspace textarea, .somente-leitura .workspace select,
+.somente-leitura .type-chip, .somente-leitura .nanda-chip, .somente-leitura .check-item,
+.somente-leitura .template-btn, .somente-leitura .qs-gerenciar { pointer-events: none; }
+.somente-leitura .workspace textarea, .somente-leitura .workspace input:not([type=checkbox]):not([type=radio]), .somente-leitura .workspace select { background: #F8FAFC !important; color: #475569; }
+.somente-leitura .hc-card input { pointer-events: auto; background: transparent !important; color: inherit; }
+.aviso-somente-leitura { display: flex; align-items: center; gap: 8px; background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+
+@media print {
+  body.hc-imprimindo * { visibility: hidden; }
+  body.hc-imprimindo .hc-print-overlay, body.hc-imprimindo .hc-print-overlay * { visibility: visible; }
+  body.hc-imprimindo .hc-print-overlay { position: absolute; inset: 0; overflow: visible; }
+  body.hc-imprimindo .hc-print-overlay .no-print { display: none !important; }
+}
