@@ -1209,3 +1209,22 @@
   .atendimento-medico-container .pb-main { flex-wrap: wrap; gap: 6px; }
   .atendimento-medico-container .cc-title h2 { font-size: 14px; }
 }
+
+/* Admissão de Enfermagem (mockup 08) */
+.atendimento-medico-container .adm-checks { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+.atendimento-medico-container .adm-check { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #fff; font-size: 12.5px; font-weight: 500; text-transform: none; cursor: pointer; white-space: nowrap; }
+.atendimento-medico-container .adm-check input { width: 15px; height: 15px; margin: 0; }
+.atendimento-medico-container .adm-check.on { border-color: #1D4ED8; background: #EFF6FF; color: #1E3A8A; }
+.atendimento-medico-container .adm-check.on.alerta { border-color: #DC2626; background: #FEF2F2; color: #991B1B; }
+.atendimento-medico-container .adm-side-card { border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; background: #F8FAFC; font-size: 12px; }
+.atendimento-medico-container .adm-side-alerta { border-color: #FECACA; background: #FEF2F2; }
+.atendimento-medico-container .adm-side-title { font-weight: 700; font-size: 11px; text-transform: uppercase; color: #334155; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.atendimento-medico-container .adm-side-item { margin-bottom: 8px; display: flex; flex-direction: column; gap: 2px; }
+.atendimento-medico-container .adm-side-item p { margin: 0; color: #64748B; font-size: 11px; }
+.atendimento-medico-container .adm-side-badge { align-self: flex-start; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #FEF3C7; color: #92400E; }
+.atendimento-medico-container .adm-side-vazio { color: #94A3B8; font-size: 11px; }
+
+/* Evita que conteúdo largo (sub-abas, grids) empurre o card além da tela */
+.atendimento-medico-container .clinical-split { min-width: 0; max-width: 100%; }
+.atendimento-medico-container .cc-header { flex-wrap: wrap; }
+.atendimento-medico-container .cc-header .doc-subtabs { flex-basis: 100%; min-width: 0; max-width: 100%; }

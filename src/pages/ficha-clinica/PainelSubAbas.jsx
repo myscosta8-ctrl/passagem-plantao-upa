@@ -8,7 +8,7 @@ export default function PainelSubAbas({ titulo, icon, docs, docInicial }) {
   const atual = docs.find((d) => d.chave === doc) || docs[0];
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0, minWidth: 0 }}>
       <div className="clinical-card" style={{ flex: '0 0 auto' }}>
         <div className="cc-header">
           <div className="cc-title">
@@ -23,7 +23,7 @@ export default function PainelSubAbas({ titulo, icon, docs, docInicial }) {
           </div>
         </div>
       </div>
-      <div key={atual.chave} style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+      <div key={atual.chave} style={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex' }}>
         {atual.envolver ? (
           <div className="clinical-card" style={{ flex: 1 }}>
             <div className="cc-body">{atual.render()}</div>

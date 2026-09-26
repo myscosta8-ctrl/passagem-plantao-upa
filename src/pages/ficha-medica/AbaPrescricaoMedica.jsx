@@ -23,7 +23,7 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
   useEffect(() => { verificarAtm() }, [atdId])
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0, minWidth: 0 }}>
       {temAtm && (
         <div className="clinical-card" style={{ flex: '0 0 auto' }}>
           <div className="doc-subtabs" style={{ borderBottom: 'none' }}>
@@ -36,7 +36,7 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
           </div>
         </div>
       )}
-      <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex' }}>
         {doc === 'atm' ? (
           <AbaAtm
             key="atm"

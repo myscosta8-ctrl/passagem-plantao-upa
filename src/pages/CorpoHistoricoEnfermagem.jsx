@@ -130,6 +130,20 @@ export function CorpoHistoricoEnfermagemFiel({ registro, pessoa, atendimento, id
 export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const ic = registro.info_complementares || {}
   const medicamentos = (registro.medicamentos_uso || []).filter((m) => m.nome)
+  // v2 = tela redesenhada (mockup 08); registros antigos seguem o formato anterior.
+  const ef = registro.exame_fisico || {}
+  const v2 = ef.v === 2
+  const listaV2 = (arr) => (arr || []).join(', ')
+  const exameV2 = v2 ? [
+    ['Neurológico', ef.neuro],
+    ['Pupilas', ef.pupilas],
+    ['Glasgow', ef.glasgow],
+    ['Respiratório', [ef.respiratorio, ef.respiratorio_obs].filter(Boolean).join(' — ')],
+    ['Abdome', listaV2(ef.abdome)],
+    ['Eliminações urinárias', ef.urinario],
+    ['Motilidade e membros', [ef.membros, ef.membros_obs].filter(Boolean).join(' — ')],
+    ['Pele e mucosas', listaV2(ef.pele)],
+  ].filter(([, v]) => v) : []
 
   return (
     <div className="enf-page">
@@ -150,7 +164,13 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
         <div className="enf-secao">
           <div className="enf-secao-header">1. Coleta de Dados e Procedência</div>
           <div className="enf-secao-body">
-            <b>Informante(s):</b> {(registro.coleta_dados && registro.coleta_dados.length > 0) ? registro.coleta_dados.join(', ') : 'Próprio paciente, orientado e colaborativo.'}
+            {v2 ? (
+              <>
+                <b>Procedência:</b> {ic.procedencia || '—'} &bull; <b>Meio de chegada:</b> {ic.meio_chegada || '—'} &bull; <b>Acompanhante:</b> {ic.acompanhante || '—'}
+              </>
+            ) : (
+              <><b>Informante(s):</b> {(registro.coleta_dados || []).join(', ')}</>
+            )}
           </div>
         </div>
 
@@ -158,7 +178,7 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
         <div className="enf-secao">
           <div className="enf-secao-header">2. Motivo da Hospitalização / Queixa Principal</div>
           <div className="enf-secao-body" style={{ whiteSpace: 'pre-wrap' }}>
-            {registro.motivo_hospitalizacao || 'Paciente admitido na unidade de pronto atendimento para observação clínica e cuidados contínuos da equipe de enfermagem.'}
+            {registro.motivo_hospitalizacao || ''}
           </div>
         </div>
 
@@ -170,7 +190,10 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
               <div>
                 <b>Alergia:</b> {registro.alergia ? `Sim (${registro.alergia_quais || 'Não especificadas'})` : 'Nega alergias conhecidas'}
               </div>
-              {INFO_COMPLEMENTARES_CAMPOS.map((c) => {
+              {v2 && (
+                <div><b>Antecedentes:</b> {listaV2(ic.antecedentes) || 'Nega'}</div>
+              )}
+              {!v2 && INFO_COMPLEMENTARES_CAMPOS.map((c) => {
                 const v = ic[c.key] || {}
                 return (
                   <div key={c.key}>
@@ -180,7 +203,7 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
               })}
               {registro.outros_info && (
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <b>Outras Informações Relevantes:</b> {registro.outros_info}
+                  <b>{v2 ? 'Cirurgias Prévias / Outros:' : 'Outras Informações Relevantes:'}</b> {registro.outros_info}
                 </div>
               )}
             </div>
@@ -205,15 +228,15 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
                   {medicamentos.map((m, i) => (
                     <tr key={i}>
                       <td><b>{m.nome}</b></td>
-                      <td>{m.via || 'VO'}</td>
+                      <td>{m.via || '—'}</td>
                       <td>{m.dose || '—'}</td>
-                      <td>{m.tempo_uso || 'Uso contínuo'}</td>
+                      <td>{m.tempo_uso || '—'}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <div>Nega uso regular de medicações domiciliares ou não informado no momento da admissão.</div>
+              <div>Não informado.</div>
             )}
           </div>
         </div>
@@ -222,7 +245,10 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
         <div className="enf-secao">
           <div className="enf-secao-header">5. Exame Físico de Enfermagem na Admissão</div>
           <div className="enf-secao-body">
-            {EXAME_FISICO_CONFIG.map((sec) => {
+            {v2 && exameV2.map(([rotulo, valor]) => (
+              <div key={rotulo} style={{ marginBottom: 2.5 }}><b style={{ color: '#0f172a' }}>{rotulo}:</b> {valor}</div>
+            ))}
+            {!v2 && EXAME_FISICO_CONFIG.map((sec) => {
               const camposPreenchidos = sec.campos.map((campo) => {
                 const v = registro.exame_fisico?.[campo.id] || {}
                 const opcoesTxt = (v.opcoes || []).join(', ')
@@ -249,9 +275,7 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
                 </div>
               )
             })}
-            {(!registro.exame_fisico || Object.keys(registro.exame_fisico).length === 0) && (
-              <div>Estado geral regular, lúcido e orientado, eupneico em ar ambiente, mucosas coradas e hidratadas, pele íntegra. Abdome flácido e indolor.</div>
-            )}
+
           </div>
         </div>
 
@@ -259,11 +283,15 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
         <div className="enf-secao enf-secao-expansivel">
           <div className="enf-secao-header">6. Parecer e Condutas Iniciais da Enfermagem</div>
           <div className="enf-secao-body">
-            <div style={{ marginBottom: 3 }}>
-              <b>Estado Emocional:</b> {registro.parecer_estado_emocional || 'Calmo'} &bull; <b>Estado Cognitivo:</b> {registro.parecer_estado_cognitivo || 'Capaz de atender às solicitações'}
-            </div>
+            {v2 && (ic.intervencoes || []).length > 0 && (
+              <div style={{ marginBottom: 3 }}><b>Intervenções Iniciais:</b> {listaV2(ic.intervencoes)}</div>
+            )}
+            {!v2 && (registro.parecer_estado_emocional || registro.parecer_estado_cognitivo) && (
+              <div style={{ marginBottom: 3 }}>
+                <b>Estado Emocional:</b> {registro.parecer_estado_emocional || '—'} &bull; <b>Estado Cognitivo:</b> {registro.parecer_estado_cognitivo || '—'}
+              </div>
+            )}
             {registro.parecer_obs && <div><b>Observações / Condutas:</b> {registro.parecer_obs}</div>}
-            {!registro.parecer_obs && <div>Instalado acesso venoso periférico em MSE com salinização. Paciente acomodado no leito sob grades elevadas. Realizadas orientações ao paciente e familiar.</div>}
           </div>
         </div>
       </div>

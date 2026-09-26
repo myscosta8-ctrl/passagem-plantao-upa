@@ -18,7 +18,7 @@ export default function AbaEvolucoesMedicas({ atendimento, medicoId, onImprimir,
   const C = atual.C;
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0, minWidth: 0 }}>
       <div className="clinical-card" style={{ flex: '0 0 auto' }}>
         <div className="cc-header">
           <div className="cc-title">
@@ -33,7 +33,7 @@ export default function AbaEvolucoesMedicas({ atendimento, medicoId, onImprimir,
           </div>
         </div>
       </div>
-      <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex' }}>
         <C
           key={atual.chave}
           atendimento={atendimento}

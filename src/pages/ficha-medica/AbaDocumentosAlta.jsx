@@ -22,7 +22,7 @@ export default function AbaDocumentosAlta({ atendimento, medicoId, onImprimir, o
   const ehReceita = doc === 'simples' || doc === 'controle';
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0, minWidth: 0 }}>
       <div className="clinical-card" style={{ flex: '0 0 auto' }}>
         <div className="cc-header">
           <div className="cc-title">
@@ -43,7 +43,7 @@ export default function AbaDocumentosAlta({ atendimento, medicoId, onImprimir, o
         </div>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, display: ehReceita ? 'flex' : 'none' }}>
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: ehReceita ? 'flex' : 'none' }}>
         <AbaReceituarioMedico
           atendimento={atendimento}
           medicoId={medicoId}
@@ -55,12 +55,12 @@ export default function AbaDocumentosAlta({ atendimento, medicoId, onImprimir, o
         />
       </div>
       {doc === 'atestado' && (
-        <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+        <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex' }}>
           <AbaAtestadoMedico atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'atestado', registro })} onFechar={onFechar} />
         </div>
       )}
       {doc === 'sumario' && (
-        <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+        <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex' }}>
           <AbaSumarioAlta atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'alta', registro })} onFechar={onFechar} />
         </div>
       )}
