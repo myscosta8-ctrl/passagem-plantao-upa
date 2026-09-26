@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarPrescricoes, criarPrescricao, cancelarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
-import { VIAS, atbRestrito, ATM_PENDENTES_KEY } from './constantes';
+import { VIAS, UNIDADES_DOSE, FREQUENCIAS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, atbRestrito, ATM_PENDENTES_KEY } from './constantes';
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar }) {
@@ -42,7 +42,32 @@ function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar }) {
   )
 }
 
-const ITEM_VAZIO = { medicamento_nome: '', dose: '', dose_unidade: '', via: 'VO', frequencia: '', duracao: '', instrucoes: '', sn_aplic: false, horario_aplicacao: '', diluicao: '' }
+const ITEM_VAZIO = { medicamento_nome: '', dose: '', dose_unidade: 'mg', via: 'VO', frequencia: '', duracao: '', instrucoes: '', condicao: '', diluente: '', diluente_ml: '', tempo_infusao: '' }
+
+// Monta o texto de diluição a partir dos campos guiados (ex.: "Diluir em 100 mL de SF 0,9% — Em 30 min").
+function textoDiluicao(it) {
+  const partes = []
+  if (it.diluente) partes.push(`Diluir em ${it.diluente_ml ? `${it.diluente_ml} mL de ` : ''}${it.diluente}`)
+  if (it.tempo_infusao) partes.push(it.tempo_infusao)
+  return partes.join(' — ')
+}
+
+// Só as colunas de prescricao_itens; a condição (SN/ACM/se dor...) vai em observacoes.
+function itemParaBanco(it) {
+  return {
+    medicamento_nome: it.medicamento_nome.trim(),
+    dose: it.dose ? Number(String(it.dose).replace(',', '.')) : null,
+    dose_unidade: it.dose ? it.dose_unidade : null,
+    via: it.via || null,
+    frequencia: it.frequencia || null,
+    duracao: it.duracao || null,
+    diluicao: textoDiluicao(it) || null,
+    velocidade_infusao: it.tempo_infusao || null,
+    instrucoes: it.instrucoes || null,
+    sn_aplic: !!it.condicao,
+    observacoes: it.condicao || null,
+  }
+}
 const ORIENTACAO_VAZIA = { texto: '', frequencia: '' }
 const HEMO_OPCOES_RAPIDAS = [
   { chave: 'hemacias', label: 'Concentrado de Hemácias', icon: 'ph-drop' },
@@ -190,7 +215,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
   }
 
   function selecionarMedicamento(i, m) {
-    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, medicamento_nome: m.nome, via: m.via_padrao || it.via } : it)))
+    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, medicamento_nome: m.nome, via: VIAS.includes(m.via_padrao) ? m.via_padrao : it.via } : it)))
   }
 
   // O último item de `itens` é sempre o rascunho em edição; os anteriores já
@@ -251,9 +276,15 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
     const concentracaoMgMl = apresentacaoMg && diluenteMl ? apresentacaoMg / diluenteMl : 0
     const volumeAspirarMl = doseTotalMg && concentracaoMgMl ? doseTotalMg / concentracaoMgMl : 0
     if (!doseTotalMg || !volumeAspirarMl) return
-    const nomeMedicamento = itens[i]?.medicamento_nome || 'Medicação'
-    const textoFinal = `${nomeMedicamento} — Diluir em ${diluenteMl} mL (AD/Diluente). Aspirar ${volumeAspirarMl.toFixed(1)} mL (${doseTotalMg.toFixed(0)} mg)${soroMl ? ` e rediluir em ${soroMl} mL de SF 0,9%` : ''}. Administrar conforme via prescrita.`
-    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, dose: doseTotalMg.toFixed(0), dose_unidade: 'mg', diluicao: textoFinal } : it)))
+    const reconstituicao = `Reconstituir em ${diluenteMl} mL de AD e aspirar ${volumeAspirarMl.toFixed(1)} mL`
+    setItens((prev) => prev.map((it, idx) => (idx === i ? {
+      ...it,
+      dose: doseTotalMg.toFixed(0),
+      dose_unidade: 'mg',
+      diluente: soroMl ? 'SF 0,9%' : it.diluente,
+      diluente_ml: soroMl ? String(soroMl) : it.diluente_ml,
+      instrucoes: reconstituicao,
+    } : it)))
     setCalcAberto(null)
   }
 
@@ -290,7 +321,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
       pessoaId: atendimento.pessoa_id,
       medicoId,
       observacoes,
-      itens: validos.map((it) => ({ ...it, dose: it.dose ? Number(it.dose) : null })),
+      itens: validos.map(itemParaBanco),
       camposPrescricao: {
         dieta: dieta || null,
         orientacao_enfermagem: orientacaoEnfermagem.filter((o) => o.texto.trim()),
@@ -315,7 +346,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
           dose: [it.dose, it.dose_unidade].filter(Boolean).join(' '),
           via: it.via || '',
           intervalo: it.frequencia || '',
-          posologia: [it.diluicao, it.instrucoes].filter(Boolean).join(' — '),
+          posologia: [textoDiluicao(it), it.instrucoes].filter(Boolean).join(' — '),
           tempo_uso_dias: (String(it.duracao || '').match(/\d+/) || [''])[0],
         }))))
       } catch { /* sessionStorage indisponível: a ficha abre vazia */ }
@@ -417,12 +448,13 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                   <div key={i} className="presc-item" style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <div className="item-num">{String(i + 1).padStart(2, '0')}</div>
                     <div className="item-details">
-                      <div className="item-name">{it.medicamento_nome} {it.dose && `- ${it.dose} ${it.dose_unidade}`}{it.sn_aplic && ' (SN)'}</div>
+                      <div className="item-name">{it.medicamento_nome} {it.dose && `- ${it.dose} ${it.dose_unidade}`}{it.condicao && <span className="badge-2vias" style={{ background: '#DBEAFE', color: '#1E40AF' }}>{it.condicao}</span>}</div>
                       <div className="item-sub">
                         <span><i className="ph ph-syringe"></i> {it.via || 'Via não def.'}</span>
                         <span><i className="ph ph-clock"></i> {it.frequencia || 'Frequência não def.'}</span>
                         {it.duracao && <span><i className="ph ph-calendar"></i> {it.duracao}</span>}
-                        {it.diluicao && <span><strong>Posologia:</strong> {it.diluicao}</span>}
+                        {textoDiluicao(it) && <span><strong>Diluição:</strong> {textoDiluicao(it)}</span>}
+                        {it.instrucoes && <span><strong>Obs.:</strong> {it.instrucoes}</span>}
                       </div>
                     </div>
                     <div className="item-actions">
@@ -454,23 +486,44 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                         </button>
                       </div>
 
-                      <div className="presc-input-linha2">
-                        <input type="number" className="form-control" placeholder="Qtd" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
-                        <input type="text" className="form-control" placeholder="Und" value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} />
-                        <select className="form-control" value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)}>
+                      <div className="presc-input-linha2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                        <div className="presc-dose">
+                          <input type="text" inputMode="decimal" className="form-control" placeholder="Dose" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
+                          <select className="form-control" value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} title="Unidade da dose">
+                            {UNIDADES_DOSE.map((u) => <option key={u} value={u}>{u}</option>)}
+                          </select>
+                        </div>
+                        <select className="form-control" value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)} title="Via de aplicação">
                           {VIAS.map((v) => <option key={v} value={v}>{v}</option>)}
                         </select>
-                        <input type="text" className="form-control" placeholder="Freq (6/6h)" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} />
-                        <input type="text" className="form-control" placeholder="Duração" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
+                        <select className="form-control" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} title="Frequência">
+                          <option value="">Frequência</option>
+                          {FREQUENCIAS.map((f) => <option key={f} value={f}>{f}</option>)}
+                        </select>
+                        <select className="form-control" value={it.condicao} onChange={(e) => setItem(i, 'condicao', e.target.value)} title="Condição de uso">
+                          <option value="">Horário fixo</option>
+                          {CONDICOES_USO.map((c) => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                        <input type="text" className="form-control" style={{ gridColumn: 'span 2' }} placeholder="Duração (ex: 7 dias)" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
                       </div>
 
-                      <div className="presc-input-linha3">
-                        <input type="text" className="form-control" placeholder="Instruções / Diluição (Ex: Diluir em 10mL AD e fazer lento)" value={it.diluicao} onChange={(e) => setItem(i, 'diluicao', e.target.value)} />
-                        <label className="presc-sn-toggle">
-                          <input type="checkbox" checked={it.sn_aplic} onChange={(e) => setItem(i, 'sn_aplic', e.target.checked)} />
-                          SN
-                        </label>
+                      <div className="presc-input-linha3" style={{ gridTemplateColumns: '1.2fr 0.7fr 1.1fr' }}>
+                        <select className="form-control" value={it.diluente} onChange={(e) => setItem(i, 'diluente', e.target.value)} title="Diluente">
+                          <option value="">Sem diluição</option>
+                          {DILUENTES.map((d) => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                        <input type="text" inputMode="decimal" className="form-control" placeholder="Vol. (mL)" value={it.diluente_ml} disabled={!it.diluente} onChange={(e) => setItem(i, 'diluente_ml', e.target.value)} />
+                        <select className="form-control" value={it.tempo_infusao} onChange={(e) => setItem(i, 'tempo_infusao', e.target.value)} title="Tempo de administração">
+                          <option value="">Tempo de infusão</option>
+                          {TEMPOS_INFUSAO.map((t) => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                        <input type="text" className="form-control" style={{ gridColumn: '1 / -1' }} placeholder="Outras instruções (ex: aplicar em jejum)" value={it.instrucoes} onChange={(e) => setItem(i, 'instrucoes', e.target.value)} />
                       </div>
+                      {textoDiluicao(it) && (
+                        <div style={{ fontSize: 11.5, color: 'var(--text-secondary)', marginTop: 4 }}>
+                          <i className="ph ph-eye" /> Na prescrição: <strong>{textoDiluicao(it)}</strong>
+                        </div>
+                      )}
                     </div>
 
                     {calcAberto === i && (

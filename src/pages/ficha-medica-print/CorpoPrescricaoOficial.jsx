@@ -48,7 +48,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
                   )}
                 </td>
                 <td className="qtd" style={{ textAlign: 'center' }}>{it.dose ? `${it.dose} ${it.dose_unidade || ''}` : ''}</td>
-                <td style={{ textAlign: 'center', fontWeight: 600 }}>{it.sn_acm || (it.sn_aplic ? 'SN' : '—')}</td>
+                <td style={{ textAlign: 'center', fontWeight: 600 }}>{it.sn_acm || it.observacoes || (it.sn_aplic ? 'SN' : '—')}</td>
                 <td className="via" style={{ textAlign: 'center' }}>{it.via || ''}</td>
                 <td className="freq" style={{ textAlign: 'center' }}>{it.frequencia || ''}{it.duracao ? ` · ${it.duracao}` : ''}</td>
                 <td className="horario" style={{ textAlign: 'center' }}></td>

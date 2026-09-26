@@ -1127,3 +1127,29 @@
 .atendimento-medico-container .hemo-chip-btn i { font-size: 14px; }
 .atendimento-medico-container .hemo-chip.ativo .hemo-chip-btn { background: #EFF6FF; border-color: var(--primary, #1D4ED8); color: var(--primary, #1D4ED8); }
 .atendimento-medico-container .hemo-chip-qtd { width: 110px; padding: 7px 10px; font-size: 11px; border: 1px solid var(--primary, #1D4ED8); border-radius: 20px; outline: none; text-align: center; }
+
+/* MOCKUP 16 APAC */
+.atendimento-medico-container .blocking-alert-box {
+  background: #F8FAFC; border: 1px solid #CBD5E1; border-left: 4px solid var(--primary, #1D4ED8);
+  border-radius: 6px; padding: 10px 12px; font-size: 11.5px; line-height: 1.35; margin-bottom: 12px;
+}
+.atendimento-medico-container .blocking-alert-box strong { color: var(--text-main, #0F172A); display: block; margin-bottom: 3px; }
+
+.atendimento-medico-container .exam-group-box {
+  border: 1px solid var(--border-light, #E2E8F0); border-radius: 6px;
+  padding: 10px 12px; background: #FAFAFA; margin-bottom: 10px;
+}
+.atendimento-medico-container .exam-group-header {
+  font-size: 11px; font-weight: 800; color: var(--primary, #1D4ED8);
+  text-transform: uppercase; margin-bottom: 8px; display: flex;
+  justify-content: space-between; align-items: center;
+}
+.atendimento-medico-container .exam-checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 14px; }
+.atendimento-medico-container .exam-check-item {
+  display: flex; align-items: flex-start; gap: 8px; font-size: 12px;
+  color: var(--text-main, #0F172A); cursor: pointer; user-select: none;
+}
+.atendimento-medico-container .exam-check-item input[type="checkbox"] { margin-top: 2px; accent-color: var(--primary, #1D4ED8); width: 14px; height: 14px; cursor: pointer; }
+.atendimento-medico-container .exam-check-item.checked { font-weight: 700; color: var(--primary, #1D4ED8); }
+
+.atendimento-medico-container .presc-dose { display: grid; grid-template-columns: 1fr 72px; gap: 4px; }
