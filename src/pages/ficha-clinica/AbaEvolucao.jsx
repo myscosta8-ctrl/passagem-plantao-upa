@@ -1,164 +1,211 @@
 import { useEffect, useState } from 'react';
-import { listarEvolucoes, registrarEvolucao } from '../../lib/pepClinico';
+import { listarEvolucoes, registrarEvolucao, listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
 import { NANDA_OPCOES, NIC_OPCOES } from './constantes';
 
-export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
-  const [carregando, setCarregando] = useState(true)
-  const [texto, setTexto] = useState('')
-  const [diagnosticosNanda, setDiagnosticosNanda] = useState([])
-  const [prescricaoNic, setPrescricaoNic] = useState([])
-  const [salvando, setSalvando] = useState(false)
-  const [erro, setErro] = useState('')
-  const [itemExpandido, setItemExpandido] = useState(null)
+// Evolução do Enfermeiro (SAE) — mockups-fase2/09-evolucao-enfermagem-sae-design.html.
+// Os sinais vitais do turno são gravados em sinais_vitais e um resumo vai para
+// evolucoes.objetivo, que o impresso 02 usa.
+const SV_VAZIO = { pa: '', fc: '', fr: '', temperatura: '', spo2: '', glicemia: '', dor_escala: '' };
+const SV_CAMPOS = [
+  ['pa', 'P. Arterial', 'mmHg', '120/80'],
+  ['fc', 'F. Cardíaca', 'bpm'],
+  ['fr', 'F. Respiratória', 'irpm'],
+  ['temperatura', 'Temperatura', '°C'],
+  ['spo2', 'Sat O₂', '%'],
+  ['glicemia', 'HGT / Glicemia', 'mg/dL'],
+  ['dor_escala', 'Dor (EVA 0-10)', ''],
+];
+const nicTexto = (n) => `${n.texto} (${n.frequencia})`;
 
-  useEffect(() => { carregar() }, [])
+function resumoSv(s) {
+  return [
+    s.pa && `PA ${s.pa} mmHg`, s.fc && `FC ${s.fc} bpm`, s.fr && `FR ${s.fr} irpm`, s.temperatura && `Tax ${s.temperatura} °C`,
+    s.spo2 && `SpO2 ${s.spo2}%`, s.glicemia && `HGT ${s.glicemia} mg/dL`, s.dor_escala !== '' && `Dor EVA ${s.dor_escala}/10`,
+  ].filter(Boolean).join(' • ');
+}
+
+function rotuloData(d) {
+  const dt = new Date(d);
+  const hoje = new Date(); const ontem = new Date(); ontem.setDate(hoje.getDate() - 1);
+  const hora = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (dt.toDateString() === hoje.toDateString()) return `Hoje, ${hora}`;
+  if (dt.toDateString() === ontem.toDateString()) return `Ontem, ${hora}`;
+  return `${dt.toLocaleDateString('pt-BR')}, ${hora}`;
+}
+
+export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar }) {
+  const [historico, setHistorico] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [ultimoSv, setUltimoSv] = useState(null);
+  const [sv, setSv] = useState(SV_VAZIO);
+  const [texto, setTexto] = useState('');
+  const [nanda, setNanda] = useState([]);
+  const [nic, setNic] = useState([]);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState('');
+  const [expandido, setExpandido] = useState(null);
+
+  useEffect(() => { carregar(); }, []);
 
   async function carregar() {
-    setCarregando(true)
-    setHistorico(await listarEvolucoes(atendimento.atendimento_id))
-    setCarregando(false)
+    setCarregando(true);
+    const [evs, svs] = await Promise.all([listarEvolucoes(atendimento.atendimento_id), listarSinaisVitais(atendimento.atendimento_id)]);
+    setHistorico(evs.filter((e) => (e.tipo || e.autor_tipo) !== 'medico'));
+    setUltimoSv(svs[0] || null);
+    setCarregando(false);
   }
 
-  function toggleNanda(item) {
-    setDiagnosticosNanda((prev) => (prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]))
-  }
-
-  function toggleNic(item) {
-    setPrescricaoNic((prev) => (prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]))
-  }
+  const toggle = (lista, set, item) => set(lista.includes(item) ? lista.filter((i) => i !== item) : [...lista, item]);
 
   async function registrar(imprimir = false) {
-    if (!texto.trim()) return
-    setErro('')
-    setSalvando(true)
+    if (!texto.trim()) { setErro('Escreva a evolução clínica do enfermeiro.'); return; }
+    setErro('');
+    setSalvando(true);
+    const temSv = Object.values(sv).some((v) => String(v).trim() !== '');
+    if (temSv) {
+      const [pas, pad] = String(sv.pa).split(/[x/]/i).map((x) => x.trim());
+      const { error: e1 } = await registrarSinaisVitais({
+        atendimentoId: atendimento.atendimento_id, registradoPor: autorId,
+        dados: { pa_sistolica: pas || '', pa_diastolica: pad || '', fc: sv.fc, fr: sv.fr, spo2: sv.spo2, temperatura: String(sv.temperatura).replace(',', '.'), glicemia: sv.glicemia, dor_escala: String(sv.dor_escala).replace(/\D.*$/, '') },
+      });
+      if (e1) console.error(e1);
+    }
     const { data, error } = await registrarEvolucao({
       atendimentoId: atendimento.atendimento_id, autorId, texto: texto.trim(),
-      diagnosticosNanda, prescricaoNic,
-    })
-    setSalvando(false)
-    if (error) {
-      setErro('Não foi possível registrar. Tente de novo.')
-      console.error(error)
-      return
-    }
-    if (imprimir && data) onImprimir(data)
-    setTexto('')
-    setDiagnosticosNanda([])
-    setPrescricaoNic([])
-    carregar()
+      diagnosticosNanda: nanda, prescricaoNic: nic,
+      objetivo: temSv ? resumoSv(sv) : null,
+    });
+    setSalvando(false);
+    if (error) { setErro('Não foi possível registrar. Tente de novo.'); console.error(error); return; }
+    if (imprimir && data) onImprimir(data);
+    setTexto(''); setNanda([]); setNic([]); setSv(SV_VAZIO);
+    carregar();
   }
 
+  const ultima = historico[0];
+
   return (
-    <div className="clinical-split">
+    <div className="clinical-split sae-split">
       <aside className="timeline-pane">
         <div className="pane-header">
           <span><i className="ph ph-clock-counter-clockwise" /> Anotações de Turnos</span>
+          <span style={{ fontSize: 10, color: '#64748B' }}>24h Ativas</span>
         </div>
         <div className="timeline-list">
-          {carregando ? (
-            <p style={{ fontSize: 11, color: '#94A3B8' }}>Carregando...</p>
-          ) : historico.length === 0 ? (
-            <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhuma evolução registrada ainda.</p>
-          ) : historico.map((ev) => (
-            <div
-              key={ev.id}
-              className={`tl-item ${itemExpandido === ev.id ? 'expanded' : ''}`}
-              onClick={() => setItemExpandido((atual) => (atual === ev.id ? null : ev.id))}
-            >
-              <div className="tl-date">
-                {new Date(ev.criado_em).toLocaleString('pt-BR')}
-                <i className={`ph ph-caret-${itemExpandido === ev.id ? 'up' : 'down'}`} />
+          {carregando ? <p className="qs-vazio">Carregando...</p> : historico.length === 0 ? <p className="qs-vazio">Nenhuma evolução registrada ainda.</p> : historico.map((ev, i) => (
+            <div key={ev.id} className={'tl-item' + (i === 0 ? ' active' : '') + (expandido === ev.id ? ' expanded' : '')} onClick={() => setExpandido((a) => (a === ev.id ? null : ev.id))}>
+              <div className="tl-date">{rotuloData(ev.criado_em)} <i className={'ph ph-caret-' + (expandido === ev.id ? 'up' : 'down')} /></div>
+              <div className="tl-author"><i className="ph ph-user" /> {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}</div>
+              <div className="tl-preview">
+                {ev.objetivo && <><b>SV:</b> {ev.objetivo}. </>}
+                {ev.texto}
+                {expandido === ev.id && ev.diagnosticos_nanda?.length > 0 && <><br /><b>NANDA-I:</b> {ev.diagnosticos_nanda.join('; ')}</>}
+                {expandido === ev.id && ev.prescricao_nic?.length > 0 && <><br /><b>NIC:</b> {ev.prescricao_nic.join('; ')}</>}
               </div>
-              <div className="tl-author">
-                <i className="ph ph-user" /> {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}
-              </div>
-              {ev.diagnosticos_nanda?.length > 0 && (
-                <div className="tl-preview" style={{ marginBottom: 4 }}>
-                  <strong>NANDA-I:</strong> {ev.diagnosticos_nanda.join(', ')}
-                </div>
-              )}
-              <div className="tl-preview">{ev.texto}</div>
-              {onImprimir && (
-                <button type="button" className="tl-print" onClick={(e) => { e.stopPropagation(); onImprimir(ev) }}>
-                  <i className="ph ph-printer" /> Imprimir (SAE)
-                </button>
+              {expandido === ev.id && (
+                <button type="button" className="qs-gerenciar" style={{ marginTop: 6 }} onClick={(e) => { e.stopPropagation(); onImprimir(ev); }}><i className="ph ph-printer" /> Imprimir</button>
               )}
             </div>
           ))}
         </div>
       </aside>
 
-      <div className="clinical-card">
-        <div className="cc-header">
-          <div className="cc-title">
+      <div className="sae-card">
+        <div className="sc-header">
+          <div className="sc-title">
             <h2><i className="ph ph-activity" /> Nova Evolução do Enfermeiro (SAE)</h2>
             <p>Sistematização da Assistência com Diagnósticos NANDA e Prescrição de Cuidados NIC.</p>
           </div>
+          <div className="sc-actions">
+            <button type="button" className="btn-toggle-sidebar" disabled={!ultima} title={ultima ? 'Imprimir a última evolução registrada' : 'Nenhuma evolução registrada'} onClick={() => ultima && onImprimir(ultima)}>
+              <i className="ph ph-printer" /> Visualizar Impresso SAE
+            </button>
+          </div>
         </div>
 
-        <div className="cc-body">
-          <div className="form-section-box">
-            <div className="form-section-box-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="sc-body">
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
+              <label className="enf-label forte" style={{ margin: 0 }}><i className="ph ph-thermometer" style={{ color: 'var(--danger)' }} /> Sinais Vitais do Turno</label>
+              <span style={{ fontSize: 11, color: '#64748B' }}>
+                <i className="ph ph-clock" /> Última aferição: {ultimoSv ? new Date(ultimoSv.registrado_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
+              </span>
+            </div>
+            <div className="vitals-grid">
+              {SV_CAMPOS.map(([k, rotulo, unid, ph]) => (
+                <div key={k} className="vital-box">
+                  <label>{rotulo}</label>
+                  <div className="vital-input-wrap">
+                    <input type="text" inputMode={k === 'pa' ? 'text' : 'decimal'} placeholder={ph || '—'} value={sv[k]} onChange={(e) => setSv((p) => ({ ...p, [k]: e.target.value }))} />
+                    {unid && <span>{unid}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="sae-section">
+            <div className="sae-header">
               <span><i className="ph ph-stethoscope" /> Diagnósticos de Enfermagem (NANDA-I)</span>
-              <span style={{ fontSize: 10.5, color: '#94A3B8', fontWeight: 400, textTransform: 'none' }}>Selecione os títulos prioritários</span>
+              <span className="sae-header-sub">Selecione os títulos prioritários</span>
             </div>
-            <div className="checkbox-group" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {NANDA_OPCOES.map((n) => (
-                <label key={n} className="checkbox-item">
-                  <input type="checkbox" checked={diagnosticosNanda.includes(n)} onChange={() => toggleNanda(n)} /> {n}
-                </label>
-              ))}
+            <div className="sae-body">
+              <div className="chips-container">
+                {NANDA_OPCOES.map((item) => {
+                  const on = nanda.includes(item);
+                  return (
+                    <button key={item} type="button" className={'nanda-chip' + (on ? ' selected' : '')} onClick={() => toggle(nanda, setNanda, item)}>
+                      <i className={'ph ' + (on ? 'ph-check-circle' : 'ph-plus-circle')} /> {item}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <div className="form-section-box">
-            <div className="form-section-box-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="sae-section">
+            <div className="sae-header">
               <span><i className="ph ph-list-checks" /> Prescrição de Enfermagem e Cuidados (NIC)</span>
-              <span style={{ fontSize: 10.5, color: '#94A3B8', fontWeight: 400, textTransform: 'none' }}>Aprazamento pelo Enfermeiro</span>
+              <span className="sae-header-sub">Aprazamento pelo Enfermeiro</span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {NIC_OPCOES.map((n) => (
-                <label key={n.texto} className="checkbox-item" style={{ justifyContent: 'space-between', width: '100%' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <input type="checkbox" checked={prescricaoNic.includes(n.texto)} onChange={() => toggleNic(n.texto)} /> {n.texto}
-                  </span>
-                  <span style={{ fontSize: 10.5, fontWeight: 700, color: '#0F766E', background: '#CCFBF1', padding: '2px 8px', borderRadius: 4 }}>{n.frequencia}</span>
-                </label>
-              ))}
+            <div className="sae-body">
+              <div className="nic-list">
+                {NIC_OPCOES.map((n) => {
+                  const t = nicTexto(n);
+                  return (
+                    <label key={n.texto} className="nic-item">
+                      <div className="nic-left">
+                        <input type="checkbox" checked={nic.includes(t)} onChange={() => toggle(nic, setNic, t)} />
+                        <span>{n.texto}</span>
+                      </div>
+                      <span className="nic-freq">{n.frequencia.replace('/', ' / ')}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <div className="form-group">
+          <div className="enf-group">
             <label><i className="ph ph-text-align-left" /> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
-            <textarea className="large" style={{ minHeight: 140 }} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Descreva a evolução do paciente..." />
+            <textarea className="enf-control" rows="4" value={texto} onChange={(e) => setTexto(e.target.value)} />
           </div>
 
           {erro && (
-            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-              <div className="info" style={{ color: '#DC2626' }}>
-                <i className="ph ph-warning" /> {erro}
-              </div>
+            <div className="condicional-box" style={{ background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' }}>
+              <span style={{ fontSize: 12.5, fontWeight: 600 }}><i className="ph ph-warning" /> {erro}</span>
             </div>
           )}
         </div>
 
-        <div className="cc-footer">
-          <div>
-            <button type="button" className="btn-cancel" onClick={onFechar}>
-              <i className="ph ph-x-circle" /> Cancelar
-            </button>
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando || !texto.trim()}>
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
-            </button>
-            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando || !texto.trim()}>
-              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
-            </button>
+        <div className="sc-footer">
+          <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
+            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

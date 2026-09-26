@@ -1,5 +1,4 @@
 import AbaHistoricoEnfermagem from '../AbaHistoricoEnfermagem';
-import AbaSinaisVitais from './AbaSinaisVitais';
 import AbaEvolucao from './AbaEvolucao';
 import AbaBalancoHidrico from './AbaBalancoHidrico';
 import AbaIsolamento from './AbaIsolamento';
@@ -27,19 +26,9 @@ export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImpr
       />
     );
   }
+  // Evolução SAE (mockup 09): os sinais vitais do turno ficam dentro da própria evolução.
   if (aba === 'evolucao' || aba === 'sinaisVitais') {
-    return (
-      <PainelSubAbas
-        key={aba}
-        titulo="Evolução de Enfermagem (SAE)"
-        icon="ph-activity"
-        docInicial={aba}
-        docs={[
-          { chave: 'evolucao', rotulo: 'Evolução SAE', icon: 'ph-activity', render: () => <AbaEvolucao {...comum} onImprimir={(registro) => onImprimir({ tipo: 'evolucao_sae', registro })} /> },
-          { chave: 'sinaisVitais', rotulo: 'Sinais Vitais', icon: 'ph-heartbeat', envolver: true, render: () => <AbaSinaisVitais {...comum} /> },
-        ]}
-      />
-    );
+    return <AbaEvolucao {...comum} onImprimir={(registro) => onImprimir({ tipo: 'evolucao_sae', registro })} />;
   }
   if (aba === 'balanco') {
     return <AbaBalancoHidrico {...comum} onImprimir={(registro) => onImprimir({ tipo: 'balanco', registro })} />;

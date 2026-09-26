@@ -68,19 +68,22 @@ export async function registrarSinaisVitais({ atendimentoId, registradoPor, dado
 export async function listarEvolucoes(atendimentoId) {
   const { data } = await supabase
     .from('evolucoes')
-    .select('*, enfermeiros(nome_exibicao, nome)')
+    // evolucoes tem 2 FKs para enfermeiros (autor_id e enfermeiro_id): sem o hint o
+    // PostgREST recusa o embed (300) e a lista volta vazia.
+    .select('*, enfermeiros!evolucoes_autor_id_fkey(nome_exibicao, nome, coren)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
   return data ?? []
 }
 
-export async function registrarEvolucao({ atendimentoId, autorId, texto, diagnosticosNanda, prescricaoNic }) {
+export async function registrarEvolucao({ atendimentoId, autorId, texto, diagnosticosNanda, prescricaoNic, objetivo }) {
   return supabase
     .from('evolucoes')
     .insert({
       atendimento_id: atendimentoId, autor_id: autorId, autor_tipo: 'enfermagem', tipo: 'enfermagem', texto,
       diagnosticos_nanda: diagnosticosNanda?.length ? diagnosticosNanda : null,
       prescricao_nic: prescricaoNic?.length ? prescricaoNic : null,
+      objetivo: objetivo || null,
     })
     .select()
     .single()
