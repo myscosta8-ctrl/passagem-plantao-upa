@@ -115,11 +115,17 @@
 ----------------------------------------- */
 .main-viewport {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* Rolagem vertical para qualquer tela mais alta que a janela
+     (Recepção, Pendências, Desfechos, Profissionais etc.). */
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
 }
+/* As telas não encolhem para caber: crescem e a área rola. */
+.main-viewport > * { flex-shrink: 0; }
 .workspace {
   flex: 1;
   overflow-y: auto;
