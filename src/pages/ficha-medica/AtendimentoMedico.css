@@ -1228,3 +1228,4 @@
 .atendimento-medico-container .clinical-split { min-width: 0; max-width: 100%; }
 .atendimento-medico-container .cc-header { flex-wrap: wrap; }
 .atendimento-medico-container .cc-header .doc-subtabs { flex-basis: 100%; min-width: 0; max-width: 100%; }
+.atendimento-medico-container .btn-voltar { white-space: nowrap; }

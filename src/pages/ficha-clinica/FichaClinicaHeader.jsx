@@ -19,12 +19,6 @@ export default function FichaClinicaHeader({ onFechar, rotuloAbaAtual, enfermeir
         <button type="button" className="btn-voltar" onClick={onFechar}>
           <i className="ph ph-arrow-left" /> Painel de Leitos
         </button>
-        <div className="breadcrumb">
-          <i className="ph ph-caret-right" />
-          <span>Módulo de Enfermagem</span>
-          <i className="ph ph-caret-right" />
-          <span className="current">{rotuloAbaAtual}</span>
-        </div>
       </div>
       <div className="topbar-right">
         {onTrocarPilar && (
