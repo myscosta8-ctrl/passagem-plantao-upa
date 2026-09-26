@@ -1,21 +1,45 @@
 import { useEffect, useState } from 'react';
 import { listarAtm, criarAtm } from '../../lib/pepMedico';
-import { ATM_VAZIA } from './constantes';
+import { ATM_VAZIA, ATM_RESTRITOS, ATM_PENDENTES_KEY, atbRestrito } from './constantes';
+
+// Solicitação de Autorização de Uso de Antimicrobiano (ATM) — modelo
+// 11-formulario-antimicrobiano-atm.html. Documento interno obrigatório sempre
+// que a Prescrição Médica inclui um antimicrobiano da lista de uso restrito:
+// a prescrição grava os itens em sessionStorage e abre esta aba já preenchida.
+function lerPendentes(atendimentoId) {
+  try { return JSON.parse(sessionStorage.getItem(ATM_PENDENTES_KEY + ':' + atendimentoId) || '[]') } catch { return [] }
+}
+function gravarPendentes(atendimentoId, lista) {
+  try {
+    if (lista.length) sessionStorage.setItem(ATM_PENDENTES_KEY + ':' + atendimentoId, JSON.stringify(lista))
+    else sessionStorage.removeItem(ATM_PENDENTES_KEY + ':' + atendimentoId)
+  } catch { /* ignore */ }
+}
 
 export default function AbaAtm({ atendimento, medicoId, onImprimir, onFechar }) {
+  const atdId = atendimento.atendimento_id
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
-  const [dados, setDados] = useState(ATM_VAZIA)
+  const [pendentes, setPendentes] = useState(() => lerPendentes(atdId))
+  const [dados, setDados] = useState(() => {
+    const p = lerPendentes(atdId)[0]
+    return p ? { ...ATM_VAZIA, ...p } : ATM_VAZIA
+  })
+  const [origemPrescricao, setOrigemPrescricao] = useState(() => lerPendentes(atdId).length > 0)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
 
   useEffect(() => { carregar() }, [])
-  async function carregar() { setCarregando(true); setHistorico(await listarAtm(atendimento.atendimento_id)); setCarregando(false) }
+  async function carregar() { setCarregando(true); setHistorico(await listarAtm(atdId)); setCarregando(false) }
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
+
+  function usarPendente(p) { setDados({ ...ATM_VAZIA, ...p }); setOrigemPrescricao(true); setErro('') }
+
+  const restritoAtual = atbRestrito(dados.medicamento)
 
   async function salvar(imprimir = false) {
     if (!dados.medicamento.trim() || !dados.justificativa_clinica.trim()) {
-      setErro('Preencha ao menos o medicamento e a justificativa clínica.')
+      setErro('Preencha ao menos o medicamento solicitado e a justificativa clínica.')
       return
     }
     setErro('')
@@ -24,7 +48,7 @@ export default function AbaAtm({ atendimento, medicoId, onImprimir, onFechar }) 
       medicamento, posologia, dose, intervalo, tempo_uso_dias, justificativa_clinica, ...extra
     } = dados
     const { data, error } = await criarAtm({
-      atendimentoId: atendimento.atendimento_id, solicitanteId: medicoId,
+      atendimentoId: atdId, solicitanteId: medicoId,
       dados: {
         medicamento, posologia, dose, intervalo, justificativa_clinica,
         tempo_uso_dias: tempo_uso_dias ? Number(tempo_uso_dias) : null,
@@ -34,58 +58,149 @@ export default function AbaAtm({ atendimento, medicoId, onImprimir, onFechar }) 
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    setDados(ATM_VAZIA)
+
+    // Tira da fila o antibiótico que acabou de ser solicitado e já carrega o próximo.
+    const restantes = pendentes.filter((p) => p.medicamento !== medicamento)
+    gravarPendentes(atdId, restantes)
+    setPendentes(restantes)
+    if (restantes[0]) usarPendente(restantes[0])
+    else { setDados(ATM_VAZIA); setOrigemPrescricao(false) }
     carregar()
   }
 
   return (
-    <div className="form-section">
-      <div className="form-section-title">Nova solicitação de ATM</div>
-      <p style={{ fontSize: 11.5, color: 'var(--c-text-muted)', marginTop: -10, marginBottom: 14 }}>
-        Liberação de antibiótico de uso restrito — o parecer da farmácia é dado manualmente, fora do sistema. Aqui só registra a solicitação e gera o documento completo pra impressão, parecer, assinatura e carimbo do farmacêutico.
-      </p>
-      <div className="form-grid">
-        <div className="form-field span-2"><label>Diagnóstico</label><input type="text" value={dados.diagnostico} onChange={(e) => set('diagnostico', e.target.value)} /></div>
-        <div className="form-field"><label>Data de internação</label><input type="date" value={dados.data_internacao} onChange={(e) => set('data_internacao', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Tratamento pretendido</label><input type="text" value={dados.tratamento_pretendido} onChange={(e) => set('tratamento_pretendido', e.target.value)} /></div>
-        <div className="form-field span-2"><label>Medicamento *</label><input type="text" value={dados.medicamento} onChange={(e) => set('medicamento', e.target.value)} /></div>
-        <div className="form-field"><label>Dose</label><input type="text" value={dados.dose} onChange={(e) => set('dose', e.target.value)} /></div>
-        <div className="form-field"><label>Posologia</label><input type="text" value={dados.posologia} onChange={(e) => set('posologia', e.target.value)} /></div>
-        <div className="form-field"><label>Intervalo</label><input type="text" placeholder="ex: 8/8h" value={dados.intervalo} onChange={(e) => set('intervalo', e.target.value)} /></div>
-        <div className="form-field"><label>Tempo de uso (dias)</label><input type="number" value={dados.tempo_uso_dias} onChange={(e) => set('tempo_uso_dias', e.target.value)} /></div>
-        <div className="form-field"><label>DxIxT</label><input type="text" value={dados.dxixt} onChange={(e) => set('dxixt', e.target.value)} /></div>
-        <div className="form-field"><label>Ampolas</label><input type="text" value={dados.ampolas} onChange={(e) => set('ampolas', e.target.value)} /></div>
-        <div className="form-field"><label>Frasco-ampolas</label><input type="text" value={dados.frasco_ampolas} onChange={(e) => set('frasco_ampolas', e.target.value)} /></div>
-        <div className="form-field"><label>Bolsas</label><input type="text" value={dados.bolsas} onChange={(e) => set('bolsas', e.target.value)} /></div>
-        <div className="form-field span-3"><label>Justificativa clínica *</label><textarea value={dados.justificativa_clinica} onChange={(e) => set('justificativa_clinica', e.target.value)} /></div>
-      </div>
-      {erro && <div className="error-box" style={{ marginTop: 10 }}>{erro}</div>}
-      <div className="modal-actions" style={{ marginTop: 14 }}>
-        <button type="button" className="modal-btn-secondary" onClick={onFechar}>Cancelar</button>
-        <button className="modal-btn-secondary" onClick={() => salvar(false)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar'}</button>
-        <button className="modal-btn-primary" onClick={() => salvar(true)} disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+    <div className="clinical-card" style={{ flex: 1 }}>
+      <div className="cc-header">
+        <div className="cc-title">
+          <h2><i className="ph ph-shield-warning" /> Solicitação de Autorização de Uso de Antimicrobiano (ATM)</h2>
+          <p>Documento interno obrigatório para antimicrobianos de uso restrito. O parecer farmacêutico (CCIH / Farmácia Central) é preenchido à mão no documento impresso.</p>
+        </div>
       </div>
 
-      <div className="form-section-title" style={{ marginTop: 24 }}>Histórico</div>
-      {carregando ? <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p> : historico.length === 0 ? (
-        <p style={{ color: 'var(--color-text-muted)' }}>Nenhuma solicitação registrada ainda.</p>
-      ) : historico.map((a) => (
-        <div key={a.id} style={{ borderBottom: '1px solid var(--color-border)', padding: '10px 0', fontSize: 13 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ fontWeight: 600 }}>{a.medicamento}</span>
-            <span style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
-              {a.parecer_farmaceutico ? `Parecer: ${a.parecer_farmaceutico}` : 'Aguardando parecer'}
-            </span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-            <div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
-              {a.enfermeiros?.nome_exibicao || a.enfermeiros?.nome} · {new Date(a.criado_em).toLocaleString('pt-BR')}
+      <div className="cc-body">
+        {pendentes.length > 0 && (
+          <div className="allergy-alert" style={{ background: '#FFF7ED', borderColor: '#FDBA74' }}>
+            <div className="info" style={{ color: '#9A3412', display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+              <i className="ph ph-warning-circle" /> <strong>ATM pendente da prescrição:</strong>
+              {pendentes.map((p) => (
+                <button key={p.medicamento} type="button" className={'btn-add-chip' + (p.medicamento === dados.medicamento ? ' on' : '')} onClick={() => usarPendente(p)}>
+                  {p.medicamento}
+                </button>
+              ))}
             </div>
-            <button type="button" className="modal-btn-secondary" onClick={() => onImprimir(a)}>Imprimir</button>
+          </div>
+        )}
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> 1. Diagnóstico Clínico / Infeccioso e Admissão</div>
+          <div className="assess-grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
+            <div className="form-group"><label>Diagnóstico</label><input type="text" value={dados.diagnostico} onChange={(e) => set('diagnostico', e.target.value)} /></div>
+            <div className="form-group"><label>Data de internação</label><input type="datetime-local" value={dados.data_internacao} onChange={(e) => set('data_internacao', e.target.value)} /></div>
           </div>
         </div>
-      ))}
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-note-pencil" /> 2. Justificativa Clínica para o Uso de Antimicrobiano Restrito *</div>
+          <div className="form-group">
+            <textarea className="form-control-area" rows="4" value={dados.justificativa_clinica} onChange={(e) => set('justificativa_clinica', e.target.value)} placeholder="Evolução, falha terapêutica prévia, exames (hemograma, PCR, culturas, imagem) e o que justifica o escalonamento." />
+          </div>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-pill" /> 3. Tratamento Antimicrobiano Proposto</div>
+          <div className="assess-grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
+            <div className="form-group"><label>Tratamento pretendido</label><input type="text" value={dados.tratamento_pretendido} onChange={(e) => set('tratamento_pretendido', e.target.value)} /></div>
+            <div className="form-group"><label>Via</label><input type="text" placeholder="Ex: Endovenosa (EV)" value={dados.via} onChange={(e) => set('via', e.target.value)} /></div>
+          </div>
+          <div className="assess-grid" style={{ gridTemplateColumns: '1fr', marginTop: 12 }}>
+            <div className="form-group">
+              <label>Medicamento solicitado *
+                {origemPrescricao && <span className="badge-2vias" style={{ background: '#DBEAFE', color: '#1E40AF' }}>Da prescrição</span>}
+                {dados.medicamento && !restritoAtual && <span className="badge-2vias">Fora da lista restrita</span>}
+              </label>
+              <input type="text" list="atm-restritos" value={dados.medicamento} onChange={(e) => set('medicamento', e.target.value)} />
+              <datalist id="atm-restritos">{ATM_RESTRITOS.map((a) => <option key={a.rotulo} value={a.rotulo} />)}</datalist>
+            </div>
+            <div className="form-group"><label>Posologia / Infusão</label><input type="text" placeholder="Reconstituição, diluição e tempo de infusão" value={dados.posologia} onChange={(e) => set('posologia', e.target.value)} /></div>
+          </div>
+          <div className="assess-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginTop: 12 }}>
+            <div className="form-group"><label>Dose</label><input type="text" value={dados.dose} onChange={(e) => set('dose', e.target.value)} /></div>
+            <div className="form-group"><label>Intervalo</label><input type="text" placeholder="Ex: 6/6 horas" value={dados.intervalo} onChange={(e) => set('intervalo', e.target.value)} /></div>
+            <div className="form-group"><label>Tempo de uso (dias)</label><input type="number" min="1" value={dados.tempo_uso_dias} onChange={(e) => set('tempo_uso_dias', e.target.value)} /></div>
+            <div className="form-group"><label>Regime</label>
+              <select value={dados.regime} onChange={(e) => set('regime', e.target.value)}>
+                <option value="">—</option><option>Contínuo</option><option>Intermitente</option><option>Dose única</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-calculator" /> 4. Quantitativo Total do Tratamento Solicitado (DxIxT)</div>
+          <div className="assess-grid" style={{ gridTemplateColumns: '1.5fr 1fr 1fr 1fr' }}>
+            <div className="form-group"><label>Cálculo DxIxT</label><input type="text" placeholder="Ex: 4 doses/dia × 7 dias = 28 doses" value={dados.dxixt} onChange={(e) => set('dxixt', e.target.value)} /></div>
+            <div className="form-group"><label>Ampolas</label><input type="text" value={dados.ampolas} onChange={(e) => set('ampolas', e.target.value)} /></div>
+            <div className="form-group"><label>Frasco-ampolas</label><input type="text" value={dados.frasco_ampolas} onChange={(e) => set('frasco_ampolas', e.target.value)} /></div>
+            <div className="form-group"><label>Bolsas SF 0,9%</label><input type="text" value={dados.bolsas} onChange={(e) => set('bolsas', e.target.value)} /></div>
+          </div>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-flask" /> 5. Parecer Farmacêutico e Controle de Estoque (CCIH / Farmácia Central)</div>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
+            Preenchido pelo farmacêutico no documento impresso: parecer (de acordo / contrário), disponibilidade em estoque (integral / parcial / indisponível), observações, assinatura e carimbo.
+          </p>
+        </div>
+
+        <div className="form-section-box">
+          <div className="form-section-box-title"><i className="ph ph-list-checks" /> 6. Antimicrobianos de Uso Restrito Institucional (Controle Obrigatório UPA Breves)</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 14px', fontSize: 12 }}>
+            {ATM_RESTRITOS.map((a) => {
+              const ativo = restritoAtual === a
+              return (
+                <div key={a.rotulo} style={{ display: 'flex', gap: 6, alignItems: 'center', fontWeight: ativo ? 700 : 400, color: ativo ? '#B91C1C' : 'var(--text-secondary)' }}>
+                  <span style={{ color: '#B91C1C', fontWeight: 800 }}>•</span> {a.rotulo}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {erro && (
+          <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+            <div className="info" style={{ color: '#DC2626' }}><i className="ph ph-warning" /> {erro}</div>
+          </div>
+        )}
+
+        <div>
+          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico de Solicitações</div>
+          {carregando ? <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p> : historico.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma solicitação registrada ainda.</p>
+          ) : historico.map((a) => (
+            <div key={a.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+              <div>
+                <div style={{ fontWeight: 600 }}>{a.medicamento}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+                  {a.enfermeiros?.nome_exibicao || a.enfermeiros?.nome} · {new Date(a.criado_em).toLocaleString('pt-BR')} · {a.parecer_farmaceutico ? `Parecer: ${a.parecer_farmaceutico}` : 'Aguardando parecer'}
+                </div>
+              </div>
+              <button type="button" className="btn-save-draft" onClick={() => onImprimir(a)}><i className="ph ph-printer" /> Imprimir</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="cc-footer">
+        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+          </button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
-

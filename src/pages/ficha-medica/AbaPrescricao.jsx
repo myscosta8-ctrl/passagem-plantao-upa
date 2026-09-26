@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarPrescricoes, criarPrescricao, cancelarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
-import { VIAS } from './constantes';
+import { VIAS, atbRestrito, ATM_PENDENTES_KEY } from './constantes';
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar }) {
@@ -159,7 +159,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
 }
 
 
-export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFechar }) {
+export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFechar, onAbrirAtm }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [observacoes, setObservacoes] = useState('')
@@ -174,6 +174,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
   const [calcAberto, setCalcAberto] = useState(null)
   const [calc, setCalc] = useState({ ...CALC_VAZIA })
   const [gruposFechados, setGruposFechados] = useState({})
+  const itensRestritos = itens.filter((it) => atbRestrito(it.medicamento_nome))
 
   useEffect(() => { carregar() }, [])
   useEffect(() => { listarCatalogoMedicamentos().then(setCatalogo) }, [])
@@ -279,6 +280,20 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
       return
     }
     if (imprimir && data) onImprimir(data)
+    // ATM obrigatória: antibiótico da lista de uso restrito prescrito → abre a ficha de ATM já preenchida.
+    const restritos = validos.filter((it) => atbRestrito(it.medicamento_nome))
+    if (restritos.length > 0) {
+      try {
+        sessionStorage.setItem(ATM_PENDENTES_KEY + ':' + atendimento.atendimento_id, JSON.stringify(restritos.map((it) => ({
+          medicamento: it.medicamento_nome,
+          dose: [it.dose, it.dose_unidade].filter(Boolean).join(' '),
+          via: it.via || '',
+          intervalo: it.frequencia || '',
+          posologia: [it.diluicao, it.instrucoes].filter(Boolean).join(' — '),
+          tempo_uso_dias: (String(it.duracao || '').match(/\d+/) || [''])[0],
+        }))))
+      } catch { /* sessionStorage indisponível: a ficha abre vazia */ }
+    }
     setObservacoes('')
     setDieta('')
     setItens([{ ...ITEM_VAZIO }])
@@ -286,6 +301,7 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
     setHemocomponentes({})
     setHemocomponenteObs('')
     carregar()
+    if (restritos.length > 0) onAbrirAtm?.()
   }
 
   async function cancelar(prescricaoId) {
@@ -335,6 +351,13 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
         </div>
 
         <div className="cc-body" id="presc-accordion" style={{ padding: 0 }}>
+          {itensRestritos.length > 0 && (
+            <div className="allergy-alert" style={{ background: '#FFF7ED', borderColor: '#FDBA74', margin: '16px 20px 0' }}>
+              <div className="info" style={{ color: '#9A3412' }}>
+                <i className="ph ph-shield-warning" /> <strong>ATM obrigatória:</strong> {itensRestritos.map((it) => it.medicamento_nome).join(', ')} {itensRestritos.length > 1 ? 'são antimicrobianos' : 'é antimicrobiano'} de uso restrito. Ao salvar a prescrição, a Solicitação de Uso de Antimicrobiano (ATM) será aberta já preenchida.
+              </div>
+            </div>
+          )}
           {erro && (
             <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA', margin: '16px 20px 0' }}>
               <div className="info" style={{ color: '#DC2626' }}><i className="ph ph-warning" /> {erro}</div>

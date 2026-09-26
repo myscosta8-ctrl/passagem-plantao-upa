@@ -65,6 +65,7 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome,
         atendimento={atendimento}
         medicoId={medicoId}
         onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })}
+        onAbrirAtm={() => onSelecionarAba('atm')}
         onFechar={onFechar}
       />
     );

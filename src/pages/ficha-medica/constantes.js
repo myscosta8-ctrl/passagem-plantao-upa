@@ -84,6 +84,8 @@ export const ATM_VAZIA = {
   ampolas: '',
   frasco_ampolas: '',
   bolsas: '',
+  via: '',
+  regime: '',
 };
 
 export const CONSULTA_VAZIA = {
@@ -261,3 +263,26 @@ export const TFD_VAZIA = {
   profissao: '',
   numero_laudo: '',
 };
+
+// Antimicrobianos de uso restrito institucional (Controle Obrigatório UPA Breves)
+// — seção 6 do formulário oficial de ATM. Prescrever qualquer um exige a
+// Solicitação de Uso de Antimicrobiano (ATM).
+export const ATM_RESTRITOS = [
+  { rotulo: 'CEFEPIME Pó p/ Sol Inj 1 g / 2 g', termos: ['CEFEPIME'] },
+  { rotulo: 'MEROPENEM Pó p/ Sol Inj 500 mg / 1 g', termos: ['MEROPENEM'] },
+  { rotulo: 'CIPROFLOXACINO Sol Inj Bolsa 200 mg/100 mL', termos: ['CIPROFLOXACIN'] },
+  { rotulo: 'METRONIDAZOL Sol Inj Bolsa 500 mg/100 mL', termos: ['METRONIDAZOL'] },
+  { rotulo: 'CLINDAMICINA Sol Inj Ampola 600 mg/4 mL', termos: ['CLINDAMICINA'] },
+  { rotulo: 'PIPERACILINA + TAZOBACTAM 4,5 g', termos: ['PIPERACILINA', 'TAZOBACTAM'] },
+  { rotulo: 'LEVOFLOXACINO Sol Inj Bolsa 500 mg/100 mL', termos: ['LEVOFLOXACIN'] },
+  { rotulo: 'VANCOMICINA Pó Liofilizado 500 mg / 1 g', termos: ['VANCOMICINA'] },
+];
+
+export function atbRestrito(nome) {
+  const n = (nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  if (!n.trim()) return null;
+  return ATM_RESTRITOS.find((a) => a.termos.some((t) => n.includes(t))) || null;
+}
+
+// Chave usada para levar os antibióticos restritos da Prescrição até a ficha de ATM.
+export const ATM_PENDENTES_KEY = 'atm_pendentes';

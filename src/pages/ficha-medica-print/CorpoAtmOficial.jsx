@@ -49,7 +49,7 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
           <div className="med-secao-body">
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
               <div><b>TRATAMENTO PRETENDIDO:</b> {cf.tratamento_pretendido || 'Terapêutica antimicrobiana escalonada'}</div>
-              <div><b>VIA:</b> <span style={{ color: '#0369a1', fontWeight: 700 }}>{cf.via || registro.via || 'Endovenosa (EV)'}</span></div>
+              <div><b>VIA:</b> <span style={{ color: '#0369a1', fontWeight: 700 }}>{cf.via || registro.via || '—'}</span></div>
             </div>
             <div style={{ fontSize: 10, marginBottom: 2 }}>
               <b>MEDICAMENTO SOLICITADO:</b> <span style={{ fontWeight: 700, color: '#b91c1c', fontSize: '10.5px' }}>{registro.medicamento || '—'}</span>
@@ -60,7 +60,7 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
               <div><b>DOSE:</b> {registro.dose || '—'}</div>
               <div><b>INTERVALO:</b> {registro.intervalo || '—'}</div>
               <div><b>TEMPO DE USO:</b> {registro.tempo_uso_dias ? `${registro.tempo_uso_dias} DIAS` : '—'}</div>
-              <div style={{ textAlign: 'right', paddingRight: 4 }}><b>REGIME:</b> Contínuo</div>
+              <div style={{ textAlign: 'right', paddingRight: 4 }}><b>REGIME:</b> {cf.regime || '—'}</div>
             </div>
           </div>
         </div>
