@@ -1153,3 +1153,59 @@
 .atendimento-medico-container .exam-check-item.checked { font-weight: 700; color: var(--primary, #1D4ED8); }
 
 .atendimento-medico-container .presc-dose { display: grid; grid-template-columns: 1fr 72px; gap: 4px; }
+
+/* ============================================================
+   RESPONSIVIDADE — a ficha médica se adapta a qualquer largura.
+   Os grids com gridTemplateColumns inline são sobrescritos aqui
+   (!important) para colapsar em telas estreitas.
+   ============================================================ */
+.atendimento-medico-container .clinical-card,
+.atendimento-medico-container .clinical-split > *,
+.atendimento-medico-container .workspace > * { min-width: 0; }
+.atendimento-medico-container .form-group input,
+.atendimento-medico-container .form-group select,
+.atendimento-medico-container .form-group textarea { min-width: 0; max-width: 100%; }
+.atendimento-medico-container .breadcrumb { min-width: 0; overflow: hidden; }
+.atendimento-medico-container .breadcrumb span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 1200px) {
+  .atendimento-medico-container .tools-pane { width: 250px; }
+  .atendimento-medico-container .workspace { padding: 12px 14px; }
+}
+
+@media (max-width: 960px) {
+  /* A tela inteira passa a rolar, em vez de espremer cada painel */
+  .atendimento-medico-container .workspace { overflow-y: auto; overflow-x: hidden; }
+  .atendimento-medico-container .clinical-split { flex-direction: column; overflow: visible; flex: 0 0 auto; }
+  .atendimento-medico-container .tools-pane { width: 100%; max-height: none; overflow: visible; }
+  .atendimento-medico-container .clinical-card { flex: 0 0 auto; overflow: visible; min-height: 60vh; }
+  .atendimento-medico-container .cc-body { overflow: visible; }
+  .atendimento-medico-container .workspace > div[style*="flex: 1"],
+  .atendimento-medico-container .workspace div[style*="min-height: 0"] { flex: 0 0 auto !important; min-height: auto !important; }
+
+  .atendimento-medico-container .assess-grid,
+  .atendimento-medico-container .presc-input-linha2,
+  .atendimento-medico-container .presc-input-linha3 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .atendimento-medico-container .assess-grid > [style*="grid-column"],
+  .atendimento-medico-container .presc-input-linha2 > [style*="grid-column"],
+  .atendimento-medico-container .presc-input-linha3 > [style*="grid-column"] { grid-column: 1 / -1 !important; }
+
+  .atendimento-medico-container .topbar { height: auto; min-height: 50px; padding: 6px 12px; gap: 8px; }
+  .atendimento-medico-container .breadcrumb > span:not(.current),
+  .atendimento-medico-container .breadcrumb > i { display: none; }
+  .atendimento-medico-container .sys-time { display: none; }
+}
+
+@media (max-width: 600px) {
+  .atendimento-medico-container .workspace { padding: 8px; gap: 8px; }
+  .atendimento-medico-container .assess-grid,
+  .atendimento-medico-container .presc-input-linha2,
+  .atendimento-medico-container .presc-input-linha3 { grid-template-columns: minmax(0, 1fr) !important; }
+  .atendimento-medico-container .cc-body { padding: 12px; }
+  .atendimento-medico-container .cc-footer { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
+  .atendimento-medico-container .cc-footer > div { flex-wrap: wrap; width: 100%; }
+  .atendimento-medico-container .cc-footer button { flex: 1 1 auto; justify-content: center; }
+  .atendimento-medico-container .btn-voltar { padding: 4px 8px; font-size: 11px; }
+  .atendimento-medico-container .pb-main { flex-wrap: wrap; gap: 6px; }
+  .atendimento-medico-container .cc-title h2 { font-size: 14px; }
+}
