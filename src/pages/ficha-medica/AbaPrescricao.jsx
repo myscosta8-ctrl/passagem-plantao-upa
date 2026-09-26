@@ -193,8 +193,34 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
     setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, medicamento_nome: m.nome, via: m.via_padrao || it.via } : it)))
   }
 
+  // O último item de `itens` é sempre o rascunho em edição; os anteriores já
+  // foram adicionados e aparecem como lista. "Adicionar" confirma o rascunho.
   function adicionarItem() {
+    const rascunho = itens[itens.length - 1]
+    if (!rascunho?.medicamento_nome.trim()) {
+      setErro('Informe o medicamento antes de adicionar à prescrição.')
+      return
+    }
+    setErro('')
     setItens((prev) => [...prev, { ...ITEM_VAZIO }])
+    setCalcAberto(null)
+  }
+
+  function editarItem(i) {
+    // Leva o item da lista de volta ao rascunho; um rascunho vazio é descartado.
+    setItens((prev) => {
+      const item = prev[i]
+      const resto = prev.filter((_, idx) => idx !== i)
+      const ultimo = resto[resto.length - 1]
+      const base = ultimo && !ultimo.medicamento_nome.trim() ? resto.slice(0, -1) : resto
+      return [...base, item]
+    })
+    setCalcAberto(null)
+  }
+
+  function limparRascunho() {
+    setItens((prev) => [...prev.slice(0, -1), { ...ITEM_VAZIO }])
+    setCalcAberto(null)
   }
 
   function removerItem(i) {
@@ -384,31 +410,33 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                 <div className="group-actions"><i className="ph ph-caret-down caret-icon" /></div>
               </div>
               <div className="presc-list">
-                {itens.map((it, i) => (
-                  <div key={i} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                    
-                    {/* Exibição consolidada (Item já parcialmente preenchido) */}
-                    {it.medicamento_nome && (
-                      <div className="presc-item">
-                        <div className="item-num">{String(i + 1).padStart(2, '0')}</div>
-                        <div className="item-details">
-                          <div className="item-name">{it.medicamento_nome} {it.dose && `- ${it.dose} ${it.dose_unidade}`}</div>
-                          <div className="item-sub">
-                            <span><i className="ph ph-syringe"></i> {it.via || 'Via não def.'}</span>
-                            <span><i className="ph ph-clock"></i> {it.frequencia || 'Frequência não def.'}</span>
-                            {it.diluicao && <span><strong>Posologia:</strong> {it.diluicao}</span>}
-                            {it.duracao && <span><i className="ph ph-calendar"></i> {it.duracao}</span>}
-                          </div>
-                        </div>
-                        <div className="item-actions">
-                          {itens.length > 1 && (
-                            <button type="button" onClick={() => removerItem(i)}><i className="ph ph-trash" /></button>
-                          )}
-                        </div>
+                {itens.length === 1 && (
+                  <div style={{ padding: '10px 16px', fontSize: 12, color: 'var(--text-muted)' }}>Nenhum medicamento adicionado ainda.</div>
+                )}
+                {itens.slice(0, -1).map((it, i) => (
+                  <div key={i} className="presc-item" style={{ borderBottom: '1px solid var(--border-light)' }}>
+                    <div className="item-num">{String(i + 1).padStart(2, '0')}</div>
+                    <div className="item-details">
+                      <div className="item-name">{it.medicamento_nome} {it.dose && `- ${it.dose} ${it.dose_unidade}`}{it.sn_aplic && ' (SN)'}</div>
+                      <div className="item-sub">
+                        <span><i className="ph ph-syringe"></i> {it.via || 'Via não def.'}</span>
+                        <span><i className="ph ph-clock"></i> {it.frequencia || 'Frequência não def.'}</span>
+                        {it.duracao && <span><i className="ph ph-calendar"></i> {it.duracao}</span>}
+                        {it.diluicao && <span><strong>Posologia:</strong> {it.diluicao}</span>}
                       </div>
-                    )}
+                    </div>
+                    <div className="item-actions">
+                      <button type="button" onClick={() => editarItem(i)} title="Editar"><i className="ph ph-pencil-simple" /></button>
+                      <button type="button" onClick={() => removerItem(i)} title="Remover"><i className="ph ph-trash" /></button>
+                    </div>
+                  </div>
+                ))}
 
-                    {/* Formulário de Edição — compacto em 3 linhas */}
+                {(() => {
+                  const i = itens.length - 1
+                  const it = itens[i]
+                  return (
+                  <div style={{ background: 'var(--primary-light, #EFF6FF)' }}>
                     <div className="presc-input-row presc-input-row-compact">
                       <div className="presc-input-linha1">
                         <div className="item-num">{String(i + 1).padStart(2, '0')}</div>
@@ -421,11 +449,9 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                         <button type="button" className="btn-calc-ped" onClick={() => abrirCalculadora(i)} title="Calculadora de Dose Pediátrica">
                           <i className="ph ph-calculator" /><i className="ph ph-baby" />
                         </button>
-                        {itens.length > 1 && (
-                          <button type="button" onClick={() => removerItem(i)} className="btn-remover-item" title="Remover">
-                            <i className="ph ph-trash" />
-                          </button>
-                        )}
+                        <button type="button" onClick={limparRascunho} className="btn-remover-item" title="Limpar campos">
+                          <i className="ph ph-eraser" />
+                        </button>
                       </div>
 
                       <div className="presc-input-linha2">
@@ -459,10 +485,11 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
                       />
                     )}
                   </div>
-                ))}
+                  )
+                })()}
                 <div style={{ padding: '10px 16px' }}>
                   <button type="button" className="btn-add-chip" onClick={adicionarItem}>
-                    <i className="ph ph-plus" /> Adicionar medicamento
+                    <i className="ph ph-plus" /> Adicionar à prescrição
                   </button>
                 </div>
               </div>
