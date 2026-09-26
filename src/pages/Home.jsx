@@ -353,7 +353,7 @@ export default function Home() {
                 )}
 
                 {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
-                {plantao && setoresIds && tela === 'passagemColetiva' && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} onImprimir={setTela} />}
+                {plantao && setoresIds && tela === 'passagemColetiva' && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} onImprimir={setTela} onVoltar={() => setTela('painel')} />}
                 {plantao && setoresIds && tela === 'print1' && (
                   <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('passagemColetiva')} />
                 )}

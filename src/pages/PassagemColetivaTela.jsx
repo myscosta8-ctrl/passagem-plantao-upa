@@ -7,7 +7,7 @@ import './Painel.css'
 
 const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
 
-export default function PassagemColetivaTela({ plantao, setoresIds, onImprimir }) {
+export default function PassagemColetivaTela({ plantao, setoresIds, onImprimir, onVoltar }) {
   const [modalPassagemForm, setModalPassagemForm] = useState(null)
   const {
     enfermeiro,
@@ -34,24 +34,6 @@ export default function PassagemColetivaTela({ plantao, setoresIds, onImprimir }
 
   return (
     <div className="page" style={{ maxWidth: 1400 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
-        <div>
-          <h1 className="page-title">Passagem de Plantão</h1>
-          <p className="page-subtitle">Conferência coletiva do setor, turno a turno.</p>
-        </div>
-        {onImprimir && (
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button type="button" className="btn btn-secondary" onClick={() => onImprimir('print1')} title="Imprimir: Vermelha + Internação">
-              <i className="ph ph-printer" /> Imprimir Vermelha
-            </button>
-            <button type="button" className="btn btn-secondary" onClick={() => onImprimir('print2')} title="Imprimir: Pediátrico + Observação">
-              <i className="ph ph-file-text" /> Imprimir Observação
-            </button>
-          </div>
-        )}
-      </div>
-      <div style={{ borderBottom: '1px solid var(--c-border)', marginBottom: 20 }} />
-
       <PassagemColetiva
         plantao={plantao}
         enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
@@ -65,6 +47,8 @@ export default function PassagemColetivaTela({ plantao, setoresIds, onImprimir }
         onAbrirPassagem={abrirPassagem}
         onEditarPassagem={(paciente, leito) => setModalPassagemForm({ paciente, leito })}
         onRecarregar={carregarTudo}
+        onImprimir={onImprimir}
+        onVoltar={onVoltar}
       />
 
       {modalPassagemForm && (
