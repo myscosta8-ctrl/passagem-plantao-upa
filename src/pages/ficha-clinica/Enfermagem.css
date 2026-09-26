@@ -243,3 +243,15 @@
   .enf-theme .bh-container { overflow: visible; }
   .enf-theme .bh-body { overflow: visible; }
 }
+.enf-theme .bh-table th { white-space: nowrap; height: 32px; }
+.enf-theme .bh-add-cell { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.enf-theme .bh-table .bh-add-cell input[type=number] { width: 72px; }
+.enf-theme .bh-add-btn { width: 28px; height: 28px; flex-shrink: 0; border-radius: 6px; border: none; color: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+.enf-theme .bh-add-btn.in { background: #0284C7; }
+.enf-theme .bh-add-btn.out { background: #D97706; }
+.enf-theme .bh-add-btn:disabled { opacity: .5; cursor: default; }
+.enf-theme .bh-table { table-layout: fixed; }
+.enf-theme .bh-table th, .enf-theme .bh-table td { padding: 6px 6px; overflow: hidden; text-overflow: ellipsis; }
+.enf-theme .bh-table .bh-in-txt { min-width: 0; width: 100%; box-sizing: border-box; }
+.enf-theme .bh-table .bh-in-hora { width: 100%; max-width: 86px; box-sizing: border-box; padding: 4px; }
+.enf-theme .bh-table .bh-add-cell input[type=number] { width: 100%; min-width: 0; max-width: 72px; box-sizing: border-box; }

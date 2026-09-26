@@ -32,7 +32,7 @@ function dataComHora(hhmm) {
   return d.toISOString();
 }
 
-function Tabela({ tipo, titulo, icon, cols, linhas, nova, setNova, itens, vias, parcial }) {
+function Tabela({ tipo, titulo, icon, cols, linhas, nova, setNova, itens, vias, parcial, onAdicionar, salvando }) {
   return (
     <div className="bh-box">
       <div className={'bh-box-header ' + (tipo === 'entrada' ? 'entradas' : 'saidas')}>
@@ -43,10 +43,10 @@ function Tabela({ tipo, titulo, icon, cols, linhas, nova, setNova, itens, vias, 
         <table className="bh-table">
           <thead>
             <tr>
-              <th style={{ width: '15%' }}>Hora</th>
-              <th style={{ width: '35%' }}>{cols[0]}</th>
-              <th style={{ width: '25%' }}>{cols[1]}</th>
-              <th style={{ width: '25%', textAlign: 'right' }}>Volume (mL)</th>
+              <th style={{ width: '21%' }}>Hora</th>
+              <th style={{ width: '29%' }}>{cols[0]}</th>
+              <th style={{ width: '22%' }}>{cols[1]}</th>
+              <th style={{ width: '28%', textAlign: 'right' }}>Volume (mL)</th>
             </tr>
           </thead>
           <tbody>
@@ -71,7 +71,14 @@ function Tabela({ tipo, titulo, icon, cols, linhas, nova, setNova, itens, vias, 
                 <input type="text" className="bh-in-txt" list={`bh-vias-${tipo}`} placeholder={tipo === 'entrada' ? 'Via' : 'Aspecto'} value={nova.via} onChange={(e) => setNova({ ...nova, via: e.target.value })} />
                 <datalist id={`bh-vias-${tipo}`}>{vias.map((i) => <option key={i} value={i} />)}</datalist>
               </td>
-              <td style={{ textAlign: 'right' }}><input type="number" min="0" placeholder="mL" value={nova.volume} onChange={(e) => setNova({ ...nova, volume: e.target.value })} /></td>
+              <td style={{ textAlign: 'right' }}>
+                <div className="bh-add-cell">
+                  <input type="number" min="0" placeholder="mL" value={nova.volume} onChange={(e) => setNova({ ...nova, volume: e.target.value })} onKeyDown={(e) => { if (e.key === 'Enter') onAdicionar(); }} />
+                  <button type="button" className={'bh-add-btn ' + (tipo === 'entrada' ? 'in' : 'out')} onClick={onAdicionar} disabled={salvando} title={tipo === 'entrada' ? 'Adicionar entrada' : 'Adicionar saída'}>
+                    <i className="ph ph-plus" />
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -103,6 +110,23 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir, on
   const totalEntradas = soma(entradas);
   const totalSaidas = soma(saidas);
   const saldo = totalEntradas - totalSaidas;
+
+  // Grava só a linha de uma tabela (botão "+" ou Enter no volume).
+  async function adicionar(tipo) {
+    const l = tipo === 'entrada' ? novaEntrada : novaSaida;
+    if (!l.item.trim() || l.volume === '' || Number(l.volume) < 0) { setMsg({ erro: true, t: `Preencha ${tipo === 'entrada' ? 'a solução/item' : 'o tipo de eliminação'} e o volume.` }); return; }
+    setMsg(null); setSalvando(true);
+    const { error } = await registrarBalancoHidrico({
+      atendimentoId: atendimento.atendimento_id, registradoPor: autorId, tipo,
+      via: tipo === 'entrada' ? (l.via.trim() || '—') : l.item.trim(),
+      observacao: tipo === 'entrada' ? l.item.trim() : l.via.trim(),
+      volumeMl: l.volume, registradoEm: dataComHora(l.hora),
+    });
+    setSalvando(false);
+    if (error) { console.error(error); setMsg({ erro: true, t: 'Não foi possível registrar. Tente de novo.' }); return; }
+    (tipo === 'entrada' ? setNovaEntrada : setNovaSaida)(LINHA_VAZIA());
+    carregar();
+  }
 
   async function salvar(imprimir = false) {
     setMsg(null);
@@ -163,9 +187,9 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir, on
         {carregando ? <p className="qs-vazio">Carregando...</p> : (
           <div className="bh-tables-split">
             <Tabela tipo="entrada" titulo="Entradas / Ingesta / Soluções (mL)" icon="ph-plus-circle" cols={['Solução / Item', 'Via']}
-              linhas={entradas} nova={novaEntrada} setNova={setNovaEntrada} itens={ITENS_ENTRADA} vias={VIAS_ENTRADA} parcial={soma(entradas.filter((h) => noTurnoAtual(h.registrado_em)))} />
+              linhas={entradas} nova={novaEntrada} setNova={setNovaEntrada} itens={ITENS_ENTRADA} vias={VIAS_ENTRADA} parcial={soma(entradas.filter((h) => noTurnoAtual(h.registrado_em)))} onAdicionar={() => adicionar('entrada')} salvando={salvando} />
             <Tabela tipo="saida" titulo="Saídas / Eliminações / Drenagens (mL)" icon="ph-minus-circle" cols={['Tipo de Eliminação', 'Aspecto']}
-              linhas={saidas} nova={novaSaida} setNova={setNovaSaida} itens={TIPOS_SAIDA} vias={ASPECTOS} parcial={soma(saidas.filter((h) => noTurnoAtual(h.registrado_em)))} />
+              linhas={saidas} nova={novaSaida} setNova={setNovaSaida} itens={TIPOS_SAIDA} vias={ASPECTOS} parcial={soma(saidas.filter((h) => noTurnoAtual(h.registrado_em)))} onAdicionar={() => adicionar('saida')} salvando={salvando} />
           </div>
         )}
         {msg && (
