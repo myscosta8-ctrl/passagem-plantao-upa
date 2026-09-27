@@ -1,5 +1,6 @@
 import { normalizarNome } from './constantes'
-import './PainelCards.css'
+import styles from './PainelCards.module.css';
+const cx = (...classes) => classes.filter(Boolean).map(c => styles[c] || c).join(' ');
 
 export function formatarNomeSetor(nome) {
   if (!nome) return ''
@@ -141,28 +142,28 @@ export default function PainelCards({
           const colorPerc = perc > 90 ? 'var(--color-danger)' : perc > 70 ? 'var(--color-warning)' : 'var(--color-success)'
 
           return (
-            <section key={setor.id} className="setor-section">
-              <header className="setor-header">
+            <section key={setor.id} className={cx('setor-section')}>
+              <header className={cx('setor-header')}>
                 <h2>{formatarNomeSetor(setor.nome)}</h2>
-                <div className="setor-stats">
-                  <span className="ocupacao-text" style={{ color: colorPerc }}>
+                <div className={cx('setor-stats')}>
+                  <span className={cx('ocupacao-text')} style={{ color: colorPerc }}>
                     {ocupados}/{total} ocupados
                   </span>
-                  <div className="ocupacao-bar">
-                    <div className="ocupacao-fill" style={{ width: `${perc}%`, background: colorPerc }} />
+                  <div className={cx('ocupacao-bar')}>
+                    <div className={cx('ocupacao-fill')} style={{ width: `${perc}%`, background: colorPerc }} />
                   </div>
                   <button
                     type="button"
-                    className="btn-setor-extra"
+                    className={cx('btn-setor-extra')}
                     onClick={() => onAbrirLeitoExtra(setor.id)}
                     title={`Abrir leito extra em ${formatarNomeSetor(setor.nome)}`}
                   >
-                    <i className="ph ph-plus" /> Leito Extra
+                    <i className={cx('ph', 'ph-plus')} /> Leito Extra
                   </button>
                 </div>
               </header>
 
-              <div className="leitos-grid">
+              <div className={cx('leitos-grid')}>
                 {leitosDoSetor.map((leito) => {
                   const paciente = pacientesPorLeito[leito.id]
                   const classeRisco = paciente ? obterClasseRisco(paciente.classificacao_manchester, setor.nome) : ''
@@ -170,50 +171,50 @@ export default function PainelCards({
                   return paciente ? (
                     <div
                       key={leito.id}
-                      className="leito-card"
+                      className={cx('leito-card')}
                       onClick={() => onAbrirPassagem(paciente, leito)}
                     >
-                      <div className={`risk-bar ${classeRisco}`} />
+                      <div className={cx('risk-bar', classeRisco)} />
 
-                      <div className="leito-header">
-                        <div className={`leito-numero ${leito.tipo === 'extra' ? 'extra' : ''}`}>
-                          <i className="ph ph-bed" /> Leito {formatarNumeroLeito(leito.numero)}
+                      <div className={cx('leito-header')}>
+                        <div className={cx('leito-numero', leito.tipo === 'extra' ? 'extra' : '')}>
+                          <i className={cx('ph', 'ph-bed')} /> Leito {formatarNumeroLeito(leito.numero)}
                         </div>
-                        <div className={`leito-status ${paciente.status_internacao === 'Internado' ? 'status-internado' : 'status-observacao'}`}>
+                        <div className={cx('leito-status', paciente.status_internacao === 'Internado' ? 'status-internado' : 'status-observacao')}>
                           {paciente.status_internacao || 'Internado'}
                         </div>
                       </div>
 
-                      <div className="leito-body">
-                        <div className="paciente-nome">
+                      <div className={cx('leito-body')}>
+                        <div className={cx('paciente-nome')}>
                           {formatarNomePaciente(paciente.nome)}
-                          {paciente.alergias && <span className="status-badge alerta" title="Possui Alergias"><i className="ph ph-warning-circle" /> Alergia</span>}
+                          {paciente.alergias && <span className={cx('status-badge', 'alerta')} title="Possui Alergias"><i className={cx('ph', 'ph-warning-circle')} /> Alergia</span>}
                         </div>
 
-                        <div className="paciente-meta">
-                          <span><i className="ph ph-user-circle" /> {paciente.idade ? `${paciente.idade} anos` : 'Adulto'} • {paciente.sexo === 'F' ? 'Fem' : 'Masc'}</span>
+                        <div className={cx('paciente-meta')}>
+                          <span><i className={cx('ph', 'ph-user-circle')} /> {paciente.idade ? `${paciente.idade} anos` : 'Adulto'} • {paciente.sexo === 'F' ? 'Fem' : 'Masc'}</span>
                         </div>
 
-                        <div className="paciente-hd">
-                          <strong><i className="ph ph-stethoscope" /> HD:</strong> {paciente.diagnostico || 'Não registrado'}
+                        <div className={cx('paciente-hd')}>
+                          <strong><i className={cx('ph', 'ph-stethoscope')} /> HD:</strong> {paciente.diagnostico || 'Não registrado'}
                         </div>
                         
-                        <div className="paciente-admissao">
-                          <strong><i className="ph ph-clock" /> Entrada:</strong> {formatarAdmissao(paciente.data_admissao)}
+                        <div className={cx('paciente-admissao')}>
+                          <strong><i className={cx('ph', 'ph-clock')} /> Entrada:</strong> {formatarAdmissao(paciente.data_admissao)}
                         </div>
                       </div>
 
-                      <div className="leito-footer no-print" onClick={(e) => e.stopPropagation()}>
-                        <button type="button" className="btn-footer action-btn" onClick={() => onAbrirPassagem(paciente, leito)}>
-                          <i className="ph ph-folder-open" /> Prontuário
+                      <div className={cx('leito-footer', 'no-print')} onClick={(e) => e.stopPropagation()}>
+                        <button type="button" className={cx('btn-footer', 'action-btn')} onClick={() => onAbrirPassagem(paciente, leito)}>
+                          <i className={cx('ph', 'ph-folder-open')} /> Prontuário
                         </button>
                         
-                        <div className="footer-actions-right">
-                          <button type="button" className="btn-footer icon-only" title="Realocar / Transferir" onClick={() => onAbrirRealocar({ paciente, leitoOrigem: leito })}>
-                            <i className="ph ph-arrows-left-right" />
+                        <div className={cx('footer-actions-right')}>
+                          <button type="button" className={cx('btn-footer', 'icon-only')} title="Realocar / Transferir" onClick={() => onAbrirRealocar({ paciente, leitoOrigem: leito })}>
+                            <i className={cx('ph', 'ph-arrows-left-right')} />
                           </button>
-                          <button type="button" className="btn-footer icon-only danger" title="Sinalizar Desfecho" onClick={() => onAbrirDesfecho({ paciente, leitoOrigem: leito })}>
-                            <i className="ph ph-sign-out" />
+                          <button type="button" className={cx('btn-footer', 'icon-only', 'danger')} title="Sinalizar Desfecho" onClick={() => onAbrirDesfecho({ paciente, leitoOrigem: leito })}>
+                            <i className={cx('ph', 'ph-sign-out')} />
                           </button>
                         </div>
                       </div>
@@ -221,12 +222,12 @@ export default function PainelCards({
                   ) : (
                     <div
                       key={leito.id}
-                      className="leito-card leito-vazio"
+                      className={cx('leito-card', 'leito-vazio')}
                       onClick={() => onAbrirModalInternar(leito)}
                     >
-                      <i className="ph ph-plus-circle vazio-icon" />
-                      <div className="vazio-title">Leito {formatarNumeroLeito(leito.numero)}</div>
-                      <div className="vazio-subtitle">Livre • Clique p/ Internar</div>
+                      <i className={cx('ph', 'ph-plus-circle', 'vazio-icon')} />
+                      <div className={cx('vazio-title')}>Leito {formatarNumeroLeito(leito.numero)}</div>
+                      <div className={cx('vazio-subtitle')}>Livre • Clique p/ Internar</div>
                     </div>
                   )
                 })}
