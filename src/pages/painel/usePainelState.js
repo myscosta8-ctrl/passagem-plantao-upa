@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+﻿import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
@@ -29,11 +29,12 @@ export function usePainelState() {
   const { data: painelData, isLoading: carregando, refetch: carregarTudo } = useQuery({
     queryKey: ['painelDados', enfermeiro?.id],
     queryFn: async () => {
-      const pepAtivo = await pepEstaAtivo(enfermeiro?.id)
+      const [pepAtivo, { data: listaSetores }, { data: listaLeitos }] = await Promise.all([
+        pepEstaAtivo(enfermeiro?.id),
+        supabase.from('setores').select('*').order('ordem'),
+        supabase.from('leitos').select('*').eq('ativo', true).order('id'),
+      ])
       pepAtivoRef.current = pepAtivo
-
-      const { data: listaSetores } = await supabase.from('setores').select('*').order('ordem')
-      const { data: listaLeitos } = await supabase.from('leitos').select('*').eq('ativo', true).order('id')
 
       const setoresOficiais = (listaSetores ?? []).filter((s) => [1, 2, 3, 4].includes(s.id))
       const finalSetores = setoresOficiais.length > 0 ? setoresOficiais : (listaSetores ?? [])
@@ -114,7 +115,9 @@ export function usePainelState() {
         balancoPorPaciente: {}
       }
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 mins
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    refetchOnMount: false,
   })
 
   const setores = painelData?.setores || []
@@ -137,10 +140,10 @@ export function usePainelState() {
       .single()
     if (!error && novo) {
       queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => ({ ...old, leitos: [...(old?.leitos || []), novo] }))
-      // Abre imediatamente o modal de admissão para ocupar o leito extra
+      // Abre imediatamente o modal de admissÃ£o para ocupar o leito extra
       setModalLeito(novo)
     } else {
-      setErroGeral('Não foi possível abrir o leito extra. Tente de novo, e se persistir, avise o suporte.')
+      setErroGeral('NÃ£o foi possÃ­vel abrir o leito extra. Tente de novo, e se persistir, avise o suporte.')
       console.error('Erro ao abrir leito extra:', error)
     }
   }
@@ -164,7 +167,7 @@ export function usePainelState() {
         queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => ({ ...old, pacientesPorLeito: { ...(old?.pacientesPorLeito || {}), [leito.id]: novo } }))
         setModalLeito(null)
       } else {
-        setErroInternar('Não foi possível internar. Nada foi perdido do que estava preenchido — tente de novo, e se persistir, avise o suporte.')
+        setErroInternar('NÃ£o foi possÃ­vel internar. Nada foi perdido do que estava preenchido â€” tente de novo, e se persistir, avise o suporte.')
         console.error('Erro ao internar paciente (PEP):', error)
       }
       return
@@ -190,7 +193,7 @@ export function usePainelState() {
       queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => ({ ...old, pacientesPorLeito: { ...(old?.pacientesPorLeito || {}), [leito.id]: novo } }))
       setModalLeito(null)
     } else {
-      setErroInternar('Não foi possível internar. Nada foi perdido do que estava preenchido — tente de novo, e se persistir, avise o suporte.')
+      setErroInternar('NÃ£o foi possÃ­vel internar. Nada foi perdido do que estava preenchido â€” tente de novo, e se persistir, avise o suporte.')
       console.error('Erro ao internar paciente:', error)
     }
   }
@@ -245,3 +248,4 @@ export function usePainelState() {
     setProcessandoDesfecho,
   }
 }
+

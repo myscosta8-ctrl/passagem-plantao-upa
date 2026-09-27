@@ -1,64 +1,253 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
-const CORES_TIPO = {
-  'Alta': { bg: 'var(--success-light)', txt: 'var(--success)' },
-  'Transferência': { bg: 'var(--info-light)', txt: 'var(--info)' },
-  'Evasão': { bg: 'var(--warning-light)', txt: '#B45309' },
-  'Óbito': { bg: 'var(--danger-light)', txt: 'var(--danger)' },
+const CORES_DESFECHO = {
+  'Alta':          { bg: '#dcfce7', txt: '#166534' },
+  'Alta Médica':   { bg: '#dcfce7', txt: '#166534' },
+  'Transferência': { bg: '#dbeafe', txt: '#1e40af' },
+  'Evasão':        { bg: '#fef9c3', txt: '#854d0e' },
+  'Óbito':         { bg: '#fee2e2', txt: '#991b1b' },
+}
+
+function calcularPeriodo(periodo, dataInicioCustom, dataFimCustom) {
+  const hoje = new Date()
+  if (periodo === 'hoje') {
+    const inicio = new Date(hoje); inicio.setHours(0, 0, 0, 0)
+    return { inicio: inicio.toISOString(), fim: hoje.toISOString() }
+  }
+  if (periodo === 'semana') {
+    const inicio = new Date(hoje); inicio.setDate(hoje.getDate() - 7)
+    return { inicio: inicio.toISOString(), fim: hoje.toISOString() }
+  }
+  if (periodo === 'mes') {
+    const inicio = new Date(hoje); inicio.setDate(hoje.getDate() - 30)
+    return { inicio: inicio.toISOString(), fim: hoje.toISOString() }
+  }
+  // custom
+  const ini = dataInicioCustom ? dataInicioCustom + 'T00:00:00' : (() => { const d = new Date(); d.setDate(d.getDate() - 7); return d.toISOString() })()
+  const fim = dataFimCustom ? dataFimCustom + 'T23:59:59' : hoje.toISOString()
+  return { inicio: ini, fim }
+}
+
+function normalizarDesfecho(raw) {
+  if (!raw) return 'Alta'
+  const r = raw.toLowerCase()
+  if (r.includes('óbito') || r.includes('obito')) return 'Óbito'
+  if (r.includes('transfer')) return 'Transferência'
+  if (r.includes('evas')) return 'Evasão'
+  return 'Alta'
 }
 
 export default function AltasRecentes({ onVoltar }) {
   const [desfechos, setDesfechos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [busca, setBusca] = useState('')
+  const [periodo, setPeriodo] = useState('semana')
+  const [dataInicioCustom, setDataInicioCustom] = useState('')
+  const [dataFimCustom, setDataFimCustom] = useState('')
+  const [filtroTipo, setFiltroTipo] = useState('')
 
-  useEffect(() => {
-    carregar()
-  }, [])
-
-  async function carregar() {
+  const carregar = useCallback(async () => {
     setCarregando(true)
-    const seteDiasAtras = new Date()
-    seteDiasAtras.setDate(seteDiasAtras.getDate() - 7)
+    const { inicio, fim } = calcularPeriodo(periodo, dataInicioCustom, dataFimCustom)
 
-    const { data } = await supabase
-      .from('pacientes')
-      .select('*, leitos(numero, setores(nome))')
-      .eq('status', 'alta')
-      .gte('data_desfecho', seteDiasAtras.toISOString())
-      .order('data_desfecho', { ascending: false })
+    // Busca nas duas fontes em paralelo
+    const [{ data: pacientesAntigos }, { data: atendimentosAlta }] = await Promise.all([
+      supabase
+        .from('pacientes')
+        .select('id, nome, tipo_desfecho, data_desfecho, desfecho_detalhe, diagnostico, leito_atual_id, leitos(numero, setores(nome))')
+        .eq('status', 'alta')
+        .gte('data_desfecho', inicio)
+        .lte('data_desfecho', fim)
+        .order('data_desfecho', { ascending: false }),
+      supabase
+        .from('atendimentos')
+        .select('id, updated_at, pessoas(nome, prontuario_numero), internacoes(resumo_alta, tipo_desfecho, encerrado_em)')
+        .eq('status', 'alta')
+        .gte('updated_at', inicio)
+        .lte('updated_at', fim)
+        .not('internacoes', 'is', null)
+        .order('updated_at', { ascending: false }),
+    ])
 
-    setDesfechos(data ?? [])
+    // Normaliza path antigo
+    const listaAntiga = (pacientesAntigos ?? []).map(p => ({
+      id: `old-${p.id}`,
+      nome: p.nome || 'Não informado',
+      tipo_desfecho: normalizarDesfecho(p.tipo_desfecho),
+      data_desfecho: p.data_desfecho,
+      diagnostico: p.desfecho_detalhe || p.diagnostico || '—',
+      leito_info: p.leitos ? `Leito ${p.leitos.numero} – ${p.leitos.setores?.nome || ''}` : 'Observação',
+    }))
+
+    // Normaliza path novo PEP
+    const listaNova = (atendimentosAlta ?? []).flatMap(a => {
+      const internacao = Array.isArray(a.internacoes) ? a.internacoes[0] : a.internacoes
+      if (!internacao) return []
+      return [{
+        id: `pep-${a.id}`,
+        nome: a.pessoas?.nome || 'Não informado',
+        tipo_desfecho: normalizarDesfecho(internacao.tipo_desfecho),
+        data_desfecho: internacao.encerrado_em || a.updated_at,
+        diagnostico: internacao.resumo_alta || '—',
+        leito_info: '—',
+        prontuario: a.pessoas?.prontuario_numero,
+      }]
+    })
+
+    // Deduplicar por nome+data (caso já exista nas duas tabelas por migração)
+    const vistos = new Set()
+    const todos = [...listaNova, ...listaAntiga].filter(d => {
+      const chave = `${d.nome}|${d.data_desfecho?.slice(0, 13)}`
+      if (vistos.has(chave)) return false
+      vistos.add(chave)
+      return true
+    })
+
+    todos.sort((a, b) => new Date(b.data_desfecho) - new Date(a.data_desfecho))
+    setDesfechos(todos)
     setCarregando(false)
-  }
+  }, [periodo, dataInicioCustom, dataFimCustom])
 
-  const filtrados = desfechos.filter((p) =>
-    p.nome.toLowerCase().includes(busca.trim().toLowerCase())
-  )
+  useEffect(() => { carregar() }, [carregar])
+
+  // Filtros aplicados
+  const filtrados = desfechos.filter(d => {
+    const bateNome = !busca || d.nome.toLowerCase().includes(busca.toLowerCase())
+    const bateTipo = !filtroTipo || d.tipo_desfecho === filtroTipo
+    return bateNome && bateTipo
+  })
+
+  // Indicadores
+  const total = filtrados.length
+  const altas = filtrados.filter(d => d.tipo_desfecho === 'Alta').length
+  const transferencias = filtrados.filter(d => d.tipo_desfecho === 'Transferência').length
+  const obitos = filtrados.filter(d => d.tipo_desfecho === 'Óbito').length
+  const evasoes = filtrados.filter(d => d.tipo_desfecho === 'Evasão').length
+
+  const indicadores = [
+    { label: 'Total de Saídas', valor: total, cor: 'var(--c-primary)' },
+    { label: 'Altas', valor: altas, cor: '#166534' },
+    { label: 'Transferências', valor: transferencias, cor: '#1e40af' },
+    { label: 'Óbitos', valor: obitos, cor: '#991b1b' },
+    { label: 'Evasões', valor: evasoes, cor: '#854d0e' },
+  ]
+
+  const PERIODOS = [
+    { key: 'hoje', label: 'Hoje' },
+    { key: 'semana', label: 'Esta Semana' },
+    { key: 'mes', label: 'Este Mês' },
+    { key: 'custom', label: 'Período' },
+  ]
 
   return (
-    <div className="workspace">
-      <div className="page-header">
+    <div className="workspace" style={{ overflowY: 'auto', flex: 1 }}>
+      {/* Cabeçalho */}
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
         <div className="page-title">
-          <h1>Desfechos e Altas</h1>
-          <p>Listagem de pacientes que receberam alta, transferência, óbito ou evasão nos últimos 7 dias.</p>
+          <h1>Desfechos e Saídas</h1>
+          <p style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>
+            Altas médicas, transferências, óbitos e evasões — com indicadores e filtros por período.
+          </p>
         </div>
-        <div className="page-actions" style={{ display: 'flex', gap: 12 }}>
-           <input
-            type="text"
-            placeholder="Buscar paciente..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            style={{ padding: '8px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 13 }}
-          />
-          <button className="btn btn-outline" onClick={onVoltar}><i className="ph ph-arrow-left"></i> Voltar</button>
-          <button className="btn btn-primary" onClick={() => window.print()}><i className="ph ph-file-pdf"></i> Imprimir</button>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <button className="btn btn-outline" onClick={onVoltar}>
+            <i className="ph ph-arrow-left" /> Voltar
+          </button>
+          <button className="btn btn-primary" onClick={() => window.print()}>
+            <i className="ph ph-printer" /> Imprimir
+          </button>
         </div>
       </div>
-      
-      <div className="card" style={{ padding: 0 }}>
-        <table className="data-table">
+
+      {/* Indicadores */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+        {indicadores.map(ind => (
+          <div key={ind.label} style={{
+            flex: '1 1 140px',
+            background: 'var(--c-surface)',
+            border: '1px solid var(--c-border)',
+            borderRadius: 10,
+            padding: '16px 20px',
+            minWidth: 120,
+          }}>
+            <div style={{ fontSize: 30, fontWeight: 800, color: ind.cor, lineHeight: 1 }}>{carregando ? '—' : ind.valor}</div>
+            <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 6 }}>{ind.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Barra de Filtros */}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 16, background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 10, padding: '12px 16px' }}>
+        {/* Filtro de período */}
+        <div style={{ display: 'flex', gap: 6 }}>
+          {PERIODOS.map(p => (
+            <button
+              key={p.key}
+              type="button"
+              className={`control-btn${periodo === p.key ? ' active' : ''}`}
+              onClick={() => setPeriodo(p.key)}
+              style={{ fontSize: 12, padding: '6px 12px' }}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Datas customizadas */}
+        {periodo === 'custom' && (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="date"
+              value={dataInicioCustom}
+              onChange={e => setDataInicioCustom(e.target.value)}
+              style={{ padding: '6px 10px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 12 }}
+            />
+            <span style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>até</span>
+            <input
+              type="date"
+              value={dataFimCustom}
+              onChange={e => setDataFimCustom(e.target.value)}
+              style={{ padding: '6px 10px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 12 }}
+            />
+            <button className="control-btn active" onClick={carregar} style={{ fontSize: 12, padding: '6px 12px' }}>
+              <i className="ph ph-magnifying-glass" /> Buscar
+            </button>
+          </div>
+        )}
+
+        {/* Separador */}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
+          {/* Filtro por tipo */}
+          <select
+            value={filtroTipo}
+            onChange={e => setFiltroTipo(e.target.value)}
+            style={{ padding: '6px 10px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 12 }}
+          >
+            <option value="">Todos os desfechos</option>
+            <option value="Alta">Alta</option>
+            <option value="Transferência">Transferência</option>
+            <option value="Óbito">Óbito</option>
+            <option value="Evasão">Evasão</option>
+          </select>
+
+          {/* Busca */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <i className="ph ph-magnifying-glass" style={{ position: 'absolute', left: 10, color: 'var(--c-text-muted)', fontSize: 15 }} />
+            <input
+              type="text"
+              placeholder="Buscar paciente..."
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              style={{ padding: '6px 12px 6px 32px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 12, width: 200 }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Tabela */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table className="data-table" style={{ width: '100%' }}>
           <thead>
             <tr>
               <th>Paciente / Prontuário</th>
@@ -66,48 +255,61 @@ export default function AltasRecentes({ onVoltar }) {
               <th>Data / Hora</th>
               <th>Desfecho</th>
               <th>Motivo / Diagnóstico</th>
-              <th>Docs</th>
             </tr>
           </thead>
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 32 }}>Carregando registros...</td>
+                <td colSpan="5" style={{ textAlign: 'center', color: 'var(--c-text-muted)', padding: 40 }}>
+                  <i className="ph ph-spinner" /> Carregando registros...
+                </td>
               </tr>
             )}
             {!carregando && filtrados.length === 0 && (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 32 }}>Nenhum registro encontrado.</td>
+                <td colSpan="5" style={{ textAlign: 'center', color: 'var(--c-text-muted)', padding: 40 }}>
+                  Nenhum registro encontrado para o período e filtros selecionados.
+                </td>
               </tr>
             )}
-            {!carregando && filtrados.map(p => {
-              const cor = CORES_TIPO[p.tipo_desfecho] || CORES_TIPO['Alta']
+            {!carregando && filtrados.map(d => {
+              const cor = CORES_DESFECHO[d.tipo_desfecho] || CORES_DESFECHO['Alta']
+              const dataHora = d.data_desfecho
+                ? new Date(d.data_desfecho).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                : '—'
               return (
-                <tr key={p.id}>
+                <tr key={d.id}>
                   <td>
-                    <strong>{p.nome}</strong><br/>
-                    <span style={{color:'var(--text-muted)', fontSize: 12}}>
-                      Idade: {p.idade ? p.idade : 'N/I'} {p.alergias_obs ? `| Alergia: ${p.alergias_obs}` : ''}
+                    <strong>{d.nome}</strong>
+                    {d.prontuario && (
+                      <><br /><span style={{ color: 'var(--c-text-muted)', fontSize: 11 }}>Pront. {d.prontuario}</span></>
+                    )}
+                  </td>
+                  <td style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>{d.leito_info}</td>
+                  <td style={{ whiteSpace: 'nowrap', fontSize: 13 }}>{dataHora}</td>
+                  <td>
+                    <span className="badge" style={{ background: cor.bg, color: cor.txt, fontWeight: 700, fontSize: 11, padding: '3px 10px', borderRadius: 20 }}>
+                      {d.tipo_desfecho}
                     </span>
                   </td>
-                  <td>{p.leitos ? `Leito ${p.leitos.numero} - ${p.leitos.setores?.nome}` : 'Observação'}</td>
-                  <td>{new Date(p.data_desfecho).toLocaleString('pt-BR').slice(0, 16)}</td>
-                  <td>
-                    <span className="badge" style={{ background: cor.bg, color: cor.txt }}>
-                      {p.tipo_desfecho || 'Alta Médica'}
-                    </span>
-                  </td>
-                  <td style={{ maxWidth: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={p.desfecho_detalhe || p.diagnostico}>
-                    {p.desfecho_detalhe || p.diagnostico || '-'}
-                  </td>
-                  <td>
-                    <i className="ph ph-file-text" style={{ color: 'var(--primary)', cursor: 'pointer', fontSize: 18 }} title="Ver Registro"></i>
+                  <td style={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--c-text-muted)', fontSize: 13 }} title={d.diagnostico}>
+                    {d.diagnostico}
                   </td>
                 </tr>
               )
             })}
           </tbody>
         </table>
+
+        {/* Rodapé */}
+        {!carregando && (
+          <div style={{ padding: '10px 16px', borderTop: '1px solid var(--c-border)', color: 'var(--c-text-muted)', fontSize: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span><strong>{filtrados.length}</strong> registro{filtrados.length !== 1 ? 's' : ''} encontrado{filtrados.length !== 1 ? 's' : ''}</span>
+            <button className="btn btn-outline" style={{ fontSize: 11, padding: '4px 12px' }} onClick={() => window.print()}>
+              <i className="ph ph-printer" /> Exportar / Imprimir
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
