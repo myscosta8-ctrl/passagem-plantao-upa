@@ -1,5 +1,7 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import RealocarModal from './RealocarModal'
+import ModalDesfecho from './ModalDesfecho'
+import { registrarDesfechoPep } from '../lib/pepAtendimentos'
 import { ModalInternar, PainelTabela, PainelCards, PainelControles, usePainelState } from './painel/index.js'
 import './Painel.css'
 
@@ -39,6 +41,30 @@ export default function Painel({ plantao, setoresIds }) {
     abrirLeitoExtra,
     internarPaciente,
   } = usePainelState({ plantao })
+
+  const [modalDesfecho, setModalDesfecho] = useState(null)
+  const [processandoDesfecho, setProcessandoDesfecho] = useState(false)
+
+  async function confirmarDesfecho(tipo, detalhe, dadosObito) {
+    if (!modalDesfecho) return
+    setProcessandoDesfecho(true)
+    const { error } = await registrarDesfechoPep({
+      atendimentoId: modalDesfecho.paciente.id,
+      leitoId: modalDesfecho.leitoOrigem.id,
+      tipo,
+      detalhe,
+      autorId: enfermeiro?.id,
+      dadosObito,
+    })
+    setProcessandoDesfecho(false)
+    if (!error) {
+      setModalDesfecho(null)
+      carregarTudo()
+    } else {
+      setErroGeral('Não foi possível registrar o desfecho. Tente de novo.')
+      console.error('Erro ao sinalizar desfecho:', error)
+    }
+  }
 
   if (carregando) {
     return <div className="page"><p style={{ color: 'var(--color-text-muted)' }}>Carregando painel...</p></div>
@@ -107,6 +133,7 @@ export default function Painel({ plantao, setoresIds }) {
           onAbrirModalInternar={setModalLeito}
           onAbrirRealocar={setModalRealocar}
           onAbrirLeitoExtra={abrirLeitoExtra}
+          onAbrirDesfecho={setModalDesfecho}
         />
       )}
 
@@ -142,6 +169,16 @@ export default function Painel({ plantao, setoresIds }) {
             setModalRealocar(null)
             carregarTudo()
           }}
+        />
+      )}
+
+      {modalDesfecho && (
+        <ModalDesfecho
+          nomePaciente={modalDesfecho.paciente.nome}
+          numeroLeito={modalDesfecho.leitoOrigem.numero}
+          processando={processandoDesfecho}
+          onCancelar={() => setModalDesfecho(null)}
+          onConfirmar={confirmarDesfecho}
         />
       )}
     </div>

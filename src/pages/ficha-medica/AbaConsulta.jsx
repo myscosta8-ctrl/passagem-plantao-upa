@@ -26,7 +26,8 @@ const MODELOS = {
 };
 
 export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([]);
+  const [historico, setHistorico] = useState([])
+  const [historicoAberto, setHistoricoAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState('');
@@ -140,9 +141,15 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
   return (
     <div className="clinical-split">
       {/* LADO ESQUERDO: TRIAGEM E MODELOS RÁPIDOS */}
-      <aside className="tools-pane">
+      
+      {historicoAberto && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
+          <aside className="tools-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
+<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
+
         <div className="pane-header">
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span >
             <i className="ph ph-heartbeat" /> Triagem & Ferramentas
           </span>
           <span style={{ fontSize: 10, color: '#94A3B8' }}>Recepção</span>
@@ -247,26 +254,26 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
           )}
         </div>
       </aside>
+        </>
+      )}
+
 
       {/* LADO DIREITO: FICHA DE ADMISSÃO MÉDICA */}
       <div className="clinical-card">
-        <div className="cc-header">
-          <div className="cc-header-info">
-            <h2>
-              <i className="ph ph-stethoscope" /> Ficha de Consulta e Admissão Médica
-            </h2>
-            <span>
-              Documento Oficial: Consulta / Admissão Médica (Modelo 10) &bull; UPA 24H BREVES (CNES 0296796)
-              {medicoNome && (
-                <>
-                  {' '}&bull; Médico: <strong>{medicoNome}{medicoCrm ? ` — CRM/PA ${medicoCrm}` : ''}</strong>
-                </>
-              )}
-            </span>
+        <div className="cc-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="cc-header-info">
+              <h2 style={{ margin: 0, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <i className="ph ph-stethoscope" /> Admissão Médica
+              </h2>
+            </div>
+            <button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center' }}>
+              <i className="ph ph-clock-counter-clockwise"></i> Ver Histórico
+            </button>
           </div>
-        </div>
 
         <div className="cc-body">
+          
+
           {erro && (
             <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
               <div className="info" style={{ color: '#DC2626' }}>

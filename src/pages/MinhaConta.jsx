@@ -29,86 +29,108 @@ export default function MinhaConta({ onVoltar }) {
     setMensagemNome('Nome atualizado.')
   }
 
-  async function salvarSenha(e) {
+  async function handleTrocarSenha(e) {
     e.preventDefault()
     setErroSenha('')
     setMensagemSenha('')
+
     if (senhaNova.length < 6) {
-      setErroSenha('A senha precisa ter pelo menos 6 caracteres.')
+      setErroSenha('A senha deve ter no mínimo 6 caracteres.')
       return
     }
     if (senhaNova !== senhaConfirmar) {
-      setErroSenha('As duas senhas não são iguais.')
+      setErroSenha('As senhas não coincidem.')
       return
     }
+
     setTrocandoSenha(true)
     const { error } = await trocarSenha(senhaNova)
     setTrocandoSenha(false)
+
     if (error) {
-      setErroSenha('Não foi possível trocar a senha. Tente novamente.')
+      setErroSenha('Falha ao trocar a senha. Tente deslogar e logar de novo se o problema persistir.')
       return
     }
     setSenhaNova('')
     setSenhaConfirmar('')
-    setMensagemSenha('Senha alterada com sucesso.')
+    setMensagemSenha('Senha atualizada com sucesso.')
   }
 
   return (
-    <div className="page">
-      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
-      <h1 className="page-title">Minha conta</h1>
-      <p className="page-subtitle">Ajuste seu nome de exibição ou troque sua senha.</p>
-
-      <div className="card" style={{ marginBottom: 20 }}>
-        <div className="section-label">Nome de exibição</div>
-        <form onSubmit={salvarNome}>
-          <div className="field" style={{ marginBottom: 14 }}>
-            <label>Como seu nome aparece no sistema</label>
-            <input
-              type="text"
-              style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
-              value={nomeExibicao}
-              onChange={(e) => { setNomeExibicao(e.target.value); setMensagemNome(''); setErroNome('') }}
-              placeholder="ex: ENF.MARIA"
-            />
-          </div>
-          {erroNome && <div className="error-box" style={{ marginBottom: 14 }}>{erroNome}</div>}
-          {mensagemNome && <p style={{ fontSize: 13, color: 'var(--color-success)', marginBottom: 14 }}>{mensagemNome}</p>}
-          <button type="submit" className="submit-btn" style={{ maxWidth: 220 }} disabled={salvandoNome}>
-            {salvandoNome ? 'Salvando...' : 'Salvar nome'}
-          </button>
-        </form>
+    <div className="workspace">
+      <div className="page-header" style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+        <div className="page-title">
+          <h1>Minha Conta</h1>
+          <p>Configurações de perfil e segurança.</p>
+        </div>
+        <div className="page-actions" style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-outline" onClick={onVoltar}><i className="ph ph-arrow-left"></i> Voltar ao painel</button>
+        </div>
       </div>
 
-      <div className="card">
-        <div className="section-label">Trocar senha</div>
-        <form onSubmit={salvarSenha}>
-          <div className="field" style={{ marginBottom: 14 }}>
-            <label>Nova senha</label>
-            <input
-              type="password"
-              style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
-              value={senhaNova}
-              onChange={(e) => { setSenhaNova(e.target.value); setMensagemSenha(''); setErroSenha('') }}
-              autoComplete="new-password"
-            />
-          </div>
-          <div className="field" style={{ marginBottom: 14 }}>
-            <label>Confirmar nova senha</label>
-            <input
-              type="password"
-              style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
-              value={senhaConfirmar}
-              onChange={(e) => { setSenhaConfirmar(e.target.value); setMensagemSenha(''); setErroSenha('') }}
-              autoComplete="new-password"
-            />
-          </div>
-          {erroSenha && <div className="error-box" style={{ marginBottom: 14 }}>{erroSenha}</div>}
-          {mensagemSenha && <p style={{ fontSize: 13, color: 'var(--color-success)', marginBottom: 14 }}>{mensagemSenha}</p>}
-          <button type="submit" className="submit-btn" style={{ maxWidth: 220 }} disabled={trocandoSenha}>
-            {trocandoSenha ? 'Trocando...' : 'Trocar senha'}
-          </button>
-        </form>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+        <div className="card">
+          <h3 style={{ fontSize: 16, marginBottom: 16, color: 'var(--text-main)', borderBottom: '1px solid var(--border-light)', paddingBottom: 12 }}>
+            <i className="ph ph-identification-card" /> Informações do Perfil
+          </h3>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+            Seu login: <strong>{enfermeiro?.usuario}</strong> <br/>
+            Cargo: <strong>{enfermeiro?.role === 'admin' ? 'Administrador' : (enfermeiro?.role || 'Profissional')}</strong>
+          </p>
+
+          <form onSubmit={salvarNome}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Nome de Exibição (Crachá)</label>
+              <input
+                type="text"
+                value={nomeExibicao}
+                onChange={(e) => setNomeExibicao(e.target.value)}
+                placeholder="Ex: Enf. João"
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 14 }}
+              />
+            </div>
+            {erroNome && <p style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 12 }}>{erroNome}</p>}
+            {mensagemNome && <p style={{ color: 'var(--success)', fontSize: 13, marginBottom: 12 }}>{mensagemNome}</p>}
+            
+            <button type="submit" className="btn btn-primary" disabled={salvandoNome}>
+              {salvandoNome ? 'Salvando...' : 'Salvar Perfil'}
+            </button>
+          </form>
+        </div>
+
+        <div className="card">
+          <h3 style={{ fontSize: 16, marginBottom: 16, color: 'var(--text-main)', borderBottom: '1px solid var(--border-light)', paddingBottom: 12 }}>
+            <i className="ph ph-lock-key" /> Alterar Senha
+          </h3>
+          <form onSubmit={handleTrocarSenha}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Nova Senha</label>
+              <input
+                type="password"
+                value={senhaNova}
+                onChange={(e) => setSenhaNova(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 14 }}
+              />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Confirmar Nova Senha</label>
+              <input
+                type="password"
+                value={senhaConfirmar}
+                onChange={(e) => setSenhaConfirmar(e.target.value)}
+                placeholder="Repita a senha"
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 14 }}
+              />
+            </div>
+            {erroSenha && <p style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 12 }}>{erroSenha}</p>}
+            {mensagemSenha && <p style={{ color: 'var(--success)', fontSize: 13, marginBottom: 12 }}>{mensagemSenha}</p>}
+            
+            <button type="submit" className="btn btn-primary" disabled={trocandoSenha}>
+              {trocandoSenha ? 'Trocando...' : 'Atualizar Senha'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   )

@@ -12,25 +12,31 @@ const DOCS = [
   { chave: 'tfd', rotulo: 'TFD', icon: 'ph-boat', tipo: 'tfd', C: AbaTfd },
 ];
 
-export default function AbaEvolucoesMedicas({ atendimento, medicoId, onImprimir, onFechar, docInicial = 'evolucao' }) {
+export default function AbaEvolucoesMedicas({  atendimento, medicoId, onImprimir, onFechar, docInicial = 'evolucao'  }) {
+  const [historicoAberto, setHistoricoAberto] = useState(false);
   const [doc, setDoc] = useState(docInicial);
   const atual = DOCS.find((d) => d.chave === doc) || DOCS[0];
   const C = atual.C;
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0, minWidth: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, minHeight: 0, minWidth: 0 }}>
       <div className="clinical-card" style={{ flex: '0 0 auto' }}>
         <div className="cc-header">
           <div className="cc-title">
             <h2><i className="ph ph-files" /> Evoluções Médicas</h2>
           </div>
-          <div className="doc-subtabs">
+          <div className="doc-subtabs" style={{ flex: 1 }}>
             {DOCS.map((d) => (
               <button key={d.chave} type="button" className={'doc-tab' + (doc === d.chave ? ' active' : '')} onClick={() => setDoc(d.chave)}>
                 <i className={'ph ' + d.icon} /> {d.rotulo}
               </button>
             ))}
           </div>
+          {doc === 'evolucao' && (
+            <button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+              <i className="ph ph-clock-counter-clockwise"></i> Ver Histórico
+            </button>
+          )}
         </div>
       </div>
       <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex' }}>
@@ -40,6 +46,8 @@ export default function AbaEvolucoesMedicas({ atendimento, medicoId, onImprimir,
           medicoId={medicoId}
           onImprimir={(registro) => onImprimir({ tipo: atual.tipo, registro })}
           onFechar={onFechar}
+        historicoAberto={historicoAberto}
+          onSetHistoricoAberto={setHistoricoAberto}
         />
       </div>
     </div>

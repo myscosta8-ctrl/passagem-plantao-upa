@@ -1,9 +1,9 @@
 export const ABAS_PRINCIPAIS = [
-  { chave: 'admissaoEnfermagem', rotulo: 'Admissão', titulo: 'Admissão de Enfermagem', icon: 'ph-clipboard-text' },
+  { chave: 'admissaoEnfermagem', rotulo: 'Admissão de Enfermagem', titulo: 'Admissão de Enfermagem', icon: 'ph-clipboard-text' },
   { chave: 'evolucao', rotulo: 'Evolução SAE', titulo: 'Evolução de Enfermagem (SAE)', icon: 'ph-activity' },
   { chave: 'balanco', rotulo: 'Balanço Hídrico 24h', titulo: 'Balanço Hídrico 24h', icon: 'ph-drop' },
-  { chave: 'sbar', rotulo: 'Transferência SBAR', titulo: 'Transferência SBAR', icon: 'ph-ambulance' },
-  { chave: 'intercorrencias', rotulo: 'Intercorrências', titulo: 'Intercorrências', icon: 'ph-warning-octagon' },
+  { chave: 'sbar', rotulo: 'Transferência Externa', titulo: 'Transferência Externa', icon: 'ph-ambulance' },
+  { chave: 'intercorrencias', rotulo: 'Nota de Intercorrência', titulo: 'Nota de Intercorrência', icon: 'ph-warning-octagon' },
 ];
 
 export default function FichaClinicaTabs({ aba, onSelecionarAba }) {

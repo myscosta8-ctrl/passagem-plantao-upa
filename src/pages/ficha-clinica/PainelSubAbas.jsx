@@ -8,7 +8,7 @@ export default function PainelSubAbas({ titulo, icon, docs, docInicial }) {
   const atual = docs.find((d) => d.chave === doc) || docs[0];
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0, minWidth: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, minHeight: 0, minWidth: 0 }}>
       <div className="clinical-card" style={{ flex: '0 0 auto' }}>
         <div className="cc-header">
           <div className="cc-title">

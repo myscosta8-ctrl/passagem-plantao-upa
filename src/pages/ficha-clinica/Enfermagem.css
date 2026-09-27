@@ -114,11 +114,11 @@
 .enf-theme .topbar-right { gap: 14px; }
 .enf-theme .btn-pilar { background: #fff; border: 1px solid #CBD5E1; border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #0D9488; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .enf-theme .btn-pilar:hover { background: #F0FDFA; border-color: #0D9488; }
-.enf-theme .workspace { padding: 12px 18px; gap: 12px; }
+.enf-theme .workspace { padding: 4px 6px; gap: 2px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 /* PATIENT BANNER (mockup 08) */
 .enf-banner { flex-shrink: 0; background: #fff; border: 1px solid var(--enf-primary); border-left: 6px solid var(--enf-primary); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.05); display: flex; flex-direction: column; padding: 0; }
-.enf-banner .pb-main { padding: 8px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.enf-banner .pb-main { padding: 4px 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .enf-banner .pb-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .enf-banner .pb-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .enf-banner .pb-name { font-size: 16px; font-weight: 700; color: #0F172A; letter-spacing: -.02em; }
@@ -140,8 +140,8 @@
 .enf-banner .detail-item span { color: #0F172A; font-weight: 600; }
 
 /* ABAS (mockup 08) */
-.enf-theme .clinical-tabs { display: flex; gap: 6px; background: #E2E8F0; padding: 4px; border-radius: 8px; flex-shrink: 0; overflow-x: auto; }
-.enf-theme .clinical-tabs .tab-btn { flex: 1; min-width: 140px; padding: 8px 12px; border: none; background: transparent; color: #334155; font-size: 12.5px; font-weight: 600; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+.enf-theme .clinical-tabs { display: flex; gap: 6px; background: #E2E8F0; padding: 2px; border-radius: 8px; flex-shrink: 0; overflow-x: auto; }
+.enf-theme .clinical-tabs .tab-btn { flex: 1; min-width: 140px; padding: 4px 12px; border: none; background: transparent; color: #334155; font-size: 12.5px; font-weight: 600; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
 .enf-theme .clinical-tabs .tab-btn i { font-size: 15px; }
 .enf-theme .clinical-tabs .tab-btn:hover { background: rgba(255,255,255,.7); color: #0F172A; }
 .enf-theme .clinical-tabs .tab-btn.active { background: #fff; color: var(--enf-primary); box-shadow: 0 1px 2px rgba(0,0,0,.05); }

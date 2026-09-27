@@ -46,13 +46,6 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
 
   return (
     <div className="clinical-card" style={{ flex: 1 }}>
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-siren" /> Nota de Intercorrência Médica</h2>
-          <p>Registro de avaliação médica solicitada por intercorrência no setor.</p>
-        </div>
-      </div>
-
       <div className="cc-body">
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-bell-ringing" /> 1. Motivo do Chamado e Descrição da Intercorrência *</div>

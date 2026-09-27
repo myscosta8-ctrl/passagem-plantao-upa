@@ -36,19 +36,15 @@ export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImpr
   if (aba === 'sbar') {
     return <AbaSbar {...comum} onImprimir={(registro) => onImprimir({ tipo: 'sbar', registro })} />;
   }
-  if (aba === 'intercorrencias' || aba === 'eventosAdversos' || aba === 'isolamento') {
-    return (
-      <PainelSubAbas
-        key={aba}
-        titulo="Intercorrências"
-        icon="ph-siren"
-        docInicial={aba === 'isolamento' ? 'isolamento' : 'eventosAdversos'}
-        docs={[
-          { chave: 'eventosAdversos', rotulo: 'Nota de Intercorrência', icon: 'ph-warning-octagon', render: () => <AbaEventosAdversos {...comum} onImprimir={(registro) => onImprimir({ tipo: 'intercorrencia', registro })} /> },
-          { chave: 'isolamento', rotulo: 'Isolamento', icon: 'ph-shield-warning', envolver: true, render: () => <AbaIsolamento {...comum} /> },
-        ]}
-      />
-    );
-  }
-  return null;
+  if (aba === 'intercorrencias' || aba === 'eventosAdversos') {
+      return <AbaEventosAdversos {...comum} onImprimir={(registro) => onImprimir({ tipo: 'intercorrencia', registro })} />;
+    }
+    if (aba === 'isolamento') {
+      return (
+        <div className="clinical-card" style={{ flex: 1 }}>
+          <div className="cc-body"><AbaIsolamento {...comum} /></div>
+        </div>
+      );
+    }
+    return null;
 }

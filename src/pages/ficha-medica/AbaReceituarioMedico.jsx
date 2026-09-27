@@ -156,21 +156,6 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
 
   return (
     <div className="clinical-card" style={{ flex: 1 }}>
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-file-text" /> Receituário Médico</h2>
-          <p>Receita Simples e Controle Especial são fluxos e impressões separados — Lista C1 não pode ser misturada com receita comum (Portaria 344/98).</p>
-        </div>
-        {!controlado && <div className="doc-subtabs">
-          <button type="button" className={'doc-tab' + (subTab === 'simples' ? ' active' : '')} onClick={() => setSubTab('simples')}>
-            <i className="ph ph-pill" /> Receita Simples (Branca)
-          </button>
-          <button type="button" className={'doc-tab' + (subTab === 'controle' ? ' active' : '') + (pulseControle ? ' highlight-pulse' : '')} onClick={() => setSubTab('controle')}>
-            <i className="ph ph-warning-circle" /> Controle Especial (2 Vias) {itensControle.length > 0 && `(${itensControle.length})`}
-          </button>
-        </div>}
-      </div>
-
       <div className="cc-body">
         {aviso && (
           <div className="allergy-alert" style={{ background: '#FFF7ED', borderColor: '#FDE68A' }}>

@@ -113,8 +113,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
     <div className="transfer-card">
       <div className="tc-header">
         <div className="tc-title">
-          <h2><i className="ph ph-arrows-left-right" /> Transferência Estruturada do Paciente (Metodologia SBAR)</h2>
-          <p>Instrumento oficial de transição de cuidado e regulação inter-hospitalar (Padrão OMS).</p>
+          <h2><i className="ph ph-arrows-left-right" /> Transferência Externa</h2>
         </div>
         <div className="ac-actions">
           <button type="button" className="btn-toggle-sidebar" onClick={toggleTodas}>
@@ -140,7 +139,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
           <>
             <div className="grid-3">
               {campo('hospital_destino', 'Hospital / Serviço de Destino *', 'ph-buildings')}
-              {campo('setor_destino', 'Setor de Destino', 'ph-door')}
+              {campo('setor_destino', 'Hospital de Destino', 'ph-door')}
               {campo('protocolo', 'Protocolo SUS Fácil / Regulação', 'ph-barcode', { style: { fontWeight: 700, color: '#0284C7' } })}
             </div>
             <div className="grid-3">

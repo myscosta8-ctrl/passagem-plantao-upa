@@ -71,13 +71,6 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
 
   return (
     <div className="clinical-card" style={{ flex: 1 }}>
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-broadcast" /> Atualização de Quadro Clínico — Regulação (SER / SISREG)</h2>
-          <p>Atualização periódica do quadro do paciente regulado para a central de regulação.</p>
-        </div>
-      </div>
-
       <div className="cc-body">
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-flag" /> Situação da Regulação</div>

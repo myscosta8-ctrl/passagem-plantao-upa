@@ -3,7 +3,7 @@ import { listarEvolucoesMedicas, criarEvolucaoMedica } from '../../lib/pepMedico
 import { listarSinaisVitais } from '../../lib/pepClinico';
 import { EVOLUCAO_VAZIA } from './constantes';
 
-export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir, onFechar }) {
+export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, onFechar , historicoAberto, onSetHistoricoAberto }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(EVOLUCAO_VAZIA)
@@ -76,13 +76,19 @@ export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir, o
   return (
     <div className="clinical-split">
       {/* HISTÓRICO DE EVOLUÇÕES */}
-      <aside className="timeline-pane">
+      
+      {historicoAberto && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => onSetHistoricoAberto(false)} />
+          <aside className="timeline-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
+<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => onSetHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
+
         <div className="pane-header">
           <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico</span>
         </div>
         <div className="timeline-list">
           {carregando ? (
-            <p style={{ fontSize: 11, color: '#94A3B8' }}>Carregando...</p>
+            <p >Carregando...</p>
           ) : historico.length === 0 ? (
             <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhuma evolução registrada ainda.</p>
           ) : historico.map((e) => (
@@ -106,17 +112,15 @@ export default function AbaEvolucaoMedica({ atendimento, medicoId, onImprimir, o
           ))}
         </div>
       </aside>
+        </>
+      )}
+
 
       {/* NOVA EVOLUÇÃO */}
       <div className="clinical-card">
-        <div className="cc-header">
-          <div className="cc-title">
-            <h2><i className="ph ph-activity" /> Evolução Médica Diária</h2>
-            <p>Preencha os dados da evolução. Todos os campos compõem o documento oficial.</p>
-          </div>
-        </div>
+        
+          <div className="cc-body">
 
-        <div className="cc-body">
 
           <div className="assess-grid">
             <div className="form-group">

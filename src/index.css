@@ -292,3 +292,27 @@ a:hover { text-decoration: underline; color: var(--c-primary-hover); }
 ::-webkit-scrollbar-track  { background: transparent; }
 ::-webkit-scrollbar-thumb  { background: var(--border-strong); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--c-text-muted); }
+/* ========================================================
+   FORÇA EXPANSÃO MÁXIMA DA FICHA CLÍNICA (PEDIDO DO USUÁRIO)
+   ======================================================== */
+.espaco-paciente-modal,
+.espaco-paciente-conteudo,
+.atendimento-medico-container,
+.atendimento-medico-container .workspace,
+.enf-theme .workspace {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.atendimento-medico-container .workspace > * {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.workspace {
+  max-width: 100% !important;
+  width: 100% !important;
+}

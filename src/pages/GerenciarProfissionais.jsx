@@ -83,10 +83,17 @@ export default function GerenciarProfissionais({ onVoltar }) {
   }
 
   return (
-    <div className="page">
-      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
-      <h1 className="page-title">Gerenciar profissionais</h1>
-      <p className="page-subtitle">Login institucional de médico e farmacêutico — senha padrão trocada obrigatoriamente no primeiro acesso.</p>
+    <div className="workspace">
+      
+      <div className="page-header" style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+        <div className="page-title">
+          <h1>Profissionais (Logins)</h1>
+          <p>Crie e gerencie os acessos do sistema.</p>
+        </div>
+        <div className="page-actions" style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-outline" onClick={onVoltar}><i className="ph ph-arrow-left"></i> Voltar ao painel</button>
+        </div>
+      </div>
 
       <div className="card" style={{ marginBottom: 20 }}>
         <div className="section-label">Criar novo login</div>

@@ -54,13 +54,6 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
 
   return (
     <div className="clinical-card" style={{ flex: 1 }}>
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-clipboard-text" /> Sumário de Alta</h2>
-          <p>Documento único por atendimento, editável até o fechamento.</p>
-        </div>
-      </div>
-
       <div className="cc-body">
         <div className="assess-grid">
           <div className="form-group">

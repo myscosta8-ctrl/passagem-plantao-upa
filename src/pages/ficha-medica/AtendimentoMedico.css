@@ -88,21 +88,14 @@
 }
 
 /* ÁREA DE TRABALHO */
-.atendimento-medico-container .workspace { padding: 16px 24px; flex: 1; display: flex; flex-direction: column; gap: 14px; overflow: hidden;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 14px 20px;
-  gap: 10px;
-  overflow: hidden;
-}
+.atendimento-medico-container .workspace { padding: 4px 6px; flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 
 /* BANNER DO PACIENTE */
 .atendimento-medico-container .patient-banner {
   background: #FFFFFF;
   border: 1px solid #CBD5E1;
   border-radius: 8px;
-  padding: 10px 16px;
+  padding: 6px 12px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   flex-shrink: 0;
 }
@@ -207,7 +200,7 @@
   display: flex;
   gap: 4px;
   background: #E2E8F0;
-  padding: 4px;
+  padding: 2px;
   border-radius: 8px;
   flex-shrink: 0;
   overflow-x: auto;
@@ -395,7 +388,7 @@
 }
 
 /* LADO DIREITO: CARD PRINCIPAL COM TROCA DE TELA */
-.atendimento-medico-container .clinical-card { overflow-y: auto; display: flex; flex-direction: column;
+.atendimento-medico-container .clinical-card { overflow: hidden; display: flex; flex-direction: column;
   flex: 1;
   background: #FFFFFF;
   border: 1px solid #CBD5E1;
@@ -959,10 +952,10 @@
 .atendimento-medico-container .vital-input-wrapper input { width: 100%; border: none; background: transparent; font-size: 16px; font-weight: 700; color: var(--text-main, #0F172A); outline: none; padding: 0; box-shadow: none; }
 .atendimento-medico-container .vital-input-wrapper span { font-size: 11px; font-weight: 600; color: var(--text-muted, #64748B); }
 
-.atendimento-medico-container .form-control { width: 100%; padding: 8px 10px; border: 1px solid var(--border-strong, #CBD5E1); border-radius: 6px; font-size: 12px; outline: none; background: #F8FAFC; color: var(--text-main, #0F172A); transition: 0.2s; font-family: 'Inter', sans-serif; }
+.atendimento-medico-container .form-control { width: 100%; padding: 8px 10px; border: 1px solid #94A3B8; border-radius: 6px; font-size: 12px; outline: none; background: #FFFFFF; color: var(--text-main, #0F172A); transition: 0.2s; font-family: 'Inter', sans-serif; }
 .atendimento-medico-container .form-control:focus { background: #fff; border-color: var(--primary, #0D9488); box-shadow: 0 0 0 3px var(--primary-light, #F0FDFA); }
 
-.atendimento-medico-container .form-control-area { width: 100%; padding: 8px 10px; border: 1px solid var(--border-strong, #CBD5E1); border-radius: 6px; font-size: 12px; outline: none; background: #F8FAFC; color: var(--text-main, #0F172A); transition: 0.2s; min-height: 80px; font-family: 'Inter', sans-serif; resize: vertical; line-height: 1.5; }
+.atendimento-medico-container .form-control-area { width: 100%; padding: 8px 10px; border: 1px solid #94A3B8; border-radius: 6px; font-size: 12px; outline: none; background: #FFFFFF; color: var(--text-main, #0F172A); transition: 0.2s; min-height: 80px; font-family: 'Inter', sans-serif; resize: vertical; line-height: 1.5; }
 .atendimento-medico-container .form-control-area:focus { background: #fff; border-color: var(--primary, #0D9488); box-shadow: 0 0 0 3px var(--primary-light, #F0FDFA); }
 .atendimento-medico-container .form-control-area.large { min-height: 180px; }
 
@@ -970,7 +963,7 @@
 .atendimento-medico-container .triage-card .vital-box { padding: 6px !important; text-align: center; }
 .atendimento-medico-container .triage-card .vital-box span { font-size: 9px !important; font-weight: 700 !important; color: #94A3B8 !important; }
 .atendimento-medico-container .triage-card .vital-box strong { font-size: 13px !important; color: #0F172A !important; display: block; margin-top: 2px; }
-/* =============== NOVOS ESTILOS DA PRESCRI��O (mockups-fase2/04) =============== */
+/* =============== NOVOS ESTILOS DA PRESCRIÇÃO (mockups-fase2/04) =============== */
 
 .atendimento-medico-container .presc-group { border: 1px solid var(--border-light, #E2E8F0); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: var(--bg-surface, #ffffff); transition: 0.2s; margin-bottom: 12px; }
 .atendimento-medico-container .presc-group-header { padding: 10px 16px; background: #F8FAFC; border-bottom: 1px solid var(--border-light, #E2E8F0); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
@@ -1009,7 +1002,7 @@
 .atendimento-medico-container .btn-calc-ped { background: #FEF08A; border: 1px solid #CA8A04; color: #854D0E; border-radius: 6px; padding: 6px 8px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; justify-self: center; line-height: 1; }
 .atendimento-medico-container .btn-calc-ped:hover { background: #FDE047; }
 
-/* Modal Calculadora Pedi�trica */
+/* Modal Calculadora Pediátrica */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.7); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(2px); }
 .modal-calc { background: var(--bg-surface, #ffffff); border-radius: 12px; width: 420px; max-width: 90vw; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; animation: modalIn 0.2s ease-out; }
 @keyframes modalIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -1170,12 +1163,12 @@
 
 @media (max-width: 1200px) {
   .atendimento-medico-container .tools-pane { width: 250px; }
-  .atendimento-medico-container .workspace { padding: 12px 14px; }
+  .atendimento-medico-container .workspace { padding: 4px 6px; flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 }
 
 @media (max-width: 960px) {
   /* A tela inteira passa a rolar, em vez de espremer cada painel */
-  .atendimento-medico-container .workspace { overflow-y: auto; overflow-x: hidden; }
+  .atendimento-medico-container .workspace { padding: 4px 6px; flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
   .atendimento-medico-container .clinical-split { flex-direction: column; overflow: visible; flex: 0 0 auto; }
   .atendimento-medico-container .tools-pane { width: 100%; max-height: none; overflow: visible; }
   .atendimento-medico-container .clinical-card { flex: 0 0 auto; overflow: visible; }
@@ -1197,7 +1190,7 @@
 }
 
 @media (max-width: 600px) {
-  .atendimento-medico-container .workspace { padding: 8px; gap: 8px; }
+  .atendimento-medico-container .workspace { padding: 4px 6px; flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
   .atendimento-medico-container .assess-grid,
   .atendimento-medico-container .presc-input-linha2,
   .atendimento-medico-container .presc-input-linha3 { grid-template-columns: minmax(0, 1fr) !important; }
@@ -1226,8 +1219,8 @@
 
 /* Evita que conteúdo largo (sub-abas, grids) empurre o card além da tela */
 .atendimento-medico-container .clinical-split { min-width: 0; max-width: 100%; }
-.atendimento-medico-container .cc-header { flex-wrap: wrap; }
-.atendimento-medico-container .cc-header .doc-subtabs { flex-basis: 100%; min-width: 0; max-width: 100%; }
+.atendimento-medico-container .cc-header { flex-wrap: nowrap !important; align-items: center; }
+.atendimento-medico-container .cc-header .doc-subtabs { flex: 1; min-width: 0; max-width: 100%; border: none; padding: 0; margin-left: 16px; }
 .atendimento-medico-container .btn-voltar { white-space: nowrap; }
 
 

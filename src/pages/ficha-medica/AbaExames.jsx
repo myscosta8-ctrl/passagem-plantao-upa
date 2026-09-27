@@ -147,7 +147,7 @@ const EXAMES_ECG_CATALOGO = [
 // em vez de um bloco genérico compartilhado entre as 4 guias.
 const MODALIDADE_CONFIG = {
   lab: {
-    titulo: 'Requisição de Exames Laboratoriais (Laboratório Interno)',
+    titulo: 'Requisição de Exames Laboratoriais',
     subtitulo: 'Documento exclusivo para o posto de análises clínicas da UPA 24h Breves · Modelo 19',
     icon: 'ph ph-flask',
     tituloDados: 'Dados da Coleta Laboratorial',
@@ -214,7 +214,8 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
   const [localEcg, setLocalEcg] = useState('leito');
   const [apacDados, setApacDados] = useState(APAC_VAZIA);
   const [salvando, setSalvando] = useState(false);
-  const [historico, setHistorico] = useState([]);
+  const [historico, setHistorico] = useState([])
+  const [historicoAberto, setHistoricoAberto] = useState(false);
   const [cabecalho, setCabecalho] = useState(null);
 
   useEffect(() => {
@@ -451,7 +452,13 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
 
   return (
     <div className="clinical-split">
-      <aside className="tools-pane">
+      
+      {historicoAberto && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
+          <aside className="tools-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
+<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
+
         <div className="pane-header">
           <span><i className="ph ph-navigation-arrow" /> Modalidade do Pedido</span>
         </div>
@@ -476,7 +483,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
                 <span className="modality-badge">{countApac} proced.</span>
               </button>
             </div>
-            <button type="button" className="btn-cancel" style={{ marginTop: 8, width: '100%', justifyContent: 'center' }} onClick={limparModalidadeAtiva}>
+            <button type="button" className="btn-cancel"  onClick={limparModalidadeAtiva}>
               <i className="ph ph-trash" /> Limpar Seleção desta Guia
             </button>
           </div>
@@ -505,17 +512,18 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           </div>
         </div>
       </aside>
+        </>
+      )}
+
 
       <section className="clinical-card">
-        <header className="cc-header">
-          <div>
+        <header className="cc-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: 16 }}><div>
             <h2 id="card-main-title"><i className={cfg.icon} /> {cfg.titulo}</h2>
-            <span id="card-main-subtitle">{cfg.subtitulo}</span>
-          </div>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)' }}>Em Aberto · Urgência</span>
-        </header>
+            
+          </div><div style={{display:'flex', gap: 12, alignItems: 'center'}}><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)' }}>Em Aberto - Urgência</span><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div></header>
 
         <div className="cc-body">
+
           {/* 1. DADOS DO PEDIDO — por modalidade, com identificação real do atendimento/médico */}
           {(modalidade === 'lab' || modalidade === 'img' || modalidade === 'ecg') && (
             <div className="form-section">

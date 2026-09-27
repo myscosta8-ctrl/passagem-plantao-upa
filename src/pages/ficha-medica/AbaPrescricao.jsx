@@ -185,8 +185,9 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
 }
 
 
-export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFechar, onAbrirAtm }) {
+export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFechar, onAbrirAtm , headerTabs }) {
   const [historico, setHistorico] = useState([])
+  const [historicoAberto, setHistoricoAberto] = useState(false)
   const [carregando, setCarregando] = useState(true)
   const [observacoes, setObservacoes] = useState('')
   const [dieta, setDieta] = useState('')
@@ -369,13 +370,24 @@ export default function AbaPrescricao({ atendimento, medicoId, onImprimir, onFec
 
   return (
     <div className="clinical-split">
+
+      
       <div className="clinical-card" style={{ flex: 1 }}>
-        <div className="cc-header">
-          <div className="cc-title">
-            <h2><i className="ph ph-pill" /> Prescrição Médica Hospitalar</h2>
-            <p>Válida por 24 horas a partir da assinatura.</p>
+        <div className="cc-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="cc-title">
+              <h2><i className="ph ph-pill" /> Prescrição Médica Hospitalar</h2>
+              </div>
+              {headerTabs}
+            <button 
+              type="button" 
+              className="btn btn-outline" 
+              onClick={() => setHistoricoAberto(true)}
+              style={{ display: 'flex', gap: 6, alignItems: 'center', height: 36 }}
+            >
+              <i className="ph ph-clock-counter-clockwise"></i>
+              Ver Histórico
+            </button>
           </div>
-        </div>
 
         <div className="cc-body" id="presc-accordion" style={{ padding: 0 }}>
           {itensRestritos.length > 0 && (

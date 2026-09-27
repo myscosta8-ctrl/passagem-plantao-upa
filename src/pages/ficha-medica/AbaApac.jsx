@@ -143,7 +143,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
       <div className="cc-header">
         <div className="cc-title">
           <h2><i className="ph ph-file-text" /> Laudo para Solicitação / Autorização de Procedimento Ambulatorial (APAC)</h2>
-          <p>Documento oficial do Ministério da Saúde · 52 campos · Modelo 18</p>
+          
         </div>
       </div>
 

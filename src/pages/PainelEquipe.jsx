@@ -34,52 +34,57 @@ export default function PainelEquipe({ onVoltar }) {
   }
 
   return (
-    <div className="page">
-      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
-      <h1 className="page-title">Equipe — plantões ativos</h1>
-      <p className="page-subtitle">
-        Todo mundo que ainda está com participação em aberto agora, em qualquer data/turno. Só administradores veem e usam esta tela.
-      </p>
+    <div className="workspace">
+      <div className="page-header" style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+        <div className="page-title">
+          <h1>Equipe em Plantão</h1>
+          <p>Profissionais ativos não encerrados no sistema.</p>
+        </div>
+        <div className="page-actions" style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-outline" onClick={onVoltar}><i className="ph ph-arrow-left"></i> Voltar ao painel</button>
+        </div>
+      </div>
 
-      <div className="card">
-        {carregando && <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>}
-        {!carregando && ativos.length === 0 && (
-          <p style={{ color: 'var(--color-text-muted)' }}>Ninguém com plantão ativo no momento.</p>
-        )}
-        {ativos.map((item) => (
-          <div
-            key={item.plantao_id + item.profissional_id}
-            style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '14px 4px', borderBottom: '1px solid var(--color-border)',
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 14.5 }}>
-                {item.profissionais?.nome} <span style={{ fontWeight: 400, color: 'var(--color-text-muted)', fontSize: 12.5 }}>({item.profissionais?.categoria})</span>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+        {carregando && <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>}
+        {!carregando && ativos.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Nenhum profissional em plantão ativo.</p>}
+        
+        {!carregando && ativos.map((item, idx) => {
+          const nomeStr = item.profissionais?.nome || 'Desconhecido'
+          const iniciais = nomeStr.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()
+          const dataStr = item.plantoes?.data ? new Date(item.plantoes.data + 'T00:00:00').toLocaleDateString('pt-BR') : ''
+          return (
+            <div key={idx} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                <div style={{ width: 50, height: 50, borderRadius: 25, background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 18 }}>
+                  {iniciais}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>{nomeStr}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{item.profissionais?.categoria || 'Profissional'}</div>
+                </div>
               </div>
-              <div style={{ fontSize: 12.5, color: 'var(--color-text-muted)', marginTop: 3 }}>
-                {item.plantoes?.turno} — {new Date(item.plantoes?.data + 'T00:00:00').toLocaleDateString('pt-BR')}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12, borderTop: '1px solid var(--border-light)' }}>
+                <span className="badge" style={{ background: 'var(--success-light)', color: 'var(--success)' }}>
+                  {item.plantoes?.turno} - {dataStr}
+                </span>
+                <button 
+                  className="btn btn-outline" 
+                  style={{ padding: '4px 8px', fontSize: 12, color: 'var(--danger)', borderColor: 'var(--danger)' }} 
+                  onClick={() => setAlvo(item)}
+                >
+                  Encerrar
+                </button>
               </div>
             </div>
-            <button
-              style={{
-                padding: '7px 12px', fontFamily: 'var(--font-mono)', fontSize: 10.5, fontWeight: 600,
-                textTransform: 'uppercase', letterSpacing: '.03em', borderRadius: 'var(--r-sm)',
-                border: '1px solid var(--c-danger)', color: 'var(--c-danger)', background: 'transparent',
-              }}
-              onClick={() => setAlvo(item)}
-            >
-              Encerrar agora
-            </button>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {alvo && (
         <ConfirmModal
           titulo={`Encerrar ${alvo.profissionais?.nome}?`}
-          mensagem={`Isso encerra a participação dessa pessoa no plantão de ${alvo.plantoes?.turno} de ${new Date(alvo.plantoes?.data + 'T00:00:00').toLocaleDateString('pt-BR')} imediatamente, liberando a vaga dela pra outra pessoa entrar.`}
+          mensagem={`Isso encerra a participação dessa pessoa no plantão de ${alvo.plantoes?.turno} de ${new Date(alvo.plantoes?.data + 'T00:00:00').toLocaleDateString('pt-BR')} imediatamente, liberando a vaga dela.`}
           confirmarTexto="Encerrar"
           perigo
           onConfirmar={confirmarEncerramento}

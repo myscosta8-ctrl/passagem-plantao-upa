@@ -58,13 +58,6 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
 
   return (
     <div className="clinical-card" style={{ flex: 1 }}>
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-boat" /> Tratamento Fora de Domicílio — Laudo Médico (LM/TFD)</h2>
-          <p>Encaminhamento regulado para serviço de referência fora do município.</p>
-        </div>
-      </div>
-
       <div className="cc-body">
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-identification-card" /> Identificação do Laudo e Acompanhante</div>

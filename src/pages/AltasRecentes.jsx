@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
 const CORES_TIPO = {
-  Alta: { cor: 'var(--c-primary)' },
-  Transferência: { cor: 'var(--c-info)' },
-  Evasão: { cor: 'var(--c-warning)' },
-  Óbito: { cor: 'var(--c-danger)' },
+  'Alta': { bg: 'var(--success-light)', txt: 'var(--success)' },
+  'Transferência': { bg: 'var(--info-light)', txt: 'var(--info)' },
+  'Evasão': { bg: 'var(--warning-light)', txt: '#B45309' },
+  'Óbito': { bg: 'var(--danger-light)', txt: 'var(--danger)' },
 }
 
 export default function AltasRecentes({ onVoltar }) {
@@ -38,67 +38,77 @@ export default function AltasRecentes({ onVoltar }) {
   )
 
   return (
-    <div className="page">
-      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
-      <h1 className="page-title">Desfechos recentes</h1>
-      <p className="page-subtitle">Altas, transferências, evasões e óbitos dos últimos 7 dias.</p>
-
-      <div className="field" style={{ marginBottom: 16, maxWidth: 360 }}>
-        <input
-          type="text"
-          placeholder="Buscar por nome..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
-        />
+    <div className="workspace">
+      <div className="page-header">
+        <div className="page-title">
+          <h1>Desfechos e Altas</h1>
+          <p>Listagem de pacientes que receberam alta, transferência, óbito ou evasão nos últimos 7 dias.</p>
+        </div>
+        <div className="page-actions" style={{ display: 'flex', gap: 12 }}>
+           <input
+            type="text"
+            placeholder="Buscar paciente..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            style={{ padding: '8px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 13 }}
+          />
+          <button className="btn btn-outline" onClick={onVoltar}><i className="ph ph-arrow-left"></i> Voltar</button>
+          <button className="btn btn-primary" onClick={() => window.print()}><i className="ph ph-file-pdf"></i> Imprimir</button>
+        </div>
       </div>
-
-      <div className="card">
-        {carregando && <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>}
-        {!carregando && filtrados.length === 0 && (
-          <p style={{ color: 'var(--color-text-muted)' }}>Nenhum registro encontrado.</p>
-        )}
-        {filtrados.map((p) => {
-          const cor = CORES_TIPO[p.tipo_desfecho] ?? CORES_TIPO.Alta
-          return (
-            <div
-              key={p.id}
-              style={{ padding: '14px 4px', borderBottom: '1px solid var(--color-border)' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 600, fontSize: 14.5 }}>{p.nome}</span>
-                <span style={{
-                  fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.04em',
-                  color: cor.cor,
-                }}>
-                  ● {p.tipo_desfecho || 'Alta'}
-                </span>
-              </div>
-              <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 3 }}>
-                {p.diagnostico || 'Sem diagnóstico registrado'}
-              </div>
-              {p.desfecho_detalhe && (
-                <div style={{ fontSize: 13, color: 'var(--color-text)', marginTop: 3 }}>
-                  {p.desfecho_detalhe}
-                </div>
-              )}
-              <div style={{ fontSize: 12.5, color: 'var(--color-text-muted)', marginTop: 4 }}>
-                {p.leitos ? `Leito ${p.leitos.numero} — ${p.leitos.setores?.nome}` : 'Leito não registrado'}
-                {' · '}
-                {new Date(p.data_desfecho).toLocaleString('pt-BR')}
-              </div>
-            </div>
-          )
-        })}
+      
+      <div className="card" style={{ padding: 0 }}>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Paciente / Prontuário</th>
+              <th>Setor de Origem</th>
+              <th>Data / Hora</th>
+              <th>Desfecho</th>
+              <th>Motivo / Diagnóstico</th>
+              <th>Docs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {carregando && (
+              <tr>
+                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 32 }}>Carregando registros...</td>
+              </tr>
+            )}
+            {!carregando && filtrados.length === 0 && (
+              <tr>
+                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 32 }}>Nenhum registro encontrado.</td>
+              </tr>
+            )}
+            {!carregando && filtrados.map(p => {
+              const cor = CORES_TIPO[p.tipo_desfecho] || CORES_TIPO['Alta']
+              return (
+                <tr key={p.id}>
+                  <td>
+                    <strong>{p.nome}</strong><br/>
+                    <span style={{color:'var(--text-muted)', fontSize: 12}}>
+                      Idade: {p.idade ? p.idade : 'N/I'} {p.alergias_obs ? `| Alergia: ${p.alergias_obs}` : ''}
+                    </span>
+                  </td>
+                  <td>{p.leitos ? `Leito ${p.leitos.numero} - ${p.leitos.setores?.nome}` : 'Observação'}</td>
+                  <td>{new Date(p.data_desfecho).toLocaleString('pt-BR').slice(0, 16)}</td>
+                  <td>
+                    <span className="badge" style={{ background: cor.bg, color: cor.txt }}>
+                      {p.tipo_desfecho || 'Alta Médica'}
+                    </span>
+                  </td>
+                  <td style={{ maxWidth: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={p.desfecho_detalhe || p.diagnostico}>
+                    {p.desfecho_detalhe || p.diagnostico || '-'}
+                  </td>
+                  <td>
+                    <i className="ph ph-file-text" style={{ color: 'var(--primary)', cursor: 'pointer', fontSize: 18 }} title="Ver Registro"></i>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
       </div>
-
-      <button
-        className="submit-btn"
-        style={{ marginTop: 20, maxWidth: 200, background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}
-        onClick={onVoltar}
-      >
-        ← Voltar ao painel
-      </button>
     </div>
   )
 }

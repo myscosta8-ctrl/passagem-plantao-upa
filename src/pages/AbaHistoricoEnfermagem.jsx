@@ -123,7 +123,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const [mensagem, setMensagem] = useState(null)
-  const [filtro, setFiltro] = useState('todas')
+  const [filtro, setFiltro] = useState('procedencia')
   const [recolhidas, setRecolhidas] = useState(() => new Set())
   const [painelAberto, setPainelAberto] = useState(true)
   const [gerenciar, setGerenciar] = useState(null) // 'alergias' | 'dispositivos' | 'escalas'
@@ -152,9 +152,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
   const visivel = (c) => filtro === 'todas' || filtro === c
   const recolhida = (c) => recolhidas.has(c)
   const toggle = (c) => setRecolhidas((prev) => { const n = new Set(prev); n.has(c) ? n.delete(c) : n.add(c); return n })
-  const todasRecolhidas = SECOES.every((s) => recolhidas.has(s.chave))
-  const toggleTodas = () => setRecolhidas(todasRecolhidas ? new Set() : new Set(SECOES.map((s) => s.chave)))
-  const irPara = (c) => { setFiltro(c); setRecolhidas(new Set()) }
+      const irPara = (c) => { setFiltro(c); setRecolhidas(new Set()) }
 
   async function salvar(imprimir = false) {
     setSalvando(true)
@@ -280,23 +278,20 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
         <div className="ac-header">
           <div className="ac-title">
             <h2><i className="ph ph-clipboard-text" /> Admissão de Enfermagem</h2>
-            <p>Instrumento de sistematização SAE baseado no modelo oficial da UPA 24h Breves.</p>
+            
           </div>
           <div className="ac-actions">
-            <button type="button" className="btn-toggle-sidebar" onClick={toggleTodas}>
-              <i className={'ph ' + (todasRecolhidas ? 'ph-arrows-out-line-horizontal' : 'ph-arrows-in-line-horizontal')} /> {todasRecolhidas ? 'Expandir Todos' : 'Recolher Todos'}
-            </button>
-            <button type="button" className="btn-toggle-sidebar" onClick={() => setPainelAberto((v) => !v)}>
-              <i className={'ph ' + (painelAberto ? 'ph-sidebar-simple' : 'ph-sidebar')} /> {painelAberto ? 'Recolher Painel' : 'Expandir Painel'}
-            </button>
-            <button type="button" className="btn-toggle-sidebar" disabled={!salvo} title={salvo ? '' : 'Salve a admissão para visualizar o impresso'} onClick={() => salvo && onImprimir({ ...salvo, _variante: 'projeto' })}>
+              <button type="button" className="btn-toggle-sidebar" onClick={() => setPainelAberto((v) => !v)}>
+                <i className={'ph ' + (painelAberto ? 'ph-sidebar-simple' : 'ph-sidebar')} /> {painelAberto ? 'Recolher Escalas' : 'Expandir Escalas'}
+              </button>
+              <button type="button" className="btn-toggle-sidebar" disabled={!salvo} title={salvo ? '' : 'Salve a admissão para visualizar o impresso'} onClick={() => salvo && onImprimir({ ...salvo, _variante: 'projeto' })}>
               <i className="ph ph-printer" /> Visualizar Impresso Oficial
             </button>
           </div>
         </div>
 
         <div className="adm-subtabs">
-          <button type="button" className={'adm-tab' + (filtro === 'todas' ? ' active' : '')} onClick={() => { setFiltro('todas'); setRecolhidas(new Set()) }}><i className="ph ph-list-dashes" /> Ficha Completa (Todas)</button>
+          
           {SECOES.map((s) => (
             <button key={s.chave} type="button" className={'adm-tab' + (filtro === s.chave ? ' active' : '')} onClick={() => irPara(s.chave)}>
               <i className={'ph ' + SECAO_ICONE[s.chave]} /> {s.rotuloCurto || s.titulo}

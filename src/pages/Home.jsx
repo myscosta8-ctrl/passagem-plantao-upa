@@ -338,35 +338,74 @@ export default function Home() {
 
         <main className="main-viewport">
           <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
-            {tela === 'ajuda' ? (
+            
+            <div style={{ display: tela === 'ajuda' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
               <Ajuda onVoltar={() => setTela('painel')} />
-            ) : tela === 'conta' ? (
-              <MinhaConta onVoltar={() => setTela('painel')} />
-            ) : tela === 'recepcao' ? (
-              <CadastroPacientes onVoltar={() => setTela('painel')} />
-            ) : (
-              <>
-                {!plantao && (
-                  <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
-                    Não foi possível abrir o plantão. Verifique a conexão e recarregue a página.
-                  </div>
-                )}
+            </div>
 
-                {plantao && setoresIds && tela === 'painel' && <Painel plantao={plantao} setoresIds={setoresIds} />}
-                {plantao && setoresIds && tela === 'passagemColetiva' && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} onImprimir={setTela} onVoltar={() => setTela('painel')} />}
-                {plantao && setoresIds && tela === 'print1' && (
+            <div style={{ display: tela === 'conta' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+              <MinhaConta onVoltar={() => setTela('painel')} />
+            </div>
+
+            <div style={{ display: tela === 'recepcao' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+              <CadastroPacientes onVoltar={() => setTela('painel')} />
+            </div>
+
+            {(!plantao && tela !== 'conta' && tela !== 'recepcao' && tela !== 'ajuda') && (
+              <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+                Não foi possível abrir o plantão. Verifique a conexão e recarregue a página.
+              </div>
+            )}
+
+            {plantao && setoresIds && (
+              <>
+                <div style={{ display: tela === 'painel' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+                  <Painel plantao={plantao} setoresIds={setoresIds} />
+                </div>
+                
+                <div style={{ display: tela === 'passagemColetiva' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+                  <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} onImprimir={setTela} onVoltar={() => setTela('painel')} />
+                </div>
+
+                <div style={{ display: tela === 'print1' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
                   <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('passagemColetiva')} />
-                )}
-                {plantao && setoresIds && tela === 'print2' && (
+                </div>
+
+                <div style={{ display: tela === 'print2' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
                   <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('passagemColetiva')} />
+                </div>
+
+                <div style={{ display: tela === 'historico' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+                  <Historico onVoltar={() => setTela('painel')} />
+                </div>
+
+                <div style={{ display: tela === 'altas' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+                  <AltasRecentes onVoltar={() => setTela('painel')} />
+                </div>
+
+                <div style={{ display: tela === 'indicadoresClinicos' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+                  <IndicadoresPainel onVoltar={() => setTela('painel')} />
+                </div>
+
+                <div style={{ display: tela === 'pendencias' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+                  <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />
+                </div>
+
+                <div style={{ display: tela === 'compartilhar' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+                  <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />
+                </div>
+
+                {podeEncerrarQualquerPlantonista && (
+                  <>
+                    <div style={{ display: tela === 'equipe' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+                      <PainelEquipe onVoltar={() => setTela('painel')} />
+                    </div>
+
+                    <div style={{ display: tela === 'profissionais' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
+                      <GerenciarProfissionais onVoltar={() => setTela('painel')} />
+                    </div>
+                  </>
                 )}
-                {plantao && setoresIds && tela === 'historico' && <Historico onVoltar={() => setTela('painel')} />}
-                {plantao && setoresIds && tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
-                {plantao && setoresIds && tela === 'indicadoresClinicos' && <IndicadoresPainel onVoltar={() => setTela('painel')} />}
-                {plantao && setoresIds && tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
-                {plantao && setoresIds && tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
-                {plantao && setoresIds && tela === 'equipe' && podeEncerrarQualquerPlantonista && <PainelEquipe onVoltar={() => setTela('painel')} />}
-                {plantao && setoresIds && tela === 'profissionais' && podeEncerrarQualquerPlantonista && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
               </>
             )}
           </Suspense>

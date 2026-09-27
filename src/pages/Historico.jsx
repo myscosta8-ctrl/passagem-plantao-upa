@@ -33,58 +33,72 @@ export default function Historico({ onVoltar }) {
   }
 
   return (
-    <div className="page">
-      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
-      <h1 className="page-title">Histórico (últimos 7 dias)</h1>
-      <p className="page-subtitle">Registros mais antigos são apagados automaticamente.</p>
-
-      <div className="card">
-        {carregando && <p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p>}
-        {!carregando && plantoes.length === 0 && (
-          <p style={{ color: 'var(--color-text-muted)' }}>Nenhum plantão registrado nos últimos 7 dias.</p>
-        )}
-        {plantoes.map((p) => (
-          <div
-            key={p.id}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '14px 4px',
-              borderBottom: '1px solid var(--color-border)',
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>
-                {new Date(p.data + 'T00:00:00').toLocaleDateString('pt-BR')} — {p.turno}
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button
-                className="add-profissional-btn"
-                style={{ padding: '7px 12px', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', fontFamily: 'var(--font-mono)', fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.03em', color: 'var(--color-text-secondary)', background: 'transparent' }}
-                onClick={() => setSelecionado({ plantao: p, grupo: 'grupo1' })}
-              >
-                Vermelha + Internação
-              </button>
-              <button
-                style={{ padding: '7px 12px', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', fontFamily: 'var(--font-mono)', fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.03em', color: 'var(--color-text-secondary)', background: 'transparent' }}
-                onClick={() => setSelecionado({ plantao: p, grupo: 'grupo2' })}
-              >
-                Pediátrico + Observação
-              </button>
-            </div>
-          </div>
-        ))}
+    <div className="workspace">
+      <div className="page-header" style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+        <div className="page-title">
+          <h1>Histórico de Plantões</h1>
+          <p>Consulte registros, evoluções globais e passagens de plantão anteriores.</p>
+        </div>
+        <div className="page-actions" style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-outline" onClick={onVoltar}><i className="ph ph-arrow-left"></i> Voltar ao painel</button>
+        </div>
       </div>
-
-      <button
-        className="submit-btn"
-        style={{ marginTop: 20, maxWidth: 200, background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}
-        onClick={onVoltar}
-      >
-        ← Voltar ao painel
-      </button>
+      
+      <div className="card" style={{ padding: 0 }}>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Data/Turno</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {carregando && (
+              <tr>
+                <td colSpan="3" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 32 }}>Carregando histórico...</td>
+              </tr>
+            )}
+            {!carregando && plantoes.length === 0 && (
+              <tr>
+                <td colSpan="3" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 32 }}>Nenhum plantão registrado.</td>
+              </tr>
+            )}
+            {!carregando && plantoes.map(p => {
+              const dateStr = new Date(p.data + 'T00:00:00').toLocaleDateString('pt-BR')
+              return (
+                <tr key={p.id}>
+                  <td>
+                    <strong>{dateStr}</strong><br/>
+                    <span style={{color:'var(--text-muted)', fontSize: 12}}>{p.turno}</span>
+                  </td>
+                  <td>
+                    <span className="badge" style={{ background: 'var(--success-light)', color: 'var(--success)' }}>Concluído</span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button 
+                        className="btn btn-outline" 
+                        style={{ padding: '4px 8px', fontSize: 12 }} 
+                        onClick={() => setSelecionado({ plantao: p, grupo: 'grupo1' })}
+                      >
+                        Ver Relatório (Verm. + Internação)
+                      </button>
+                      <button 
+                        className="btn btn-outline" 
+                        style={{ padding: '4px 8px', fontSize: 12 }} 
+                        onClick={() => setSelecionado({ plantao: p, grupo: 'grupo2' })}
+                      >
+                        Ver Relatório (Ped. + Observação)
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

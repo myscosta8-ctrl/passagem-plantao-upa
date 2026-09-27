@@ -9,7 +9,8 @@ const PROCEDIMENTOS_RAPIDOS = [
 ];
 
 export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([]);
+  const [historico, setHistorico] = useState([])
+  const [historicoAberto, setHistoricoAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState('');
@@ -178,9 +179,15 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
   return (
     <div className="clinical-split">
       {/* LADO ESQUERDO: BARRA DE FERRAMENTAS & SIGTAP */}
-      <aside className="tools-pane">
+      
+      {historicoAberto && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
+          <aside className="tools-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
+<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
+
         <div className="pane-header">
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span >
             <i className="ph ph-hospital" style={{ fontSize: 14 }} /> Regulação SUS / AIH
           </span>
           <span style={{ fontSize: 10, color: '#16A34A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -271,26 +278,21 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
           )}
         </div>
       </aside>
+        </>
+      )}
+
 
       {/* LADO DIREITO: CARD PRINCIPAL COM FORMULÁRIO OFICIAL SUS */}
       <div className="clinical-card">
-        <div className="cc-header">
-          <div className="cc-header-info">
+        <div className="cc-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: 16 }}><div className="cc-header-info">
             <h2>
               <i className="ph ph-hospital" /> Laudo para Solicitação de AIH (SUS) — UPA 24h Breves
             </h2>
-            <span>
-              Documento Oficial: Laudo AIH Oficial (Modelo 16) &bull; Estabelecimento: <strong>UPA 24H BREVES (CNES 0296796)</strong>
-              {medicoNome && (
-                <>
-                  {' '}&bull; Médico: <strong>{medicoNome}{medicoCrm ? ` — CRM/PA ${medicoCrm}` : ''}</strong>
-                </>
-              )}
-            </span>
-          </div>
-        </div>
+            
+          </div><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div>
 
         <div className="cc-body">
+
           {erro && (
             <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
               <div className="info" style={{ color: '#DC2626' }}>
@@ -307,16 +309,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             </div>
           )}
 
-          {/* BANNER OFICIAL AIH */}
-          <div className="aih-banner-top">
-            <div className="aih-banner-title">
-              <h3><i className="ph ph-file-text" /> Laudo de Solicitação de Internação Hospitalar (AIH)</h3>
-              <p>Portaria SAS/MS nº 113 &bull; Documento Oficial SUS &bull; UPA 24h Breves (CNES 0296796)</p>
-            </div>
-            <div className="aih-sync-pill">
-              <i className="ph ph-sparkle" style={{ color: "#86EFAC" }} /> Dados Sincronizados da Admissão
-            </div>
-          </div>
+          
 
           {/* SEÇÃO 1: IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE */}
           <div className="aih-secao-box">

@@ -65,16 +65,14 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
       <div className="cc-header">
         <div className="cc-title">
           <h2><i className="ph ph-drop" /> Solicitação de Sangue, Componentes e Derivados</h2>
-          <p>Documento Oficial: Modelo 17 · Fundação HEMOPA</p>
+          
         </div>
       </div>
 
       <div className="cc-body">
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-lightning" /> Protocolos Transfusionais</div>
-          <p style={{ fontSize: 11.5, color: '#64748B', margin: '0 0 10px' }}>
-            Pré-marca o hemocomponente/quantidade padrão do bundle e a urgência. Indicação clínica continua manual, e a autorização de extrema urgência nunca é marcada automaticamente.
-          </p>
+          
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {PROTOCOLOS_TRANSFUSIONAIS.map((p) => (
               <button key={p.chave} type="button" className="btn-add-chip" onClick={() => aplicarProtocolo(p)}>

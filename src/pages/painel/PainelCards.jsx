@@ -102,6 +102,7 @@ export default function PainelCards({
   onAbrirModalInternar,
   onAbrirRealocar,
   onAbrirLeitoExtra,
+  onAbrirDesfecho,
 }) {
   const buscaNorm = normalizarNome(busca || '')
 
@@ -211,6 +212,16 @@ export default function PainelCards({
                                 }}
                               >
                                 <i className="ph ph-arrows-clockwise" /> Realocar paciente
+                              </button>
+                              <button
+                                type="button"
+                                style={{ color: 'var(--color-danger)' }}
+                                onClick={() => {
+                                  setMenuAcoesLeitoId(null)
+                                  onAbrirDesfecho({ paciente, leitoOrigem: leito })
+                                }}
+                              >
+                                <i className="ph ph-sign-out" /> Sinalizar desfecho
                               </button>
                             </div>
                           )}

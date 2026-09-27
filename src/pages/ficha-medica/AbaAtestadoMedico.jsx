@@ -42,13 +42,6 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
 
   return (
     <div className="clinical-card" style={{ flex: 1 }}>
-      <div className="cc-header">
-        <div className="cc-title">
-          <h2><i className="ph ph-file-text" /> Atestado Médico</h2>
-          <p>Documento de afastamento — via única.</p>
-        </div>
-      </div>
-
       <div className="cc-body">
         <div className="assess-grid">
           <div className="form-group">

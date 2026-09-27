@@ -16,7 +16,7 @@ function gravarPendentes(atendimentoId, lista) {
   } catch { /* ignore */ }
 }
 
-export default function AbaAtm({ atendimento, medicoId, onImprimir, onFechar }) {
+export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , headerTabs }) {
   const atdId = atendimento.atendimento_id
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -73,8 +73,8 @@ export default function AbaAtm({ atendimento, medicoId, onImprimir, onFechar }) 
       <div className="cc-header">
         <div className="cc-title">
           <h2><i className="ph ph-shield-warning" /> Solicitação de Autorização de Uso de Antimicrobiano (ATM)</h2>
-          <p>Documento interno obrigatório para antimicrobianos de uso restrito. O parecer farmacêutico (CCIH / Farmácia Central) é preenchido à mão no documento impresso.</p>
-        </div>
+          </div>
+          {headerTabs}
       </div>
 
       <div className="cc-body">
