@@ -71,7 +71,7 @@ export default function AbaDesfecho() {
             </div>
             <button
               type="button"
-              className="modal-btn-secondary"
+              className="btn-cancel" style={{ color: "var(--color-danger)" }}
               onClick={() => setAlvo({ atendimentoId: p.id, leitoId: p.leito_atual_id, nome: p.nome })}
             >
               Sinalizar desfecho

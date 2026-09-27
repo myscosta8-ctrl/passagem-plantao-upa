@@ -159,3 +159,56 @@
   align-items: center;
   gap: 6px;
 }
+
+
+.recepcao-page-scroll {
+  flex: 1;
+  overflow-y: auto !important;
+  max-width: 1000px !important;
+  margin: 0 auto;
+  padding: 32px 24px;
+  width: 100%;
+}
+@media (min-width: 1200px) {
+  .recepcao-page-scroll {
+    max-width: 1200px !important;
+  }
+}
+
+/* Reception Subtabs */
+.doc-subtabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16px;
+  overflow-x: auto;
+  border-bottom: 2px solid var(--c-border-light);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-bottom: 32px;
+}
+.doc-subtab {
+  background: transparent;
+  border: none;
+  padding: 12px 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: 0.2s;
+  margin-bottom: -2px;
+}
+.doc-subtab.active {
+  color: var(--color-primary, #0D9488);
+  border-bottom-color: var(--color-primary, #0D9488);
+}
+.doc-subtab:hover:not(.active) {
+  color: var(--c-text-primary);
+}
+.doc-subtab i {
+  font-size: 18px;
+}

@@ -37,38 +37,38 @@ export default function CadastroPacientes() {
   }
 
   return (
-    <div className="page" style={{ maxWidth: 900 }}>
+    <div className="page recepcao-page-scroll">
       <h1 className="page-title">Recepção — Cadastro e Identificação</h1>
       <p className="page-subtitle">
         Ficha de Identificação do Paciente — busque primeiro para evitar registros duplicados. Complete os documentos (CPF, CNS, endereço) de pacientes já abertos no leito ou inicie novo cadastro caso não exista.
       </p>
 
-      <div className="form-toolbar" style={{ maxWidth: 520 }}>
-        <button
-          className={aba === 'buscar' ? 'btn-realocar' : 'btn-copiar'}
-          onClick={() => { setAba('buscar'); setPessoaParaEditar(null) }}
-        >
-          <i className="ph ph-magnifying-glass" /> Buscar paciente (1º passo)
-        </button>
-        <button
-          className={aba === 'novo' ? 'btn-realocar' : 'btn-copiar'}
-          onClick={() => setAba('novo')}
-        >
-          <i className="ph ph-user-plus" /> {pessoaParaEditar ? 'Completar dados' : 'Novo cadastro'}
-        </button>
-        <button
-          className={aba === 'duplicatas' ? 'btn-realocar' : 'btn-copiar'}
-          onClick={() => { setAba('duplicatas'); setPessoaParaEditar(null) }}
-        >
-          <i className="ph ph-copy" /> Duplicatas{qtdDuplicatas > 0 ? ` (${qtdDuplicatas})` : ''}
-        </button>
-        <button
-          className={aba === 'desfecho' ? 'btn-realocar' : 'btn-copiar'}
-          onClick={() => { setAba('desfecho'); setPessoaParaEditar(null) }}
-        >
-          <i className="ph ph-check-square-offset" /> Desfecho
-        </button>
-      </div>
+      <div className="doc-subtabs" style={{ marginBottom: 24 }}>
+          <button
+            className={`doc-subtab ${aba === 'buscar' ? 'active' : ''}`}
+            onClick={() => { setAba('buscar'); setPessoaParaEditar(null) }}
+          >
+            <i className="ph ph-magnifying-glass" /> Buscar paciente (1º passo)
+          </button>
+          <button
+            className={`doc-subtab ${aba === 'novo' ? 'active' : ''}`}
+            onClick={() => setAba('novo')}
+          >
+            <i className="ph ph-user-plus" /> {pessoaParaEditar ? 'Completar dados' : 'Novo cadastro'}
+          </button>
+          <button
+            className={`doc-subtab ${aba === 'duplicatas' ? 'active' : ''}`}
+            onClick={() => { setAba('duplicatas'); setPessoaParaEditar(null) }}
+          >
+            <i className="ph ph-copy" /> Duplicatas{qtdDuplicatas > 0 ? ` (${qtdDuplicatas})` : ''}
+          </button>
+          <button
+            className={`doc-subtab ${aba === 'desfecho' ? 'active' : ''}`}
+            onClick={() => { setAba('desfecho'); setPessoaParaEditar(null) }}
+          >
+            <i className="ph ph-check-square-offset" /> Desfechos
+          </button>
+        </div>
 
       <div style={{ marginTop: 22 }}>
         {aba === 'desfecho' && <AbaDesfecho />}
