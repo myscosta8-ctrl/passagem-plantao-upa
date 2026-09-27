@@ -59,7 +59,17 @@ export function usePainelState() {
           listarBalancoPorAtendimentos(atendimentoIds),
         ])
 
-        return {
+        
+  function abrirPassagem(paciente, leito) {
+    setModalPassagem({ paciente, leito })
+  }
+
+  function fecharPassagem() {
+    setModalPassagem(null)
+  }
+
+  return {
+
           setores: finalSetores,
           leitos: leitosFiltrados,
           pacientesPorLeito: mapa || {},
