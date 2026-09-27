@@ -195,7 +195,21 @@ export function usePainelState() {
     }
   }
 
+
+  function abrirPassagem(paciente, leito) {
+    setModalPassagem({ paciente, leito })
+  }
+
+  function fecharPassagem() {
+    setModalPassagem(null)
+  }
+
+  function carregarTudo() {
+    queryClient.invalidateQueries({ queryKey: ['painelDados'] })
+  }
+
   return {
+
     enfermeiro,
     setores,
     leitos,
