@@ -16,8 +16,14 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s)
+        const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      // Previne o bug de unmount (que causa perda de abas abertas) ao mudar de aba
+      // ignorando eventos que enviam session vazia indevidamente, a menos que seja um logout real.
+      if (event === 'SIGNED_OUT') {
+        setSession(null)
+      } else if (s) {
+        setSession(s)
+      }
     })
     return () => sub.subscription.unsubscribe()
   }, [])
