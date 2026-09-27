@@ -1,7 +1,7 @@
 import { usePainel } from './PainelContext'
 import { normalizarNome } from './constantes'
-import styles from './PainelCards.module.css';
-const cx = (...classes) => classes.filter(Boolean).map(c => styles[c] || c).join(' ');
+import styles from './PainelCards.module.css'
+const cx = (...classes) => classes.filter(Boolean).map(c => styles[c] || c).join(' ')
 
 export function formatarNomeSetor(nome) {
   if (!nome) return ''
@@ -30,7 +30,7 @@ export function formatarNomePaciente(nome) {
   return nome
     .trim()
     .toLowerCase()
-    .split(/s+/)
+    .split(/\s+/)
     .map((p) => {
       if (['de', 'da', 'do', 'dos', 'das', 'e'].includes(p)) return p
       return p.charAt(0).toUpperCase() + p.slice(1)
@@ -69,10 +69,10 @@ function formatarAdmissao(dataStr) {
 
     if (ehHoje) return `Hoje${hora ? `, ${hora}` : ''}`
     if (ehOntem) return `Ontem${hora ? `, ${hora}` : ''}`
-    
+
     const diffHoras = Math.floor((hoje - d) / (1000 * 60 * 60))
     if (diffHoras < 72 && diffHoras > 0) return `Há ${diffHoras}h`
-    
+
     return `${d.toLocaleDateString('pt-BR')}${hora ? `, ${hora}` : ''}`
   } catch {
     return dataStr
@@ -89,22 +89,23 @@ export function ordenarLeitos(a, b) {
   return an.localeCompare(bn, undefined, { numeric: true })
 }
 
-export default function PainelCards({
-  setoresVisiveis,
-  leitos,
-  pacientesPorLeito,
-  passagemPorPaciente,
-  busca,
-  setorFiltro,
-  statusFiltro,
-  menuAcoesLeitoId,
-  setMenuAcoesLeitoId,
-  onAbrirPassagem,
-  onAbrirModalInternar,
-  onAbrirRealocar,
-  onAbrirLeitoExtra,
-  onAbrirDesfecho,
-}) {
+export default function PainelCards({ setoresVisiveis }) {
+  const {
+    leitos,
+    pacientesPorLeito,
+    passagemPorPaciente,
+    buscaTabela: busca,
+    setorFiltro,
+    statusFiltro,
+    menuAcoesLeitoId,
+    setMenuAcoesLeitoId,
+    abrirPassagem,
+    setModalLeito,
+    setModalRealocar,
+    setModalDesfecho,
+    abrirLeitoExtra,
+  } = usePainel()
+
   const buscaNorm = normalizarNome(busca || '')
 
   return (
@@ -112,16 +113,16 @@ export default function PainelCards({
       {setoresVisiveis
         .filter((setor) => !setorFiltro || setor.id === setorFiltro)
         .map((setor) => {
-          const leitosDoSetor = leitos
+          const leitosDoSetor = (leitos || [])
             .filter((l) => l.setor_id === setor.id)
             .filter((l) => {
               const paciente = pacientesPorLeito[l.id]
-              
+
               if (statusFiltro === 'ocupado' && !paciente) return false
               if (statusFiltro === 'vazio' && paciente) return false
               if (statusFiltro === 'internado' && paciente?.status_internacao !== 'Internado') return false
               if (statusFiltro === 'observacao' && paciente?.status_internacao !== 'Em observação') return false
-              
+
               if (buscaNorm) {
                 const numeroNorm = normalizarNome(l.numero?.toString() || '')
                 const bateNome = paciente && normalizarNome(paciente.nome || '').includes(buscaNorm)
@@ -132,7 +133,7 @@ export default function PainelCards({
               }
               return true
             })
-            
+
           leitosDoSetor.sort(ordenarLeitos)
 
           if (leitosDoSetor.length === 0) return null
@@ -156,7 +157,7 @@ export default function PainelCards({
                   <button
                     type="button"
                     className={cx('btn-setor-extra')}
-                    onClick={() => onAbrirLeitoExtra(setor.id)}
+                    onClick={() => abrirLeitoExtra(setor.id)}
                     title={`Abrir leito extra em ${formatarNomeSetor(setor.nome)}`}
                   >
                     <i className={cx('ph', 'ph-plus')} /> Leito Extra
@@ -173,7 +174,7 @@ export default function PainelCards({
                     <div
                       key={leito.id}
                       className={cx('leito-card')}
-                      onClick={() => onAbrirPassagem(paciente, leito)}
+                      onClick={() => abrirPassagem(paciente, leito)}
                     >
                       <div className={cx('risk-bar', classeRisco)} />
 
@@ -199,22 +200,22 @@ export default function PainelCards({
                         <div className={cx('paciente-hd')}>
                           <strong><i className={cx('ph', 'ph-stethoscope')} /> HD:</strong> {paciente.diagnostico || 'Não registrado'}
                         </div>
-                        
+
                         <div className={cx('paciente-admissao')}>
                           <strong><i className={cx('ph', 'ph-clock')} /> Entrada:</strong> {formatarAdmissao(paciente.data_admissao)}
                         </div>
                       </div>
 
                       <div className={cx('leito-footer', 'no-print')} onClick={(e) => e.stopPropagation()}>
-                        <button type="button" className={cx('btn-footer', 'action-btn')} onClick={() => onAbrirPassagem(paciente, leito)}>
+                        <button type="button" className={cx('btn-footer', 'action-btn')} onClick={() => abrirPassagem(paciente, leito)}>
                           <i className={cx('ph', 'ph-folder-open')} /> Prontuário
                         </button>
-                        
+
                         <div className={cx('footer-actions-right')}>
-                          <button type="button" className={cx('btn-footer', 'icon-only')} title="Realocar / Transferir" onClick={() => onAbrirRealocar({ paciente, leitoOrigem: leito })}>
+                          <button type="button" className={cx('btn-footer', 'icon-only')} title="Realocar / Transferir" onClick={() => setModalRealocar({ paciente, leitoOrigem: leito })}>
                             <i className={cx('ph', 'ph-arrows-left-right')} />
                           </button>
-                          <button type="button" className={cx('btn-footer', 'icon-only', 'danger')} title="Sinalizar Desfecho" onClick={() => onAbrirDesfecho({ paciente, leitoOrigem: leito })}>
+                          <button type="button" className={cx('btn-footer', 'icon-only', 'danger')} title="Sinalizar Desfecho" onClick={() => setModalDesfecho({ paciente, leitoOrigem: leito })}>
                             <i className={cx('ph', 'ph-sign-out')} />
                           </button>
                         </div>
@@ -224,7 +225,7 @@ export default function PainelCards({
                     <div
                       key={leito.id}
                       className={cx('leito-card', 'leito-vazio')}
-                      onClick={() => onAbrirModalInternar(leito)}
+                      onClick={() => setModalLeito(leito)}
                     >
                       <i className={cx('ph', 'ph-plus-circle', 'vazio-icon')} />
                       <div className={cx('vazio-title')}>Leito {formatarNumeroLeito(leito.numero)}</div>

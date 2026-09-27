@@ -2,19 +2,21 @@ import { usePainel } from './PainelContext'
 import { normalizarNome } from './constantes'
 import { formatarNomeSetor, ordenarLeitos } from './PainelCards'
 
-export default function PainelTabela({
-  setoresVisiveis,
-  leitos,
-  pacientesPorLeito,
-  busca,
-  setorFiltro,
-  statusFiltro,
-  onAbrirLeito,
-}) {
+export default function PainelTabela({ setoresVisiveis, onAbrirLeito }) {
+  const {
+    leitos,
+    pacientesPorLeito,
+    buscaTabela: busca,
+    setorFiltro,
+    statusFiltro,
+    abrirPassagem,
+    setModalLeito,
+  } = usePainel()
+
   const buscaNorm = normalizarNome(busca || '')
 
   const linhas = setoresVisiveis.flatMap((setor) => {
-    const leitosDoSetor = leitos
+    const leitosDoSetor = (leitos || [])
       .filter((l) => l.setor_id === setor.id)
       .sort(ordenarLeitos)
     return leitosDoSetor.map((leito) => ({ setor, leito, paciente: pacientesPorLeito[leito.id] || null }))
@@ -29,6 +31,16 @@ export default function PainelTabela({
   })
 
   const ocupados = linhas.filter((l) => l.paciente).length
+
+  function handleClickLinha(paciente, leito) {
+    if (onAbrirLeito) {
+      onAbrirLeito(paciente, leito)
+    } else if (paciente) {
+      abrirPassagem(paciente, leito)
+    } else {
+      setModalLeito(leito)
+    }
+  }
 
   return (
     <div>
@@ -48,8 +60,8 @@ export default function PainelTabela({
               <tr><td colSpan={5} style={{ color: 'var(--c-text-muted)', padding: '16px 14px' }}>Nenhum leito encontrado com esses filtros.</td></tr>
             )}
             {linhas.map(({ setor, leito, paciente }) => (
-              <tr key={leito.id} onClick={() => onAbrirLeito(leito)}>
-                <td>{formatarNomeSetor(setor.nome)} · Leito {leito.numero}</td>
+              <tr key={leito.id} onClick={() => handleClickLinha(paciente, leito)}>
+                <td>{formatarNomeSetor(setor.nome)} — Leito {leito.numero}</td>
                 <td style={{ fontWeight: 600 }}>{paciente ? paciente.nome : <span style={{ color: 'var(--c-text-muted)', fontWeight: 400 }}>Leito vazio</span>}</td>
                 <td>
                   {paciente && (
