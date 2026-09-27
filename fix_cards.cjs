@@ -1,4 +1,6 @@
-import { normalizarNome } from './constantes'
+﻿const fs = require('fs');
+
+const jsx = `import { normalizarNome } from './constantes'
 import './PainelCards.css'
 
 export function formatarNomeSetor(nome) {
@@ -19,7 +21,7 @@ export function formatarNumeroLeito(numero) {
   if (s === '06-ISO') return '06 (Isolamento)'
   if (s === '09-ISO') return '09 (Isolamento)'
   const n = parseInt(s, 10)
-  if (!Number.isNaN(n) && n < 10) return `0${n}`
+  if (!Number.isNaN(n) && n < 10) return \`0\${n}\`
   return s
 }
 
@@ -28,7 +30,7 @@ export function formatarNomePaciente(nome) {
   return nome
     .trim()
     .toLowerCase()
-    .split(/s+/)
+    .split(/\s+/)
     .map((p) => {
       if (['de', 'da', 'do', 'dos', 'das', 'e'].includes(p)) return p
       return p.charAt(0).toUpperCase() + p.slice(1)
@@ -54,7 +56,7 @@ export function obterClasseRisco(classificacao, setorNome) {
 function formatarAdmissao(dataStr) {
   if (!dataStr) return 'Não informada'
   try {
-    const d = new Date(dataStr.includes('T') ? dataStr : `${dataStr}T12:00:00`)
+    const d = new Date(dataStr.includes('T') ? dataStr : \`\${dataStr}T12:00:00\`)
     const hoje = new Date()
     const ehHoje = d.toDateString() === hoje.toDateString()
     const ontem = new Date(hoje)
@@ -65,13 +67,13 @@ function formatarAdmissao(dataStr) {
       ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
       : ''
 
-    if (ehHoje) return `Hoje${hora ? `, ${hora}` : ''}`
-    if (ehOntem) return `Ontem${hora ? `, ${hora}` : ''}`
+    if (ehHoje) return \`Hoje\${hora ? \`, \${hora}\` : ''}\`
+    if (ehOntem) return \`Ontem\${hora ? \`, \${hora}\` : ''}\`
     
     const diffHoras = Math.floor((hoje - d) / (1000 * 60 * 60))
-    if (diffHoras < 72 && diffHoras > 0) return `Há ${diffHoras}h`
+    if (diffHoras < 72 && diffHoras > 0) return \`Há \${diffHoras}h\`
     
-    return `${d.toLocaleDateString('pt-BR')}${hora ? `, ${hora}` : ''}`
+    return \`\${d.toLocaleDateString('pt-BR')}\${hora ? \`, \${hora}\` : ''}\`
   } catch {
     return dataStr
   }
@@ -149,13 +151,13 @@ export default function PainelCards({
                     {ocupados}/{total} ocupados
                   </span>
                   <div className="ocupacao-bar">
-                    <div className="ocupacao-fill" style={{ width: `${perc}%`, background: colorPerc }} />
+                    <div className="ocupacao-fill" style={{ width: \`\${perc}%\`, background: colorPerc }} />
                   </div>
                   <button
                     type="button"
                     className="btn-setor-extra"
                     onClick={() => onAbrirLeitoExtra(setor.id)}
-                    title={`Abrir leito extra em ${formatarNomeSetor(setor.nome)}`}
+                    title={\`Abrir leito extra em \${formatarNomeSetor(setor.nome)}\`}
                   >
                     <i className="ph ph-plus" /> Leito Extra
                   </button>
@@ -173,13 +175,13 @@ export default function PainelCards({
                       className="leito-card"
                       onClick={() => onAbrirPassagem(paciente, leito)}
                     >
-                      <div className={`risk-bar ${classeRisco}`} />
+                      <div className={\`risk-bar \${classeRisco}\`} />
 
                       <div className="leito-header">
-                        <div className={`leito-numero ${leito.tipo === 'extra' ? 'extra' : ''}`}>
+                        <div className={\`leito-numero \${leito.tipo === 'extra' ? 'extra' : ''}\`}>
                           <i className="ph ph-bed" /> Leito {formatarNumeroLeito(leito.numero)}
                         </div>
-                        <div className={`leito-status ${paciente.status_internacao === 'Internado' ? 'status-internado' : 'status-observacao'}`}>
+                        <div className={\`leito-status \${paciente.status_internacao === 'Internado' ? 'status-internado' : 'status-observacao'}\`}>
                           {paciente.status_internacao || 'Internado'}
                         </div>
                       </div>
@@ -191,7 +193,7 @@ export default function PainelCards({
                         </div>
 
                         <div className="paciente-meta">
-                          <span><i className="ph ph-user-circle" /> {paciente.idade ? `${paciente.idade} anos` : 'Adulto'} • {paciente.sexo === 'F' ? 'Fem' : 'Masc'}</span>
+                          <span><i className="ph ph-user-circle" /> {paciente.idade ? \`\${paciente.idade} anos\` : 'Adulto'} • {paciente.sexo === 'F' ? 'Fem' : 'Masc'}</span>
                         </div>
 
                         <div className="paciente-hd">
@@ -237,3 +239,5 @@ export default function PainelCards({
     </>
   )
 }
+`
+fs.writeFileSync('src/pages/painel/PainelCards.jsx', jsx, 'utf8');
