@@ -1,3 +1,4 @@
+import { usePainel } from './PainelContext'
 import { normalizarNome } from './constantes'
 import styles from './PainelCards.module.css';
 const cx = (...classes) => classes.filter(Boolean).map(c => styles[c] || c).join(' ');

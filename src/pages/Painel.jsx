@@ -79,17 +79,7 @@ export default function Painel({ plantao, setoresIds }) {
           <h1>Painel do Plantão</h1>
           <p>Visão geral de ocupação, classificação de risco e admissão de pacientes da UPA.</p>
         </div>
-        <PainelControles
-          setoresVisiveis={setoresVisiveis}
-          busca={buscaTabela}
-          onBusca={setBuscaTabela}
-          setorFiltro={setorFiltro}
-          onSetorFiltro={setSetorFiltro}
-          statusFiltro={statusFiltro}
-          onStatusFiltro={setStatusFiltro}
-          visualizacao={visualizacao}
-          onVisualizacao={setVisualizacao}
-        />
+        <PainelControles setoresVisiveis={setoresVisiveis} />
       </div>
 
       {erroGeral && (
@@ -101,40 +91,19 @@ export default function Painel({ plantao, setoresIds }) {
 
       {visualizacao === 'tabela' && (
         <PainelTabela
-          setoresVisiveis={setoresVisiveis}
-          leitos={leitos}
-          pacientesPorLeito={pacientesPorLeito}
-          busca={buscaTabela}
-          setorFiltro={setorFiltro}
-          statusFiltro={statusFiltro}
-          onAbrirLeito={(leito) => {
-            const paciente = pacientesPorLeito[leito.id]
-            if (paciente) {
-              abrirPassagem(paciente, leito)
-            } else {
-              setModalLeito(leito)
-            }
-          }}
-        />
+            setoresVisiveis={setoresVisiveis}
+            onAbrirLeito={(paciente, leito) => {
+              if (paciente) {
+                abrirPassagem(paciente, leito)
+              } else {
+                setModalLeito(leito)
+              }
+            }}
+          />
       )}
 
       {visualizacao === 'cards' && (
-        <PainelCards
-          setoresVisiveis={setoresVisiveis}
-          leitos={leitos}
-          pacientesPorLeito={pacientesPorLeito}
-          passagemPorPaciente={passagemPorPaciente}
-          busca={buscaTabela}
-          setorFiltro={setorFiltro}
-          statusFiltro={statusFiltro}
-          menuAcoesLeitoId={menuAcoesLeitoId}
-          setMenuAcoesLeitoId={setMenuAcoesLeitoId}
-          onAbrirPassagem={abrirPassagem}
-          onAbrirModalInternar={setModalLeito}
-          onAbrirRealocar={setModalRealocar}
-          onAbrirLeitoExtra={abrirLeitoExtra}
-          onAbrirDesfecho={setModalDesfecho}
-        />
+        <PainelCards setoresVisiveis={setoresVisiveis} />
       )}
 
       {modalLeito && (

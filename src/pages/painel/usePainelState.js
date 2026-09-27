@@ -19,6 +19,8 @@ export function usePainelState() {
   const [buscaTabela, setBuscaTabela] = useState('')
   const [setorFiltro, setSetorFiltro] = useState('')
   const [statusFiltro, setStatusFiltro] = useState('')
+  const [modalDesfecho, setModalDesfecho] = useState(null)
+  const [processandoDesfecho, setProcessandoDesfecho] = useState(false)
 
   const queryClient = useQueryClient()
   const pepAtivoRef = useRef(false)
@@ -225,5 +227,9 @@ export function usePainelState() {
     carregarTudo,
     abrirLeitoExtra,
     internarPaciente,
+    modalDesfecho,
+    setModalDesfecho,
+    processandoDesfecho,
+    setProcessandoDesfecho,
   }
 }

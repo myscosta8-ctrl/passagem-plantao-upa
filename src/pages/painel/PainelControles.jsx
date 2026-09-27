@@ -1,3 +1,4 @@
+import { usePainel } from './PainelContext'
 import { useState } from 'react'
 
 export default function PainelControles({

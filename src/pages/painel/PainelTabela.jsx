@@ -1,3 +1,4 @@
+import { usePainel } from './PainelContext'
 import { normalizarNome } from './constantes'
 import { formatarNomeSetor, ordenarLeitos } from './PainelCards'
 
