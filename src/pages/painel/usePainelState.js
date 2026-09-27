@@ -204,10 +204,6 @@ export function usePainelState() {
     setModalPassagem(null)
   }
 
-  function carregarTudo() {
-    queryClient.invalidateQueries({ queryKey: ['painelDados'] })
-  }
-
   return {
 
     enfermeiro,
