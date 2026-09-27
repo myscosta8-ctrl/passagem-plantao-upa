@@ -2,48 +2,39 @@ import { lazy, Suspense, useState } from 'react'
 import RealocarModal from './RealocarModal'
 import ModalDesfecho from './ModalDesfecho'
 import { registrarDesfechoPep } from '../lib/pepAtendimentos'
-import { ModalInternar, PainelTabela, PainelCards, PainelControles, usePainelState } from './painel/index.js'
+import { ModalInternar, PainelTabela, PainelCards, PainelControles } from './painel/index.js'
+import { PainelProvider, usePainel } from './painel/PainelContext'
 import './Painel.css'
 
 const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
 
-export default function Painel({ plantao, setoresIds }) {
+// Componente interno que consome o contexto
+function PainelInterno({ setoresIds }) {
   const {
     enfermeiro,
     setores,
     leitos,
     pacientesPorLeito,
-    passagemPorPaciente,
     modalLeito,
     setModalLeito,
     cancelarModalInternar,
     erroInternar,
-    setErroInternar,
     erroGeral,
     setErroGeral,
     modalPassagem,
     modalRealocar,
     setModalRealocar,
-    menuAcoesLeitoId,
-    setMenuAcoesLeitoId,
     carregando,
     visualizacao,
-    setVisualizacao,
-    buscaTabela,
-    setBuscaTabela,
-    setorFiltro,
-    setSetorFiltro,
-    statusFiltro,
-    setStatusFiltro,
     abrirPassagem,
     fecharPassagem,
     carregarTudo,
-    abrirLeitoExtra,
     internarPaciente,
-  } = usePainelState({ plantao })
-
-  const [modalDesfecho, setModalDesfecho] = useState(null)
-  const [processandoDesfecho, setProcessandoDesfecho] = useState(false)
+    modalDesfecho,
+    setModalDesfecho,
+    processandoDesfecho,
+    setProcessandoDesfecho,
+  } = usePainel()
 
   async function confirmarDesfecho(tipo, detalhe, dadosObito) {
     if (!modalDesfecho) return
@@ -91,15 +82,17 @@ export default function Painel({ plantao, setoresIds }) {
 
       {visualizacao === 'tabela' && (
         <PainelTabela
-            setoresVisiveis={setoresVisiveis}
-            onAbrirLeito={(paciente, leito) => {
-              if (paciente) {
-                abrirPassagem(paciente, leito)
-              } else {
-                setModalLeito(leito)
-              }
-            }}
-          />
+          setoresVisiveis={setoresVisiveis}
+          leitos={leitos}
+          pacientesPorLeito={pacientesPorLeito}
+          onAbrirLeito={(paciente, leito) => {
+            if (paciente) {
+              abrirPassagem(paciente, leito)
+            } else {
+              setModalLeito(leito)
+            }
+          }}
+        />
       )}
 
       {visualizacao === 'cards' && (
@@ -151,5 +144,14 @@ export default function Painel({ plantao, setoresIds }) {
         />
       )}
     </div>
+  )
+}
+
+// Componente externo que fornece o contexto
+export default function Painel({ plantao, setoresIds }) {
+  return (
+    <PainelProvider>
+      <PainelInterno setoresIds={setoresIds} />
+    </PainelProvider>
   )
 }
