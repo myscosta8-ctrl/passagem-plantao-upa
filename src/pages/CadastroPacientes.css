@@ -162,16 +162,19 @@
 
 
 .recepcao-page-scroll {
+  /* IMPORTANT: flex-shrink: 1 overrides the .main-viewport > * flex-shrink: 0, 
+     allowing this container to shrink to fit the viewport and scroll its overflow! */
+  flex-shrink: 1 !important;
   flex: 1;
   overflow-y: auto !important;
-  max-width: 1000px !important;
+  max-width: 100% !important;
   margin: 0 auto;
   padding: 32px 24px;
   width: 100%;
 }
 @media (min-width: 1200px) {
   .recepcao-page-scroll {
-    max-width: 1200px !important;
+    max-width: 100% !important;
   }
 }
 
