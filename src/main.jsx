@@ -28,8 +28,10 @@ aplicarTema(lerTemaSalvo())
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ErrorBoundary>
       <App />
     </ErrorBoundary>
+    </QueryClientProvider>
   </StrictMode>,
 )
