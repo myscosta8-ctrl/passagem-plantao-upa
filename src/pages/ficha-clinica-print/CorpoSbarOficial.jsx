@@ -100,7 +100,7 @@ export default function CorpoSbarOficial({ registro, pessoa, atendimento, idade,
             <div className="doc-bloco-assinatura" style={{ minWidth: 190 }}>
               <div className="linha-sig" />
               <div className="nome-sig">{entrega.nome_exibicao || entrega.nome || 'Enfermeiro(a) Responsável'}</div>
-              <div className="coren-sig">{entrega.coren ? `COREN-PA ${entrega.coren}` : (entrega.crm ? `COREN-PA ${entrega.crm}` : 'COREN-PA')}</div>
+              <div className="coren-sig">{entrega.coren ? `COREN-${entrega.conselho_uf || 'PA'} ${entrega.coren}` : (entrega.crm ? `COREN-${entrega.conselho_uf || 'PA'} ${entrega.crm}` : 'COREN-PA')}</div>
               <div className="cargo-sig">Enfermeiro(a) de Origem</div>
             </div>
             <div className="doc-bloco-assinatura" style={{ minWidth: 190 }}>

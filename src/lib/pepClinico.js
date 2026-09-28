@@ -34,7 +34,7 @@ export async function listarEvolucoes(atendimentoId) {
   if (erroConsulta2) avisarErro('pepClinico', erroConsulta2)
     // evolucoes tem 2 FKs para enfermeiros (autor_id e enfermeiro_id): sem o hint o
     // PostgREST recusa o embed (300) e a lista volta vazia.
-    .select('*, enfermeiros!evolucoes_autor_id_fkey(nome_exibicao, nome, coren)')
+    .select('*, enfermeiros!evolucoes_autor_id_fkey(nome_exibicao, nome, coren, conselho_uf)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
   return data ?? []
@@ -198,7 +198,7 @@ export async function listarTransferenciasSbar(atendimentoId) {
   const filtro = ids.length ? `atendimento_id.eq.${atendimentoId},leito_ocupacao_id.in.(${ids.join(',')})` : `atendimento_id.eq.${atendimentoId}`
   const { data, error } = await supabase
     .from('transferencias_sbar')
-    .select('*, setores:setor_destino_id(nome), entrega:enfermeiro_entrega(nome_exibicao, nome, coren), recebe:enfermeiro_recebe(nome_exibicao, nome)')
+    .select('*, setores:setor_destino_id(nome), entrega:enfermeiro_entrega(nome_exibicao, nome, coren, conselho_uf), recebe:enfermeiro_recebe(nome_exibicao, nome)')
     .or(filtro)
     .order('criado_em', { ascending: false })
   if (error) console.error('Erro ao listar transferências SBAR:', error)
@@ -210,7 +210,7 @@ export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestino
       leito_ocupacao_id: leitoOcupacaoId || null, setor_destino_id: setorDestinoId || null,
       enfermeiro_entrega: enfermeiroEntrega, enfermeiro_recebe: enfermeiroRecebe || null,
       ...dados,
-    }, situacao, '*, setores:setor_destino_id(nome), entrega:enfermeiro_entrega(nome_exibicao, nome, coren), recebe:enfermeiro_recebe(nome_exibicao, nome)')
+    }, situacao, '*, setores:setor_destino_id(nome), entrega:enfermeiro_entrega(nome_exibicao, nome, coren, conselho_uf), recebe:enfermeiro_recebe(nome_exibicao, nome)')
 }
 
 // ===================== Eventos adversos (notificação de incidentes) =====================
@@ -223,7 +223,7 @@ export async function listarEventosAdversos(atendimentoId) {
     .from('eventos_adversos')
   if (erroConsulta10) avisarErro('pepClinico', erroConsulta10)
     // 2 FKs para enfermeiros (relator_id, notificado_por): hint explícito, senão a lista vem vazia.
-    .select('*, enfermeiros!eventos_adversos_relator_id_fkey(nome_exibicao, nome, coren)')
+    .select('*, enfermeiros!eventos_adversos_relator_id_fkey(nome_exibicao, nome, coren, conselho_uf)')
     .eq('atendimento_id', atendimentoId)
     .order('ocorrido_em', { ascending: false })
   return data ?? []

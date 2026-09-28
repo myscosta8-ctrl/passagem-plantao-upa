@@ -28,7 +28,7 @@ async function carregarDados(plantao, viaHistorico) {
     supabase.from('leitos').select('*'),
     supabase.from('plantao_profissionais').select('profissionais(nome, categoria)').eq('plantao_id', plantao.id),
     plantao.enfermeiro_chefe_id
-      ? supabase.from('enfermeiros').select('nome_exibicao, nome, coren').eq('id', plantao.enfermeiro_chefe_id).maybeSingle()
+      ? supabase.from('enfermeiros').select('nome_exibicao, nome, coren, conselho_uf').eq('id', plantao.enfermeiro_chefe_id).maybeSingle()
       : Promise.resolve({ data: null }),
   ])
 
@@ -190,7 +190,7 @@ export default function PrintView({ plantao, grupo, onVoltar, viaHistorico }) {
                 <td style={{ width: '25%' }}><b>CENSO TOTAL:</b> {linhasGrupo.length} leito(s) ocupado(s)</td>
               </tr>
               <tr>
-                <td colSpan={2}><b>ENFERMEIRO(A) QUE PASSA:</b> {chefeNome}{dados.chefe?.coren ? ` (COREN/PA ${dados.chefe.coren})` : ''}</td>
+                <td colSpan={2}><b>ENFERMEIRO(A) QUE PASSA:</b> {chefeNome}{dados.chefe?.coren ? ` (COREN-${dados.chefe.conselho_uf || 'PA'} ${dados.chefe.coren})` : ''}</td>
                 <td colSpan={2}><b>ENFERMEIRO(A) QUE ASSUME:</b> </td>
               </tr>
               {dados.plantonistas.length > 0 && (
@@ -231,7 +231,7 @@ export default function PrintView({ plantao, grupo, onVoltar, viaHistorico }) {
             <div className="sig-box">
               <div className="sig-line" />
               <div className="sig-name">{quemImprime?.nome_exibicao || quemImprime?.nome || '\u00a0'}</div>
-              <div className="sig-coren">Assinatura de quem imprimiu • {quemImprime?.coren ? `COREN/PA ${quemImprime.coren}` : quemImprime?.crm ? `CRM-PA ${quemImprime.crm}` : 'Registro profissional ________'}</div>
+              <div className="sig-coren">Assinatura de quem imprimiu • {quemImprime?.coren ? `COREN-${quemImprime.conselho_uf || 'PA'} ${quemImprime.coren}` : quemImprime?.crm ? `CRM-${quemImprime.conselho_uf || 'PA'} ${quemImprime.crm}` : 'Registro profissional ________'}</div>
             </div>
           </div>
           <div className="rodape-meta">

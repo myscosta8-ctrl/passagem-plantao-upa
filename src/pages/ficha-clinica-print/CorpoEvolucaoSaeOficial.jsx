@@ -58,7 +58,7 @@ export default function CorpoEvolucaoSaeOficial({ registro, pessoa, atendimento,
           <div className="doc-bloco-assinatura">
             <div className="linha-sig" />
             <div className="nome-sig">{enf.nome_exibicao || enf.nome || 'Enfermeiro(a) Responsável'}</div>
-            <div className="coren-sig">{enf.coren ? `COREN-PA ${enf.coren}` : (enf.crm ? `COREN-PA ${enf.crm}` : 'COREN-PA')}</div>
+            <div className="coren-sig">{enf.coren ? `COREN-${enf.conselho_uf || 'PA'} ${enf.coren}` : (enf.crm ? `COREN-${enf.conselho_uf || 'PA'} ${enf.crm}` : 'COREN-PA')}</div>
             <div className="cargo-sig">Enfermeiro(a) de Plantão — UPA 24h Breves</div>
           </div>
         </div>

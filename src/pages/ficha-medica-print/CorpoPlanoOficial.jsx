@@ -130,7 +130,7 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
           <div className="doc-bloco-assinatura">
             <div className="linha-sig" />
             <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Médico Responsável'}</div>
-            <div className="crm-sig">{medico?.crm ? `CRM-PA ${medico.crm}` : 'CRM/UF'}</div>
+            <div className="crm-sig">{medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}</div>
             <div className="cargo-sig">Médico Responsável pelo Plano Terapêutico</div>
           </div>
         </div>

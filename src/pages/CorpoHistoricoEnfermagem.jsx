@@ -114,7 +114,7 @@ export function CorpoHistoricoEnfermagemFiel({ registro, pessoa, atendimento, id
           <div className="doc-bloco-assinatura">
             <div className="linha-sig" />
             <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Enfermeiro(a) Responsável'}</div>
-            <div className="coren-sig">{medico?.coren ? `COREN-PA ${medico.coren}` : (medico?.crm ? `COREN-PA ${medico.crm}` : 'COREN-PA')}</div>
+            <div className="coren-sig">{medico?.coren ? `COREN-${medico.conselho_uf || 'PA'} ${medico.coren}` : (medico?.crm ? `COREN-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'COREN-PA')}</div>
             <div className="cargo-sig">Enfermeiro(a) de Admissão — UPA 24h Breves</div>
           </div>
         </div>
@@ -306,7 +306,7 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
           <div className="doc-bloco-assinatura">
             <div className="linha-sig" />
             <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Enfermeiro(a) Responsável'}</div>
-            <div className="coren-sig">{medico?.coren ? `COREN-PA ${medico.coren}` : (medico?.crm ? `COREN-PA ${medico.crm}` : 'COREN-PA')}</div>
+            <div className="coren-sig">{medico?.coren ? `COREN-${medico.conselho_uf || 'PA'} ${medico.coren}` : (medico?.crm ? `COREN-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'COREN-PA')}</div>
             <div className="cargo-sig">Enfermeiro(a) de Admissão — UPA 24h Breves</div>
           </div>
         </div>

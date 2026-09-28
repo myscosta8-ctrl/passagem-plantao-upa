@@ -106,7 +106,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
           <div className="bloco-medico">
             <div className="linha" />
             <b>{medico?.nome_exibicao || medico?.nome || 'Médico Plantonista'}</b>
-            <div>{medico?.crm ? `CRM-PA ${medico.crm} • ` : ''}Médico Plantonista</div>
+            <div>{medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm} • ` : ''}Médico Plantonista</div>
           </div>
         </div>
 

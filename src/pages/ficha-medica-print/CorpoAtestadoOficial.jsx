@@ -31,7 +31,7 @@ export default function CorpoAtestadoOficial({ registro, pessoa, atendimento, id
           <div className="doc-bloco-assinatura">
             <div className="linha-sig" />
             <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Médico Plantonista'}</div>
-            <div className="crm-sig">{medico?.crm ? `CRM-PA ${medico.crm}` : 'CRM/UF'}</div>
+            <div className="crm-sig">{medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}</div>
             <div className="cargo-sig">Médico Plantonista — UPA 24h Breves</div>
           </div>
         </div>

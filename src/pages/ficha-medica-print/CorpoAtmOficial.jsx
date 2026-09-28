@@ -125,7 +125,7 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
             <div className="doc-bloco-assinatura" style={{ minWidth: 170 }}>
               <div className="linha-sig"></div>
               <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Dr(a). Médico(a)'}</div>
-              <div className="coren-sig">{medico?.crm ? `CRM-PA ${medico.crm}` : 'Médico(a) Solicitante'}</div>
+              <div className="coren-sig">{medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'Médico(a) Solicitante'}</div>
               <div className="cargo-sig">Médico Assistente Solicitante</div>
             </div>
             <div className="doc-bloco-assinatura" style={{ minWidth: 170 }}>

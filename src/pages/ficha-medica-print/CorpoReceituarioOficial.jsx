@@ -71,7 +71,7 @@ function ReceitaColuna({ via, viaRotulo, registro, pessoa, atendimento, idade, l
           <div className="doc-bloco-assinatura" style={{ minWidth: '140px' }}>
             <div className="linha-sig" />
             <div className="nome-sig" style={{ fontSize: '8.5px' }}>{medico?.nome_exibicao || medico?.nome || 'Médico Assistente'}</div>
-            <div className="crm-sig" style={{ fontSize: '7.5px' }}>{medico?.crm ? `CRM-PA ${medico.crm}` : 'CRM/UF'}</div>
+            <div className="crm-sig" style={{ fontSize: '7.5px' }}>{medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}</div>
             <div className="cargo-sig" style={{ fontSize: '7px' }}>Médico Assistente — UPA 24h Breves</div>
           </div>
         </div>

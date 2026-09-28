@@ -1,0 +1,26 @@
+.gp-page .gp-card { margin-bottom: 18px; }
+.gp-page .gp-linha2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.gp-page .gp-campo { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; min-width: 0; }
+.gp-page .gp-campo label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .04em; }
+.gp-page .gp-campo input, .gp-page .gp-campo select, .gp-page .gp-filtros input { width: 100%; height: 34px; padding: 6px 10px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 13px; background: #fff; box-sizing: border-box; }
+.gp-page .gp-uf { max-width: 140px; }
+.gp-page .gp-lista-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.gp-page .gp-filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.gp-page .gp-filtros input { flex: 1; min-width: 220px; width: auto; }
+.gp-page .gp-check-inline, .gp-page .gp-checks label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #334155; cursor: pointer; }
+.gp-page .gp-checks { display: flex; gap: 20px; flex-wrap: wrap; margin: 4px 0 12px; }
+.gp-page .gp-lista { display: flex; flex-direction: column; }
+.gp-page .gp-item { border-bottom: 1px solid #E2E8F0; padding: 10px 0; }
+.gp-page .gp-item.inativo { opacity: .6; }
+.gp-page .gp-item-topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.gp-page .gp-nome { font-weight: 700; font-size: 14px; color: #0F172A; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.gp-page .gp-sub { font-size: 12.5px; color: #64748B; margin-top: 2px; }
+.gp-page .gp-acoes { display: flex; gap: 8px; }
+.gp-page .gp-acoes .btn { height: 32px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 5px; }
+.gp-page .gp-selo { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; background: #F1F5F9; color: #475569; text-transform: uppercase; }
+.gp-page .gp-selo.admin { background: #CCFBF1; color: #0F766E; }
+.gp-page .gp-falta { color: #B45309; font-size: 12.5px; font-weight: 600; }
+.gp-page .gp-editor { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; margin-top: 10px; }
+.gp-page .gp-rodape { display: flex; justify-content: flex-end; gap: 8px; }
+.gp-page .gp-ok { color: #0F766E; font-size: 13px; margin: 0 0 12px; }
+.gp-page .gp-vazio { color: #64748B; font-size: 13px; }
