@@ -5,6 +5,7 @@ import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
 import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
+import { hojeBelem, somarDias, textoValidade } from '../../lib/prescricaoValidade';
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
@@ -202,7 +203,8 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
-  const rascunho = useRascunho({ tabela: 'prescricoes_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { observacoes: [observacoes, setObservacoes], dieta: [dieta, setDieta], itens: [itens, setItens], orientacaoEnfermagem: [orientacaoEnfermagem, setOrientacaoEnfermagem], hemocomponentes: [hemocomponentes, setHemocomponentes], hemocomponenteObs: [hemocomponenteObs, setHemocomponenteObs] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
+  const [dataReferencia, setDataReferencia] = useState(() => hojeBelem())
+  const rascunho = useRascunho({ tabela: 'prescricoes_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { observacoes: [observacoes, setObservacoes], dataReferencia: [dataReferencia, setDataReferencia], dieta: [dieta, setDieta], itens: [itens, setItens], orientacaoEnfermagem: [orientacaoEnfermagem, setOrientacaoEnfermagem], hemocomponentes: [hemocomponentes, setHemocomponentes], hemocomponenteObs: [hemocomponenteObs, setHemocomponenteObs] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
@@ -319,6 +321,34 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
     setHemocomponentes((prev) => ({ ...prev, [chave]: { ...prev[chave], quantidade: valor } }))
   }
 
+  // Copia uma prescrição anterior para uma nova (data = hoje, alterável).
+  function duplicar(p) {
+    const temConteudo = itens.some((it) => it.medicamento_nome?.trim())
+    if (temConteudo && !window.confirm('Substituir o que já foi preenchido pela cópia desta prescrição?')) return
+    const doBanco = (it) => ({
+      ...ITEM_VAZIO,
+      medicamento_nome: it.medicamento_nome || '',
+      dose: it.dose != null ? String(it.dose).replace('.', ',') : '',
+      dose_unidade: it.dose_unidade || 'mg',
+      via: it.via || 'VO',
+      frequencia: it.frequencia || '',
+      duracao: it.duracao || '',
+      condicao: it.sn_aplic ? (it.observacoes || '') : '',
+      tempo_infusao: it.velocidade_infusao || '',
+      instrucoes: [it.diluicao, it.instrucoes].filter(Boolean).join(' — '),
+    })
+    const cp = p.campos_prescricao || {}
+    setItens([...(p.prescricao_itens || []).map(doBanco), { ...ITEM_VAZIO }])
+    setDieta(cp.dieta || '')
+    setOrientacaoEnfermagem(cp.orientacao_enfermagem?.length ? cp.orientacao_enfermagem : [{ ...ORIENTACAO_VAZIA }])
+    setHemocomponenteObs(cp.hemocomponente_obs || '')
+    setObservacoes(p.observacoes || '')
+    setDataReferencia(hojeBelem())
+    setEditandoId(null)
+    setAviso(`Prescrição copiada para hoje (${textoValidade(hojeBelem())}). Revise, ajuste a data se precisar e salve.`)
+    window.scrollTo?.({ top: 0, behavior: 'smooth' })
+  }
+
   async function salvar(imprimir = false) {
     const validos = itens.filter((it) => it.medicamento_nome.trim())
     if (validos.length === 0) {
@@ -334,6 +364,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
       medicoId,
       observacoes,
       itens: validos.map(itemParaBanco),
+      dataReferencia,
       camposPrescricao: {
         dieta: dieta || null,
         orientacao_enfermagem: orientacaoEnfermagem.filter((o) => o.texto.trim()),
@@ -412,7 +443,19 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
           )}
 
           <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-            
+            {/* Dia de validade da prescrição (14h00 do dia até 13h59 do dia seguinte) */}
+            <div className="presc-validade">
+              <label>
+                <i className="ph ph-calendar-check" /> Prescrição para o dia
+                <input type="date" value={dataReferencia} onChange={(e) => setDataReferencia(e.target.value || hojeBelem())} />
+              </label>
+              <span className="presc-validade-texto">Válida {textoValidade(dataReferencia)}</span>
+              <div className="presc-validade-atalhos">
+                <button type="button" className={dataReferencia === hojeBelem() ? 'on' : ''} onClick={() => setDataReferencia(hojeBelem())}>Hoje</button>
+                <button type="button" className={dataReferencia === somarDias(hojeBelem(), 1) ? 'on' : ''} onClick={() => setDataReferencia(somarDias(hojeBelem(), 1))}>Amanhã</button>
+              </div>
+            </div>
+
             {/* GRUPO 1: DIETA */}
             <div className={`presc-group${gruposFechados.dieta ? ' collapsed' : ''}`}>
               <div className="presc-group-header" onClick={() => toggleGrupo('dieta')}>
@@ -645,10 +688,14 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                       </div>
                       <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
                         Prescrito por {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} • {new Date(p.criado_em).toLocaleString('pt-BR')}
+                        {p.data_referencia && <> • <strong>Válida {textoValidade(p.data_referencia)}</strong></>}
                       </div>
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                         <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => onImprimir(p)}>
                           <i className="ph ph-printer" /> Reimprimir
+                        </button>
+                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => duplicar(p)} title="Copia medicamentos, dieta e orientações para uma nova prescrição">
+                          <i className="ph ph-copy" /> Duplicar
                         </button>
                         <SeloSituacao registro={p} />
                         <BotaoInvalidar tabela="prescricoes_medicas" registro={p} meuId={medicoId} onFeito={carregar} />

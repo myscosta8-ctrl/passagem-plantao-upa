@@ -1,3 +1,4 @@
+import { textoValidade } from '../../lib/prescricaoValidade'
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
 // Réplica fiel do modelo de Prescrição aprovado (papel A4 paisagem, timbre
@@ -30,6 +31,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
           dataHora={dataHora}
         />
 
+        {registro.data_referencia && <div className="pr-validade" style={{ fontWeight: 700, margin: '4px 0 6px' }}>Prescrição válida {textoValidade(registro.data_referencia)}</div>}
         <div className="pr-secao-titulo">Dieta</div>
         <div className="pr-caixa">{cf.dieta || ''}</div>
 

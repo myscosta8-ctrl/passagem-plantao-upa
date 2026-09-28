@@ -1,0 +1,37 @@
+/* Painel de Leitos — faixa de resumo, informações do card e alertas */
+.pl-resumo { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.pl-resumo-item { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #CBD5E1; background: #fff; color: #334155; border-radius: 18px; padding: 5px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.pl-resumo-item:hover { border-color: #0D9488; }
+.pl-resumo-item.critico { background: #FEF2F2; border-color: #FCA5A5; color: #B91C1C; }
+.pl-resumo-item.atencao { background: #FFFBEB; border-color: #FCD34D; color: #92400E; }
+.pl-resumo-item.ok { background: #F0FDF4; border-color: #BBF7D0; color: #166534; }
+.pl-resumo-item.ativo { outline: 2px solid #0D9488; outline-offset: 1px; }
+.pl-resumo-limpar { border: none; background: transparent; color: #0D9488; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+
+.pl-permanencia { font-size: 11px; font-weight: 700; color: #475569; background: #F1F5F9; border-radius: 10px; padding: 2px 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.pl-linha { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 11.5px; color: #334155; margin-top: 6px; }
+.pl-linha span { display: inline-flex; align-items: center; gap: 4px; }
+.pl-tag { border-radius: 10px; padding: 2px 8px; font-weight: 700; font-size: 11px; }
+.pl-tag.alergia { background: #FEF2F2; color: #B91C1C; }
+.pl-tag.isolamento { background: #F5F3FF; color: #6D28D9; }
+.pl-tag.regulacao { background: #EFF6FF; color: #1D4ED8; }
+.pl-dispositivos span { background: #F1F5F9; border-radius: 4px; padding: 1px 6px; font-weight: 600; }
+.pl-pendencias { color: #92400E; font-weight: 600; }
+.pl-registros { justify-content: space-between; border-top: 1px dashed #E2E8F0; padding-top: 6px; }
+.pl-presc { font-weight: 700; }
+.pl-presc.ok { color: #166534; }
+.pl-presc.pendente { color: #B45309; }
+.pl-presc.vencida { color: #B91C1C; }
+.pl-ok { color: #166534; font-weight: 600; }
+.pl-pendente { color: #64748B; font-weight: 600; }
+.pl-alertas { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.pl-alerta { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; border-radius: 6px; padding: 4px 8px; }
+.pl-alerta.atencao { background: #FFFBEB; color: #92400E; }
+.pl-alerta.critico { background: #FEF2F2; color: #B91C1C; }
+.pl-alerta.info { background: #F1F5F9; color: #475569; }
+/* borda do card conforme o alerta mais grave */
+.pl-card-critico { box-shadow: 0 0 0 2px #FCA5A5 !important; }
+.pl-card-atencao { box-shadow: 0 0 0 2px #FCD34D !important; }
+@keyframes plPulso { 0%,100% { box-shadow: 0 0 0 2px #FCA5A5; } 50% { box-shadow: 0 0 0 4px #FECACA; } }
+.pl-card-critico { animation: plPulso 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .pl-card-critico { animation: none; } }

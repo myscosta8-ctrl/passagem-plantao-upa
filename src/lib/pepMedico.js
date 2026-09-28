@@ -100,7 +100,7 @@ export async function listarPrescricoes(atendimentoId) {
   return data ?? []
 }
 
-export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao, id, situacao }) {
+export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao, dataReferencia, id, situacao }) {
   const { data: prescricao, error } = await gravar('prescricoes_medicas', id, {
     atendimento_id: atendimentoId,
     pessoa_id: pessoaId,
@@ -108,6 +108,7 @@ export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consu
     consulta_id: consultaId || null,
     observacoes: observacoes || null,
     campos_prescricao: camposPrescricao || {},
+    ...(dataReferencia ? { data_referencia: dataReferencia } : {}),
   }, situacao)
   if (error) return { error }
 

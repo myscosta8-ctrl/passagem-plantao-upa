@@ -121,3 +121,12 @@ html .presc-mais-opcoes { align-self: flex-start; border: none; background: tran
    sem esticar na altura dos botões vizinhos. */
 html .hc-situacao { display: inline-flex; align-items: center; justify-content: center; align-self: center; height: auto; min-height: 0; line-height: 1.2; padding: 3px 9px; white-space: nowrap; }
 html [class*="leito-status"] { white-space: nowrap; }
+
+/* Prescrição: dia de validade */
+html .presc-validade { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; background: #F0FDFA; border: 1px solid #99F6E4; border-radius: 8px; padding: 10px 14px; }
+html .presc-validade label { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #0F766E; }
+html .presc-validade input[type=date] { border: 1px solid #5EEAD4; border-radius: 6px; padding: 6px 8px; font-size: 13px; background: #fff; }
+html .presc-validade-texto { font-size: 12.5px; color: #334155; }
+html .presc-validade-atalhos { display: inline-flex; gap: 6px; margin-left: auto; }
+html .presc-validade-atalhos button { border: 1px solid #99F6E4; background: #fff; color: #0F766E; border-radius: 14px; padding: 3px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+html .presc-validade-atalhos button.on { background: #0D9488; color: #fff; border-color: #0D9488; }

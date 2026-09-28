@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
 import { pepEstaAtivo } from '../../lib/pepConfig'
+import { carregarIndicadoresPainel } from '../../lib/pepPainel'
 import {
   carregarLeitosOcupadosPep, internarPacientePep,
   listarUltimosSinaisVitaisPorAtendimentos, listarBalancoPorAtendimentos,
@@ -13,6 +14,7 @@ export function usePainelState() {
     const [modalLeito, setModalLeito] = useState(null)
   const [erroInternar, setErroInternar] = useState('')
   const [erroGeral, setErroGeral] = useState('')
+  const [filtroResumo, setFiltroResumo] = useState(null)
   const [modalPassagem, setModalPassagem] = useState(null)
   const [modalRealocar, setModalRealocar] = useState(null)
   const [menuAcoesLeitoId, setMenuAcoesLeitoId] = useState(null)
@@ -55,9 +57,10 @@ export function usePainelState() {
         })
 
         const atendimentoIds = Object.values(mapa).map((p) => p.id)
-        const [svMapa, balancoMapa] = await Promise.all([
+        const [svMapa, balancoMapa, indicadores] = await Promise.all([
           listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds),
           listarBalancoPorAtendimentos(atendimentoIds),
+          carregarIndicadoresPainel(atendimentoIds),
         ])
 
         return {
@@ -67,7 +70,8 @@ export function usePainelState() {
           pacientesPorLeito: mapa || {},
           passagemPorPaciente: passagemMapa || {},
           sinaisVitaisPorPaciente: svMapa || {},
-          balancoPorPaciente: balancoMapa || {}
+          balancoPorPaciente: balancoMapa || {},
+          indicadoresPorPaciente: indicadores || {},
         }
       }
 
@@ -83,6 +87,7 @@ export function usePainelState() {
   const passagemPorPaciente = painelData?.passagemPorPaciente || {}
   const sinaisVitaisPorPaciente = painelData?.sinaisVitaisPorPaciente || {}
   const balancoPorPaciente = painelData?.balancoPorPaciente || {}
+  const indicadoresPorPaciente = painelData?.indicadoresPorPaciente || {}
 
 
   
@@ -146,6 +151,9 @@ export function usePainelState() {
     passagemPorPaciente,
     sinaisVitaisPorPaciente,
     balancoPorPaciente,
+    indicadoresPorPaciente,
+    filtroResumo,
+    setFiltroResumo,
     modalLeito,
     setModalLeito,
     cancelarModalInternar,

@@ -3,6 +3,7 @@ import RealocarModal from './RealocarModal'
 import ModalDesfecho from './ModalDesfecho'
 import { registrarDesfechoPep } from '../lib/pepAtendimentos'
 import { ModalInternar, PainelTabela, PainelCards, PainelControles } from './painel/index.js'
+import PainelResumo from './painel/PainelResumo'
 import { PainelProvider, usePainel } from './painel/PainelContext'
 import './Painel.css'
 
@@ -70,6 +71,7 @@ function PainelInterno({ setoresIds }) {
           <h1>Painel do Plantão</h1>
           <p>Visão geral de ocupação, classificação de risco e admissão de pacientes da UPA.</p>
         </div>
+        <PainelResumo setoresVisiveis={setoresVisiveis} />
         <PainelControles setoresVisiveis={setoresVisiveis} />
       </div>
 

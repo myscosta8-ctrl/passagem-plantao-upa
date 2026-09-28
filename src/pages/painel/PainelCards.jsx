@@ -1,6 +1,8 @@
 import { usePainel } from './PainelContext'
 import { normalizarNome } from './constantes'
 import styles from './PainelCards.module.css'
+import { sinaisDoLeito, FILTROS_RESUMO } from './sinaisLeito'
+import './PainelSinais.css'
 const cx = (...classes) => classes.filter(Boolean).map(c => styles[c] || c).join(' ')
 
 export function formatarNomeSetor(nome) {
@@ -104,6 +106,8 @@ export default function PainelCards({ setoresVisiveis }) {
     setModalRealocar,
     setModalDesfecho,
     abrirLeitoExtra,
+    indicadoresPorPaciente,
+    filtroResumo,
   } = usePainel()
 
   const buscaNorm = normalizarNome(busca || '')
@@ -118,6 +122,11 @@ export default function PainelCards({ setoresVisiveis }) {
             .filter((l) => {
               const paciente = pacientesPorLeito[l.id]
 
+              if (filtroResumo) {
+                if (!paciente) return false
+                const sn = sinaisDoLeito(paciente, passagemPorPaciente[paciente.id], indicadoresPorPaciente[paciente.id])
+                if (!FILTROS_RESUMO[filtroResumo](sn)) return false
+              }
               if (statusFiltro === 'ocupado' && !paciente) return false
               if (statusFiltro === 'vazio' && paciente) return false
               if (statusFiltro === 'internado' && paciente?.status_internacao !== 'Internado') return false
@@ -169,11 +178,12 @@ export default function PainelCards({ setoresVisiveis }) {
                 {leitosDoSetor.map((leito) => {
                   const paciente = pacientesPorLeito[leito.id]
                   const classeRisco = paciente ? obterClasseRisco(paciente.classificacao_manchester, setor.nome) : ''
+                  const sn = paciente ? sinaisDoLeito(paciente, passagemPorPaciente[paciente.id], indicadoresPorPaciente[paciente.id]) : null
 
                   return paciente ? (
                     <div
                       key={leito.id}
-                      className={cx('leito-card')}
+                      className={`${cx('leito-card')} ${sn?.nivelAlerta ? 'pl-card-' + sn.nivelAlerta : ''}`}
                       onClick={() => abrirPassagem(paciente, leito)}
                     >
                       <div className={cx('risk-bar', classeRisco)} />
@@ -185,12 +195,12 @@ export default function PainelCards({ setoresVisiveis }) {
                         <div className={cx('leito-status', paciente.status_internacao === 'Internado' ? 'status-internado' : 'status-observacao')}>
                           {paciente.status_internacao || 'Internado'}
                         </div>
+                        {sn.permanencia && <span className="pl-permanencia" title="Tempo de permanência na unidade"><i className="ph ph-timer" /> {sn.permanencia}</span>}
                       </div>
 
                       <div className={cx('leito-body')}>
                         <div className={cx('paciente-nome')}>
                           {formatarNomePaciente(paciente.nome)}
-                          {paciente.alergias && <span className={cx('status-badge', 'alerta')} title="Possui Alergias"><i className={cx('ph', 'ph-warning-circle')} /> Alergia</span>}
                         </div>
 
                         <div className={cx('paciente-meta')}>
@@ -204,6 +214,43 @@ export default function PainelCards({ setoresVisiveis }) {
                         <div className={cx('paciente-admissao')}>
                           <strong><i className={cx('ph', 'ph-clock')} /> Entrada:</strong> {formatarAdmissao(paciente.data_admissao)}
                         </div>
+
+                        {(sn.alergia || sn.isolamento || sn.regulacao) && (
+                          <div className="pl-linha pl-tags">
+                            {sn.alergia && <span className="pl-tag alergia" title="Alergia"><i className="ph ph-warning-circle" /> Alergia: {sn.alergia}</span>}
+                            {sn.isolamento && <span className="pl-tag isolamento" title="Isolamento"><i className="ph ph-virus" /> {sn.isolamento}</span>}
+                            {sn.regulacao && <span className="pl-tag regulacao" title="Regulação aberta"><i className="ph ph-ambulance" /> Regulação</span>}
+                          </div>
+                        )}
+
+                        {(sn.dispositivos.length > 0 || sn.avpDia) && (
+                          <div className="pl-linha pl-dispositivos">
+                            <i className="ph ph-first-aid" />
+                            {sn.dispositivos.map((d) => <span key={d}>{d === 'AVP' && sn.avpDia ? `AVP (D${sn.avpDia})` : d}</span>)}
+                            {!sn.dispositivos.includes('AVP') && sn.avpDia && <span>AVP (D{sn.avpDia})</span>}
+                          </div>
+                        )}
+
+                        {(sn.exames + sn.sorologias + sn.hemo > 0) && (
+                          <div className="pl-linha pl-pendencias">
+                            {sn.exames > 0 && <span><i className="ph ph-flask" /> {sn.exames} exame(s) pendente(s)</span>}
+                            {sn.sorologias > 0 && <span><i className="ph ph-test-tube" /> {sn.sorologias} sorologia(s)</span>}
+                            {sn.hemo > 0 && <span><i className="ph ph-drop" /> {sn.hemo} hemocomponente(s)</span>}
+                          </div>
+                        )}
+
+                        <div className="pl-linha pl-registros">
+                          <span className={`pl-presc ${sn.prescricao.nivel}`}><i className="ph ph-prescription" /> {sn.prescricao.texto}</span>
+                          <span className={sn.conferida ? 'pl-ok' : 'pl-pendente'}><i className={`ph ${sn.conferida ? 'ph-check-circle' : 'ph-hourglass'}`} /> {sn.conferida ? 'Passagem conferida' : 'Passagem a conferir'}</span>
+                        </div>
+
+                        {sn.alertas.filter((a) => !/Prescri/.test(a.texto)).length > 0 && (
+                          <div className="pl-alertas">
+                            {sn.alertas.filter((a) => !/Prescri/.test(a.texto)).map((a) => (
+                              <span key={a.texto} className={`pl-alerta ${a.nivel}`}><i className={`ph ${a.icone}`} /> {a.texto}</span>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       <div className={cx('leito-footer', 'no-print')} onClick={(e) => e.stopPropagation()}>
