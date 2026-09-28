@@ -110,7 +110,7 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     try { localStorage.removeItem('app_ultima_atividade') } catch { /* sem storage */ }
-    await supabase.auth.signOut()
+    await supabase.auth.signOut({ scope: 'local' }) // sai só deste aparelho; não derruba o mesmo usuário em outros computadores
   }
 
   // Corrige o nome de exibição depois do cadastro — hoje só era perguntado uma vez,
