@@ -36,7 +36,6 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
         <div className="pr-secao-titulo">Dieta</div>
         <div className="pr-caixa">{cf.dieta ? <b>1 — {cf.dieta}</b> : ''}</div>
 
-        <div className="pr-secao-titulo">Medicamentos</div>
         <table className="pr-tabela pr-tabela-salutem">
           <thead>
             <tr>
