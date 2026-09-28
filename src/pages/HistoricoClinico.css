@@ -61,6 +61,9 @@
 .hc-fechar { border: 1px solid #CBD5E1; background: #fff; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #334155; }
 .hc-gaveta .hc-corpo { border-top: none; overflow-y: auto; flex: 1; }
 .hc-gaveta .hc-bloco-corpo { max-height: none; }
+/* Blocos não encolhem dentro da gaveta: a rolagem é da gaveta inteira */
+.hc-gaveta .hc-corpo { min-height: 0; }
+.hc-gaveta .hc-corpo > * { flex-shrink: 0; }
 
 /* Situação do documento clínico */
 .hc-situacao { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: .03em; }

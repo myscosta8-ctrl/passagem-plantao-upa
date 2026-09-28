@@ -6,9 +6,7 @@ import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
 
-export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, onFechar , historicoAberto, onSetHistoricoAberto }) {
-  const [historico, setHistorico] = useState([])
-  const [carregando, setCarregando] = useState(true)
+export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState(EVOLUCAO_VAZIA)
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
@@ -16,12 +14,9 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
   const rascunho = useRascunho({ tabela: 'evolucoes_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
-  const [itemExpandido, setItemExpandido] = useState(null)
   const [puxandoSv, setPuxandoSv] = useState(false)
   const [svInfo, setSvInfo] = useState('')
 
-  useEffect(() => { carregar() }, [])
-  async function carregar() { setCarregando(true); setHistorico(await listarEvolucoesMedicas(atendimento.atendimento_id)); setCarregando(false) }
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
 
   async function puxarSinaisVitaisDaEnfermagem() {
@@ -76,11 +71,10 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
     setDados(EVOLUCAO_VAZIA)
     setSvInfo('')
-    carregar()
   }
 
   return (

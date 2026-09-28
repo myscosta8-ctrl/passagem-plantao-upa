@@ -34,7 +34,6 @@ const VAZIO = {
 
 export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) {
   const [d, setD] = useState(VAZIO);
-  const [historico, setHistorico] = useState([]);
   const [ocupacao, setOcupacao] = useState(null);
   const [alergias, setAlergias] = useState([]);
   const [filtro, setFiltro] = useState('todas');
@@ -47,7 +46,6 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
 
   useEffect(() => {
     buscarOcupacaoAtiva(atendimento.atendimento_id).then(setOcupacao);
-    listarTransferenciasSbar(atendimento.atendimento_id).then(setHistorico);
     if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => setAlergias(l.filter((a) => a.status !== 'inativa')));
     // Pré-preenche o embarque com a última aferição (editável).
     listarSinaisVitais(atendimento.atendimento_id).then((l) => {
@@ -94,7 +92,6 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
     if (error) { console.error(error); setMsg({ erro: true, t: 'Não foi possível salvar a transferência. Tente de novo.' }); return; }
     setEditandoId(imprimir ? null : (data?.id ?? null));
     setMsg({ t: imprimir ? 'Transferência SBAR finalizada.' : 'Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' });
-    listarTransferenciasSbar(atendimento.atendimento_id).then(setHistorico);
     if (imprimir && data) onImprimir(data);
   }
 
@@ -115,7 +112,6 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
       {!recolhida(chave) && <div className="pillar-body">{corpo}</div>}
     </section>
   );
-  const ultima = historico[0];
 
   return (
     <div className="transfer-card">

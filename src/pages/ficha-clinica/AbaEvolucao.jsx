@@ -37,8 +37,6 @@ function rotuloData(d) {
 }
 
 export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
-  const [historicoAberto, setHistoricoAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [ultimoSv, setUltimoSv] = useState(null);
   const [sv, setSv] = useState(SV_VAZIO);
@@ -51,14 +49,12 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
   const rascunho = useRascunho({ tabela: 'evolucoes', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { texto: [texto, setTexto], nanda: [nanda, setNanda], nic: [nic, setNic], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAvisoRasc('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
   const [avisoRasc, setAvisoRasc] = useState('');
   const [erro, setErro] = useState('');
-  const [expandido, setExpandido] = useState(null);
 
   useEffect(() => { carregar(); }, []);
 
   async function carregar() {
     setCarregando(true);
-    const [evs, svs] = await Promise.all([listarEvolucoes(atendimento.atendimento_id), listarSinaisVitais(atendimento.atendimento_id)]);
-    setHistorico(evs.filter((e) => (e.tipo || e.autor_tipo) !== 'medico'));
+    const svs = await listarSinaisVitais(atendimento.atendimento_id);
     setUltimoSv(svs[0] || null);
     setCarregando(false);
   }
@@ -93,7 +89,6 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
     carregar();
   }
 
-  const ultima = historico[0];
 
   return (
     <div className="clinical-split sae-split">

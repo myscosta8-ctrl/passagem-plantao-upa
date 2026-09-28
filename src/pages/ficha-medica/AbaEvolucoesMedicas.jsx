@@ -13,7 +13,6 @@ const DOCS = [
 ];
 
 export default function AbaEvolucoesMedicas({  atendimento, medicoId, onImprimir, onFechar, docInicial = 'evolucao'  }) {
-  const [historicoAberto, setHistoricoAberto] = useState(false);
   const [doc, setDoc] = useState(docInicial);
   const atual = DOCS.find((d) => d.chave === doc) || DOCS[0];
   const C = atual.C;
@@ -41,8 +40,6 @@ export default function AbaEvolucoesMedicas({  atendimento, medicoId, onImprimir
           medicoId={medicoId}
           onImprimir={(registro) => onImprimir({ tipo: atual.tipo, registro })}
           onFechar={onFechar}
-        historicoAberto={historicoAberto}
-          onSetHistoricoAberto={setHistoricoAberto}
         />
       </div>
     </div>

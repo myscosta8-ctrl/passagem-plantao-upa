@@ -10,8 +10,6 @@ const SV = [['pa', 'PA (mmHg)', '120/80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)
 const TRANSPORTES = ['Fluvial', 'Terrestre', 'Aéreo', 'Fluvial / Terrestre com Acompanhante', 'Aéreo (UTI aérea)']
 
 export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
-  const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(TFD_VAZIA)
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
@@ -20,8 +18,6 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
-  useEffect(() => { carregar() }, [])
-  async function carregar() { setCarregando(true); setHistorico(await listarTfd(atendimento.atendimento_id)); setCarregando(false) }
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
 
   async function salvar(imprimir = false) {
@@ -50,10 +46,9 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
     setDados(TFD_VAZIA)
-    carregar()
   }
 
   const campo = (k, rotulo, props = {}) => (

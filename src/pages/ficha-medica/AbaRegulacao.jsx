@@ -6,7 +6,6 @@ import { useRascunho } from '../../hooks/useRascunho'
 
 // Atualização de Quadro Clínico para a regulação (SER / SISREG).
 export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [abertura, setAbertura] = useState(null)
   const [tipoAbertura, setTipoAbertura] = useState('SER')
@@ -38,7 +37,6 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
   }, [buscaCid])
   async function carregar() {
     setCarregando(true)
-    setHistorico(await listarRegulacao(atendimento.atendimento_id))
     setAbertura(await buscarAberturaRegulacao(atendimento.atendimento_id))
     setCarregando(false)
   }

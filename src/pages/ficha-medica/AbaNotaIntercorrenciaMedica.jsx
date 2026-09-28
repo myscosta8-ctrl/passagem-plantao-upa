@@ -13,8 +13,6 @@ const VAZIA = {
 };
 
 export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
-  const [carregando, setCarregando] = useState(true)
   const [d, setD] = useState(VAZIA)
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
@@ -23,8 +21,6 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
-  useEffect(() => { carregar() }, [])
-  async function carregar() { setCarregando(true); setHistorico(await listarNotasIntercorrenciaMedica(atendimento.atendimento_id)); setCarregando(false) }
   const set = (campo, valor) => setD((p) => ({ ...p, [campo]: valor }))
 
   async function salvar(imprimir = false) {
@@ -46,10 +42,9 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
     setD(VAZIA)
-    carregar()
   }
 
   const sv = [['pa', 'PA (mmHg)', '120x80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO₂ (%)'], ['temp', 'Tax (°C)'], ['hgt', 'HGT (mg/dL)']]

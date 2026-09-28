@@ -7,8 +7,6 @@ import { useRascunho } from '../../hooks/useRascunho'
 const HOJE = new Date().toISOString().slice(0, 10);
 
 export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
-  const [carregando, setCarregando] = useState(true)
   const [cid, setCid] = useState('')
   const [diasAfastamento, setDiasAfastamento] = useState('')
   const [dataInicio, setDataInicio] = useState(HOJE)
@@ -20,8 +18,6 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
-  useEffect(() => { carregar() }, [])
-  async function carregar() { setCarregando(true); setHistorico(await listarAtestadosMedicos(atendimento.atendimento_id)); setCarregando(false) }
 
   async function salvar(imprimir = false) {
     if (!diasAfastamento) {
@@ -44,10 +40,9 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
     setCid(''); setDiasAfastamento(''); setDataInicio(HOJE); setTextoLivre('')
-    carregar()
   }
 
   return (

@@ -29,9 +29,6 @@ function isoDeHora(hhmm) {
 const num = (v) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : ''; };
 
 export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, onFechar }) {
-  const [lista, setLista] = useState([]);
-  const [carregando, setCarregando] = useState(true)
-  const [historicoAberto, setHistoricoAberto] = useState(false);
   const [d, setD] = useState(VAZIO);
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
@@ -39,8 +36,6 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
   const rascunho = useRascunho({ tabela: 'eventos_adversos', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setMsg({ t: 'Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.' }) });
   const [msg, setMsg] = useState(null);
 
-  useEffect(() => { carregar(); }, []);
-  async function carregar() { setCarregando(true); setLista(await listarEventosAdversos(atendimento.atendimento_id)); setCarregando(false); }
   const set = (k, v) => setD((p) => ({ ...p, [k]: v }));
 
   async function registrar(imprimir = false) {
@@ -58,16 +53,13 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
     });
     setSalvando(false);
     if (error) { console.error(error); setMsg({ erro: true, t: 'Não foi possível registrar. Tente de novo.' }); return; }
-    if (!imprimir) { setEditandoId(data?.id ?? null); setMsg({ t: 'Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' }); carregar(); return; }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setMsg({ t: 'Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' }); return; }
     setEditandoId(null); setDataRegistro('');
     setMsg({ t: 'Intercorrência finalizada.' });
     if (data) onImprimir(data);
     setD(VAZIO());
-    carregar();
   }
 
-  const ultima = lista[0];
-  const hhmm = (iso) => new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às');
 
   return (
     <div className="clinical-split sae-split">
