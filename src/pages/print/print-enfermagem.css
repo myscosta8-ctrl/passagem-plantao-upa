@@ -1,9 +1,9 @@
 /* Admissão de Enfermagem — réplica fiel (checkboxes ☒/☐ burocráticos,
    igual ao modelo "HISTÓRICO DE ENFERMAGEM" original). */
-.hef-page { width: 190mm; max-width: 190mm; margin: 0 auto; font-family: Arial, Helvetica, sans-serif; font-size: 11px; line-height: 1.5; color: #000; }
-.hef-secao-titulo { background: #ddd; border: 1px solid #000; border-top: none; font-weight: 700; text-align: center; font-size: 11.5px; padding: 1mm; }
+.hef-page { width: 190mm; max-width: 190mm; margin: 0 auto; font-family: Arial, Helvetica, sans-serif; font-size: 11pt; line-height: 1.5; color: #000; }
+.hef-secao-titulo { background: #ddd; border: 1px solid #000; border-top: none; font-weight: 700; text-align: center; font-size: 11pt; padding: 1mm; }
 .hef-caixa { border: 1px solid #000; border-top: none; padding: 1.5mm 2mm; }
-.hef-caixa-titulo { background: #ddd; font-weight: 700; text-align: center; font-size: 11px; padding: 0.8mm; margin: -1.5mm -2mm 1mm; border-bottom: 1px solid #000; }
+.hef-caixa-titulo { background: #ddd; font-weight: 700; text-align: center; font-size: 11pt; padding: 0.8mm; margin: -1.5mm -2mm 1mm; border-bottom: 1px solid #000; }
 .hef-par { display: flex; border: 1px solid #000; }
 .hef-par .hef-caixa { border: none; border-right: 1px solid #000; }
 .hef-par .hef-caixa:last-child { border-right: none; }
@@ -12,10 +12,10 @@
 .hef-campo-label { font-weight: 700; }
 .hef-extra { border-bottom: 1px solid #000; padding: 0 1mm; min-width: 25mm; display: inline-block; }
 .hef-extra-largo { min-width: 100mm; }
-.hef-tabela-med { width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 10.5px; }
+.hef-tabela-med { width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 11pt; }
 .hef-tabela-med th, .hef-tabela-med td { border: 1px solid #000; padding: 1mm 1.5mm; text-align: left; }
 .hef-tabela-med th { background: #eee; }
-.hef-rodape { display: flex; justify-content: space-between; margin-top: 6mm; font-size: 11px; font-weight: 700; }
+.hef-rodape { display: flex; justify-content: space-between; margin-top: 6mm; font-size: 11pt; font-weight: 700; }
 
 /* ==============================================================
    PRONTUÁRIO DE ENFERMAGEM — PADRÃO VISUAL UNIVERSAL (SBAR / SAE / NOTA / BALANÇO)
@@ -33,7 +33,7 @@
   background: #0f172a;
   color: #fff;
   font-weight: 700;
-  font-size: 11.5px;
+  font-size: 11pt;
   padding: 1px 5px;
   border-radius: 2px;
   margin-right: 5px;
@@ -49,7 +49,7 @@
   background: #e2e8f0;
   color: #0f172a;
   font-weight: 700;
-  font-size: 12.5px;
+  font-size: 11pt;
   padding: 2.5px 6px;
   text-transform: uppercase;
   border-bottom: 1px solid #888;
@@ -58,7 +58,7 @@
 }
 .sbar-secao-body {
   padding: 5px 8px;
-  font-size: 12px;
+  font-size: 11pt;
   line-height: 1.42;
   background: #fff;
 }
@@ -75,7 +75,7 @@
 .sbar-card-mini .card-header {
   background: #f1f5f9;
   font-weight: 700;
-  font-size: 11.5px;
+  font-size: 11pt;
   padding: 2px 5px;
   color: #0f172a;
   text-transform: uppercase;
@@ -83,7 +83,7 @@
 }
 .sbar-card-mini .card-body {
   padding: 4px 6px;
-  font-size: 11.5px;
+  font-size: 11pt;
   background: #fff;
 }
 .sbar-tabela-sv {
@@ -97,13 +97,13 @@
   border: 1px solid #94a3b8;
   padding: 2.5px 4px;
   font-weight: 700;
-  font-size: 11px;
+  font-size: 11pt;
   text-transform: uppercase;
 }
 .sbar-tabela-sv td {
   border: 1px solid #cbd5e1;
   padding: 3.5px 4px;
-  font-size: 12px;
+  font-size: 11pt;
   font-weight: 600;
 }
 
@@ -128,7 +128,7 @@
 .sae-card-mini .card-header {
   background: #e2e8f0;
   font-weight: 700;
-  font-size: 11.5px;
+  font-size: 11pt;
   padding: 1.5px 4px;
   color: #0f172a;
   text-transform: uppercase;
@@ -136,7 +136,7 @@
 }
 .sae-card-mini .card-body {
   padding: 3px 6px;
-  font-size: 11.5px;
+  font-size: 11pt;
   background: #fff;
 }
 .sae-secao {
@@ -149,7 +149,7 @@
   background: #e2e8f0;
   color: #0f172a;
   font-weight: 700;
-  font-size: 12.5px;
+  font-size: 11pt;
   padding: 2.5px 6px;
   text-transform: uppercase;
   border-bottom: 1px solid #888;
@@ -159,7 +159,7 @@
 }
 .sae-secao-body {
   padding: 5px 8px;
-  font-size: 12px;
+  font-size: 11pt;
   line-height: 1.42;
   text-align: justify;
   background: #fff;
@@ -167,7 +167,7 @@
 .sae-tabela-dispositivos {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11.5px;
+  font-size: 11pt;
 }
 .sae-tabela-dispositivos th {
   background: #f1f5f9;
@@ -175,7 +175,7 @@
   padding: 2.5px 5px;
   text-align: left;
   font-weight: 700;
-  font-size: 11px;
+  font-size: 11pt;
   text-transform: uppercase;
 }
 .sae-tabela-dispositivos td {
@@ -193,11 +193,11 @@
   border-radius: 2px;
   padding: 3px 6px;
   background: #f8fafc;
-  font-size: 11.5px;
+  font-size: 11pt;
 }
 .sae-item-diagnostico b {
   color: #0284c7;
-  font-size: 11.5px;
+  font-size: 11pt;
 }
 
 /* Intercorrência de Enfermagem */
@@ -217,7 +217,7 @@
   background: #e2e8f0;
   color: #0f172a;
   font-weight: 700;
-  font-size: 12.5px;
+  font-size: 11pt;
   padding: 2.5px 6px;
   text-transform: uppercase;
   border-bottom: 1px solid #888;
@@ -227,7 +227,7 @@
 }
 .not-secao-body {
   padding: 6px 8px;
-  font-size: 12px;
+  font-size: 11pt;
   line-height: 1.45;
   text-align: justify;
   background: #fff;
@@ -246,7 +246,7 @@
 .not-card-mini .card-header {
   background: #f1f5f9;
   font-weight: 700;
-  font-size: 11.5px;
+  font-size: 11pt;
   padding: 2px 5px;
   color: #0f172a;
   text-transform: uppercase;
@@ -254,7 +254,7 @@
 }
 .not-card-mini .card-body {
   padding: 4px 6px;
-  font-size: 11.5px;
+  font-size: 11pt;
   background: #fff;
 }
 .not-tabela-sv {
@@ -268,13 +268,13 @@
   border: 1px solid #94a3b8;
   padding: 2.5px 4px;
   font-weight: 700;
-  font-size: 11px;
+  font-size: 11pt;
   text-transform: uppercase;
 }
 .not-tabela-sv td {
   border: 1px solid #cbd5e1;
   padding: 3.5px 4px;
-  font-size: 12px;
+  font-size: 11pt;
   font-weight: 600;
 }
 
@@ -309,7 +309,7 @@
 table.bh-grade {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11.5px;
+  font-size: 11pt;
 }
 table.bh-grade th, table.bh-grade td {
   border: 1px solid #cbd5e1;
@@ -321,26 +321,26 @@ table.bh-grade th {
   background: #f1f5f9;
   font-weight: 700;
   color: #0f172a;
-  font-size: 11px;
+  font-size: 11pt;
   text-transform: uppercase;
 }
 table.bh-grade th.col-item {
   text-align: left;
   padding-left: 6px;
   width: 18%;
-  font-size: 12px;
+  font-size: 11pt;
 }
 table.bh-grade td.col-item {
   text-align: left;
   padding-left: 6px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11pt;
   color: #1e293b;
 }
 table.bh-grade th.th-subtotal, table.bh-grade td.td-subtotal {
   background: #e2e8f0;
   font-weight: 700;
-  font-size: 11.5px;
+  font-size: 11pt;
   width: 5.5%;
   border-left: 1.5px solid #64748b;
   border-right: 1.5px solid #64748b;
@@ -348,7 +348,7 @@ table.bh-grade th.th-subtotal, table.bh-grade td.td-subtotal {
 table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   background: #cbd5e1;
   font-weight: 700;
-  font-size: 12.5px;
+  font-size: 11pt;
   width: 6.5%;
   border-left: 2px solid #334155;
   color: #0f172a;
@@ -358,7 +358,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   font-weight: 700;
   color: #166534;
   text-transform: uppercase;
-  font-size: 11.5px;
+  font-size: 11pt;
   text-align: left;
   height: 18px;
 }
@@ -367,7 +367,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   font-weight: 700;
   color: #991b1b;
   text-transform: uppercase;
-  font-size: 11.5px;
+  font-size: 11pt;
   text-align: left;
   height: 18px;
 }
@@ -375,19 +375,19 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   background: #dcfce7;
   font-weight: 700;
   color: #15803d;
-  font-size: 12px;
+  font-size: 11pt;
 }
 .tr-total-perda {
   background: #fee2e2;
   font-weight: 700;
   color: #b91c1c;
-  font-size: 12px;
+  font-size: 11pt;
 }
 .tr-balanco-final {
   background: #e0f2fe;
   font-weight: 700;
   color: #0369a1;
-  font-size: 13.5px;
+  font-size: 11pt;
   border-top: 2px solid #0284c7;
   height: 22px;
 }
@@ -400,7 +400,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'Inter', Arial, Helvetica, sans-serif;
-  font-size: 11.5px;
+  font-size: 11pt;
   line-height: 1.35;
   color: #111;
   box-sizing: border-box;
@@ -420,7 +420,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   background: #e2e8f0;
   color: #0f172a;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11pt;
   padding: 2.5px 6px;
   text-transform: uppercase;
   border-bottom: 1px solid #888;
@@ -428,7 +428,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
 
 .enf-secao-body {
   padding: 4px 7px;
-  font-size: 11.5px;
+  font-size: 11pt;
   line-height: 1.38;
   background: #fff;
 }
@@ -452,7 +452,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
 .enf-tabela-med {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11.5px;
+  font-size: 11pt;
 }
 
 .enf-tabela-med th {
@@ -461,7 +461,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   padding: 2.5px 5px;
   text-align: left;
   font-weight: 700;
-  font-size: 11px;
+  font-size: 11pt;
   text-transform: uppercase;
 }
 
@@ -479,7 +479,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'Inter', Arial, Helvetica, sans-serif;
-  font-size: 11.5px;
+  font-size: 11pt;
   line-height: 1.35;
   color: #111;
   box-sizing: border-box;
@@ -496,7 +496,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'Inter', Arial, Helvetica, sans-serif;
-  font-size: 11.5px;
+  font-size: 11pt;
   line-height: 1.35;
   color: #111;
   box-sizing: border-box;
@@ -513,7 +513,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'Inter', Arial, Helvetica, sans-serif;
-  font-size: 11.5px;
+  font-size: 11pt;
   line-height: 1.35;
   color: #111;
   box-sizing: border-box;

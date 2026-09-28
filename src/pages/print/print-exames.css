@@ -2,27 +2,27 @@
 .rq-page { font-family: 'Inter', Arial, Helvetica, sans-serif; color: #000; display: flex; flex-direction: column; gap: 3px; }
 .rq-page .pr-titulo { margin: 0; text-align: left; }
 .pr-titulo-banner { display: flex; justify-content: space-between; align-items: center; border: 1px solid #777; background: #f8fafc; padding: 3px 8px; }
-.pr-titulo-banner h2 { font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; color: #000; margin: 0; }
-.pr-badge-prioridade { background: #000; color: #fff; font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.3px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.rq-page .pr-secao-titulo { background: #e2e8f0; border: 1px solid #777; color: #0f172a; font-weight: 800; font-size: 11.5px; padding: 3px 6px; text-transform: uppercase; letter-spacing: 0.2px; display: flex; justify-content: space-between; align-items: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.rq-page .pr-secao-titulo span.sub-aviso { font-size: 10px; font-weight: 600; color: #334155; text-transform: none; }
+.pr-titulo-banner h2 { font-size: 11pt; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; color: #000; margin: 0; }
+.pr-badge-prioridade { background: #000; color: #fff; font-size: 11pt; font-weight: 800; padding: 2px 8px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.3px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.rq-page .pr-secao-titulo { background: #e2e8f0; border: 1px solid #777; color: #0f172a; font-weight: 800; font-size: 11pt; padding: 3px 6px; text-transform: uppercase; letter-spacing: 0.2px; display: flex; justify-content: space-between; align-items: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.rq-page .pr-secao-titulo span.sub-aviso { font-size: 11pt; font-weight: 600; color: #334155; text-transform: none; }
 .tbl-exames-solicitados { width: 100%; border-collapse: collapse; border: 1px solid #777; background: #fff; }
-.tbl-exames-solicitados th { background: #f1f5f9; border-bottom: 1px solid #777; border-right: 1px solid #cbd5e1; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #0f172a; padding: 3.5px 6px; text-align: left; }
+.tbl-exames-solicitados th { background: #f1f5f9; border-bottom: 1px solid #777; border-right: 1px solid #cbd5e1; font-size: 11pt; font-weight: 800; text-transform: uppercase; color: #0f172a; padding: 3.5px 6px; text-align: left; }
 .tbl-exames-solicitados th:last-child, .tbl-exames-solicitados td:last-child { border-right: none; }
-.tbl-exames-solicitados td { border-bottom: 1px solid #e2e8f0; border-right: 1px solid #cbd5e1; padding: 3.5px 6px; font-size: 11.5px; vertical-align: middle; }
+.tbl-exames-solicitados td { border-bottom: 1px solid #e2e8f0; border-right: 1px solid #cbd5e1; padding: 3.5px 6px; font-size: 11pt; vertical-align: middle; }
 .tbl-exames-solicitados tr:last-child td { border-bottom: none; }
 .tbl-exames-solicitados tr:nth-child(even) td { background: #fafafa; }
 .tbl-exames-solicitados .td-num { width: 28px; text-align: center; font-weight: 700; color: #64748b; }
-.tbl-exames-solicitados .td-categoria { width: 175px; font-weight: 700; color: #1e3a8a; font-size: 10.5px; text-transform: uppercase; }
+.tbl-exames-solicitados .td-categoria { width: 175px; font-weight: 700; color: #1e3a8a; font-size: 11pt; text-transform: uppercase; }
 .tbl-exames-solicitados .td-nome { font-weight: 700; color: #000; }
-.tbl-exames-solicitados .td-amostra, .tbl-exames-solicitados .td-projecao { width: 135px; color: #475569; font-size: 10.5px; }
-.box-justificativa { border: 1px solid #777; border-top: none; padding: 8px 10px; font-size: 11.5px; font-weight: 600; line-height: 1.45; background: #fff; min-height: 90px; text-align: justify; white-space: pre-wrap; }
+.tbl-exames-solicitados .td-amostra, .tbl-exames-solicitados .td-projecao { width: 135px; color: #475569; font-size: 11pt; }
+.box-justificativa { border: 1px solid #777; border-top: none; padding: 8px 10px; font-size: 11pt; font-weight: 600; line-height: 1.45; background: #fff; min-height: 90px; text-align: justify; white-space: pre-wrap; }
 .bloco-assinaturas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 1px; }
 .card-assinatura { border: 1px solid #777; padding: 6px 10px 8px; background: #fff; display: flex; flex-direction: column; justify-content: space-between; min-height: 135px; }
-.card-assinatura-titulo { font-size: 11px; font-weight: 800; color: #000; text-transform: uppercase; border-bottom: 1px dashed #cbd5e1; padding-bottom: 2.5px; }
-.card-assinatura-texto { font-size: 10.5px; color: #334155; line-height: 1.3; margin-top: 3px; }
+.card-assinatura-titulo { font-size: 11pt; font-weight: 800; color: #000; text-transform: uppercase; border-bottom: 1px dashed #cbd5e1; padding-bottom: 2.5px; }
+.card-assinatura-texto { font-size: 11pt; color: #334155; line-height: 1.3; margin-top: 3px; }
 .espaco-livre-carimbo { height: 58px; }
 .linha-carimbo { border-top: 1.2px solid #000; width: 90%; margin: 0 auto 3px; }
-.sub-carimbo { font-size: 10.5px; font-weight: 800; text-align: center; color: #000; line-height: 1.2; }
-.cargo-carimbo { font-size: 10px; text-align: center; color: #475569; line-height: 1.15; }
-.rq-rodape { display: flex; justify-content: space-between; border-top: 1px solid #777; margin-top: 6px; padding-top: 3px; font-size: 10px; color: #334155; }
+.sub-carimbo { font-size: 11pt; font-weight: 800; text-align: center; color: #000; line-height: 1.2; }
+.cargo-carimbo { font-size: 11pt; text-align: center; color: #475569; line-height: 1.15; }
+.rq-rodape { display: flex; justify-content: space-between; border-top: 1px solid #777; margin-top: 6px; padding-top: 3px; font-size: 11pt; color: #334155; }

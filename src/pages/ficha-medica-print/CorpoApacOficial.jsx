@@ -15,13 +15,13 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
   const medCrm = cf.profissional_crm || (medico?.crm ? `CRM ${medico.crm}` : '')
 
   return (
-    <div className="sus-page" style={{ fontSize: '11.5px', lineHeight: 1.25 }}>
+    <div className="sus-page" style={{ fontSize: '11pt', lineHeight: 1.25 }}>
       <div className="sus-letterhead" style={{ borderBottom: '1.5px solid #1e3a8a', paddingBottom: '3px' }}>
         <div className="sus-letterhead-texto">
-          <div className="nome" style={{ fontSize: '14.5px', fontWeight: 800, color: '#000' }}>PREFEITURA MUNICIPAL DE BREVES</div>
-          <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e3a8a' }}>SECRETARIA MUNICIPAL DE SAÚDE — SEMSA</div>
-          <div style={{ fontSize: '11px', color: '#333' }}>UPA 24H BREVES — SECRETARIA MUNICIPAL DE SAÚDE (SEMSA)</div>
-          <div style={{ fontSize: '10.5px', color: '#555' }}>Travessa Castilhos França, s/n — Breves/PA — CEP: 68.800-000 | CNPJ: 02.967.963/0001-11</div>
+          <div className="nome" style={{ fontSize: '11pt', fontWeight: 800, color: '#000' }}>PREFEITURA MUNICIPAL DE BREVES</div>
+          <div style={{ fontSize: '11pt', fontWeight: 700, color: '#1e3a8a' }}>SECRETARIA MUNICIPAL DE SAÚDE — SEMSA</div>
+          <div style={{ fontSize: '11pt', color: '#333' }}>UPA 24H BREVES — SECRETARIA MUNICIPAL DE SAÚDE (SEMSA)</div>
+          <div style={{ fontSize: '11pt', color: '#555' }}>Travessa Castilhos França, s/n — Breves/PA — CEP: 68.800-000 | CNPJ: 02.967.963/0001-11</div>
         </div>
         <div className="sus-letterhead-logos" style={{ gap: '10px' }}>
           <img src="./logos/brasao-breves.jpg" alt="Prefeitura de Breves" style={{ height: '36px' }} />
@@ -32,10 +32,10 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
 
       <div className="sus-header" style={{ border: '1.5px solid #000', margin: '4px 0', minHeight: '32px' }}>
         <div className="sus-header-badge"><span className="sigla" style={{ fontSize: '18px', fontWeight: 900 }}>SUS</span></div>
-        <div className="sus-header-coluna" style={{ fontSize: '10px', fontWeight: 800, lineHeight: 1.2 }}>
+        <div className="sus-header-coluna" style={{ fontSize: '11pt', fontWeight: 800, lineHeight: 1.2 }}>
           SISTEMA ÚNICO DE SAÚDE<br />MINISTÉRIO DA SAÚDE
         </div>
-        <div className="sus-header-titulo" style={{ fontSize: '14.5px', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '0.3px' }}>
+        <div className="sus-header-titulo" style={{ fontSize: '11pt', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '0.3px' }}>
           LAUDO PARA SOLICITAÇÃO / AUTORIZAÇÃO DE PROCEDIMENTO AMBULATORIAL
         </div>
       </div>
@@ -43,7 +43,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
       <div className="sus-corpo" style={{ gap: '4px' }}>
         {/* Seção 1: Estabelecimento */}
         <div className="sus-secao" style={{ border: '1.2px solid #000', padding: '3px 6px' }}>
-          <div className="sus-secao-titulo" style={{ fontSize: '10.5px', fontWeight: 900 }}>IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE SOLICITANTE</div>
+          <div className="sus-secao-titulo" style={{ fontSize: '11pt', fontWeight: 900 }}>IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE SOLICITANTE</div>
           <div className="sus-grid">
             <CampoSus cap="1 - NOME DO ESTABELECIMENTO DE SAÚDE" val={cf.estabelecimento_solicitante_nome || 'UPA 24 HORAS BREVES'} w={3.5} />
             <CampoComb cap="2 - CNES" val={cf.estabelecimento_solicitante_cnes || '0296796'} digitos={7} w={1.5} />
@@ -52,7 +52,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
 
         {/* Seção 2: Paciente */}
         <div className="sus-secao" style={{ border: '1.2px solid #000', padding: '3px 6px' }}>
-          <div className="sus-secao-titulo" style={{ fontSize: '10.5px', fontWeight: 900 }}>IDENTIFICAÇÃO DO PACIENTE</div>
+          <div className="sus-secao-titulo" style={{ fontSize: '11pt', fontWeight: 900 }}>IDENTIFICAÇÃO DO PACIENTE</div>
           <div className="sus-grid">
             <CampoSus cap="3 - NOME DO PACIENTE" val={pessoa.nome} w={2.8} />
             <CampoSus cap="4 - Nº DO PRONTUÁRIO" val={limparPrefixo(pessoa.prontuario_numero) || atendimento.numero_atendimento} w={1.1} />
@@ -78,8 +78,8 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
 
         {/* Seção 3: Procedimento Solicitado (Campos 15 a 32) */}
         <div className="sus-secao" style={{ border: '1.2px solid #000', padding: '3px 6px' }}>
-          <div className="sus-secao-titulo" style={{ fontSize: '10.5px', fontWeight: 900 }}>PROCEDIMENTO SOLICITADO</div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '2px', fontSize: '11.5px' }}>
+          <div className="sus-secao-titulo" style={{ fontSize: '11pt', fontWeight: 900 }}>PROCEDIMENTO SOLICITADO</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '2px', fontSize: '11pt' }}>
             <thead>
               <tr style={{ background: '#f1f5f9', borderBottom: '1.2px solid #000' }}>
                 <th style={{ textAlign: 'left', padding: '3px 6px', width: '165px' }}>CÓDIGO DE PROCEDIMENTO</th>
@@ -93,11 +93,11 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
                   <CampoComb cap="15 - CÓDIGO" val={procCod} digitos={10} />
                 </td>
                 <td style={{ padding: '3px 6px' }}>
-                  <span className="cap" style={{ fontSize: '10px' }}>16 - NOME DO PROCEDIMENTO PRINCIPAL</span>
-                  <div style={{ fontWeight: 800, fontSize: '13px' }}>{procNome}</div>
+                  <span className="cap" style={{ fontSize: '11pt' }}>16 - NOME DO PROCEDIMENTO PRINCIPAL</span>
+                  <div style={{ fontWeight: 800, fontSize: '11pt' }}>{procNome}</div>
                 </td>
-                <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '14.5px', padding: '3px 6px' }}>
-                  <span className="cap" style={{ fontSize: '10px' }}>17 - QTE</span>
+                <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '11pt', padding: '3px 6px' }}>
+                  <span className="cap" style={{ fontSize: '11pt' }}>17 - QTE</span>
                   {String(qtd).padStart(2, '0')}
                 </td>
               </tr>
@@ -109,9 +109,9 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
                 const q = cf[`procedimento_secundario_${n}_qtd`] || ''
                 return (
                   <tr key={n} style={{ borderBottom: '1px solid #777', color: nome ? '#000' : '#999' }}>
-                    <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '10px' }}>{base} - CÓDIGO</span>{cod || '—'}</td>
-                    <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '10px' }}>{base + 1} - NOME DO PROCEDIMENTO SECUNDÁRIO</span>{nome ? <b>{nome}</b> : '—'}</td>
-                    <td style={{ textAlign: 'center', padding: '2px 6px' }}><span className="cap" style={{ fontSize: '10px' }}>{base + 2} - QTE</span>{q ? String(q).padStart(2, '0') : '--'}</td>
+                    <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '11pt' }}>{base} - CÓDIGO</span>{cod || '—'}</td>
+                    <td style={{ padding: '2px 6px' }}><span className="cap" style={{ fontSize: '11pt' }}>{base + 1} - NOME DO PROCEDIMENTO SECUNDÁRIO</span>{nome ? <b>{nome}</b> : '—'}</td>
+                    <td style={{ textAlign: 'center', padding: '2px 6px' }}><span className="cap" style={{ fontSize: '11pt' }}>{base + 2} - QTE</span>{q ? String(q).padStart(2, '0') : '--'}</td>
                   </tr>
                 )
               })}
@@ -121,7 +121,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
 
         {/* Seção 4: Justificativa (Campos 33 a 37) */}
         <div className="sus-secao" style={{ border: '1.2px solid #000', padding: '3px 6px' }}>
-          <div className="sus-secao-titulo" style={{ fontSize: '10.5px', fontWeight: 900 }}>JUSTIFICATIVA DO(S) PROCEDIMENTO(S) SOLICITADO(S)</div>
+          <div className="sus-secao-titulo" style={{ fontSize: '11pt', fontWeight: 900 }}>JUSTIFICATIVA DO(S) PROCEDIMENTO(S) SOLICITADO(S)</div>
           <div className="sus-grid">
             <CampoSus cap="33 - DESCRIÇÃO DO DIAGNÓSTICO" val={diag} w={2.8} />
             <div className="sus-field" style={{ flexGrow: 1.1, flexBasis: 0 }}>
@@ -143,7 +143,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
           <div className="sus-grid" style={{ borderTop: '1px solid #777', marginTop: '2px', paddingTop: '2px' }}>
             <div className="sus-field" style={{ flexBasis: '100%' }}>
               <span className="cap">37 - HISTÓRICO / JUSTIFICATIVA CLÍNICA (CAMPO OFICIAL SUS)</span>
-              <div style={{ border: '1px solid #666', borderRadius: '2px', padding: '6px 8px', fontSize: '11.5px', fontWeight: 600, minHeight: '45px', textAlign: 'justify', lineHeight: 1.35 }}>
+              <div style={{ border: '1px solid #666', borderRadius: '2px', padding: '6px 8px', fontSize: '11pt', fontWeight: 600, minHeight: '45px', textAlign: 'justify', lineHeight: 1.35 }}>
                 {just}
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
 
         {/* Seção 5: Solicitação (Campos 38 a 42) */}
         <div className="sus-secao" style={{ border: '1.2px solid #000', padding: '3px 6px' }}>
-          <div className="sus-secao-titulo" style={{ fontSize: '10.5px', fontWeight: 900 }}>SOLICITAÇÃO</div>
+          <div className="sus-secao-titulo" style={{ fontSize: '11pt', fontWeight: 900 }}>SOLICITAÇÃO</div>
           <div className="sus-grid" style={{ alignItems: 'flex-end' }}>
             <CampoSus cap="38 - NOME DO PROFISSIONAL SOLICITANTE" val={medNome} w={2.3} />
             <CampoSus cap="39 - DATA" val={cf.data_solicitacao ? new Date(cf.data_solicitacao + 'T00:00:00').toLocaleDateString('pt-BR') : dataHora.split(',')[0]} w={1} />
@@ -160,14 +160,14 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
             <div className="sus-field" style={{ flexGrow: 2, flexBasis: 0, textAlign: 'center', borderLeft: '1px solid #777', paddingLeft: '8px' }}>
               <span className="cap">42 - ASSINATURA E CARIMBO (Nº REGISTRO CONSELHO)</span>
               <div style={{ borderTop: '1.3px solid #000', width: '85%', margin: '22px auto 2px' }} />
-              <div style={{ fontSize: '10px', fontWeight: 800 }}>{medNome} — {medCrm}</div>
+              <div style={{ fontSize: '11pt', fontWeight: 800 }}>{medNome} — {medCrm}</div>
             </div>
           </div>
         </div>
 
         {/* Seção 6: Autorização (Campos 43 a 50) */}
         <div className="sus-secao" style={{ border: '1.2px solid #000', padding: '3px 6px' }}>
-          <div className="sus-secao-titulo" style={{ fontSize: '10.5px', fontWeight: 900 }}>AUTORIZAÇÃO</div>
+          <div className="sus-secao-titulo" style={{ fontSize: '11pt', fontWeight: 900 }}>AUTORIZAÇÃO</div>
           <div className="sus-grid">
             <CampoSus cap="43 - NOME DO PROFISSIONAL AUTORIZADOR" val={cf.autorizador_nome || '\u00A0'} w={2.3} />
             <CampoSus cap="44 - CÓD. ÓRGÃO EMISSOR" val={cf.autorizador_codigo_orgao_emissor || '\u00A0'} w={1} />
@@ -175,7 +175,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
             <div className="sus-field" style={{ flexGrow: 2, flexBasis: 0, textAlign: 'center', borderLeft: '1px solid #777', paddingLeft: '8px' }}>
               <span className="cap">48 - ASSINATURA E CARIMBO</span>
               <div style={{ borderTop: '1.3px solid #000', width: '85%', margin: '22px auto 2px' }} />
-              <div style={{ fontSize: '10px', fontWeight: 800 }}>Médico Autorizador / Regulação SUS</div>
+              <div style={{ fontSize: '11pt', fontWeight: 800 }}>Médico Autorizador / Regulação SUS</div>
             </div>
           </div>
           <div className="sus-grid" style={{ borderTop: '1px solid #777' }}>
@@ -187,7 +187,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
 
         {/* Seção 7: Executante (Campos 51 e 52) */}
         <div className="sus-secao" style={{ border: '1.2px solid #000', padding: '3px 6px' }}>
-          <div className="sus-secao-titulo" style={{ fontSize: '10.5px', fontWeight: 900 }}>IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE ( EXECUTANTE )</div>
+          <div className="sus-secao-titulo" style={{ fontSize: '11pt', fontWeight: 900 }}>IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE ( EXECUTANTE )</div>
           <div className="sus-grid">
             <CampoSus cap="51 - NOME FANTASIA DO ESTABELECIMENTO" val={cf.executante_nome || ''} w={3.5} />
             <CampoComb cap="52 - CNES" val={cf.executante_cnes || ''} digitos={7} w={1.5} />
@@ -195,7 +195,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
         </div>
       </div>
 
-      <div className="doc-rodape" style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1.2px solid #777', paddingTop: '3px', marginTop: '4px', fontSize: '10px', color: '#333' }}>
+      <div className="doc-rodape" style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1.2px solid #777', paddingTop: '3px', marginTop: '4px', fontSize: '11pt', color: '#333' }}>
         <div>UPA 24H BREVES — BREVES/PA | SISTEMA DE REGULAÇÃO AMBULATORIAL SUS / APAC</div>
         <div>EMISSÃO: {new Date().toLocaleString('pt-BR')} — VIA REGULAÇÃO / PACIENTE</div>
       </div>

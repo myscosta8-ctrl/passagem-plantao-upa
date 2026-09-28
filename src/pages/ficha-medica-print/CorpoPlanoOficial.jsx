@@ -99,13 +99,13 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
                   {registro.tempo_internacao_previsto_dias ? `${String(registro.tempo_internacao_previsto_dias).padStart(2, '0')} DIAS` : '24 a 48H'}
                 </span>
                 <span className="sub">Tempo Previsto na UPA</span>
-                <span style={{ fontSize: '10.5px', color: '#334155', marginTop: '3px' }}>
+                <span style={{ fontSize: '11pt', color: '#334155', marginTop: '3px' }}>
                   {extra.observacao_alta ? `Condicionante da alta: ${extra.observacao_alta}` : 'Estabilização clínica e definição de desfecho'}
                 </span>
               </div>
               <div>
                 <div style={{ fontWeight: 700, marginBottom: '3px' }}>EQUIPE MULTIPROFISSIONAL ENVOLVIDA:</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5px 6px', fontSize: '11px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5px 6px', fontSize: '11pt' }}>
                   {PLANO_EQUIPE_PADRAO.map((eq) => {
                     const ativo = equipeSelecionada.some((s) => s.toLowerCase().includes(eq.chave))
                     return (

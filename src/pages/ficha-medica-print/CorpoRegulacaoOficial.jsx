@@ -26,7 +26,7 @@ export default function CorpoRegulacaoOficial({ registro, pessoa, atendimento, i
 
       <div className="doc-corpo">
         {/* Bloco de Identificação da Regulação */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '4px', background: '#f8fafc', padding: '5px 8px', border: '1px solid #cbd5e1', borderRadius: '4px', marginTop: '3mm', marginBottom: '2mm', fontSize: '11.5px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '4px', background: '#f8fafc', padding: '5px 8px', border: '1px solid #cbd5e1', borderRadius: '4px', marginTop: '3mm', marginBottom: '2mm', fontSize: '11pt' }}>
           <div><b>Nº SOLICITAÇÃO NO SER:</b> <span style={{ color: '#0284c7', fontWeight: 700 }}>{registro.numero_solicitacao_ser || ''}</span></div>
           <div><b>DATA DO CADASTRO:</b> {dataCadastro}</div>
           <div style={{ gridColumn: '1 / -1' }}><b>DIAGNÓSTICO REGULADO:</b> {registro.diagnostico_regulado || ''}</div>

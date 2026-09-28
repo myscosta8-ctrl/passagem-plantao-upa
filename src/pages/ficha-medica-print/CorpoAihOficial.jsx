@@ -40,7 +40,7 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
           <img src="./logos/upa24h.jpg" alt="UPA 24h" />
         </div>
       </div>
-      <div style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 700, marginBottom: 3 }}>ANEXO I</div>
+      <div style={{ textAlign: 'center', fontSize: '11pt', fontWeight: 700, marginBottom: 3 }}>ANEXO I</div>
       <div className="sus-header">
         <div className="sus-header-badge"><span className="sigla">SUS</span></div>
         <div className="sus-header-coluna">Sistema Único de Saúde</div>
