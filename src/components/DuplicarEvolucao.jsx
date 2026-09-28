@@ -11,7 +11,7 @@ import './DuplicarEvolucao.css'
 const CATEGORIAS = {
   enfermagem: {
     tabela: 'evolucoes', autor: 'autor_id',
-    filtro: (q) => q.neq('tipo', 'medico'),
+    filtro: (q) => q.or('tipo.is.null,tipo.neq.medico'),
     resumo: (r) => r.texto || (r.diagnosticos_nanda || []).join(', '),
   },
   medico: {

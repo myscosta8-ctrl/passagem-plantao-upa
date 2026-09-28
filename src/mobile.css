@@ -38,8 +38,6 @@
     box-shadow: 0 -4px 12px rgba(15, 23, 42, .08) !important;
   }
 
-  /* Campos confortáveis para o dedo; 16px evita zoom automático ao digitar */
-  input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; }
 }
 
 /* Rodapé compacto no celular: data numa linha, os 3 botões lado a lado */
@@ -64,4 +62,9 @@
     border-top: 1px solid #E2E8F0; display: flex; gap: 8px;
   }
   .modal-card > .modal-actions > button { flex: 1 1 0; min-height: 46px; }
+}
+
+/* Celular: 16px nos campos evita o zoom automático ao digitar */
+@media (max-width: 640px) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; }
 }
