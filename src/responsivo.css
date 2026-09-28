@@ -113,3 +113,6 @@ html .workspace > *, html .main-viewport > * > * > * { flex-shrink: 0; }
   html :is(input[type=checkbox], input[type=radio]) { width: 20px !important; height: 20px !important; }
   html .clinical-tabs > * { min-height: 40px; }
 }
+
+/* Prescrição: link discreto para campos opcionais do item */
+html .presc-mais-opcoes { align-self: flex-start; border: none; background: transparent; color: #0D9488; font-size: 12px; font-weight: 700; cursor: pointer; padding: 2px 0; display: inline-flex; gap: 4px; align-items: center; min-height: 0 !important; }

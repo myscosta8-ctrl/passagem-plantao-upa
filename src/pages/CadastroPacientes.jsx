@@ -66,7 +66,7 @@ export default function CadastroPacientes() {
             className={`doc-subtab ${aba === 'desfecho' ? 'active' : ''}`}
             onClick={() => { setAba('desfecho'); setPessoaParaEditar(null) }}
           >
-            <i className="ph ph-check-square-offset" /> Desfechos
+            <i className="ph ph-check-square-offset" /> Registrar desfecho
           </button>
         </div>
 

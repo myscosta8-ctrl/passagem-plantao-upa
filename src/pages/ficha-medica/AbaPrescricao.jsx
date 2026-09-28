@@ -209,6 +209,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
   const [calcAberto, setCalcAberto] = useState(null)
   const [calc, setCalc] = useState({ ...CALC_VAZIA })
   const [gruposFechados, setGruposFechados] = useState({})
+  const [maisOpcoes, setMaisOpcoes] = useState({})
   const itensRestritos = itens.filter((it) => atbRestrito(it.medicamento_nome))
 
   useEffect(() => { carregar() }, [])
@@ -465,7 +466,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                           catalogo={catalogo}
                           valor={it.medicamento_nome}
                           onChange={(v) => setItem(i, 'medicamento_nome', v)}
-                          onSelecionar={(m) => selecionarMedicamento(i, m)}
+                          onSelecionar={(m) => selecionarMedicamento(i, m)} placeholder="Medicamento (digite para buscar)"
                         />
                         <button type="button" className="btn-calc-ped" onClick={() => abrirCalculadora(i)} title="Calculadora de Dose Pediátrica">
                           <i className="ph ph-calculator" /><i className="ph ph-baby" />
@@ -475,39 +476,53 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                         </button>
                       </div>
 
-                      <div className="presc-input-linha2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                      {/* Linha essencial: dose, via, frequência e uso — o que toda prescrição precisa */}
+                      <div className="presc-input-linha2" style={{ gridTemplateColumns: '1.1fr 0.8fr 1.1fr 1fr' }}>
                         <div className="presc-dose">
                           <input type="text" inputMode="decimal" className="form-control" placeholder="Dose" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
                           <select className="form-control" value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} title="Unidade da dose">
                             {UNIDADES_DOSE.map((u) => <option key={u} value={u}>{u}</option>)}
                           </select>
                         </div>
-                        <select className="form-control" value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)} title="Via de aplicação">
+                        <select className="form-control" value={it.via} onChange={(e) => setItem(i, 'via', e.target.value)} title="Via de administração">
                           {VIAS.map((v) => <option key={v} value={v}>{v}</option>)}
                         </select>
                         <select className="form-control" value={it.frequencia} onChange={(e) => setItem(i, 'frequencia', e.target.value)} title="Frequência">
                           <option value="">Frequência</option>
                           {FREQUENCIAS.map((f) => <option key={f} value={f}>{f}</option>)}
                         </select>
-                        <select className="form-control" value={it.condicao} onChange={(e) => setItem(i, 'condicao', e.target.value)} title="Condição de uso">
+                        <select className="form-control" value={it.condicao} onChange={(e) => setItem(i, 'condicao', e.target.value)} title="Uso">
                           <option value="">Horário fixo</option>
                           {CONDICOES_USO.map((c) => <option key={c} value={c}>{c}</option>)}
                         </select>
-                        <input type="text" className="form-control" style={{ gridColumn: 'span 2' }} placeholder="Duração (ex: 7 dias)" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
                       </div>
 
-                      <div className="presc-input-linha3" style={{ gridTemplateColumns: '1.2fr 0.7fr 1.1fr' }}>
-                        <select className="form-control" value={it.diluente} onChange={(e) => setItem(i, 'diluente', e.target.value)} title="Diluente">
-                          <option value="">Sem diluição</option>
-                          {DILUENTES.map((d) => <option key={d} value={d}>{d}</option>)}
-                        </select>
-                        <input type="text" inputMode="decimal" className="form-control" placeholder="Vol. (mL)" value={it.diluente_ml} disabled={!it.diluente} onChange={(e) => setItem(i, 'diluente_ml', e.target.value)} />
-                        <select className="form-control" value={it.tempo_infusao} onChange={(e) => setItem(i, 'tempo_infusao', e.target.value)} title="Tempo de administração">
-                          <option value="">Tempo de infusão</option>
-                          {TEMPOS_INFUSAO.map((t) => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                        <input type="text" className="form-control" style={{ gridColumn: '1 / -1' }} placeholder="Outras instruções (ex: aplicar em jejum)" value={it.instrucoes} onChange={(e) => setItem(i, 'instrucoes', e.target.value)} />
-                      </div>
+                      {/* Diluição só aparece para vias injetáveis (EV/IM/SC) */}
+                      {['EV', 'IM', 'SC'].includes(it.via) && (
+                        <div className="presc-input-linha3" style={{ gridTemplateColumns: '1.2fr 0.7fr 1.1fr' }}>
+                          <select className="form-control" value={it.diluente} onChange={(e) => setItem(i, 'diluente', e.target.value)} title="Diluente">
+                            <option value="">Sem diluição</option>
+                            {DILUENTES.map((d) => <option key={d} value={d}>{d}</option>)}
+                          </select>
+                          <input type="text" inputMode="decimal" className="form-control" placeholder="Volume (mL)" value={it.diluente_ml} disabled={!it.diluente} onChange={(e) => setItem(i, 'diluente_ml', e.target.value)} />
+                          <select className="form-control" value={it.tempo_infusao} onChange={(e) => setItem(i, 'tempo_infusao', e.target.value)} title="Tempo de administração">
+                            <option value="">Tempo de infusão</option>
+                            {TEMPOS_INFUSAO.map((t) => <option key={t} value={t}>{t}</option>)}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Opcionais recolhidos: duração e observações */}
+                      {(maisOpcoes[i] || it.duracao || it.instrucoes) ? (
+                        <div className="presc-input-linha3" style={{ gridTemplateColumns: '0.8fr 2fr' }}>
+                          <input type="text" className="form-control" placeholder="Duração (ex: 7 dias)" value={it.duracao} onChange={(e) => setItem(i, 'duracao', e.target.value)} />
+                          <input type="text" className="form-control" placeholder="Observações (ex: aplicar em jejum)" value={it.instrucoes} onChange={(e) => setItem(i, 'instrucoes', e.target.value)} />
+                        </div>
+                      ) : (
+                        <button type="button" className="presc-mais-opcoes" onClick={() => setMaisOpcoes((m) => ({ ...m, [i]: true }))}>
+                          <i className="ph ph-plus" /> Duração / observações
+                        </button>
+                      )}
                       {textoDiluicao(it) && (
                         <div style={{ fontSize: 11.5, color: 'var(--text-secondary)', marginTop: 4 }}>
                           <i className="ph ph-eye" /> Na prescrição: <strong>{textoDiluicao(it)}</strong>
