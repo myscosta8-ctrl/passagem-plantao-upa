@@ -105,3 +105,11 @@ html :is(.cons-secao-body, .med-secao-body, .enf-secao-body, .not-secao-body, .s
 /* Rolagem das telas: blocos dentro de áreas com rolagem vertical não podem
    encolher (senão o card corta o conteúdo e a tela não rola — ex.: Desfechos). */
 html .workspace > *, html .main-viewport > * > * > * { flex-shrink: 0; }
+
+/* Celular e tablet (tela de toque): botões, chips e campos com área mínima para o dedo. */
+@media (pointer: coarse), (max-width: 1024px) {
+  html .main-viewport :is(button, select, input:not([type=checkbox]):not([type=radio])),
+  html :is(.atendimento-medico-container, .enf-theme) :is(button, select, input:not([type=checkbox]):not([type=radio])) { min-height: 36px; }
+  html :is(input[type=checkbox], input[type=radio]) { width: 20px !important; height: 20px !important; }
+  html .clinical-tabs > * { min-height: 40px; }
+}
