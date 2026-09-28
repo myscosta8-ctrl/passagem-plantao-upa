@@ -54,12 +54,12 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
             ) : itens.map((it, i) => (
               <tr key={it.id || i}>
                 <td>
-                  <b>{i + 1} — {it.medicamento_nome}</b>
+                  <b>{i + 1} — {it.medicamento_nome}</b>{it.dose != null && it.dose !== '' && <> — <b>Dose: {String(it.dose).replace('.', ',')} {it.dose_unidade || ''}</b>{Number(it.qtd_por_dose) > 1 && it.apresentacao ? ` (${String(it.qtd_por_dose).replace('.', ',')} ${it.apresentacao})` : ''}</>}
                   {(it.diluicao || it.instrucoes) && (
                     <span className="pr-nota">{[it.diluicao, it.instrucoes].filter(Boolean).join(' — ')}</span>
                   )}
                 </td>
-                <td className="qtd" style={{ textAlign: 'center' }}>{(it.sn_aplic && dosesPorDia(it.frequencia) ? 'até ' : '') + quantidadeDia(it.dose, it.dose_unidade, it.frequencia)}</td>
+                <td className="qtd" style={{ textAlign: 'center' }}>{(it.sn_aplic && dosesPorDia(it.frequencia) && it.apresentacao ? 'até ' : '') + quantidadeDia(it)}</td>
                 <td style={{ textAlign: 'center', fontWeight: 600 }}>{abreviarCondicao(it.sn_acm || it.observacoes) || (it.sn_aplic ? 'SN' : '—')}</td>
                 <td className="via" style={{ textAlign: 'center' }}>{it.via || ''}</td>
                 <td className="freq" style={{ textAlign: 'center' }}>{it.frequencia || ''}{it.duracao ? ` · ${it.duracao}` : ''}</td>

@@ -5,7 +5,7 @@ import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
 import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
-import { dosesPorDia, quantidadeDia } from '../../lib/frequencia'
+import { quantidadeDia, APRESENTACOES, apresentacaoDaForma } from '../../lib/frequencia'
 import { hojeBelem, somarDias, textoValidade } from '../../lib/prescricaoValidade';
 
 
@@ -49,7 +49,7 @@ function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, plac
   )
 }
 
-const ITEM_VAZIO = { medicamento_nome: '', dose: '', dose_unidade: 'mg', via: 'VO', frequencia: '', duracao: '', instrucoes: '', condicao: '', diluente: '', diluente_ml: '', tempo_infusao: '' }
+const ITEM_VAZIO = { medicamento_nome: '', dose: '', dose_unidade: 'mg', via: 'VO', frequencia: '', duracao: '', instrucoes: '', condicao: '', diluente: '', diluente_ml: '', tempo_infusao: '', apresentacao: '', qtd_por_dose: '1' }
 
 // Monta o texto de diluição a partir dos campos guiados (ex.: "Diluir em 100 mL de SF 0,9% — Em 30 min").
 function textoDiluicao(it) {
@@ -73,6 +73,8 @@ function itemParaBanco(it) {
     instrucoes: it.instrucoes || null,
     sn_aplic: !!it.condicao,
     observacoes: it.condicao || null,
+    apresentacao: it.apresentacao || null,
+    qtd_por_dose: it.qtd_por_dose ? Number(String(it.qtd_por_dose).replace(',', '.')) || 1 : 1,
   }
 }
 const ORIENTACAO_VAZIA = { texto: '', frequencia: '' }
@@ -229,7 +231,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
   }
 
   function selecionarMedicamento(i, m) {
-    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, medicamento_nome: m.nome, via: VIAS.includes(m.via_padrao) ? m.via_padrao : it.via } : it)))
+    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, medicamento_nome: m.nome, via: VIAS.includes(m.via_padrao) ? m.via_padrao : it.via, apresentacao: apresentacaoDaForma(m.forma_farmaceutica) || it.apresentacao } : it)))
   }
 
   // O último item de `itens` é sempre o rascunho em edição; os anteriores já
@@ -337,6 +339,8 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
       condicao: it.sn_aplic ? (it.observacoes || '') : '',
       tempo_infusao: it.velocidade_infusao || '',
       instrucoes: [it.diluicao, it.instrucoes].filter(Boolean).join(' — '),
+      apresentacao: it.apresentacao || '',
+      qtd_por_dose: it.qtd_por_dose != null ? String(it.qtd_por_dose).replace('.', ',') : '1',
     })
     const cp = p.campos_prescricao || {}
     setItens([...(p.prescricao_itens || []).map(doBanco), { ...ITEM_VAZIO }])
@@ -521,7 +525,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                       </div>
 
                       {/* Linha essencial: dose, via, frequência e uso — o que toda prescrição precisa */}
-                      <div className="presc-input-linha2" style={{ gridTemplateColumns: '1.1fr 0.8fr 1.1fr 1fr' }}>
+                      <div className="presc-input-linha2" style={{ gridTemplateColumns: '1.1fr 0.7fr 1fr 1fr 1.1fr' }}>
                         <div className="presc-dose">
                           <input type="text" inputMode="decimal" className="form-control" placeholder="Dose" value={it.dose} onChange={(e) => setItem(i, 'dose', e.target.value)} />
                           <select className="form-control" value={it.dose_unidade} onChange={(e) => setItem(i, 'dose_unidade', e.target.value)} title="Unidade da dose">
@@ -535,12 +539,19 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                           <option value="">Frequência</option>
                           {FREQUENCIAS.map((f) => <option key={f} value={f}>{f}</option>)}
                         </select>
-                        {dosesPorDia(it.frequencia) ? <span className="presc-qtd-dia" title="Quantidade no dia">= {quantidadeDia(it.dose, it.dose_unidade, it.frequencia)}/dia</span> : null}
                         <select className="form-control" value={it.condicao} onChange={(e) => setItem(i, 'condicao', e.target.value)} title="Uso">
                           <option value="">Horário fixo</option>
                           {CONDICOES_USO.map((c) => <option key={c} value={c}>{c}</option>)}
                         </select>
+                        <div className="presc-apres" title="Quantidade por dose e apresentação (ampola, frasco, blister...)">
+                          <input type="text" inputMode="decimal" className="form-control" value={it.qtd_por_dose} onChange={(e) => setItem(i, 'qtd_por_dose', e.target.value)} placeholder="Qtd" aria-label="Quantidade por dose" />
+                          <select className="form-control" value={it.apresentacao} onChange={(e) => setItem(i, 'apresentacao', e.target.value)} aria-label="Apresentação">
+                            <option value="">Apres.</option>
+                            {APRESENTACOES.map(([sigla, nome]) => <option key={sigla} value={sigla}>{sigla} — {nome}</option>)}
+                          </select>
+                        </div>
                       </div>
+                      {it.apresentacao && <div className="presc-qtd-dia">Quantidade no dia: <b>{quantidadeDia(it)}</b></div>}
 
                       {/* Diluição só aparece para vias injetáveis (EV/IM/SC) */}
                       {['EV', 'IM', 'SC'].includes(it.via) && (

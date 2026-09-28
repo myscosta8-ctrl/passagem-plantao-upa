@@ -10,16 +10,42 @@ export function dosesPorDia(freq) {
   if (m) { const h = Number(m[2]); return h > 0 && h <= 24 ? Math.round(24 / h) : null }
   m = f.match(/(\d+)x/)
   if (m) return Number(m[1]) || null
-  m = f.match(/^(\d+)(?:\/)?h$/) || f.match(/acada(\d+)h/)
-  if (m) { const h = Number(m[1]); return h > 0 && h <= 24 ? Math.round(24 / h) : null }
   if (/unica|1vez|agora|imediat/.test(f)) return 1
   return null
 }
 
-// Texto da quantidade diária: "4 × 1 g" (4 administrações de 1 g no dia).
-export function quantidadeDia(dose, unidade, freq) {
-  const n = dosesPorDia(freq)
-  const d = dose != null && dose !== '' ? `${String(dose).replace('.', ',')} ${unidade || ''}`.trim() : ''
-  if (!n) return d
-  return d ? `${n} × ${d}` : `${n}×`
+// Apresentações (unidade de dispensação) e siglas usadas na prescrição.
+export const APRESENTACOES = [
+  ['AMP', 'Ampola'], ['FA', 'Frasco-ampola'], ['FRS', 'Frasco'], ['BLS', 'Blister'], ['CP', 'Comprimido'],
+  ['CPS', 'Cápsula'], ['BOL', 'Bolsa'], ['BIS', 'Bisnaga'], ['ENV', 'Envelope'], ['SER', 'Seringa'],
+  ['SUP', 'Supositório'], ['TB', 'Tubo'], ['UN', 'Unidade'],
+]
+
+// Sugere a apresentação a partir da forma farmacêutica do catálogo.
+export function apresentacaoDaForma(forma) {
+  const f = String(forma || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  if (!f) return ''
+  if (/frasco-ampola|po (para )?(solucao )?injet|^po\b(?!.*oral)/.test(f)) return 'FA'
+  if (/infusao|bolsa/.test(f)) return 'BOL'
+  if (/injet|ampola/.test(f)) return 'AMP'
+  if (/capsula/.test(f)) return 'CPS'
+  if (/comprimido/.test(f)) return 'CP'
+  if (/supositorio/.test(f)) return 'SUP'
+  if (/seringa/.test(f)) return 'SER'
+  if (/creme|pomada|gel/.test(f)) return 'BIS'
+  if (/envelope|po para solucao oral/.test(f)) return 'ENV'
+  if (/oral|suspensao|xarope|frasco|gotas|colirio|inalador|nebuliz|spray|solucao/.test(f)) return 'FRS'
+  return ''
+}
+
+const num = (v) => { const n = Number(String(v ?? '').replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : null }
+const br = (n) => String(Math.round(n * 100) / 100).replace('.', ',')
+
+// Quantidade do dia: "4 AMP" (6/6h × 1 ampola). Sem frequência fixa: a quantidade por dose ("1 AMP").
+// Sem apresentação informada: cai para a dose ("1 g").
+export function quantidadeDia(it) {
+  const n = dosesPorDia(it.frequencia)
+  const q = num(it.qtd_por_dose) ?? 1
+  if (it.apresentacao) return n ? `${br(n * q)} ${it.apresentacao}` : `${br(q)} ${it.apresentacao}`
+  return it.dose != null && it.dose !== '' ? `${String(it.dose).replace('.', ',')} ${it.dose_unidade || ''}`.trim() : ''
 }
