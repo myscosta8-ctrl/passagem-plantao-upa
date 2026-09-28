@@ -83,31 +83,6 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
           </div>
         )}
 
-        <div>
-          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico</div>
-          {carregando ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p>
-          ) : historico.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhum atestado registrado ainda.</p>
-          ) : historico.map((a) => (
-            <div key={a.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <p style={{ margin: '0 0 4px' }}>
-                    {a.dias_afastamento} dia(s) a partir de {new Date(a.data_inicio + 'T00:00:00').toLocaleDateString('pt-BR')}
-                    {a.cid ? ` — CID ${a.cid}` : ''}
-                  </p>
-                  <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
-                    {a.enfermeiros?.nome_exibicao || a.enfermeiros?.nome} · {new Date(a.criado_em).toLocaleString('pt-BR')}
-                  </div>
-                </div>
-                <button type="button" className="btn-save-draft" onClick={() => onImprimir(a)}>
-                  <i className="ph ph-printer" /> Imprimir
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="cc-footer">

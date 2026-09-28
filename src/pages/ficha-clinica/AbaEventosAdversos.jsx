@@ -72,39 +72,12 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
   return (
     <div className="clinical-split sae-split">
       
-      {historicoAberto && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
-          <aside className="history-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
-<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
-
-        <div className="hp-header">
-          <span><i className="ph ph-warning-octagon" /> Ocorrências Registradas</span>
-          <span >24h</span>
-        </div>
-        <div className="history-list">
-          {carregando ? <p className="qs-vazio">Carregando...</p> : lista.length === 0 ? <p className="qs-vazio">Nenhuma intercorrência registrada.</p> : lista.map((e) => (
-            <div key={e.id} className="inc-card" onClick={() => onImprimir(e)} title="Clique para imprimir">
-              <div className="inc-time">
-                <span>{hhmm(e.ocorrido_em)}</span>
-                {e.medico_comunicado && <span>Médico comunicado</span>}
-              </div>
-              <div className="inc-title">{e.categoria}</div>
-              <div className="inc-desc">{e.descricao}{e.desfecho_evolucao ? ` — ${e.desfecho_evolucao}` : ''}</div>
-            </div>
-          ))}
-        </div>
-      </aside>
-        </>
-      )}
 
 
       <div className="form-card">
         <div className="fc-header" style={{ flexWrap: 'nowrap' }}><div className="fc-title">
             <h2><i className="ph ph-warning-circle" /> Nota de Intercorrência</h2>
-          </div><div style={{display:'flex', gap: 8}}><button type="button" className="btn-toggle-sidebar" disabled={!ultima} onClick={() => ultima && onImprimir(ultima)}>
-            <i className="ph ph-printer" /> Visualizar Impresso Oficial
-          </button><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div></div>
+          </div></div>
 
         <div className="fc-body">
           <div className="enf-group">

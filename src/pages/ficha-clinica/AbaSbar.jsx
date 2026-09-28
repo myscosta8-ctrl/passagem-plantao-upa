@@ -127,9 +127,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
           <button type="button" className="btn-toggle-sidebar" onClick={toggleTodas}>
             <i className={'ph ' + (todasRecolhidas ? 'ph-arrows-out-line-horizontal' : 'ph-arrows-in-line-horizontal')} /> {todasRecolhidas ? 'Expandir Todos' : 'Recolher Todos'}
           </button>
-          <button type="button" className="btn-toggle-sidebar" disabled={!ultima} title={ultima ? `Última: ${new Date(ultima.criado_em).toLocaleString('pt-BR')}` : 'Nenhuma transferência registrada'} onClick={() => ultima && onImprimir(ultima)}>
-            <i className="ph ph-printer" /> Visualizar Impresso SBAR Oficial
-          </button>
+          
         </div>
       </div>
 

@@ -189,20 +189,6 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
           </div>
         )}
 
-        <div>
-          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico de Atualizações</div>
-          {carregando ? <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p> : historico.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma atualização registrada ainda.</p>
-          ) : historico.map((r) => (
-            <div key={r.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5, display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-              <div>
-                <p style={{ margin: '0 0 4px', whiteSpace: 'pre-wrap' }}>{r.evolucao}</p>
-                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{r.enfermeiros?.nome_exibicao || r.enfermeiros?.nome} · {new Date(r.atualizado_em).toLocaleString('pt-BR')}</div>
-              </div>
-              <button type="button" className="btn-save-draft" onClick={() => onImprimir(r)}><i className="ph ph-printer" /> Imprimir</button>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="cc-footer">

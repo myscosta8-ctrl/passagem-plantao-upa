@@ -131,20 +131,6 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
           </div>
         )}
 
-        <div>
-          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico de Laudos TFD</div>
-          {carregando ? <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p> : historico.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhum laudo registrado ainda.</p>
-          ) : historico.map((t) => (
-            <div key={t.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5, display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-              <div>
-                <div style={{ fontWeight: 600 }}>{t.diagnostico}</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{t.enfermeiros?.nome_exibicao || t.enfermeiros?.nome} · {new Date(t.criado_em).toLocaleString('pt-BR')}</div>
-              </div>
-              <button type="button" className="btn-save-draft" onClick={() => onImprimir(t)}><i className="ph ph-printer" /> Imprimir</button>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="cc-footer">

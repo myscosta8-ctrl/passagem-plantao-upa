@@ -98,20 +98,6 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
           </div>
         )}
 
-        <div>
-          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico de Intercorrências</div>
-          {carregando ? <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p> : historico.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma nota registrada ainda.</p>
-          ) : historico.map((n) => (
-            <div key={n.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5, display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-              <div>
-                <p style={{ margin: '0 0 4px', whiteSpace: 'pre-wrap' }}>{n.descricao_evento || n.notas}</p>
-                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{n.enfermeiros?.nome_exibicao || n.enfermeiros?.nome} · {new Date(n.data_hora || n.criado_em).toLocaleString('pt-BR')}</div>
-              </div>
-              <button type="button" className="btn-save-draft" onClick={() => onImprimir(n)}><i className="ph ph-printer" /> Imprimir</button>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="cc-footer">

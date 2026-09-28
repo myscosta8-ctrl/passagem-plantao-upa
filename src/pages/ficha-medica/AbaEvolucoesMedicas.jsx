@@ -32,11 +32,6 @@ export default function AbaEvolucoesMedicas({  atendimento, medicoId, onImprimir
               </button>
             ))}
           </div>
-          {doc === 'evolucao' && (
-            <button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
-              <i className="ph ph-clock-counter-clockwise"></i> Ver Histórico
-            </button>
-          )}
         </div>
       </div>
       <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex' }}>

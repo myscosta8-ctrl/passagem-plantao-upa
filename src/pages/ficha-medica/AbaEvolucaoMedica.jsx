@@ -87,43 +87,6 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
     <div className="clinical-split">
       {/* HISTÓRICO DE EVOLUÇÕES */}
       
-      {historicoAberto && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => onSetHistoricoAberto(false)} />
-          <aside className="timeline-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
-<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => onSetHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
-
-        <div className="pane-header">
-          <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico</span>
-        </div>
-        <div className="timeline-list">
-          {carregando ? (
-            <p >Carregando...</p>
-          ) : historico.length === 0 ? (
-            <p style={{ fontSize: 11, color: '#94A3B8' }}>Nenhuma evolução registrada ainda.</p>
-          ) : historico.map((e) => (
-            <div
-              key={e.id}
-              className={`tl-item ${itemExpandido === e.id ? 'expanded' : ''}`}
-              onClick={() => setItemExpandido((atual) => (atual === e.id ? null : e.id))}
-            >
-              <div className="tl-date">
-                {new Date(e.criado_em).toLocaleString('pt-BR')}
-                <i className={`ph ph-caret-${itemExpandido === e.id ? 'up' : 'down'}`} />
-              </div>
-              <div className="tl-author">
-                <i className="ph ph-user-md" /> {e.enfermeiros?.nome_exibicao || e.enfermeiros?.nome}
-              </div>
-              <div className="tl-preview">{e.evolucao_dia}</div>
-              <button type="button" className="tl-print" onClick={(ev) => { ev.stopPropagation(); onImprimir(e) }}>
-                <i className="ph ph-printer" /> Imprimir
-              </button>
-            </div>
-          ))}
-        </div>
-      </aside>
-        </>
-      )}
 
 
       {/* NOVA EVOLUÇÃO */}

@@ -231,36 +231,6 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
             </button>
           </div>
 
-          {/* Histórico compacto */}
-          {carregando ? (
-            <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 8 }}>Carregando consultas...</div>
-          ) : historico.length > 0 && (
-            <div style={{ marginTop: 8, borderTop: '1px solid #E2E8F0', paddingTop: 10 }}>
-              <h3 style={{ fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 6, fontWeight: 700 }}>
-                <i className="ph ph-clock-counter-clockwise" /> Consultas Registradas ({historico.length})
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {historico.map((h) => (
-                  <div key={h.id} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 6, padding: '6px 8px', fontSize: 11 }}>
-                    <div style={{ fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {h.hipotese_diagnostica || 'Consulta'}
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, color: '#64748B', fontSize: 10 }}>
-                      <span>{new Date(h.criado_em).toLocaleDateString('pt-BR')}</span>
-                      <button
-                        type="button"
-                        className="btn-icon-circle"
-                        title="Imprimir"
-                        onClick={() => onImprimir(h)}
-                      >
-                        <i className="ph ph-printer" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </aside>
         </>
@@ -276,7 +246,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
               </h2>
             </div>
             <button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center' }}>
-              <i className="ph ph-clock-counter-clockwise"></i> Ver Histórico
+              <i className="ph ph-heartbeat"></i> Triagem e modelos
             </button>
           </div>
 

@@ -98,45 +98,13 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
   return (
     <div className="clinical-split sae-split">
       
-      {historicoAberto && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
-          <aside className="timeline-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
-<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
-
-        <div className="pane-header">
-          <span><i className="ph ph-clock-counter-clockwise" /> Anotações de Turnos</span>
-          <span >24h Ativas</span>
-        </div>
-        <div className="timeline-list">
-          {carregando ? <p className="qs-vazio">Carregando...</p> : historico.length === 0 ? <p className="qs-vazio">Nenhuma evolução registrada ainda.</p> : historico.map((ev, i) => (
-            <div key={ev.id} className={'tl-item' + (i === 0 ? ' active' : '') + (expandido === ev.id ? ' expanded' : '')} onClick={() => setExpandido((a) => (a === ev.id ? null : ev.id))}>
-              <div className="tl-date">{rotuloData(ev.criado_em)} <i className={'ph ph-caret-' + (expandido === ev.id ? 'up' : 'down')} /></div>
-              <div className="tl-author"><i className="ph ph-user" /> {ev.enfermeiros?.nome_exibicao || ev.enfermeiros?.nome || 'Enfermagem'}</div>
-              <div className="tl-preview">
-                {ev.objetivo && <><b>SV:</b> {ev.objetivo}. </>}
-                {ev.texto}
-                {expandido === ev.id && ev.diagnosticos_nanda?.length > 0 && <><br /><b>NANDA-I:</b> {ev.diagnosticos_nanda.join('; ')}</>}
-                {expandido === ev.id && ev.prescricao_nic?.length > 0 && <><br /><b>NIC:</b> {ev.prescricao_nic.join('; ')}</>}
-              </div>
-              {expandido === ev.id && (
-                <button type="button" className="qs-gerenciar" style={{ marginTop: 6 }} onClick={(e) => { e.stopPropagation(); onImprimir(ev); }}><i className="ph ph-printer" /> Imprimir</button>
-              )}
-            </div>
-          ))}
-        </div>
-      </aside>
-        </>
-      )}
 
 
       <div className="sae-card">
         <div className="sc-header" style={{ flexWrap: 'nowrap' }}><div className="sc-title">
             <h2><i className="ph ph-activity" /> Nova Evolução do Enfermeiro (SAE)</h2>
             
-          </div><div className="sc-actions"><button type="button" className="btn-toggle-sidebar" disabled={!ultima} title={ultima ? 'Imprimir a última evolução registrada' : 'Nenhuma evolução registrada'} onClick={() => ultima && onImprimir(ultima)}>
-              <i className="ph ph-printer" /> Visualizar Impresso SAE
-            </button><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div></div>
+          </div><div className="sc-actions"></div></div>
 
         <div className="sc-body">
           <div>
