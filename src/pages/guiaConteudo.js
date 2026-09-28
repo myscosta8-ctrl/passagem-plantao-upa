@@ -12,19 +12,15 @@ export const PASSOS_GUIA = [
     texto: 'Leito vazio: clique para internar um paciente rapidamente (nome e diagnóstico). Leito ocupado: clique para abrir a passagem completa, com todos os campos (exames, dispositivos, pendências etc).',
   },
   {
-    titulo: '4. Copiar do plantão anterior',
-    texto: 'Dentro da passagem de um paciente que já estava internado, use o botão "Copiar do plantão anterior" para trazer os dados do último preenchimento — só ajuste o que mudou, sem digitar tudo de novo.',
+    titulo: '4. Realocar paciente',
+    texto: 'Se o paciente mudou de setor ou leito, use o botão "Realocar" no card do paciente. Os dados clínicos já preenchidos são mantidos.',
   },
   {
-    titulo: '5. Realocar paciente',
-    texto: 'Se o paciente mudou de setor ou leito, use o botão "Realocar" dentro da passagem dele. Os dados clínicos já preenchidos são mantidos.',
-  },
-  {
-    titulo: '6. Imprimir em PDF',
+    titulo: '5. Imprimir em PDF',
     texto: 'Os botões de impressão no topo geram dois documentos (Vermelha+Internação e Pediatria+Observação), já formatados para caber em poucas folhas. Só entra no papel o que foi realmente preenchido.',
   },
   {
-    titulo: '7. Histórico',
-    texto: 'Dá para consultar os plantões dos últimos 7 dias. Depois disso, os registros são apagados automaticamente.',
+    titulo: '6. Dúvidas?',
+    texto: 'Veja a Ajuda no menu lateral: tem o passo a passo de cada tela, com busca.',
   },
 ]

@@ -7,6 +7,7 @@ import ConfirmModal from './ConfirmModal'
 import Sidebar from '../components/Sidebar'
 import './AberturaPlantao.css'
 import { avisarErro } from '../lib/erros'
+import { listarMeusRascunhos } from '../components/MeusRascunhos'
 
 // Telas carregadas sob demanda via React.lazy (Code-Splitting)
 const PrintView = lazy(() => import('./PrintView'))
@@ -102,6 +103,9 @@ export default function Home() {
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
+  // Aviso no menu (Pendências) de documentos do próprio profissional salvos e não finalizados.
+  const [rascunhosPendentes, setRascunhosPendentes] = useState(0)
+  useEffect(() => { listarMeusRascunhos().then((l) => setRascunhosPendentes(l.length)) }, [tela])
   const [focoProfissional, setFocoProfissional] = useState(null)
   // Cada tela só é montada (e só busca dados) quando é aberta. Painel, Passagem e
   // Recepção ficam vivas depois da 1ª visita; as demais recarregam a cada visita.
@@ -340,6 +344,7 @@ export default function Home() {
         plantaoAberto={Boolean(plantao && setoresIds)}
         plantao={plantao}
         telaAtual={tela}
+        rascunhosPendentes={rascunhosPendentes}
         onNavegar={(t) => {
           setTela(t)
           setSidebarAberta(false)
@@ -417,7 +422,7 @@ export default function Home() {
                 </div>
                 
                 <div style={{ display: tela === 'passagemColetiva' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  {visitadas.has('passagemColetiva') && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} onImprimir={setTela} onVoltar={() => setTela('painel')} />}
+                  {visitadas.has('passagemColetiva') && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} onImprimir={setTela} onCompartilhar={() => setTela('compartilhar')} onVoltar={() => setTela('painel')} />}
                 </div>
 
                 <div style={{ display: tela === 'print1' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
@@ -441,7 +446,7 @@ export default function Home() {
                 </div>
 
                 <div style={{ display: tela === 'compartilhar' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  {tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
+                  {tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('passagemColetiva')} />}
                 </div>
 
                 {podeAdministrar && (

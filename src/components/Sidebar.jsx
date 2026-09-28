@@ -15,6 +15,7 @@ export default function Sidebar({
   plantaoAberto,
   plantao,
   telaAtual,
+  rascunhosPendentes = 0,
   onNavegar,
   onEncerrarPlantao,
   encerrandoPlantao,
@@ -130,6 +131,7 @@ export default function Sidebar({
         >
           <i className="ph ph-hourglass sidebar-item-icone" />
           <span className="sidebar-item-texto">Pendências</span>
+          {rascunhosPendentes > 0 && <span className="sidebar-item-tag-novo" title="Documentos seus salvos e ainda não finalizados" style={{ background: '#F59E0B' }}>{rascunhosPendentes}</span>}
         </button>
 
 
@@ -146,20 +148,10 @@ export default function Sidebar({
           <span className="sidebar-item-tag-novo">NOVO</span>
         </button>
 
-        {/* GRUPO EQUIPE */}
-        <div className="sidebar-grupo-label">Equipe</div>
-        <button
-          type="button"
-          className={`sidebar-item ${telaAtual === 'compartilhar' ? 'ativo' : ''}`}
-          onClick={() => onNavegar('compartilhar')}
-          title="Compartilhar Plantão"
-        >
-          <i className="ph ph-chat-circle-text sidebar-item-icone" />
-          <span className="sidebar-item-texto">Compartilhar Plantão</span>
-        </button>
-
+        {/* GRUPO EQUIPE (administração) — "Compartilhar Plantão" fica dentro da Passagem de Plantão */}
         {podeAdministrar && (
           <>
+            <div className="sidebar-grupo-label">Equipe</div>
             <button
               type="button"
               className={`sidebar-item ${telaAtual === 'equipe' ? 'ativo' : ''}`}

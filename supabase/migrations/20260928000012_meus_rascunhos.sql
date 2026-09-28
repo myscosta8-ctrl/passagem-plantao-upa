@@ -1,0 +1,3 @@
+-- meus_rascunhos(): documentos do próprio profissional salvos como rascunho (sem "Salvar e Imprimir"),
+-- varrendo todas as tabelas clínicas com situacao + autor_auth + atendimento_id. SECURITY INVOKER (RLS vale).
+-- Aplicado no Supabase em 28/09/2026 (versão v2, com to_jsonb para atualizado_em/criado_em).

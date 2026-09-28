@@ -48,6 +48,7 @@ export default function PassagemColetiva({
   onEditarPassagem,
   onRecarregar,
   onImprimir,
+  onCompartilhar,
   onVoltar,
 }) {
   const [setorAtivoId, setSetorAtivoId] = useState(null)
@@ -301,6 +302,11 @@ export default function PassagemColetiva({
                   <i className="ph ph-printer" /> Imprimir Pediatria e Observação
                 </button>
               </>
+            )}
+            {onCompartilhar && (
+              <button type="button" className="btn-compact-tool" onClick={onCompartilhar} title="Gerar o resumo do plantão para enviar no WhatsApp">
+                <i className="ph ph-share-network" /> Compartilhar Plantão
+              </button>
             )}
             <div className="view-toggle">
               <button type="button" className={`vt-btn ${modo === 'cards' ? 'active' : ''}`} onClick={() => setModo('cards')}><i className="ph ph-squares-four" /> Grade</button>

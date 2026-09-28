@@ -5,6 +5,7 @@ import { EVOLUCAO_VAZIA } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
+import DuplicarEvolucao from '../../components/DuplicarEvolucao'
 
 export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState(EVOLUCAO_VAZIA)
@@ -87,6 +88,15 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
       <div className="clinical-card">
         
           <div className="cc-body">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+            <DuplicarEvolucao categoria="medico" atendimentoId={atendimento.atendimento_id}
+              temConteudo={!!(dados.evolucao_dia?.trim() || dados.exame_fisico?.trim() || dados.diagnosticos?.trim())}
+              onEscolher={(r, msg) => {
+                const T = ['diagnosticos', 'historia_doenca_atual', 'comorbidades_texto', 'antibioticoterapia', 'evolucao_dia', 'exame_fisico', 'conduta_medica', 'risco_tev']
+                setDados((prev) => ({ ...prev, ...Object.fromEntries(T.map((k) => [k, r[k] ?? ''])), criterios_sepse: !!r.criterios_sepse }))
+                setAviso(msg)
+              }} />
+          </div>
 
 
           <div className="assess-grid">

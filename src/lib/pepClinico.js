@@ -31,12 +31,12 @@ export async function registrarSinaisVitais({ atendimentoId, registradoPor, dado
 export async function listarEvolucoes(atendimentoId) {
   const { data, error: erroConsulta2 } = await supabase
     .from('evolucoes')
-  if (erroConsulta2) avisarErro('pepClinico', erroConsulta2)
     // evolucoes tem 2 FKs para enfermeiros (autor_id e enfermeiro_id): sem o hint o
     // PostgREST recusa o embed (300) e a lista volta vazia.
     .select('*, enfermeiros!evolucoes_autor_id_fkey(nome_exibicao, nome, coren, conselho_uf)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta2) avisarErro('pepClinico', erroConsulta2)
   return data ?? []
 }
 
@@ -221,11 +221,11 @@ export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestino
 export async function listarEventosAdversos(atendimentoId) {
   const { data, error: erroConsulta10 } = await supabase
     .from('eventos_adversos')
-  if (erroConsulta10) avisarErro('pepClinico', erroConsulta10)
     // 2 FKs para enfermeiros (relator_id, notificado_por): hint explícito, senão a lista vem vazia.
     .select('*, enfermeiros!eventos_adversos_relator_id_fkey(nome_exibicao, nome, coren, conselho_uf)')
     .eq('atendimento_id', atendimentoId)
     .order('ocorrido_em', { ascending: false })
+  if (erroConsulta10) avisarErro('pepClinico', erroConsulta10)
   return data ?? []
 }
 

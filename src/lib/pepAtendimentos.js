@@ -102,11 +102,11 @@ export async function carregarLeitosOcupadosPep() {
     .from('passagens')
     .select('*, enfermeiros!passagens_criado_por_fkey(nome_exibicao, nome)')
     .in('atendimento_id', atendimentoIds)
-  if (erroConsulta1) avisarErro('pepAtendimentos', erroConsulta1)
     // Só a última passagem de cada paciente importa aqui; limita a janela para
     // não trazer meses de histórico de quem está internado há muito tempo.
     .gte('criado_em', new Date(Date.now() - 30 * 86400000).toISOString())
     .order('criado_em', { ascending: false })
+  if (erroConsulta1) avisarErro('pepAtendimentos', erroConsulta1)
 
   const passagemPorPaciente = {}
   for (const p of passagens ?? []) {

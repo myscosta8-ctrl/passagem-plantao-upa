@@ -167,7 +167,7 @@ export default function CompartilharPlantao({ plantao, onVoltar }) {
 
   return (
     <div className="page">
-      <button className="voltar-topo" onClick={onVoltar}>← Voltar ao painel</button>
+      <button className="voltar-topo" onClick={onVoltar}>← Voltar à Passagem de Plantão</button>
       <h1 className="page-title">Compartilhar plantão</h1>
       <p className="page-subtitle">Gera as mensagens prontas, no mesmo formato que já é usado no grupo do WhatsApp.</p>
 

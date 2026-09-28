@@ -3,6 +3,7 @@ import { carregarLeitosOcupadosPep } from '../lib/pepAtendimentos'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
 import PassagemForm from './PassagemForm'
+import MeusRascunhos from '../components/MeusRascunhos'
 import './Pendencias.css'
 
 export default function Pendencias({ plantao, onVoltar }) {
@@ -85,7 +86,7 @@ export default function Pendencias({ plantao, onVoltar }) {
       <div className="page-header">
         <div className="page-title">
           <h1>Pendências do Plantão</h1>
-          <p>Acompanhe coletas de exames, laudos, sorologias e hemoderivados pendentes.</p>
+          <p>Seus documentos não finalizados, coletas de exames, laudos, sorologias e hemoderivados pendentes.</p>
         </div>
       </div>
 
@@ -121,6 +122,8 @@ export default function Pendencias({ plantao, onVoltar }) {
           </div>
         </div>
       </div>
+
+      <MeusRascunhos />
 
       <div className="tasks-container">
         {carregando ? (

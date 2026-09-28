@@ -7,7 +7,7 @@ import './Painel.css'
 
 const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
 
-export default function PassagemColetivaTela({ plantao, setoresIds, onImprimir, onVoltar }) {
+export default function PassagemColetivaTela({ plantao, setoresIds, onImprimir, onCompartilhar, onVoltar }) {
   const [modalPassagemForm, setModalPassagemForm] = useState(null)
   const {
     enfermeiro,
@@ -38,6 +38,7 @@ export default function PassagemColetivaTela({ plantao, setoresIds, onImprimir, 
         plantao={plantao}
         enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
         setoresVisiveis={setoresVisiveis}
+        onCompartilhar={onCompartilhar}
         leitos={leitos}
         pacientesPorLeito={pacientesPorLeito}
         passagemPorPaciente={passagemPorPaciente}

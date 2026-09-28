@@ -4,6 +4,7 @@ import { NANDA_OPCOES, NIC_OPCOES } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
+import DuplicarEvolucao from '../../components/DuplicarEvolucao';
 
 // Evolução do Enfermeiro (SAE) — mockups-fase2/09-evolucao-enfermagem-sae-design.html.
 // Os sinais vitais do turno são gravados em sinais_vitais e um resumo vai para
@@ -99,7 +100,11 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
         <div className="sc-header" style={{ flexWrap: 'nowrap' }}><div className="sc-title">
             <h2><i className="ph ph-activity" /> Nova Evolução do Enfermeiro (SAE)</h2>
             
-          </div><div className="sc-actions"></div></div>
+          </div><div className="sc-actions">
+            <DuplicarEvolucao categoria="enfermagem" atendimentoId={atendimento.atendimento_id}
+              temConteudo={!!(texto.trim() || nanda.length || nic.length)}
+              onEscolher={(r, msg) => { setTexto(r.texto || ''); setNanda(r.diagnosticos_nanda || []); setNic(r.prescricao_nic || []); setAvisoRasc(msg); }} />
+          </div></div>
 
         <div className="sc-body">
           <div>
