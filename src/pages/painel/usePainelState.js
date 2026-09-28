@@ -97,7 +97,7 @@ export function usePainelState() {
       .single()
     if (!error && novo) {
       queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => ({ ...old, leitos: [...(old?.leitos || []), novo] }))
-      // Abre imediatamente o modal de admissÃ£o para ocupar o leito extra
+      // Abre imediatamente o modal de admissão para ocupar o leito extra
       setModalLeito(novo)
     } else {
       setErroGeral('Não foi possível abrir o leito extra. Tente de novo, e se persistir, avise o suporte.')

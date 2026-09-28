@@ -376,7 +376,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
               {respCondicional && (
                 <div className="condicional-box">
                   <label><i className="ph ph-info" /> Especificar Parâmetros Respiratórios / Suporte O₂:</label>
-                  <input className="enf-control" type="text" placeholder="Ex: Cateter O2 a 2L/min, SatO2 97%..." value={d.exame.respiratorio_obs} onChange={(e) => setEx('respiratorio_obs', e.target.value)} />
+                  <input className="enf-control" type="text" placeholder="Ex: Cateter O2 a 2L/min, SpO₂ 97%..." value={d.exame.respiratorio_obs} onChange={(e) => setEx('respiratorio_obs', e.target.value)} />
                 </div>
               )}
               <div className="grid-2">

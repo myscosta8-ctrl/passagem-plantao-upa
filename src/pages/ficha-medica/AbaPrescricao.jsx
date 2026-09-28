@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { listarPrescricoes, criarPrescricao, cancelarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
+import { listarPrescricoes, criarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
 import { VIAS, UNIDADES_DOSE, FREQUENCIAS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, atbRestrito, ATM_PENDENTES_KEY } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
+import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
@@ -373,11 +374,6 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
     if (restritos.length > 0) onAbrirAtm?.()
   }
 
-  async function cancelar(prescricaoId) {
-    await cancelarPrescricao(prescricaoId, medicoId, 'Cancelada pelo médico')
-    carregar()
-  }
-
   return (
     <div className="clinical-split">
 
@@ -629,7 +625,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                           {(p.prescricao_itens ?? []).map((it) => it.medicamento_nome).join(', ')}
                         </span>
                         <span style={{ fontSize: 11, color: p.status === 'cancelada' ? '#DC2626' : 'var(--text-muted)' }}>
-                          {p.status}
+                          {p.situacao === 'invalido' ? 'invalidada' : p.status}
                         </span>
                       </div>
                       <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
@@ -637,13 +633,10 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                       </div>
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                         <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => onImprimir(p)}>
-                          <i className="ph ph-printer" /> Imprimir 2ª via
+                          <i className="ph ph-printer" /> Reimprimir
                         </button>
-                        {p.status === 'ativa' && (
-                          <button type="button" className="btn-cancel" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => cancelar(p.id)}>
-                            <i className="ph ph-x-circle" /> Cancelar
-                          </button>
-                        )}
+                        <SeloSituacao registro={p} />
+                        <BotaoInvalidar tabela="prescricoes_medicas" registro={p} meuId={medicoId} onFeito={carregar} />
                       </div>
                     </div>
                   ))}

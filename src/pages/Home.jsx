@@ -102,6 +102,10 @@ export default function Home() {
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
+  // Cada tela só é montada (e só busca dados) quando é aberta. Painel, Passagem e
+  // Recepção ficam vivas depois da 1ª visita; as demais recarregam a cada visita.
+  const [visitadas, setVisitadas] = useState(() => new Set([lerTelaSalva()]))
+  useEffect(() => { setVisitadas((v) => (v.has(tela) ? v : new Set([...v, tela]))) }, [tela])
   const [horaFormatada, setHoraFormatada] = useState('')
 
   useEffect(() => {
@@ -375,15 +379,15 @@ export default function Home() {
           <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
             
             <div style={{ display: tela === 'ajuda' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-              <Ajuda onVoltar={() => setTela('painel')} />
+              {tela === 'ajuda' && <Ajuda onVoltar={() => setTela('painel')} />}
             </div>
 
             <div style={{ display: tela === 'conta' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-              <MinhaConta onVoltar={() => setTela('painel')} />
+              {tela === 'conta' && <MinhaConta onVoltar={() => setTela('painel')} />}
             </div>
 
             <div style={{ display: tela === 'recepcao' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-              <CadastroPacientes onVoltar={() => setTela('painel')} />
+              {visitadas.has('recepcao') && <CadastroPacientes onVoltar={() => setTela('painel')} />}
             </div>
 
             {(!plantao && tela !== 'conta' && tela !== 'recepcao' && tela !== 'ajuda') && (
@@ -395,45 +399,45 @@ export default function Home() {
             {plantao && setoresIds && (
               <>
                 <div style={{ display: tela === 'painel' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  <Painel plantao={plantao} setoresIds={setoresIds} />
+                  {visitadas.has('painel') && <Painel plantao={plantao} setoresIds={setoresIds} />}
                 </div>
                 
                 <div style={{ display: tela === 'passagemColetiva' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} onImprimir={setTela} onVoltar={() => setTela('painel')} />
+                  {visitadas.has('passagemColetiva') && <PassagemColetivaTela plantao={plantao} setoresIds={setoresIds} onImprimir={setTela} onVoltar={() => setTela('painel')} />}
                 </div>
 
                 <div style={{ display: tela === 'print1' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('passagemColetiva')} />
+                  {tela === 'print1' && <PrintView plantao={plantao} grupo="grupo1" onVoltar={() => setTela('passagemColetiva')} />}
                 </div>
 
                 <div style={{ display: tela === 'print2' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('passagemColetiva')} />
+                  {tela === 'print2' && <PrintView plantao={plantao} grupo="grupo2" onVoltar={() => setTela('passagemColetiva')} />}
                 </div>
 
                 <div style={{ display: tela === 'altas' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  <AltasRecentes onVoltar={() => setTela('painel')} />
+                  {tela === 'altas' && <AltasRecentes onVoltar={() => setTela('painel')} />}
                 </div>
 
                 <div style={{ display: tela === 'indicadoresClinicos' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  <IndicadoresPainel onVoltar={() => setTela('painel')} />
+                  {tela === 'indicadoresClinicos' && <IndicadoresPainel onVoltar={() => setTela('painel')} />}
                 </div>
 
                 <div style={{ display: tela === 'pendencias' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />
+                  {tela === 'pendencias' && <Pendencias plantao={plantao} onVoltar={() => setTela('painel')} />}
                 </div>
 
                 <div style={{ display: tela === 'compartilhar' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                  <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />
+                  {tela === 'compartilhar' && <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />}
                 </div>
 
                 {podeAdministrar && (
                   <>
                     <div style={{ display: tela === 'equipe' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                      <PainelEquipe onVoltar={() => setTela('painel')} />
+                      {tela === 'equipe' && <PainelEquipe onVoltar={() => setTela('painel')} />}
                     </div>
 
                     <div style={{ display: tela === 'profissionais' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                      <GerenciarProfissionais onVoltar={() => setTela('painel')} />
+                      {tela === 'profissionais' && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
                     </div>
                   </>
                 )}

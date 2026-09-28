@@ -214,7 +214,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
             >
               <div>
                 <strong>Bronquiolite / Asma Grave</strong>
-                <span>Cibrose, sibilos e oxigenoterapia</span>
+                <span>Cianose, sibilos e oxigenoterapia</span>
               </div>
               <i className="ph ph-plus-circle" style={{ color: '#0D9488', fontSize: 16 }} />
             </button>

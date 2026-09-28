@@ -152,7 +152,6 @@ export async function listarDuplicatasPendentes() {
   const { data, error: erroConsulta4 } = await supabase
     .from('pessoas_duplicatas')
     .select(`
-  if (erroConsulta4) avisarErro('pepRecepcao', erroConsulta4)
       *,
       pessoa:pessoa_id (id, nome, data_nascimento, cpf, cns, prontuario_numero, criado_em),
       candidata:pessoa_candidata_id (id, nome, data_nascimento, cpf, cns, prontuario_numero, criado_em)
@@ -160,6 +159,7 @@ export async function listarDuplicatasPendentes() {
     .eq('status', 'pendente')
     .order('criado_em', { ascending: false })
     .limit(200)
+  if (erroConsulta4) avisarErro('pepRecepcao', erroConsulta4)
   return data ?? []
 }
 

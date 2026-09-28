@@ -98,7 +98,7 @@ export default function GerenciarProfissionais({ onVoltar }) {
       </div>
 
       <div className="card" style={{ marginBottom: 20 }}>
-        <div className="section-label">Criar novo login</div>
+        <div className="section-label">Criar login</div>
         <form onSubmit={criarLogin}>
           <div className="field" style={{ marginBottom: 14 }}>
             <label>Nome completo</label>

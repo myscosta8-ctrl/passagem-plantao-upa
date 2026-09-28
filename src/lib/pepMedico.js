@@ -125,14 +125,6 @@ export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consu
   return { data: { ...prescricao, prescricao_itens: itensSalvos ?? [] } }
 }
 
-export async function cancelarPrescricao(prescricaoId, medicoId, motivo) {
-  // Cancelar = invalidar (o registro permanece, com status e motivo).
-  return supabase
-    .from('prescricoes_medicas')
-    .update({ status: 'cancelada', cancelado_em: new Date().toISOString(), cancelado_por: medicoId, motivo_cancelamento: motivo || null, situacao: 'invalido', motivo_invalidacao: motivo || 'Prescrição cancelada' })
-    .eq('id', prescricaoId)
-}
-
 export async function listarAih(atendimentoId) {
   // aih_solicitacoes tem 2 FKs pra enfermeiros (solicitante_id e encerrado_por) —
   // mesmo problema de listarPrescricoes, precisa do hint explícito.
