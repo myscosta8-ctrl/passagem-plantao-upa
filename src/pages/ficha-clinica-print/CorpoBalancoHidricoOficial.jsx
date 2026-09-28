@@ -168,7 +168,7 @@ export default function CorpoBalancoHidricoOficial({ registro, pessoa, atendimen
           <div className="doc-bloco-datahora">
             <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
             <div className="hora-envio"><b>Fechamento das 24 Horas:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : (dataHora.split(' ')[1] || dataHora)}</div>
-            <div style={{ fontSize: '11pt', color: '#334155', marginTop: 2 }}>
+            <div style={{ fontSize: '8px', color: '#334155', marginTop: 2 }}>
               Balanço Hídrico Acumulado:{' '}
               <b style={{ color: '#0369a1' }}>{totais.bh_total_24h != null ? `${totais.bh_total_24h > 0 ? '+' : ''}${totais.bh_total_24h} mL` : '0 mL'}</b>
             </div>

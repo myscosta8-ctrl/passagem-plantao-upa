@@ -91,16 +91,7 @@ html .recepcao-search-bar .submit-btn { height: auto; min-height: 40px; padding:
   .page-title p { font-size: 13px; }
 }
 
-/* ==========================================================================
-   Impressos: texto clínico escrito pelo profissional em 11pt (legível no papel).
-   Cabeçalhos, rótulos e quadros oficiais foram aumentados proporcionalmente
-   nos CSS de impressão.
-   ========================================================================== */
-html :is(.cons-secao-body, .med-secao-body, .enf-secao-body, .not-secao-body, .sae-secao-body, .sbar-secao-body, .admf-section-body, .adm-section-body, .alta-secao-body, .notm-secao-body),
-html :is(.cons-secao-body, .med-secao-body, .enf-secao-body, .not-secao-body, .sae-secao-body, .sbar-secao-body, .admf-section-body, .adm-section-body, .alta-secao-body, .notm-secao-body) * {
-  font-size: 11pt !important;
-  line-height: 1.4;
-}
+
 
 /* Rolagem das telas: blocos dentro de áreas com rolagem vertical não podem
    encolher (senão o card corta o conteúdo e a tela não rola — ex.: Desfechos). */

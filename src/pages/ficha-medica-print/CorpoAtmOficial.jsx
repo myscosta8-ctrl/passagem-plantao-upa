@@ -51,8 +51,8 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
               <div><b>TRATAMENTO PRETENDIDO:</b> {cf.tratamento_pretendido || ''}</div>
               <div><b>VIA:</b> <span style={{ color: '#0369a1', fontWeight: 700 }}>{cf.via || registro.via || '—'}</span></div>
             </div>
-            <div style={{ fontSize: '11pt', marginBottom: 2 }}>
-              <b>MEDICAMENTO SOLICITADO:</b> <span style={{ fontWeight: 700, color: '#b91c1c', fontSize: '11pt' }}>{registro.medicamento || '—'}</span>
+            <div style={{ fontSize: 10, marginBottom: 2 }}>
+              <b>MEDICAMENTO SOLICITADO:</b> <span style={{ fontWeight: 700, color: '#b91c1c', fontSize: '10.5px' }}>{registro.medicamento || '—'}</span>
             </div>
             <div><b>POSOLOGIA / INFUSÃO:</b> {registro.posologia || ''}</div>
 
@@ -85,9 +85,9 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
                 <span>PARECER:</span>
                 <label><b>[ {cf.parecer_status === 'de_acordo' ? 'X' : ' '} ] DE ACORDO</b></label>
                 <label><b>[ {cf.parecer_status === 'contrario' ? 'X' : ' '} ] CONTRÁRIO</b></label>
-                <span style={{ fontSize: '11pt', fontWeight: 'normal', marginLeft: 'auto', color: '#475569' }}>Avaliação Técnica de Farmácia Clínica</span>
+                <span style={{ fontSize: 8.5, fontWeight: 'normal', marginLeft: 'auto', color: '#475569' }}>Avaliação Técnica de Farmácia Clínica</span>
               </div>
-              <div style={{ fontWeight: 700, margin: '3px 0 2px', fontSize: '11pt' }}>DISPONIBILIDADE EM ESTOQUE HOSPITALAR:</div>
+              <div style={{ fontWeight: 700, margin: '3px 0 2px', fontSize: 8.5 }}>DISPONIBILIDADE EM ESTOQUE HOSPITALAR:</div>
               <div style={{ lineHeight: 1.35 }}>
                 <div>[ {cf.parecer_estoque === 'integral' ? 'X' : ' '} ] Há disponível em estoque quantidade que contemple o tratamento proposto integralmente.</div>
                 <div>[ {cf.parecer_estoque === 'parcial' ? 'X' : ' '} ] Há disponível em estoque somente quantidade para garantia parcial do tratamento proposto.</div>
