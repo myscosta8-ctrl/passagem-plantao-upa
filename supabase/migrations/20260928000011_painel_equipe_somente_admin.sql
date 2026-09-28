@@ -1,0 +1,2 @@
+-- painel_equipe() passa a responder só para administradores (antes: qualquer login autorizado).
+-- Aplicado no Supabase em 28/09/2026; mesma função, com "and public.is_admin()" no where.
