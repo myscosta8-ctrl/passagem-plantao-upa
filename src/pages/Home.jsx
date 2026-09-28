@@ -37,14 +37,8 @@ async function limparLeitosExtrasNaoUsados() {
   if (!candidatos?.length) return
 
   const ids = candidatos.map((l) => l.id)
-  const [{ data: ocupadosPacientes }, { data: ocupacoesPep }] = await Promise.all([
-    supabase.from('pacientes').select('leito_atual_id').eq('status', 'internado').in('leito_atual_id', ids),
-    supabase.from('leito_ocupacoes').select('leito_id').eq('status', 'ativo').in('leito_id', ids),
-  ])
-  const ocupadosSet = new Set([
-    ...(ocupadosPacientes ?? []).map((p) => p.leito_atual_id),
-    ...(ocupacoesPep ?? []).map((o) => o.leito_id),
-  ])
+  const { data: ocupacoesPep } = await supabase.from('leito_ocupacoes').select('leito_id').eq('status', 'ativo').in('leito_id', ids)
+  const ocupadosSet = new Set((ocupacoesPep ?? []).map((o) => o.leito_id))
   const paraExcluir = ids.filter((id) => !ocupadosSet.has(id))
   if (paraExcluir.length) await supabase.from('leitos').delete().in('id', paraExcluir)
 }
@@ -110,7 +104,7 @@ export default function Home() {
   const ehRecepcao = enfermeiro?.tipo === 'recepcao'
   // "Encerrar plantonista" é destrutivo demais pra qualquer conta admin — só o Marcus.
   const ID_MARCUS_ADMIN = '66901c7a-d3b9-435a-932c-276659210f69'
-  const podeEncerrarQualquerPlantonista = enfermeiro?.id === ID_MARCUS_ADMIN
+  const podeAdministrar = enfermeiro?.id === ID_MARCUS_ADMIN
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
@@ -127,6 +121,21 @@ export default function Home() {
     const timer = setInterval(atualizarHora, 30000)
     return () => clearInterval(timer)
   }, [])
+
+  // Encerramento automático do login: o plantão diurno vai até 19h e o noturno
+  // até 7h do dia seguinte (horário de Belém). Após o fim, o profissional tem
+  // 2 horas de tolerância para concluir registros; depois disso o sistema sai.
+  useEffect(() => {
+    if (!plantao?.data || !plantao?.turno) return
+    const fim = plantao.turno === 'Diurno'
+      ? new Date(`${plantao.data}T19:00:00-03:00`)
+      : new Date(new Date(`${plantao.data}T07:00:00-03:00`).getTime() + 86400000)
+    const limite = fim.getTime() + 2 * 3600000
+    const verificar = () => { if (Date.now() >= limite) logout() }
+    verificar()
+    const t = setInterval(verificar, 60000)
+    return () => clearInterval(t)
+  }, [plantao?.data, plantao?.turno, logout])
 
   useEffect(() => {
     try {
@@ -295,7 +304,7 @@ export default function Home() {
         onFechar={() => setSidebarAberta(false)}
         enfermeiro={enfermeiro}
         isAdmin={isAdmin}
-        podeAdministrar={podeEncerrarQualquerPlantonista}
+        podeAdministrar={podeAdministrar}
         plantaoAberto={Boolean(plantao && setoresIds)}
         plantao={plantao}
         telaAtual={tela}
@@ -395,7 +404,7 @@ export default function Home() {
                   <CompartilharPlantao plantao={plantao} onVoltar={() => setTela('painel')} />
                 </div>
 
-                {podeEncerrarQualquerPlantonista && (
+                {podeAdministrar && (
                   <>
                     <div style={{ display: tela === 'equipe' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>
                       <PainelEquipe onVoltar={() => setTela('painel')} />

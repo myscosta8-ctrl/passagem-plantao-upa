@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import ConfirmModal from './ConfirmModal'
 
 export default function PainelEquipe({ onVoltar }) {
   const [ativos, setAtivos] = useState([])
   const [carregando, setCarregando] = useState(true)
-  const [alvo, setAlvo] = useState(null)
 
   useEffect(() => {
     carregar()
@@ -20,17 +18,6 @@ export default function PainelEquipe({ onVoltar }) {
       .order('data', { foreignTable: 'plantoes', ascending: false })
     setAtivos(data ?? [])
     setCarregando(false)
-  }
-
-  async function confirmarEncerramento() {
-    if (!alvo) return
-    await supabase
-      .from('plantao_profissionais')
-      .update({ encerrado: true, encerrado_em: new Date().toISOString(), encerrado_por_sistema: false })
-      .eq('plantao_id', alvo.plantao_id)
-      .eq('profissional_id', alvo.profissional_id)
-    setAlvo(null)
-    carregar()
   }
 
   return (
@@ -68,27 +55,11 @@ export default function PainelEquipe({ onVoltar }) {
                 <span className="badge" style={{ background: 'var(--success-light)', color: 'var(--success)' }}>
                   {item.plantoes?.turno} - {dataStr}
                 </span>
-                <button 
-                  className="btn btn-outline" 
-                  style={{ padding: '4px 8px', fontSize: 12, color: 'var(--danger)', borderColor: 'var(--danger)' }} 
-                  onClick={() => setAlvo(item)}
-                >
-                  Encerrar
-                </button>
               </div>
             </div>
           )
         })}
       </div>
-
-      {alvo && (
-        <ConfirmModal
-          titulo={`Encerrar ${alvo.profissionais?.nome}?`}
-          mensagem={`Isso encerra a participação dessa pessoa no plantão de ${alvo.plantoes?.turno} de ${new Date(alvo.plantoes?.data + 'T00:00:00').toLocaleDateString('pt-BR')} imediatamente, liberando a vaga dela.`}
-          confirmarTexto="Encerrar"
-          perigo
-          onConfirmar={confirmarEncerramento}
-          onCancelar={() => setAlvo(null)}
         />
       )}
     </div>
