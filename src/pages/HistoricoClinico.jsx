@@ -1,5 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
-import { listarAtendimentosDaPessoa, listarRegistrosClinicos } from '../lib/historicoClinico'
+import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes } from '../lib/historicoClinico'
+import { invalidarRegistro } from '../lib/documentos'
+import { useAuth } from '../lib/AuthContext'
 import './HistoricoClinico.css'
 
 const FichaMedicaPrint = lazy(() => import('./FichaMedicaPrint'))
@@ -11,30 +13,82 @@ const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'))
 const fmtData = (d) => (d ? new Date(d).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—')
 const limpar = (v) => String(v || '').replace(/^(PEP|AT)-?/i, '')
 
-function Linha({ item, onImprimir }) {
+const SITUACOES = { rascunho: 'Rascunho', finalizado: 'Finalizado', invalido: 'Invalidado' }
+const fmtValor = (v) => (v === null || v === undefined || v === '' ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v))
+
+function Linha({ item, onImprimir, meuId, onAlterado }) {
   const [aberto, setAberto] = useState(false)
-  const { fonte, autor } = item
+  const [invalidando, setInvalidando] = useState(false)
+  const [motivo, setMotivo] = useState('')
+  const [erro, setErro] = useState('')
+  const [alteracoes, setAlteracoes] = useState(null)
+  const { fonte, autor, registro } = item
+  const situacao = registro.situacao || 'finalizado'
+  const souAutor = registro.autor_auth && registro.autor_auth === meuId
+
+  async function confirmarInvalidacao() {
+    if (!motivo.trim()) { setErro('Informe o motivo.'); return }
+    const { error } = await invalidarRegistro(fonte.tabela, registro.id, motivo.trim())
+    if (error) { setErro(error.message || 'Não foi possível invalidar.'); return }
+    setInvalidando(false); setMotivo(''); setErro('')
+    onAlterado?.()
+  }
+
   return (
-    <div className={`hc-item ${fonte.area}`}>
+    <div className={`hc-item ${fonte.area} ${situacao === 'invalido' ? 'hc-invalido' : ''}`}>
       <div className="hc-item-topo" onClick={() => setAberto((v) => !v)}>
         <span className="hc-data">{fmtData(item.data)}</span>
         <span className={`hc-tipo ${fonte.area}`}>{fonte.rotulo}</span>
+        <span className={`hc-situacao ${situacao}`}>{SITUACOES[situacao] || situacao}</span>
         <span className="hc-autor">{autor ? `${autor.nome_exibicao || autor.nome}${autor.crm ? ` · CRM ${autor.crm}` : autor.coren ? ` · COREN ${autor.coren}` : ''}` : '—'}</span>
         <i className={`ph ph-caret-${aberto ? 'up' : 'down'}`} />
       </div>
       <div className={`hc-resumo ${aberto ? 'aberto' : ''}`}>{item.resumo || 'Sem texto registrado.'}</div>
-      {aberto && fonte.impresso && (
+      {aberto && situacao === 'invalido' && (
+        <div className="hc-motivo"><i className="ph ph-prohibit" /> Invalidado em {fmtData(registro.invalidado_em)} — motivo: {registro.motivo_invalidacao || '—'}</div>
+      )}
+      {aberto && (
         <div className="hc-acoes">
-          <button type="button" className="hc-btn" onClick={() => onImprimir(item)}><i className="ph ph-printer" /> Ver / Imprimir documento</button>
+          {fonte.impresso && <button type="button" className="hc-btn" onClick={() => onImprimir(item)}><i className="ph ph-printer" /> Ver / Imprimir documento</button>}
+          <button type="button" className="hc-btn" onClick={async () => setAlteracoes(alteracoes ? null : await listarAlteracoes(fonte.tabela, registro.id))}><i className="ph ph-clock-counter-clockwise" /> Histórico de alterações</button>
+          {souAutor && situacao !== 'invalido' && !invalidando && (
+            <button type="button" className="hc-btn hc-btn-perigo" onClick={() => setInvalidando(true)}><i className="ph ph-prohibit" /> Invalidar</button>
+          )}
+        </div>
+      )}
+      {aberto && invalidando && (
+        <div className="hc-invalidar">
+          <input type="text" placeholder="Motivo da invalidação (obrigatório)" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+          <button type="button" className="hc-btn hc-btn-perigo" onClick={confirmarInvalidacao}>Confirmar</button>
+          <button type="button" className="hc-btn" onClick={() => { setInvalidando(false); setErro('') }}>Cancelar</button>
+          {erro && <span className="hc-erro">{erro}</span>}
+        </div>
+      )}
+      {aberto && alteracoes && (
+        <div className="hc-alteracoes">
+          {alteracoes.length === 0 && <p className="hc-vazio">Nenhuma alteração desde a criação.</p>}
+          {alteracoes.map((a) => (
+            <div key={a.id} className="hc-alteracao">
+              <div className="hc-alteracao-topo">{fmtData(a.alterado_em)} · {a.autor ? (a.autor.nome_exibicao || a.autor.nome) : 'Sistema'}</div>
+              {a.campos.map((c) => (
+                <div key={c.campo} className="hc-alteracao-campo"><b>{c.campo}</b>: <s>{fmtValor(c.antes)}</s> → {fmtValor(c.depois)}</div>
+              ))}
+            </div>
+          ))}
         </div>
       )}
     </div>
   )
 }
 
-function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento }) {
+function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento, meuId }) {
   const [aberto, setAberto] = useState(false)
   const [estado, setEstado] = useState({ carregando: false, itens: null, atendimentos: [] })
+
+  async function recarregar() {
+    const r = await carregar()
+    setEstado({ carregando: false, ...r })
+  }
 
   async function abrir() {
     const novo = !aberto
@@ -75,11 +129,11 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
                   <div className="hc-atendimento-topo">
                     <i className="ph ph-folder-simple" /> Atendimento #{limpar(a.numero_atendimento)} · {fmtData(a.criado_em)}{a.encerrado_em ? ` até ${fmtData(a.encerrado_em)}` : ''}
                   </div>
-                  {doAt.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} />)}
+                  {doAt.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} />)}
                 </div>
               )
             })
-            : itens.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} />)}
+            : itens.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} />)}
         </div>
       )}
     </div>
@@ -90,6 +144,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
   const [busca, setBusca] = useState('')
   const [filtroArea, setFiltroArea] = useState('todos')
   const [imprimindo, setImprimindo] = useState(null)
+  const { enfermeiro } = useAuth()
   const atendimentoId = atendimento?.atendimento_id
   const pessoaId = atendimento?.pessoa_id
 
@@ -136,8 +191,8 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
               ))}
             </div>
           </div>
-          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, em ordem cronológica" carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={setImprimindo} />
-          <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={setImprimindo} agruparPorAtendimento />
+          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, em ordem cronológica" carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={setImprimindo} meuId={enfermeiro?.id} />
+          <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={setImprimindo} agruparPorAtendimento meuId={enfermeiro?.id} />
           <p className="hc-nota">Exames, Prescrição Médica e AIH continuam no histórico da própria aba.</p>
         </div>
       )}

@@ -32,7 +32,7 @@ export default function FichaClinicaPrint({ atendimentoId, tipo, registro = {}, 
 
   const { pessoa, atendimento, idade, leitoNumero, setorNome } = cabecalho
   const medico = registro.enfermeiros || registro.entrega || autor || {}
-  const dataHora = new Date(registro.criado_em || Date.now()).toLocaleString('pt-BR')
+  const dataHora = new Date(registro.data_registro || registro.criado_em || Date.now()).toLocaleString('pt-BR')
 
   const propsComuns = {
     registro,

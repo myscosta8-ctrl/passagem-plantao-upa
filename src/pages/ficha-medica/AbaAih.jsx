@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarAih, criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar } from '../../lib/pepMedico';
 import { AIH_VAZIA } from './constantes';
+import CampoDataRegistro from '../components/CampoDataRegistro';
+import { metaDoc } from '../lib/documentos';
 
 const PROCEDIMENTOS_RAPIDOS = [
   { cod: '0303010190', codFormatado: '03.03.01.019-0', desc: 'TRATAMENTO DE PNEUMONIA OU INFLUENZA (GRIPE)', rotulo: 'Pneumonia / Influenza' },
@@ -13,6 +15,8 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [dataRegistro, setDataRegistro] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
 
@@ -136,6 +140,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     setErro('');
     setSalvando(true);
     const { data: novaAih, error } = await criarAih({
+      id: editandoId, situacao: metaDoc(imprimirApos, dataRegistro),
       atendimentoId: atendimento?.atendimento_id,
       pessoaId: atendimento?.pessoa_id,
       solicitanteId: medicoId,
@@ -147,6 +152,8 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
       setErro(mensagemErroSalvar(error, 'o Laudo de AIH'));
       return;
     }
+    setEditandoId(imprimirApos ? null : (novaAih?.id ?? null));
+    if (!imprimirApos) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
     setSucesso('Laudo de AIH registrado com sucesso!');
     setTimeout(() => setSucesso(''), 4000);
     carregar();
@@ -681,6 +688,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
+            <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button
               type="button"
               className="btn-save-draft"

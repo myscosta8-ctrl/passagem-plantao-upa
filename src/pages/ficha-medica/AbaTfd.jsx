@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarTfd, criarTfd } from '../../lib/pepMedico';
 import { TFD_VAZIA } from './constantes';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 // Laudo Médico de Tratamento Fora de Domicílio — impresso 13-tratamento-fora-domicilio-tfd.html.
 const SV = [['pa', 'PA (mmHg)', '120/80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO₂ (%)'], ['tax', 'Tax (°C)'], ['hgt', 'HGT (mg/dL)']]
@@ -11,6 +13,9 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
   const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(TFD_VAZIA)
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
   useEffect(() => { carregar() }, [])
@@ -30,6 +35,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
       acompanhante_nome, acompanhante_relacao, ...extra
     } = dados
     const { data, error } = await criarTfd({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, profissionalResponsavel: medicoId,
       dados: {
         historia_doenca_atual, exame_fisico, diagnostico, exame_complementar,
@@ -42,6 +48,8 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
     setDados(TFD_VAZIA)
     carregar()
   }
@@ -113,6 +121,8 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
           </div>
         </div>
 
+        {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
+
         {erro && (
           <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
             <div className="info" style={{ color: '#DC2626' }}><i className="ph ph-warning" /> {erro}</div>
@@ -129,6 +139,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
                 <div style={{ fontWeight: 600 }}>{t.diagnostico}</div>
                 <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{t.enfermeiros?.nome_exibicao || t.enfermeiros?.nome} · {new Date(t.criado_em).toLocaleString('pt-BR')}</div>
               </div>
+              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
               <button type="button" className="btn-save-draft" onClick={() => onImprimir(t)}><i className="ph ph-printer" /> Imprimir</button>
             </div>
           ))}

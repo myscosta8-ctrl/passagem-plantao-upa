@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listarApac, criarApac, buscarCabecalhoImpressao } from '../../lib/pepMedico';
+import CampoDataRegistro from '../components/CampoDataRegistro';
+import { metaDoc } from '../lib/documentos';
 
 // Laudo para Solicitação/Autorização de Procedimento Ambulatorial (APAC) —
 // documento oficial do Ministério da Saúde, impresso 18-laudo-apac-procedimento-ambulatorial.html.
@@ -39,6 +41,8 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
   const [carregando, setCarregando] = useState(true);
   const [dados, setDados] = useState(APAC_VAZIA);
   const [salvando, setSalvando] = useState(false);
+  const [dataRegistro, setDataRegistro] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
 
@@ -86,6 +90,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
     }
     setErro(''); setSucesso(''); setSalvando(true);
     const { data, error } = await criarApac({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id,
       solicitanteId: medicoId,
       dados: {
@@ -103,6 +108,8 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
     });
     setSalvando(false);
     if (error) { console.error(error); setErro('Não foi possível registrar a APAC. Verifique os dados e tente novamente.'); return; }
+    setEditandoId(imprimir ? null : (data?.id ?? null));
+    if (!imprimir) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
     setSucesso('Laudo de APAC registrado.');
     if (imprimir && data) onImprimir?.(data);
     carregar();
@@ -261,6 +268,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
                 <div style={{ fontWeight: 600 }}>{a.procedimento_codigo ? `${a.procedimento_codigo} — ` : ''}{a.procedimento_nome}</div>
                 <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{new Date(a.criado_em).toLocaleString('pt-BR')}{a.numero_autorizacao ? ` · APAC nº ${a.numero_autorizacao}` : ''}</div>
               </div>
+              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
               <button type="button" className="btn-save-draft" onClick={() => onImprimir?.(a)}><i className="ph ph-printer" /> Imprimir</button>
             </div>
           ))}

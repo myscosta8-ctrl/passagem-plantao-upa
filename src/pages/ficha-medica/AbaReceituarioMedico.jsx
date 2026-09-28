@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarReceitasMedicas, criarReceitaMedica, listarCatalogoMedicamentos, buscarCabecalhoImpressao } from '../../lib/pepMedico';
 import { RECEITA_ITEM_VAZIO, VIAS_RECEITA, TAGS_INSTRUCAO, RECEITA_TIPO_LABEL } from './constantes';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 function AutocompleteMedicamentoReceita({ catalogo, valor, onChange, onSelecionar }) {
   const [aberto, setAberto] = useState(false)
@@ -61,6 +63,9 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
   const [pulseControle, setPulseControle] = useState(false)
   const [aviso, setAviso] = useState(null) // { medicamento }
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [avisoRasc, setAvisoRasc] = useState('')
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
   const [filtroTipo, setFiltroTipo] = useState('todas')
@@ -143,12 +148,15 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
     // no campo livre orientacoes_gerais para não exigir migration de schema.
     if (subTab === 'controle') dados.orientacoes_gerais = `Endereço do paciente: ${enderecoPaciente}`
     const { data, error } = await criarReceitaMedica({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados,
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAvisoRasc('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAvisoRasc('')
     if (subTab === 'simples') setItensSimples([{ ...RECEITA_ITEM_VAZIO }])
     else setItensControle([])
     carregar()
@@ -249,6 +257,8 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
           <i className="ph ph-plus" /> Adicionar medicamento
         </button>
 
+        {avisoRasc && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {avisoRasc}</div>}
+
         {erro && (
           <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
             <div className="info" style={{ color: '#DC2626' }}>
@@ -287,6 +297,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
                     {r.enfermeiros?.nome_exibicao || r.enfermeiros?.nome} · {new Date(r.criado_em).toLocaleString('pt-BR')}
                   </div>
                 </div>
+                <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
                 <button type="button" className="btn-save-draft" onClick={() => onImprimir(r)}>
                   <i className="ph ph-printer" /> Imprimir
                 </button>

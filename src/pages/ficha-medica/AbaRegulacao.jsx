@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listarRegulacao, registrarRegulacao, buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao, pesquisarCid } from '../../lib/pepMedico';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 // Atualização de Quadro Clínico para a regulação (SER / SISREG).
 export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFechar }) {
@@ -18,6 +20,9 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
   const [cids, setCids] = useState([])
   const [sv, setSv] = useState({ pas: '', pad: '', fc: '', fr: '', temp: '', spo2: '', hgt: '' })
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
   useEffect(() => { carregar() }, [])
@@ -53,6 +58,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
     setErro('')
     setSalvando(true)
     const { data, error } = await registrarRegulacao({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, atualizadoPor: medicoId,
       dados: {
         evolucao: evolucao.trim(), pendencias: pendencias || null, conduta: conduta || null,
@@ -66,6 +72,8 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
     setSalvando(false)
     if (error) { setErro('Não foi possível registrar a atualização.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
     setEvolucao(''); setPendencias(''); setConduta(''); setNumeroSer('')
     setDiagnosticoRegulado(''); setMudancaDiagnostico(false); setNovoDiagnostico(''); setBuscaCid('')
     setSv({ pas: '', pad: '', fc: '', fr: '', temp: '', spo2: '', hgt: '' })
@@ -97,6 +105,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
               {['SER', 'SISREG'].map((t) => (
                 <button key={t} type="button" className={'btn-add-chip' + (tipoAbertura === t ? ' on' : '')} onClick={() => setTipoAbertura(t)}>{t}</button>
               ))}
+              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
               <button type="button" className="btn-save-draft" onClick={confirmarAbertura} disabled={abrindo}>
                 <i className="ph ph-flag" /> {abrindo ? 'Abrindo...' : 'Abrir regulação'}
               </button>
@@ -157,6 +166,8 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
           <div className="form-group"><label>Pendências</label><textarea className="form-control-area" rows="2" value={pendencias} onChange={(e) => setPendencias(e.target.value)} /></div>
           <div className="form-group" style={{ marginTop: 12 }}><label>Conduta</label><textarea className="form-control-area" rows="2" value={conduta} onChange={(e) => setConduta(e.target.value)} /></div>
         </div>
+
+        {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
 
         {erro && (
           <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>

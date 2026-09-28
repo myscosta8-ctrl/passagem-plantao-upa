@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarSolicitacoesSangue, criarSolicitacaoSangue } from '../../lib/pepMedico';
 import { SANGUE_VAZIA, HEMOCOMPONENTES_OPCOES, URGENCIA_OPCOES } from './constantes';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 // Protocolos transfusionais: preenchem SOMENTE o hemocomponente/quantidade
 // padrão do bundle e a urgência associada. Nunca escrevem a indicação
@@ -21,6 +23,9 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
   const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(SANGUE_VAZIA)
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
   useEffect(() => { carregar() }, [])
@@ -50,12 +55,15 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
     setSalvando(true)
     const { indicacao_clinica, ...extra } = dados
     const { data, error } = await criarSolicitacaoSangue({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, solicitadoPor: medicoId,
       dados: { indicacao_clinica, campos_extra: extra },
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
     setDados(SANGUE_VAZIA)
     carregar()
   }
@@ -240,6 +248,8 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
           </div>
         </div>
 
+        {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
+
         {erro && (
           <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
             <div className="info" style={{ color: '#DC2626' }}>
@@ -263,6 +273,7 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
                     {s.enfermeiros?.nome_exibicao || s.enfermeiros?.nome} · {new Date(s.criado_em).toLocaleString('pt-BR')}
                   </div>
                 </div>
+                <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
                 <button type="button" className="btn-save-draft" onClick={() => onImprimir(s)}>
                   <i className="ph ph-printer" /> Imprimir
                 </button>

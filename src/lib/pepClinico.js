@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient.js'
+import { gravar } from './documentos'
 
 // Fase 2 (piloto Observação/Internação) — ficha clínica contínua do
 // enfermeiro: admissão (exame físico por marcação) + sinais vitais em série.
@@ -36,17 +37,13 @@ export async function listarEvolucoes(atendimentoId) {
   return data ?? []
 }
 
-export async function registrarEvolucao({ atendimentoId, autorId, texto, diagnosticosNanda, prescricaoNic, objetivo }) {
-  return supabase
-    .from('evolucoes')
-    .insert({
+export async function registrarEvolucao({ atendimentoId, autorId, texto, diagnosticosNanda, prescricaoNic, objetivo, id, situacao }) {
+  return gravar('evolucoes', id, {
       atendimento_id: atendimentoId, autor_id: autorId, autor_tipo: 'enfermagem', tipo: 'enfermagem', texto,
       diagnosticos_nanda: diagnosticosNanda?.length ? diagnosticosNanda : null,
       prescricao_nic: prescricaoNic?.length ? prescricaoNic : null,
       objetivo: objetivo || null,
-    })
-    .select()
-    .single()
+    }, situacao, '*')
 }
 
 export async function listarDispositivos(atendimentoId) {
@@ -89,10 +86,8 @@ export async function listarBalancoHidrico(atendimentoId) {
   return data ?? []
 }
 
-export async function registrarBalancoHidrico({ atendimentoId, registradoPor, tipo, via, volumeMl, observacao, registradoEm }) {
-  return supabase
-    .from('balanco_hidrico')
-    .insert({
+export async function registrarBalancoHidrico({ atendimentoId, registradoPor, tipo, via, volumeMl, observacao, registradoEm, id, situacao }) {
+  return gravar('balanco_hidrico', id, {
       atendimento_id: atendimentoId,
       registrado_por: registradoPor,
       tipo,
@@ -100,9 +95,7 @@ export async function registrarBalancoHidrico({ atendimentoId, registradoPor, ti
       volume_ml: Number(volumeMl),
       observacao: observacao || null,
       ...(registradoEm ? { registrado_em: registradoEm } : {}),
-    })
-    .select()
-    .single()
+    }, situacao, '*')
 }
 
 export async function listarEscalas(atendimentoId) {
@@ -202,16 +195,12 @@ export async function listarTransferenciasSbar(atendimentoId) {
   return data ?? []
 }
 
-export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestinoId, enfermeiroEntrega, enfermeiroRecebe, dados }) {
-  return supabase
-    .from('transferencias_sbar')
-    .insert({
+export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestinoId, enfermeiroEntrega, enfermeiroRecebe, dados, id, situacao }) {
+  return gravar('transferencias_sbar', id, {
       leito_ocupacao_id: leitoOcupacaoId || null, setor_destino_id: setorDestinoId || null,
       enfermeiro_entrega: enfermeiroEntrega, enfermeiro_recebe: enfermeiroRecebe || null,
       ...dados,
-    })
-    .select('*, setores:setor_destino_id(nome), entrega:enfermeiro_entrega(nome_exibicao, nome, coren), recebe:enfermeiro_recebe(nome_exibicao, nome)')
-    .single()
+    }, situacao, '*, setores:setor_destino_id(nome), entrega:enfermeiro_entrega(nome_exibicao, nome, coren), recebe:enfermeiro_recebe(nome_exibicao, nome)')
 }
 
 // ===================== Eventos adversos (notificação de incidentes) =====================
@@ -231,11 +220,9 @@ export async function listarEventosAdversos(atendimentoId) {
 
 export async function registrarEventoAdverso({
   atendimentoId, relatorId, anonimo, categoria, gravidade, descricao, acaoImediata,
-  ocorridoEm, medicoComunicado, medicoComunicadoNome, horarioComunicacaoMedico, sinaisVitais, desfechoEvolucao,
+  ocorridoEm, medicoComunicado, medicoComunicadoNome, horarioComunicacaoMedico, sinaisVitais, desfechoEvolucao, id, situacao,
 }) {
-  return supabase
-    .from('eventos_adversos')
-    .insert({
+  return gravar('eventos_adversos', id, {
       atendimento_id: atendimentoId,
       relator_id: anonimo ? null : relatorId,
       anonimo: !!anonimo,
@@ -254,7 +241,5 @@ export async function registrarEventoAdverso({
       sv_temperatura: sinaisVitais?.temperatura === '' || sinaisVitais?.temperatura == null ? null : Number(sinaisVitais.temperatura),
       sv_spo2: sinaisVitais?.spo2 === '' || sinaisVitais?.spo2 == null ? null : Number(sinaisVitais.spo2),
       desfecho_evolucao: desfechoEvolucao || null,
-    })
-    .select()
-    .single()
+    }, situacao, '*')
 }

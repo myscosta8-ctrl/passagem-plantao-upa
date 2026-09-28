@@ -108,7 +108,7 @@ export function CorpoHistoricoEnfermagemFiel({ registro, pessoa, atendimento, id
       <div className="doc-rodape-container">
         <div className="doc-rodape-externo">
           <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {dataHora.split(',')[0]}</div>
+            <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
             <div className="hora-envio"><b>Horário da Admissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
           </div>
           <div className="doc-bloco-assinatura">
@@ -300,7 +300,7 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
       <div className="doc-rodape-container">
         <div className="doc-rodape-externo">
           <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {dataHora.split(',')[0]}</div>
+            <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
             <div className="hora-envio"><b>Horário da Admissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
           </div>
           <div className="doc-bloco-assinatura">

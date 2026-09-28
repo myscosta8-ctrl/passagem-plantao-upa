@@ -139,7 +139,7 @@ export default function CorpoRequisicaoExamesOficial({ modalidade, registro, pes
 
       <div className="rq-rodape">
         <div>UPA 24H BREVES — BREVES/PA | {c.rodape}</div>
-        <div>EMISSÃO: {dataHora} — VIA DO SETOR / PRONTUÁRIO</div>
+        <div>EMISSÃO: {new Date().toLocaleString('pt-BR')} — VIA DO SETOR / PRONTUÁRIO</div>
       </div>
     </div>
   )

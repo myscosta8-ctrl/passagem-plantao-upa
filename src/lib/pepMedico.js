@@ -1,6 +1,10 @@
 import { supabase } from './supabaseClient.js'
 import { calcularIdade, registrarEventoAuditoria } from './pepAtendimentos.js'
 
+import { gravar, MSG_FINALIZADO } from './documentos'
+export { invalidarRegistro, MSG_FINALIZADO } from './documentos'
+
+
 // Camada de dados do módulo médico (Fase 1 do PEP). Só existe sobre a estrutura
 // nova (pessoas/atendimentos/leito_ocupacoes) — diferente do resto do app, não
 // precisa de caminho duplo porque essas telas nunca existiram no caminho antigo.
@@ -52,7 +56,7 @@ export async function listarConsultas(atendimentoId) {
   return data ?? []
 }
 
-export async function criarConsulta({ atendimentoId, pessoaId, medicoId, dados }) {
+export async function criarConsulta({ atendimentoId, pessoaId, medicoId,  dados, id, situacao }) {
   // Só os 6 campos originais vivem como coluna própria — o restante do
   // formulário de Admissão Médica (identificação do atendimento, alergias,
   // medicamentos em uso, antecedentes, sinais vitais, exame físico
@@ -63,7 +67,7 @@ export async function criarConsulta({ atendimentoId, pessoaId, medicoId, dados }
     revisao_sistemas, exame_geral, hipotese_diagnostica, conduta_inicial,
     ...extras
   } = dados
-  return supabase.from('consultas_medicas').insert({
+  return gravar('consultas_medicas', id, {
     atendimento_id: atendimentoId,
     pessoa_id: pessoaId,
     medico_id: medicoId,
@@ -75,7 +79,7 @@ export async function criarConsulta({ atendimentoId, pessoaId, medicoId, dados }
     hipotese_diagnostica: hipotese_diagnostica || null,
     conduta_inicial: conduta_inicial || null,
     campos_admissao: extras,
-  }).select().single()
+  }, situacao)
 }
 
 export async function listarPrescricoes(atendimentoId) {
@@ -91,21 +95,23 @@ export async function listarPrescricoes(atendimentoId) {
   return data ?? []
 }
 
-export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao }) {
-  const { data: prescricao, error } = await supabase
-    .from('prescricoes_medicas')
-    .insert({
-      atendimento_id: atendimentoId,
-      pessoa_id: pessoaId,
-      medico_id: medicoId,
-      consulta_id: consultaId || null,
-      observacoes: observacoes || null,
-      campos_prescricao: camposPrescricao || {},
-    })
-    .select()
-    .single()
+export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao, id, situacao }) {
+  const { data: prescricao, error } = await gravar('prescricoes_medicas', id, {
+    atendimento_id: atendimentoId,
+    pessoa_id: pessoaId,
+    medico_id: medicoId,
+    consulta_id: consultaId || null,
+    observacoes: observacoes || null,
+    campos_prescricao: camposPrescricao || {},
+  }, situacao)
   if (error) return { error }
 
+  // Rascunho reaberto: os itens são regravados (o banco só permite isso
+  // enquanto a prescrição está em rascunho).
+  if (id) {
+    const { error: erroLimpa } = await supabase.from('prescricao_itens').delete().eq('prescricao_id', id)
+    if (erroLimpa) return { error: erroLimpa }
+  }
   const itensPayload = itens.map((it) => ({ ...it, prescricao_id: prescricao.id }))
   const { data: itensSalvos, error: erroItens } = await supabase.from('prescricao_itens').insert(itensPayload).select()
   if (erroItens) return { error: erroItens }
@@ -115,9 +121,10 @@ export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consu
 }
 
 export async function cancelarPrescricao(prescricaoId, medicoId, motivo) {
+  // Cancelar = invalidar (o registro permanece, com status e motivo).
   return supabase
     .from('prescricoes_medicas')
-    .update({ status: 'cancelada', cancelado_em: new Date().toISOString(), cancelado_por: medicoId, motivo_cancelamento: motivo || null })
+    .update({ status: 'cancelada', cancelado_em: new Date().toISOString(), cancelado_por: medicoId, motivo_cancelamento: motivo || null, situacao: 'invalido', motivo_invalidacao: motivo || 'Prescrição cancelada' })
     .eq('id', prescricaoId)
 }
 
@@ -153,7 +160,7 @@ export async function buscarCabecalhoImpressao(atendimentoId) {
   }
 }
 
-export async function criarAih({ atendimentoId, pessoaId, solicitanteId, dados }) {
+export async function criarAih({ atendimentoId, pessoaId, solicitanteId,  dados, id, situacao }) {
   // Só procedimento/CID vivem como coluna própria — o resto dos campos do
   // formulário oficial do SUS (sinais clínicos, diagnóstico inicial, clínica,
   // caráter da internação etc.) fica em campos_formulario (jsonb) pra não
@@ -163,7 +170,7 @@ export async function criarAih({ atendimentoId, pessoaId, solicitanteId, dados }
     cid_principal, cid_secundario,
     ...extras
   } = dados
-  return supabase.from('aih_solicitacoes').insert({
+  return gravar('aih_solicitacoes', id, {
     atendimento_id: atendimentoId,
     pessoa_id: pessoaId,
     solicitante_id: solicitanteId,
@@ -173,7 +180,7 @@ export async function criarAih({ atendimentoId, pessoaId, solicitanteId, dados }
     cid_principal: cid_principal || null,
     cid_secundario: cid_secundario || null,
     campos_formulario: extras,
-  }).select().single()
+  }, situacao)
 }
 
 // Catálogo básico de medicamentos — carregado uma vez (tabela pequena) e
@@ -207,13 +214,13 @@ export async function listarExames(atendimentoId) {
   return data ?? []
 }
 
-export async function criarExame({ atendimentoId, nome, preparo, agendadoPara, local, solicitadoPor, modalidade, exames, justificativa, urgencia }) {
-  return supabase.from('exames_solicitados').insert({
+export async function criarExame({ atendimentoId, nome, preparo, agendadoPara, local, solicitadoPor, modalidade, exames, justificativa, urgencia, id, situacao }) {
+  return gravar('exames_solicitados', id, {
     atendimento_id: atendimentoId, nome, preparo: preparo || null,
     agendado_para: agendadoPara || null, local: local || null, status: 'a_realizar',
     solicitado_por: solicitadoPor || null, modalidade: modalidade || null, tipo: modalidade || null,
     exames: exames || null, justificativa_clinica: justificativa || null, urgencia: urgencia || null,
-  }).select('*, enfermeiros!exames_solicitados_solicitado_por_fkey(nome_exibicao, nome, crm)').single()
+  }, situacao, '*, enfermeiros!exames_solicitados_solicitado_por_fkey(nome_exibicao, nome, crm)')
 }
 
 export async function listarSorologias(atendimentoId) {
@@ -233,16 +240,20 @@ export async function buscarPlanoTerapeutico(atendimentoId) {
     .from('planos_terapeuticos')
     .select('*, enfermeiros!planos_terapeuticos_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
+    .neq('situacao', 'invalido')
+    .order('criado_em', { ascending: false })
+    .limit(1)
     .maybeSingle()
   return data
 }
 
-export async function salvarPlanoTerapeutico({ atendimentoId, criadoPor, dados }) {
+export async function salvarPlanoTerapeutico({ atendimentoId, criadoPor, dados, situacao }) {
   const existente = await buscarPlanoTerapeutico(atendimentoId)
+  if (existente?.situacao === 'finalizado') return { data: null, error: { message: MSG_FINALIZADO } }
   if (existente) {
-    return supabase.from('planos_terapeuticos').update(dados).eq('id', existente.id).select().single()
+    return gravar('planos_terapeuticos', existente.id, { ...dados }, situacao)
   }
-  return supabase.from('planos_terapeuticos').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+  return gravar('planos_terapeuticos', null, { atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }, situacao)
 }
 
 // ===================== Sumário de alta (no máximo um por atendimento) =====================
@@ -252,16 +263,20 @@ export async function buscarSumarioAlta(atendimentoId) {
     .from('sumarios_alta')
     .select('*, enfermeiros!sumarios_alta_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
+    .neq('situacao', 'invalido')
+    .order('criado_em', { ascending: false })
+    .limit(1)
     .maybeSingle()
   return data
 }
 
-export async function salvarSumarioAlta({ atendimentoId, criadoPor, dados }) {
+export async function salvarSumarioAlta({ atendimentoId, criadoPor, dados, situacao }) {
   const existente = await buscarSumarioAlta(atendimentoId)
+  if (existente?.situacao === 'finalizado') return { data: null, error: { message: MSG_FINALIZADO } }
   if (existente) {
-    return supabase.from('sumarios_alta').update({ ...dados, atualizado_em: new Date().toISOString() }).eq('id', existente.id).select().single()
+    return gravar('sumarios_alta', existente.id, { ...dados, atualizado_em: new Date().toISOString() }, situacao)
   }
-  return supabase.from('sumarios_alta').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+  return gravar('sumarios_alta', null, { atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }, situacao)
 }
 
 // ===================== APAC =====================
@@ -275,8 +290,8 @@ export async function listarApac(atendimentoId) {
   return data ?? []
 }
 
-export async function criarApac({ atendimentoId, solicitanteId, dados }) {
-  const inserir = (d) => supabase.from('apac_solicitacoes').insert({ atendimento_id: atendimentoId, solicitado_por: solicitanteId, ...d }).select().single()
+export async function criarApac({ atendimentoId, solicitanteId, dados, id, situacao }) {
+  const inserir = (d) => gravar('apac_solicitacoes', id, { atendimento_id: atendimentoId, solicitado_por: solicitanteId, ...d }, situacao)
   const res = await inserir(dados)
   // cid_principal/cid_secundario têm FK para o catálogo de CID; um código fora do
   // catálogo não pode travar o laudo — grava sem a coluna (o CID digitado continua
@@ -298,8 +313,8 @@ export async function listarAtm(atendimentoId) {
   return data ?? []
 }
 
-export async function criarAtm({ atendimentoId, solicitanteId, dados }) {
-  return supabase.from('solicitacoes_atm').insert({ atendimento_id: atendimentoId, solicitado_por: solicitanteId, ...dados }).select().single()
+export async function criarAtm({ atendimentoId, solicitanteId, dados, id, situacao }) {
+  return gravar('solicitacoes_atm', id, { atendimento_id: atendimentoId, solicitado_por: solicitanteId, ...dados }, situacao, '*')
 }
 
 // ===================== TFD (tratamento fora do domicílio) =====================
@@ -313,8 +328,8 @@ export async function listarTfd(atendimentoId) {
   return data ?? []
 }
 
-export async function criarTfd({ atendimentoId, profissionalResponsavel, dados }) {
-  return supabase.from('tfd_solicitacoes').insert({ atendimento_id: atendimentoId, profissional_responsavel: profissionalResponsavel, ...dados }).select().single()
+export async function criarTfd({ atendimentoId, profissionalResponsavel, dados, id, situacao }) {
+  return gravar('tfd_solicitacoes', id, { atendimento_id: atendimentoId, profissional_responsavel: profissionalResponsavel, ...dados }, situacao, '*')
 }
 
 // ===================== Evolução Médica Diária =====================
@@ -328,8 +343,8 @@ export async function listarEvolucoesMedicas(atendimentoId) {
   return data ?? []
 }
 
-export async function criarEvolucaoMedica({ atendimentoId, criadoPor, dados }) {
-  return supabase.from('evolucoes_medicas').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+export async function criarEvolucaoMedica({ atendimentoId, criadoPor, dados, id, situacao }) {
+  return gravar('evolucoes_medicas', id, { atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }, situacao, '*')
 }
 
 // ===================== Admissão de Enfermagem (Histórico de Enfermagem) — no máximo um por atendimento =====================
@@ -339,16 +354,20 @@ export async function buscarHistoricoEnfermagem(atendimentoId) {
     .from('historico_enfermagem')
     .select('*, enfermeiros!historico_enfermagem_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
+    .neq('situacao', 'invalido')
+    .order('criado_em', { ascending: false })
+    .limit(1)
     .maybeSingle()
   return data
 }
 
-export async function salvarHistoricoEnfermagem({ atendimentoId, criadoPor, dados }) {
+export async function salvarHistoricoEnfermagem({ atendimentoId, criadoPor, dados, situacao }) {
   const existente = await buscarHistoricoEnfermagem(atendimentoId)
+  if (existente?.situacao === 'finalizado') return { data: null, error: { message: MSG_FINALIZADO } }
   if (existente) {
-    return supabase.from('historico_enfermagem').update({ ...dados, atualizado_em: new Date().toISOString() }).eq('id', existente.id).select().single()
+    return gravar('historico_enfermagem', existente.id, { ...dados, atualizado_em: new Date().toISOString() }, situacao)
   }
-  return supabase.from('historico_enfermagem').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+  return gravar('historico_enfermagem', null, { atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }, situacao)
 }
 
 // ===================== Nota de Intercorrência Médica =====================
@@ -362,8 +381,8 @@ export async function listarNotasIntercorrenciaMedica(atendimentoId) {
   return data ?? []
 }
 
-export async function criarNotaIntercorrenciaMedica({ atendimentoId, criadoPor, dados }) {
-  return supabase.from('notas_intercorrencia_medica').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+export async function criarNotaIntercorrenciaMedica({ atendimentoId, criadoPor, dados, id, situacao }) {
+  return gravar('notas_intercorrencia_medica', id, { atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }, situacao, '*')
 }
 
 // ===================== Receituário Médico =====================
@@ -377,8 +396,8 @@ export async function listarReceitasMedicas(atendimentoId) {
   return data ?? []
 }
 
-export async function criarReceitaMedica({ atendimentoId, criadoPor, dados }) {
-  return supabase.from('receitas_medicas').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+export async function criarReceitaMedica({ atendimentoId, criadoPor, dados, id, situacao }) {
+  return gravar('receitas_medicas', id, { atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }, situacao, '*')
 }
 
 // ===================== Atestado Médico =====================
@@ -392,8 +411,8 @@ export async function listarAtestadosMedicos(atendimentoId) {
   return data ?? []
 }
 
-export async function criarAtestadoMedico({ atendimentoId, criadoPor, dados }) {
-  return supabase.from('atestados_medicos').insert({ atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }).select().single()
+export async function criarAtestadoMedico({ atendimentoId, criadoPor, dados, id, situacao }) {
+  return gravar('atestados_medicos', id, { atendimento_id: atendimentoId, criado_por: criadoPor, ...dados }, situacao, '*')
 }
 
 // ===================== Solicitação de Sangue, Componentes e Derivados (Hemopa) =====================
@@ -407,8 +426,8 @@ export async function listarSolicitacoesSangue(atendimentoId) {
   return data ?? []
 }
 
-export async function criarSolicitacaoSangue({ atendimentoId, solicitadoPor, dados }) {
-  return supabase.from('solicitacoes_sangue').insert({ atendimento_id: atendimentoId, solicitado_por: solicitadoPor, ...dados }).select().single()
+export async function criarSolicitacaoSangue({ atendimentoId, solicitadoPor, dados, id, situacao }) {
+  return gravar('solicitacoes_sangue', id, { atendimento_id: atendimentoId, solicitado_por: solicitadoPor, ...dados }, situacao, '*')
 }
 
 // ===================== Atualizações de regulação (SER/SISREG) =====================
@@ -422,8 +441,8 @@ export async function listarRegulacao(atendimentoId) {
   return data ?? []
 }
 
-export async function registrarRegulacao({ atendimentoId, atualizadoPor, dados }) {
-  return supabase.from('regulacao_atualizacoes').insert({ atendimento_id: atendimentoId, atualizado_por: atualizadoPor, ...dados }).select().single()
+export async function registrarRegulacao({ atendimentoId, atualizadoPor, dados, id, situacao }) {
+  return gravar('regulacao_atualizacoes', id, { atendimento_id: atendimentoId, atualizado_por: atualizadoPor, ...dados }, situacao, '*')
 }
 
 // Abertura da regulação (flag + tipo + data) vive em `atendimentos`, separada

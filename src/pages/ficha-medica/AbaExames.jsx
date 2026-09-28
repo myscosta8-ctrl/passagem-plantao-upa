@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarExames, criarExame, buscarCabecalhoImpressao, criarApac } from '../../lib/pepMedico';
 import AbaApac from './AbaApac';
+import CampoDataRegistro from '../components/CampoDataRegistro';
+import { metaDoc } from '../lib/documentos';
 
 // ==========================================
 // CATÁLOGO COMPLETO FIEL AO MOCKUP FASE 2
@@ -214,6 +216,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
   const [localEcg, setLocalEcg] = useState('leito');
   const [apacDados, setApacDados] = useState(APAC_VAZIA);
   const [salvando, setSalvando] = useState(false);
+  const [dataRegistro, setDataRegistro] = useState('');
   const [historico, setHistorico] = useState([])
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [cabecalho, setCabecalho] = useState(null);
@@ -315,6 +318,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         }
 
         const { data: reg, error: erroEx } = await criarExame({
+          situacao: metaDoc(imprimir, dataRegistro),
           atendimentoId: atendimento.atendimento_id,
           nome: `Requisição Laboratorial (${itens.length} exames)`,
           preparo: prioridade.lab === 'urgencia' ? 'Urgência' : 'Rotina',
@@ -344,6 +348,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         }
 
         const { data: reg, error: erroEx } = await criarExame({
+          situacao: metaDoc(imprimir, dataRegistro),
           atendimentoId: atendimento.atendimento_id,
           nome: `Requisição de Radiologia (${itens.length} exames)`,
           preparo: prioridade.img === 'urgencia' ? 'Urgência' : 'Eletivo',
@@ -373,6 +378,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         }
 
         const { data: reg, error: erroEx } = await criarExame({
+          situacao: metaDoc(imprimir, dataRegistro),
           atendimentoId: atendimento.atendimento_id,
           nome: `Requisição de ECG (${itens.length} traçados)`,
           preparo: 'Urgência / Emergência',
@@ -395,6 +401,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         }
 
         const { data, error } = await criarApac({
+          situacao: metaDoc(imprimir, dataRegistro),
           atendimentoId: atendimento.atendimento_id,
           solicitanteId: medicoId,
           dados: {
@@ -778,6 +785,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
             <i className="ph ph-x-circle" /> Cancelar
           </button>
           <div style={{ display: 'flex', gap: 12 }}>
+            <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
               <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
             </button>

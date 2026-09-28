@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarEvolucoes, registrarEvolucao, listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
 import { NANDA_OPCOES, NIC_OPCOES } from './constantes';
+import CampoDataRegistro from '../components/CampoDataRegistro';
+import { metaDoc } from '../lib/documentos';
 
 // Evolução do Enfermeiro (SAE) — mockups-fase2/09-evolucao-enfermagem-sae-design.html.
 // Os sinais vitais do turno são gravados em sinais_vitais e um resumo vai para
@@ -43,6 +45,9 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
   const [nanda, setNanda] = useState([]);
   const [nic, setNic] = useState([]);
   const [salvando, setSalvando] = useState(false);
+  const [dataRegistro, setDataRegistro] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
+  const [avisoRasc, setAvisoRasc] = useState('');
   const [erro, setErro] = useState('');
   const [expandido, setExpandido] = useState(null);
 
@@ -63,7 +68,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
     setErro('');
     setSalvando(true);
     const temSv = Object.values(sv).some((v) => String(v).trim() !== '');
-    if (temSv) {
+    if (temSv && !editandoId) {
       const [pas, pad] = String(sv.pa).split(/[x/]/i).map((x) => x.trim());
       const { error: e1 } = await registrarSinaisVitais({
         atendimentoId: atendimento.atendimento_id, registradoPor: autorId,
@@ -72,13 +77,16 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
       if (e1) console.error(e1);
     }
     const { data, error } = await registrarEvolucao({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, autorId, texto: texto.trim(),
       diagnosticosNanda: nanda, prescricaoNic: nic,
       objetivo: temSv ? resumoSv(sv) : null,
     });
     setSalvando(false);
     if (error) { setErro('Não foi possível registrar. Tente de novo.'); console.error(error); return; }
-    if (imprimir && data) onImprimir(data);
+    if (!imprimir) { setEditandoId(data?.id ?? null); setErro(''); setAvisoRasc('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
+    setEditandoId(null); setDataRegistro(''); setAvisoRasc('');
+    if (data) onImprimir(data);
     setTexto(''); setNanda([]); setNic([]); setSv(SV_VAZIO);
     carregar();
   }
@@ -196,6 +204,8 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
             <textarea className="enf-control" rows="4" value={texto} onChange={(e) => setTexto(e.target.value)} />
           </div>
 
+          {avisoRasc && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {avisoRasc}</div>}
+
           {erro && (
             <div className="condicional-box" style={{ background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' }}>
               <span style={{ fontSize: 12.5, fontWeight: 600 }}><i className="ph ph-warning" /> {erro}</span>
@@ -206,6 +216,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
         <div className="sc-footer">
           <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 12 }}>
+            <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
             <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
           </div>

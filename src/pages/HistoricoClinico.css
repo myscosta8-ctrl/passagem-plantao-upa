@@ -61,3 +61,26 @@
 .hc-fechar { border: 1px solid #CBD5E1; background: #fff; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #334155; }
 .hc-gaveta .hc-corpo { border-top: none; overflow-y: auto; flex: 1; }
 .hc-gaveta .hc-bloco-corpo { max-height: none; }
+
+/* Situação do documento clínico */
+.hc-situacao { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: .03em; }
+.hc-situacao.rascunho { background: #FEF3C7; color: #92400E; }
+.hc-situacao.finalizado { background: #DCFCE7; color: #166534; }
+.hc-situacao.invalido { background: #FEE2E2; color: #991B1B; }
+.hc-item.hc-invalido { opacity: .75; border-left-color: #DC2626 !important; }
+.hc-item.hc-invalido .hc-resumo { text-decoration: line-through; }
+.hc-acoes { display: flex; gap: 6px; flex-wrap: wrap; }
+.hc-btn-perigo { border-color: #DC2626; background: #FEF2F2; color: #B91C1C; }
+.hc-motivo { font-size: 11.5px; color: #991B1B; padding: 0 10px 7px; }
+.hc-invalidar { display: flex; gap: 6px; align-items: center; padding: 0 10px 8px; flex-wrap: wrap; }
+.hc-invalidar input { flex: 1; min-width: 220px; border: 1px solid #CBD5E1; border-radius: 6px; padding: 5px 8px; font-size: 12px; }
+.hc-erro { color: #B91C1C; font-size: 11.5px; }
+.hc-alteracoes { margin: 0 10px 8px; border-top: 1px dashed #CBD5E1; padding-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+.hc-alteracao-topo { font-size: 11px; font-weight: 700; color: #334155; }
+.hc-alteracao-campo { font-size: 11px; color: #334155; word-break: break-word; }
+.hc-alteracao-campo s { color: #991B1B; }
+/* Rascunho e data retroativa nas abas */
+.aviso-rascunho { display: flex; align-items: center; gap: 8px; background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
+.campo-data-registro { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; color: #475569; margin-right: auto; }
+.campo-data-registro input { border: 1px solid #CBD5E1; border-radius: 6px; padding: 4px 6px; font-size: 12px; }
+.campo-data-registro button { border: none; background: transparent; color: #0D9488; font-weight: 700; cursor: pointer; font-size: 11px; }

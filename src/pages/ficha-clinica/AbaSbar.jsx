@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { buscarOcupacaoAtiva, listarTransferenciasSbar, registrarTransferenciaSbar, listarAlergias, listarSinaisVitais } from '../../lib/pepClinico';
+import CampoDataRegistro from '../components/CampoDataRegistro';
+import { metaDoc } from '../lib/documentos';
 
 // Transferência Estruturada do Paciente (SBAR) — mockups-fase2/14-transferencia-paciente-design.html,
 // impresso modelos_impressao_html/03-transferencia-paciente-sbar.html.
@@ -37,6 +39,8 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
   const [filtro, setFiltro] = useState('todas');
   const [recolhidas, setRecolhidas] = useState(() => new Set());
   const [salvando, setSalvando] = useState(false);
+  const [dataRegistro, setDataRegistro] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
   const [msg, setMsg] = useState(null);
 
   useEffect(() => {
@@ -67,6 +71,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
     setMsg(null); setSalvando(true);
     const [pas, pad] = String(d.pa).split(/[x/]/i).map((x) => x.trim());
     const { data, error } = await registrarTransferenciaSbar({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       leitoOcupacaoId: ocupacao?.id || null, setorDestinoId: null, enfermeiroEntrega: autorId, enfermeiroRecebe: null,
       dados: {
         atendimento_id: atendimento.atendimento_id,
@@ -85,7 +90,8 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
     });
     setSalvando(false);
     if (error) { console.error(error); setMsg({ erro: true, t: 'Não foi possível salvar a transferência. Tente de novo.' }); return; }
-    setMsg({ t: 'Transferência SBAR registrada.' });
+    setEditandoId(imprimir ? null : (data?.id ?? null));
+    setMsg({ t: imprimir ? 'Transferência SBAR finalizada.' : 'Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' });
     listarTransferenciasSbar(atendimento.atendimento_id).then(setHistorico);
     if (imprimir && data) onImprimir(data);
   }
@@ -222,6 +228,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
       <div className="tc-footer">
         <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
         <div style={{ display: 'flex', gap: 12 }}>
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
           <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir SBAR'}</button>
         </div>

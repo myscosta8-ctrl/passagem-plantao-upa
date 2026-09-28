@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarAtm, criarAtm } from '../../lib/pepMedico';
 import { ATM_VAZIA, ATM_RESTRITOS, ATM_PENDENTES_KEY, atbRestrito } from './constantes';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 // Solicitação de Autorização de Uso de Antimicrobiano (ATM) — modelo
 // 11-formulario-antimicrobiano-atm.html. Documento interno obrigatório sempre
@@ -27,6 +29,9 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
   })
   const [origemPrescricao, setOrigemPrescricao] = useState(() => lerPendentes(atdId).length > 0)
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
   useEffect(() => { carregar() }, [])
@@ -48,6 +53,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
       medicamento, posologia, dose, intervalo, tempo_uso_dias, justificativa_clinica, ...extra
     } = dados
     const { data, error } = await criarAtm({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atdId, solicitanteId: medicoId,
       dados: {
         medicamento, posologia, dose, intervalo, justificativa_clinica,
@@ -58,6 +64,8 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
 
     // Tira da fila o antibiótico que acabou de ser solicitado e já carrega o próximo.
     const restantes = pendentes.filter((p) => p.medicamento !== medicamento)
@@ -166,6 +174,8 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
           </div>
         </div>
 
+        {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
+
         {erro && (
           <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
             <div className="info" style={{ color: '#DC2626' }}><i className="ph ph-warning" /> {erro}</div>
@@ -184,6 +194,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
                   {a.enfermeiros?.nome_exibicao || a.enfermeiros?.nome} · {new Date(a.criado_em).toLocaleString('pt-BR')} · {a.parecer_farmaceutico ? `Parecer: ${a.parecer_farmaceutico}` : 'Aguardando parecer'}
                 </div>
               </div>
+              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
               <button type="button" className="btn-save-draft" onClick={() => onImprimir(a)}><i className="ph ph-printer" /> Imprimir</button>
             </div>
           ))}

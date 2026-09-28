@@ -102,7 +102,7 @@ export default function CorpoTfdOficial({ registro, pessoa, atendimento, idade, 
       <div className="doc-rodape-container">
         <div className="doc-rodape-externo">
           <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {dataHora.split(',')[0]}</div>
+            <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
             <div className="hora-envio"><b>Emissão Oficial TFD:</b> Secretaria Municipal de Saúde &bull; Regulação SER</div>
           </div>
           <div className="doc-bloco-assinatura">

@@ -60,8 +60,6 @@ export default function PainelEquipe({ onVoltar }) {
           )
         })}
       </div>
-        />
-      )}
     </div>
   )
 }

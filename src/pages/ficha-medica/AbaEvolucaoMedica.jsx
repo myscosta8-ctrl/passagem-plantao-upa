@@ -2,12 +2,17 @@ import { useEffect, useState } from 'react';
 import { listarEvolucoesMedicas, criarEvolucaoMedica } from '../../lib/pepMedico';
 import { listarSinaisVitais } from '../../lib/pepClinico';
 import { EVOLUCAO_VAZIA } from './constantes';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, onFechar , historicoAberto, onSetHistoricoAberto }) {
   const [historico, setHistorico] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(EVOLUCAO_VAZIA)
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
   const [itemExpandido, setItemExpandido] = useState(null)
   const [puxandoSv, setPuxandoSv] = useState(false)
@@ -48,6 +53,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
     setErro('')
     setSalvando(true)
     const { data, error } = await criarEvolucaoMedica({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         diagnosticos: dados.diagnosticos || null, historia_doenca_atual: dados.historia_doenca_atual || null,
@@ -68,6 +74,8 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
     setDados(EVOLUCAO_VAZIA)
     setSvInfo('')
     carregar()
@@ -200,6 +208,8 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
             <textarea className="form-control-area" placeholder="Conduta, exames solicitados, pendências de leito..." value={dados.conduta_medica} onChange={(e) => set('conduta_medica', e.target.value)} />
           </div>
 
+          {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
+
           {erro && (
             <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
               <div className="info" style={{ color: '#DC2626' }}>
@@ -216,6 +226,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
             </button>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
+            <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
               <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
             </button>

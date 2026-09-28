@@ -197,7 +197,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
 
       <div className="doc-rodape" style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1.2px solid #777', paddingTop: '3px', marginTop: '4px', fontSize: '7.5px', color: '#333' }}>
         <div>UPA 24H BREVES — BREVES/PA | SISTEMA DE REGULAÇÃO AMBULATORIAL SUS / APAC</div>
-        <div>EMISSÃO: {dataHora} — VIA REGULAÇÃO / PACIENTE</div>
+        <div>EMISSÃO: {new Date().toLocaleString('pt-BR')} — VIA REGULAÇÃO / PACIENTE</div>
       </div>
     </div>
   )

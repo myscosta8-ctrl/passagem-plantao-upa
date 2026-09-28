@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from 'react'
+import { useEffect, useState, lazy, Suspense, useRef } from 'react'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import Painel from './Painel'
@@ -20,13 +20,6 @@ const PainelEquipe = lazy(() => import('./PainelEquipe'))
 const GerenciarProfissionais = lazy(() => import('./GerenciarProfissionais'))
 const PainelMedico = lazy(() => import('./PainelMedico'))
 const CadastroPacientes = lazy(() => import('./CadastroPacientes'))
-
-async function purgarHistoricoAntigo() {
-  const seteDiasAtras = new Date()
-  seteDiasAtras.setDate(seteDiasAtras.getDate() - 7)
-  const limite = seteDiasAtras.toISOString().slice(0, 10)
-  await supabase.from('plantoes').delete().lt('data', limite)
-}
 
 // Leitos extras que não possuem paciente ativo desaparecem automaticamente
 async function limparLeitosExtrasNaoUsados() {
@@ -122,20 +115,27 @@ export default function Home() {
     return () => clearInterval(timer)
   }, [])
 
-  // Encerramento automático do login: o plantão diurno vai até 19h e o noturno
-  // até 7h do dia seguinte (horário de Belém). Após o fim, o profissional tem
-  // 2 horas de tolerância para concluir registros; depois disso o sistema sai.
+  const logoutRef = useRef(logout)
+  logoutRef.current = logout
+
+  // Encerramento automático do login após 2 horas sem uso (sem clique,
+  // digitação, toque ou rolagem). A última atividade fica no localStorage para
+  // valer entre abas abertas do mesmo navegador.
   useEffect(() => {
-    if (!plantao?.data || !plantao?.turno) return
-    const fim = plantao.turno === 'Diurno'
-      ? new Date(`${plantao.data}T19:00:00-03:00`)
-      : new Date(new Date(`${plantao.data}T07:00:00-03:00`).getTime() + 86400000)
-    const limite = fim.getTime() + 2 * 3600000
-    const verificar = () => { if (Date.now() >= limite) logout() }
-    verificar()
-    const t = setInterval(verificar, 60000)
-    return () => clearInterval(t)
-  }, [plantao?.data, plantao?.turno, logout])
+    const LIMITE = 2 * 60 * 60 * 1000
+    const CHAVE = 'app_ultima_atividade'
+    const marcar = () => { try { localStorage.setItem(CHAVE, String(Date.now())) } catch { /* sem storage */ } }
+    const ultima = () => { try { return Number(localStorage.getItem(CHAVE)) || Date.now() } catch { return Date.now() } }
+    let ultimaMarcacao = 0
+    const aoUsar = () => { const agora = Date.now(); if (agora - ultimaMarcacao > 30000) { ultimaMarcacao = agora; marcar() } }
+    // Ao reabrir o app depois de mais de 2h parado, encerra antes de continuar.
+    if (Date.now() - ultima() >= LIMITE) { logoutRef.current(); return }
+    marcar()
+    const eventos = ['mousedown', 'keydown', 'touchstart', 'scroll', 'mousemove']
+    eventos.forEach((e) => window.addEventListener(e, aoUsar, { passive: true, capture: true }))
+    const t = setInterval(() => { if (Date.now() - ultima() >= LIMITE) logoutRef.current() }, 60000)
+    return () => { clearInterval(t); eventos.forEach((e) => window.removeEventListener(e, aoUsar, { capture: true })) }
+  }, [])
 
   useEffect(() => {
     try {
@@ -156,7 +156,6 @@ export default function Home() {
       setVerificandoRetomada(false)
       return
     }
-    purgarHistoricoAntigo()
     limparLeitosExtrasNaoUsados()
     if (isAdmin) {
       entrarComoAdmin()

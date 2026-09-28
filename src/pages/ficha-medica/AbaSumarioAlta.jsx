@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { buscarSumarioAlta, salvarSumarioAlta, mensagemErroSalvar } from '../../lib/pepMedico';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState({
@@ -11,6 +13,9 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
   const [salvo, setSalvo] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [sucesso, setSucesso] = useState(false)
   const [erro, setErro] = useState('')
 
@@ -34,6 +39,7 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
   async function salvar(imprimir = false) {
     setSalvando(true)
     const { data, error } = await salvarSumarioAlta({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         data_internacao: dados.data_internacao || null, data_alta: dados.data_alta || null,
@@ -48,6 +54,8 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
     setSucesso(true)
     setSalvo(data)
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
   }
 
   if (carregando) return <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
@@ -104,6 +112,8 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
           <textarea value={dados.orientacoes_continuidade} onChange={(e) => set('orientacoes_continuidade', e.target.value)} />
         </div>
 
+        {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
+
         {erro && (
   <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA', marginTop: 16 }}>
     <div className="info" style={{ color: '#991B1B' }}><i className="ph ph-warning" /> {erro}</div>
@@ -130,6 +140,7 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
               <i className="ph ph-printer" /> Reimprimir
             </button>
           )}
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
             <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
           </button>

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listarNotasIntercorrenciaMedica, criarNotaIntercorrenciaMedica } from '../../lib/pepMedico';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 // Nota de Intercorrência Médica — impresso 09-nota-intercorrencia-medica.html.
 // Colunas: descricao_evento (1), sinais_vitais_evento jsonb (2: exame físico + SV),
@@ -14,6 +16,9 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
   const [carregando, setCarregando] = useState(true)
   const [d, setD] = useState(VAZIA)
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
   useEffect(() => { carregar() }, [])
@@ -25,6 +30,7 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
     setErro('')
     setSalvando(true)
     const { data, error } = await criarNotaIntercorrenciaMedica({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         medico_id: medicoId,
@@ -38,6 +44,8 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
     setD(VAZIA)
     carregar()
   }
@@ -80,6 +88,8 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
           </div>
         </div>
 
+        {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
+
         {erro && (
           <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
             <div className="info" style={{ color: '#DC2626' }}><i className="ph ph-warning" /> {erro}</div>
@@ -96,6 +106,7 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
                 <p style={{ margin: '0 0 4px', whiteSpace: 'pre-wrap' }}>{n.descricao_evento || n.notas}</p>
                 <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{n.enfermeiros?.nome_exibicao || n.enfermeiros?.nome} · {new Date(n.data_hora || n.criado_em).toLocaleString('pt-BR')}</div>
               </div>
+              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
               <button type="button" className="btn-save-draft" onClick={() => onImprimir(n)}><i className="ph ph-printer" /> Imprimir</button>
             </div>
           ))}

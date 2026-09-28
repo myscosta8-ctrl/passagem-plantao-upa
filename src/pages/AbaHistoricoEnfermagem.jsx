@@ -4,6 +4,8 @@ import { listarEscalas, listarDispositivos, listarAlergias } from '../lib/pepCli
 import AbaAlergias from './ficha-clinica/AbaAlergias'
 import AbaDispositivos from './ficha-clinica/AbaDispositivos'
 import AbaEscalas from './ficha-clinica/AbaEscalas'
+import CampoDataRegistro from 'components/CampoDataRegistro'
+import { metaDoc } from 'lib/documentos'
 
 // ===================== Admissão de Enfermagem (SAE) =====================
 // Tela conforme mockups-fase2/08-admissao-enfermagem-design.html; o impresso é
@@ -122,6 +124,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
   const [salvo, setSalvo] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
   const [mensagem, setMensagem] = useState(null)
   const [filtro, setFiltro] = useState('procedencia')
   const [recolhidas, setRecolhidas] = useState(() => new Set())
@@ -158,6 +161,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
     setSalvando(true)
     setMensagem(null)
     const { data, error } = await salvarHistoricoEnfermagem({
+      situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         coleta_dados: [d.procedencia, d.meio_chegada].filter(Boolean),
@@ -176,9 +180,9 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
       },
     })
     setSalvando(false)
-    if (error) { console.error(error); setMensagem({ tipo: 'erro', texto: 'Não foi possível salvar a admissão. Tente de novo.' }); return }
+    if (error) { console.error(error); setMensagem({ tipo: 'erro', texto: error.message?.includes('finalizado') ? error.message : 'Não foi possível salvar a admissão. Tente de novo.' }); return }
     setSalvo(data)
-    setMensagem({ tipo: 'ok', texto: 'Admissão de enfermagem salva.' })
+    setMensagem({ tipo: 'ok', texto: imprimir ? 'Admissão de enfermagem finalizada.' : 'Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' })
     if (imprimir && data) onImprimir({ ...data, _variante: 'projeto' })
   }
 
@@ -415,6 +419,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
         <div className="ac-footer">
           <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 12 }}>
+            <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
             <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
           </div>

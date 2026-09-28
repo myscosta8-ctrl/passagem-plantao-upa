@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listarConsultas, criarConsulta } from '../../lib/pepMedico';
+import CampoDataRegistro from '../components/CampoDataRegistro';
+import { metaDoc } from '../lib/documentos';
 
 const MODELOS = {
   pediatria: {
@@ -30,6 +32,8 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [dataRegistro, setDataRegistro] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
 
@@ -119,6 +123,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
     setErro('');
     setSalvando(true);
     const { data: novaConsulta, error } = await criarConsulta({
+      id: editandoId, situacao: metaDoc(imprimirApos, dataRegistro),
       atendimentoId: atendimento?.atendimento_id,
       pessoaId: atendimento?.pessoa_id,
       medicoId,
@@ -129,6 +134,8 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
       setErro('Não foi possível salvar a consulta médica. Tente novamente.');
       return;
     }
+    setEditandoId(imprimirApos ? null : (novaConsulta?.id ?? null));
+    if (!imprimirApos) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
     setSucesso('Consulta de Admissão salva com sucesso!');
     setTimeout(() => setSucesso(''), 4000);
     carregar();
@@ -416,6 +423,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
+            <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button
               type="button"
               className="btn-save-draft"

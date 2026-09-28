@@ -80,6 +80,8 @@ export function AuthProvider({ children }) {
       ? username.trim().toLowerCase()
       : usernameToEmail(username)
     const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
+    // Novo login reinicia o contador de inatividade (2h — ver Home.jsx).
+    if (!error) { try { localStorage.setItem('app_ultima_atividade', String(Date.now())) } catch { /* sem storage */ } }
     return { error }
   }
 
@@ -107,6 +109,7 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
+    try { localStorage.removeItem('app_ultima_atividade') } catch { /* sem storage */ }
     await supabase.auth.signOut()
   }
 

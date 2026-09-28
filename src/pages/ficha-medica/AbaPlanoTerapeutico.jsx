@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { buscarPlanoTerapeutico, salvarPlanoTerapeutico, mensagemErroSalvar } from '../../lib/pepMedico';
 import { PROTOCOLOS_OPCOES, EQUIPE_OPCOES, TEMPO_INTERNACAO_OPCOES, PROBLEMA_VAZIO } from './constantes';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 // Kits de protocolo institucional: preenchem SOMENTE as caixas de protocolo
 // elegível e equipe multidisciplinar (bundles de cuidado padronizados pela
@@ -24,6 +26,9 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
   const [carregando, setCarregando] = useState(true)
   const [historicoAberto, setHistoricoAberto] = useState(false)
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [sucesso, setSucesso] = useState(false)
   const [erro, setErro] = useState('')
 
@@ -80,6 +85,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
       tempo_internacao_previsto_dias, equipe_multidisciplinar, ...extra
     } = dados
     const { data, error } = await salvarPlanoTerapeutico({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         diagnostico_principal_cid: diagnostico_principal_cid || null,
@@ -95,6 +101,8 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
     setSucesso(true)
     setSalvo(data)
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
   }
 
   if (carregando) return <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
@@ -222,6 +230,8 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
             </div>
           </div>
 
+          {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
+
           {erro && (
     <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA', marginTop: 16 }}>
       <div className="info" style={{ color: '#991B1B' }}><i className="ph ph-warning" /> {erro}</div>
@@ -248,6 +258,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
                 <i className="ph ph-printer" /> Reimprimir
               </button>
             )}
+            <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
               <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
             </button>

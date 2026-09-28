@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarPrescricoes, criarPrescricao, cancelarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
 import { VIAS, UNIDADES_DOSE, FREQUENCIAS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, atbRestrito, ATM_PENDENTES_KEY } from './constantes';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
@@ -196,6 +198,9 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
   const [hemocomponentes, setHemocomponentes] = useState({})
   const [hemocomponenteObs, setHemocomponenteObs] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
   const [calcAberto, setCalcAberto] = useState(null)
@@ -319,6 +324,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
     setErro('')
     setSalvando(true)
     const { data, error } = await criarPrescricao({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id,
       pessoaId: atendimento.pessoa_id,
       medicoId,
@@ -339,6 +345,8 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
       return
     }
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
     // ATM obrigatória: antibiótico da lista de uso restrito prescrito → abre a ficha de ATM já preenchida.
     const restritos = validos.filter((it) => atbRestrito(it.medicamento_nome))
     if (restritos.length > 0) {
@@ -397,6 +405,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
               </div>
             </div>
           )}
+          {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
           {erro && (
             <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA', margin: '16px 20px 0' }}>
               <div className="info" style={{ color: '#DC2626' }}><i className="ph ph-warning" /> {erro}</div>
@@ -625,6 +634,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                         Prescrito por {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} • {new Date(p.criado_em).toLocaleString('pt-BR')}
                       </div>
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
                         <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => onImprimir(p)}>
                           <i className="ph ph-printer" /> Imprimir 2ª via
                         </button>

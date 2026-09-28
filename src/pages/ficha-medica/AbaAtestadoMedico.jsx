@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listarAtestadosMedicos, criarAtestadoMedico } from '../../lib/pepMedico';
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
 
 const HOJE = new Date().toISOString().slice(0, 10);
 
@@ -11,6 +13,9 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
   const [dataInicio, setDataInicio] = useState(HOJE)
   const [textoLivre, setTextoLivre] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [dataRegistro, setDataRegistro] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
+  const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
   useEffect(() => { carregar() }, [])
@@ -24,6 +29,7 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
     setErro('')
     setSalvando(true)
     const { data, error } = await criarAtestadoMedico({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id,
       criadoPor: medicoId,
       dados: {
@@ -36,6 +42,8 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
     setCid(''); setDiasAfastamento(''); setDataInicio(HOJE); setTextoLivre('')
     carregar()
   }
@@ -63,6 +71,8 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
           <textarea value={textoLivre} onChange={(e) => setTextoLivre(e.target.value)} placeholder="Texto adicional a compor o atestado, se necessário." />
         </div>
 
+        {aviso && <div className="aviso-rascunho"><i className="ph ph-pencil-simple" /> {aviso}</div>}
+
         {erro && (
           <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
             <div className="info" style={{ color: '#DC2626' }}>
@@ -89,6 +99,7 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
                     {a.enfermeiros?.nome_exibicao || a.enfermeiros?.nome} · {new Date(a.criado_em).toLocaleString('pt-BR')}
                   </div>
                 </div>
+                <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
                 <button type="button" className="btn-save-draft" onClick={() => onImprimir(a)}>
                   <i className="ph ph-printer" /> Imprimir
                 </button>

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listarEventosAdversos, registrarEventoAdverso } from '../../lib/pepClinico';
+import CampoDataRegistro from '../components/CampoDataRegistro';
+import { metaDoc } from '../lib/documentos';
 
 // Nota de Intercorrência de Enfermagem — mockups-fase2/13-nota-intercorrencia-enfermagem-design.html,
 // impresso modelos_impressao_html/04-nota-intercorrencia-enfermagem.html.
@@ -31,6 +33,8 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [d, setD] = useState(VAZIO);
   const [salvando, setSalvando] = useState(false);
+  const [dataRegistro, setDataRegistro] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
   const [msg, setMsg] = useState(null);
 
   useEffect(() => { carregar(); }, []);
@@ -42,6 +46,7 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
     setMsg(null); setSalvando(true);
     const [pas, pad] = String(d.pa).split(/[x/]/i).map((x) => x.trim());
     const { data, error } = await registrarEventoAdverso({
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
       atendimentoId: atendimento.atendimento_id, relatorId: autorId, anonimo: false,
       categoria: d.tipo, gravidade: 'Não classificada', descricao: d.descricao.trim(), acaoImediata: d.condutas.trim(),
       ocorridoEm: isoDeHora(d.hora),
@@ -51,8 +56,10 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
     });
     setSalvando(false);
     if (error) { console.error(error); setMsg({ erro: true, t: 'Não foi possível registrar. Tente de novo.' }); return; }
-    setMsg({ t: 'Intercorrência registrada.' });
-    if (imprimir && data) onImprimir(data);
+    if (!imprimir) { setEditandoId(data?.id ?? null); setMsg({ t: 'Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' }); carregar(); return; }
+    setEditandoId(null); setDataRegistro('');
+    setMsg({ t: 'Intercorrência finalizada.' });
+    if (data) onImprimir(data);
     setD(VAZIO());
     carregar();
   }
@@ -147,6 +154,7 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
         <div className="fc-footer">
           <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 12 }}>
+            <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
             <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
           </div>

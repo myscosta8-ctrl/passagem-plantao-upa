@@ -61,7 +61,7 @@ export async function listarRegistrosClinicos(atendimentoIds) {
       id: `${f.tabela}:${r.id}`,
       fonte: f,
       registro: r,
-      data: r[f.data || 'criado_em'] || r.criado_em,
+      data: r.data_registro || r[f.data || 'criado_em'] || r.criado_em,
       autorId: COLUNAS_AUTOR.map((c) => r[c]).find((v) => typeof v === 'string' && v.length > 20) || null,
       resumo: f.resumo(r),
     }))
@@ -75,4 +75,28 @@ export async function listarRegistrosClinicos(atendimentoIds) {
     itens.forEach((i) => { i.autor = porId[i.autorId] || null })
   }
   return itens.sort((a, b) => new Date(a.data) - new Date(b.data))
+}
+
+// Trilha de alterações de um registro (quem alterou, quando e o que estava escrito).
+export async function listarAlteracoes(tabela, registroId) {
+  const { data, error } = await supabase
+    .from('auditoria_alteracoes')
+    .select('id, operacao, alterado_por, alterado_em, dados_anteriores, dados_novos')
+    .eq('tabela', tabela).eq('registro_id', String(registroId))
+    .order('alterado_em', { ascending: false })
+  if (error) { console.error('Erro ao listar alterações:', error); return [] }
+  const ids = [...new Set((data ?? []).map((a) => a.alterado_por).filter(Boolean))]
+  let porId = {}
+  if (ids.length) {
+    const { data: profs } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome').in('id', ids)
+    porId = Object.fromEntries((profs ?? []).map((p) => [p.id, p]))
+  }
+  const ignorar = new Set(['atualizado_em', 'finalizado_em', 'invalidado_em'])
+  return (data ?? []).map((a) => ({
+    ...a,
+    autor: porId[a.alterado_por] || null,
+    campos: Object.keys({ ...(a.dados_anteriores || {}), ...(a.dados_novos || {}) })
+      .filter((k) => !ignorar.has(k) && JSON.stringify(a.dados_anteriores?.[k]) !== JSON.stringify(a.dados_novos?.[k]))
+      .map((k) => ({ campo: k, antes: a.dados_anteriores?.[k], depois: a.dados_novos?.[k] })),
+  }))
 }

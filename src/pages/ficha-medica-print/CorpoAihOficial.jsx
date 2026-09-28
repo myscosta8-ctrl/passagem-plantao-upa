@@ -194,7 +194,7 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
       </div>
 
       <div className="sus-rodape-legal">Esta conta é paga com recursos públicos do SUS</div>
-      <div className="doc-rodape-meta">Registrado em {dataHora}</div>
+      <div className="doc-rodape-meta">Registrado em {dataHora} · Impresso em {new Date().toLocaleString('pt-BR')}</div>
     </div>
   )
 }

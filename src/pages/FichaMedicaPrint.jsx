@@ -76,7 +76,7 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
 
   const { pessoa, atendimento, idade, leitoNumero, setorNome } = cabecalho
   const medico = registro.enfermeiros || autor
-  const dataHora = new Date(registro.criado_em || registro.solicitado_em || registro.atualizado_em).toLocaleString('pt-BR')
+  const dataHora = new Date(registro.data_registro || registro.criado_em || registro.solicitado_em || registro.atualizado_em).toLocaleString('pt-BR')
 
   const propsComuns = {
     registro,
@@ -153,7 +153,7 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
           <div className="linha-assinatura" />
           {medico?.nome_exibicao || medico?.nome}{medico?.crm ? ` — CRM ${medico.crm}` : ''}
         </div>
-        <div className="doc-rodape-meta">Registrado em {dataHora}</div>
+        <div className="doc-rodape-meta">Registrado em {dataHora} · Impresso em {new Date().toLocaleString('pt-BR')}</div>
       </div>
     </div>
   )

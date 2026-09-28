@@ -118,7 +118,7 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
       <div className="doc-rodape-container">
         <div className="doc-rodape-externo" style={{ paddingTop: 2 }}>
           <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {dataHora.split(',')[0]}</div>
+            <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
             <div className="hora-envio"><b>Horário da Solicitação:</b> {dataHora.split(',')[1] || ''} &bull; Validade: 24h</div>
           </div>
           <div style={{ display: 'flex', gap: 30 }}>
