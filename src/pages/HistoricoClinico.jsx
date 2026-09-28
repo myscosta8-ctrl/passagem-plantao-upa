@@ -56,6 +56,9 @@ function Linha({ item, onImprimir, meuId, onAlterado }) {
           {souAutor && situacao !== 'invalido' && !invalidando && (
             <button type="button" className="hc-btn hc-btn-perigo" onClick={() => setInvalidando(true)}><i className="ph ph-prohibit" /> Invalidar</button>
           )}
+          {!souAutor && situacao === 'finalizado' && (
+            <span className="hc-aviso-autor"><i className="ph ph-info" /> Só quem registrou ({autor ? (autor.nome_exibicao || autor.nome) : 'o autor'}) pode invalidar este documento.</span>
+          )}
         </div>
       )}
       {aberto && invalidando && (

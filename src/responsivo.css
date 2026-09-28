@@ -32,10 +32,11 @@ html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer)
   html :is(.atendimento-medico-container, .enf-theme) .topbar .sys-time { display: none; }
 }
 @media (max-width: 760px) {
-  /* pilares viram botões de ícone; nome do profissional encurta */
-  html :is(.atendimento-medico-container, .enf-theme) .btn-pilar { font-size: 0; padding: 6px 9px; gap: 0; }
+  /* nome do profissional some no celular (já aparece no menu) */
+  /* Botões com texto (só ícone não era reconhecido — "não achei o Histórico Clínico") */
+  html :is(.atendimento-medico-container, .enf-theme) .btn-pilar { font-size: 11.5px; padding: 7px 10px; gap: 5px; }
   html :is(.atendimento-medico-container, .enf-theme) .btn-pilar i { font-size: 15px; }
-  html :is(.atendimento-medico-container, .enf-theme) .enf-avatar { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  html :is(.atendimento-medico-container, .enf-theme) .enf-avatar, html :is(.atendimento-medico-container, .enf-theme) .med-avatar { display: none; }
   html :is(.atendimento-medico-container, .enf-theme) .topbar .btn-voltar { padding: 5px 10px; }
 }
 
