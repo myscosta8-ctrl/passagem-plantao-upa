@@ -28,7 +28,7 @@ export default function CompartilharPlantao({ plantao, onVoltar }) {
   const [copiado, setCopiado] = useState('')
 
   useEffect(() => {
-    carregar()
+    carregar().catch((e) => { console.error("Falha ao carregar:", e); setCarregando(false) })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

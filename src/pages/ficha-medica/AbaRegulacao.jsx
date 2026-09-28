@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarRegulacao, registrarRegulacao, buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao, listarCatalogoCid } from '../../lib/pepMedico';
+import { listarRegulacao, registrarRegulacao, buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao, pesquisarCid } from '../../lib/pepMedico';
 
 // Atualização de Quadro Clínico para a regulação (SER / SISREG).
 export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFechar }) {
@@ -20,7 +20,12 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
 
-  useEffect(() => { carregar(); listarCatalogoCid().then(setCids) }, [])
+  useEffect(() => { carregar() }, [])
+  const [buscaCid, setBuscaCid] = useState('')
+  useEffect(() => {
+    const t = setTimeout(() => { pesquisarCid(buscaCid).then(setCids) }, 250)
+    return () => clearTimeout(t)
+  }, [buscaCid])
   async function carregar() {
     setCarregando(true)
     setHistorico(await listarRegulacao(atendimento.atendimento_id))
@@ -62,7 +67,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
     if (error) { setErro('Não foi possível registrar a atualização.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
     setEvolucao(''); setPendencias(''); setConduta(''); setNumeroSer('')
-    setDiagnosticoRegulado(''); setMudancaDiagnostico(false); setNovoDiagnostico('')
+    setDiagnosticoRegulado(''); setMudancaDiagnostico(false); setNovoDiagnostico(''); setBuscaCid('')
     setSv({ pas: '', pad: '', fc: '', fr: '', temp: '', spo2: '', hgt: '' })
     carregar()
   }
@@ -114,10 +119,18 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
             </div>
             {mudancaDiagnostico && (
               <div className="form-group"><label>Novo diagnóstico / CID</label>
-                <select value={novoDiagnostico} onChange={(e) => setNovoDiagnostico(e.target.value)}>
-                  <option value="">—</option>
-                  {cids.map((c) => <option key={c.codigo} value={c.codigo}>{c.codigo} — {c.descricao}</option>)}
-                </select>
+                <input type="text" list="regulacao-cids" placeholder="Digite o código ou a doença (mín. 2 letras)..."
+                  value={buscaCid}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    setBuscaCid(v)
+                    const escolhido = cids.find((c) => `${c.codigo} — ${c.descricao}` === v)
+                    setNovoDiagnostico(escolhido ? escolhido.codigo : '')
+                  }} />
+                <datalist id="regulacao-cids">
+                  {cids.map((c) => <option key={c.codigo} value={`${c.codigo} — ${c.descricao}`} />)}
+                </datalist>
+                {buscaCid && !novoDiagnostico && <small style={{ color: '#B45309' }}>Selecione um CID da lista.</small>}
               </div>
             )}
           </div>

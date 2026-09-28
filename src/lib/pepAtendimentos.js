@@ -29,27 +29,32 @@ function idadeExibida(pessoa) {
 }
 
 export async function carregarLeitosOcupadosPep() {
-  const { data: ocupacoes } = await supabase
+  const { data: ocupacoes, error: erroOcupacoes } = await supabase
     .from('leito_ocupacoes')
     .select('leito_id, atendimento_id, alocado_em')
     .eq('status', 'ativo')
+  // Falha de rede aqui NÃO pode virar "leitos vazios" (risco de internar em leito ocupado).
+  if (erroOcupacoes) throw erroOcupacoes
 
   const atendimentoIds = (ocupacoes ?? []).map((o) => o.atendimento_id)
   if (atendimentoIds.length === 0) {
     return { pacientesPorLeito: {}, passagemPorPaciente: {} }
   }
 
-  const [{ data: atendimentos }, { data: internacoes }] = await Promise.all([
+  const [{ data: atendimentos, error: e1 }, { data: internacoes, error: e2 }] = await Promise.all([
     supabase.from('atendimentos').select('*').in('id', atendimentoIds),
     supabase.from('internacoes').select('*').in('atendimento_id', atendimentoIds),
   ])
 
+  if (e1 || e2) throw e1 || e2
+
   const pessoaIds = [...new Set((atendimentos ?? []).map((a) => a.pessoa_id))]
-  const [{ data: pessoas }, { data: alergiasAtivas }] = await Promise.all([
+  const [{ data: pessoas, error: e3 }, { data: alergiasAtivas }] = await Promise.all([
     supabase.from('pessoas').select('*').in('id', pessoaIds),
     supabase.from('alergias').select('pessoa_id, substancia').eq('status', 'ativa').in('pessoa_id', pessoaIds),
   ])
 
+  if (e3) throw e3
   const pessoaPorId = Object.fromEntries((pessoas ?? []).map((p) => [p.id, p]))
   const internacaoPorAtendimento = Object.fromEntries((internacoes ?? []).map((i) => [i.atendimento_id, i]))
   const alergiaPorPessoa = {}
@@ -91,6 +96,9 @@ export async function carregarLeitosOcupadosPep() {
     .from('passagens')
     .select('*, enfermeiros!passagens_criado_por_fkey(nome_exibicao, nome)')
     .in('atendimento_id', atendimentoIds)
+    // Só a última passagem de cada paciente importa aqui; limita a janela para
+    // não trazer meses de histórico de quem está internado há muito tempo.
+    .gte('criado_em', new Date(Date.now() - 30 * 86400000).toISOString())
     .order('criado_em', { ascending: false })
 
   const passagemPorPaciente = {}
@@ -110,6 +118,7 @@ export async function listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds) {
     .from('sinais_vitais')
     .select('*')
     .in('atendimento_id', atendimentoIds)
+    .gte('registrado_em', new Date(Date.now() - 3 * 86400000).toISOString())
     .order('registrado_em', { ascending: false })
   const porAtendimento = {}
   for (const sv of data ?? []) {
@@ -145,10 +154,6 @@ export async function atualizarCamposPassagem(passagemId, campos) {
   const dados = Object.fromEntries(Object.entries(campos).filter(([k]) => permitidos.includes(k)))
   if (Object.keys(dados).length === 0) return { error: null }
   return supabase.from('passagens').update(dados).eq('id', passagemId)
-}
-
-export async function atualizarPendenciasPassagem(passagemId, pendencias) {
-  return supabase.from('passagens').update({ pendencias: pendencias || null }).eq('id', passagemId)
 }
 
 export async function internarPacientePep({ leito, dados, enfermeiroId: _enfermeiroId }) {
@@ -402,25 +407,6 @@ export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detal
   return { error }
 }
 
-// "Excluir paciente" hoje apaga o cadastro inteiro (erro/duplicidade). No caminho
-// novo, apaga o atendimento (e o que depende dele); a pessoa só é apagada junto
-// se esse era o único atendimento dela — senão ela fica, com o resto do histórico.
-export async function excluirAtendimentoPep(atendimentoId, pessoaId) {
-  await supabase.from('passagens').delete().eq('atendimento_id', atendimentoId)
-  const { error: erroAtendimento } = await supabase.from('atendimentos').delete().eq('id', atendimentoId)
-  if (erroAtendimento) return { error: erroAtendimento }
-
-  const { count } = await supabase
-    .from('atendimentos')
-    .select('id', { count: 'exact', head: true })
-    .eq('pessoa_id', pessoaId)
-  if ((count ?? 0) === 0) {
-    await supabase.from('alergias').delete().eq('pessoa_id', pessoaId)
-    await supabase.from('pessoas').delete().eq('id', pessoaId)
-  }
-  return { error: null }
-}
-
 // ===================== Trilha de auditoria =====================
 // Não instrumenta o app inteiro — cobre os pontos de maior risco/impacto
 // (diagnóstico, desfecho, fusão de cadastros). atendimento_id é opcional
@@ -433,15 +419,6 @@ export async function registrarEventoAuditoria({ atendimentoId, autorId, acao, d
     acao,
     dados: dados || null,
   })
-}
-
-export async function listarEventosAuditoria(atendimentoId) {
-  const { data } = await supabase
-    .from('eventos_auditoria')
-    .select('*, enfermeiros!eventos_auditoria_autor_id_fkey(nome_exibicao, nome)')
-    .eq('atendimento_id', atendimentoId)
-    .order('ocorrido_em', { ascending: false })
-  return data ?? []
 }
 
 // ===================== Passagem de Plantão Coletiva (conferência em lote) =====================

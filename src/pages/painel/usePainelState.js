@@ -26,7 +26,7 @@ export function usePainelState() {
   const queryClient = useQueryClient()
   const pepAtivoRef = useRef(false)
 
-  const { data: painelData, isLoading: carregando, refetch: carregarTudo } = useQuery({
+  const { data: painelData, isLoading: carregando, error: erroCarga, refetch: carregarTudo } = useQuery({
     queryKey: ['painelDados', enfermeiro?.id],
     queryFn: async () => {
       const [pepAtivo, { data: listaSetores }, { data: listaLeitos }] = await Promise.all([
@@ -151,7 +151,7 @@ export function usePainelState() {
     cancelarModalInternar,
     erroInternar,
     setErroInternar,
-    erroGeral,
+    erroGeral: erroGeral || (erroCarga ? 'Não foi possível carregar os leitos (sem conexão?). Os dados exibidos podem estar desatualizados — não interne pacientes até recarregar.' : ''),
     setErroGeral,
     modalPassagem,
     modalRealocar,

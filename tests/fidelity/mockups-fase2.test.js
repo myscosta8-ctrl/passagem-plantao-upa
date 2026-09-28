@@ -24,6 +24,11 @@ const MOCKUPS_CORE = [
 ];
 
 export function runMockupsFase2Tests(test) {
+  // As pastas de referência ficam fora do repositório (removidas em c8fbdf0).
+  if (!fs.existsSync(MOCKUPS_DIR)) {
+    test('Pasta mockups-fase2 fora do repositório — verificação de fidelidade ignorada', () => {});
+    return;
+  }
   test('Todos os mockups centrais de design da Fase 2 existem e são válidos', () => {
     assert.ok(fs.existsSync(MOCKUPS_DIR), 'Pasta mockups-fase2 deve existir');
 

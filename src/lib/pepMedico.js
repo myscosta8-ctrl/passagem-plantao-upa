@@ -188,28 +188,14 @@ export async function listarCatalogoMedicamentos() {
   return data ?? []
 }
 
-export async function listarCatalogoCid() {
-  const { data } = await supabase.from('cid_catalog').select('codigo, descricao').order('codigo')
+// Busca no catálogo CID-10 (14 mil códigos) direto no banco — carregar tudo
+// de uma vez era cortado em 1.000 linhas pelo servidor e pesava na tela.
+export async function pesquisarCid(termo) {
+  const t = String(termo || '').trim().replace(/[%,()]/g, ' ')
+  if (t.length < 2) return []
+  const { data } = await supabase.from('cid_catalog').select('codigo, descricao')
+    .or(`codigo.ilike.${t}%,descricao.ilike.%${t}%`).order('codigo').limit(30)
   return data ?? []
-}
-
-// Diagnóstico principal codificado da internação (distinto do CID da AIH,
-// que é específico do procedimento solicitado).
-export async function buscarInternacao(atendimentoId) {
-  const { data } = await supabase
-    .from('internacoes')
-    .select('*, cid_catalog!internacoes_diagnostico_cid_fkey(codigo, descricao)')
-    .eq('atendimento_id', atendimentoId)
-    .maybeSingle()
-  return data
-}
-
-export async function atualizarDiagnosticoCid(atendimentoId, cid, autorId) {
-  const resultado = await supabase.from('internacoes').update({ diagnostico_cid: cid || null }).eq('atendimento_id', atendimentoId)
-  if (!resultado.error) {
-    await registrarEventoAuditoria({ atendimentoId, autorId, acao: 'diagnostico_cid_atualizado', dados: { cid: cid || null } })
-  }
-  return resultado
 }
 
 // ===================== Exames / sorologias / hemoterapia (multi-item) =====================
@@ -230,41 +216,14 @@ export async function criarExame({ atendimentoId, nome, preparo, agendadoPara, l
   }).select('*, enfermeiros!exames_solicitados_solicitado_por_fkey(nome_exibicao, nome, crm)').single()
 }
 
-export async function atualizarExame(id, { status, resultado }) {
-  return supabase.from('exames_solicitados').update({ status, resultado: resultado || null }).eq('id', id)
-}
-
 export async function listarSorologias(atendimentoId) {
   const { data } = await supabase.from('sorologias_notificaveis').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
   return data ?? []
 }
 
-export async function criarSorologia({ atendimentoId, agravo, dataColeta }) {
-  return supabase.from('sorologias_notificaveis').insert({
-    atendimento_id: atendimentoId, agravo, data_coleta: dataColeta || null, status: 'coleta_pendente',
-  }).select().single()
-}
-
-export async function atualizarSorologia(id, { status, dataNotificacao }) {
-  return supabase.from('sorologias_notificaveis').update({ status, data_notificacao: dataNotificacao || null }).eq('id', id)
-}
-
 export async function listarHemoterapia(atendimentoId) {
   const { data } = await supabase.from('solicitacoes_hemoterapia').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
   return data ?? []
-}
-
-export async function criarHemoterapia({ atendimentoId, tipo, quantidade, solicitadoEm }) {
-  return supabase.from('solicitacoes_hemoterapia').insert({
-    atendimento_id: atendimentoId, tipo, quantidade: quantidade || null,
-    solicitado_em: solicitadoEm ? `${solicitadoEm}T00:00:00` : new Date().toISOString(),
-  }).select().single()
-}
-
-export async function marcarTransfundido(id, transfundidoEm) {
-  return supabase.from('solicitacoes_hemoterapia').update({
-    transfundido_em: transfundidoEm ? `${transfundidoEm}T00:00:00` : new Date().toISOString(),
-  }).eq('id', id)
 }
 
 // ===================== Plano terapêutico (no máximo um por atendimento) =====================
@@ -494,27 +453,6 @@ export async function encerrarRegulacao(atendimentoId) {
 // ===================== Medicações contínuas =====================
 // Vive em `pessoas`, não no atendimento — uso contínuo em casa atravessa
 // internações diferentes (citado na Evolução Médica real).
-
-export async function listarMedicacoesContinuas(pessoaId) {
-  const { data } = await supabase
-    .from('medicacoes_continuas')
-    .select('*, enfermeiros(nome_exibicao, nome, crm)')
-    .eq('pessoa_id', pessoaId)
-    .order('registrado_em', { ascending: false })
-  return data ?? []
-}
-
-export async function registrarMedicacaoContinua({ pessoaId, medicamento, dose, frequencia, registradoPor }) {
-  return supabase
-    .from('medicacoes_continuas')
-    .insert({ pessoa_id: pessoaId, medicamento, dose: dose || null, frequencia: frequencia || null, registrado_por: registradoPor, status: 'ativo' })
-    .select()
-    .single()
-}
-
-export async function suspenderMedicacaoContinua(id) {
-  return supabase.from('medicacoes_continuas').update({ status: 'suspenso' }).eq('id', id)
-}
 
 // Profissional autor de um registro (quando o registro recém-salvo não veio
 // com o join de enfermeiros): procura pela coluna de autoria da tabela.

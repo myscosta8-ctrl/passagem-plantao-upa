@@ -17,7 +17,7 @@ export default function Pendencias({ plantao, onVoltar }) {
   const [busca, setBusca] = useState('')
 
   useEffect(() => {
-    carregar()
+    carregar().catch((e) => { console.error("Falha ao carregar:", e); setCarregando(false) })
   }, [])
 
   async function carregar() {

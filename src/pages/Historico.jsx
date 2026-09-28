@@ -17,6 +17,7 @@ export default function Historico({ onVoltar }) {
       .select('*')
       .order('data', { ascending: false })
       .order('turno')
+      .limit(180)
     setPlantoes(data ?? [])
     setCarregando(false)
   }

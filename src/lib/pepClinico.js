@@ -4,46 +4,6 @@ import { supabase } from './supabaseClient.js'
 // enfermeiro: admissão (exame físico por marcação) + sinais vitais em série.
 // Só existe sobre a estrutura nova do PEP (pessoas/atendimentos).
 
-export async function buscarAdmissao(atendimentoId) {
-  const { data } = await supabase
-    .from('admissoes_enfermagem')
-    .select('*, enfermeiros!admissoes_enfermagem_autor_id_fkey(nome_exibicao, nome)')
-    .eq('atendimento_id', atendimentoId)
-    .maybeSingle()
-  return data
-}
-
-export async function salvarAdmissao({ atendimentoId, pessoaId, autorId, dados }) {
-  return supabase
-    .from('admissoes_enfermagem')
-    .upsert(
-      {
-        atendimento_id: atendimentoId,
-        pessoa_id: pessoaId,
-        autor_id: autorId,
-        alergia_medicamentosa: dados.alergia_medicamentosa || null,
-        alergia_alimentar: dados.alergia_alimentar || null,
-        cidade_reside: dados.cidade_reside || null,
-        acompanhante: dados.acompanhante || null,
-        medicamentos_controlados: dados.medicamentos_controlados,
-        medicamentos_controlados_quais: dados.medicamentos_controlados_quais || null,
-        hipotese_diagnostica: dados.hipotese_diagnostica || null,
-        exame_fisico: dados.exame_fisico || {},
-        tabagista: dados.tabagista,
-        tabagista_tempo: dados.tabagista_tempo || null,
-        etilista: dados.etilista,
-        etilista_tempo: dados.etilista_tempo || null,
-        doencas_infancia: dados.doencas_infancia || [],
-        doencas_cronicas: dados.doencas_cronicas || [],
-        integridade_fisica: dados.integridade_fisica || {},
-        observacoes: dados.observacoes || null,
-      },
-      { onConflict: 'atendimento_id' }
-    )
-    .select()
-    .single()
-}
-
 export async function listarSinaisVitais(atendimentoId) {
   const { data } = await supabase
     .from('sinais_vitais')
@@ -162,42 +122,6 @@ export async function registrarEscala({ atendimentoId, tipo, pontuacao, nivelRis
     .single()
 }
 
-// Resumo compacto pro card de status no topo da Ficha Clínica — último
-// sinal vital, escala mais recente de cada tipo, dispositivos ainda
-// ativos e balanço hídrico só de hoje.
-export async function buscarResumoPaciente(atendimentoId, pessoaId) {
-  const [sinaisVitais, escalas, dispositivos, balanco, alergias, isolamentos] = await Promise.all([
-    listarSinaisVitais(atendimentoId),
-    listarEscalas(atendimentoId),
-    listarDispositivos(atendimentoId),
-    listarBalancoHidrico(atendimentoId),
-    pessoaId ? listarAlergias(pessoaId) : Promise.resolve([]),
-    listarIsolamentos(atendimentoId),
-  ])
-
-  const escalaPorTipo = {}
-  for (const e of escalas) {
-    if (!escalaPorTipo[e.tipo]) escalaPorTipo[e.tipo] = e
-  }
-
-  const dispositivosAtivos = dispositivos.filter((d) => !d.removido_em)
-
-  const hojeISO = new Date().toISOString().slice(0, 10)
-  const balancoHoje = balanco.filter((b) => (b.registrado_em || '').slice(0, 10) === hojeISO)
-  const entradasHoje = balancoHoje.filter((b) => b.tipo === 'entrada').reduce((s, b) => s + Number(b.volume_ml), 0)
-  const saidasHoje = balancoHoje.filter((b) => b.tipo === 'saida').reduce((s, b) => s + Number(b.volume_ml), 0)
-
-  return {
-    ultimoSv: sinaisVitais[0] || null,
-    escalaPorTipo,
-    dispositivosAtivos,
-    entradasHoje,
-    saidasHoje,
-    alergiasAtivas: alergias.filter((a) => a.status === 'ativa'),
-    isolamentosAtivos: isolamentos.filter((i) => i.ativo),
-  }
-}
-
 // Alergias são da PESSOA (atravessam internações diferentes), não do
 // atendimento — igual medicações contínuas. Lista de verdade: várias por
 // pessoa, cada uma com substância/reação/gravidade, nunca um sim/não só.
@@ -262,16 +186,6 @@ export async function buscarOcupacaoAtiva(atendimentoId) {
     .eq('status', 'ativo')
     .maybeSingle()
   return data
-}
-
-export async function listarSetoresParaTransferencia() {
-  const { data } = await supabase.from('setores').select('id, nome').order('ordem')
-  return data ?? []
-}
-
-export async function listarEnfermeirosAtivos() {
-  const { data } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome').eq('ativo', true).eq('tipo', 'enfermagem').order('nome')
-  return data ?? []
 }
 
 export async function listarTransferenciasSbar(atendimentoId) {
