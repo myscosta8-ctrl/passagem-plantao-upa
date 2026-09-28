@@ -114,16 +114,6 @@ export default function Sidebar({
 
         <button
           type="button"
-          className={`sidebar-item ${telaAtual === 'historico' ? 'ativo' : ''}`}
-          onClick={() => onNavegar('historico')}
-          title="Histórico de Plantões"
-        >
-          <i className="ph ph-clock-counter-clockwise sidebar-item-icone" />
-          <span className="sidebar-item-texto">Histórico</span>
-        </button>
-
-        <button
-          type="button"
           className={`sidebar-item ${telaAtual === 'altas' ? 'ativo' : ''}`}
           onClick={() => onNavegar('altas')}
           title="Desfechos e Altas"

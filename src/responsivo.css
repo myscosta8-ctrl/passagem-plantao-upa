@@ -101,3 +101,7 @@ html :is(.cons-secao-body, .med-secao-body, .enf-secao-body, .not-secao-body, .s
   font-size: 11pt !important;
   line-height: 1.4;
 }
+
+/* Rolagem das telas: blocos dentro de áreas com rolagem vertical não podem
+   encolher (senão o card corta o conteúdo e a tela não rola — ex.: Desfechos). */
+html .workspace > *, html .main-viewport > * > * > * { flex-shrink: 0; }
