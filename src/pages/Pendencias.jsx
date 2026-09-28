@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { carregarLeitosOcupadosPep } from '../lib/pepAtendimentos'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
 import PassagemForm from './PassagemForm'
@@ -22,31 +23,14 @@ export default function Pendencias({ plantao, onVoltar }) {
   async function carregar() {
     setCarregando(true)
 
-    const { data: pacientes } = await supabase
-      .from('pacientes')
-      .select('id, nome, diagnostico, leito_atual_id, leitos(id, numero, setor_id, setores(nome))')
-      .eq('status', 'internado')
-
-    const ids = (pacientes ?? []).map((p) => p.id)
-    if (ids.length === 0) {
-      setExames([])
-      setSorologiasPendentes([])
-      setHemoderivados([])
-      setOutras([])
-      setCarregando(false)
-      return
-    }
-
-    const { data: passagens } = await supabase
-      .from('passagens')
-      .select('*')
-      .in('paciente_id', ids)
-      .order('criado_em', { ascending: false })
-
-    const ultimaPorPaciente = {}
-    for (const p of passagens ?? []) {
-      if (!ultimaPorPaciente[p.paciente_id]) ultimaPorPaciente[p.paciente_id] = p
-    }
+    // Fonte oficial (PEP): pacientes com leito ativo + última passagem de cada um.
+    const [{ pacientesPorLeito, passagemPorPaciente }, { data: leitos }] = await Promise.all([
+      carregarLeitosOcupadosPep(),
+      supabase.from('leitos').select('id, numero, setor_id, setores(nome)'),
+    ])
+    const leitoPorId = Object.fromEntries((leitos ?? []).map((l) => [l.id, l]))
+    const pacientes = Object.values(pacientesPorLeito).map((p) => ({ ...p, leitos: leitoPorId[p.leito_atual_id] || null }))
+    const ultimaPorPaciente = passagemPorPaciente
 
     const listaExames = []
     const listaSorologias = []

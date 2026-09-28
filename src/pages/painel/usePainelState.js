@@ -39,7 +39,7 @@ export function usePainelState() {
       const setoresOficiais = (listaSetores ?? []).filter((s) => [1, 2, 3, 4].includes(s.id))
       const finalSetores = setoresOficiais.length > 0 ? setoresOficiais : (listaSetores ?? [])
 
-      if (pepAtivo) {
+      {
         const { pacientesPorLeito: mapa, passagemPorPaciente: passagemMapa } = await carregarLeitosOcupadosPep()
         
         const extrasDesocupados = (listaLeitos ?? []).filter((l) => l.tipo === 'extra' && !mapa[l.id])
@@ -71,49 +71,6 @@ export function usePainelState() {
         }
       }
 
-      const { data: listaPacientes } = await supabase
-        .from('pacientes')
-        .select('*, ultima_alteracao_por_enfermeiro:enfermeiros!ultima_alteracao_por(nome_exibicao, nome)')
-        .eq('status', 'internado')
-
-      const mapa = {}
-      for (const p of listaPacientes ?? []) {
-        if (p.leito_atual_id) mapa[p.leito_atual_id] = p
-      }
-
-      const extrasDesocupados = (listaLeitos ?? []).filter((l) => l.tipo === 'extra' && !mapa[l.id])
-      if (extrasDesocupados.length > 0) {
-        const idsDesocupados = extrasDesocupados.map((l) => l.id)
-        await supabase.from('leitos').delete().in('id', idsDesocupados)
-      }
-
-      const leitosFiltrados = (listaLeitos ?? []).filter((l) => {
-        if (l.id <= 36) return true
-        if (l.tipo === 'extra' && mapa[l.id]) return true
-        return false
-      })
-
-      let passagemMapa = {}
-      const ids = (listaPacientes ?? []).map((p) => p.id)
-      if (ids.length > 0) {
-        const { data: passagens } = await supabase
-          .from('passagens')
-          .select('*, enfermeiros!passagens_criado_por_fkey(nome_exibicao, nome)')
-          .in('paciente_id', ids)
-          .order('criado_em', { ascending: false })
-        for (const p of passagens ?? []) {
-          if (!passagemMapa[p.paciente_id]) passagemMapa[p.paciente_id] = p
-        }
-      }
-
-      return {
-        setores: finalSetores,
-        leitos: leitosFiltrados,
-        pacientesPorLeito: mapa || {},
-        passagemPorPaciente: passagemMapa || {},
-        sinaisVitaisPorPaciente: {},
-        balancoPorPaciente: {}
-      }
     },
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
@@ -143,7 +100,7 @@ export function usePainelState() {
       // Abre imediatamente o modal de admissÃ£o para ocupar o leito extra
       setModalLeito(novo)
     } else {
-      setErroGeral('NÃ£o foi possÃ­vel abrir o leito extra. Tente de novo, e se persistir, avise o suporte.')
+      setErroGeral('Não foi possível abrir o leito extra. Tente de novo, e se persistir, avise o suporte.')
       console.error('Erro ao abrir leito extra:', error)
     }
   }
@@ -161,40 +118,13 @@ export function usePainelState() {
   async function internarPaciente(leito, dados) {
     setErroInternar('')
 
-    if (pepAtivoRef.current) {
-      const { novo, error } = await internarPacientePep({ leito, dados, enfermeiroId: enfermeiro?.id })
-      if (!error) {
-        queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => ({ ...old, pacientesPorLeito: { ...(old?.pacientesPorLeito || {}), [leito.id]: novo } }))
-        setModalLeito(null)
-      } else {
-        setErroInternar('NÃ£o foi possÃ­vel internar. Nada foi perdido do que estava preenchido â€” tente de novo, e se persistir, avise o suporte.')
-        console.error('Erro ao internar paciente (PEP):', error)
-      }
-      return
-    }
-
-    const { data: novo, error } = await supabase
-      .from('pacientes')
-      .insert({
-        nome: dados.nome,
-        diagnostico: dados.diagnostico,
-        data_admissao: dados.dataAdmissao,
-        data_nascimento: dados.dataNascimento,
-        classificacao_manchester: dados.classificacaoManchester,
-        leito_atual_id: leito.id,
-        status: 'internado',
-        status_internacao: dados.status,
-        ultima_alteracao_por: enfermeiro?.id,
-        ultima_alteracao_em: new Date().toISOString(),
-      })
-      .select()
-      .single()
+    const { novo, error } = await internarPacientePep({ leito, dados, enfermeiroId: enfermeiro?.id })
     if (!error) {
       queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => ({ ...old, pacientesPorLeito: { ...(old?.pacientesPorLeito || {}), [leito.id]: novo } }))
       setModalLeito(null)
     } else {
-      setErroInternar('NÃ£o foi possÃ­vel internar. Nada foi perdido do que estava preenchido â€” tente de novo, e se persistir, avise o suporte.')
-      console.error('Erro ao internar paciente:', error)
+      setErroInternar('Não foi possível internar. Nada foi perdido do que estava preenchido — tente de novo, e se persistir, avise o suporte.')
+      console.error('Erro ao internar paciente (PEP):', error)
     }
   }
 

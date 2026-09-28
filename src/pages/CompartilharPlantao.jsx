@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { carregarLeitosOcupadosPep } from '../lib/pepAtendimentos'
 import './CompartilharPlantao.css'
 
 // Mapeamento entre o nome real do setor no sistema e como ele aparece
@@ -40,12 +41,12 @@ export default function CompartilharPlantao({ plantao, onVoltar }) {
     setSetorPorNome(mapaSetorPorNome)
 
     const { data: leitosData } = await supabase.from('leitos').select('id, setor_id').eq('ativo', true)
-    const { data: pacientesData } = await supabase.from('pacientes').select('leito_atual_id, status_internacao').eq('status', 'internado')
-
+    // Fonte oficial (PEP): leitos com ocupação ativa.
+    const { pacientesPorLeito } = await carregarLeitosOcupadosPep()
     const mapaOcupado = {}
-    for (const p of pacientesData ?? []) {
-      if (p.leito_atual_id) mapaOcupado[p.leito_atual_id] = p.status_internacao
-    }
+    for (const [leitoId, p] of Object.entries(pacientesPorLeito)) mapaOcupado[leitoId] = p.status_internacao
+    const pacientePorAtendimento = Object.fromEntries(Object.values(pacientesPorLeito).map((p) => [p.id, p]))
+    const idsAtivos = Object.keys(pacientePorAtendimento)
 
     const contagem = {}
     for (const s of SETORES_MENSAGEM) {
@@ -67,18 +68,22 @@ export default function CompartilharPlantao({ plantao, onVoltar }) {
     setContagemPorSetor(contagem)
 
     // Exames "a realizar", de hoje em diante
-    const { data: passagensExame } = await supabase
+    const { data: passagensExame } = idsAtivos.length ? await supabase
       .from('passagens')
-      .select('*, pacientes(nome, leito_atual_id)')
+      .select('*')
+      .in('atendimento_id', idsAtivos)
       .eq('exame_status', 'A realizar')
       .not('exame_a_realizar_data', 'is', null)
       .gte('exame_a_realizar_data', hojeISO())
-      .order('criado_em', { ascending: false })
+      .order('criado_em', { ascending: false }) : { data: [] }
 
     // Fica só com a passagem mais recente por paciente (evita duplicar se salvou mais de uma vez)
     const porPaciente = {}
     for (const p of passagensExame ?? []) {
-      if (!porPaciente[p.paciente_id]) porPaciente[p.paciente_id] = p
+      if (!porPaciente[p.atendimento_id]) {
+        const pac = pacientePorAtendimento[p.atendimento_id]
+        porPaciente[p.atendimento_id] = { ...p, pacientes: { nome: pac.nome, leito_atual_id: pac.leito_atual_id } }
+      }
     }
 
     // Junta o leito (número + setor) de cada paciente com exame pendente

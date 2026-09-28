@@ -51,57 +51,30 @@ export default function AltasRecentes({ onVoltar }) {
     setCarregando(true)
     const { inicio, fim } = calcularPeriodo(periodo, dataInicioCustom, dataFimCustom)
 
-    // Busca nas duas fontes em paralelo
-    const [{ data: pacientesAntigos }, { data: atendimentosAlta }] = await Promise.all([
-      supabase
-        .from('pacientes')
-        .select('id, nome, tipo_desfecho, data_desfecho, desfecho_detalhe, diagnostico, leito_atual_id, leitos(numero, setores(nome))')
-        .eq('status', 'alta')
-        .gte('data_desfecho', inicio)
-        .lte('data_desfecho', fim)
-        .order('data_desfecho', { ascending: false }),
-      supabase
-        .from('atendimentos')
-        .select('id, updated_at, pessoas(nome, prontuario_numero), internacoes(resumo_alta, tipo_desfecho, encerrado_em)')
-        .eq('status', 'alta')
-        .gte('updated_at', inicio)
-        .lte('updated_at', fim)
-        .not('internacoes', 'is', null)
-        .order('updated_at', { ascending: false }),
-    ])
+    // Fonte oficial (PEP): atendimentos encerrados no período.
+    const { data: atendimentosAlta, error } = await supabase
+      .from('atendimentos')
+      .select('id, encerrado_em, queixa_principal, pessoas(nome, prontuario_numero), internacoes(resumo_alta, diagnostico_admissao, desfecho_tipo, desfecho_obs, encerrado_em), leito_ocupacoes(liberado_em, leitos(numero, setores(nome)))')
+      .eq('status', 'alta')
+      .gte('encerrado_em', inicio)
+      .lte('encerrado_em', fim)
+      .order('encerrado_em', { ascending: false })
+      .limit(2000)
+    if (error) console.error('Erro ao carregar desfechos:', error)
 
-    // Normaliza path antigo
-    const listaAntiga = (pacientesAntigos ?? []).map(p => ({
-      id: `old-${p.id}`,
-      nome: p.nome || 'Não informado',
-      tipo_desfecho: normalizarDesfecho(p.tipo_desfecho),
-      data_desfecho: p.data_desfecho,
-      diagnostico: p.desfecho_detalhe || p.diagnostico || '—',
-      leito_info: p.leitos ? `Leito ${p.leitos.numero} – ${p.leitos.setores?.nome || ''}` : 'Observação',
-    }))
-
-    // Normaliza path novo PEP
-    const listaNova = (atendimentosAlta ?? []).flatMap(a => {
-      const internacao = Array.isArray(a.internacoes) ? a.internacoes[0] : a.internacoes
-      if (!internacao) return []
-      return [{
+    const todos = (atendimentosAlta ?? []).map((a) => {
+      const internacao = (Array.isArray(a.internacoes) ? a.internacoes[0] : a.internacoes) || {}
+      const ultimaOcupacao = [...(a.leito_ocupacoes ?? [])].sort((x, y) => new Date(y.liberado_em || 0) - new Date(x.liberado_em || 0))[0]
+      const leito = ultimaOcupacao?.leitos
+      return {
         id: `pep-${a.id}`,
         nome: a.pessoas?.nome || 'Não informado',
-        tipo_desfecho: normalizarDesfecho(internacao.tipo_desfecho),
-        data_desfecho: internacao.encerrado_em || a.updated_at,
-        diagnostico: internacao.resumo_alta || '—',
-        leito_info: '—',
+        tipo_desfecho: normalizarDesfecho(internacao.desfecho_tipo),
+        data_desfecho: a.encerrado_em || internacao.encerrado_em,
+        diagnostico: internacao.desfecho_obs || internacao.resumo_alta || internacao.diagnostico_admissao || a.queixa_principal || '—',
+        leito_info: leito ? `Leito ${leito.numero} – ${leito.setores?.nome || ''}` : 'Observação',
         prontuario: a.pessoas?.prontuario_numero,
-      }]
-    })
-
-    // Deduplicar por nome+data (caso já exista nas duas tabelas por migração)
-    const vistos = new Set()
-    const todos = [...listaNova, ...listaAntiga].filter(d => {
-      const chave = `${d.nome}|${d.data_desfecho?.slice(0, 13)}`
-      if (vistos.has(chave)) return false
-      vistos.add(chave)
-      return true
+      }
     })
 
     todos.sort((a, b) => new Date(b.data_desfecho) - new Date(a.data_desfecho))

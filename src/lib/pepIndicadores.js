@@ -1,11 +1,7 @@
 import { supabase } from './supabaseClient.js'
 
-// Indicadores Clínicos (Seção 5 da evolução do PEP) — calculados a partir da
-// tabela `pacientes`, que é onde os dados reais de produção estão hoje
-// (pep_ativo desligado). `atendimentos` já recebe os mesmos campos (ver
-// pepAtendimentos.js), pronto pra quando fizer sentido unificar as duas
-// fontes aqui — não feito agora pra não misturar dois formatos de "desfecho"
-// que ainda não são equivalentes (tipo_desfecho não existe no caminho novo).
+// Indicadores Clínicos (Seção 5 da evolução do PEP) — calculados a partir de
+// `atendimentos` + `internacoes` (fonte oficial com o PEP ativo).
 
 const belem = { timeZone: 'America/Belem', year: 'numeric', month: '2-digit', day: '2-digit' }
 
@@ -28,24 +24,29 @@ function mediaHoras(pares) {
 export async function calcularIndicadoresClinicos(periodo) {
   const desdeISO = inicioPeriodoISO(periodo)
 
-  const [
-    { count: emObservacaoAgora },
-    { data: internaram },
-    { data: desfechosInternados },
-    { data: condutas },
-    { data: internadosAgora },
-  ] = await Promise.all([
-    supabase.from('pacientes').select('id', { count: 'exact', head: true })
+  const INT = 'internacoes(diagnostico_admissao, encerrado_em)'
+  const [r1, r2, r3, r4, r5] = await Promise.all([
+    supabase.from('atendimentos').select('id', { count: 'exact', head: true })
       .eq('status', 'internado').eq('status_internacao', 'Em observação'),
-    supabase.from('pacientes').select('diagnostico')
-      .eq('status_internacao', 'Internado').gte('data_conduta_definida', desdeISO),
-    supabase.from('pacientes').select('data_admissao, data_desfecho')
+    supabase.from('atendimentos').select(`queixa_principal, ${INT}`)
+      .eq('status_internacao', 'Internado').gte('data_conduta_definida', desdeISO).limit(5000),
+    supabase.from('atendimentos').select('criado_em, encerrado_em')
       .eq('status', 'alta').eq('status_internacao', 'Internado')
-      .gte('data_desfecho', desdeISO).not('data_admissao', 'is', null),
-    supabase.from('pacientes').select('data_admissao, data_conduta_definida')
-      .gte('data_conduta_definida', desdeISO).not('data_admissao', 'is', null),
-    supabase.from('pacientes').select('classificacao_manchester').eq('status', 'internado'),
+      .gte('encerrado_em', desdeISO).limit(5000),
+    supabase.from('atendimentos').select('criado_em, data_conduta_definida')
+      .gte('data_conduta_definida', desdeISO).limit(5000),
+    supabase.from('atendimentos').select('classificacao_risco_cor').eq('status', 'internado').limit(2000),
   ])
+  const erro = [r1, r2, r3, r4, r5].find((r) => r.error)?.error
+  if (erro) throw erro
+  const emObservacaoAgora = r1.count
+  const internaram = (r2.data ?? []).map((a) => {
+    const i = Array.isArray(a.internacoes) ? a.internacoes[0] : a.internacoes
+    return { diagnostico: i?.diagnostico_admissao || a.queixa_principal }
+  })
+  const desfechosInternados = (r3.data ?? []).map((a) => ({ inicio: a.criado_em, fim: a.encerrado_em }))
+  const condutas = (r4.data ?? []).map((a) => ({ inicio: a.criado_em, fim: a.data_conduta_definida }))
+  const internadosAgora = (r5.data ?? []).map((a) => ({ classificacao_manchester: a.classificacao_risco_cor }))
 
   const porDiagnostico = {}
   for (const p of internaram ?? []) {
@@ -54,17 +55,11 @@ export async function calcularIndicadoresClinicos(periodo) {
   }
 
   const tempoMedioInternacaoHoras = mediaHoras(
-    (desfechosInternados ?? []).map((p) => ({
-      inicio: new Date(`${p.data_admissao}T00:00:00`),
-      fim: new Date(p.data_desfecho),
-    }))
+    desfechosInternados.map((p) => ({ inicio: new Date(p.inicio), fim: new Date(p.fim) }))
   )
 
   const tempoMedioAteCondutaHoras = mediaHoras(
-    (condutas ?? []).map((p) => ({
-      inicio: new Date(`${p.data_admissao}T00:00:00`),
-      fim: new Date(p.data_conduta_definida),
-    }))
+    condutas.map((p) => ({ inicio: new Date(p.inicio), fim: new Date(p.fim) }))
   )
 
   const porManchester = {}

@@ -31,7 +31,7 @@ export function usePassagemState({ paciente, leito, setorNome, plantaoId, enferm
   const [rascunhoEncontrado, setRascunhoEncontrado] = useState(null)
   const [confirmandoFechar, setConfirmandoFechar] = useState(false)
   const [origemCopia, setOrigemCopia] = useState(null)
-  const [pepAtivo, setPepAtivo] = useState(false)
+  const [pepAtivo, setPepAtivo] = useState(true)
 
   const chaveRascunho = useCallback(() => {
     return `rascunho_passagem_${plantaoId}_${paciente.id}`

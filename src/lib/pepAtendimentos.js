@@ -386,52 +386,20 @@ export async function leitosOcupadosIdsPep() {
 // Realocar = encerrar a ocupação do leito de origem e abrir uma nova no destino,
 // mantendo o mesmo atendimento (não é um novo episódio, só mudou de leito/setor).
 export async function realocarAtendimentoPep({ atendimentoId, leitoOrigemId, leitoDestinoId, setorDestinoId }) {
-  const agora = new Date().toISOString()
-  const [{ error: erroEncerra }, { error: erroAbre }, { error: erroSetor }] = await Promise.all([
-    supabase
-      .from('leito_ocupacoes')
-      .update({ status: 'encerrado', liberado_em: agora, motivo_transferencia: 'realocação' })
-      .eq('leito_id', leitoOrigemId)
-      .eq('atendimento_id', atendimentoId)
-      .eq('status', 'ativo'),
-    supabase.from('leito_ocupacoes').insert({ leito_id: leitoDestinoId, atendimento_id: atendimentoId, status: 'ativo' }),
-    supabase.from('atendimentos').update({ setor_id: setorDestinoId }).eq('id', atendimentoId),
-  ])
-  return { error: erroEncerra || erroAbre || erroSetor }
+  // Transação única no banco (encerra origem + abre destino + muda setor).
+  const { error } = await supabase.rpc('realocar_atendimento', {
+    p_atendimento_id: atendimentoId, p_leito_origem_id: leitoOrigemId, p_leito_destino_id: leitoDestinoId, p_setor_destino_id: setorDestinoId,
+  })
+  return { error }
 }
 
-export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detalhe, autorId, dadosObito }) {
-  const agora = new Date().toISOString()
-
-  // Foi direto da observação pro desfecho, sem nunca internar — também conta
-  // como "saiu da observação" pro indicador de tempo até conduta.
-  const { data: atendimentoAtual } = await supabase
-    .from('atendimentos')
-    .select('status_internacao, data_conduta_definida')
-    .eq('id', atendimentoId)
-    .maybeSingle()
-  const saiuDeObservacao = atendimentoAtual?.status_internacao === 'Em observação' && !atendimentoAtual?.data_conduta_definida
-
-  const [{ error: erroInternacao }, { error: erroAtendimento }, { error: erroLeito }] = await Promise.all([
-    supabase
-      .from('internacoes')
-      .update({ resumo_alta: detalhe || null, encerrado_em: agora, dados_obito: dadosObito || null })
-      .eq('atendimento_id', atendimentoId),
-    supabase
-      .from('atendimentos')
-      .update({ status: 'alta', ...(saiuDeObservacao ? { data_conduta_definida: agora } : {}) })
-      .eq('id', atendimentoId),
-    supabase
-      .from('leito_ocupacoes')
-      .update({ status: 'encerrado', liberado_em: agora, motivo_transferencia: tipo })
-      .eq('leito_id', leitoId)
-      .eq('atendimento_id', atendimentoId)
-      .eq('status', 'ativo'),
-  ])
-  if (!erroInternacao && !erroAtendimento && !erroLeito) {
-    await registrarEventoAuditoria({ atendimentoId, autorId, acao: 'desfecho_registrado', dados: { tipo, detalhe: detalhe || null } })
-  }
-  return { error: erroInternacao || erroAtendimento || erroLeito }
+// Desfecho (alta, transferência, evasão, óbito) em transação única no banco:
+// atendimento + internação + leito + auditoria gravam juntos ou nada é gravado.
+export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detalhe, dadosObito }) {
+  const { error } = await supabase.rpc('registrar_desfecho', {
+    p_atendimento_id: atendimentoId, p_leito_id: leitoId ?? null, p_tipo: tipo, p_detalhe: detalhe || null, p_dados_obito: dadosObito || null,
+  })
+  return { error }
 }
 
 // "Excluir paciente" hoje apaga o cadastro inteiro (erro/duplicidade). No caminho
