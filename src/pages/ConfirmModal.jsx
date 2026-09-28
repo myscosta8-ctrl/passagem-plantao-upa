@@ -24,7 +24,7 @@ export default function ConfirmModal({
           <button
             className="modal-btn-primary"
             onClick={onConfirmar}
-            style={perigo ? { background: 'var(--c-danger)', borderColor: 'var(--c-danger)' } : undefined}
+            style={perigo ? { background: '#DC2626', borderColor: '#DC2626' } : undefined}
           >
             {confirmarTexto}
           </button>
