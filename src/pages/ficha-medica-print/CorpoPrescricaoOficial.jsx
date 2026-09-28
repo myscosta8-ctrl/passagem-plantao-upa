@@ -1,4 +1,4 @@
-import { dosesPorDia, quantidadeDia } from '../../lib/frequencia'
+import { quantidadeDia } from '../../lib/frequencia'
 import { textoValidade } from '../../lib/prescricaoValidade'
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
@@ -34,7 +34,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
 
         {registro.data_referencia && <div className="pr-validade" style={{ fontWeight: 700, margin: '4px 0 6px' }}>Prescrição válida {textoValidade(registro.data_referencia, registro.criado_em)}</div>}
         <div className="pr-secao-titulo">Dieta</div>
-        <div className="pr-caixa">{cf.dieta || ''}</div>
+        <div className="pr-caixa">{cf.dieta ? <b>1 — {cf.dieta}</b> : ''}</div>
 
         <div className="pr-secao-titulo">Medicamentos</div>
         <table className="pr-tabela pr-tabela-salutem">
@@ -44,8 +44,8 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
               <th style={{ width: '6%', textAlign: 'center' }}>QTD/UND</th>
               <th style={{ width: '7%', textAlign: 'center' }}>SN/ACM</th>
               <th style={{ width: '6%', textAlign: 'center' }}>VIA</th>
-              <th style={{ width: '9%', textAlign: 'center' }}>FREQ</th>
-              <th style={{ width: '34%', textAlign: 'center' }}>HORÁRIO DE APLICAÇÃO</th>
+              <th style={{ width: '5.5%', textAlign: 'center' }}>FREQ</th>
+              <th style={{ width: '37.5%', textAlign: 'center' }}>HORÁRIO DE APLICAÇÃO</th>
             </tr>
           </thead>
           <tbody>
@@ -54,16 +54,16 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
             ) : itens.map((it, i) => (
               <tr key={it.id || i}>
                 <td>
-                  <b>{i + 1} — {it.medicamento_nome}</b>{it.dose != null && it.dose !== '' && <> — <b>Dose: {String(it.dose).replace('.', ',')} {it.dose_unidade || ''}</b>{Number(it.qtd_por_dose) > 1 && it.apresentacao ? ` (${String(it.qtd_por_dose).replace('.', ',')} ${it.apresentacao})` : ''}</>}
+                  <b>{i + (cf.dieta ? 2 : 1)} — {it.medicamento_nome}</b>{it.dose != null && it.dose !== '' && <> — <b>Dose: {String(it.dose).replace('.', ',')} {it.dose_unidade || ''}</b>{Number(it.qtd_por_dose) > 1 && it.apresentacao ? ` (${String(it.qtd_por_dose).replace('.', ',')} ${it.apresentacao})` : ''}</>}
                   {(it.diluicao || it.instrucoes) && (
                     <span className="pr-nota">{[it.diluicao, it.instrucoes].filter(Boolean).join(' — ')}</span>
                   )}
                 </td>
-                <td className="qtd" style={{ textAlign: 'center' }}>{(it.sn_aplic && dosesPorDia(it.frequencia) && it.apresentacao ? 'até ' : '') + quantidadeDia(it)}</td>
+                <td className="qtd" style={{ textAlign: 'center' }}>{quantidadeDia(it)}</td>
                 <td style={{ textAlign: 'center', fontWeight: 600 }}>{abreviarCondicao(it.sn_acm || it.observacoes) || (it.sn_aplic ? 'SN' : '—')}</td>
                 <td className="via" style={{ textAlign: 'center' }}>{it.via || ''}</td>
                 <td className="freq" style={{ textAlign: 'center' }}>{it.frequencia || ''}{it.duracao ? ` · ${it.duracao}` : ''}</td>
-                <td className="horario"><div className="pr-horarios">{Array.from({ length: Math.min(dosesPorDia(it.frequencia) || 1, 12) }).map((_, k) => <span key={k} className="pr-horario-caixa" />)}</div></td>
+                <td className="horario"></td>
               </tr>
             ))}
           </tbody>
@@ -73,7 +73,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
         <div className="pr-caixa">
           {orientacoes.length === 0
             ? ''
-            : orientacoes.map((o, i) => `${i + 1} — ${o.texto}${o.frequencia ? ` (${o.frequencia})` : ''}`).join(' • ')
+            : orientacoes.map((o, i) => <div key={i} className="pr-orientacao-item">{i + 1} — {o.texto}{o.frequencia ? ` (${o.frequencia})` : ''}</div>)
           }
         </div>
 
