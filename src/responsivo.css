@@ -1,0 +1,92 @@
+/* ==========================================================================
+   Ajustes de tela reduzida (janela estreita, notebook pequeno, tablet, celular).
+   Carregado no main.jsx; os seletores começam com "html" para prevalecer sobre
+   os CSS das telas, que são carregados depois (sob demanda).
+   ========================================================================== */
+
+/* ---------- Rodapé padrão das abas: Cancelar | Data do registro | Salvar | Salvar e Imprimir ---------- */
+html .campo-data-registro { white-space: nowrap; flex-shrink: 0; }
+html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) { flex-wrap: wrap; row-gap: 8px; }
+html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) > div { flex-wrap: wrap; justify-content: flex-end; row-gap: 8px; }
+
+@media (max-width: 900px) {
+  /* linha 1: Cancelar ........ Data do registro | linha 2: Salvar | Salvar e Imprimir */
+  html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) { padding: 10px 12px; gap: 8px; }
+  html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) > div { display: contents !important; }
+  html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .campo-data-registro { order: 1; margin-left: auto; flex: 1 1 auto; justify-content: flex-end; }
+  html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .campo-data-registro input { max-width: 190px; }
+  html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) > div > button:not(.btn-cancel) { order: 2; flex: 1 1 calc(50% - 8px); justify-content: center; }
+  html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .btn-cancel { order: 0; flex: 0 0 auto; }
+  html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) > div > :not(button):not(.campo-data-registro) { order: 0; }
+}
+@media (max-width: 520px) {
+  html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .campo-data-registro { flex: 1 1 100%; justify-content: space-between; margin-left: 0; }
+  html :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) > div > button:not(.btn-cancel) { flex: 1 1 100%; }
+  html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .btn-cancel { flex: 1 1 100%; justify-content: center; order: 3; }
+}
+
+/* ---------- Cabeçalho das Fichas (Painel de Leitos | pilares | relógio | profissional) ---------- */
+@media (max-width: 1100px) {
+  html :is(.atendimento-medico-container, .enf-theme) .topbar { height: auto; min-height: 50px; padding: 6px 12px; flex-wrap: wrap; flex-direction: row; align-items: center; gap: 8px; }
+  html :is(.atendimento-medico-container, .enf-theme) .topbar-right { flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-left: auto; }
+  html :is(.atendimento-medico-container, .enf-theme) .topbar .sys-time { display: none; }
+}
+@media (max-width: 760px) {
+  /* pilares viram botões de ícone; nome do profissional encurta */
+  html :is(.atendimento-medico-container, .enf-theme) .btn-pilar { font-size: 0; padding: 6px 9px; gap: 0; }
+  html :is(.atendimento-medico-container, .enf-theme) .btn-pilar i { font-size: 15px; }
+  html :is(.atendimento-medico-container, .enf-theme) .enf-avatar { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  html :is(.atendimento-medico-container, .enf-theme) .topbar .btn-voltar { padding: 5px 10px; }
+}
+
+/* ---------- Cabeçalho do documento com sub-abas (ex.: Documentos de Alta) ---------- */
+@media (max-width: 900px) {
+  html .atendimento-medico-container .cc-header { flex-wrap: wrap !important; row-gap: 8px; }
+  html .atendimento-medico-container .cc-header .doc-subtabs { flex: 1 1 100%; margin: 0; overflow-x: auto; scrollbar-width: thin; }
+  html .atendimento-medico-container .cc-header .doc-subtabs button { white-space: nowrap; }
+}
+
+/* ---------- Abas principais (1. Admissão ... 8. Receituário): rolagem horizontal fina ---------- */
+html :is(.atendimento-medico-container, .enf-theme) .clinical-tabs { scrollbar-width: thin; }
+
+/* ---------- Formulários: grades de 2+ colunas viram 1 coluna em tela estreita ---------- */
+@media (max-width: 640px) {
+  html :is(.atendimento-medico-container, .enf-theme) :is(.form-grid, .form-row, .grid-2, .grid-3, .grid-4) { grid-template-columns: 1fr !important; }
+  html :is(.atendimento-medico-container, .enf-theme) .cc-body { padding: 12px; }
+}
+
+/* ---------- Histórico Clínico (gaveta) ---------- */
+@media (max-width: 640px) {
+  html .hc-item-topo { gap: 6px; }
+  html .hc-data { min-width: 0; }
+  html .hc-busca { min-width: 0; }
+}
+
+/* Barras de rolagem horizontais das abas: finas, sem setas (Windows) */
+html .clinical-tabs::-webkit-scrollbar, html .doc-subtabs::-webkit-scrollbar { height: 4px; }
+html .clinical-tabs::-webkit-scrollbar-button, html .doc-subtabs::-webkit-scrollbar-button { display: none; }
+html .clinical-tabs::-webkit-scrollbar-thumb, html .doc-subtabs::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+html .clinical-tabs::-webkit-scrollbar-track, html .doc-subtabs::-webkit-scrollbar-track { background: transparent; }
+
+/* Abas principais nunca se sobrepõem: rolam na horizontal */
+html .clinical-tabs { overflow-x: auto; }
+html .clinical-tabs > * { flex-shrink: 0; white-space: nowrap; }
+
+/* Recepção: abas sem barra vertical; botão Buscar com altura do campo */
+html .recepcao-page-scroll .doc-subtabs { overflow-y: hidden; }
+html .recepcao-search-bar { align-items: stretch; }
+html .recepcao-search-bar .submit-btn { height: auto; min-height: 40px; padding: 0 20px; width: auto; flex: 0 0 auto; margin: 0; }
+@media (max-width: 520px) {
+  html .recepcao-search-bar { flex-wrap: wrap; }
+  html .recepcao-search-bar .submit-btn { flex: 1 1 100%; }
+}
+
+/* Títulos de página compartilhados (antes só existiam no CSS da tela Pendências,
+   então Indicadores/Histórico ficavam sem estilo até a Pendências ser aberta). */
+.page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; gap: 12px; flex-wrap: wrap; }
+.page-title h1 { font-size: 24px; font-weight: 800; color: var(--c-text-primary, #0F172A); margin: 0 0 4px 0; letter-spacing: -0.02em; line-height: 1.2; }
+.page-title p { color: var(--c-text-muted, #64748B); font-size: 14.5px; margin: 0; }
+@media (max-width: 640px) {
+  .page-title h1 { font-size: 20px; }
+  .page-title p { font-size: 13px; }
+}

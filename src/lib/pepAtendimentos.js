@@ -85,6 +85,7 @@ export async function carregarLeitosOcupadosPep() {
       alergias: !!alergiaPorPessoa[pessoa.id],
       alergia_substancia: alergiaPorPessoa[pessoa.id] || null,
       status_internacao: atendimento.status_internacao ?? 'Em observação',
+      classificacao_manchester: atendimento.classificacao_risco_cor ?? null,
       status: 'internado',
       leito_atual_id: ocupacao.leito_id,
       ultima_alteracao_por: null,

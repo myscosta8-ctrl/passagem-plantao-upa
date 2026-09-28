@@ -26,8 +26,9 @@ export async function calcularIndicadoresClinicos(periodo) {
 
   const INT = 'internacoes(diagnostico_admissao, encerrado_em)'
   const [r1, r2, r3, r4, r5] = await Promise.all([
-    supabase.from('atendimentos').select('id', { count: 'exact', head: true })
-      .eq('status', 'internado').eq('status_internacao', 'Em observação'),
+    // "Agora" = quem está de fato num leito (ocupação ativa), como no Painel.
+    supabase.from('atendimentos').select('id, leito_ocupacoes!inner(status)', { count: 'exact', head: true })
+      .eq('status', 'internado').eq('status_internacao', 'Em observação').eq('leito_ocupacoes.status', 'ativo'),
     supabase.from('atendimentos').select(`queixa_principal, ${INT}`)
       .eq('status_internacao', 'Internado').gte('data_conduta_definida', desdeISO).limit(5000),
     supabase.from('atendimentos').select('criado_em, encerrado_em')
@@ -35,7 +36,7 @@ export async function calcularIndicadoresClinicos(periodo) {
       .gte('encerrado_em', desdeISO).limit(5000),
     supabase.from('atendimentos').select('criado_em, data_conduta_definida')
       .gte('data_conduta_definida', desdeISO).limit(5000),
-    supabase.from('atendimentos').select('classificacao_risco_cor').eq('status', 'internado').limit(2000),
+    supabase.from('atendimentos').select('classificacao_risco_cor, leito_ocupacoes!inner(status)').eq('status', 'internado').eq('leito_ocupacoes.status', 'ativo').limit(2000),
   ])
   const erro = [r1, r2, r3, r4, r5].find((r) => r.error)?.error
   if (erro) throw erro
