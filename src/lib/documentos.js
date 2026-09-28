@@ -5,12 +5,17 @@ import { avisarErro } from './erros.js'
 // "Salvar" grava como rascunho (editável pelo autor); "Salvar e Imprimir"
 // finaliza (o banco bloqueia edição — só pode ser invalidado). Com `id`,
 // atualiza o próprio rascunho em vez de criar outro registro.
+// Avisa as telas (ex.: contador de "documentos não finalizados" no menu) que um documento mudou.
+export const EVENTO_DOCUMENTOS = 'documentos-alterados'
+function avisarMudanca() { try { window.dispatchEvent(new Event(EVENTO_DOCUMENTOS)) } catch { /* fora do navegador */ } }
+
 export function gravar(tabela, id, row, situacao, select = '*') {
   // situacao: 'rascunho' | 'finalizado' ou { situacao, data_registro } (ver metaDoc)
   const meta = typeof situacao === 'string' ? { situacao } : (situacao || {})
   const linha = { ...row, ...meta }
   const q = id ? supabase.from(tabela).update(linha).eq('id', id) : supabase.from(tabela).insert(linha)
-  return q.select(select).single()
+  // .then() transforma em Promise comum (executa a gravação uma única vez)
+  return q.select(select).single().then((r) => { if (!r.error) avisarMudanca(); return r })
 }
 
 export async function invalidarRegistro(tabela, id, motivo) {
@@ -42,5 +47,7 @@ export async function buscarRascunho(tabela, atendimentoId, autorId) {
 // "Cancelar" antes de finalizar: descarta o rascunho em definitivo (fica na auditoria).
 export async function descartarRascunho(tabela, id) {
   if (!id) return { error: null }
-  return supabase.from(tabela).delete().eq('id', id).eq('situacao', 'rascunho')
+  const r = await supabase.from(tabela).delete().eq('id', id).eq('situacao', 'rascunho')
+  if (!r.error) avisarMudanca()
+  return r
 }

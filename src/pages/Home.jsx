@@ -8,6 +8,7 @@ import Sidebar from '../components/Sidebar'
 import './AberturaPlantao.css'
 import { avisarErro } from '../lib/erros'
 import { listarMeusRascunhos } from '../components/MeusRascunhos'
+import { EVENTO_DOCUMENTOS } from '../lib/documentos'
 
 // Telas carregadas sob demanda via React.lazy (Code-Splitting)
 const PrintView = lazy(() => import('./PrintView'))
@@ -105,7 +106,17 @@ export default function Home() {
   const [tela, setTela] = useState(lerTelaSalva)
   // Aviso no menu (Pendências) de documentos do próprio profissional salvos e não finalizados.
   const [rascunhosPendentes, setRascunhosPendentes] = useState(0)
-  useEffect(() => { listarMeusRascunhos().then((l) => setRascunhosPendentes(l.length)) }, [tela])
+  useEffect(() => {
+    let t
+    const atualizar = () => listarMeusRascunhos().then((l) => setRascunhosPendentes(l.length))
+    // Após salvar/finalizar/cancelar um documento (espera 1s para o banco concluir)
+    const aoMudar = () => { clearTimeout(t); t = setTimeout(atualizar, 1000) }
+    const aoVoltar = () => { if (document.visibilityState === 'visible') atualizar() }
+    atualizar()
+    window.addEventListener(EVENTO_DOCUMENTOS, aoMudar)
+    document.addEventListener('visibilitychange', aoVoltar)
+    return () => { clearTimeout(t); window.removeEventListener(EVENTO_DOCUMENTOS, aoMudar); document.removeEventListener('visibilitychange', aoVoltar) }
+  }, [tela])
   const [focoProfissional, setFocoProfissional] = useState(null)
   // Cada tela só é montada (e só busca dados) quando é aberta. Painel, Passagem e
   // Recepção ficam vivas depois da 1ª visita; as demais recarregam a cada visita.

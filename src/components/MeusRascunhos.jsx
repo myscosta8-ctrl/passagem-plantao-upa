@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { FONTES } from '../lib/historicoClinico'
+import { EVENTO_DOCUMENTOS } from '../lib/documentos'
 
 // Documentos que o profissional salvou com "Salvar" (rascunho) e ainda não
 // finalizou com "Salvar e Imprimir". Só o próprio autor vê os seus.
@@ -26,7 +27,14 @@ const fmt = (d) => new Date(d).toLocaleString('pt-BR', { day: '2-digit', month: 
 
 export default function MeusRascunhos() {
   const [lista, setLista] = useState(null)
-  useEffect(() => { listarMeusRascunhos().then(setLista) }, [])
+  useEffect(() => {
+    let t
+    const atualizar = () => listarMeusRascunhos().then(setLista)
+    const aoMudar = () => { clearTimeout(t); t = setTimeout(atualizar, 1000) }
+    atualizar()
+    window.addEventListener(EVENTO_DOCUMENTOS, aoMudar)
+    return () => { clearTimeout(t); window.removeEventListener(EVENTO_DOCUMENTOS, aoMudar) }
+  }, [])
   if (!lista || lista.length === 0) return null
   return (
     <div className="mr-bloco">

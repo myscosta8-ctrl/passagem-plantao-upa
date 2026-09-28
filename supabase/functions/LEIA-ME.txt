@@ -1,1 +1,6 @@
-// Código publicado no Supabase (versões 4 e 6): senha provisória forte e aleatória, devolvida ao administrador.
+Funções do servidor (Supabase Edge Functions) — cópia do código publicado.
+
+- criar-login-profissional (versão 9): cria o login e o cadastro do profissional; devolve a senha provisória "upa" + 6 números.
+- resetar-senha-profissional (versão 6): gera nova senha provisória e obriga a troca no próximo acesso.
+
+Ambas exigem login de administrador (is_admin). Ao alterar, publique pelo Supabase e atualize esta cópia.
