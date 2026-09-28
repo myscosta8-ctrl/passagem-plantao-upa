@@ -117,11 +117,7 @@ export default function Auth() {
           </form>
 
           <div className="auth-footer">
-            {modo === 'login' ? (
-              <p>Ainda não tem acesso? <button type="button" onClick={() => {setModo('cadastro'); setErro('');}}>Criar conta</button></p>
-            ) : (
-              <p>Já possui conta? <button type="button" onClick={() => {setModo('login'); setErro('');}}>Fazer login</button></p>
-            )}
+            <p><i className="ph ph-info"></i> Ainda não tem acesso? Procure o setor administrativo da UPA 24h Breves para solicitar seu usuário e senha.</p>
           </div>
         </div>
       </div>

@@ -189,3 +189,8 @@
 .auth-footer button:hover {
   text-decoration: underline;
 }
+
+/* Ícone não sobrepõe o texto: regras globais de campo não podem zerar o recuo */
+html .input-with-icon input { padding-left: 44px !important; }
+html .input-with-icon i { z-index: 1; pointer-events: none; }
+.auth-footer p { line-height: 1.5; }
