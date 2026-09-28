@@ -8,7 +8,7 @@
 .sus-page {
   max-width: 780px;
   margin: 0 auto;
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.15;
   color: #111;
 }
@@ -25,13 +25,13 @@
 }
 
 .sus-letterhead-texto {
-  font-size: 8px;
+  font-size: 10.5px;
   line-height: 1.2;
 }
 
 .sus-letterhead-texto .nome {
   font-weight: 800;
-  font-size: 9.5px;
+  font-size: 12.5px;
 }
 
 .sus-letterhead-logos {
@@ -78,7 +78,7 @@
   text-align: center;
   border-right: 1px solid #000;
   padding: 2px 4px;
-  font-size: 8.5px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -89,7 +89,7 @@
   align-items: center;
   justify-content: center;
   padding: 3px 10px;
-  font-size: 12px;
+  font-size: 15.5px;
   font-weight: 700;
   font-style: italic;
   text-align: center;
@@ -114,7 +114,7 @@
 /* Título pequeno, alinhado à esquerda, com um traço à direita — usado só nas
    duas primeiras seções (Identificação do Estabelecimento / do Paciente). */
 .sus-secao-titulo {
-  font-size: 9px;
+  font-size: 11.5px;
   font-weight: 700;
   margin: 0 0 2px;
   display: flex;
@@ -132,7 +132,7 @@
    seções maiores (Justificativa, Procedimento, Causas Externas, Autorização),
    igual ao "———— TÍTULO ————" do formulário oficial. */
 .sus-secao-titulo-central {
-  font-size: 9.5px;
+  font-size: 12.5px;
   font-weight: 700;
   text-transform: uppercase;
   text-align: center;
@@ -177,7 +177,7 @@
 }
 
 .sus-field .cap {
-  font-size: 7.5px;
+  font-size: 10px;
   color: #333;
   display: block;
   white-space: nowrap;
@@ -185,7 +185,7 @@
 }
 
 .sus-field .val {
-  font-size: 10px;
+  font-size: 13px;
   min-height: 11px;
   padding-top: 0;
   white-space: pre-wrap;
@@ -209,7 +209,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
+  font-size: 11.5px;
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
@@ -224,7 +224,7 @@
   align-items: center;
   gap: 3px;
   margin-right: 12px;
-  font-size: 9px;
+  font-size: 11.5px;
   white-space: nowrap;
 }
 
@@ -242,7 +242,7 @@
 }
 
 .sus-data .barra {
-  font-size: 9px;
+  font-size: 11.5px;
   padding: 0 1px;
 }
 
@@ -255,7 +255,7 @@
 }
 
 .sus-tel .grupo .subcap {
-  font-size: 6.5px;
+  font-size: 10px;
   color: #555;
   display: block;
 }
@@ -266,7 +266,7 @@
   align-items: center;
   gap: 8px;
   margin-top: 1px;
-  font-size: 9px;
+  font-size: 11.5px;
 }
 
 .sus-sexo .digito {
@@ -277,7 +277,7 @@
   align-items: center;
   justify-content: center;
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 9px;
+  font-size: 11.5px;
   margin-left: 3px;
 }
 
@@ -301,6 +301,6 @@
 
 .sus-rodape-legal {
   text-align: center;
-  font-size: 9.5px;
+  font-size: 12.5px;
   margin-top: 10px;
 }

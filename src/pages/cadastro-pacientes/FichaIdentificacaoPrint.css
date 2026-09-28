@@ -2,37 +2,37 @@
    modelos_impressao_html/22-ficha-identificacao-termos.html, escopo .fi-overlay */
 .fi-overlay { position: fixed; inset: 0; z-index: 10000; background: #e2e8f0; overflow: auto; font-family: 'Inter', Arial, Helvetica, sans-serif; }
 .fi-toolbar { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 20px; background: #0f172a; color: #fff; z-index: 1; }
-.fi-toolbar h1 { font-size: 14px; font-weight: 700; margin: 0; }
-.fi-btn { border: 1px solid #94a3b8; background: transparent; color: #fff; border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 13px; cursor: pointer; }
+.fi-toolbar h1 { font-size: 18px; font-weight: 700; margin: 0; }
+.fi-btn { border: 1px solid #94a3b8; background: transparent; color: #fff; border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 17px; cursor: pointer; }
 .fi-btn.primario { background: #0D9488; border-color: #0D9488; }
 
 .fi-page { background: #fff; width: 210mm; min-height: 297mm; margin: 16px auto; padding: 8mm; box-sizing: border-box; display: flex; flex-direction: column; color: #000; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
 .fi-page .pr-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .fi-page .pr-topo-texto { flex: 1; }
-.fi-page .pr-topo-texto .nome { font-weight: 800; font-size: 10.5px; color: #000; letter-spacing: 0.2px; text-transform: uppercase; }
-.fi-page .pr-topo-texto .sub { font-size: 8px; color: #333; line-height: 1.25; margin-top: 1px; font-weight: 600; text-transform: uppercase; }
+.fi-page .pr-topo-texto .nome { font-weight: 800; font-size: 13.5px; color: #000; letter-spacing: 0.2px; text-transform: uppercase; }
+.fi-page .pr-topo-texto .sub { font-size: 10.5px; color: #333; line-height: 1.25; margin-top: 1px; font-weight: 600; text-transform: uppercase; }
 .fi-page .pr-topo-logos { display: flex; align-items: center; gap: 6px; }
 .fi-page .pr-topo-logos img { height: 25px; width: auto; object-fit: contain; }
 .fi-page .pr-topo-hr { border: none; border-top: 1px solid #000; margin: 5px 0; }
-.fi-page .pr-titulo { text-align: center; font-size: 13px; font-weight: 800; letter-spacing: 0.05em; margin: 6px 0 8px; text-transform: uppercase; color: #000; }
+.fi-page .pr-titulo { text-align: center; font-size: 17px; font-weight: 800; letter-spacing: 0.05em; margin: 6px 0 8px; text-transform: uppercase; color: #000; }
 .fi-page .pr-info { width: 100%; border: 1px solid #777; margin-bottom: 4px; }
 .fi-page .pr-linha { display: flex; }
 .fi-page .pr-linha + .pr-linha { border-top: 1px solid #bbb; }
-.fi-page .pr-campo { border-left: 1px solid #bbb; padding: 2px 5px; font-size: 8.3px; line-height: 1.25; box-sizing: border-box; overflow-wrap: break-word; color: #000; }
+.fi-page .pr-campo { border-left: 1px solid #bbb; padding: 2px 5px; font-size: 11px; line-height: 1.25; box-sizing: border-box; overflow-wrap: break-word; color: #000; }
 .fi-page .pr-campo:first-child { border-left: none; }
 .fi-page .pr-campo b { font-weight: 700; color: #000; margin-right: 3px; display: inline-block; }
-.fi-page .pr-campo span { font-weight: 500; font-size: 8.3px; color: #000; }
+.fi-page .pr-campo span { font-weight: 500; font-size: 11px; color: #000; }
 .fi-page .termo-secao { border: 1px solid #777; margin-bottom: 12px; border-radius: 2px; overflow: hidden; display: flex; flex-direction: column; }
-.fi-page .termo-titulo { background: #e2e8f0; font-weight: 800; text-align: center; font-size: 11px; padding: 6px; border-bottom: 1px solid #777; text-transform: uppercase; letter-spacing: 0.03em; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.fi-page .termo-corpo { padding: 12px 14px; font-size: 10.5px; line-height: 1.5; flex: 1; }
+.fi-page .termo-titulo { background: #e2e8f0; font-weight: 800; text-align: center; font-size: 14.5px; padding: 6px; border-bottom: 1px solid #777; text-transform: uppercase; letter-spacing: 0.03em; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.fi-page .termo-corpo { padding: 12px 14px; font-size: 13.5px; line-height: 1.5; flex: 1; }
 .fi-page .termo-corpo p { margin: 0 0 8px; text-align: justify; }
 .fi-page .termo-data { text-align: right; margin-top: 15px; margin-bottom: 25px; font-weight: 600; }
 .fi-page .assinatura-principal { margin-top: 10px; width: 100%; }
 .fi-page .sig-line-main { border-top: 1px solid #000; width: 100%; margin-bottom: 4px; }
-.fi-page .sig-label { font-size: 9px; color: #000; font-weight: 600; }
-.fi-page .sig-dados { display: flex; gap: 15px; margin-top: 8px; font-size: 10px; font-weight: 600; }
+.fi-page .sig-label { font-size: 11.5px; color: #000; font-weight: 600; }
+.fi-page .sig-dados { display: flex; gap: 15px; margin-top: 8px; font-size: 13px; font-weight: 600; }
 .fi-page .sig-dados div { border-bottom: 1px solid #bbb; padding-bottom: 2px; }
-.fi-page .sig-obs { font-size: 8px; color: #444; font-weight: 600; text-align: center; margin-top: 10px; font-style: italic; }
+.fi-page .sig-obs { font-size: 10.5px; color: #444; font-weight: 600; text-align: center; margin-top: 10px; font-style: italic; }
 .fi-page .testemunhas-grid { display: flex; justify-content: space-between; gap: 30px; margin-top: 30px; padding: 0 20px; }
 .fi-page .testemunha-box { flex: 1; text-align: center; }
 .fi-page .sig-line-test { border-top: 1px solid #000; margin-bottom: 4px; width: 100%; }

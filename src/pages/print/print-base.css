@@ -54,17 +54,17 @@
 }
 
 .print-header h1 {
-  font-size: 14px;
+  font-size: 18px;
   margin: 0 0 2px;
 }
 
 .print-header .meta {
-  font-size: 10.5px;
+  font-size: 13.5px;
   color: #444;
 }
 
 .print-setor-title {
-  font-size: 11px;
+  font-size: 14.5px;
   font-weight: 700;
   text-transform: uppercase;
   background: #eee;
@@ -82,13 +82,13 @@
 .print-card {
   border: 1px solid #999;
   padding: 5px 7px;
-  font-size: 9px;
+  font-size: 11.5px;
   line-height: 1.3;
   break-inside: avoid;
 }
 
 .print-card b {
-  font-size: 9.5px;
+  font-size: 12.5px;
 }
 
 .print-card .linha {
@@ -105,7 +105,7 @@
 }
 
 .print-empty {
-  font-size: 11px;
+  font-size: 14.5px;
   color: #666;
   font-style: italic;
   padding: 6px 0;
@@ -115,7 +115,7 @@
 .doc-page {
   max-width: 720px;
   margin: 0 auto;
-  font-size: 12px;
+  font-size: 15.5px;
 }
 
 .doc-cabecalho {
@@ -126,7 +126,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 3px 14px;
-  font-size: 10.5px;
+  font-size: 13.5px;
 }
 
 .doc-cabecalho .campo-largo {
@@ -139,7 +139,7 @@
 }
 
 .doc-titulo {
-  font-size: 15px;
+  font-size: 19.5px;
   font-weight: 800;
   text-align: center;
   margin: 4px 0 14px;
@@ -152,7 +152,7 @@
 
 .doc-secao .rotulo {
   font-weight: 700;
-  font-size: 10.5px;
+  font-size: 13.5px;
   text-transform: uppercase;
   color: #444;
   display: block;
@@ -166,7 +166,7 @@
 .doc-tabela {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 14.5px;
   margin-bottom: 12px;
 }
 
@@ -179,14 +179,14 @@
 
 .doc-tabela th {
   background: #eee;
-  font-size: 10px;
+  font-size: 13px;
   text-transform: uppercase;
 }
 
 .doc-assinatura {
   margin-top: 48px;
   text-align: center;
-  font-size: 11px;
+  font-size: 14.5px;
 }
 
 .doc-assinatura .linha-assinatura {
@@ -197,7 +197,7 @@
 
 .doc-rodape-meta {
   margin-top: 6px;
-  font-size: 9.5px;
+  font-size: 12.5px;
   color: #666;
   text-align: right;
 }

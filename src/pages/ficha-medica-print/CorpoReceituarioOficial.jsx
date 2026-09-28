@@ -30,13 +30,13 @@ function ReceitaColuna({ via, viaRotulo, registro, pessoa, atendimento, idade, l
       <div className="rxf-corpo">
         {Object.entries(viasAgrupadas).length === 0 ? (
           <>
-             <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '10px', marginTop: '8px', marginBottom: '4px' }}>USO NÃO ESPECIFICADO</div>
+             <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '13px', marginTop: '8px', marginBottom: '4px' }}>USO NÃO ESPECIFICADO</div>
              <div className="rxf-itens-lista" />
           </>
         ) : (
           Object.entries(viasAgrupadas).map(([viaKey, itensVia]) => (
             <div key={viaKey}>
-              <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '10.5px', marginTop: '8px', marginBottom: '4px' }}>
+              <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '13.5px', marginTop: '8px', marginBottom: '4px' }}>
                 USO {viaKey}
               </div>
               <div className="rxf-itens-lista">
@@ -65,17 +65,17 @@ function ReceitaColuna({ via, viaRotulo, registro, pessoa, atendimento, idade, l
       <div className="doc-rodape-container" style={{ marginTop: 'auto' }}>
         <div className="doc-rodape-externo" style={{ padding: '3px 2px 2px' }}>
           <div className="doc-bloco-datahora">
-            <div className="cidade-data" style={{ fontSize: '8.2px' }}>Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
-            <div className="hora-envio" style={{ fontSize: '7.2px' }}><b>Emissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
+            <div className="cidade-data" style={{ fontSize: '10.5px' }}>Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
+            <div className="hora-envio" style={{ fontSize: '10px' }}><b>Emissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
           </div>
           <div className="doc-bloco-assinatura" style={{ minWidth: '140px' }}>
             <div className="linha-sig" />
-            <div className="nome-sig" style={{ fontSize: '8.5px' }}>{medico?.nome_exibicao || medico?.nome || 'Médico Assistente'}</div>
-            <div className="crm-sig" style={{ fontSize: '7.5px' }}>{medico?.crm ? `CRM-PA ${medico.crm}` : 'CRM/UF'}</div>
-            <div className="cargo-sig" style={{ fontSize: '7px' }}>Médico Assistente — UPA 24h Breves</div>
+            <div className="nome-sig" style={{ fontSize: '11px' }}>{medico?.nome_exibicao || medico?.nome || 'Médico Assistente'}</div>
+            <div className="crm-sig" style={{ fontSize: '10px' }}>{medico?.crm ? `CRM-PA ${medico.crm}` : 'CRM/UF'}</div>
+            <div className="cargo-sig" style={{ fontSize: '10px' }}>Médico Assistente — UPA 24h Breves</div>
           </div>
         </div>
-        <div className="doc-rodape-sistema" style={{ fontSize: '7px', paddingTop: '1.5px', marginTop: '2px' }}>
+        <div className="doc-rodape-sistema" style={{ fontSize: '10px', paddingTop: '1.5px', marginTop: '2px' }}>
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
           <span>{viaRotulo || (via === 1 ? '1ª Via: Paciente' : '2ª Via: Farmácia')}</span>
         </div>

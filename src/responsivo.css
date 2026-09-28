@@ -90,3 +90,44 @@ html .recepcao-search-bar .submit-btn { height: auto; min-height: 40px; padding:
   .page-title h1 { font-size: 20px; }
   .page-title p { font-size: 13px; }
 }
+
+/* ==========================================================================
+   Digitação confortável nas fichas: campos maiores, letra legível, mais espaço.
+   ========================================================================== */
+html :is(.atendimento-medico-container, .enf-theme) :is(input:is([type=text], [type=number], [type=date], [type=time], [type=datetime-local], [type=tel], [type=email], [type=search], :not([type])), select):not(.vital-input-wrap input):not(.campo-data-registro input):not(.hc-card input) {
+  font-size: 14px;
+  min-height: 40px;
+  padding: 8px 12px;
+  line-height: 1.35;
+  border-radius: 6px;
+}
+html :is(.atendimento-medico-container, .enf-theme) textarea:not(.hc-card textarea) {
+  font-size: 14px;
+  line-height: 1.55;
+  padding: 10px 12px;
+  min-height: 96px;
+  resize: vertical;
+  border-radius: 6px;
+}
+html :is(.atendimento-medico-container, .enf-theme) input::placeholder,
+html :is(.atendimento-medico-container, .enf-theme) textarea::placeholder { font-size: 13px; }
+/* rótulos e espaçamento entre campos */
+html :is(.atendimento-medico-container, .enf-theme) .form-group { margin-bottom: 14px; }
+html :is(.atendimento-medico-container, .enf-theme) .form-group > label,
+html :is(.atendimento-medico-container, .enf-theme) .field > label { font-size: 12.5px; margin-bottom: 6px; display: inline-block; }
+html :is(.atendimento-medico-container, .enf-theme) .cc-body { row-gap: 16px; }
+/* sinais vitais em caixinhas: número maior */
+html .enf-theme .vital-input-wrap input { font-size: 17px; }
+/* campos do laudo oficial (AIH/APAC) seguem o quadro do formulário, só com letra maior */
+html .atendimento-medico-container .aih-field-box input { font-size: 13px; min-height: 34px; }
+
+/* ==========================================================================
+   Impressos: texto clínico escrito pelo profissional em 11pt (legível no papel).
+   Cabeçalhos, rótulos e quadros oficiais foram aumentados proporcionalmente
+   nos CSS de impressão.
+   ========================================================================== */
+html :is(.cons-secao-body, .med-secao-body, .enf-secao-body, .not-secao-body, .sae-secao-body, .sbar-secao-body, .admf-section-body, .adm-section-body, .alta-secao-body, .notm-secao-body),
+html :is(.cons-secao-body, .med-secao-body, .enf-secao-body, .not-secao-body, .sae-secao-body, .sbar-secao-body, .admf-section-body, .adm-section-body, .alta-secao-body, .notm-secao-body) * {
+  font-size: 11pt !important;
+  line-height: 1.4;
+}

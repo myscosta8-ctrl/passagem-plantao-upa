@@ -15,7 +15,7 @@
   min-height: 190mm;
   margin: 0 auto;
   padding: 8px 14px 6px;
-  font-size: 8.8px;
+  font-size: 11.5px;
   color: #111;
   box-sizing: border-box;
   display: flex;
@@ -29,13 +29,13 @@
 .pr-topo, .pr-titulo, .pr-info { font-family: 'Inter', Arial, Helvetica, sans-serif; }
 .pr-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pr-topo-texto { flex: 1; }
-.pr-topo-texto .nome { font-weight: 700; font-size: 10px; color: #000; letter-spacing: 0.2px; }
-.pr-topo-texto .sub { font-size: 8px; color: #333; line-height: 1.25; margin-top: 1px; }
+.pr-topo-texto .nome { font-weight: 700; font-size: 13px; color: #000; letter-spacing: 0.2px; }
+.pr-topo-texto .sub { font-size: 10.5px; color: #333; line-height: 1.25; margin-top: 1px; }
 .pr-topo-logos { display: flex; align-items: center; gap: 6px; }
 .pr-topo-logos img { height: 25px; width: auto; object-fit: contain; }
 .pr-topo hr, .pr-topo-hr { border: none; border-top: 1px solid #000; margin: 3.5px 0 3px; }
 
-.pr-titulo { text-align: center; font-size: 13px; font-weight: 700; letter-spacing: .04em; margin: 2px 0 4px; text-transform: uppercase; color: #000; }
+.pr-titulo { text-align: center; font-size: 17px; font-weight: 700; letter-spacing: .04em; margin: 2px 0 4px; text-transform: uppercase; color: #000; }
 
 /* Grade de identificação universal UPA Breves */
 .pr-info { width: 100%; border: 1px solid #777; margin-bottom: 5px; }
@@ -44,7 +44,7 @@
 .pr-campo {
   border-left: 1px solid #bbb;
   padding: 2px 5px;
-  font-size: 8.5px;
+  font-size: 11px;
   line-height: 1.3;
   box-sizing: border-box;
   overflow-wrap: break-word;
@@ -57,16 +57,16 @@
   border: 1px solid #888;
   color: #0f172a;
   font-weight: 700;
-  font-size: 9.5px;
+  font-size: 12.5px;
   padding: 2.5px 6px;
   text-transform: uppercase;
 }
 
 table.pr-tabela { width: 100%; border-collapse: collapse; margin-bottom: 0; }
-table.pr-tabela th { background: #f1f5f9; border: 1px solid #94a3b8; font-size: 8.5px; text-align: left; padding: 2.5px 6px; text-transform: uppercase; font-weight: 700; }
-table.pr-tabela td { border-left: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; font-size: 9px; padding: 4px 6px; vertical-align: top; }
+table.pr-tabela th { background: #f1f5f9; border: 1px solid #94a3b8; font-size: 11px; text-align: left; padding: 2.5px 6px; text-transform: uppercase; font-weight: 700; }
+table.pr-tabela td { border-left: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; font-size: 11.5px; padding: 4px 6px; vertical-align: top; }
 table.pr-tabela td.qtd, table.pr-tabela td.via, table.pr-tabela td.freq, table.pr-tabela td.horario { white-space: nowrap; }
-.pr-nota { font-style: italic; color: #333; font-size: 8.5px; display: block; margin-top: 1px; }
+.pr-nota { font-style: italic; color: #333; font-size: 11px; display: block; margin-top: 1px; }
 
 table.pr-tabela-salutem td {
   border-left: none;
@@ -74,11 +74,11 @@ table.pr-tabela-salutem td {
   border-bottom: 1px solid #cbd5e1;
 }
 
-.pr-caixa { border: 1px solid #888; border-top: none; padding: 5px 8px; min-height: 18px; font-size: 9.2px; line-height: 1.4; background: #fff; }
+.pr-caixa { border: 1px solid #888; border-top: none; padding: 5px 8px; min-height: 18px; font-size: 12px; line-height: 1.4; background: #fff; }
 
 .pr-assinaturas { display: flex; justify-content: space-between; gap: 14px; margin-top: 25px; }
-.pr-assinaturas .bloco { flex: 1; text-align: center; font-size: 9.5px; }
-.pr-assinaturas .bloco .nome-medico { font-weight: 700; font-size: 10px; display: block; }
+.pr-assinaturas .bloco { flex: 1; text-align: center; font-size: 12.5px; }
+.pr-assinaturas .bloco .nome-medico { font-weight: 700; font-size: 13px; display: block; }
 .pr-assinaturas .linha { border-top: 1px solid #333; margin-bottom: 4px; padding-top: 6px; }
 
 .pr-assinaturas-5 {
@@ -92,7 +92,7 @@ table.pr-tabela-salutem td {
 .pr-assinaturas-5 .bloco {
   flex: 1;
   text-align: center;
-  font-size: 8px;
+  font-size: 10.5px;
   line-height: 1.25;
 }
 .pr-assinaturas-5 .bloco .linha {
@@ -103,7 +103,7 @@ table.pr-tabela-salutem td {
 .pr-assinaturas-5 .bloco-medico {
   flex: 1.4;
   text-align: center;
-  font-size: 8px;
+  font-size: 10.5px;
   line-height: 1.25;
 }
 .pr-assinaturas-5 .bloco-medico .linha {
@@ -112,7 +112,7 @@ table.pr-tabela-salutem td {
   width: 100%;
 }
 
-.pr-rodape { display: flex; justify-content: space-between; font-size: 8px; color: #333; margin-top: 6px; border-top: 1px solid #999; padding-top: 3px; }
+.pr-rodape { display: flex; justify-content: space-between; font-size: 10.5px; color: #333; margin-top: 6px; border-top: 1px solid #999; padding-top: 3px; }
 
 /* ==============================================================
    RODAPÉ EXTERNO UNIVERSAL UPA BREVES (FORA DA CAIXA DE CONTEÚDO)
@@ -135,17 +135,17 @@ table.pr-tabela-salutem td {
   margin-top: 6px;
 }
 .doc-bloco-datahora {
-  font-size: 9.5px;
+  font-size: 12.5px;
   color: #111;
   line-height: 1.4;
 }
 .doc-bloco-datahora .cidade-data {
   font-weight: 600;
-  font-size: 10px;
+  font-size: 13px;
 }
 .doc-bloco-datahora .hora-envio {
   color: #333;
-  font-size: 9px;
+  font-size: 11.5px;
 }
 .doc-bloco-assinatura {
   text-align: center;
@@ -157,16 +157,16 @@ table.pr-tabela-salutem td {
 }
 .doc-bloco-assinatura .nome-sig {
   font-weight: 700;
-  font-size: 10px;
+  font-size: 13px;
   color: #000;
 }
 .doc-bloco-assinatura .coren-sig,
 .doc-bloco-assinatura .crm-sig {
-  font-size: 8.8px;
+  font-size: 11.5px;
   color: #333;
 }
 .doc-bloco-assinatura .cargo-sig {
-  font-size: 8px;
+  font-size: 10.5px;
   color: #475569;
   text-transform: uppercase;
   font-weight: 500;
@@ -177,7 +177,7 @@ table.pr-tabela-salutem td {
   border-top: 1px solid #888;
   padding-top: 2.5px;
   margin-top: 5px;
-  font-size: 8px;
+  font-size: 10.5px;
   color: #444;
 }
 
@@ -190,7 +190,7 @@ table.pr-tabela-salutem td {
   text-align: center;
   line-height: 10px;
   font-weight: bold;
-  font-size: 8.5px;
+  font-size: 11px;
   margin-right: 4px;
   vertical-align: middle;
   background: #fff;
@@ -199,5 +199,5 @@ table.pr-tabela-salutem td {
   display: inline-flex;
   align-items: center;
   margin-right: 12px;
-  font-size: 9px;
+  font-size: 11.5px;
 }
