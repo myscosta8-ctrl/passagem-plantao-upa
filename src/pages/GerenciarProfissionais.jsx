@@ -146,6 +146,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
 
   const [nome, setNome] = useState('')
   const [username, setUsername] = useState('')
+  const [exibicao, setExibicao] = useState('')
   const [tipo, setTipo] = useState('enfermagem')
   const [registro, setRegistro] = useState('')
   const [uf, setUf] = useState('PA')
@@ -179,7 +180,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
     if (!nome.trim() || !username.trim()) { setErroCriar('Preencha nome e usuário.'); return }
     setCriando(true)
     const { data, error } = await supabase.functions.invoke('criar-login-profissional', {
-      body: { nome: nome.trim(), username: username.trim(), tipo, registro: registro.trim(), conselho_uf: uf },
+      body: { nome: nome.trim(), username: username.trim(), nome_exibicao: exibicao.trim(), tipo, registro: registro.trim(), conselho_uf: uf },
     })
     setCriando(false)
     if (error || data?.error || !data?.senha_provisoria) {
@@ -189,7 +190,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
       return
     }
     setJanela({ tipo: 'senha', titulo: 'Login criado', usuario: data.username, senha: data.senha_provisoria })
-    setNome(''); setUsername(''); setRegistro('')
+    setNome(''); setUsername(''); setExibicao(''); setRegistro('')
     carregar()
   }
 
@@ -238,6 +239,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
             <div className="gp-campo"><label>Nome completo</label><input value={nome} onChange={(e) => setNome(e.target.value)} /></div>
             <div className="gp-campo"><label>Usuário (login)</label><input placeholder="ex: enf.maria" value={username} onChange={(e) => setUsername(e.target.value)} /></div>
           </div>
+          <div className="gp-campo"><label>Nome de exibição (sai nos documentos)</label><input value={exibicao} onChange={(e) => setExibicao(e.target.value.toUpperCase())} placeholder={`ex: ${tipo === 'medico' ? 'DR.' : tipo === 'recepcao' ? 'REC.' : 'ENF.'}${(nome.trim().split(/\s+/)[0] || 'MARIA').toUpperCase()} — se ficar em branco, é gerado assim`} /></div>
           <div className="gp-campo"><label>Tipo</label>
             <div className="gp-segmento">{TIPOS.map((t) => <button key={t.valor} type="button" className={tipo === t.valor ? 'on' : ''} onClick={() => setTipo(t.valor)}>{t.rotulo}</button>)}</div>
           </div>
