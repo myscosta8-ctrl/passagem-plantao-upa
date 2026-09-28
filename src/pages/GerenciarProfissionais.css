@@ -67,3 +67,60 @@
 .gp-senha .gp-senha-valor { font-family: ui-monospace, Consolas, monospace; font-size: 18px; letter-spacing: .05em; }
 .gp-senha p { margin: 0; font-size: 12px; color: #475569; }
 .gp-senha .gp-btn { align-self: flex-start; }
+
+/* ===== Redesenho (formulário, filtros e lista) ===== */
+.gp-page .gp-form-l1 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 12px; }
+.gp-page .gp-form-l2 { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.gp-page .gp-form-l2 > .gp-linha2 { display: contents; }
+.gp-page .gp-form-l2 .gp-campo:not(.gp-uf) { flex: 0 1 220px; }
+.gp-page .gp-form-l2 .gp-campo:first-child { flex: 0 0 auto; }
+.gp-page .gp-form-l2 .gp-uf { flex: 0 0 110px; }
+.gp-page .gp-criar { height: 38px; margin-bottom: 12px; margin-left: auto; padding: 0 18px; font-size: 13.5px; }
+.gp-page .gp-campo label small { font-weight: 500; text-transform: none; letter-spacing: 0; color: #94A3B8; }
+.gp-page .gp-campo input, .gp-page .gp-campo select { height: 38px; font-size: 14px; }
+.gp-page .gp-campo .gp-segmento { align-self: flex-start; }
+.gp-page .gp-segmento button { height: 36px; }
+.gp-page .gp-dica { font-size: 12px; color: #64748B; margin: 0 0 4px; }
+
+.gp-page .gp-filtros { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 8px; gap: 8px; margin-bottom: 6px; }
+.gp-page .gp-busca { flex: 1 1 260px; display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px; border: 1px solid #E2E8F0; border-radius: 9px; background: #fff; }
+.gp-page .gp-busca:focus-within { border-color: #0D9488; box-shadow: 0 0 0 3px rgba(13, 148, 136, .12); }
+.gp-page .gp-busca i { color: #94A3B8; font-size: 17px; }
+.gp-page .gp-filtros .gp-busca input { flex: 1; min-width: 0; height: 100% !important; border: 0 !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; font-size: 14px; outline: none; }
+.gp-page .gp-seg-suave { border: 0; background: #EEF2F6; padding: 3px; gap: 2px; border-radius: 9px; }
+.gp-page .gp-seg-suave button { border: 0 !important; border-radius: 7px; height: 32px; }
+.gp-page .gp-seg-suave button.on { background: #fff; color: #0F766E; box-shadow: 0 1px 3px rgba(15, 23, 42, .12); }
+.gp-page .gp-switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; user-select: none; padding: 0 6px; }
+.gp-page .gp-switch input { position: absolute; opacity: 0; width: 1px !important; height: 1px !important; pointer-events: none; }
+.gp-page .gp-switch span { position: relative; width: 36px; height: 20px; border-radius: 20px; background: #CBD5E1; transition: background .15s; flex-shrink: 0; }
+.gp-page .gp-switch span::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform .15s; }
+.gp-page .gp-switch input:checked + span { background: #0D9488; }
+.gp-page .gp-switch input:checked + span::after { transform: translateX(16px); }
+
+.gp-page .gp-item { padding: 14px 8px; border-radius: 10px; border-bottom: 1px solid #EEF2F6; }
+.gp-page .gp-item:hover { background: #FAFCFD; }
+.gp-page .gp-item-topo { flex-wrap: nowrap; }
+.gp-page .gp-av { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; background: #E2E8F0; color: #334155; }
+.gp-page .gp-av.tipo-enfermagem { background: #CCFBF1; color: #0F766E; }
+.gp-page .gp-av.tipo-medico { background: #DBEAFE; color: #1D4ED8; }
+.gp-page .gp-av.tipo-recepcao { background: #EDE9FE; color: #6D28D9; }
+.gp-page .gp-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; }
+.gp-page .gp-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.gp-page .gp-meta i { color: #94A3B8; }
+.gp-page .gp-acoes .gp-btn { height: 34px; }
+
+@media (max-width: 900px) {
+  .gp-page .gp-form-l1 { grid-template-columns: 1fr; gap: 0; }
+  .gp-page .gp-form-l2 .gp-campo:not(.gp-uf) { flex: 1 1 100%; }
+  .gp-page .gp-form-l2 .gp-campo:first-child .gp-segmento { width: 100%; }
+  .gp-page .gp-form-l2 .gp-campo:first-child .gp-segmento button { flex: 1; }
+  .gp-page .gp-form-l2 .gp-linha2 .gp-campo:not(.gp-uf) { flex: 1 1 0; }
+  .gp-page .gp-criar { width: 100%; margin-left: 0; height: 46px; }
+  .gp-page .gp-item-topo { flex-wrap: wrap; }
+  .gp-page .gp-item-info { flex: 1 1 calc(100% - 56px); }
+  .gp-page .gp-acoes { width: 100%; flex-wrap: nowrap; }
+  .gp-page .gp-acoes .gp-btn { min-width: 0; padding: 0 8px; font-size: 12px; }
+  .gp-page .gp-acoes .gp-btn { flex: 1 1 0; height: 40px; }
+  .gp-page .gp-seg-suave { width: 100%; }
+  .gp-page .gp-seg-suave button { flex: 1; }
+}

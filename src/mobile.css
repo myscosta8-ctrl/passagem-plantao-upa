@@ -1,0 +1,67 @@
+/* =====================================================================
+   CELULAR / TABLET (Android Chrome, Safari)
+   - Altura real da tela (100dvh) — 100vh ignora a barra de endereço e
+     cortava o fim das telas.
+   - A área de trabalho das fichas rola (antes ficava "presa").
+   - Rodapé com Cancelar / Salvar fica fixo embaixo, sempre visível.
+   ===================================================================== */
+@supports (height: 100dvh) {
+  .main-content, .espaco-paciente-modal, .sidebar { height: 100dvh; }
+  .modal-card { max-height: calc(100dvh - 32px); }
+}
+
+@media (max-width: 960px) {
+  .espaco-paciente-conteudo, .atendimento-medico-container { min-height: 0 !important; }
+  .atendimento-medico-container .workspace,
+  .enf-theme .workspace {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-height: 0 !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding-bottom: 24px !important;
+  }
+  /* Painéis internos crescem com o conteúdo (quem rola é a área de trabalho) */
+  .enf-theme .sae-split, .enf-theme .timeline-pane, .enf-theme .sae-card,
+  .enf-theme .bh-container, .enf-theme .transfer-card, .enf-theme .history-pane,
+  .enf-theme .form-card, .enf-theme .quick-sidebar {
+    overflow: visible !important; flex: 0 0 auto !important; min-height: auto !important; max-height: none !important;
+  }
+  .enf-theme .sae-split { flex-direction: column !important; }
+  .enf-theme .timeline-pane, .enf-theme .history-pane { width: 100% !important; }
+
+  /* Rodapé de ação fixo no fim da tela visível */
+  .enf-theme .ac-footer, .enf-theme .sc-footer, .enf-theme .bh-footer,
+  .enf-theme .tc-footer, .enf-theme .fc-footer,
+  .atendimento-medico-container .cc-footer {
+    position: sticky !important; bottom: 0 !important; z-index: 5 !important;
+    box-shadow: 0 -4px 12px rgba(15, 23, 42, .08) !important;
+  }
+
+  /* Campos confortáveis para o dedo; 16px evita zoom automático ao digitar */
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; }
+}
+
+/* Rodapé compacto no celular: data numa linha, os 3 botões lado a lado */
+@media (max-width: 520px) {
+  html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) { padding: 8px 10px !important; gap: 6px !important; }
+  html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .campo-data-registro { order: 1 !important; flex: 1 1 100% !important; font-size: 12px; }
+  html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .campo-data-registro input { max-width: 200px; padding: 6px 8px; }
+  html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) button {
+    order: 2 !important; flex: 1 1 0 !important; width: auto !important; min-width: 0 !important; min-height: 44px;
+    padding: 8px 6px !important; font-size: 13px !important; white-space: normal !important; line-height: 1.15 !important; text-align: center; justify-content: center; margin: 0 !important;
+  }
+  html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .btn-cancel { flex: 0 0 auto !important; padding: 8px 10px !important; }
+  html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .btn-save-print { flex: 1.4 1 0 !important; }
+}
+
+/* Janelas (Internar, Realocar, Desfecho…) no celular: botões sempre visíveis */
+@media (max-width: 640px) {
+  .modal-backdrop { align-items: flex-end !important; padding: 8px !important; }
+  .modal-card { max-height: calc(100dvh - 16px) !important; padding: 18px 16px 0 !important; border-radius: 16px !important; }
+  .modal-card > .modal-actions {
+    position: sticky; bottom: 0; background: #fff; margin: 12px -16px 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid #E2E8F0; display: flex; gap: 8px;
+  }
+  .modal-card > .modal-actions > button { flex: 1 1 0; min-height: 46px; }
+}

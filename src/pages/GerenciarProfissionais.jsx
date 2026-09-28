@@ -97,13 +97,14 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, foca
   return (
     <div className={`gp-item ${!ativo ? 'inativo' : ''} ${aberto ? 'aberto' : ''}`}>
       <div className="gp-item-topo">
+        <div className={`gp-av tipo-${p.tipo}`}>{String(p.nome || '?').trim().split(/\s+/).filter((w) => w.length > 2).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?'}</div>
         <div className="gp-item-info">
           <div className="gp-nome">{nomeDe(p)} {p.role === 'admin' && <span className="gp-selo admin">Administrador</span>} {!ativo && <span className="gp-selo">Desativado</span>} {p.deve_trocar_senha && <span className="gp-selo ambar">Trocar senha</span>}</div>
           <div className="gp-sub">
             {p.nome} · {TIPOS.find((t) => t.valor === p.tipo)?.rotulo || p.tipo}
             {conselho && (registroDe(p) ? ` · ${conselho}-${p.conselho_uf || 'PA'} ${registroDe(p)}` : <span className="gp-falta"> · {conselho} não informado</span>)}
           </div>
-          <div className="gp-sub">{p.usuario ? <>Usuário: <b>{p.usuario}</b> · </> : ''}Último acesso: {ultimoAcessoTexto(p)}</div>
+          <div className="gp-sub gp-meta">{p.usuario && <span><i className="ph ph-at" /> {p.usuario}</span>}<span><i className="ph ph-clock" /> {ultimoAcessoTexto(p)}</span></div>
         </div>
         <div className="gp-acoes">
           <button type="button" className="gp-btn gp-btn-sec" onClick={aberto ? () => setAberto(false) : abrir}><i className={`ph ${aberto ? 'ph-x' : 'ph-pencil-simple'}`} /> {aberto ? 'Fechar' : 'Editar'}</button>
@@ -234,18 +235,21 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
 
       <div className="card gp-card">
         <div className="section-label">Criar login</div>
-        <form onSubmit={criarLogin}>
-          <div className="gp-linha2">
-            <div className="gp-campo"><label>Nome completo</label><input value={nome} onChange={(e) => setNome(e.target.value)} /></div>
-            <div className="gp-campo"><label>Usuário (login)</label><input placeholder="ex: enf.maria" value={username} onChange={(e) => setUsername(e.target.value)} /></div>
+        <form onSubmit={criarLogin} className="gp-form">
+          <div className="gp-form-l1">
+            <div className="gp-campo"><label>Nome completo</label><input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome como no documento" /></div>
+            <div className="gp-campo"><label>Usuário (login)</label><input placeholder="ex: enf.maria" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={username} onChange={(e) => setUsername(e.target.value)} /></div>
+            <div className="gp-campo"><label>Nome de exibição <small>(sai nos documentos)</small></label><input value={exibicao} onChange={(e) => setExibicao(e.target.value.toUpperCase())} placeholder={`ex: ${tipo === 'medico' ? 'DR.' : tipo === 'recepcao' ? 'REC.' : 'ENF.'}${(nome.trim().split(/\s+/)[0] || 'MARIA').toUpperCase()}`} /></div>
           </div>
-          <div className="gp-campo"><label>Nome de exibição (sai nos documentos)</label><input value={exibicao} onChange={(e) => setExibicao(e.target.value.toUpperCase())} placeholder={`ex: ${tipo === 'medico' ? 'DR.' : tipo === 'recepcao' ? 'REC.' : 'ENF.'}${(nome.trim().split(/\s+/)[0] || 'MARIA').toUpperCase()} — se ficar em branco, é gerado assim`} /></div>
-          <div className="gp-campo"><label>Tipo</label>
-            <div className="gp-segmento">{TIPOS.map((t) => <button key={t.valor} type="button" className={tipo === t.valor ? 'on' : ''} onClick={() => setTipo(t.valor)}>{t.rotulo}</button>)}</div>
+          <div className="gp-form-l2">
+            <div className="gp-campo"><label>Tipo</label>
+              <div className="gp-segmento">{TIPOS.map((t) => <button key={t.valor} type="button" className={tipo === t.valor ? 'on' : ''} onClick={() => setTipo(t.valor)}>{t.rotulo}</button>)}</div>
+            </div>
+            <CampoRegistro tipo={tipo} registro={registro} uf={uf} onRegistro={setRegistro} onUf={setUf} />
+            <button type="submit" className="gp-btn gp-btn-pri gp-criar" disabled={criando}><i className="ph ph-user-plus" /> {criando ? 'Criando...' : 'Criar login'}</button>
           </div>
-          <CampoRegistro tipo={tipo} registro={registro} uf={uf} onRegistro={setRegistro} onUf={setUf} />
+          <p className="gp-dica">Se o nome de exibição ficar em branco, ele é gerado a partir do primeiro nome. A senha provisória aparece logo após criar.</p>
           {erroCriar && <div className="gp-erro">{erroCriar}</div>}
-          <button type="submit" className="gp-btn gp-btn-pri" disabled={criando}><i className="ph ph-user-plus" /> {criando ? 'Criando...' : 'Criar login'}</button>
         </form>
       </div>
 
@@ -255,11 +259,11 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
           {semRegistro > 0 && <span className="gp-falta"><i className="ph ph-warning" /> {semRegistro} sem COREN/CRM — necessário para os impressos</span>}
         </div>
         <div className="gp-filtros">
-          <input placeholder="Buscar por nome, usuário, COREN ou CRM..." value={busca} onChange={(e) => setBusca(e.target.value)} />
-          <div className="gp-segmento">
+          <label className="gp-busca"><i className="ph ph-magnifying-glass" /><input type="search" placeholder="Buscar por nome, usuário, COREN ou CRM" value={busca} onChange={(e) => setBusca(e.target.value)} /></label>
+          <div className="gp-segmento gp-seg-suave">
             {[{ valor: 'todos', rotulo: 'Todos' }, ...TIPOS].map((t) => <button key={t.valor} type="button" className={filtroTipo === t.valor ? 'on' : ''} onClick={() => setFiltroTipo(t.valor)}>{t.rotulo}</button>)}
           </div>
-          <label className="gp-check"><input type="checkbox" checked={mostrarInativos} onChange={(e) => setMostrarInativos(e.target.checked)} /> Mostrar desativados</label>
+          <label className="gp-switch"><input type="checkbox" checked={mostrarInativos} onChange={(e) => setMostrarInativos(e.target.checked)} /><span aria-hidden="true" /> Mostrar desativados</label>
         </div>
         {carregando ? <p className="gp-vazio">Carregando...</p> : lista.length === 0 ? <p className="gp-vazio">Nenhum login encontrado.</p> : (
           <div className="gp-lista">{lista.map((p) => (

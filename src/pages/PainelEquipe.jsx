@@ -65,74 +65,111 @@ export default function PainelEquipe({ onVoltar, podeAdministrar, onGerenciar })
       : peso(a) - peso(c) || String(a.nome).localeCompare(c.nome))
   }, [base, filtro, tipo, busca, ordem, agora])
 
+  const TIPOS_SEG = [['todos', 'Todos'], ['enfermagem', 'Enfermagem'], ['medico', 'Médico'], ['recepcao', 'Recepção']]
+  const ICONE_FILTRO = { todos: 'ph-users-three', online: 'ph-wifi-high', plantao: 'ph-first-aid-kit', semreg: 'ph-identification-card', senha: 'ph-key', ausente: 'ph-clock-counter-clockwise', admin: 'ph-shield-check' }
+
   return (
     <div className="workspace pe-page">
-      <div className="page-header" style={{ marginBottom: 18, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <div className="page-title">
+      <header className="pe-cabecalho">
+        <div>
           <h1>Painel de Equipe</h1>
           <p>Todos os profissionais com login: quem está online, em plantão e o que falta no cadastro.</p>
         </div>
-        <div className="page-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button className="btn btn-outline" onClick={carregar}><i className="ph ph-arrows-clockwise" /> Atualizar</button>
-          {podeAdministrar && <button className="btn btn-primary" onClick={() => onGerenciar?.(null)}><i className="ph ph-user-plus" /> Gerenciar logins</button>}
-          <button className="btn btn-outline" onClick={onVoltar}><i className="ph ph-arrow-left" /> Voltar ao painel</button>
+        <div className="pe-cab-acoes">
+          <button type="button" className="pe-btn pe-btn-sec" onClick={carregar} title="Atualizar"><i className="ph ph-arrows-clockwise" /> <span>Atualizar</span></button>
+          {podeAdministrar && <button type="button" className="pe-btn pe-btn-pri" onClick={() => onGerenciar?.(null)}><i className="ph ph-user-plus" /> <span>Gerenciar logins</span></button>}
+          <button type="button" className="pe-btn pe-btn-sec" onClick={onVoltar}><i className="ph ph-arrow-left" /> <span>Voltar</span></button>
         </div>
-      </div>
+      </header>
 
-      <div className="pe-resumo">
+      <div className="pe-resumo" role="tablist">
         {FILTROS.map((x) => (
-          <button key={x.k} type="button" className={`pe-chip pe-${x.k} ${filtro === x.k ? 'on' : ''}`} onClick={() => setFiltro(filtro === x.k && x.k !== 'todos' ? 'todos' : x.k)}>
-            <b>{contagem[x.k] ?? 0}</b> {x.r}
+          <button key={x.k} type="button" role="tab" aria-selected={filtro === x.k}
+            className={`pe-tile pe-f-${x.k} ${filtro === x.k ? 'on' : ''} ${x.k !== 'todos' && !contagem[x.k] ? 'zero' : ''}`}
+            onClick={() => setFiltro(filtro === x.k && x.k !== 'todos' ? 'todos' : x.k)}>
+            <i className={`ph ${ICONE_FILTRO[x.k]}`} />
+            <b>{contagem[x.k] ?? 0}</b>
+            <span>{x.r}</span>
           </button>
         ))}
       </div>
 
-      <div className="pe-filtros">
-        <input placeholder="Buscar por nome, usuário, COREN ou CRM..." value={busca} onChange={(e) => setBusca(e.target.value)} />
-        <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-          <option value="todos">Todos os tipos</option>
-          {Object.entries(TIPO).map(([k, r]) => <option key={k} value={k}>{r}</option>)}
-        </select>
-        <select value={ordem} onChange={(e) => setOrdem(e.target.value)}>
-          <option value="status">Ordenar: online e em plantão primeiro</option>
-          <option value="nome">Ordenar: nome</option>
-          <option value="acesso">Ordenar: último acesso</option>
-        </select>
-        <label><input type="checkbox" checked={inativos} onChange={(e) => setInativos(e.target.checked)} /> Incluir desativados</label>
+      <div className="pe-barra">
+        <label className="pe-busca">
+          <i className="ph ph-magnifying-glass" />
+          <input type="search" placeholder="Buscar por nome, usuário, COREN ou CRM" value={busca} onChange={(e) => setBusca(e.target.value)} />
+          {busca && <button type="button" onClick={() => setBusca('')} aria-label="Limpar busca"><i className="ph ph-x" /></button>}
+        </label>
+        <div className="pe-seg">
+          {TIPOS_SEG.map(([k, r]) => <button key={k} type="button" className={tipo === k ? 'on' : ''} onClick={() => setTipo(k)}>{r}</button>)}
+        </div>
+        <label className="pe-ordem">
+          <i className="ph ph-sort-ascending" />
+          <select value={ordem} onChange={(e) => setOrdem(e.target.value)} aria-label="Ordenar">
+            <option value="status">Online e em plantão primeiro</option>
+            <option value="nome">Nome (A–Z)</option>
+            <option value="acesso">Último acesso</option>
+          </select>
+        </label>
+        <label className="pe-switch">
+          <input type="checkbox" checked={inativos} onChange={(e) => setInativos(e.target.checked)} />
+          <span className="pe-switch-trilho" aria-hidden="true" />
+          Desativados
+        </label>
       </div>
 
-      {carregando ? <p className="pe-vazio">Carregando...</p> : visiveis.length === 0 ? <p className="pe-vazio">Nenhum profissional neste filtro.</p> : (
+      <div className="pe-contador">{carregando ? 'Carregando...' : `${visiveis.length} profissional${visiveis.length === 1 ? '' : 'is'}`}</div>
+
+      {!carregando && visiveis.length === 0 ? <p className="pe-vazio"><i className="ph ph-user-circle-dashed" /> Nenhum profissional neste filtro.</p> : (
         <div className="pe-grade">
           {visiveis.map((p) => {
             const on = online(p, agora)
             const reg = registro(p)
+            const conselho = CONSELHO[p.tipo]
             return (
-              <div key={p.id} className={`pe-card ${!p.ativo ? 'inativo' : ''}`}>
+              <article key={p.id} className={`pe-card tipo-${p.tipo} ${!p.ativo ? 'inativo' : ''}`}>
                 <div className="pe-topo">
                   <div className={`pe-avatar ${on ? 'on' : ''}`} title={on ? 'Online agora' : 'Offline'}>{iniciais(p.nome)}<span /></div>
                   <div className="pe-id">
-                    <div className="pe-nome">{p.nome}</div>
-                    <div className="pe-sub">{p.nome_exibicao || '—'} · {TIPO[p.tipo] || p.tipo}{p.usuario ? ` · usuário: ${p.usuario}` : ''}</div>
+                    <div className="pe-nome" title={p.nome}>{p.nome}</div>
+                    <div className="pe-exib" title={p.nome_exibicao || ''}>{p.nome_exibicao || 'Sem nome de exibição'}</div>
                   </div>
+                  <span className={`pe-tipo tipo-${p.tipo}`}>{TIPO[p.tipo] || p.tipo}</span>
                 </div>
-                <div className="pe-selos">
-                  {on ? <span className="pe-selo verde"><i className="ph ph-circle-fill" /> Online</span> : <span className="pe-selo">Offline</span>}
-                  {p.em_plantao && <span className="pe-selo teal"><i className="ph ph-first-aid-kit" /> Em plantão · {p.plantao_atual}</span>}
-                  {p.role === 'admin' && <span className="pe-selo azul">Administrador</span>}
-                  {!p.ativo && <span className="pe-selo cinza">Desativado</span>}
-                  {p.deve_trocar_senha && <span className="pe-selo ambar">Trocar senha</span>}
-                  {semRegistro(p) && <span className="pe-selo ambar"><i className="ph ph-warning" /> Sem {CONSELHO[p.tipo]}</span>}
+
+                <div className="pe-status">
+                  <span className={`pe-online ${on ? 'on' : ''}`}><i />{on ? 'Online agora' : `Visto ${haQuanto(ultimoUso(p), agora)}`}</span>
+                  {p.em_plantao && <span className="pe-selo teal"><i className="ph ph-first-aid-kit" /> {p.plantao_atual}</span>}
                 </div>
+
                 <dl className="pe-dados">
-                  <div><dt>{CONSELHO[p.tipo] || 'Registro'}</dt><dd>{reg ? `${CONSELHO[p.tipo]}-${p.conselho_uf || 'PA'} ${reg}` : '—'}</dd></div>
-                  <div><dt>Último acesso</dt><dd>{haQuanto(ultimoUso(p), agora)}</dd></div>
-                  <div><dt>Último plantão</dt><dd>{p.ultimo_plantao || '—'}</dd></div>
-                  <div><dt>Plantões (30 dias)</dt><dd>{p.plantoes_30d ?? 0}</dd></div>
+                  <div>
+                    <dt><i className="ph ph-identification-card" /> {conselho || 'Registro'}</dt>
+                    <dd className={conselho && !reg ? 'falta' : ''}>{!conselho ? 'Não se aplica' : reg ? `${conselho}-${p.conselho_uf || 'PA'} ${reg}` : 'Não informado'}</dd>
+                  </div>
+                  <div>
+                    <dt><i className="ph ph-at" /> Usuário</dt>
+                    <dd className="mono">{p.usuario || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt><i className="ph ph-calendar-check" /> Último plantão</dt>
+                    <dd>{p.ultimo_plantao || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt><i className="ph ph-chart-bar" /> Plantões 30 dias</dt>
+                    <dd>{p.plantoes_30d ?? 0}</dd>
+                  </div>
                 </dl>
-                {podeAdministrar && (
-                  <div className="pe-acoes"><button type="button" className="btn btn-outline" onClick={() => onGerenciar?.(p.id)}><i className="ph ph-pencil-simple" /> Editar cadastro</button></div>
-                )}
-              </div>
+
+                <footer className="pe-rodape">
+                  <div className="pe-selos">
+                    {p.role === 'admin' && <span className="pe-selo azul"><i className="ph ph-shield-check" /> Admin</span>}
+                    {p.deve_trocar_senha && <span className="pe-selo ambar"><i className="ph ph-key" /> Trocar senha</span>}
+                    {!p.ativo && <span className="pe-selo cinza">Desativado</span>}
+                  </div>
+                  {podeAdministrar && <button type="button" className="pe-btn pe-btn-sec pe-btn-p" onClick={() => onGerenciar?.(p.id)}><i className="ph ph-pencil-simple" /> Editar</button>}
+                </footer>
+              </article>
             )
           })}
         </div>
