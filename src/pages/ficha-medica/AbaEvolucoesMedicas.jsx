@@ -7,7 +7,7 @@ import AbaTfd from './AbaTfd';
 // "4. Evoluções Médicas": todos os documentos médicos do dia a dia numa tela só.
 const DOCS = [
   { chave: 'evolucao', rotulo: 'Evolução Diária', icon: 'ph-activity', tipo: 'evolucao', C: AbaEvolucaoMedica },
-  { chave: 'regulacao', rotulo: 'Atualização de Quadro (SISREG)', icon: 'ph-broadcast', tipo: 'regulacao', C: AbaRegulacao },
+  { chave: 'regulacao', rotulo: 'Atualização de Quadro Clínico', icon: 'ph-broadcast', tipo: 'regulacao', C: AbaRegulacao },
   { chave: 'intercorrencia', rotulo: 'Nota de Intercorrência', icon: 'ph-siren', tipo: 'intercorrencia', C: AbaNotaIntercorrenciaMedica },
   { chave: 'tfd', rotulo: 'TFD', icon: 'ph-boat', tipo: 'tfd', C: AbaTfd },
 ];

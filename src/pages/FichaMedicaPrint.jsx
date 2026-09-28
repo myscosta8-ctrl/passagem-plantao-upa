@@ -44,7 +44,7 @@ const TITULOS = {
   atm: 'Solicitação de Autorização de Uso de Antimicrobiano (ATM)',
   tfd: 'Laudo para Tratamento Fora do Domicílio (TFD)',
   plano: 'Plano Terapêutico',
-  regulacao: 'Atualização de Quadro Clínico — Regulação (SER/SISREG)',
+  regulacao: 'Atualização de Quadro Clínico',
   alta: 'Sumário de Alta',
   evolucao: 'Evolução Médica Diária',
   intercorrencia: 'Nota de Intercorrência Médica',

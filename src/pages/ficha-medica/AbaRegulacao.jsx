@@ -15,6 +15,9 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
   const [pendencias, setPendencias] = useState('')
   const [conduta, setConduta] = useState('')
   const [numeroSer, setNumeroSer] = useState('')
+  const [destSer, setDestSer] = useState(false)
+  const [destSisreg, setDestSisreg] = useState(false)
+  const [numeroSisreg, setNumeroSisreg] = useState('')
   const [diagnosticoRegulado, setDiagnosticoRegulado] = useState('')
   const [mudancaDiagnostico, setMudancaDiagnostico] = useState(false)
   const [novoDiagnostico, setNovoDiagnostico] = useState('')
@@ -28,7 +31,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
 
   useEffect(() => { carregar() }, [])
   const [buscaCid, setBuscaCid] = useState('')
-  const rascunho = useRascunho({ tabela: 'regulacao_atualizacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { evolucao: [evolucao, setEvolucao], pendencias: [pendencias, setPendencias], conduta: [conduta, setConduta], numeroSer: [numeroSer, setNumeroSer], diagnosticoRegulado: [diagnosticoRegulado, setDiagnosticoRegulado], mudancaDiagnostico: [mudancaDiagnostico, setMudancaDiagnostico], novoDiagnostico: [novoDiagnostico, setNovoDiagnostico], buscaCid: [buscaCid, setBuscaCid], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
+  const rascunho = useRascunho({ tabela: 'regulacao_atualizacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { evolucao: [evolucao, setEvolucao], pendencias: [pendencias, setPendencias], conduta: [conduta, setConduta], numeroSer: [numeroSer, setNumeroSer], destSer: [destSer, setDestSer], destSisreg: [destSisreg, setDestSisreg], numeroSisreg: [numeroSisreg, setNumeroSisreg], diagnosticoRegulado: [diagnosticoRegulado, setDiagnosticoRegulado], mudancaDiagnostico: [mudancaDiagnostico, setMudancaDiagnostico], novoDiagnostico: [novoDiagnostico, setNovoDiagnostico], buscaCid: [buscaCid, setBuscaCid], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   useEffect(() => {
     const t = setTimeout(() => { pesquisarCid(buscaCid).then(setCids) }, 250)
     return () => clearTimeout(t)
@@ -56,6 +59,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
   }
 
   async function registrar(imprimir = false) {
+    if (!destSer && !destSisreg) { setErro('Marque o destino do documento: SER, SISREG ou ambos.'); return }
     if (!evolucao.trim()) { setErro('Descreva a atualização do quadro clínico.'); return }
     setErro('')
     setSalvando(true)
@@ -64,7 +68,9 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
       atendimentoId: atendimento.atendimento_id, atualizadoPor: medicoId,
       dados: {
         evolucao: evolucao.trim(), pendencias: pendencias || null, conduta: conduta || null,
-        numero_solicitacao_ser: numeroSer || null,
+        destino_ser: destSer, destino_sisreg: destSisreg,
+        numero_solicitacao_ser: destSer ? (numeroSer || null) : null,
+        numero_solicitacao_sisreg: destSisreg ? (numeroSisreg || null) : null,
         diagnostico_regulado: diagnosticoRegulado || null,
         mudanca_diagnostico: mudancaDiagnostico,
         novo_diagnostico_cid: mudancaDiagnostico ? (novoDiagnostico || null) : null,
@@ -76,7 +82,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
     if (imprimir && data) onImprimir(data)
     if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
-    setEvolucao(''); setPendencias(''); setConduta(''); setNumeroSer('')
+    setEvolucao(''); setPendencias(''); setConduta(''); setNumeroSer(''); setNumeroSisreg(''); setDestSer(false); setDestSisreg(false)
     setDiagnosticoRegulado(''); setMudancaDiagnostico(false); setNovoDiagnostico(''); setBuscaCid('')
     setSv({ pas: '', pad: '', fc: '', fr: '', temp: '', spo2: '', hgt: '' })
     carregar()
@@ -116,9 +122,16 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
 
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> 1. Diagnóstico Regulado</div>
-          <div className="assess-grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
-            <div className="form-group"><label>Diagnóstico regulado</label><input type="text" value={diagnosticoRegulado} onChange={(e) => setDiagnosticoRegulado(e.target.value)} /></div>
-            <div className="form-group"><label>Nº da solicitação SER / SISREG</label><input type="text" value={numeroSer} onChange={(e) => setNumeroSer(e.target.value)} /></div>
+          <div className="form-group" style={{ marginBottom: 12 }}><label>Destino do documento (marque um ou ambos)</label>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <button type="button" className={'btn-add-chip' + (destSer ? ' on' : '')} onClick={() => setDestSer((v) => !v)}>{destSer ? '✓ ' : ''}SER</button>
+              <button type="button" className={'btn-add-chip' + (destSisreg ? ' on' : '')} onClick={() => setDestSisreg((v) => !v)}>{destSisreg ? '✓ ' : ''}SISREG</button>
+            </div>
+          </div>
+          <div className="assess-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+            <div className="form-group" style={{ gridColumn: '1 / -1' }}><label>Diagnóstico regulado</label><input type="text" value={diagnosticoRegulado} onChange={(e) => setDiagnosticoRegulado(e.target.value)} /></div>
+            {destSer && <div className="form-group"><label>Nº da solicitação no SER</label><input type="text" value={numeroSer} onChange={(e) => setNumeroSer(e.target.value)} /></div>}
+            {destSisreg && <div className="form-group"><label>Nº da solicitação no SISREG</label><input type="text" value={numeroSisreg} onChange={(e) => setNumeroSisreg(e.target.value)} /></div>}
           </div>
           <div className="assess-grid" style={{ gridTemplateColumns: '1fr 2fr', marginTop: 12 }}>
             <div className="form-group"><label>Mudança de diagnóstico?</label>

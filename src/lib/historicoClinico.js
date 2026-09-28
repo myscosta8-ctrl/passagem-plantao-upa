@@ -25,7 +25,7 @@ export const FONTES = [
     resumo: (r) => txt(r.queixa_principal && `QP: ${r.queixa_principal}`, r.hipotese_diagnostica || r.hipoteses_diagnosticas, r.conduta_inicial || r.conduta) },
   { tabela: 'evolucoes_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,medico_id,diagnosticos,evolucao_dia,conduta_medica', rotulo: 'Evolução Médica', area: 'medico', impresso: 'evolucao',
     resumo: (r) => txt(r.diagnosticos, r.evolucao_dia, r.conduta_medica) },
-  { tabela: 'regulacao_atualizacoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,atualizado_por,diagnostico_regulado,evolucao,conduta', rotulo: 'Atualização de Quadro Clínico (SISREG)', area: 'medico', impresso: 'regulacao',
+  { tabela: 'regulacao_atualizacoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,atualizado_por,diagnostico_regulado,evolucao,conduta', rotulo: 'Atualização de Quadro Clínico', area: 'medico', impresso: 'regulacao',
     resumo: (r) => txt(r.diagnostico_regulado, r.evolucao, r.conduta) },
   { tabela: 'notas_intercorrencia_medica', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,medico_id,descricao_evento,notas,conduta_tomada', rotulo: 'Nota de Intercorrência Médica', area: 'medico', impresso: 'intercorrencia',
     resumo: (r) => txt(r.descricao_evento || r.notas, r.conduta_tomada) },

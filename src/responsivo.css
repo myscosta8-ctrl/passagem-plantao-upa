@@ -130,3 +130,7 @@ html .presc-validade-texto { font-size: 12.5px; color: #334155; }
 html .presc-validade-atalhos { display: inline-flex; gap: 6px; margin-left: auto; }
 html .presc-validade-atalhos button { border: 1px solid #99F6E4; background: #fff; color: #0F766E; border-radius: 14px; padding: 3px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
 html .presc-validade-atalhos button.on { background: #0D9488; color: #fff; border-color: #0D9488; }
+
+/* Abas: quebram em linhas em vez de rolar — nenhuma aba fica cortada ou sobreposta em qualquer largura */
+html .clinical-tabs, html .doc-subtabs, html .adm-subtabs, html .transfer-subtabs, html .atendimento-medico-container .cc-header .doc-subtabs { flex-wrap: wrap !important; overflow: visible !important; row-gap: 4px; height: auto !important; }
+html .clinical-tabs > *, html .doc-subtabs > *, html .adm-subtabs > *, html .transfer-subtabs > * { flex: 0 0 auto !important; white-space: nowrap; max-width: 100%; }
