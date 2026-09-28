@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
-import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes } from '../lib/historicoClinico'
+import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes, buscarRegistroCompleto } from '../lib/historicoClinico'
 import { invalidarRegistro } from '../lib/documentos'
 import { useAuth } from '../lib/AuthContext'
 import './HistoricoClinico.css'
@@ -145,6 +145,10 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
   const [filtroArea, setFiltroArea] = useState('todos')
   const [imprimindo, setImprimindo] = useState(null)
   const { enfermeiro } = useAuth()
+  async function abrirImpressao(item) {
+    const completo = await buscarRegistroCompleto(item.fonte.tabela, item.registro.id)
+    setImprimindo({ ...item, registro: completo || item.registro })
+  }
   const atendimentoId = atendimento?.atendimento_id
   const pessoaId = atendimento?.pessoa_id
 
@@ -191,8 +195,8 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
               ))}
             </div>
           </div>
-          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, em ordem cronológica" carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={setImprimindo} meuId={enfermeiro?.id} />
-          <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={setImprimindo} agruparPorAtendimento meuId={enfermeiro?.id} />
+          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, em ordem cronológica" carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} />
+          <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} agruparPorAtendimento meuId={enfermeiro?.id} />
           <p className="hc-nota">Exames, Prescrição Médica e AIH continuam no histórico da própria aba.</p>
         </div>
       )}

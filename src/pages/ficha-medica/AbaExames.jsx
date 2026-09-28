@@ -217,6 +217,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
   const [localEcg, setLocalEcg] = useState('leito');
   const [apacDados, setApacDados] = useState(APAC_VAZIA);
   const [salvando, setSalvando] = useState(false);
+  const [msgExame, setMsgExame] = useState(null);
   const [dataRegistro, setDataRegistro] = useState('');
   const [historico, setHistorico] = useState([])
   const [historicoAberto, setHistoricoAberto] = useState(false);
@@ -266,7 +267,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         if (sepsisMatch.some(m => it.nome.includes(m))) novo[it.nome] = true;
       }));
       setLabSelecionados(novo);
-      alert('Protocolo Sepse / IRA aplicado com sucesso (exames essenciais marcados)!');
+      setMsgExame({ t: 'Protocolo Sepse / IRA aplicado com sucesso (exames essenciais marcados)!' });
     } else if (tipo === 'abdome') {
       setModalidade('img');
       const abdomeMatch = ['Tórax (Incidências Posteroanterior', 'Rotina Radiológica de Abdome'];
@@ -275,12 +276,12 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         if (abdomeMatch.some(m => it.nome.includes(m))) novo[it.nome] = true;
       }));
       setImgSelecionados(novo);
-      alert('Protocolo Abdome Agudo aplicado (Tórax PA/Perfil + Rotina Abdome Agudo)!');
+      setMsgExame({ t: 'Protocolo Abdome Agudo aplicado (Tórax PA/Perfil + Rotina Abdome Agudo)!' });
     } else if (tipo === 'ecg_urgencia') {
       setModalidade('ecg');
       const novo = { [EXAMES_ECG_CATALOGO[0].itens[0].nome]: true };
       setEcgSelecionados(novo);
-      alert('Protocolo ECG Urgência aplicado (12 Derivações com DII longo marcado)!');
+      setMsgExame({ t: 'Protocolo ECG Urgência aplicado (12 Derivações com DII longo marcado)!' });
     } else if (tipo === 'apac_usg') {
       setModalidade('apac');
       setApacDados((prev) => ({
@@ -289,7 +290,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         procedimento_nome: 'ULTRASSONOGRAFIA DE ABDOME TOTAL',
         quantidade: '1',
       }));
-      alert('Modelo de procedimento preenchido (USG de Abdome Total) — revise diagnóstico, CID e justificativa antes de salvar.');
+      setMsgExame({ t: 'Modelo de procedimento preenchido (USG de Abdome Total) — revise diagnóstico, CID e justificativa antes de salvar.' });
     }
   }
 
@@ -302,7 +303,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
   }
 
   async function salvar(imprimir = true) {
-    setSalvando(true);
+    setSalvando(true); setMsgExame(null);
     try {
       if (modalidade === 'lab') {
         const itens = [];
@@ -313,7 +314,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         }));
 
         if (itens.length === 0) {
-          alert('Atenção: Selecione ao menos um exame laboratorial.');
+          setMsgExame({ erro: true, t: 'Atenção: Selecione ao menos um exame laboratorial.' });
           setSalvando(false);
           return;
         }
@@ -331,7 +332,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           local: 'Laboratório Interno UPA 24h',
         });
 
-        if (erroEx) { console.error(erroEx); alert('Não foi possível registrar a requisição. Tente novamente.'); setSalvando(false); return; }
+        if (erroEx) { console.error(erroEx); setMsgExame({ erro: true, t: 'Não foi possível registrar a requisição. Tente novamente.' }); setSalvando(false); return; }
         if (imprimir && reg) onImprimir?.(reg, 'exame_lab');
 
       } else if (modalidade === 'img') {
@@ -343,7 +344,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         }));
 
         if (itens.length === 0) {
-          alert('Atenção: Selecione ao menos um exame radiológico.');
+          setMsgExame({ erro: true, t: 'Atenção: Selecione ao menos um exame radiológico.' });
           setSalvando(false);
           return;
         }
@@ -361,7 +362,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           local: 'Radiologia Digital UPA 24h',
         });
 
-        if (erroEx) { console.error(erroEx); alert('Não foi possível registrar a requisição. Tente novamente.'); setSalvando(false); return; }
+        if (erroEx) { console.error(erroEx); setMsgExame({ erro: true, t: 'Não foi possível registrar a requisição. Tente novamente.' }); setSalvando(false); return; }
         if (imprimir && reg) onImprimir?.(reg, 'exame_img');
 
       } else if (modalidade === 'ecg') {
@@ -373,7 +374,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         }));
 
         if (itens.length === 0) {
-          alert('Atenção: Selecione ao menos um procedimento de ECG.');
+          setMsgExame({ erro: true, t: 'Atenção: Selecione ao menos um procedimento de ECG.' });
           setSalvando(false);
           return;
         }
@@ -391,12 +392,12 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           local: 'Métodos Gráficos UPA 24h',
         });
 
-        if (erroEx) { console.error(erroEx); alert('Não foi possível registrar a requisição. Tente novamente.'); setSalvando(false); return; }
+        if (erroEx) { console.error(erroEx); setMsgExame({ erro: true, t: 'Não foi possível registrar a requisição. Tente novamente.' }); setSalvando(false); return; }
         if (imprimir && reg) onImprimir?.(reg, 'exame_ecg');
 
       } else if (modalidade === 'apac') {
         if (!apacDados.procedimento_nome.trim() || !apacDados.justificativa.trim()) {
-          alert('Atenção: preencha ao menos o procedimento principal e a justificativa clínica da APAC.');
+          setMsgExame({ erro: true, t: 'Atenção: preencha ao menos o procedimento principal e a justificativa clínica da APAC.' });
           setSalvando(false);
           return;
         }
@@ -425,7 +426,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
 
         if (error) {
           console.error(error);
-          alert('Não foi possível registrar a APAC. Verifique os dados e tente novamente.');
+          setMsgExame({ erro: true, t: 'Não foi possível registrar a APAC. Verifique os dados e tente novamente.' });
           setSalvando(false);
           return;
         }
@@ -436,7 +437,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
       setHistorico(await listarExames(atendimento.atendimento_id));
     } catch (e) {
       console.error(e);
-      alert('Erro ao emitir requisição.');
+      setMsgExame({ erro: true, t: 'Erro ao emitir requisição.' });
     } finally {
       setSalvando(false);
     }
@@ -787,6 +788,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
             <i className="ph ph-x-circle" /> Cancelar
           </button>
           <div style={{ display: 'flex', gap: 12 }}>
+            {msgExame && <div className={msgExame.erro ? 'erro-inline' : 'aviso-rascunho'} role="status"><i className={`ph ${msgExame.erro ? 'ph-warning-circle' : 'ph-check-circle'}`} /> {msgExame.t}</div>}
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
               <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}

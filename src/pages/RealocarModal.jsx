@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { pepEstaAtivo } from '../lib/pepConfig'
 import { leitosOcupadosIdsPep, realocarAtendimentoPep } from '../lib/pepAtendimentos'
+import { avisarErro } from '../lib/erros'
 
 export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onFechar, onRealocado }) {
   const [setores, setSetores] = useState([])
@@ -19,8 +20,10 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
   async function carregar() {
     const pep = await pepEstaAtivo(enfermeiroId)
     setPepAtivo(pep)
-    const { data: listaSetores } = await supabase.from('setores').select('*').order('ordem')
-    const { data: todosLeitos } = await supabase.from('leitos').select('*').eq('ativo', true)
+    const { data: listaSetores, error: erroConsulta1 } = await supabase.from('setores').select('*').order('ordem')
+    if (erroConsulta1) avisarErro('RealocarModal', erroConsulta1)
+    const { data: todosLeitos, error: erroConsulta2 } = await supabase.from('leitos').select('*').eq('ativo', true)
+    if (erroConsulta2) avisarErro('RealocarModal', erroConsulta2)
     const ocupados = await leitosOcupadosIdsPep()
     setSetores(listaSetores ?? [])
     setLeitosVazios((todosLeitos ?? []).filter((l) => !ocupados.has(l.id) && l.id !== leitoOrigem.id))

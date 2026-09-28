@@ -1,4 +1,5 @@
-import { supabase } from './supabaseClient'
+import { supabase } from './supabaseClient.js'
+import { avisarErro } from './erros.js'
 
 // ===================== Regras de documento clínico =====================
 // "Salvar" grava como rascunho (editável pelo autor); "Salvar e Imprimir"
@@ -31,9 +32,10 @@ export function metaDoc(finalizar, dataRegistro, estadoFormulario) {
 // Último rascunho do próprio profissional neste atendimento (ou null).
 export async function buscarRascunho(tabela, atendimentoId, autorId) {
   if (!atendimentoId || !autorId) return null
-  const { data } = await supabase.from(tabela).select('*')
+  const { data, error: erroConsulta1 } = await supabase.from(tabela).select('*')
     .eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('autor_auth', autorId)
     .order('criado_em', { ascending: false }).limit(1).maybeSingle()
+  if (erroConsulta1) avisarErro('documentos', erroConsulta1)
   return data
 }
 

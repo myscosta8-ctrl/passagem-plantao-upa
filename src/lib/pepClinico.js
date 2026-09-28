@@ -1,16 +1,18 @@
 import { supabase } from './supabaseClient.js'
-import { gravar } from './documentos'
+import { gravar } from './documentos.js'
+import { avisarErro } from './erros.js'
 
 // Fase 2 (piloto Observação/Internação) — ficha clínica contínua do
 // enfermeiro: admissão (exame físico por marcação) + sinais vitais em série.
 // Só existe sobre a estrutura nova do PEP (pessoas/atendimentos).
 
 export async function listarSinaisVitais(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta1 } = await supabase
     .from('sinais_vitais')
     .select('*, enfermeiros(nome_exibicao, nome)')
     .eq('atendimento_id', atendimentoId)
     .order('registrado_em', { ascending: false })
+  if (erroConsulta1) avisarErro('pepClinico', erroConsulta1)
   return data ?? []
 }
 
@@ -27,8 +29,9 @@ export async function registrarSinaisVitais({ atendimentoId, registradoPor, dado
 }
 
 export async function listarEvolucoes(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta2 } = await supabase
     .from('evolucoes')
+  if (erroConsulta2) avisarErro('pepClinico', erroConsulta2)
     // evolucoes tem 2 FKs para enfermeiros (autor_id e enfermeiro_id): sem o hint o
     // PostgREST recusa o embed (300) e a lista volta vazia.
     .select('*, enfermeiros!evolucoes_autor_id_fkey(nome_exibicao, nome, coren)')
@@ -47,11 +50,12 @@ export async function registrarEvolucao({ atendimentoId, autorId, texto, diagnos
 }
 
 export async function listarDispositivos(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta3 } = await supabase
     .from('dispositivos_invasivos')
     .select('*')
     .eq('atendimento_id', atendimentoId)
     .order('inserido_em', { ascending: false })
+  if (erroConsulta3) avisarErro('pepClinico', erroConsulta3)
   return data ?? []
 }
 
@@ -78,11 +82,12 @@ export async function removerDispositivo({ id, motivo }) {
 }
 
 export async function listarBalancoHidrico(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta4 } = await supabase
     .from('balanco_hidrico')
     .select('*')
     .eq('atendimento_id', atendimentoId)
     .order('registrado_em', { ascending: false })
+  if (erroConsulta4) avisarErro('pepClinico', erroConsulta4)
   return data ?? []
 }
 
@@ -99,11 +104,12 @@ export async function registrarBalancoHidrico({ atendimentoId, registradoPor, ti
 }
 
 export async function listarEscalas(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta5 } = await supabase
     .from('escalas_enfermagem')
     .select('*')
     .eq('atendimento_id', atendimentoId)
     .order('avaliado_em', { ascending: false })
+  if (erroConsulta5) avisarErro('pepClinico', erroConsulta5)
   return data ?? []
 }
 
@@ -119,11 +125,12 @@ export async function registrarEscala({ atendimentoId, tipo, pontuacao, nivelRis
 // atendimento — igual medicações contínuas. Lista de verdade: várias por
 // pessoa, cada uma com substância/reação/gravidade, nunca um sim/não só.
 export async function listarAlergias(pessoaId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta6 } = await supabase
     .from('alergias')
     .select('*')
     .eq('pessoa_id', pessoaId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta6) avisarErro('pepClinico', erroConsulta6)
   return data ?? []
 }
 
@@ -144,11 +151,12 @@ export async function inativarAlergia(alergiaId) {
 // gotículas ou aerossol, com motivo e patógeno suspeito.
 
 export async function listarIsolamentos(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta7 } = await supabase
     .from('isolamentos')
     .select('*, enfermeiros(nome_exibicao, nome)')
     .eq('atendimento_id', atendimentoId)
     .order('inicio_em', { ascending: false })
+  if (erroConsulta7) avisarErro('pepClinico', erroConsulta7)
   return data ?? []
 }
 
@@ -172,18 +180,20 @@ export async function encerrarIsolamento(id) {
 // direto ao atendimento — por isso busca o histórico de ocupações primeiro.
 
 export async function buscarOcupacaoAtiva(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta8 } = await supabase
     .from('leito_ocupacoes')
     .select('id, leito_id, leitos(numero, setor_id, setores(nome))')
     .eq('atendimento_id', atendimentoId)
     .eq('status', 'ativo')
     .maybeSingle()
+  if (erroConsulta8) avisarErro('pepClinico', erroConsulta8)
   return data
 }
 
 export async function listarTransferenciasSbar(atendimentoId) {
   // Transferências novas guardam atendimento_id; as antigas só o leito_ocupacao_id.
-  const { data: ocupacoes } = await supabase.from('leito_ocupacoes').select('id').eq('atendimento_id', atendimentoId)
+  const { data: ocupacoes, error: erroConsulta9 } = await supabase.from('leito_ocupacoes').select('id').eq('atendimento_id', atendimentoId)
+  if (erroConsulta9) avisarErro('pepClinico', erroConsulta9)
   const ids = (ocupacoes ?? []).map((o) => o.id)
   const filtro = ids.length ? `atendimento_id.eq.${atendimentoId},leito_ocupacao_id.in.(${ids.join(',')})` : `atendimento_id.eq.${atendimentoId}`
   const { data, error } = await supabase
@@ -209,8 +219,9 @@ export async function registrarTransferenciaSbar({ leitoOcupacaoId, setorDestino
 // (auditoria interna continua possível, só não é exposta na tela).
 
 export async function listarEventosAdversos(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta10 } = await supabase
     .from('eventos_adversos')
+  if (erroConsulta10) avisarErro('pepClinico', erroConsulta10)
     // 2 FKs para enfermeiros (relator_id, notificado_por): hint explícito, senão a lista vem vazia.
     .select('*, enfermeiros!eventos_adversos_relator_id_fkey(nome_exibicao, nome, coren)')
     .eq('atendimento_id', atendimentoId)

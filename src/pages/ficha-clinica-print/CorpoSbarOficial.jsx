@@ -41,7 +41,7 @@ export default function CorpoSbarOficial({ registro, pessoa, atendimento, idade,
             <div className="sbar-secao-body">
               <div><b>Diagnóstico Principal de Saída:</b> {registro.impressao_diagnostica || '—'}</div>
               {cf.motivo && <div style={{ marginTop: 3 }}><b>Motivo da Transferência:</b> {cf.motivo}</div>}
-              {registro.situacao && <div style={{ marginTop: 3, whiteSpace: 'pre-wrap' }}><b>Situação Atual:</b> {registro.situacao}</div>}
+              {registro.situacao_atual && <div style={{ marginTop: 3, whiteSpace: 'pre-wrap' }}><b>Situação Atual:</b> {registro.situacao_atual}</div>}
             </div>
           </div>
 

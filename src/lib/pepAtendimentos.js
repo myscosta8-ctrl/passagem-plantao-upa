@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient.js'
 import { detectarDuplicatas } from './pepRecepcao.js'
+import { avisarErro } from './erros.js'
 
 // Etapa H da Fase 0 do PEP — caminho novo de leitura/escrita, usado só quando
 // configuracoes.pep_ativo = true (ver pepConfig.js). Produz objetos com o MESMO
@@ -92,10 +93,11 @@ export async function carregarLeitosOcupadosPep() {
     }
   }
 
-  const { data: passagens } = await supabase
+  const { data: passagens, error: erroConsulta1 } = await supabase
     .from('passagens')
     .select('*, enfermeiros!passagens_criado_por_fkey(nome_exibicao, nome)')
     .in('atendimento_id', atendimentoIds)
+  if (erroConsulta1) avisarErro('pepAtendimentos', erroConsulta1)
     // Só a última passagem de cada paciente importa aqui; limita a janela para
     // não trazer meses de histórico de quem está internado há muito tempo.
     .gte('criado_em', new Date(Date.now() - 30 * 86400000).toISOString())
@@ -114,12 +116,13 @@ export async function carregarLeitosOcupadosPep() {
 // continua sendo feito na aba própria de Sinais Vitais da Enfermagem).
 export async function listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds) {
   if (!atendimentoIds?.length) return {}
-  const { data } = await supabase
+  const { data, error: erroConsulta2 } = await supabase
     .from('sinais_vitais')
     .select('*')
     .in('atendimento_id', atendimentoIds)
     .gte('registrado_em', new Date(Date.now() - 3 * 86400000).toISOString())
     .order('registrado_em', { ascending: false })
+  if (erroConsulta2) avisarErro('pepAtendimentos', erroConsulta2)
   const porAtendimento = {}
   for (const sv of data ?? []) {
     if (!porAtendimento[sv.atendimento_id]) porAtendimento[sv.atendimento_id] = sv
@@ -132,10 +135,11 @@ export async function listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds) {
 // na grade coletiva.
 export async function listarBalancoPorAtendimentos(atendimentoIds) {
   if (!atendimentoIds?.length) return {}
-  const { data } = await supabase
+  const { data, error: erroConsulta3 } = await supabase
     .from('balanco_hidrico')
     .select('atendimento_id, tipo, volume_ml')
     .in('atendimento_id', atendimentoIds)
+  if (erroConsulta3) avisarErro('pepAtendimentos', erroConsulta3)
   const porAtendimento = {}
   for (const registro of data ?? []) {
     if (!porAtendimento[registro.atendimento_id]) porAtendimento[registro.atendimento_id] = { entradas: 0, saidas: 0 }
@@ -219,11 +223,12 @@ export async function internarPacientePep({ leito, dados, enfermeiroId: _enferme
 // cria duplicata. NUNCA chamar isto com um id que já é `pep_nativo` (já é um
 // atendimento de verdade) — só serve pra ids da tabela `pacientes` antiga.
 export async function obterOuCriarAtendimentoParaPaciente(pacienteId) {
-  const { data: atendimentoExistente } = await supabase
+  const { data: atendimentoExistente, error: erroConsulta4 } = await supabase
     .from('atendimentos')
     .select('id, pessoa_id')
     .eq('migrado_de_paciente_id', pacienteId)
     .maybeSingle()
+  if (erroConsulta4) avisarErro('pepAtendimentos', erroConsulta4)
   if (atendimentoExistente) {
     return { atendimentoId: atendimentoExistente.id, pessoaId: atendimentoExistente.pessoa_id }
   }
@@ -236,11 +241,12 @@ export async function obterOuCriarAtendimentoParaPaciente(pacienteId) {
   if (erroPaciente || !pacienteRow) return { error: erroPaciente ?? new Error('Paciente não encontrado') }
 
   let pessoaId
-  const { data: pessoaExistente } = await supabase
+  const { data: pessoaExistente, error: erroConsulta5 } = await supabase
     .from('pessoas')
     .select('id')
     .eq('migrado_de_paciente_id', pacienteId)
     .maybeSingle()
+  if (erroConsulta5) avisarErro('pepAtendimentos', erroConsulta5)
 
   if (pessoaExistente) {
     pessoaId = pessoaExistente.id
@@ -283,25 +289,27 @@ export async function obterOuCriarAtendimentoParaPaciente(pacienteId) {
 // Passagem do plantão atual pra esse atendimento, se já existir (equivalente ao
 // passo 1 do PassagemForm no caminho antigo).
 export async function buscarPassagemAtualPep(plantaoId, atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta6 } = await supabase
     .from('passagens')
     .select('*')
     .eq('plantao_id', plantaoId)
     .eq('atendimento_id', atendimentoId)
     .maybeSingle()
+  if (erroConsulta6) avisarErro('pepAtendimentos', erroConsulta6)
   return data
 }
 
 // Última passagem desse atendimento em qualquer plantão — usado pra copiar
 // automaticamente ao abrir um atendimento sem passagem ainda neste plantão.
 export async function buscarUltimaPassagemPep(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta7 } = await supabase
     .from('passagens')
     .select('*')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
     .limit(1)
     .maybeSingle()
+  if (erroConsulta7) avisarErro('pepAtendimentos', erroConsulta7)
   return data
 }
 
@@ -319,11 +327,12 @@ export async function salvarPassagemPep(payload) {
 export async function salvarIdentificacaoPep({ atendimentoId, pessoaId, identificacao }) {
   // Indicador clínico "tempo até conduta": marca o instante em que o atendimento
   // deixa de estar "Em observação", uma única vez (nunca reescreve depois).
-  const { data: atendimentoAtual } = await supabase
+  const { data: atendimentoAtual, error: erroConsulta8 } = await supabase
     .from('atendimentos')
     .select('status_internacao, data_conduta_definida')
     .eq('id', atendimentoId)
     .maybeSingle()
+  if (erroConsulta8) avisarErro('pepAtendimentos', erroConsulta8)
   const saiuDeObservacao = atendimentoAtual?.status_internacao === 'Em observação'
     && identificacao.status_internacao !== 'Em observação'
     && !atendimentoAtual?.data_conduta_definida
@@ -360,12 +369,13 @@ export async function salvarIdentificacaoPep({ atendimentoId, pessoaId, identifi
     // limit(1) em vez de maybeSingle() — desde que a Ficha Clínica permite
     // cadastrar várias alergias ativas por pessoa, mais de uma linha ativa
     // é esperado, e maybeSingle() quebraria com "multiple rows returned".
-    const { data: existentes } = await supabase
+    const { data: existentes, error: erroConsulta9 } = await supabase
       .from('alergias')
       .select('id')
       .eq('pessoa_id', pessoaId)
       .eq('status', 'ativa')
       .limit(1)
+    if (erroConsulta9) avisarErro('pepAtendimentos', erroConsulta9)
     const existente = existentes?.[0]
     if (existente) {
       await supabase.from('alergias').update({ substancia: identificacao.alergias_obs || null }).eq('id', existente.id)
@@ -384,7 +394,8 @@ export async function salvarIdentificacaoPep({ atendimentoId, pessoaId, identifi
 }
 
 export async function leitosOcupadosIdsPep() {
-  const { data } = await supabase.from('leito_ocupacoes').select('leito_id').eq('status', 'ativo')
+  const { data, error: erroConsulta10 } = await supabase.from('leito_ocupacoes').select('leito_id').eq('status', 'ativo')
+  if (erroConsulta10) avisarErro('pepAtendimentos', erroConsulta10)
   return new Set((data ?? []).map((o) => o.leito_id))
 }
 

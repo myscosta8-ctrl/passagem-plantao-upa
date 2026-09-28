@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { carregarLeitosOcupadosPep, carregarResumoProntuario } from '../lib/pepAtendimentos'
 import './PrintView.css'
 import './PassagemImpresso.css'
+import { avisarErro } from '../lib/erros'
 
 // Passagem de Plantão de Enfermagem (multi-leitos) — modelo oficial
 // modelos_impressao_html/15-passagem-plantao.html. Usado para os dois grupos
@@ -33,10 +34,11 @@ async function carregarDados(plantao, viaHistorico) {
   let linhas = []
   if (viaHistorico) {
     // Plantão já encerrado: o que foi registrado naquele plantão.
-    const { data: passagens } = await supabase
+    const { data: passagens, error: erroConsulta1 } = await supabase
       .from('passagens')
       .select('*, atendimentos(numero_atendimento, status_internacao, pessoas(nome))')
       .eq('plantao_id', plantao.id)
+    if (erroConsulta1) avisarErro('PrintView', erroConsulta1)
     linhas = (passagens ?? []).map((p) => ({
       atendimentoId: p.atendimento_id,
       leitoId: p.leito_id,

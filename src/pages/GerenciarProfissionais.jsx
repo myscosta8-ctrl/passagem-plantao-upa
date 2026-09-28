@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import ConfirmModal from './ConfirmModal'
+import { avisarErro } from '../lib/erros'
 
 const TIPOS = [
   { valor: 'medico', rotulo: 'Médico' },
@@ -33,11 +34,12 @@ export default function GerenciarProfissionais({ onVoltar }) {
     // Enfermeiro criado por aqui (institucional) some da lista depois que troca a
     // senha padrão — vira indistinguível de um cadastro próprio (Auth.jsx). Os
     // outros tipos (médico/recepção) sempre aparecem, já que não têm esse caminho.
-    const { data } = await supabase
+    const { data, error: erroConsulta1 } = await supabase
       .from('enfermeiros')
       .select('id, nome, nome_exibicao, tipo, crm, role, deve_trocar_senha')
       .or('tipo.neq.enfermagem,deve_trocar_senha.eq.true')
       .order('nome')
+    if (erroConsulta1) avisarErro('GerenciarProfissionais', erroConsulta1)
     setProfissionais(data ?? [])
     setCarregando(false)
   }

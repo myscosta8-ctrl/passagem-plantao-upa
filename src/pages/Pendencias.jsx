@@ -81,7 +81,7 @@ export default function Pendencias({ plantao, onVoltar }) {
   const deveMostrar = (categoria) => filtroTab === 'Todas' || filtroTab === categoria
 
   return (
-    <div className="workspace">
+    <div className="workspace pendencias-tela">
       <div className="page-header">
         <div className="page-title">
           <h1>Pendências do Plantão</h1>

@@ -77,7 +77,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
       leitoOcupacaoId: ocupacao?.id || null, setorDestinoId: null, enfermeiroEntrega: autorId, enfermeiroRecebe: null,
       dados: {
         atendimento_id: atendimento.atendimento_id,
-        impressao_diagnostica: d.diagnostico.trim(), situacao: d.situacao || null,
+        impressao_diagnostica: d.diagnostico.trim(), situacao_atual: d.situacao || null,
         breve_historico: d.antecedentes || null,
         alergia: alergias.length > 0,
         avaliacao: d.neuro || null, dispositivos: d.acessos || null,

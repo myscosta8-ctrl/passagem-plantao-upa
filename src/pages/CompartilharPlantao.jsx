@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { carregarLeitosOcupadosPep } from '../lib/pepAtendimentos'
 import './CompartilharPlantao.css'
+import { avisarErro } from '../lib/erros'
 
 // Mapeamento entre o nome real do setor no sistema e como ele aparece
 // na mensagem do WhatsApp — não muda o nome do setor, só como é exibido aqui.
@@ -35,12 +36,14 @@ export default function CompartilharPlantao({ plantao, onVoltar }) {
   async function carregar() {
     setCarregando(true)
 
-    const { data: setoresData } = await supabase.from('setores').select('id, nome')
+    const { data: setoresData, error: erroConsulta1 } = await supabase.from('setores').select('id, nome')
+    if (erroConsulta1) avisarErro('CompartilharPlantao', erroConsulta1)
     const mapaSetorPorNome = {}
     for (const s of setoresData ?? []) mapaSetorPorNome[s.nome] = s.id
     setSetorPorNome(mapaSetorPorNome)
 
-    const { data: leitosData } = await supabase.from('leitos').select('id, setor_id').eq('ativo', true)
+    const { data: leitosData, error: erroConsulta2 } = await supabase.from('leitos').select('id, setor_id').eq('ativo', true)
+    if (erroConsulta2) avisarErro('CompartilharPlantao', erroConsulta2)
     // Fonte oficial (PEP): leitos com ocupação ativa.
     const { pacientesPorLeito } = await carregarLeitosOcupadosPep()
     const mapaOcupado = {}
@@ -91,7 +94,8 @@ export default function CompartilharPlantao({ plantao, onVoltar }) {
     const idsLeitosComExame = listaExames.map((e) => e.pacientes?.leito_atual_id).filter(Boolean)
     let leitosComExame = []
     if (idsLeitosComExame.length > 0) {
-      const { data } = await supabase.from('leitos').select('id, numero, setor_id').in('id', idsLeitosComExame)
+      const { data, error: erroConsulta3 } = await supabase.from('leitos').select('id, numero, setor_id').in('id', idsLeitosComExame)
+      if (erroConsulta3) avisarErro('CompartilharPlantao', erroConsulta3)
       leitosComExame = data ?? []
     }
     const mapaLeitoInfo = {}

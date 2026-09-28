@@ -6,6 +6,7 @@ import PassagemColetivaTela from './PassagemColetivaTela'
 import ConfirmModal from './ConfirmModal'
 import Sidebar from '../components/Sidebar'
 import './AberturaPlantao.css'
+import { avisarErro } from '../lib/erros'
 
 // Telas carregadas sob demanda via React.lazy (Code-Splitting)
 const PrintView = lazy(() => import('./PrintView'))
@@ -23,14 +24,16 @@ const CadastroPacientes = lazy(() => import('./CadastroPacientes'))
 
 // Leitos extras que não possuem paciente ativo desaparecem automaticamente
 async function limparLeitosExtrasNaoUsados() {
-  const { data: candidatos } = await supabase
+  const { data: candidatos, error: erroConsulta1 } = await supabase
     .from('leitos')
     .select('id')
     .eq('tipo', 'extra')
+  if (erroConsulta1) avisarErro('Home', erroConsulta1)
   if (!candidatos?.length) return
 
   const ids = candidatos.map((l) => l.id)
-  const { data: ocupacoesPep } = await supabase.from('leito_ocupacoes').select('leito_id').eq('status', 'ativo').in('leito_id', ids)
+  const { data: ocupacoesPep, error: erroConsulta2 } = await supabase.from('leito_ocupacoes').select('leito_id').eq('status', 'ativo').in('leito_id', ids)
+  if (erroConsulta2) avisarErro('Home', erroConsulta2)
   const ocupadosSet = new Set((ocupacoesPep ?? []).map((o) => o.leito_id))
   const paraExcluir = ids.filter((id) => !ocupadosSet.has(id))
   if (paraExcluir.length) await supabase.from('leitos').delete().in('id', paraExcluir)
@@ -96,8 +99,8 @@ export default function Home() {
   // direto pro cadastro de pacientes — trabalho dela é identidade, não leito.
   const ehRecepcao = enfermeiro?.tipo === 'recepcao'
   // "Encerrar plantonista" é destrutivo demais pra qualquer conta admin — só o Marcus.
-  const ID_MARCUS_ADMIN = '66901c7a-d3b9-435a-932c-276659210f69'
-  const podeAdministrar = enfermeiro?.id === ID_MARCUS_ADMIN
+  // Telas de administração: qualquer conta com papel admin no banco.
+  const podeAdministrar = isAdmin
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
@@ -113,6 +116,14 @@ export default function Home() {
     atualizarHora()
     const timer = setInterval(atualizarHora, 30000)
     return () => clearInterval(timer)
+  }, [])
+
+  const [erroApp, setErroApp] = useState(null)
+  useEffect(() => {
+    let t
+    const aoErro = (e) => { setErroApp(e.detail); clearTimeout(t); t = setTimeout(() => setErroApp(null), 12000) }
+    window.addEventListener('app-erro', aoErro)
+    return () => { window.removeEventListener('app-erro', aoErro); clearTimeout(t) }
   }, [])
 
   const logoutRef = useRef(logout)
@@ -165,9 +176,11 @@ export default function Home() {
   }, [])
 
   async function carregarTodosSetoresIds() {
-    const { data: setores } = await supabase.from('setores').select('id').in('id', [1, 2, 3, 4])
+    const { data: setores, error: erroConsulta3 } = await supabase.from('setores').select('id').in('id', [1, 2, 3, 4])
+    if (erroConsulta3) avisarErro('Home', erroConsulta3)
     if (setores && setores.length > 0) return setores.map((s) => s.id)
-    const { data: todos } = await supabase.from('setores').select('id')
+    const { data: todos, error: erroConsulta4 } = await supabase.from('setores').select('id')
+    if (erroConsulta4) avisarErro('Home', erroConsulta4)
     return (todos ?? []).map((s) => s.id)
   }
 
@@ -179,15 +192,17 @@ export default function Home() {
   }
 
   async function buscarOuAbrirPlantao(hoje, turno) {
-    const { data: existente } = await supabase
+    const { data: existente, error: erroConsulta5 } = await supabase
       .from('plantoes')
       .select('id, data, turno, status, created_at, enfermeiro_chefe_id')
       .eq('data', hoje)
       .eq('turno', turno)
       .maybeSingle()
+    if (erroConsulta5) avisarErro('Home', erroConsulta5)
     if (existente) return existente
 
-    const { data: criado } = await supabase.from('plantoes').insert({ data: hoje, turno }).select().single()
+    const { data: criado, error: erroConsulta6 } = await supabase.from('plantoes').insert({ data: hoje, turno }).select().single()
+    if (erroConsulta6) avisarErro('Home', erroConsulta6)
     return criado
   }
 
@@ -208,13 +223,14 @@ export default function Home() {
       return
     }
 
-    const { data: abertos } = await supabase
+    const { data: abertos, error: erroConsulta7 } = await supabase
       .from('plantao_profissionais')
       .select('plantoes!inner(id, data, turno, status, created_at, enfermeiro_chefe_id)')
       .eq('profissional_id', enfermeiro.id)
       .eq('encerrado', false)
       .order('created_at', { foreignTable: 'plantoes', ascending: false })
       .limit(1)
+    if (erroConsulta7) avisarErro('Home', erroConsulta7)
 
     const paraRetomar = abertos?.[0]?.plantoes
     const plantao = paraRetomar || await buscarOuAbrirPlantao(hojeISOLocal(), turnoAtualPorHora())
@@ -268,6 +284,7 @@ export default function Home() {
   if (ehMedico || ehRecepcao) {
     return (
       <div className="shell">
+        {erroApp && (<div role="alert" className="faixa-erro-app"><i className="ph ph-warning-circle" /> Falha ao carregar dados ({erroApp.contexto}). Verifique a conexão — as informações exibidas podem estar incompletas.<button type="button" onClick={() => setErroApp(null)}>Fechar</button></div>)}
         <div className="topbar no-print">
           <div className="topbar-brand">
             <span className="topbar-title">Passagem de Plantão</span>
@@ -345,6 +362,18 @@ export default function Home() {
         </header>
 
         <main className="main-viewport">
+
+          {erroApp && (
+
+            <div role="alert" className="faixa-erro-app">
+
+              <i className="ph ph-warning-circle" /> Falha ao carregar dados ({erroApp.contexto}). Verifique a conexão — as informações exibidas podem estar incompletas.
+
+              <button type="button" onClick={() => setErroApp(null)}>Fechar</button>
+
+            </div>
+
+          )}
           <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
             
             <div style={{ display: tela === 'ajuda' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, overflow: 'hidden' }}>

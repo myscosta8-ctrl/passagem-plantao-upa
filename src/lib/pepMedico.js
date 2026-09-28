@@ -1,8 +1,9 @@
 import { supabase } from './supabaseClient.js'
 import { calcularIdade, registrarEventoAuditoria } from './pepAtendimentos.js'
 
-import { gravar, MSG_FINALIZADO } from './documentos'
-export { invalidarRegistro, MSG_FINALIZADO } from './documentos'
+import { gravar, MSG_FINALIZADO } from './documentos.js'
+import { avisarErro } from './erros.js'
+export { invalidarRegistro, MSG_FINALIZADO } from './documentos.js'
 
 
 // Camada de dados do módulo médico (Fase 1 do PEP). Só existe sobre a estrutura
@@ -10,21 +11,24 @@ export { invalidarRegistro, MSG_FINALIZADO } from './documentos'
 // precisa de caminho duplo porque essas telas nunca existiram no caminho antigo.
 
 export async function listarAtendimentosAtivos() {
-  const { data: ocupacoes } = await supabase
+  const { data: ocupacoes, error: erroConsulta1 } = await supabase
     .from('leito_ocupacoes')
     .select('leito_id, atendimento_id, leitos(numero, setor_id, setores(nome))')
     .eq('status', 'ativo')
+  if (erroConsulta1) avisarErro('pepMedico', erroConsulta1)
 
   const atendimentoIds = (ocupacoes ?? []).map((o) => o.atendimento_id)
   if (atendimentoIds.length === 0) return []
 
-  const { data: atendimentos } = await supabase
+  const { data: atendimentos, error: erroConsulta2 } = await supabase
     .from('atendimentos')
     .select('*')
     .in('id', atendimentoIds)
+  if (erroConsulta2) avisarErro('pepMedico', erroConsulta2)
 
   const pessoaIds = [...new Set((atendimentos ?? []).map((a) => a.pessoa_id))]
-  const { data: pessoas } = await supabase.from('pessoas').select('*').in('id', pessoaIds)
+  const { data: pessoas, error: erroConsulta3 } = await supabase.from('pessoas').select('*').in('id', pessoaIds)
+  if (erroConsulta3) avisarErro('pepMedico', erroConsulta3)
   const pessoaPorId = Object.fromEntries((pessoas ?? []).map((p) => [p.id, p]))
 
   return (ocupacoes ?? [])
@@ -48,11 +52,12 @@ export async function listarAtendimentosAtivos() {
 }
 
 export async function listarConsultas(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta4 } = await supabase
     .from('consultas_medicas')
     .select('*, enfermeiros(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta4) avisarErro('pepMedico', erroConsulta4)
   return data ?? []
 }
 
@@ -142,15 +147,19 @@ export async function listarAih(atendimentoId) {
 
 // Cabeçalho completo (pessoa + atendimento + leito atual), padrão de todo documento impresso.
 export async function buscarCabecalhoImpressao(atendimentoId) {
-  const { data: atendimento } = await supabase.from('atendimentos').select('*').eq('id', atendimentoId).single()
-  const { data: pessoa } = await supabase.from('pessoas').select('*').eq('id', atendimento.pessoa_id).single()
-  const { data: ocupacao } = await supabase
+  const { data: atendimento, error: erroConsulta5 } = await supabase.from('atendimentos').select('*').eq('id', atendimentoId).single()
+  if (erroConsulta5) avisarErro('pepMedico', erroConsulta5)
+  const { data: pessoa, error: erroConsulta6 } = await supabase.from('pessoas').select('*').eq('id', atendimento.pessoa_id).single()
+  if (erroConsulta6) avisarErro('pepMedico', erroConsulta6)
+  const { data: ocupacao, error: erroConsulta7 } = await supabase
     .from('leito_ocupacoes')
     .select('leitos(numero, setores(nome))')
     .eq('atendimento_id', atendimentoId)
     .eq('status', 'ativo')
     .maybeSingle()
-  const { data: alergias } = await supabase.from('alergias').select('substancia').eq('pessoa_id', atendimento.pessoa_id).eq('status', 'ativa')
+  if (erroConsulta7) avisarErro('pepMedico', erroConsulta7)
+  const { data: alergias, error: erroConsulta8 } = await supabase.from('alergias').select('substancia').eq('pessoa_id', atendimento.pessoa_id).eq('status', 'ativa')
+  if (erroConsulta8) avisarErro('pepMedico', erroConsulta8)
   return {
     pessoa: { ...pessoa, alergias_ativas: (alergias ?? []).map((a) => a.substancia).filter(Boolean) },
     atendimento,
@@ -187,11 +196,12 @@ export async function criarAih({ atendimentoId, pessoaId, solicitanteId,  dados,
 // filtrado no cliente pra dar sugestão instantânea ao digitar, sem round-trip
 // por tecla. Ver AutocompleteMedicamento em FichaMedica.jsx.
 export async function listarCatalogoMedicamentos() {
-  const { data } = await supabase
+  const { data, error: erroConsulta9 } = await supabase
     .from('catalogo_medicamentos')
     .select('*')
     .eq('ativo', true)
     .order('nome')
+  if (erroConsulta9) avisarErro('pepMedico', erroConsulta9)
   return data ?? []
 }
 
@@ -200,8 +210,9 @@ export async function listarCatalogoMedicamentos() {
 export async function pesquisarCid(termo) {
   const t = String(termo || '').trim().replace(/[%,()]/g, ' ')
   if (t.length < 2) return []
-  const { data } = await supabase.from('cid_catalog').select('codigo, descricao')
+  const { data, error: erroConsulta10 } = await supabase.from('cid_catalog').select('codigo, descricao')
     .or(`codigo.ilike.${t}%,descricao.ilike.%${t}%`).order('codigo').limit(30)
+  if (erroConsulta10) avisarErro('pepMedico', erroConsulta10)
   return data ?? []
 }
 
@@ -210,7 +221,8 @@ export async function pesquisarCid(termo) {
 // `passagens` — um atendimento pode ter vários em paralelo.
 
 export async function listarExames(atendimentoId) {
-  const { data } = await supabase.from('exames_solicitados').select('*, enfermeiros!exames_solicitados_solicitado_por_fkey(nome_exibicao, nome, crm)').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  const { data, error: erroConsulta11 } = await supabase.from('exames_solicitados').select('*, enfermeiros!exames_solicitados_solicitado_por_fkey(nome_exibicao, nome, crm)').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  if (erroConsulta11) avisarErro('pepMedico', erroConsulta11)
   return data ?? []
 }
 
@@ -224,19 +236,21 @@ export async function criarExame({ atendimentoId, nome, preparo, agendadoPara, l
 }
 
 export async function listarSorologias(atendimentoId) {
-  const { data } = await supabase.from('sorologias_notificaveis').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  const { data, error: erroConsulta12 } = await supabase.from('sorologias_notificaveis').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  if (erroConsulta12) avisarErro('pepMedico', erroConsulta12)
   return data ?? []
 }
 
 export async function listarHemoterapia(atendimentoId) {
-  const { data } = await supabase.from('solicitacoes_hemoterapia').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  const { data, error: erroConsulta13 } = await supabase.from('solicitacoes_hemoterapia').select('*').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
+  if (erroConsulta13) avisarErro('pepMedico', erroConsulta13)
   return data ?? []
 }
 
 // ===================== Plano terapêutico (no máximo um por atendimento) =====================
 
 export async function buscarPlanoTerapeutico(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta14 } = await supabase
     .from('planos_terapeuticos')
     .select('*, enfermeiros!planos_terapeuticos_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
@@ -244,6 +258,7 @@ export async function buscarPlanoTerapeutico(atendimentoId) {
     .order('criado_em', { ascending: false })
     .limit(1)
     .maybeSingle()
+  if (erroConsulta14) avisarErro('pepMedico', erroConsulta14)
   return data
 }
 
@@ -259,7 +274,7 @@ export async function salvarPlanoTerapeutico({ atendimentoId, criadoPor, dados, 
 // ===================== Sumário de alta (no máximo um por atendimento) =====================
 
 export async function buscarSumarioAlta(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta15 } = await supabase
     .from('sumarios_alta')
     .select('*, enfermeiros!sumarios_alta_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
@@ -267,6 +282,7 @@ export async function buscarSumarioAlta(atendimentoId) {
     .order('criado_em', { ascending: false })
     .limit(1)
     .maybeSingle()
+  if (erroConsulta15) avisarErro('pepMedico', erroConsulta15)
   return data
 }
 
@@ -282,11 +298,12 @@ export async function salvarSumarioAlta({ atendimentoId, criadoPor, dados, situa
 // ===================== APAC =====================
 
 export async function listarApac(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta16 } = await supabase
     .from('apac_solicitacoes')
     .select('*, enfermeiros!apac_solicitacoes_solicitado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('solicitado_em', { ascending: false })
+  if (erroConsulta16) avisarErro('pepMedico', erroConsulta16)
   return data ?? []
 }
 
@@ -305,11 +322,12 @@ export async function criarApac({ atendimentoId, solicitanteId, dados, id, situa
 // ===================== ATM (antibiótico de uso restrito) =====================
 
 export async function listarAtm(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta17 } = await supabase
     .from('solicitacoes_atm')
     .select('*, enfermeiros!solicitacoes_atm_solicitado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta17) avisarErro('pepMedico', erroConsulta17)
   return data ?? []
 }
 
@@ -320,11 +338,12 @@ export async function criarAtm({ atendimentoId, solicitanteId, dados, id, situac
 // ===================== TFD (tratamento fora do domicílio) =====================
 
 export async function listarTfd(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta18 } = await supabase
     .from('tfd_solicitacoes')
     .select('*, enfermeiros(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta18) avisarErro('pepMedico', erroConsulta18)
   return data ?? []
 }
 
@@ -335,11 +354,12 @@ export async function criarTfd({ atendimentoId, profissionalResponsavel, dados, 
 // ===================== Evolução Médica Diária =====================
 
 export async function listarEvolucoesMedicas(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta19 } = await supabase
     .from('evolucoes_medicas')
     .select('*, enfermeiros!evolucoes_medicas_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta19) avisarErro('pepMedico', erroConsulta19)
   return data ?? []
 }
 
@@ -350,7 +370,7 @@ export async function criarEvolucaoMedica({ atendimentoId, criadoPor, dados, id,
 // ===================== Admissão de Enfermagem (Histórico de Enfermagem) — no máximo um por atendimento =====================
 
 export async function buscarHistoricoEnfermagem(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta20 } = await supabase
     .from('historico_enfermagem')
     .select('*, enfermeiros!historico_enfermagem_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
@@ -358,6 +378,7 @@ export async function buscarHistoricoEnfermagem(atendimentoId) {
     .order('criado_em', { ascending: false })
     .limit(1)
     .maybeSingle()
+  if (erroConsulta20) avisarErro('pepMedico', erroConsulta20)
   return data
 }
 
@@ -373,11 +394,12 @@ export async function salvarHistoricoEnfermagem({ atendimentoId, criadoPor, dado
 // ===================== Nota de Intercorrência Médica =====================
 
 export async function listarNotasIntercorrenciaMedica(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta21 } = await supabase
     .from('notas_intercorrencia_medica')
     .select('*, enfermeiros!notas_intercorrencia_medica_criado_por_fkey(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta21) avisarErro('pepMedico', erroConsulta21)
   return data ?? []
 }
 
@@ -388,11 +410,12 @@ export async function criarNotaIntercorrenciaMedica({ atendimentoId, criadoPor, 
 // ===================== Receituário Médico =====================
 
 export async function listarReceitasMedicas(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta22 } = await supabase
     .from('receitas_medicas')
     .select('*, enfermeiros(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta22) avisarErro('pepMedico', erroConsulta22)
   return data ?? []
 }
 
@@ -403,11 +426,12 @@ export async function criarReceitaMedica({ atendimentoId, criadoPor, dados, id, 
 // ===================== Atestado Médico =====================
 
 export async function listarAtestadosMedicos(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta23 } = await supabase
     .from('atestados_medicos')
     .select('*, enfermeiros(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta23) avisarErro('pepMedico', erroConsulta23)
   return data ?? []
 }
 
@@ -418,11 +442,12 @@ export async function criarAtestadoMedico({ atendimentoId, criadoPor, dados, id,
 // ===================== Solicitação de Sangue, Componentes e Derivados (Hemopa) =====================
 
 export async function listarSolicitacoesSangue(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta24 } = await supabase
     .from('solicitacoes_sangue')
     .select('*, enfermeiros(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta24) avisarErro('pepMedico', erroConsulta24)
   return data ?? []
 }
 
@@ -433,11 +458,12 @@ export async function criarSolicitacaoSangue({ atendimentoId, solicitadoPor, dad
 // ===================== Atualizações de regulação (SER/SISREG) =====================
 
 export async function listarRegulacao(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta25 } = await supabase
     .from('regulacao_atualizacoes')
     .select('*, enfermeiros(nome_exibicao, nome, crm)')
     .eq('atendimento_id', atendimentoId)
     .order('atualizado_em', { ascending: false })
+  if (erroConsulta25) avisarErro('pepMedico', erroConsulta25)
   return data ?? []
 }
 
@@ -450,11 +476,12 @@ export async function registrarRegulacao({ atendimentoId, atualizadoPor, dados, 
 // episódio, não uma entrada de log (mesmo padrão de status_internacao e
 // classificacao_risco_cor, que também vivem em atendimentos).
 export async function buscarAberturaRegulacao(atendimentoId) {
-  const { data } = await supabase
+  const { data, error: erroConsulta26 } = await supabase
     .from('atendimentos')
     .select('regulacao_flag, regulacao_tipo, regulacao_aberta_em')
     .eq('id', atendimentoId)
     .maybeSingle()
+  if (erroConsulta26) avisarErro('pepMedico', erroConsulta26)
   return data
 }
 
@@ -480,7 +507,8 @@ export async function buscarAutorRegistro(registro) {
   if (!registro) return null
   const id = COLUNAS_AUTOR.map((c) => registro[c]).find((v) => typeof v === 'string' && v.length > 20)
   if (!id) return null
-  const { data } = await supabase.from('enfermeiros').select('nome_exibicao, nome, crm, coren').eq('id', id).maybeSingle()
+  const { data, error: erroConsulta27 } = await supabase.from('enfermeiros').select('nome_exibicao, nome, crm, coren').eq('id', id).maybeSingle()
+  if (erroConsulta27) avisarErro('pepMedico', erroConsulta27)
   return data
 }
 

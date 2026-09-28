@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import PrintView from './PrintView'
+import { avisarErro } from '../lib/erros'
 
 export default function Historico({ onVoltar }) {
   const [plantoes, setPlantoes] = useState([])
@@ -12,12 +13,13 @@ export default function Historico({ onVoltar }) {
   }, [])
 
   async function carregar() {
-    const { data } = await supabase
+    const { data, error: erroConsulta1 } = await supabase
       .from('plantoes')
       .select('*')
       .order('data', { ascending: false })
       .order('turno')
       .limit(180)
+    if (erroConsulta1) avisarErro('Historico', erroConsulta1)
     setPlantoes(data ?? [])
     setCarregando(false)
   }

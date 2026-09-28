@@ -1,4 +1,5 @@
-import { supabase } from './supabaseClient'
+import { supabase } from './supabaseClient.js'
+import { avisarErro } from './erros.js'
 
 // Histórico Clínico do paciente — reúne, em ordem cronológica, os registros
 // clínicos de todas as passagens do paciente pela unidade. Exames, prescrição
@@ -9,32 +10,32 @@ const txt = (...v) => v.filter((x) => x !== null && x !== undefined && String(x)
 const lista = (a) => (Array.isArray(a) ? a.join(', ') : '')
 
 export const FONTES = [
-  { tabela: 'historico_enfermagem', rotulo: 'Admissão de Enfermagem (Histórico de Enfermagem)', area: 'enfermagem', impresso: 'historico_enfermagem_projeto',
+  { tabela: 'historico_enfermagem', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,enfermeiro_id,motivo_hospitalizacao,parecer_obs', rotulo: 'Admissão de Enfermagem (Histórico de Enfermagem)', area: 'enfermagem', impresso: 'historico_enfermagem_projeto',
     resumo: (r) => txt(r.motivo_hospitalizacao && `Motivo: ${r.motivo_hospitalizacao}`, r.parecer_obs) },
-  { tabela: 'admissoes_enfermagem', rotulo: 'Admissão de Enfermagem (registro anterior)', area: 'enfermagem', impresso: null,
+  { tabela: 'admissoes_enfermagem', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,autor_id,enfermeiro_id,hipotese_diagnostica,motivo_procura,observacoes', rotulo: 'Admissão de Enfermagem (registro anterior)', area: 'enfermagem', impresso: null,
     resumo: (r) => txt(r.hipotese_diagnostica, r.motivo_procura, r.observacoes) },
-  { tabela: 'evolucoes', rotulo: 'Evolução do Enfermeiro (SAE)', area: 'enfermagem', impresso: 'evolucao_sae',
+  { tabela: 'evolucoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,autor_id,enfermeiro_id,tipo,autor_tipo,objetivo,texto,diagnosticos_nanda', rotulo: 'Evolução do Enfermeiro (SAE)', area: 'enfermagem', impresso: 'evolucao_sae',
     filtro: (r) => (r.tipo || r.autor_tipo) !== 'medico',
     resumo: (r) => txt(r.objetivo && `SV: ${r.objetivo}`, r.texto, lista(r.diagnosticos_nanda) && `NANDA-I: ${lista(r.diagnosticos_nanda)}`) },
-  { tabela: 'transferencias_sbar', rotulo: 'Transferência SBAR', area: 'enfermagem', impresso: 'sbar', data: 'data_hora_transferencia',
-    resumo: (r) => txt(r.situacao, r.impressao_diagnostica, r.recomendacao || r.recomendacoes) },
-  { tabela: 'eventos_adversos', rotulo: 'Nota de Intercorrência (Enfermagem)', area: 'enfermagem', impresso: 'intercorrencia', data: 'ocorrido_em',
+  { tabela: 'transferencias_sbar', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,enfermeiro_entrega,transferido_por,data_hora_transferencia,situacao_atual,impressao_diagnostica,recomendacao,recomendacoes', rotulo: 'Transferência SBAR', area: 'enfermagem', impresso: 'sbar', data: 'data_hora_transferencia',
+    resumo: (r) => txt(r.situacao_atual, r.impressao_diagnostica, r.recomendacao || r.recomendacoes) },
+  { tabela: 'eventos_adversos', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,relator_id,anonimo,ocorrido_em,categoria,descricao,acao_imediata', rotulo: 'Nota de Intercorrência (Enfermagem)', area: 'enfermagem', impresso: 'intercorrencia', data: 'ocorrido_em',
     resumo: (r) => txt(r.categoria, r.descricao, r.acao_imediata && `Condutas: ${r.acao_imediata}`) },
-  { tabela: 'consultas_medicas', rotulo: 'Admissão Médica', area: 'medico', impresso: 'consulta',
+  { tabela: 'consultas_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,medico_id,queixa_principal,hipotese_diagnostica,hipoteses_diagnosticas,conduta_inicial,conduta', rotulo: 'Admissão Médica', area: 'medico', impresso: 'consulta',
     resumo: (r) => txt(r.queixa_principal && `QP: ${r.queixa_principal}`, r.hipotese_diagnostica || r.hipoteses_diagnosticas, r.conduta_inicial || r.conduta) },
-  { tabela: 'evolucoes_medicas', rotulo: 'Evolução Médica', area: 'medico', impresso: 'evolucao',
+  { tabela: 'evolucoes_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,medico_id,diagnosticos,evolucao_dia,conduta_medica', rotulo: 'Evolução Médica', area: 'medico', impresso: 'evolucao',
     resumo: (r) => txt(r.diagnosticos, r.evolucao_dia, r.conduta_medica) },
-  { tabela: 'regulacao_atualizacoes', rotulo: 'Atualização de Quadro Clínico (SISREG)', area: 'medico', impresso: 'regulacao',
+  { tabela: 'regulacao_atualizacoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,atualizado_por,diagnostico_regulado,evolucao,conduta', rotulo: 'Atualização de Quadro Clínico (SISREG)', area: 'medico', impresso: 'regulacao',
     resumo: (r) => txt(r.diagnostico_regulado, r.evolucao, r.conduta) },
-  { tabela: 'notas_intercorrencia_medica', rotulo: 'Nota de Intercorrência Médica', area: 'medico', impresso: 'intercorrencia',
+  { tabela: 'notas_intercorrencia_medica', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,medico_id,descricao_evento,notas,conduta_tomada', rotulo: 'Nota de Intercorrência Médica', area: 'medico', impresso: 'intercorrencia',
     resumo: (r) => txt(r.descricao_evento || r.notas, r.conduta_tomada) },
-  { tabela: 'planos_terapeuticos', rotulo: 'Plano Terapêutico', area: 'medico', impresso: 'plano',
+  { tabela: 'planos_terapeuticos', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,diagnostico_principal_cid,motivo_internacao', rotulo: 'Plano Terapêutico', area: 'medico', impresso: 'plano',
     resumo: (r) => txt(r.diagnostico_principal_cid && `CID ${r.diagnostico_principal_cid}`, r.motivo_internacao) },
-  { tabela: 'tfd_solicitacoes', rotulo: 'Tratamento Fora do Domicílio (TFD)', area: 'medico', impresso: 'tfd',
+  { tabela: 'tfd_solicitacoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,profissional_responsavel,diagnostico,tratamento_indicado', rotulo: 'Tratamento Fora do Domicílio (TFD)', area: 'medico', impresso: 'tfd',
     resumo: (r) => txt(r.diagnostico, r.tratamento_indicado) },
-  { tabela: 'atestados_medicos', rotulo: 'Atestado Médico', area: 'medico', impresso: 'atestado',
+  { tabela: 'atestados_medicos', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,dias_afastamento,cid,texto_livre', rotulo: 'Atestado Médico', area: 'medico', impresso: 'atestado',
     resumo: (r) => txt(r.dias_afastamento && `${r.dias_afastamento} dia(s) de afastamento`, r.cid && `CID ${r.cid}`, r.texto_livre) },
-  { tabela: 'sumarios_alta', rotulo: 'Sumário de Alta', area: 'medico', impresso: 'alta',
+  { tabela: 'sumarios_alta', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,medico_id,diagnostico_alta,diagnostico_internacao,resumo_clinico', rotulo: 'Sumário de Alta', area: 'medico', impresso: 'alta',
     resumo: (r) => txt(r.diagnostico_alta || r.diagnostico_internacao, r.resumo_clinico) },
 ]
 
@@ -43,11 +44,12 @@ const COLUNAS_AUTOR = ['autor_id', 'criado_por', 'enfermeiro_entrega', 'transfer
 // Passagens (atendimentos) do paciente, mais recente primeiro.
 export async function listarAtendimentosDaPessoa(pessoaId) {
   if (!pessoaId) return []
-  const { data } = await supabase
+  const { data, error: erroConsulta1 } = await supabase
     .from('atendimentos')
     .select('id, numero_atendimento, criado_em, encerrado_em, status, status_internacao, queixa_principal')
     .eq('pessoa_id', pessoaId)
     .order('criado_em', { ascending: false })
+  if (erroConsulta1) avisarErro('historicoClinico', erroConsulta1)
   return data ?? []
 }
 
@@ -55,7 +57,7 @@ export async function listarAtendimentosDaPessoa(pessoaId) {
 export async function listarRegistrosClinicos(atendimentoIds) {
   if (!atendimentoIds?.length) return []
   const resultados = await Promise.all(FONTES.map(async (f) => {
-    const { data, error } = await supabase.from(f.tabela).select('*').in('atendimento_id', atendimentoIds)
+    const { data, error } = await supabase.from(f.tabela).select(f.colunas || '*').in('atendimento_id', atendimentoIds).limit(1000)
     if (error) { console.error(`Histórico clínico — ${f.tabela}:`, error); return [] }
     return (data ?? []).filter((r) => (f.filtro ? f.filtro(r) : true)).map((r) => ({
       id: `${f.tabela}:${r.id}`,
@@ -70,7 +72,8 @@ export async function listarRegistrosClinicos(atendimentoIds) {
 
   const idsAutores = [...new Set(itens.map((i) => i.autorId).filter(Boolean))]
   if (idsAutores.length) {
-    const { data: profs } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome, crm, coren, tipo').in('id', idsAutores)
+    const { data: profs, error: erroConsulta2 } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome, crm, coren, tipo').in('id', idsAutores)
+    if (erroConsulta2) avisarErro('historicoClinico', erroConsulta2)
     const porId = Object.fromEntries((profs ?? []).map((p) => [p.id, p]))
     itens.forEach((i) => { i.autor = porId[i.autorId] || null })
   }
@@ -88,7 +91,8 @@ export async function listarAlteracoes(tabela, registroId) {
   const ids = [...new Set((data ?? []).map((a) => a.alterado_por).filter(Boolean))]
   let porId = {}
   if (ids.length) {
-    const { data: profs } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome').in('id', ids)
+    const { data: profs, error: erroConsulta3 } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome').in('id', ids)
+    if (erroConsulta3) avisarErro('historicoClinico', erroConsulta3)
     porId = Object.fromEntries((profs ?? []).map((p) => [p.id, p]))
   }
   const ignorar = new Set(['atualizado_em', 'finalizado_em', 'invalidado_em'])
@@ -99,4 +103,11 @@ export async function listarAlteracoes(tabela, registroId) {
       .filter((k) => !ignorar.has(k) && JSON.stringify(a.dados_anteriores?.[k]) !== JSON.stringify(a.dados_novos?.[k]))
       .map((k) => ({ campo: k, antes: a.dados_anteriores?.[k], depois: a.dados_novos?.[k] })),
   }))
+}
+
+// Documento completo (todas as colunas) — só quando vai imprimir.
+export async function buscarRegistroCompleto(tabela, id) {
+  const { data, error } = await supabase.from(tabela).select('*').eq('id', id).maybeSingle()
+  if (error) avisarErro('historicoClinico', error)
+  return data
 }

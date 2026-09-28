@@ -1,13 +1,15 @@
-import AbaConsulta from './AbaConsulta';
-import AbaAih from './AbaAih';
-import AbaExames from './AbaExames';
-import AbaPlanoTerapeutico from './AbaPlanoTerapeutico';
-import AbaDocumentosAlta from './AbaDocumentosAlta';
-import AbaEvolucoesMedicas from './AbaEvolucoesMedicas';
-import AbaPrescricaoMedica from './AbaPrescricaoMedica';
-import AbaSangue from './AbaSangue';
+import { lazy, Suspense } from 'react';
+// Cada aba carrega só quando é aberta (a Ficha Médica abre mais rápido).
+const AbaConsulta = lazy(() => import('./AbaConsulta'));
+const AbaAih = lazy(() => import('./AbaAih'));
+const AbaExames = lazy(() => import('./AbaExames'));
+const AbaPlanoTerapeutico = lazy(() => import('./AbaPlanoTerapeutico'));
+const AbaDocumentosAlta = lazy(() => import('./AbaDocumentosAlta'));
+const AbaEvolucoesMedicas = lazy(() => import('./AbaEvolucoesMedicas'));
+const AbaPrescricaoMedica = lazy(() => import('./AbaPrescricaoMedica'));
+const AbaSangue = lazy(() => import('./AbaSangue'));
 
-export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome, medicoCrm, aba, onSelecionarAba, onImprimir, onFechar }) {
+function ConteudoAba({ atendimento, medicoId, medicoNome, medicoCrm, aba, onSelecionarAba, onImprimir, onFechar }) {
   if (aba === 'consulta') {
     return (
       <AbaConsulta
@@ -85,4 +87,12 @@ export default function FichaMedicaConteudo({ atendimento, medicoId, medicoNome,
     );
   }
   return null;
+}
+
+export default function FichaMedicaConteudo(props) {
+  return (
+    <Suspense fallback={<div style={{ padding: 24, color: '#64748B', fontSize: 13 }}>Carregando...</div>}>
+      <ConteudoAba {...props} />
+    </Suspense>
+  );
 }

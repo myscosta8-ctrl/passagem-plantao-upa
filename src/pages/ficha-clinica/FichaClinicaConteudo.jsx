@@ -1,15 +1,16 @@
-import AbaHistoricoEnfermagem from '../AbaHistoricoEnfermagem';
-import AbaEvolucao from './AbaEvolucao';
-import AbaBalancoHidrico from './AbaBalancoHidrico';
-import AbaIsolamento from './AbaIsolamento';
-import AbaSbar from './AbaSbar';
-import AbaEventosAdversos from './AbaEventosAdversos';
-import PainelSubAbas from './PainelSubAbas';
+import { lazy, Suspense } from 'react';
+const AbaHistoricoEnfermagem = lazy(() => import('../AbaHistoricoEnfermagem'));
+const AbaEvolucao = lazy(() => import('./AbaEvolucao'));
+const AbaBalancoHidrico = lazy(() => import('./AbaBalancoHidrico'));
+const AbaIsolamento = lazy(() => import('./AbaIsolamento'));
+const AbaSbar = lazy(() => import('./AbaSbar'));
+const AbaEventosAdversos = lazy(() => import('./AbaEventosAdversos'));
+const PainelSubAbas = lazy(() => import('./PainelSubAbas'));
 
 // Estrutura dos mockups 08–14: Admissão, Evolução SAE, Cardex/Aprazamento,
 // Balanço Hídrico 24h, Transferência SBAR e Intercorrências. As telas que não
 // têm aba própria no mockup entram como sub-abas do documento a que pertencem.
-export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImprimir, onFechar }) {
+function ConteudoAba({ atendimento, autorId, aba, onImprimir, onFechar }) {
   const comum = { atendimento, autorId, onFechar };
 
   // Admissão (mockup 08): alergias, dispositivos e escalas ficam no painel lateral da própria tela.
@@ -47,4 +48,12 @@ export default function FichaClinicaConteudo({ atendimento, autorId, aba, onImpr
       );
     }
     return null;
+}
+
+export default function FichaClinicaConteudo(props) {
+  return (
+    <Suspense fallback={<div style={{ padding: 24, color: '#64748B', fontSize: 13 }}>Carregando...</div>}>
+      <ConteudoAba {...props} />
+    </Suspense>
+  );
 }

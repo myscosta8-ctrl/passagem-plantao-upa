@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { avisarErro } from '../lib/erros'
 
 export default function PainelEquipe({ onVoltar }) {
   const [ativos, setAtivos] = useState([])
@@ -11,11 +12,12 @@ export default function PainelEquipe({ onVoltar }) {
 
   async function carregar() {
     setCarregando(true)
-    const { data } = await supabase
+    const { data, error: erroConsulta1 } = await supabase
       .from('plantao_profissionais')
       .select('plantao_id, profissional_id, encerrado, plantoes(data, turno), profissionais(nome, categoria)')
       .eq('encerrado', false)
       .order('data', { foreignTable: 'plantoes', ascending: false })
+    if (erroConsulta1) avisarErro('PainelEquipe', erroConsulta1)
     setAtivos(data ?? [])
     setCarregando(false)
   }

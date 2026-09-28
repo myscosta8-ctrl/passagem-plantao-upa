@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient.js'
 import { registrarEventoAuditoria } from './pepAtendimentos.js'
+import { avisarErro } from './erros.js'
 
 // Camada de dados da Recepção (Fase 1b do PEP) — cadastro de identidade
 // completo (Ficha de Identificação do Paciente, UPA Breves) + abertura do
@@ -9,13 +10,14 @@ import { registrarEventoAuditoria } from './pepAtendimentos.js'
 export async function buscarPessoas(termo) {
   const t = termo.trim()
   if (!t) return []
-  const { data } = await supabase
+  const { data, error: erroConsulta1 } = await supabase
     .from('pessoas')
     .select('*')
     .or(`nome.ilike.%${t}%,cpf.ilike.%${t}%,cns.ilike.%${t}%,prontuario_numero.ilike.%${t}%`)
     .is('mesclado_com_id', null)
     .order('criado_em', { ascending: false })
     .limit(20)
+  if (erroConsulta1) avisarErro('pepRecepcao', erroConsulta1)
   return data ?? []
 }
 
@@ -90,12 +92,13 @@ export async function abrirAtendimento({ pessoaId, setorId, medicoResponsavelNom
 }
 
 export async function listarCadastrosRecentes() {
-  const { data } = await supabase
+  const { data, error: erroConsulta2 } = await supabase
     .from('atendimentos')
     .select('id, criado_em, numero_atendimento, pessoas(nome, prontuario_numero, cpf)')
     .eq('tipo', 'recepcao')
     .order('criado_em', { ascending: false })
     .limit(15)
+  if (erroConsulta2) avisarErro('pepRecepcao', erroConsulta2)
   return data ?? []
 }
 
@@ -118,12 +121,13 @@ export async function detectarDuplicatas(pessoaId, dados) {
   const primeiraPalavra = nomeNorm.split(' ')[0]
   if (primeiraPalavra.length < 3) return
 
-  const { data: candidatas } = await supabase
+  const { data: candidatas, error: erroConsulta3 } = await supabase
     .from('pessoas')
     .select('id, nome, data_nascimento, cpf, cns')
     .ilike('nome', `%${primeiraPalavra}%`)
     .neq('id', pessoaId)
     .is('mesclado_com_id', null)
+  if (erroConsulta3) avisarErro('pepRecepcao', erroConsulta3)
 
   const linhas = []
   for (const c of candidatas ?? []) {
@@ -145,15 +149,17 @@ export async function detectarDuplicatas(pessoaId, dados) {
 }
 
 export async function listarDuplicatasPendentes() {
-  const { data } = await supabase
+  const { data, error: erroConsulta4 } = await supabase
     .from('pessoas_duplicatas')
     .select(`
+  if (erroConsulta4) avisarErro('pepRecepcao', erroConsulta4)
       *,
       pessoa:pessoa_id (id, nome, data_nascimento, cpf, cns, prontuario_numero, criado_em),
       candidata:pessoa_candidata_id (id, nome, data_nascimento, cpf, cns, prontuario_numero, criado_em)
     `)
     .eq('status', 'pendente')
     .order('criado_em', { ascending: false })
+    .limit(200)
   return data ?? []
 }
 
