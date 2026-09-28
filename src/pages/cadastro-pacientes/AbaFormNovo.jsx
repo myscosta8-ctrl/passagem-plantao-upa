@@ -60,7 +60,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
   const [candidatosDuplicata, setCandidatosDuplicata] = useState([])
 
   useEffect(() => {
-    supabase.from('setores').select('*').order('ordem').then(({ data }) => {
+    supabase.from('setores').select('*').eq('ativo', true).order('ordem').then(({ data }) => {
       setSetores(data ?? [])
       const observacao = (data ?? []).find((s) => s.nome.includes('Observação'))
       if (observacao) setAtd((prev) => ({ ...prev, setor_id: String(observacao.id) }))

@@ -13,10 +13,10 @@ import { useAuth } from '../lib/AuthContext'
 // sai tudo o que foi preenchido no formulário lateral da passagem.
 const GRUPOS = {
   grupo1: { titulo: 'Sala Vermelha + Internação', setoresNomes: ['Sala Vermelha', 'Internação'] },
-  grupo2: { titulo: 'Pediatria + Observação', setoresNomes: ['Pediátrico', 'Observação/Internação'] },
+  grupo2: { titulo: 'Pediatria + Observação', setoresNomes: ['Pediatria', 'Observação', 'Pediátrico', 'Observação/Internação'] },
 }
-const COR_SETOR = { 'Sala Vermelha': 'vermelha', 'Internação': 'internacao', 'Pediátrico': 'pediatrico', 'Observação/Internação': 'observacao' }
-const TITULO_SETOR = { 'Sala Vermelha': 'Sala Vermelha — Emergência e Estabilização', 'Internação': 'Internação Adulto — Clínica e Cirúrgica', 'Pediátrico': 'Pediatria', 'Observação/Internação': 'Observação / Internação' }
+const COR_SETOR = { 'Sala Vermelha': 'vermelha', 'Internação': 'internacao', 'Pediátrico': 'pediatrico', 'Observação/Internação': 'observacao', 'Pediatria': 'pediatrico', 'Observação': 'observacao' }
+const TITULO_SETOR = { 'Sala Vermelha': 'Sala Vermelha — Emergência e Estabilização', 'Internação': 'Internação Adulto — Clínica e Cirúrgica', 'Pediátrico': 'Pediatria', 'Observação/Internação': 'Observação', 'Pediatria': 'Pediatria', 'Observação': 'Observação' }
 
 const sn = (v) => (v === true ? 'S' : v === false ? 'N' : '—')
 const dataBR = (d) => (d ? new Date(String(d).length === 10 ? `${d}T00:00:00` : d).toLocaleDateString('pt-BR') : '')

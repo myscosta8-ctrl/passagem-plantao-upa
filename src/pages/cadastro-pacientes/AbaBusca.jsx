@@ -18,7 +18,7 @@ export default function AbaBusca({ enfermeiroId, onAtendimentoAberto, onCompleta
   const [sucesso, setSucesso] = useState(null)
 
   useEffect(() => {
-    supabase.from('setores').select('*').order('ordem').then(({ data }) => {
+    supabase.from('setores').select('*').eq('ativo', true).order('ordem').then(({ data }) => {
       setSetores(data ?? [])
       const observacao = (data ?? []).find((s) => s.nome.includes('Observação'))
       if (observacao) setAtd((prev) => ({ ...prev, setor_id: String(observacao.id) }))

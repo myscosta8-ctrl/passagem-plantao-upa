@@ -18,7 +18,7 @@ const CHIPS_PENDENCIA_RAPIDA = [
 
 const GRUPOS_IMPRESSAO = [
   { tela: 'print1', setores: ['Sala Vermelha', 'Internação'] },
-  { tela: 'print2', setores: ['Pediátrico', 'Observação/Internação'] },
+  { tela: 'print2', setores: ['Pediatria', 'Observação', 'Pediátrico', 'Observação/Internação'] },
 ]
 
 function permanencia(paciente) {

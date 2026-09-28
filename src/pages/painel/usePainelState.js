@@ -33,7 +33,7 @@ export function usePainelState() {
     queryFn: async () => {
       const [pepAtivo, { data: listaSetores }, { data: listaLeitos }] = await Promise.all([
         pepEstaAtivo(enfermeiro?.id),
-        supabase.from('setores').select('*').order('ordem'),
+        supabase.from('setores').select('*').eq('ativo', true).order('ordem'),
         supabase.from('leitos').select('*').eq('ativo', true).order('id'),
       ])
       pepAtivoRef.current = pepAtivo

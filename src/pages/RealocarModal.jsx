@@ -3,10 +3,15 @@ import { supabase } from '../lib/supabaseClient'
 import { pepEstaAtivo } from '../lib/pepConfig'
 import { leitosOcupadosIdsPep, realocarAtendimentoPep } from '../lib/pepAtendimentos'
 import { avisarErro } from '../lib/erros'
+import './RealocarModal.css'
+
+const ehIsolamento = (l) => /ISO/i.test(l.numero || '') || l.tipo === 'isolamento'
+const rotuloLeito = (l) => (ehIsolamento(l) ? 'Isolamento' : `Leito ${String(l.numero).replace(/^0+(?=\d)/, '')}`)
 
 export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onFechar, onRealocado }) {
   const [setores, setSetores] = useState([])
   const [leitosVazios, setLeitosVazios] = useState([])
+  const [leitosTodos, setLeitosTodos] = useState([])
   const [setorDestinoId, setSetorDestinoId] = useState('')
   const [leitoDestinoId, setLeitoDestinoId] = useState('')
   const [salvando, setSalvando] = useState(false)
@@ -20,18 +25,21 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
   async function carregar() {
     const pep = await pepEstaAtivo(enfermeiroId)
     setPepAtivo(pep)
-    const { data: listaSetores, error: erroConsulta1 } = await supabase.from('setores').select('*').order('ordem')
+    const { data: listaSetores, error: erroConsulta1 } = await supabase.from('setores').select('*').eq('ativo', true).order('ordem')
     if (erroConsulta1) avisarErro('RealocarModal', erroConsulta1)
     const { data: todosLeitos, error: erroConsulta2 } = await supabase.from('leitos').select('*').eq('ativo', true)
     if (erroConsulta2) avisarErro('RealocarModal', erroConsulta2)
     const ocupados = await leitosOcupadosIdsPep()
     setSetores(listaSetores ?? [])
+    setLeitosTodos((todosLeitos ?? []).filter((l) => l.id !== leitoOrigem.id))
     setLeitosVazios((todosLeitos ?? []).filter((l) => !ocupados.has(l.id) && l.id !== leitoOrigem.id))
   }
 
-  const leitosDoSetorDestino = leitosVazios
-    .filter((l) => l.setor_id === Number(setorDestinoId))
-    .sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }))
+  const ordenar = (a, b) => (ehIsolamento(a) - ehIsolamento(b)) || a.numero.localeCompare(b.numero, undefined, { numeric: true })
+  const leitosDoSetorDestino = leitosVazios.filter((l) => l.setor_id === Number(setorDestinoId)).sort(ordenar)
+  const todosDoSetor = leitosTodos.filter((l) => l.setor_id === Number(setorDestinoId)).sort(ordenar)
+  const livresIds = new Set(leitosVazios.map((l) => l.id))
+  const livresPorSetor = (id) => leitosVazios.filter((l) => l.setor_id === id).length
 
   async function confirmar() {
     if (!leitoDestinoId) {
@@ -80,6 +88,7 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
       .single()
     if (!error && novo) {
       setLeitosVazios((prev) => [...prev, novo])
+      setLeitosTodos((prev) => [...prev, novo])
       setLeitoDestinoId(String(novo.id))
     } else {
       setErro('Não foi possível abrir o leito extra. Tente de novo.')
@@ -89,59 +98,53 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
 
   return (
     <div className="modal-backdrop">
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <h2 className="modal-title">Realocar {paciente.nome}</h2>
-        <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 18 }}>
-          Saindo do leito {leitoOrigem.numero}. Os dados clínicos já preenchidos são preservados.
-        </p>
+      <div className="modal-card rl-card" onClick={(e) => e.stopPropagation()}>
+        <h2 className="modal-title">Realocar paciente</h2>
+        <div className="rl-origem">
+          <i className="ph ph-user" /> <b>{paciente.nome}</b>
+          <span>saindo do {rotuloLeito(leitoOrigem)}</span>
+        </div>
+        <p className="rl-nota">Os dados clínicos já preenchidos são preservados.</p>
 
         {erro && <div className="error-box">{erro}</div>}
 
-        <div className="field" style={{ marginBottom: 14 }}>
-          <label>Setor de destino</label>
-          <select
-            style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
-            value={setorDestinoId}
-            onChange={(e) => { setSetorDestinoId(e.target.value); setLeitoDestinoId('') }}
-          >
-            <option value="">Selecione o setor</option>
-            {setores.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
-          </select>
+        <div className="rl-rotulo">1. Setor de destino</div>
+        <div className="rl-setores">
+          {setores.map((s) => {
+            const livres = livresPorSetor(s.id)
+            return (
+              <button key={s.id} type="button" className={`rl-setor ${String(s.id) === setorDestinoId ? 'on' : ''}`}
+                onClick={() => { setSetorDestinoId(String(s.id)); setLeitoDestinoId(''); setErro('') }}>
+                <span className="rl-setor-nome">{s.nome}</span>
+                <span className={`rl-setor-livres ${livres ? '' : 'zero'}`}>{livres ? `${livres} livre${livres > 1 ? 's' : ''}` : 'lotado'}</span>
+              </button>
+            )
+          })}
         </div>
 
         {setorDestinoId && (
-          <div className="field">
-            <label>Leito de destino</label>
-            <select
-              style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
-              value={leitoDestinoId}
-              onChange={(e) => setLeitoDestinoId(e.target.value)}
-            >
-              <option value="">Selecione o leito vazio</option>
-              {leitosDoSetorDestino.map((l) => (
-                <option key={l.id} value={l.id}>Leito {l.numero}</option>
-              ))}
-            </select>
+          <>
+            <div className="rl-rotulo">2. Leito de destino</div>
+            <div className="rl-leitos">
+              {todosDoSetor.map((l) => {
+                const livre = livresIds.has(l.id)
+                return (
+                  <button key={l.id} type="button" disabled={!livre}
+                    className={`rl-leito ${ehIsolamento(l) ? 'iso' : ''} ${String(l.id) === leitoDestinoId ? 'on' : ''}`}
+                    onClick={() => setLeitoDestinoId(String(l.id))}>
+                    {ehIsolamento(l) ? <><i className="ph ph-shield-warning" /> ISO</> : String(l.numero).replace(/^0+(?=\d)/, '')}
+                    <small>{livre ? 'livre' : 'ocupado'}</small>
+                  </button>
+                )
+              })}
+            </div>
             {leitosDoSetorDestino.length === 0 && (
-              <div style={{ marginTop: 8 }}>
-                <p style={{ fontSize: 12.5, color: 'var(--color-text-muted)', marginBottom: 8 }}>
-                  Nenhum leito vazio nesse setor no momento.
-                </p>
-                <button
-                  type="button"
-                  onClick={abrirLeitoExtra}
-                  style={{
-                    padding: '8px 14px', border: '1px dashed var(--c-primary)',
-                    background: 'transparent', color: 'var(--c-primary)',
-                    fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '.03em',
-                    borderRadius: 'var(--r-sm)', fontSize: 11, fontWeight: 600,
-                  }}
-                >
-                  + Abrir leito extra neste setor
-                </button>
+              <div className="rl-lotado">
+                Nenhum leito vazio nesse setor no momento.
+                <button type="button" className="rl-extra" onClick={abrirLeitoExtra}>+ Abrir leito extra neste setor</button>
               </div>
             )}
-          </div>
+          </>
         )}
 
         <div className="modal-actions">

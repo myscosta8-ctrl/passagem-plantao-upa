@@ -10,8 +10,8 @@ import { avisarErro } from '../lib/erros'
 const SETORES_MENSAGEM = [
   { nomeReal: 'Sala Vermelha', label: 'Sala vermelha🔴', temObservacao: true },
   { nomeReal: 'Internação', label: 'Sala amarela adulto 🟢', temObservacao: false },
-  { nomeReal: 'Pediátrico', label: 'Sala amarela pediatria 🟡', temObservacao: true },
-  { nomeReal: 'Observação/Internação', label: 'Observação Porta: ⚪️', temObservacao: true },
+  { nomeReal: 'Pediatria', nomeAntigo: 'Pediátrico', label: 'Sala amarela pediatria 🟡', temObservacao: true },
+  { nomeReal: 'Observação', nomeAntigo: 'Observação/Internação', label: 'Observação Porta: ⚪️', temObservacao: true },
 ]
 
 function hojeISO() {
@@ -53,7 +53,7 @@ export default function CompartilharPlantao({ plantao, onVoltar }) {
 
     const contagem = {}
     for (const s of SETORES_MENSAGEM) {
-      const setorReal = (setoresData ?? []).find((x) => x.nome === s.nomeReal)
+      const setorReal = (setoresData ?? []).find((x) => x.nome === s.nomeReal || (s.nomeAntigo && x.nome === s.nomeAntigo))
       if (!setorReal) continue
       const leitosDoSetor = (leitosData ?? []).filter((l) => l.setor_id === setorReal.id)
       let internados = 0, observacao = 0

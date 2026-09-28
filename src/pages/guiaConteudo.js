@@ -5,7 +5,7 @@ export const PASSOS_GUIA = [
   },
   {
     titulo: '2. Escolher os setores',
-    texto: 'Marque os setores que você vai acompanhar. Se forem dois enfermeiros no plantão, cada um marca sua parte (ex: um vê Sala Vermelha + Internação, o outro Pediátrico + Observação). Se for só um enfermeiro, deixe todos marcados.',
+    texto: 'Marque os setores que você vai acompanhar. Se forem dois enfermeiros no plantão, cada um marca sua parte (ex: um vê Sala Vermelha + Internação, o outro Pediatria + Observação). Se for só um enfermeiro, deixe todos marcados.',
   },
   {
     titulo: '3. Preencher os leitos',
@@ -21,7 +21,7 @@ export const PASSOS_GUIA = [
   },
   {
     titulo: '6. Imprimir em PDF',
-    texto: 'Os botões de impressão no topo geram dois documentos (Vermelha+Internação e Pediátrico+Observação), já formatados para caber em poucas folhas. Só entra no papel o que foi realmente preenchido.',
+    texto: 'Os botões de impressão no topo geram dois documentos (Vermelha+Internação e Pediatria+Observação), já formatados para caber em poucas folhas. Só entra no papel o que foi realmente preenchido.',
   },
   {
     titulo: '7. Histórico',
