@@ -1,3 +1,4 @@
+import { dosesPorDia, quantidadeDia } from '../../lib/frequencia'
 import { textoValidade } from '../../lib/prescricaoValidade'
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
@@ -58,11 +59,11 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
                     <span className="pr-nota">{[it.diluicao, it.instrucoes].filter(Boolean).join(' — ')}</span>
                   )}
                 </td>
-                <td className="qtd" style={{ textAlign: 'center' }}>{it.dose ? `${it.dose} ${it.dose_unidade || ''}` : ''}</td>
+                <td className="qtd" style={{ textAlign: 'center' }}>{(it.sn_aplic && dosesPorDia(it.frequencia) ? 'até ' : '') + quantidadeDia(it.dose, it.dose_unidade, it.frequencia)}</td>
                 <td style={{ textAlign: 'center', fontWeight: 600 }}>{abreviarCondicao(it.sn_acm || it.observacoes) || (it.sn_aplic ? 'SN' : '—')}</td>
                 <td className="via" style={{ textAlign: 'center' }}>{it.via || ''}</td>
                 <td className="freq" style={{ textAlign: 'center' }}>{it.frequencia || ''}{it.duracao ? ` · ${it.duracao}` : ''}</td>
-                <td className="horario" style={{ textAlign: 'center' }}></td>
+                <td className="horario"><div className="pr-horarios">{Array.from({ length: Math.min(dosesPorDia(it.frequencia) || 1, 12) }).map((_, k) => <span key={k} className="pr-horario-caixa" />)}</div></td>
               </tr>
             ))}
           </tbody>

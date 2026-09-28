@@ -47,3 +47,5 @@
 @media print {
   .pp-folha { margin: 0; box-shadow: none; width: 100%; min-height: 0; padding: 0; }
 }
+
+.pp-folha .rodape-assinatura-unica { grid-template-columns: minmax(0, 1fr); max-width: 50%; margin-left: auto; margin-right: auto; }

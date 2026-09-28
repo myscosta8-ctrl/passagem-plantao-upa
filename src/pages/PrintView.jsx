@@ -4,6 +4,7 @@ import { carregarLeitosOcupadosPep, carregarResumoProntuario } from '../lib/pepA
 import './PrintView.css'
 import './PassagemImpresso.css'
 import { avisarErro } from '../lib/erros'
+import { useAuth } from '../lib/AuthContext'
 
 // Passagem de Plantão de Enfermagem (multi-leitos) — modelo oficial
 // modelos_impressao_html/15-passagem-plantao.html. Usado para os dois grupos
@@ -134,6 +135,7 @@ function CartaoLeito({ leito, linha }) {
 }
 
 export default function PrintView({ plantao, grupo, onVoltar, viaHistorico }) {
+  const { enfermeiro: quemImprime } = useAuth()
   const [dados, setDados] = useState(null)
   const [emitidoEm] = useState(() => new Date())
 
@@ -225,16 +227,11 @@ export default function PrintView({ plantao, grupo, onVoltar, viaHistorico }) {
         </div>
 
         <div className="doc-rodape-container">
-          <div className="rodape-assinaturas">
+          <div className="rodape-assinaturas rodape-assinatura-unica">
             <div className="sig-box">
               <div className="sig-line" />
-              <div className="sig-name">{chefeNome || ' '}</div>
-              <div className="sig-coren">{dados.chefe?.coren ? `COREN/PA ${dados.chefe.coren} • ` : 'COREN/PA ________ • '}Enfermeiro(a) Plantonista (Passou o Plantão)</div>
-            </div>
-            <div className="sig-box">
-              <div className="sig-line" />
-              <div className="sig-name">&nbsp;</div>
-              <div className="sig-coren">COREN/PA ________ • Enfermeiro(a) Plantonista (Recebeu o Plantão)</div>
+              <div className="sig-name">{quemImprime?.nome_exibicao || quemImprime?.nome || '\u00a0'}</div>
+              <div className="sig-coren">Assinatura de quem imprimiu • {quemImprime?.coren ? `COREN/PA ${quemImprime.coren}` : quemImprime?.crm ? `CRM-PA ${quemImprime.crm}` : 'Registro profissional ________'}</div>
             </div>
           </div>
           <div className="rodape-meta">

@@ -5,6 +5,7 @@ import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
 import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
+import { dosesPorDia, quantidadeDia } from '../../lib/frequencia'
 import { hojeBelem, somarDias, textoValidade } from '../../lib/prescricaoValidade';
 
 
@@ -534,6 +535,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                           <option value="">Frequência</option>
                           {FREQUENCIAS.map((f) => <option key={f} value={f}>{f}</option>)}
                         </select>
+                        {dosesPorDia(it.frequencia) ? <span className="presc-qtd-dia" title="Quantidade no dia">= {quantidadeDia(it.dose, it.dose_unidade, it.frequencia)}/dia</span> : null}
                         <select className="form-control" value={it.condicao} onChange={(e) => setItem(i, 'condicao', e.target.value)} title="Uso">
                           <option value="">Horário fixo</option>
                           {CONDICOES_USO.map((c) => <option key={c} value={c}>{c}</option>)}

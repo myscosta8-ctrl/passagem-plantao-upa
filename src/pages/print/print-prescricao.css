@@ -201,3 +201,10 @@ table.pr-tabela-salutem td {
   margin-right: 12px;
   font-size: 9px;
 }
+
+/* Tabela de medicamentos fechada em caixas; horário com uma caixa por administração do dia */
+table.pr-tabela.pr-tabela-salutem { border: 1px solid #94a3b8; }
+table.pr-tabela.pr-tabela-salutem td { border: 1px solid #94a3b8 !important; vertical-align: middle; }
+table.pr-tabela td.horario { padding: 2px 4px; }
+.pr-horarios { display: flex; gap: 2px; height: 100%; min-height: 18px; }
+.pr-horario-caixa { flex: 1; min-width: 0; border: 1px solid #94a3b8; border-radius: 1px; min-height: 18px; }
