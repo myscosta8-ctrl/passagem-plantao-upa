@@ -30,13 +30,21 @@ function CampoRegistro({ tipo, registro, uf, onRegistro, onUf }) {
   )
 }
 
-function LinhaProfissional({ p, meuId, onSalvo, onResetar }) {
+function LinhaProfissional({ p, meuId, onSalvo, onResetar, focar }) {
   const [aberto, setAberto] = useState(false)
   const [f, setF] = useState(null)
   const [salvando, setSalvando] = useState(false)
   const [msg, setMsg] = useState(null)
   const abrir = () => { setF({ nome: p.nome || '', nome_exibicao: p.nome_exibicao || '', tipo: p.tipo || 'enfermagem', registro: registroDe(p), uf: p.conselho_uf || 'PA', admin: p.role === 'admin', ativo: p.ativo !== false }); setMsg(null); setAberto(true) }
   const set = (k, v) => setF((x) => ({ ...x, [k]: v }))
+  useEffect(() => { if (focar) abrir() }, [focar])
+
+  async function alternarAtivo() {
+    if (p.id === meuId) return
+    const { error } = await supabase.from('enfermeiros').update({ ativo: p.ativo === false }).eq('id', p.id)
+    if (error) { avisarErro('GerenciarProfissionais', error); return }
+    onSalvo()
+  }
 
   async function salvar() {
     if (!f.nome.trim()) { setMsg({ erro: true, t: 'Informe o nome.' }); return }
@@ -66,10 +74,12 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar }) {
             {conselho && (registroDe(p) ? ` · ${conselho}-${p.conselho_uf || 'PA'} ${registroDe(p)}` : <span className="gp-falta"> · {conselho} não informado</span>)}
             {p.deve_trocar_senha ? ' · aguardando troca de senha' : ''}
           </div>
+          <div className="gp-sub">{p.usuario ? <>Usuário: <b>{p.usuario}</b> · </> : ''}Último acesso: {ultimoAcessoTexto(p)}</div>
         </div>
         <div className="gp-acoes">
           <button type="button" className="btn btn-outline" onClick={aberto ? () => setAberto(false) : abrir}><i className="ph ph-pencil-simple" /> {aberto ? 'Fechar' : 'Editar'}</button>
           <button type="button" className="btn btn-outline" onClick={() => onResetar(p)}><i className="ph ph-key" /> Resetar senha</button>
+          {p.id !== meuId && <button type="button" className="btn btn-outline" onClick={alternarAtivo}><i className={`ph ${p.ativo === false ? 'ph-lock-open' : 'ph-prohibit'}`} /> {p.ativo === false ? 'Reativar' : 'Desativar'}</button>}
         </div>
       </div>
       {aberto && f && (
@@ -97,12 +107,18 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar }) {
   )
 }
 
-export default function GerenciarProfissionais({ onVoltar, meuId }) {
+function ultimoAcessoTexto(p) {
+  const t = Math.max(p.ultimo_acesso_em ? Date.parse(p.ultimo_acesso_em) : 0, p.ultimo_login ? Date.parse(p.ultimo_login) : 0)
+  return t ? new Date(t).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'nunca acessou'
+}
+
+export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbrirEquipe }) {
   const [profissionais, setProfissionais] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [busca, setBusca] = useState('')
   const [filtroTipo, setFiltroTipo] = useState('todos')
   const [mostrarInativos, setMostrarInativos] = useState(false)
+  useEffect(() => { if (focoId) setMostrarInativos(true) }, [focoId])
 
   const [nome, setNome] = useState('')
   const [username, setUsername] = useState('')
@@ -122,10 +138,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId }) {
 
   async function carregar() {
     setCarregando(true)
-    const { data, error } = await supabase
-      .from('enfermeiros')
-      .select('id, nome, nome_exibicao, tipo, crm, coren, conselho_uf, role, ativo, deve_trocar_senha')
-      .order('nome')
+    const { data, error } = await supabase.rpc('painel_equipe')
     if (error) avisarErro('GerenciarProfissionais', error)
     setProfissionais(data ?? [])
     setCarregando(false)
@@ -135,7 +148,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId }) {
     const b = busca.trim().toLowerCase()
     return profissionais.filter((p) => (mostrarInativos || p.ativo !== false)
       && (filtroTipo === 'todos' || p.tipo === filtroTipo)
-      && (!b || `${p.nome} ${p.nome_exibicao} ${p.crm || ''} ${p.coren || ''}`.toLowerCase().includes(b)))
+      && (!b || `${p.nome} ${p.nome_exibicao} ${p.usuario || ''} ${p.crm || ''} ${p.coren || ''}`.toLowerCase().includes(b)))
   }, [profissionais, busca, filtroTipo, mostrarInativos])
   const semRegistro = profissionais.filter((p) => p.ativo !== false && conselhoDe(p.tipo) && !registroDe(p)).length
 
@@ -176,7 +189,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId }) {
           <h1>Profissionais (Logins)</h1>
           <p>Crie, edite e gerencie os acessos do sistema.</p>
         </div>
-        <div className="page-actions"><button className="btn btn-outline" onClick={onVoltar}><i className="ph ph-arrow-left"></i> Voltar ao painel</button></div>
+        <div className="page-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{onAbrirEquipe && <button className="btn btn-outline" onClick={onAbrirEquipe}><i className="ph ph-users-three" /> Painel de Equipe</button>}<button className="btn btn-outline" onClick={onVoltar}><i className="ph ph-arrow-left"></i> Voltar ao painel</button></div>
       </div>
 
       <div className="card gp-card">
@@ -209,7 +222,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId }) {
           <label className="gp-check-inline"><input type="checkbox" checked={mostrarInativos} onChange={(e) => setMostrarInativos(e.target.checked)} /> Mostrar desativados</label>
         </div>
         {carregando ? <p className="gp-vazio">Carregando...</p> : lista.length === 0 ? <p className="gp-vazio">Nenhum login encontrado.</p> : (
-          <div className="gp-lista">{lista.map((p) => <LinhaProfissional key={p.id} p={p} meuId={eu} onSalvo={carregar} onResetar={(x) => { setConfirmandoReset(x); setErroReset('') }} />)}</div>
+          <div className="gp-lista">{lista.map((p) => <LinhaProfissional key={p.id} p={p} meuId={eu} focar={p.id === focoId} onSalvo={carregar} onResetar={(x) => { setConfirmandoReset(x); setErroReset('') }} />)}</div>
         )}
       </div>
 

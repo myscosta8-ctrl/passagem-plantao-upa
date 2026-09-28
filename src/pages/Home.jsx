@@ -102,6 +102,7 @@ export default function Home() {
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
+  const [focoProfissional, setFocoProfissional] = useState(null)
   // Cada tela só é montada (e só busca dados) quando é aberta. Painel, Passagem e
   // Recepção ficam vivas depois da 1ª visita; as demais recarregam a cada visita.
   const [visitadas, setVisitadas] = useState(() => new Set([lerTelaSalva()]))
@@ -147,7 +148,11 @@ export default function Home() {
     const eventos = ['mousedown', 'keydown', 'touchstart', 'scroll', 'mousemove']
     eventos.forEach((e) => window.addEventListener(e, aoUsar, { passive: true, capture: true }))
     const t = setInterval(() => { if (Date.now() - ultima() >= LIMITE) logoutRef.current() }, 60000)
-    return () => { clearInterval(t); eventos.forEach((e) => window.removeEventListener(e, aoUsar, { capture: true })) }
+    // Sinal de atividade para o Painel de Equipe ("online agora"): a cada 2 min, se houve uso recente.
+    const sinal = () => { if (Date.now() - ultima() < 3 * 60000 && document.visibilityState === 'visible') supabase.rpc('registrar_atividade').then(() => {}, () => {}) }
+    sinal()
+    const tSinal = setInterval(sinal, 120000)
+    return () => { clearInterval(t); clearInterval(tSinal); eventos.forEach((e) => window.removeEventListener(e, aoUsar, { capture: true })) }
   }, [])
 
   useEffect(() => {
@@ -433,11 +438,11 @@ export default function Home() {
                 {podeAdministrar && (
                   <>
                     <div style={{ display: tela === 'equipe' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                      {tela === 'equipe' && <PainelEquipe onVoltar={() => setTela('painel')} />}
+                      {tela === 'equipe' && <PainelEquipe onVoltar={() => setTela('painel')} podeAdministrar={podeAdministrar} onGerenciar={(id) => { setFocoProfissional(id); setTela('profissionais') }} />}
                     </div>
 
                     <div style={{ display: tela === 'profissionais' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                      {tela === 'profissionais' && <GerenciarProfissionais onVoltar={() => setTela('painel')} />}
+                      {tela === 'profissionais' && <GerenciarProfissionais onVoltar={() => setTela('painel')} focoId={focoProfissional} onAbrirEquipe={() => setTela('equipe')} />}
                     </div>
                   </>
                 )}
