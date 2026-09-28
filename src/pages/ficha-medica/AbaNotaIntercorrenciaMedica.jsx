@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarNotasIntercorrenciaMedica, criarNotaIntercorrenciaMedica } from '../../lib/pepMedico';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { useRascunho } from '../../hooks/useRascunho'
 
 // Nota de Intercorrência Médica — impresso 09-nota-intercorrencia-medica.html.
 // Colunas: descricao_evento (1), sinais_vitais_evento jsonb (2: exame físico + SV),
@@ -18,6 +19,7 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
+  const rascunho = useRascunho({ tabela: 'notas_intercorrencia_medica', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
@@ -30,7 +32,7 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
     setErro('')
     setSalvando(true)
     const { data, error } = await criarNotaIntercorrenciaMedica({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         medico_id: medicoId,
@@ -106,7 +108,6 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
                 <p style={{ margin: '0 0 4px', whiteSpace: 'pre-wrap' }}>{n.descricao_evento || n.notas}</p>
                 <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{n.enfermeiros?.nome_exibicao || n.enfermeiros?.nome} · {new Date(n.data_hora || n.criado_em).toLocaleString('pt-BR')}</div>
               </div>
-              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
               <button type="button" className="btn-save-draft" onClick={() => onImprimir(n)}><i className="ph ph-printer" /> Imprimir</button>
             </div>
           ))}
@@ -114,8 +115,9 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
       </div>
 
       <div className="cc-footer">
-        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+        <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
         <div style={{ display: 'flex', gap: 10 }}>
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
           <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
         </div>

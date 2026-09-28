@@ -20,8 +20,25 @@ export const MSG_FINALIZADO = 'Este documento já foi finalizado (Salvar e Impri
 
 // Metadados do documento: situação (rascunho/finalizado) e a data clínica do
 // registro — pode ser retroativa; a data de impressão é sempre a atual.
-export function metaDoc(finalizar, dataRegistro) {
+export function metaDoc(finalizar, dataRegistro, estadoFormulario) {
   const meta = { situacao: finalizar ? 'finalizado' : 'rascunho' }
   if (dataRegistro) meta.data_registro = new Date(dataRegistro).toISOString()
+  // O rascunho guarda o formulário como estava na tela, para reabrir depois.
+  if (!finalizar && estadoFormulario !== undefined) meta.rascunho_estado = estadoFormulario
   return meta
+}
+
+// Último rascunho do próprio profissional neste atendimento (ou null).
+export async function buscarRascunho(tabela, atendimentoId, autorId) {
+  if (!atendimentoId || !autorId) return null
+  const { data } = await supabase.from(tabela).select('*')
+    .eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('autor_auth', autorId)
+    .order('criado_em', { ascending: false }).limit(1).maybeSingle()
+  return data
+}
+
+// "Cancelar" antes de finalizar: descarta o rascunho em definitivo (fica na auditoria).
+export async function descartarRascunho(tabela, id) {
+  if (!id) return { error: null }
+  return supabase.from(tabela).delete().eq('id', id).eq('situacao', 'rascunho')
 }

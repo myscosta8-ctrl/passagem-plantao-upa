@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarConsultas, criarConsulta } from '../../lib/pepMedico';
-import CampoDataRegistro from '../components/CampoDataRegistro';
-import { metaDoc } from '../lib/documentos';
+import CampoDataRegistro from '../../components/CampoDataRegistro';
+import { metaDoc } from '../../lib/documentos';
+import { useRascunho } from '../../hooks/useRascunho';
 
 const MODELOS = {
   pediatria: {
@@ -55,6 +56,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
     hipotese_diagnostica: '',
     conduta_inicial: '',
   });
+  const rascunho = useRascunho({ tabela: 'consultas_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
 
   const [comorbidades, setComorbidades] = useState([]);
 
@@ -123,7 +125,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
     setErro('');
     setSalvando(true);
     const { data: novaConsulta, error } = await criarConsulta({
-      id: editandoId, situacao: metaDoc(imprimirApos, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimirApos, dataRegistro, rascunho.estado),
       atendimentoId: atendimento?.atendimento_id,
       pessoaId: atendimento?.pessoa_id,
       medicoId,
@@ -416,7 +418,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
             <button
               type="button"
               className="btn-cancel"
-              onClick={onFechar}
+              onClick={() => rascunho.cancelar(onFechar)}
             >
               <i className="ph ph-x-circle" /> Cancelar
             </button>

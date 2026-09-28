@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { buscarOcupacaoAtiva, listarTransferenciasSbar, registrarTransferenciaSbar, listarAlergias, listarSinaisVitais } from '../../lib/pepClinico';
-import CampoDataRegistro from '../components/CampoDataRegistro';
-import { metaDoc } from '../lib/documentos';
+import CampoDataRegistro from '../../components/CampoDataRegistro';
+import { metaDoc } from '../../lib/documentos';
+import { useRascunho } from '../../hooks/useRascunho';
 
 // Transferência Estruturada do Paciente (SBAR) — mockups-fase2/14-transferencia-paciente-design.html,
 // impresso modelos_impressao_html/03-transferencia-paciente-sbar.html.
@@ -41,6 +42,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
   const [editandoId, setEditandoId] = useState(null);
+  const rascunho = useRascunho({ tabela: 'transferencias_sbar', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setMsg({ t: 'Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.' }) });
   const [msg, setMsg] = useState(null);
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
     setMsg(null); setSalvando(true);
     const [pas, pad] = String(d.pa).split(/[x/]/i).map((x) => x.trim());
     const { data, error } = await registrarTransferenciaSbar({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       leitoOcupacaoId: ocupacao?.id || null, setorDestinoId: null, enfermeiroEntrega: autorId, enfermeiroRecebe: null,
       dados: {
         atendimento_id: atendimento.atendimento_id,
@@ -226,7 +228,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
       </div>
 
       <div className="tc-footer">
-        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+        <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
         <div style={{ display: 'flex', gap: 12 }}>
           <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>

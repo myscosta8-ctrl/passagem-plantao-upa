@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { listarEvolucoes, registrarEvolucao, listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
 import { NANDA_OPCOES, NIC_OPCOES } from './constantes';
-import CampoDataRegistro from '../components/CampoDataRegistro';
-import { metaDoc } from '../lib/documentos';
+import CampoDataRegistro from '../../components/CampoDataRegistro';
+import { metaDoc } from '../../lib/documentos';
+import { useRascunho } from '../../hooks/useRascunho';
 
 // Evolução do Enfermeiro (SAE) — mockups-fase2/09-evolucao-enfermagem-sae-design.html.
 // Os sinais vitais do turno são gravados em sinais_vitais e um resumo vai para
@@ -47,6 +48,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
   const [editandoId, setEditandoId] = useState(null);
+  const rascunho = useRascunho({ tabela: 'evolucoes', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { texto: [texto, setTexto], nanda: [nanda, setNanda], nic: [nic, setNic], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAvisoRasc('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
   const [avisoRasc, setAvisoRasc] = useState('');
   const [erro, setErro] = useState('');
   const [expandido, setExpandido] = useState(null);
@@ -77,7 +79,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
       if (e1) console.error(e1);
     }
     const { data, error } = await registrarEvolucao({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id, autorId, texto: texto.trim(),
       diagnosticosNanda: nanda, prescricaoNic: nic,
       objetivo: temSv ? resumoSv(sv) : null,
@@ -214,7 +216,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
         </div>
 
         <div className="sc-footer">
-          <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+          <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 12 }}>
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { listarApac, criarApac, buscarCabecalhoImpressao } from '../../lib/pepMedico';
-import CampoDataRegistro from '../components/CampoDataRegistro';
-import { metaDoc } from '../lib/documentos';
+import CampoDataRegistro from '../../components/CampoDataRegistro';
+import { metaDoc } from '../../lib/documentos';
+import { useRascunho } from '../../hooks/useRascunho';
+import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
 
 // Laudo para Solicitação/Autorização de Procedimento Ambulatorial (APAC) —
 // documento oficial do Ministério da Saúde, impresso 18-laudo-apac-procedimento-ambulatorial.html.
@@ -43,6 +45,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
   const [editandoId, setEditandoId] = useState(null);
+  const rascunho = useRascunho({ tabela: 'apac_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
 
@@ -90,7 +93,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
     }
     setErro(''); setSucesso(''); setSalvando(true);
     const { data, error } = await criarApac({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id,
       solicitanteId: medicoId,
       dados: {
@@ -268,7 +271,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
                 <div style={{ fontWeight: 600 }}>{a.procedimento_codigo ? `${a.procedimento_codigo} — ` : ''}{a.procedimento_nome}</div>
                 <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{new Date(a.criado_em).toLocaleString('pt-BR')}{a.numero_autorizacao ? ` · APAC nº ${a.numero_autorizacao}` : ''}</div>
               </div>
-              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
+              <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={a} /><BotaoInvalidar tabela="apac_solicitacoes" registro={a} meuId={medicoId} onFeito={carregar} /></span>
               <button type="button" className="btn-save-draft" onClick={() => onImprimir?.(a)}><i className="ph ph-printer" /> Imprimir</button>
             </div>
           ))}
@@ -276,8 +279,9 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
       </div>
 
       <div className="cc-footer">
-        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> {rotuloFechar}</button>
+        <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> {rotuloFechar}</button>
         <div style={{ display: 'flex', gap: 10 }}>
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
           <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
         </div>

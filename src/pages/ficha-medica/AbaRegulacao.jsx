@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarRegulacao, registrarRegulacao, buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao, pesquisarCid } from '../../lib/pepMedico';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { useRascunho } from '../../hooks/useRascunho'
 
 // Atualização de Quadro Clínico para a regulação (SER / SISREG).
 export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFechar }) {
@@ -27,6 +28,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
 
   useEffect(() => { carregar() }, [])
   const [buscaCid, setBuscaCid] = useState('')
+  const rascunho = useRascunho({ tabela: 'regulacao_atualizacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { evolucao: [evolucao, setEvolucao], pendencias: [pendencias, setPendencias], conduta: [conduta, setConduta], numeroSer: [numeroSer, setNumeroSer], diagnosticoRegulado: [diagnosticoRegulado, setDiagnosticoRegulado], mudancaDiagnostico: [mudancaDiagnostico, setMudancaDiagnostico], novoDiagnostico: [novoDiagnostico, setNovoDiagnostico], buscaCid: [buscaCid, setBuscaCid], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   useEffect(() => {
     const t = setTimeout(() => { pesquisarCid(buscaCid).then(setCids) }, 250)
     return () => clearTimeout(t)
@@ -58,7 +60,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
     setErro('')
     setSalvando(true)
     const { data, error } = await registrarRegulacao({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id, atualizadoPor: medicoId,
       dados: {
         evolucao: evolucao.trim(), pendencias: pendencias || null, conduta: conduta || null,
@@ -105,7 +107,6 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
               {['SER', 'SISREG'].map((t) => (
                 <button key={t} type="button" className={'btn-add-chip' + (tipoAbertura === t ? ' on' : '')} onClick={() => setTipoAbertura(t)}>{t}</button>
               ))}
-              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
               <button type="button" className="btn-save-draft" onClick={confirmarAbertura} disabled={abrindo}>
                 <i className="ph ph-flag" /> {abrindo ? 'Abrindo...' : 'Abrir regulação'}
               </button>
@@ -192,8 +193,9 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
       </div>
 
       <div className="cc-footer">
-        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+        <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
         <div style={{ display: 'flex', gap: 10 }}>
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
           <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
         </div>

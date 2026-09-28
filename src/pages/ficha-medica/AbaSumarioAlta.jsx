@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { buscarSumarioAlta, salvarSumarioAlta, mensagemErroSalvar } from '../../lib/pepMedico';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { descartarRascunho } from '../../lib/documentos'
 
 export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState({
@@ -130,12 +131,12 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
 
       <div className="cc-footer">
         <div>
-          <button type="button" className="btn-cancel" onClick={onFechar}>
+          <button type="button" className="btn-cancel" onClick={async () => { if (salvo?.situacao === 'rascunho') { if (!window.confirm('Cancelar descarta este rascunho em definitivo. Deseja continuar?')) return; const { error } = await descartarRascunho('sumarios_alta', salvo.id); if (error) { console.error(error); return } } onFechar?.() }}>
             <i className="ph ph-x-circle" /> Cancelar
           </button>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          {salvo && (
+          {salvo?.situacao === 'finalizado' && (
             <button type="button" className="btn-save-draft" onClick={() => onImprimir(salvo)}>
               <i className="ph ph-printer" /> Reimprimir
             </button>

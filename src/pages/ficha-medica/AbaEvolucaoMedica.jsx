@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { listarEvolucoesMedicas, criarEvolucaoMedica } from '../../lib/pepMedico';
 import { listarSinaisVitais } from '../../lib/pepClinico';
 import { EVOLUCAO_VAZIA } from './constantes';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { useRascunho } from '../../hooks/useRascunho'
 
 export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, onFechar , historicoAberto, onSetHistoricoAberto }) {
   const [historico, setHistorico] = useState([])
@@ -12,6 +13,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
+  const rascunho = useRascunho({ tabela: 'evolucoes_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
   const [itemExpandido, setItemExpandido] = useState(null)
@@ -53,7 +55,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
     setErro('')
     setSalvando(true)
     const { data, error } = await criarEvolucaoMedica({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados: {
         diagnosticos: dados.diagnosticos || null, historia_doenca_atual: dados.historia_doenca_atual || null,
@@ -221,7 +223,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
 
         <div className="cc-footer">
           <div>
-            <button type="button" className="btn-cancel" onClick={onFechar}>
+            <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}>
               <i className="ph ph-x-circle" /> Cancelar
             </button>
           </div>

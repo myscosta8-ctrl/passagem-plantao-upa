@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { listarAih, criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar } from '../../lib/pepMedico';
 import { AIH_VAZIA } from './constantes';
-import CampoDataRegistro from '../components/CampoDataRegistro';
-import { metaDoc } from '../lib/documentos';
+import CampoDataRegistro from '../../components/CampoDataRegistro';
+import { metaDoc } from '../../lib/documentos';
+import { useRascunho } from '../../hooks/useRascunho';
+import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
 
 const PROCEDIMENTOS_RAPIDOS = [
   { cod: '0303010190', codFormatado: '03.03.01.019-0', desc: 'TRATAMENTO DE PNEUMONIA OU INFLUENZA (GRIPE)', rotulo: 'Pneumonia / Influenza' },
@@ -43,6 +45,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     clinica: isPediatrico ? 'PEDIATRIA / OBSERVAÇÃO' : 'CLÍNICA MÉDICA / OBSERVAÇÃO',
     carater_internacao: '02 - URGÊNCIA',
   });
+  const rascunho = useRascunho({ tabela: 'aih_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
 
   useEffect(() => {
     carregar();
@@ -140,7 +143,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     setErro('');
     setSalvando(true);
     const { data: novaAih, error } = await criarAih({
-      id: editandoId, situacao: metaDoc(imprimirApos, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimirApos, dataRegistro, rascunho.estado),
       atendimentoId: atendimento?.atendimento_id,
       pessoaId: atendimento?.pessoa_id,
       solicitanteId: medicoId,
@@ -269,6 +272,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, color: '#64748B', fontSize: 10 }}>
                       <span>{new Date(h.criado_em).toLocaleDateString('pt-BR')}</span>
+                      <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={h} /><BotaoInvalidar tabela="aih_solicitacoes" registro={h} meuId={medicoId} onFeito={carregar} /></span>
                       <button
                         type="button"
                         className="btn-icon-circle"
@@ -681,7 +685,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             <button
               type="button"
               className="btn-cancel"
-              onClick={onFechar}
+              onClick={() => rascunho.cancelar(onFechar)}
             >
               <i className="ph ph-x-circle" /> Cancelar
             </button>

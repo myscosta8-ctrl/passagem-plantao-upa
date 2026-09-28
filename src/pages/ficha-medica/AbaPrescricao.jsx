@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { listarPrescricoes, criarPrescricao, cancelarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
 import { VIAS, UNIDADES_DOSE, FREQUENCIAS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, atbRestrito, ATM_PENDENTES_KEY } from './constantes';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { useRascunho } from '../../hooks/useRascunho'
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
@@ -200,6 +201,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
+  const rascunho = useRascunho({ tabela: 'prescricoes_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { observacoes: [observacoes, setObservacoes], dieta: [dieta, setDieta], itens: [itens, setItens], orientacaoEnfermagem: [orientacaoEnfermagem, setOrientacaoEnfermagem], hemocomponentes: [hemocomponentes, setHemocomponentes], hemocomponenteObs: [hemocomponenteObs, setHemocomponenteObs] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
@@ -324,7 +326,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
     setErro('')
     setSalvando(true)
     const { data, error } = await criarPrescricao({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id,
       pessoaId: atendimento.pessoa_id,
       medicoId,
@@ -634,7 +636,6 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                         Prescrito por {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} • {new Date(p.criado_em).toLocaleString('pt-BR')}
                       </div>
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                        <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
                         <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => onImprimir(p)}>
                           <i className="ph ph-printer" /> Imprimir 2ª via
                         </button>
@@ -655,11 +656,12 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
 
         <div className="cc-footer">
           <div>
-            <button type="button" className="btn-cancel" onClick={onFechar}>
+            <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}>
               <i className="ph ph-x-circle" /> Cancelar
             </button>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
+            <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
               <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
             </button>

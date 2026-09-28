@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { listarAtm, criarAtm } from '../../lib/pepMedico';
 import { ATM_VAZIA, ATM_RESTRITOS, ATM_PENDENTES_KEY, atbRestrito } from './constantes';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { useRascunho } from '../../hooks/useRascunho'
+import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento'
 
 // Solicitação de Autorização de Uso de Antimicrobiano (ATM) — modelo
 // 11-formulario-antimicrobiano-atm.html. Documento interno obrigatório sempre
@@ -31,6 +33,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
+  const rascunho = useRascunho({ tabela: 'solicitacoes_atm', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
@@ -53,7 +56,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
       medicamento, posologia, dose, intervalo, tempo_uso_dias, justificativa_clinica, ...extra
     } = dados
     const { data, error } = await criarAtm({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atdId, solicitanteId: medicoId,
       dados: {
         medicamento, posologia, dose, intervalo, justificativa_clinica,
@@ -194,7 +197,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
                   {a.enfermeiros?.nome_exibicao || a.enfermeiros?.nome} · {new Date(a.criado_em).toLocaleString('pt-BR')} · {a.parecer_farmaceutico ? `Parecer: ${a.parecer_farmaceutico}` : 'Aguardando parecer'}
                 </div>
               </div>
-              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
+              <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={a} /><BotaoInvalidar tabela="solicitacoes_atm" registro={a} meuId={medicoId} onFeito={carregar} /></span>
               <button type="button" className="btn-save-draft" onClick={() => onImprimir(a)}><i className="ph ph-printer" /> Imprimir</button>
             </div>
           ))}
@@ -202,8 +205,9 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
       </div>
 
       <div className="cc-footer">
-        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+        <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
         <div style={{ display: 'flex', gap: 10 }}>
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
             <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
           </button>

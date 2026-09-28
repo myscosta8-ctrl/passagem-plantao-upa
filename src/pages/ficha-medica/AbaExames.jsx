@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { listarExames, criarExame, buscarCabecalhoImpressao, criarApac } from '../../lib/pepMedico';
 import AbaApac from './AbaApac';
-import CampoDataRegistro from '../components/CampoDataRegistro';
-import { metaDoc } from '../lib/documentos';
+import CampoDataRegistro from '../../components/CampoDataRegistro';
+import { metaDoc } from '../../lib/documentos';
+import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
 
 // ==========================================
 // CATÁLOGO COMPLETO FIEL AO MOCKUP FASE 2
@@ -771,6 +772,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
                     <strong>{h.nome}</strong> <span style={{ color: 'var(--text-muted)' }}>— {h.preparo}</span>
                     <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>Solicitado por: {h.enfermeiros?.nome_exibicao || h.enfermeiros?.nome || '—'} • {new Date(h.criado_em).toLocaleString('pt-BR')}</div>
                   </div>
+                  <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={h} /><BotaoInvalidar tabela="exames_solicitados" registro={h} meuId={medicoId} onFeito={() => listarExames(atendimento.atendimento_id).then(setHistorico)} /></span>
                   {Array.isArray(h.exames) && ['lab', 'img', 'ecg'].includes(h.modalidade) && (
                     <button type="button" className="btn-save-draft" style={{ alignSelf: 'center' }} onClick={() => onImprimir?.(h, `exame_${h.modalidade}`)}><i className="ph ph-printer" /> Imprimir</button>
                   )}

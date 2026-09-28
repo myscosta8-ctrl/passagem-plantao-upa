@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { listarSolicitacoesSangue, criarSolicitacaoSangue } from '../../lib/pepMedico';
 import { SANGUE_VAZIA, HEMOCOMPONENTES_OPCOES, URGENCIA_OPCOES } from './constantes';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { useRascunho } from '../../hooks/useRascunho'
+import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento'
 
 // Protocolos transfusionais: preenchem SOMENTE o hemocomponente/quantidade
 // padrão do bundle e a urgência associada. Nunca escrevem a indicação
@@ -25,6 +27,7 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
+  const rascunho = useRascunho({ tabela: 'solicitacoes_sangue', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
@@ -55,7 +58,7 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
     setSalvando(true)
     const { indicacao_clinica, ...extra } = dados
     const { data, error } = await criarSolicitacaoSangue({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id, solicitadoPor: medicoId,
       dados: { indicacao_clinica, campos_extra: extra },
     })
@@ -273,7 +276,7 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
                     {s.enfermeiros?.nome_exibicao || s.enfermeiros?.nome} · {new Date(s.criado_em).toLocaleString('pt-BR')}
                   </div>
                 </div>
-                <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
+                <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={s} /><BotaoInvalidar tabela="solicitacoes_sangue" registro={s} meuId={medicoId} onFeito={carregar} /></span>
                 <button type="button" className="btn-save-draft" onClick={() => onImprimir(s)}>
                   <i className="ph ph-printer" /> Imprimir
                 </button>
@@ -285,11 +288,12 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
 
       <div className="cc-footer">
         <div>
-          <button type="button" className="btn-cancel" onClick={onFechar}>
+          <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}>
             <i className="ph ph-x-circle" /> Cancelar
           </button>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
             <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
           </button>

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { listarReceitasMedicas, criarReceitaMedica, listarCatalogoMedicamentos, buscarCabecalhoImpressao } from '../../lib/pepMedico';
 import { RECEITA_ITEM_VAZIO, VIAS_RECEITA, TAGS_INSTRUCAO, RECEITA_TIPO_LABEL } from './constantes';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { useRascunho } from '../../hooks/useRascunho'
+import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento'
 
 function AutocompleteMedicamentoReceita({ catalogo, valor, onChange, onSelecionar }) {
   const [aberto, setAberto] = useState(false)
@@ -65,6 +67,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
+  const rascunho = useRascunho({ tabela: 'receitas_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { itensSimples: [itensSimples, setItensSimples], itensControle: [itensControle, setItensControle], enderecoPaciente: [enderecoPaciente, setEnderecoPaciente] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAvisoRasc('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [avisoRasc, setAvisoRasc] = useState('')
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
@@ -148,7 +151,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
     // no campo livre orientacoes_gerais para não exigir migration de schema.
     if (subTab === 'controle') dados.orientacoes_gerais = `Endereço do paciente: ${enderecoPaciente}`
     const { data, error } = await criarReceitaMedica({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id, criadoPor: medicoId,
       dados,
     })
@@ -297,7 +300,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
                     {r.enfermeiros?.nome_exibicao || r.enfermeiros?.nome} · {new Date(r.criado_em).toLocaleString('pt-BR')}
                   </div>
                 </div>
-                <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
+                <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={r} /><BotaoInvalidar tabela="receitas_medicas" registro={r} meuId={medicoId} onFeito={carregar} /></span>
                 <button type="button" className="btn-save-draft" onClick={() => onImprimir(r)}>
                   <i className="ph ph-printer" /> Imprimir
                 </button>
@@ -309,11 +312,12 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
 
       <div className="cc-footer">
         <div>
-          <button type="button" className="btn-cancel" onClick={onFechar}>
+          <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}>
             <i className="ph ph-x-circle" /> Cancelar
           </button>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
             <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
           </button>

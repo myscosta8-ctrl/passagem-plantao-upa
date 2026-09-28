@@ -4,8 +4,9 @@ import { listarEscalas, listarDispositivos, listarAlergias } from '../lib/pepCli
 import AbaAlergias from './ficha-clinica/AbaAlergias'
 import AbaDispositivos from './ficha-clinica/AbaDispositivos'
 import AbaEscalas from './ficha-clinica/AbaEscalas'
-import CampoDataRegistro from 'components/CampoDataRegistro'
-import { metaDoc } from 'lib/documentos'
+import CampoDataRegistro from '../components/CampoDataRegistro'
+import { metaDoc } from '../lib/documentos'
+import { descartarRascunho } from '../lib/documentos'
 
 // ===================== Admissão de Enfermagem (SAE) =====================
 // Tela conforme mockups-fase2/08-admissao-enfermagem-design.html; o impresso é
@@ -417,7 +418,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
         </div>
 
         <div className="ac-footer">
-          <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+          <button type="button" className="btn-cancel" onClick={async () => { if (salvo?.situacao === 'rascunho') { if (!window.confirm('Cancelar descarta este rascunho em definitivo. Deseja continuar?')) return; const { error } = await descartarRascunho('historico_enfermagem', salvo.id); if (error) { console.error(error); return } } onFechar?.() }}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 12 }}>
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>

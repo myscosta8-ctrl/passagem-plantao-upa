@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { listarAtestadosMedicos, criarAtestadoMedico } from '../../lib/pepMedico';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { useRascunho } from '../../hooks/useRascunho'
 
 const HOJE = new Date().toISOString().slice(0, 10);
 
@@ -15,6 +16,7 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
+  const rascunho = useRascunho({ tabela: 'atestados_medicos', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { cid: [cid, setCid], diasAfastamento: [diasAfastamento, setDiasAfastamento], dataInicio: [dataInicio, setDataInicio], textoLivre: [textoLivre, setTextoLivre] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
@@ -29,7 +31,7 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
     setErro('')
     setSalvando(true)
     const { data, error } = await criarAtestadoMedico({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id,
       criadoPor: medicoId,
       dados: {
@@ -99,7 +101,6 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
                     {a.enfermeiros?.nome_exibicao || a.enfermeiros?.nome} · {new Date(a.criado_em).toLocaleString('pt-BR')}
                   </div>
                 </div>
-                <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
                 <button type="button" className="btn-save-draft" onClick={() => onImprimir(a)}>
                   <i className="ph ph-printer" /> Imprimir
                 </button>
@@ -111,11 +112,12 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
 
       <div className="cc-footer">
         <div>
-          <button type="button" className="btn-cancel" onClick={onFechar}>
+          <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}>
             <i className="ph ph-x-circle" /> Cancelar
           </button>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
             <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
           </button>

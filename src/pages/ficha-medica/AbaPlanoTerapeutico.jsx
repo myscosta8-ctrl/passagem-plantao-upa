@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { buscarPlanoTerapeutico, salvarPlanoTerapeutico, mensagemErroSalvar } from '../../lib/pepMedico';
 import { PROTOCOLOS_OPCOES, EQUIPE_OPCOES, TEMPO_INTERNACAO_OPCOES, PROBLEMA_VAZIO } from './constantes';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { descartarRascunho } from '../../lib/documentos'
 
 // Kits de protocolo institucional: preenchem SOMENTE as caixas de protocolo
 // elegível e equipe multidisciplinar (bundles de cuidado padronizados pela
@@ -248,12 +249,12 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
 
         <div className="cc-footer">
           <div>
-            <button type="button" className="btn-cancel" onClick={onFechar}>
+            <button type="button" className="btn-cancel" onClick={async () => { if (salvo?.situacao === 'rascunho') { if (!window.confirm('Cancelar descarta este rascunho em definitivo. Deseja continuar?')) return; const { error } = await descartarRascunho('planos_terapeuticos', salvo.id); if (error) { console.error(error); return } } onFechar?.() }}>
               <i className="ph ph-x-circle" /> Cancelar
             </button>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            {salvo && (
+            {salvo?.situacao === 'finalizado' && (
               <button type="button" className="btn-save-draft" onClick={() => onImprimir(salvo)}>
                 <i className="ph ph-printer" /> Reimprimir
               </button>

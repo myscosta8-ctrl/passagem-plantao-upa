@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { listarTfd, criarTfd } from '../../lib/pepMedico';
 import { TFD_VAZIA } from './constantes';
-import CampoDataRegistro from '../components/CampoDataRegistro'
-import { metaDoc } from '../lib/documentos'
+import CampoDataRegistro from '../../components/CampoDataRegistro'
+import { metaDoc } from '../../lib/documentos'
+import { useRascunho } from '../../hooks/useRascunho'
 
 // Laudo Médico de Tratamento Fora de Domicílio — impresso 13-tratamento-fora-domicilio-tfd.html.
 const SV = [['pa', 'PA (mmHg)', '120/80'], ['fc', 'FC (bpm)'], ['fr', 'FR (irpm)'], ['spo2', 'SpO₂ (%)'], ['tax', 'Tax (°C)'], ['hgt', 'HGT (mg/dL)']]
@@ -15,6 +16,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
+  const rascunho = useRascunho({ tabela: 'tfd_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
@@ -35,7 +37,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
       acompanhante_nome, acompanhante_relacao, ...extra
     } = dados
     const { data, error } = await criarTfd({
-      id: editandoId, situacao: metaDoc(imprimir, dataRegistro),
+      id: editandoId, situacao: metaDoc(imprimir, dataRegistro, rascunho.estado),
       atendimentoId: atendimento.atendimento_id, profissionalResponsavel: medicoId,
       dados: {
         historia_doenca_atual, exame_fisico, diagnostico, exame_complementar,
@@ -139,7 +141,6 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
                 <div style={{ fontWeight: 600 }}>{t.diagnostico}</div>
                 <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{t.enfermeiros?.nome_exibicao || t.enfermeiros?.nome} · {new Date(t.criado_em).toLocaleString('pt-BR')}</div>
               </div>
-              <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
               <button type="button" className="btn-save-draft" onClick={() => onImprimir(t)}><i className="ph ph-printer" /> Imprimir</button>
             </div>
           ))}
@@ -147,8 +148,9 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
       </div>
 
       <div className="cc-footer">
-        <button type="button" className="btn-cancel" onClick={onFechar}><i className="ph ph-x-circle" /> Cancelar</button>
+        <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
         <div style={{ display: 'flex', gap: 10 }}>
+          <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
           <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
         </div>
