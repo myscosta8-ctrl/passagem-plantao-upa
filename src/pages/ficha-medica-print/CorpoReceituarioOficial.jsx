@@ -30,19 +30,22 @@ function ReceitaColuna({ via, viaRotulo, registro, pessoa, atendimento, idade, l
       <div className="rxf-corpo">
         {Object.entries(viasAgrupadas).length === 0 ? (
           <>
-             <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '10px', marginTop: '8px', marginBottom: '4px', textDecoration: 'underline' }}>USO NÃO ESPECIFICADO</div>
-             <div className="rxf-itens-lista"><div className="rxf-linhas-vazias" /></div>
+             <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '10px', marginTop: '8px', marginBottom: '4px' }}>USO NÃO ESPECIFICADO</div>
+             <div className="rxf-itens-lista" />
           </>
         ) : (
           Object.entries(viasAgrupadas).map(([viaKey, itensVia]) => (
             <div key={viaKey}>
-              <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '10.5px', marginTop: '8px', marginBottom: '4px', textDecoration: 'underline' }}>
+              <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '10.5px', marginTop: '8px', marginBottom: '4px' }}>
                 USO {viaKey}
               </div>
               <div className="rxf-itens-lista">
                 {itensVia.map((it) => (
                   <div key={it.originalIndex} className="rxf-item-box">
-                    <div className="rxf-item-titulo">{it.originalIndex + 1}) {it.medicamento}</div>
+                    <div className="rxf-item-titulo">
+                      <span className="rxf-item-num">{it.originalIndex + 1}.</span>
+                      <span><b>{it.medicamento}</b>{it.quantidade ? <span className="rxf-item-qtd"> ({it.quantidade})</span> : null}</span>
+                    </div>
                     {it.instrucao && <div className="rxf-item-instrucao">{it.instrucao}</div>}
                   </div>
                 ))}
@@ -51,9 +54,7 @@ function ReceitaColuna({ via, viaRotulo, registro, pessoa, atendimento, idade, l
           ))
         )}
 
-        {itensRaw.length > 0 && itensRaw.length <= 3 && (
-          <div className="rxf-linhas-vazias" style={{ minHeight: '18mm', border: 'none' }} />
-        )}
+        <div style={{ flex: 1 }} />
 
         <div className="rxf-orientacao-alerta">
           <b>Orientações ao Paciente:</b> Seguir rigorosamente a dosagem e horários prescritos. Não interromper o tratamento sem orientação médica. Em caso de reações adversas ou persistência dos sintomas, retorne à UPA 24h Breves.

@@ -122,36 +122,31 @@
 }
 
 .rxf-itens-lista {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 7px;
 }
 
-.rxf-item-box {
-  border-left: 2px solid #0284c7;
-  padding-left: 4px;
-  margin-bottom: 2px;
-}
+/* Formato: "1. Nome e dose (quantidade)" em destaque; posologia logo abaixo, recuada. Sem linhas. */
+.rxf-item-box { margin: 0; }
 
 .rxf-item-titulo {
-  font-size: 9px;
-  font-weight: 700;
+  display: flex;
+  gap: 4px;
+  font-size: 10px;
   color: #000;
-}
-
-.rxf-item-instrucao {
-  font-size: 8.2px;
-  color: #334155;
-  margin-top: 0.5px;
   line-height: 1.3;
 }
+.rxf-item-titulo b { font-weight: 800; }
+.rxf-item-num { font-weight: 800; min-width: 12px; }
+.rxf-item-qtd { font-weight: 500; }
 
-.rxf-linhas-vazias {
-  flex: 1;
-  min-height: 20mm;
-  background-image: repeating-linear-gradient(transparent, transparent 16px, #e2e8f0 16px, #e2e8f0 17px);
-  margin-top: 3px;
+.rxf-item-instrucao {
+  font-size: 9.2px;
+  color: #111827;
+  margin: 1.5px 0 0 16px;
+  line-height: 1.35;
+  white-space: pre-wrap;
 }
 
 .rxf-orientacao-alerta {
