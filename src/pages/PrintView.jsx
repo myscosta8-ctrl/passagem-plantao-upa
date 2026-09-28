@@ -106,7 +106,7 @@ function observacoes(p, alergia) {
 function CartaoLeito({ leito, linha }) {
   const p = linha.passagem || {}
   const disp = [...(Array.isArray(p.dispositivos) ? p.dispositivos : [])]
-  const obs = [...observacoes(linha.passagem, linha.alergia), ...(linha.prontuario || []).map((t) => { const i = t.indexOf(': '); return [t.slice(0, i), t.slice(i + 2)] })]
+  const obs = [...observacoes(linha.passagem, linha.alergia), ...(linha.prontuario || []).map((t) => { const i = t.indexOf(': '); return i < 0 ? ['Prontuário', t] : [t.slice(0, i), t.slice(i + 2)] })]
   const curat = p.curativo_realizado === true ? 'S' : p.curativo_realizado === false ? 'N' : '—'
   return (
     <div className="bed-card">

@@ -125,3 +125,20 @@ html .presc-validade-atalhos button.on { background: #0D9488; color: #fff; borde
 /* Abas: quebram em linhas em vez de rolar — nenhuma aba fica cortada ou sobreposta em qualquer largura */
 html .clinical-tabs, html .doc-subtabs, html .adm-subtabs, html .transfer-subtabs, html .atendimento-medico-container .cc-header .doc-subtabs { flex-wrap: wrap !important; overflow: visible !important; row-gap: 4px; height: auto !important; }
 html .clinical-tabs > *, html .doc-subtabs > *, html .adm-subtabs > *, html .transfer-subtabs > * { flex: 0 0 auto !important; white-space: nowrap; max-width: 100%; }
+
+/* Impressos em tela cheia ficam acima do menu lateral e do cabeçalho (Voltar/Imprimir visíveis) */
+html .print-page { z-index: 2600; }
+
+/* Impressão: o impresso ocupa o documento inteiro e quebra em quantas páginas precisar.
+   Nenhum contêiner ao redor (tela cheia, rolagem da tela, altura 100%) pode cortar o conteúdo. */
+@media print {
+  html, body, html body :is(*:has(.print-page), *:has(.hc-print-overlay)) {
+    overflow: visible !important; height: auto !important; max-height: none !important; min-height: 0 !important; position: static !important;
+  }
+  html body :is(.print-page, .hc-print-overlay) {
+    position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: auto !important;
+    height: auto !important; overflow: visible !important; z-index: auto !important;
+  }
+  html body .print-page .print-area { position: static !important; }
+  html, body { background: #fff !important; }
+}

@@ -42,5 +42,6 @@
   body.fi-imprimindo > *:not(.fi-overlay) { display: none !important; }
   body.fi-imprimindo .fi-overlay { position: static; background: #fff; overflow: visible; }
   body.fi-imprimindo .fi-toolbar { display: none; }
+  body.fi-imprimindo .fi-overlay, body.fi-imprimindo .fi-overlay * { visibility: visible !important; }
   body.fi-imprimindo .fi-page { margin: 0; padding: 0; width: auto; min-height: auto; box-shadow: none; }
 }

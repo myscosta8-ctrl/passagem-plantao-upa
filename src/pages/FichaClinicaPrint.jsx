@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { buscarCabecalhoImpressao, buscarAutorRegistro } from '../lib/pepMedico'
 import { CorpoHistoricoEnfermagemFiel, CorpoHistoricoEnfermagemProjeto } from './CorpoHistoricoEnfermagem'
 import './PrintView.css'
+import PaginaImpressao from '../components/PaginaImpressao'
 
 import CorpoSbarOficial from './ficha-clinica-print/CorpoSbarOficial'
 import CorpoEvolucaoSaeOficial from './ficha-clinica-print/CorpoEvolucaoSaeOficial'
@@ -47,6 +48,7 @@ export default function FichaClinicaPrint({ atendimentoId, tipo, registro = {}, 
 
   return (
     <div className={`print-page ${tipo === 'balanco' ? 'bh-landscape' : ''}`}>
+      <PaginaImpressao paisagem={tipo === 'balanco'} margem={tipo === 'balanco' ? '5mm 6mm' : '10mm'} />
       <div className="no-print barra-impressao">
         <button type="button" className="bi-voltar" onClick={onVoltar}><i className="ph ph-arrow-left" /> Voltar</button>
         <button type="button" className="bi-imprimir" onClick={() => window.print()}><i className="ph ph-printer" /> Imprimir / Salvar PDF</button>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { buscarCabecalhoImpressao, buscarAutorRegistro } from '../lib/pepMedico'
 import './PrintView.css'
+import PaginaImpressao from '../components/PaginaImpressao'
 import CorpoRequisicaoExamesOficial from './ficha-medica-print/CorpoRequisicaoExamesOficial'
 
 import { limparPrefixo } from './ficha-medica-print/helpersSus'
@@ -113,6 +114,7 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
     return (
       <div className="print-page">
         <BotoesImpressao onVoltar={onVoltar} />
+        <PaginaImpressao paisagem={tipo === 'prescricao' || tipo === 'receituario'} margem={tipo === 'receituario' ? '5mm 6mm' : '10mm'} />
         <div className="print-area">
           {mapaCorpos[tipo]}
         </div>
