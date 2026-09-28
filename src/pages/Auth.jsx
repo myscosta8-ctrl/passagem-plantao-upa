@@ -12,7 +12,7 @@ export default function Auth() {
   const [carregando, setCarregando] = useState(false)
 
   function traduzirErro(msg) {
-    if (msg.includes('Invalid login credentials')) return 'Usuário ou senha incorretos.'
+    if (msg.includes('Invalid login credentials')) return 'Usuário ou senha incorretos. Confira se a senha foi digitada sem letra maiúscula no início (o celular costuma colocar sozinho). Se a senha foi resetada, vale só a última informada pela direção.'
     if (msg.includes('User already registered')) return 'Este usuário já está cadastrado.'
     return 'Erro: ' + msg
   }
@@ -78,6 +78,10 @@ export default function Auth() {
                   type="text"
                   required
                   placeholder="Seu usuário"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={carregando}
@@ -93,6 +97,10 @@ export default function Auth() {
                   type="password"
                   required
                   placeholder="Sua senha"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  autoComplete="current-password"
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
                   disabled={carregando}

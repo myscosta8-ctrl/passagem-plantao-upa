@@ -30,7 +30,11 @@ export default function TrocaSenhaObrigatoria() {
     const { error } = await trocarSenha(senhaNova)
     setTrocando(false)
     if (error) {
-      setErro('Não foi possível trocar a senha. Tente novamente.')
+      const m = String(error.message || '')
+      if (/weak|guess|pwned|leak/i.test(m)) setErro('Essa senha é muito comum e foi recusada por segurança (ex.: 123456, 12345678, senha123). Escolha outra: junte uma palavra e números, como "breves2026mar".')
+      else if (/should be different|same/i.test(m)) setErro('A nova senha precisa ser diferente da senha provisória.')
+      else if (/at least|characters|length/i.test(m)) setErro('A senha precisa ser maior. Use pelo menos 8 caracteres.')
+      else setErro('Não foi possível trocar a senha: ' + m)
     }
   }
 
@@ -49,7 +53,7 @@ export default function TrocaSenhaObrigatoria() {
             <label htmlFor="senha-nova">Nova senha</label>
             <input
               id="senha-nova"
-              type="password"
+              type="password" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="new-password"
               value={senhaNova}
               onChange={(e) => setSenhaNova(e.target.value)}
               required
@@ -62,7 +66,7 @@ export default function TrocaSenhaObrigatoria() {
             <label htmlFor="senha-confirmar">Confirmar nova senha</label>
             <input
               id="senha-confirmar"
-              type="password"
+              type="password" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="new-password"
               value={senhaConfirmar}
               onChange={(e) => setSenhaConfirmar(e.target.value)}
               required

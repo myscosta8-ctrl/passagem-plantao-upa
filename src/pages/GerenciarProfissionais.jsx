@@ -44,7 +44,7 @@ function SenhaGerada({ usuario, senha }) {
       {usuario && <div><span>Usuário</span><b>{usuario}</b></div>}
       <div><span>Senha provisória</span><b className="gp-senha-valor">{senha}</b></div>
       <button type="button" className="gp-btn gp-btn-sec" onClick={copiar}><i className={`ph ${copiado ? 'ph-check' : 'ph-copy'}`} /> {copiado ? 'Copiado' : 'Copiar usuário e senha'}</button>
-      <p>Repasse ao profissional. No primeiro acesso o sistema exige a criação de uma senha própria. Esta senha não será mostrada de novo.</p>
+      <p>Repasse ao profissional exatamente assim, <b>tudo em letras minúsculas</b>. No primeiro acesso o sistema exige a criação de uma senha própria. Cada novo reset anula a senha anterior.</p>
     </div>
   )
 }
