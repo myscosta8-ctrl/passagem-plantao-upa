@@ -4,7 +4,6 @@ import { ATM_VAZIA, ATM_RESTRITOS, ATM_PENDENTES_KEY, atbRestrito } from './cons
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
-import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento'
 
 // Solicitação de Autorização de Uso de Antimicrobiano (ATM) — modelo
 // 11-formulario-antimicrobiano-atm.html. Documento interno obrigatório sempre
@@ -22,8 +21,6 @@ function gravarPendentes(atendimentoId, lista) {
 
 export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , headerTabs }) {
   const atdId = atendimento.atendimento_id
-  const [historico, setHistorico] = useState([])
-  const [carregando, setCarregando] = useState(true)
   const [pendentes, setPendentes] = useState(() => lerPendentes(atdId))
   const [dados, setDados] = useState(() => {
     const p = lerPendentes(atdId)[0]
@@ -37,8 +34,6 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
-  useEffect(() => { carregar() }, [])
-  async function carregar() { setCarregando(true); setHistorico(await listarAtm(atdId)); setCarregando(false) }
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
 
   function usarPendente(p) { setDados({ ...ATM_VAZIA, ...p }); setOrigemPrescricao(true); setErro('') }
@@ -67,7 +62,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
 
     // Tira da fila o antibiótico que acabou de ser solicitado e já carrega o próximo.
@@ -76,7 +71,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
     setPendentes(restantes)
     if (restantes[0]) usarPendente(restantes[0])
     else { setDados(ATM_VAZIA); setOrigemPrescricao(false) }
-    carregar()
+ 
   }
 
   return (
@@ -185,23 +180,6 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
           </div>
         )}
 
-        <div>
-          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico de Solicitações</div>
-          {carregando ? <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p> : historico.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma solicitação registrada ainda.</p>
-          ) : historico.map((a) => (
-            <div key={a.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-              <div>
-                <div style={{ fontWeight: 600 }}>{a.medicamento}</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
-                  {a.enfermeiros?.nome_exibicao || a.enfermeiros?.nome} · {new Date(a.criado_em).toLocaleString('pt-BR')} · {a.parecer_farmaceutico ? `Parecer: ${a.parecer_farmaceutico}` : 'Aguardando parecer'}
-                </div>
-              </div>
-              <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={a} /><BotaoInvalidar tabela="solicitacoes_atm" registro={a} meuId={medicoId} onFeito={carregar} /></span>
-              <button type="button" className="btn-save-draft" onClick={() => onImprimir(a)}><i className="ph ph-printer" /> Imprimir</button>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="cc-footer">

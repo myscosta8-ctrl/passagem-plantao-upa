@@ -4,7 +4,6 @@ import { RECEITA_ITEM_VAZIO, VIAS_RECEITA, TAGS_INSTRUCAO, RECEITA_TIPO_LABEL } 
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
-import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento'
 
 function AutocompleteMedicamentoReceita({ catalogo, valor, onChange, onSelecionar }) {
   const [aberto, setAberto] = useState(false)
@@ -53,8 +52,6 @@ function classificarReceita(itens) {
 }
 
 export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir, onFechar, subTabExterno, onSubTab, onPulseControle }) {
-  const [historico, setHistorico] = useState([])
-  const [carregando, setCarregando] = useState(true)
   const [subTabInterno, setSubTabInterno] = useState('simples') // 'simples' | 'controle'
   const controlado = subTabExterno !== undefined
   const subTab = controlado ? subTabExterno : subTabInterno
@@ -71,9 +68,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
   const [avisoRasc, setAvisoRasc] = useState('')
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
-  const [filtroTipo, setFiltroTipo] = useState('todas')
 
-  useEffect(() => { carregar() }, [])
   useEffect(() => { listarCatalogoMedicamentos().then(setCatalogo) }, [])
   useEffect(() => {
     buscarCabecalhoImpressao(atendimento.atendimento_id).then(({ pessoa }) => {
@@ -82,7 +77,6 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
     }).catch(() => {})
   }, [atendimento.atendimento_id])
 
-  async function carregar() { setCarregando(true); setHistorico(await listarReceitasMedicas(atendimento.atendimento_id)); setCarregando(false) }
 
   const itensAtivos = subTab === 'simples' ? itensSimples : itensControle
   const setItensAtivos = subTab === 'simples' ? setItensSimples : setItensControle
@@ -118,7 +112,6 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
   function removerItem(i) { setItensAtivos((prev) => prev.filter((_, idx) => idx !== i)) }
 
   const tipoClassificado = subTab === 'controle' ? 'controle_especial' : classificarReceita(itensSimples)
-  const historicoFiltrado = filtroTipo === 'todas' ? historico : historico.filter((r) => r.tipo === filtroTipo)
 
   function appendTag(i, tag) {
     setItensAtivos(prev => prev.map((it, idx) => {
@@ -158,11 +151,11 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAvisoRasc('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAvisoRasc('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAvisoRasc('')
     if (subTab === 'simples') setItensSimples([{ ...RECEITA_ITEM_VAZIO }])
     else setItensControle([])
-    carregar()
+ 
   }
 
   return (
@@ -270,44 +263,6 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
           </div>
         )}
 
-        <div>
-          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-            <span><i className="ph ph-clock-counter-clockwise" /> Histórico</span>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <button type="button" className={`btn-add-chip ${filtroTipo === 'todas' ? 'on' : ''}`} onClick={() => setFiltroTipo('todas')}>Todas</button>
-              {Object.entries(RECEITA_TIPO_LABEL).map(([tipo, label]) => (
-                <button key={tipo} type="button" className={`btn-add-chip ${filtroTipo === tipo ? 'on' : ''}`} onClick={() => setFiltroTipo(tipo)}>{label}</button>
-              ))}
-            </div>
-          </div>
-          {carregando ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p>
-          ) : historicoFiltrado.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhum receituário registrado ainda.</p>
-          ) : historicoFiltrado.map((r) => (
-            <div key={r.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <p style={{ margin: '0 0 4px' }}>
-                    {(r.itens || []).map((it) => it.medicamento).join(', ')}
-                    {r.tipo && r.tipo !== 'simples' && (
-                      <span style={{ marginLeft: 8, fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: r.tipo === 'controle_especial' ? '#FEE2E2' : '#FEF3C7', color: r.tipo === 'controle_especial' ? '#DC2626' : '#92400E' }}>
-                        {RECEITA_TIPO_LABEL[r.tipo]}
-                      </span>
-                    )}
-                  </p>
-                  <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
-                    {r.enfermeiros?.nome_exibicao || r.enfermeiros?.nome} · {new Date(r.criado_em).toLocaleString('pt-BR')}
-                  </div>
-                </div>
-                <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={r} /><BotaoInvalidar tabela="receitas_medicas" registro={r} meuId={medicoId} onFeito={carregar} /></span>
-                <button type="button" className="btn-save-draft" onClick={() => onImprimir(r)}>
-                  <i className="ph ph-printer" /> Imprimir
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="cc-footer">

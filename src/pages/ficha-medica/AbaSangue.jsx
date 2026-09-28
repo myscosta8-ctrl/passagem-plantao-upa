@@ -4,7 +4,6 @@ import { SANGUE_VAZIA, HEMOCOMPONENTES_OPCOES, URGENCIA_OPCOES } from './constan
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
-import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento'
 
 // Protocolos transfusionais: preenchem SOMENTE o hemocomponente/quantidade
 // padrão do bundle e a urgência associada. Nunca escrevem a indicação
@@ -21,8 +20,6 @@ const PROTOCOLOS_TRANSFUSIONAIS = [
 ]
 
 export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
-  const [carregando, setCarregando] = useState(true)
   const [dados, setDados] = useState(SANGUE_VAZIA)
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
@@ -31,8 +28,6 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
-  useEffect(() => { carregar() }, [])
-  async function carregar() { setCarregando(true); setHistorico(await listarSolicitacoesSangue(atendimento.atendimento_id)); setCarregando(false) }
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
   function setHemo(item, campo, valor) {
     setDados((prev) => ({ ...prev, hemocomponentes: { ...prev.hemocomponentes, [item]: { ...prev.hemocomponentes[item], [campo]: valor } } }))
@@ -65,10 +60,10 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
     setDados(SANGUE_VAZIA)
-    carregar()
+ 
   }
 
   return (
@@ -261,29 +256,6 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
           </div>
         )}
 
-        <div>
-          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico</div>
-          {carregando ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p>
-          ) : historico.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma solicitação registrada ainda.</p>
-          ) : historico.map((s) => (
-            <div key={s.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ fontWeight: 600 }}>{s.indicacao_clinica}</div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
-                    {s.enfermeiros?.nome_exibicao || s.enfermeiros?.nome} · {new Date(s.criado_em).toLocaleString('pt-BR')}
-                  </div>
-                </div>
-                <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={s} /><BotaoInvalidar tabela="solicitacoes_sangue" registro={s} meuId={medicoId} onFeito={carregar} /></span>
-                <button type="button" className="btn-save-draft" onClick={() => onImprimir(s)}>
-                  <i className="ph ph-printer" /> Imprimir
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="cc-footer">

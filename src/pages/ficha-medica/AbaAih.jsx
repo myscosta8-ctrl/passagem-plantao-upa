@@ -5,7 +5,6 @@ import { AIH_VAZIA } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
-import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
 
 const PROCEDIMENTOS_RAPIDOS = [
   { cod: '0303010190', codFormatado: '03.03.01.019-0', desc: 'TRATAMENTO DE PNEUMONIA OU INFLUENZA (GRIPE)', rotulo: 'Pneumonia / Influenza' },
@@ -14,7 +13,6 @@ const PROCEDIMENTOS_RAPIDOS = [
 ];
 
 export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar }) {
-  const [historico, setHistorico] = useState([])
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -54,8 +52,6 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
 
   async function carregar() {
     setCarregando(true);
-    const lista = await listarAih(atendimento?.atendimento_id);
-    setHistorico(lista);
 
     // Se não há dados preenchidos, sincroniza automaticamente da admissão
     try {
@@ -257,37 +253,6 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             ))}
           </div>
 
-          {/* Histórico compacto na barra lateral */}
-          {carregando ? (
-            <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 8 }}>Carregando laudos...</div>
-          ) : historico.length > 0 && (
-            <div style={{ marginTop: 8, borderTop: '1px solid #E2E8F0', paddingTop: 10 }}>
-              <h3 style={{ fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 6, fontWeight: 700 }}>
-                <i className="ph ph-clock-counter-clockwise" /> Laudos Anteriores ({historico.length})
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {historico.map((h) => (
-                  <div key={h.id} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 6, padding: '6px 8px', fontSize: 11 }}>
-                    <div style={{ fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {h.procedimento_principal_nome}
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, color: '#64748B', fontSize: 10 }}>
-                      <span>{new Date(h.criado_em).toLocaleDateString('pt-BR')}</span>
-                      <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={h} /><BotaoInvalidar tabela="aih_solicitacoes" registro={h} meuId={medicoId} onFeito={carregar} /></span>
-                      <button
-                        type="button"
-                        className="btn-icon-circle"
-                        title="Imprimir"
-                        onClick={() => onImprimir(h)}
-                      >
-                        <i className="ph ph-printer" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </aside>
         </>

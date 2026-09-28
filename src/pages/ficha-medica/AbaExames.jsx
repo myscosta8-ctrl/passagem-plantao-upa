@@ -3,7 +3,6 @@ import { listarExames, criarExame, buscarCabecalhoImpressao, criarApac } from '.
 import AbaApac from './AbaApac';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
-import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
 
 // ==========================================
 // CATÁLOGO COMPLETO FIEL AO MOCKUP FASE 2
@@ -219,12 +218,10 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
   const [salvando, setSalvando] = useState(false);
   const [msgExame, setMsgExame] = useState(null);
   const [dataRegistro, setDataRegistro] = useState('');
-  const [historico, setHistorico] = useState([])
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [cabecalho, setCabecalho] = useState(null);
 
   useEffect(() => {
-    listarExames(atendimento.atendimento_id).then(setHistorico);
     buscarCabecalhoImpressao(atendimento.atendimento_id).then(setCabecalho).catch(() => {});
   }, [atendimento.atendimento_id]);
 
@@ -433,8 +430,6 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
 
         if (imprimir && data) onImprimir?.(data, 'apac');
       }
-
-      setHistorico(await listarExames(atendimento.atendimento_id));
     } catch (e) {
       console.error(e);
       setMsgExame({ erro: true, t: 'Erro ao emitir requisição.' });
@@ -759,28 +754,6 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
             </div>
           )}
 
-          {/* HISTÓRICO RÁPIDO (Lab/Imagem/ECG) */}
-          {(modalidade === 'lab' || modalidade === 'img' || modalidade === 'ecg') && (
-            <div style={{ marginTop: 24 }}>
-              <h3 style={{ fontSize: 13, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, borderBottom: '1px solid var(--border-light)', paddingBottom: 8 }}>
-                <i className="ph ph-clock-counter-clockwise" /> Histórico de Solicitações (Este Atendimento)
-              </h3>
-              {historico.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma solicitação ainda.</p>
-              ) : historico.map((h) => (
-                <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border-light)', fontSize: 12 }}>
-                  <div>
-                    <strong>{h.nome}</strong> <span style={{ color: 'var(--text-muted)' }}>— {h.preparo}</span>
-                    <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>Solicitado por: {h.enfermeiros?.nome_exibicao || h.enfermeiros?.nome || '—'} • {new Date(h.criado_em).toLocaleString('pt-BR')}</div>
-                  </div>
-                  <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={h} /><BotaoInvalidar tabela="exames_solicitados" registro={h} meuId={medicoId} onFeito={() => listarExames(atendimento.atendimento_id).then(setHistorico)} /></span>
-                  {Array.isArray(h.exames) && ['lab', 'img', 'ecg'].includes(h.modalidade) && (
-                    <button type="button" className="btn-save-draft" style={{ alignSelf: 'center' }} onClick={() => onImprimir?.(h, `exame_${h.modalidade}`)}><i className="ph ph-printer" /> Imprimir</button>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="cc-footer">

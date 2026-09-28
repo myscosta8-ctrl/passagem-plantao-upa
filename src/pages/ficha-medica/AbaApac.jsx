@@ -3,7 +3,6 @@ import { listarApac, criarApac, buscarCabecalhoImpressao } from '../../lib/pepMe
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
-import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
 
 // Laudo para Solicitação/Autorização de Procedimento Ambulatorial (APAC) —
 // documento oficial do Ministério da Saúde, impresso 18-laudo-apac-procedimento-ambulatorial.html.
@@ -39,8 +38,6 @@ const APAC_VAZIA = {
 const soDigitos = (v) => String(v || '').replace(/\D/g, '');
 
 export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar, rotuloFechar = 'Cancelar' }) {
-  const [historico, setHistorico] = useState([]);
-  const [carregando, setCarregando] = useState(true);
   const [dados, setDados] = useState(APAC_VAZIA);
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
@@ -49,13 +46,8 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
 
-  useEffect(() => { carregar(); preencherDoCadastro(); }, [atendimento?.atendimento_id]);
+  useEffect(() => { preencherDoCadastro(); }, [atendimento?.atendimento_id]);
 
-  async function carregar() {
-    setCarregando(true);
-    setHistorico(await listarApac(atendimento.atendimento_id));
-    setCarregando(false);
-  }
 
   async function preencherDoCadastro() {
     const base = { ...APAC_VAZIA, profissional_solicitante_nome: medicoNome || '', profissional_crm: medicoCrm ? `CRM ${medicoCrm}` : '' };
@@ -112,10 +104,9 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
     setSalvando(false);
     if (error) { console.error(error); setErro('Não foi possível registrar a APAC. Verifique os dados e tente novamente.'); return; }
     setEditandoId(imprimir ? null : (data?.id ?? null));
-    if (!imprimir) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
+    if (!imprimir) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return; }
     setSucesso('Laudo de APAC registrado.');
     if (imprimir && data) onImprimir?.(data);
-    carregar();
   }
 
   const input = (k, rotulo, props = {}) => (
@@ -261,21 +252,6 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
           </div>
         )}
 
-        <div>
-          <div className="form-section-box-title" style={{ position: 'static', marginBottom: 8 }}><i className="ph ph-clock-counter-clockwise" /> Histórico de APAC</div>
-          {carregando ? <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Carregando...</p> : historico.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nenhuma APAC registrada ainda.</p>
-          ) : historico.map((a) => (
-            <div key={a.id} style={{ borderBottom: '1px solid var(--border-light)', padding: '10px 0', fontSize: 12.5, display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-              <div>
-                <div style={{ fontWeight: 600 }}>{a.procedimento_codigo ? `${a.procedimento_codigo} — ` : ''}{a.procedimento_nome}</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>{new Date(a.criado_em).toLocaleString('pt-BR')}{a.numero_autorizacao ? ` · APAC nº ${a.numero_autorizacao}` : ''}</div>
-              </div>
-              <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}><SeloSituacao registro={a} /><BotaoInvalidar tabela="apac_solicitacoes" registro={a} meuId={medicoId} onFeito={carregar} /></span>
-              <button type="button" className="btn-save-draft" onClick={() => onImprimir?.(a)}><i className="ph ph-printer" /> Imprimir</button>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="cc-footer">

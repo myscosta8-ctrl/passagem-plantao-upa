@@ -2,11 +2,12 @@ import { supabase } from './supabaseClient.js'
 import { avisarErro } from './erros.js'
 
 // Histórico Clínico do paciente — reúne, em ordem cronológica, os registros
-// clínicos de todas as passagens do paciente pela unidade. Exames, prescrição
-// e AIH ficam fora de propósito (continuam no próprio campo de criação).
+// clínicos de todas as passagens do paciente pela unidade. Só a Prescrição
+// Médica fica fora (continua na própria aba, por causa do Duplicar).
 // Cada fonte diz: tabela, rótulo, área (enfermagem/médico), coluna de data,
 // tipo de impresso e como resumir o conteúdo.
 const txt = (...v) => v.filter((x) => x !== null && x !== undefined && String(x).trim() !== '').join(' · ')
+const urg = (u) => ({ urgencia: 'Urgência', urgente: 'Urgência', emergencia: 'Emergência', rotina: 'Rotina', eletiva: 'Eletiva' }[String(u || '').toLowerCase()] || u)
 const lista = (a) => (Array.isArray(a) ? a.join(', ') : '')
 
 export const FONTES = [
@@ -37,9 +38,22 @@ export const FONTES = [
     resumo: (r) => txt(r.dias_afastamento && `${r.dias_afastamento} dia(s) de afastamento`, r.cid && `CID ${r.cid}`, r.texto_livre) },
   { tabela: 'sumarios_alta', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,medico_id,diagnostico_alta,diagnostico_internacao,resumo_clinico', rotulo: 'Sumário de Alta', area: 'medico', impresso: 'alta',
     resumo: (r) => txt(r.diagnostico_alta || r.diagnostico_internacao, r.resumo_clinico) },
+  { tabela: 'exames_solicitados', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,solicitado_por,modalidade,nome,exames,justificativa_clinica,urgencia', rotulo: 'Solicitação de Exames', area: 'medico',
+    impresso: (r) => (Array.isArray(r.exames) && ['lab', 'img', 'ecg'].includes(r.modalidade) ? `exame_${r.modalidade}` : null),
+    resumo: (r) => txt({ lab: 'Laboratório', img: 'Imagem', ecg: 'ECG' }[r.modalidade], Array.isArray(r.exames) ? r.exames.map((e) => (typeof e === 'string' ? e : e?.nome)).filter(Boolean).join(', ') : r.nome, r.urgencia && urg(r.urgencia), r.justificativa_clinica) },
+  { tabela: 'aih_solicitacoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,solicitante_id,procedimento_principal_nome,cid_principal,justificativa_clinica', rotulo: 'Laudo de AIH', area: 'medico', impresso: 'aih',
+    selectCompleto: '*, cid_catalog!aih_solicitacoes_cid_principal_fkey(codigo, descricao)',
+    resumo: (r) => txt(r.procedimento_principal_nome, r.cid_principal && `CID ${r.cid_principal}`, r.justificativa_clinica) },
+  { tabela: 'apac_solicitacoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,solicitado_por,medico_id,procedimento_nome,cid_principal,justificativa', rotulo: 'Laudo de APAC', area: 'medico', impresso: 'apac',
+    resumo: (r) => txt(r.procedimento_nome, r.cid_principal && `CID ${r.cid_principal}`, r.justificativa) },
+  { tabela: 'solicitacoes_atm', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,solicitado_por,medico_id,medicamento,antimicrobiano,foco_infeccioso,parecer_farmaceutico', rotulo: 'Solicitação de Antimicrobiano (ATM)', area: 'medico', impresso: 'atm',
+    resumo: (r) => txt(r.antimicrobiano || r.medicamento, r.foco_infeccioso && `Foco: ${r.foco_infeccioso}`, r.parecer_farmaceutico ? `Parecer: ${r.parecer_farmaceutico}` : 'Aguardando parecer') },
+  { tabela: 'solicitacoes_sangue', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,solicitado_por,indicacao_clinica,urgencia,hemocomponentes', rotulo: 'Solicitação de Hemocomponentes', area: 'medico', impresso: 'sangue',
+    resumo: (r) => txt(r.indicacao_clinica, r.urgencia && urg(r.urgencia)) },
+  { tabela: 'receitas_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,tipo,itens,orientacoes_gerais', rotulo: 'Receituário', area: 'medico', impresso: 'receituario',
+    resumo: (r) => txt({ controle_especial: 'Controle especial', antimicrobiano: 'Antimicrobiano' }[r.tipo], Array.isArray(r.itens) ? r.itens.map((i) => i?.medicamento).filter(Boolean).join(', ') : '', r.orientacoes_gerais) },
 ]
-
-const COLUNAS_AUTOR = ['autor_id', 'criado_por', 'enfermeiro_entrega', 'transferido_por', 'relator_id', 'medico_id', 'profissional_responsavel', 'atualizado_por', 'enfermeiro_id']
+const COLUNAS_AUTOR = ['autor_id', 'solicitante_id', 'solicitado_por', 'criado_por', 'enfermeiro_entrega', 'transferido_por', 'relator_id', 'medico_id', 'profissional_responsavel', 'atualizado_por', 'enfermeiro_id']
 
 // Passagens (atendimentos) do paciente, mais recente primeiro.
 export async function listarAtendimentosDaPessoa(pessoaId) {
@@ -106,8 +120,8 @@ export async function listarAlteracoes(tabela, registroId) {
 }
 
 // Documento completo (todas as colunas) — só quando vai imprimir.
-export async function buscarRegistroCompleto(tabela, id) {
-  const { data, error } = await supabase.from(tabela).select('*').eq('id', id).maybeSingle()
+export async function buscarRegistroCompleto(tabela, id, select = '*') {
+  const { data, error } = await supabase.from(tabela).select(select).eq('id', id).maybeSingle()
   if (error) avisarErro('historicoClinico', error)
   return data
 }

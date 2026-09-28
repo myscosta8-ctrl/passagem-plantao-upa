@@ -16,6 +16,8 @@ const limpar = (v) => String(v || '').replace(/^#?\s*(PEP|AT|REG)-?/i, '')
 const SITUACOES = { rascunho: 'Rascunho', finalizado: 'Finalizado', invalido: 'Invalidado' }
 const fmtValor = (v) => (v === null || v === undefined || v === '' ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v))
 
+const tipoImpresso = (fonte, registro) => (typeof fonte.impresso === 'function' ? fonte.impresso(registro) : fonte.impresso)
+
 function Linha({ item, onImprimir, meuId, onAlterado }) {
   const [aberto, setAberto] = useState(false)
   const [invalidando, setInvalidando] = useState(false)
@@ -49,7 +51,7 @@ function Linha({ item, onImprimir, meuId, onAlterado }) {
       )}
       {aberto && (
         <div className="hc-acoes">
-          {fonte.impresso && <button type="button" className="hc-btn" onClick={() => onImprimir(item)}><i className="ph ph-printer" /> Ver / Imprimir documento</button>}
+          {tipoImpresso(fonte, registro) && <button type="button" className="hc-btn" onClick={() => onImprimir(item)}><i className="ph ph-printer" /> Ver / Imprimir documento</button>}
           <button type="button" className="hc-btn" onClick={async () => setAlteracoes(alteracoes ? null : await listarAlteracoes(fonte.tabela, registro.id))}><i className="ph ph-clock-counter-clockwise" /> Histórico de alterações</button>
           {souAutor && situacao !== 'invalido' && !invalidando && (
             <button type="button" className="hc-btn hc-btn-perigo" onClick={() => setInvalidando(true)}><i className="ph ph-prohibit" /> Invalidar</button>
@@ -146,7 +148,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
   const [imprimindo, setImprimindo] = useState(null)
   const { enfermeiro } = useAuth()
   async function abrirImpressao(item) {
-    const completo = await buscarRegistroCompleto(item.fonte.tabela, item.registro.id)
+    const completo = await buscarRegistroCompleto(item.fonte.tabela, item.registro.id, item.fonte.selectCompleto)
     setImprimindo({ ...item, registro: completo || item.registro })
   }
   const atendimentoId = atendimento?.atendimento_id
@@ -170,7 +172,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
     return (
       <div className="hc-print-overlay">
         <Suspense fallback={<p style={{ padding: 20 }}>Carregando documento...</p>}>
-          <Print atendimentoId={imprimindo.registro.atendimento_id} tipo={imprimindo.fonte.impresso} registro={imprimindo.registro} onVoltar={() => setImprimindo(null)} />
+          <Print atendimentoId={imprimindo.registro.atendimento_id} tipo={tipoImpresso(imprimindo.fonte, imprimindo.registro)} registro={imprimindo.registro} onVoltar={() => setImprimindo(null)} />
         </Suspense>
       </div>
     )
@@ -197,7 +199,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
           </div>
           <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, em ordem cronológica" carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} />
           <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} agruparPorAtendimento meuId={enfermeiro?.id} />
-          <p className="hc-nota">Exames, Prescrição Médica e AIH continuam no histórico da própria aba.</p>
+          <p className="hc-nota">A Prescrição Médica continua no histórico da própria aba (com a opção Duplicar).</p>
         </div>
       )}
       </aside>
