@@ -15,10 +15,19 @@ export function somarDias(iso, n) {
 }
 const br = (iso) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : '—')
 
-// "de 28/09 14h00 até 29/09 13h59"
-export function textoValidade(dataRef) {
+// "de 28/09 14h00 até 29/09 13h59". Prescrição emitida antes das 14h do próprio
+// dia de referência (ex.: admissão pela manhã) vale desde a emissão.
+export function textoValidade(dataRef, emissao = null) {
   if (!dataRef) return ''
-  return `de ${br(dataRef)} 14h00 até ${br(somarDias(dataRef, 1))} 13h59`
+  let inicio = '14h00'
+  if (emissao) {
+    const e = new Date(emissao)
+    if (hojeBelem(e) === dataRef && horaBelem(e) < 14) {
+      const hm = new Intl.DateTimeFormat('en-GB', { timeZone: FUSO, hour: '2-digit', minute: '2-digit', hour12: false }).format(e)
+      inicio = hm.replace(':', 'h')
+    }
+  }
+  return `de ${br(dataRef)} ${inicio} até ${br(somarDias(dataRef, 1))} 13h59`
 }
 
 // Situação da prescrição do paciente agora.

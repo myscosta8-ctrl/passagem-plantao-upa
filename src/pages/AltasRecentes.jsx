@@ -1,3 +1,4 @@
+import { numeroLimpo } from '../lib/numeros'
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
@@ -73,7 +74,7 @@ export default function AltasRecentes({ onVoltar }) {
         data_desfecho: a.encerrado_em || internacao.encerrado_em,
         diagnostico: internacao.desfecho_obs || internacao.resumo_alta || internacao.diagnostico_admissao || a.queixa_principal || '—',
         leito_info: leito ? `Leito ${leito.numero} – ${leito.setores?.nome || ''}` : 'Observação',
-        prontuario: a.pessoas?.prontuario_numero,
+        prontuario: numeroLimpo(a.pessoas?.prontuario_numero),
       }
     })
 

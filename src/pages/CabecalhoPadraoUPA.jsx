@@ -7,7 +7,7 @@
 // Prontuário/Registro vêm às vezes com prefixo interno ("PEP-", "AT-") que
 // não deve aparecer no papel impresso — só o número.
 function limparPrefixo(valor) {
-  return valor ? String(valor).replace(/^(PEP|AT)-?/i, '') : ''
+  return valor ? String(valor).replace(/^#?\s*(PEP|AT|REG)-?/i, '') : ''
 }
 
 export default function CabecalhoPadraoUPA({ titulo, pessoa = {}, atendimento = {}, idade, leitoNumero, setorNome, medico, profissional, profissionalRotulo, dataHora: _dataHora }) {

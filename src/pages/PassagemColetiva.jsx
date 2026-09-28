@@ -1,3 +1,4 @@
+import { numeroLimpo } from '../lib/numeros'
 import { useEffect, useState } from 'react'
 import { marcarPassagemConferida, atualizarCamposPassagem, salvarPassagemPep } from '../lib/pepAtendimentos'
 import { DISPOSITIVOS_OPCOES, NIVEIS_CONSCIENCIA } from './passagem-form/constantes'
@@ -348,7 +349,7 @@ export default function PassagemColetiva({
                       <span className="bed-tag">Leito {leito.numero}</span>
                       <span className="patient-title" onClick={() => toggleRecolhido(leito.id)} title="Clique para recolher/expandir">{paciente.nome}{paciente.idade ? `, ${paciente.idade}a` : ''}</span>
                       {alergia && <span className="tag-alergia"><i className="ph ph-prohibit" /> Alergia{textoAlergia(paciente) ? `: ${textoAlergia(paciente)}` : ''}</span>}
-                      {(paciente.numero_atendimento || perm) && <span className="patient-meta-text">{[paciente.numero_atendimento && `Reg: #${paciente.numero_atendimento}`, perm && `Permanência: ${perm}`].filter(Boolean).join(' · ')}</span>}
+                      {(paciente.numero_atendimento || perm) && <span className="patient-meta-text">{[paciente.numero_atendimento && `Reg: ${numeroLimpo(paciente.numero_atendimento)}`, perm && `Permanência: ${perm}`].filter(Boolean).join(' · ')}</span>}
                       <span className="patient-hd-text"><strong>HD:</strong> {paciente.diagnostico || passagem?.diagnostico || 'Sem diagnóstico registrado'}</span>
                       <div className="collapsed-summary">
                         {disp && <span>• {disp}</span>}

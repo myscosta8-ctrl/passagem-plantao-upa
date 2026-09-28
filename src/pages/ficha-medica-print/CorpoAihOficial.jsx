@@ -1,3 +1,4 @@
+import { numeroLimpo } from '../../lib/numeros'
 import {
   CampoComb,
   CampoSus,
@@ -67,7 +68,7 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
         <div className="sus-secao-titulo">Identificação do Paciente</div>
         <div className="sus-grid">
           <CampoSus cap="5. Nome do paciente" val={pessoa.nome} w={3} />
-          <CampoSus cap="6. Nº do prontuário" val={pessoa.prontuario_numero} />
+          <CampoSus cap="6. Nº do prontuário" val={numeroLimpo(pessoa.prontuario_numero)} />
         </div>
         <div className="sus-grid">
           <CampoComb cap="7. Cartão Nacional de Saúde (CNS)" val={pessoa.cns} digitos={15} w={2} />

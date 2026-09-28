@@ -1,3 +1,4 @@
+import { numeroLimpo } from '../../lib/numeros'
 // Réplica fiel do formulário oficial da Fundação Hemopa (SOLICITAÇÃO DE
 // SANGUE, COMPONENTES E DERIVADOS) — mesmo texto, ordem e agrupamento em
 // caixas do modelo em papel. Estilo próprio (prefixo "sg-"), já que este
@@ -57,7 +58,7 @@ export default function CorpoSangueOficial({ registro, pessoa, atendimento, idad
           <span><b>ENFª/LEITO:</b> {cf.enf_leito || leitoNumero}</span>
         </div>
         <div className="sg-linha">
-          <span><b>REGISTRO HOSPITALAR:</b> {cf.registro_hospitalar || atendimento?.numero_atendimento}</span>
+          <span><b>REGISTRO HOSPITALAR:</b> {cf.registro_hospitalar || numeroLimpo(atendimento?.numero_atendimento)}</span>
           <span><b>CATEGORIA:</b> {cf.categoria}</span>
         </div>
         <div className="sg-linha">

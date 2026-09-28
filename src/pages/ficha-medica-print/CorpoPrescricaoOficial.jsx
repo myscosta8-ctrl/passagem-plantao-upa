@@ -31,7 +31,7 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
           dataHora={dataHora}
         />
 
-        {registro.data_referencia && <div className="pr-validade" style={{ fontWeight: 700, margin: '4px 0 6px' }}>Prescrição válida {textoValidade(registro.data_referencia)}</div>}
+        {registro.data_referencia && <div className="pr-validade" style={{ fontWeight: 700, margin: '4px 0 6px' }}>Prescrição válida {textoValidade(registro.data_referencia, registro.criado_em)}</div>}
         <div className="pr-secao-titulo">Dieta</div>
         <div className="pr-caixa">{cf.dieta || ''}</div>
 

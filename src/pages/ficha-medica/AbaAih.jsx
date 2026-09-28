@@ -1,3 +1,4 @@
+import { numeroLimpo } from '../../lib/numeros'
 import { useEffect, useState } from 'react';
 import { listarAih, criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar } from '../../lib/pepMedico';
 import { AIH_VAZIA } from './constantes';
@@ -171,7 +172,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
   // fonte real (raça/cor, CEP) ficam vazios — nunca inventar dado de identificação num
   // documento legal como a AIH.
   const nomePaciente = pessoa?.nome || paciente?.nome || atendimento?.nome || 'NÃO IDENTIFICADO';
-  const prontuarioNum = pessoa?.prontuario_numero || '';
+  const prontuarioNum = numeroLimpo(pessoa?.prontuario_numero) || '';
   const cnsPaciente = pessoa?.cns || '';
   const nascPaciente = pessoa?.data_nascimento
     ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')

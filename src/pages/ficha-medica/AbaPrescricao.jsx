@@ -345,7 +345,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
     setObservacoes(p.observacoes || '')
     setDataReferencia(hojeBelem())
     setEditandoId(null)
-    setAviso(`Prescrição copiada para hoje (${textoValidade(hojeBelem())}). Revise, ajuste a data se precisar e salve.`)
+    setAviso(`Prescrição copiada para hoje (${textoValidade(hojeBelem(), new Date())}). Revise, ajuste a data se precisar e salve.`)
     window.scrollTo?.({ top: 0, behavior: 'smooth' })
   }
 
@@ -449,7 +449,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                 <i className="ph ph-calendar-check" /> Prescrição para o dia
                 <input type="date" value={dataReferencia} onChange={(e) => setDataReferencia(e.target.value || hojeBelem())} />
               </label>
-              <span className="presc-validade-texto">Válida {textoValidade(dataReferencia)}</span>
+              <span className="presc-validade-texto">Válida {textoValidade(dataReferencia, new Date())}</span>
               <div className="presc-validade-atalhos">
                 <button type="button" className={dataReferencia === hojeBelem() ? 'on' : ''} onClick={() => setDataReferencia(hojeBelem())}>Hoje</button>
                 <button type="button" className={dataReferencia === somarDias(hojeBelem(), 1) ? 'on' : ''} onClick={() => setDataReferencia(somarDias(hojeBelem(), 1))}>Amanhã</button>
@@ -688,7 +688,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                       </div>
                       <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
                         Prescrito por {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} • {new Date(p.criado_em).toLocaleString('pt-BR')}
-                        {p.data_referencia && <> • <strong>Válida {textoValidade(p.data_referencia)}</strong></>}
+                        {p.data_referencia && <> • <strong>Válida {textoValidade(p.data_referencia, p.criado_em)}</strong></>}
                       </div>
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                         <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => onImprimir(p)}>

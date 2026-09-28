@@ -1,3 +1,4 @@
+import { numeroLimpo } from '../../lib/numeros'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { buscarPessoas, abrirAtendimento } from '../../lib/pepRecepcao'
@@ -98,7 +99,7 @@ export default function AbaBusca({ enfermeiroId, onAtendimentoAberto, onCompleta
           <div>
             <div className="recepcao-resultado-nome">{p.nome}</div>
             <div className="recepcao-resultado-meta">
-              Prontuário: {p.prontuario_numero || '—'} {p.cpf ? `· CPF: ${p.cpf}` : ''} {p.cns ? `· CNS: ${p.cns}` : ''} {p.data_nascimento ? `· Nasc: ${new Date(p.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}
+              Prontuário: {numeroLimpo(p.prontuario_numero) || '—'} {p.cpf ? `· CPF: ${p.cpf}` : ''} {p.cns ? `· CNS: ${p.cns}` : ''} {p.data_nascimento ? `· Nasc: ${new Date(p.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}
             </div>
           </div>
           <div className="recepcao-resultado-acoes">

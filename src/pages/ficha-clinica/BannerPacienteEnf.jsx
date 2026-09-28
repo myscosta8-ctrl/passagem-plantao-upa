@@ -7,7 +7,7 @@ import { MANCHESTER_CORES, normalizarNome } from '../painel/constantes';
 // Tudo vem do banco (pessoas, atendimentos, leito, sinais_vitais, alergias);
 // campo vazio aparece como "—", nunca como valor inventado.
 const fmt = (v) => (v === null || v === undefined || v === '' ? '—' : v);
-const limpar = (v) => String(v || '').replace(/^(PEP|REG)-?/i, '');
+const limpar = (v) => String(v || '').replace(/^#?\s*(PEP|AT|REG)-?/i, '');
 
 export default function BannerPacienteEnf({ atendimento }) {
   const [cab, setCab] = useState(null);
@@ -54,8 +54,8 @@ export default function BannerPacienteEnf({ atendimento }) {
             {alergiaTxt && <span className="pb-alergia"><i className="ph ph-warning" /> Alergia: {alergiaTxt}</span>}
           </div>
           <div className="pb-meta">
-            <span className="pb-meta-item"><i className="ph ph-identification-card" /> Reg: <strong>#{fmt(limpar(a.numero_atendimento))}</strong></span>
-            <span className="pb-meta-item"><i className="ph ph-folder" /> Pront: <strong>#{fmt(limpar(p.prontuario_numero))}</strong></span>
+            <span className="pb-meta-item"><i className="ph ph-identification-card" /> Reg: <strong>{fmt(limpar(a.numero_atendimento))}</strong></span>
+            <span className="pb-meta-item"><i className="ph ph-folder" /> Pront: <strong>{fmt(limpar(p.prontuario_numero))}</strong></span>
             {(idade || nasc) && <span className="pb-meta-item"><i className="ph ph-user" /> {idade ? `${idade}${String(idade).includes('ano') ? '' : ' anos'}` : ''}{nasc ? ` (${nasc})` : ''}</span>}
             {cns && <span className="pb-meta-item"><i className="ph ph-identification-badge" /> CNS: <strong>{cns}</strong></span>}
             {sexo && <span className="pb-meta-item"><i className={'ph ' + (sexo === 'Feminino' ? 'ph-gender-female' : 'ph-gender-male')} /> {sexo}</span>}

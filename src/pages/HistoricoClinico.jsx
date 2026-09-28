@@ -11,7 +11,7 @@ const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'))
 // cronológica. Fica recolhida — só carrega quando o profissional expande
 // "Este atendimento" ou "Atendimentos anteriores", ou quando pesquisa.
 const fmtData = (d) => (d ? new Date(d).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—')
-const limpar = (v) => String(v || '').replace(/^(PEP|AT)-?/i, '')
+const limpar = (v) => String(v || '').replace(/^#?\s*(PEP|AT|REG)-?/i, '')
 
 const SITUACOES = { rascunho: 'Rascunho', finalizado: 'Finalizado', invalido: 'Invalidado' }
 const fmtValor = (v) => (v === null || v === undefined || v === '' ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v))
@@ -127,7 +127,7 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
               return (
                 <div key={a.id} className="hc-atendimento">
                   <div className="hc-atendimento-topo">
-                    <i className="ph ph-folder-simple" /> Atendimento #{limpar(a.numero_atendimento)} · {fmtData(a.criado_em)}{a.encerrado_em ? ` até ${fmtData(a.encerrado_em)}` : ''}
+                    <i className="ph ph-folder-simple" /> Atendimento {limpar(a.numero_atendimento)} · {fmtData(a.criado_em)}{a.encerrado_em ? ` até ${fmtData(a.encerrado_em)}` : ''}
                   </div>
                   {doAt.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} />)}
                 </div>

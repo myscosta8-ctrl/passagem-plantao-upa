@@ -1,3 +1,4 @@
+import { numeroLimpo } from '../../lib/numeros'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
@@ -104,7 +105,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
       }
       setSucesso({
         nome: dados.nome,
-        prontuario: pessoaInicial.prontuario_numero || '—',
+        prontuario: numeroLimpo(pessoaInicial.prontuario_numero) || '—',
         atendimento: 'Atualizado com sucesso',
       })
       if (imprimir) {
@@ -153,7 +154,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
       {pessoaInicial && (
         <div className="error-box" style={{ marginBottom: 18, background: 'var(--c-primary-light)', color: 'var(--c-primary)', borderLeftColor: 'var(--c-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            Você está completando os dados de <b>{pessoaInicial.nome}</b> (Prontuário: {pessoaInicial.prontuario_numero || 'Sem número'}).
+            Você está completando os dados de <b>{pessoaInicial.nome}</b> (Prontuário: {numeroLimpo(pessoaInicial.prontuario_numero) || 'Sem número'}).
           </div>
           <button type="button" className="modal-btn-secondary" onClick={onCancelarEdicao}>Cancelar edição</button>
         </div>
@@ -167,7 +168,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
             {candidatosDuplicata.map((c) => (
               <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '6px 10px', borderRadius: 6, border: '1px solid #ECD99F' }}>
                 <span style={{ fontSize: 13 }}>
-                  <b>{c.nome}</b> {c.prontuario_numero ? `· Prontuário: ${c.prontuario_numero}` : ''} {c.cpf ? `· CPF: ${c.cpf}` : ''}
+                  <b>{c.nome}</b> {numeroLimpo(c.prontuario_numero) ? `· Prontuário: ${numeroLimpo(c.prontuario_numero)}` : ''} {c.cpf ? `· CPF: ${c.cpf}` : ''}
                 </span>
                 <button
                   type="button"

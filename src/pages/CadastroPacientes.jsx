@@ -1,3 +1,4 @@
+import { numeroLimpo } from '../lib/numeros'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/AuthContext'
 import { listarCadastrosRecentes, listarDuplicatasPendentes } from '../lib/pepRecepcao'
@@ -102,7 +103,7 @@ export default function CadastroPacientes() {
             <div key={a.id} className="recepcao-recentes-item">
               <span>{a.pessoas?.nome}</span>
               <span className="recepcao-recentes-meta">
-                <i className="ph ph-identification-card" /> {a.pessoas?.prontuario_numero} · {new Date(a.criado_em).toLocaleString('pt-BR')}
+                <i className="ph ph-identification-card" /> {numeroLimpo(a.pessoas?.prontuario_numero)} · {new Date(a.criado_em).toLocaleString('pt-BR')}
               </span>
             </div>
           ))

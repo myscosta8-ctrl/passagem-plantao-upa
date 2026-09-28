@@ -1,3 +1,4 @@
+import { numeroLimpo } from '../../lib/numeros'
 import { useEffect, useState } from 'react'
 import {
   descartarDuplicata,
@@ -18,7 +19,7 @@ function CartaoPessoa({ pessoa, titulo, selecionada, onSelecionar }) {
       <div className="mono" style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 4 }}>{titulo}</div>
       <div style={{ fontWeight: 600, fontSize: 13.5 }}>{pessoa.nome}</div>
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--c-text-muted)', marginTop: 3 }}>
-        {pessoa.prontuario_numero || '—'}
+        {numeroLimpo(pessoa.prontuario_numero) || '—'}
         {pessoa.data_nascimento ? ` · nasc. ${new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}
         {pessoa.cpf ? ` · CPF ${pessoa.cpf}` : ''}
         {pessoa.cns ? ` · CNS ${pessoa.cns}` : ''}
