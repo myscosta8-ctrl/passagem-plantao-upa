@@ -1,0 +1,1 @@
+// Código publicado no Supabase (versões 4 e 6): senha provisória forte e aleatória, devolvida ao administrador.
