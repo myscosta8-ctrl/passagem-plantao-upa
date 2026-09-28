@@ -62,7 +62,7 @@ export function AuthProvider({ children }) {
     const nomeExibicao = 'ENF.' + primeiroNome.toUpperCase()
     const { error } = await supabase
       .from('enfermeiros')
-      .upsert({ id: session.user.id, nome, nome_exibicao: nomeExibicao })
+      .update({ nome, nome_exibicao: nomeExibicao }).eq('id', session.user.id)
     if (!error) setEnfermeiro({ id: session.user.id, nome, nome_exibicao: nomeExibicao })
     return { error }
   }
