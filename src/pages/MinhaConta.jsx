@@ -49,7 +49,14 @@ export default function MinhaConta({ onVoltar }) {
     setTrocandoSenha(false)
 
     if (error) {
-      setErroSenha('Falha ao trocar a senha. Tente deslogar e logar de novo se o problema persistir.')
+      const m = String(error.message || '')
+      const code = error.code || ''
+      setErroSenha(
+        code === 'same_password' || /different from the old/i.test(m) ? 'A nova senha precisa ser diferente da senha atual.'
+        : code === 'weak_password' || /weak|pwned|leak|guess|known/i.test(m) ? 'Essa senha é fraca ou muito comum. Use uma senha maior, misturando letras e números.'
+        : code === 'reauthentication_needed' || /reauth/i.test(m) ? 'Por segurança, saia do sistema, entre de novo com a senha atual e tente trocar em seguida.'
+        : /session|jwt|not authenticated|expired/i.test(m) ? 'Sua sessão expirou. Saia e entre de novo, depois tente trocar a senha.'
+        : `Falha ao trocar a senha (${m || 'erro desconhecido'}). Saia, entre de novo e tente outra vez.`)
       return
     }
     setSenhaNova('')
