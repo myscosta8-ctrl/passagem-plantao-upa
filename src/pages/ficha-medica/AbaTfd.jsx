@@ -54,7 +54,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
   const campo = (k, rotulo, props = {}) => (
     <div key={k} className="form-group" style={props.span ? { gridColumn: props.span } : undefined}>
       <label>{rotulo}</label>
-      <input type={props.type || 'text'} placeholder={props.ph || ''} value={dados[k]} onChange={(e) => set(k, e.target.value)} />
+      <input type={props.type || 'text'} placeholder={props.ph || ''} value={dados[k]} onChange={(e) => set(k, k.startsWith('sv_') ? e.target.value.replace(/[^\d/xX.,]/g, '') : e.target.value)} />
     </div>
   )
   const area = (k, ph, rows = 3) => (

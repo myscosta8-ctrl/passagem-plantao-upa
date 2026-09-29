@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect, useRef } from 'react';
 import { useAuth } from '../lib/AuthContext';
 import HistoricoClinico from './HistoricoClinico';
 const FichaMedicaPrint = lazy(() => import('./FichaMedicaPrint'));
@@ -14,6 +14,21 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
   const [aba, setAba] = useState(initialTab);
   const [imprimindo, setImprimindo] = useState(null);
   const [historicoAberto, setHistoricoAberto] = useState(false);
+  const areaRef = useRef(null);
+  // Mensagem de erro/validação aparece no fim do formulário, longe do botão: rola até ela.
+  useEffect(() => {
+    const el = areaRef.current;
+    if (!el) return;
+    const obs = new MutationObserver((muts) => {
+      for (const m of muts) for (const n of m.addedNodes) {
+        if (!(n instanceof HTMLElement)) continue;
+        const alvo = n.matches?.('.allergy-alert, .erro, .form-erro') ? n : n.querySelector?.('.allergy-alert .ph-warning, .erro, .form-erro');
+        if (alvo && /ph-warning|erro/.test(alvo.outerHTML.slice(0, 300))) { alvo.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+      }
+    });
+    obs.observe(el, { childList: true, subtree: true });
+    return () => obs.disconnect();
+  }, []);
 
   if (imprimindo) {
     return (
@@ -46,7 +61,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
         onAbrirHistorico={() => setHistoricoAberto(true)}
       />
       <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} />
-      <div className="workspace">
+      <div className="workspace" ref={areaRef}>
         <BannerPacienteEnf atendimento={atendimento} />
         {!podeCriar && (
           <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos médicos, mas não criá-los.</div>

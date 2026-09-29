@@ -73,7 +73,7 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
     if (!registro?.enfermeiros) buscarAutorRegistro(registro).then(setAutor)
   }, [registro])
 
-  if (!cabecalho) return null
+  if (!cabecalho || !registro) return null
 
   const { pessoa, atendimento, idade, leitoNumero, setorNome } = cabecalho
   const medico = registro.enfermeiros || autor

@@ -34,9 +34,9 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, minHeight: 0, minWidth: 0 }}>
       <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex' }}>
         {doc === 'atm' ? (
-          <AbaAtm atendimento={atendimento} medicoId={medicoId} onImprimir={onImprimir} onFechar={onFechar} headerTabs={subtabs} />
+          <AbaAtm atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'atm', registro })} onFechar={onFechar} headerTabs={subtabs} />
         ) : (
-          <AbaPrescricao atendimento={atendimento} medicoId={medicoId} onImprimir={onImprimir} onFechar={onFechar} headerTabs={subtabs} onAbrirAtm={() => { setTemAtm(true); setDoc('atm') }} />
+          <AbaPrescricao atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })} onFechar={onFechar} headerTabs={subtabs} onAbrirAtm={() => { setTemAtm(true); setDoc('atm') }} />
         )}
       </div>
     </div>

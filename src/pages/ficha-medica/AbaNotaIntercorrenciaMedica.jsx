@@ -63,7 +63,7 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
           <div className="form-section-box-title"><i className="ph ph-stethoscope" /> 2. Exame Físico no Momento da Avaliação</div>
           <div className="assess-grid" style={{ gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
             {sv.map(([k, rotulo, ph]) => (
-              <div key={k} className="form-group"><label>{rotulo}</label><input type="text" placeholder={ph || ''} value={d[k]} onChange={(e) => set(k, e.target.value)} /></div>
+              <div key={k} className="form-group"><label>{rotulo}</label><input type="text" placeholder={ph || ''} value={d[k]} inputMode="decimal" onChange={(e) => set(k, e.target.value.replace(/[^\d/xX.,]/g, ''))} /></div>
             ))}
           </div>
           <div className="form-group" style={{ marginTop: 12 }}>
