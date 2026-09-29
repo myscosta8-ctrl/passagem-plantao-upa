@@ -31,10 +31,12 @@ export function usePainelState() {
   const { data: painelData, isLoading: carregando, error: erroCarga, refetch: carregarTudo } = useQuery({
     queryKey: ['painelDados', enfermeiro?.id],
     queryFn: async () => {
-      const [pepAtivo, { data: listaSetores }, { data: listaLeitos }] = await Promise.all([
+      // Tudo em paralelo: setores, leitos e pacientes internados chegam juntos.
+      const [pepAtivo, { data: listaSetores }, { data: listaLeitos }, ocupados] = await Promise.all([
         pepEstaAtivo(enfermeiro?.id),
         supabase.from('setores').select('*').eq('ativo', true).order('ordem'),
         supabase.from('leitos').select('*').eq('ativo', true).order('id'),
+        carregarLeitosOcupadosPep(),
       ])
       pepAtivoRef.current = pepAtivo
 
@@ -42,7 +44,7 @@ export function usePainelState() {
       const finalSetores = setoresOficiais.length > 0 ? setoresOficiais : (listaSetores ?? [])
 
       {
-        const { pacientesPorLeito: mapa, passagemPorPaciente: passagemMapa } = await carregarLeitosOcupadosPep()
+        const { pacientesPorLeito: mapa, passagemPorPaciente: passagemMapa } = ocupados
         
         const extrasDesocupados = (listaLeitos ?? []).filter((l) => l.tipo === 'extra' && !mapa[l.id])
         if (extrasDesocupados.length > 0) {

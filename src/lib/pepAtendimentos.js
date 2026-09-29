@@ -29,7 +29,53 @@ function idadeExibida(pessoa) {
   return porNascimento ?? pessoa.idade_informada ?? null
 }
 
+// Caminho rápido: uma única chamada ao banco (rpc painel_ocupacoes) traz ocupação,
+// atendimento, pessoa, internação, alergia e última passagem. Se falhar, usa o
+// caminho antigo (várias consultas em sequência).
 export async function carregarLeitosOcupadosPep() {
+  const { data: linhas, error } = await supabase.rpc('painel_ocupacoes')
+  if (error || !Array.isArray(linhas)) {
+    if (error) avisarErro('pepAtendimentos', error)
+    return carregarLeitosOcupadosPepAntigo()
+  }
+  const pacientesPorLeito = {}
+  const passagemPorPaciente = {}
+  for (const l of linhas) {
+    const atendimento = l.atendimento
+    const pessoa = l.pessoa
+    const internacao = l.internacao
+    if (!atendimento || !pessoa) continue
+    pacientesPorLeito[l.leito_id] = {
+      id: atendimento.id,
+      pessoa_id: pessoa.id,
+      pep_nativo: true,
+      nome: pessoa.nome,
+      diagnostico: internacao?.diagnostico_admissao ?? '',
+      idade: idadeExibida(pessoa),
+      sexo: pessoa.sexo,
+      data_admissao: internacao?.internado_em ? internacao.internado_em.slice(0, 10) : null,
+      internado_em: internacao?.internado_em ?? null,
+      numero_atendimento: atendimento.numero_atendimento ?? null,
+      alergias: !!l.alergia,
+      alergia_substancia: l.alergia || null,
+      status_internacao: atendimento.status_internacao ?? 'Em observação',
+      classificacao_manchester: atendimento.classificacao_risco_cor ?? null,
+      regulacao_flag: !!atendimento.regulacao_flag,
+      regulacao_aberta_em: atendimento.regulacao_aberta_em ?? null,
+      data_conduta_definida: atendimento.data_conduta_definida ?? null,
+      atendimento_criado_em: atendimento.criado_em ?? null,
+      status: 'internado',
+      leito_atual_id: l.leito_id,
+      ultima_alteracao_por: null,
+      ultima_alteracao_por_enfermeiro: null,
+      ultima_alteracao_em: null,
+    }
+    if (l.passagem) passagemPorPaciente[atendimento.id] = l.passagem
+  }
+  return { pacientesPorLeito, passagemPorPaciente }
+}
+
+async function carregarLeitosOcupadosPepAntigo() {
   const { data: ocupacoes, error: erroOcupacoes } = await supabase
     .from('leito_ocupacoes')
     .select('leito_id, atendimento_id, alocado_em')
