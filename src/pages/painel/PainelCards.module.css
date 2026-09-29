@@ -25,15 +25,16 @@
 }
 
 .risk-bar {
-  height: 5px;
+  height: 4px;
   width: 100%;
   background: var(--c-border);
 }
-.risk-bar.vermelho { background: #EF4444; }
-.risk-bar.laranja { background: #F97316; }
-.risk-bar.amarelo { background: #EAB308; }
-.risk-bar.verde { background: #22C55E; }
-.risk-bar.azul { background: #3B82F6; }
+/* Classificação de risco: tons contidos, ainda inequívocos (o vermelho segue sendo o mais forte). */
+.risk-bar.vermelho { background: #D64545; }
+.risk-bar.laranja { background: #E38B4F; }
+.risk-bar.amarelo { background: #DDB93F; }
+.risk-bar.verde { background: #5FB584; }
+.risk-bar.azul { background: #6A97CF; }
 
 .leito-header {
   display: flex;
@@ -51,7 +52,8 @@
   gap: 6px;
 }
 .leito-numero.extra {
-  color: var(--color-warning);
+  color: var(--color-text-muted);
+  font-style: italic;
 }
 
 .leito-status {
@@ -62,14 +64,22 @@
   border-radius: 12px;
   letter-spacing: 0.5px;
 }
-.status-internado {
-  background: #EFF6FF;
-  color: #1D4ED8;
+/* Status neutro: só um pontinho de cor; não compete com a barra de risco. */
+.status-internado, .status-observacao {
+  background: #F1F5F9;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.status-observacao {
-  background: #FEF3C7;
-  color: #B45309;
+.status-internado::before, .status-observacao::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
 }
+.status-internado::before { background: #0D9488; }
+.status-observacao::before { background: #fff; box-shadow: inset 0 0 0 1.5px #94A3B8; }
 
 .leito-body {
   padding: 0 16px 16px;
