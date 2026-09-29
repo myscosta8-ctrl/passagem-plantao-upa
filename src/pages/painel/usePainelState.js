@@ -1,5 +1,6 @@
 ﻿import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
+import { criarLeitoExtra, recolherLeitosExtras } from '../../lib/leitosExtras'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
 import { pepEstaAtivo } from '../../lib/pepConfig'
@@ -47,10 +48,7 @@ export function usePainelState() {
         const { pacientesPorLeito: mapa, passagemPorPaciente: passagemMapa } = ocupados
         
         const extrasDesocupados = (listaLeitos ?? []).filter((l) => l.tipo === 'extra' && !mapa[l.id])
-        if (extrasDesocupados.length > 0) {
-          const idsDesocupados = extrasDesocupados.map((l) => l.id)
-          await supabase.from('leitos').delete().in('id', idsDesocupados)
-        }
+        if (extrasDesocupados.length > 0) await recolherLeitosExtras(extrasDesocupados.map((l) => l.id))
 
         const leitosFiltrados = (listaLeitos ?? []).filter((l) => {
           if (l.id <= 36) return true
@@ -95,13 +93,7 @@ export function usePainelState() {
   
 
   async function abrirLeitoExtra(setorId) {
-    const leitosDoSetor = leitos.filter((l) => l.setor_id === setorId)
-    const numeroExtra = leitosDoSetor.filter((l) => l.tipo === 'extra').length + 1
-    const { data: novo, error } = await supabase
-      .from('leitos')
-      .insert({ setor_id: setorId, numero: `Extra ${numeroExtra}`, tipo: 'extra', ativo: true })
-      .select()
-      .single()
+    const { novo, error } = await criarLeitoExtra(setorId)
     if (!error && novo) {
       queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => ({ ...old, leitos: [...(old?.leitos || []), novo] }))
       // Abre imediatamente o modal de admissão para ocupar o leito extra
@@ -116,7 +108,7 @@ export function usePainelState() {
     if (modalLeito?.tipo === 'extra' && !pacientesPorLeito[modalLeito.id]) {
       const extraId = modalLeito.id
       queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => ({ ...old, leitos: (old?.leitos || []).filter(l => l.id !== extraId) }))
-      await supabase.from('leitos').delete().eq('id', extraId)
+      await recolherLeitosExtras([extraId])
     }
     setModalLeito(null)
     setErroInternar('')

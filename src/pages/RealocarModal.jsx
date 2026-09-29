@@ -1,3 +1,4 @@
+import { criarLeitoExtra } from '../lib/leitosExtras'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { pepEstaAtivo } from '../lib/pepConfig'
@@ -75,17 +76,7 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
   }
 
   async function abrirLeitoExtra() {
-    const { count } = await supabase
-      .from('leitos')
-      .select('id', { count: 'exact', head: true })
-      .eq('setor_id', Number(setorDestinoId))
-      .eq('tipo', 'extra')
-    const numeroExtra = (count ?? 0) + 1
-    const { data: novo, error } = await supabase
-      .from('leitos')
-      .insert({ setor_id: Number(setorDestinoId), numero: `Extra ${numeroExtra}`, tipo: 'extra' })
-      .select()
-      .single()
+    const { novo, error } = await criarLeitoExtra(setorDestinoId)
     if (!error && novo) {
       setLeitosVazios((prev) => [...prev, novo])
       setLeitosTodos((prev) => [...prev, novo])
