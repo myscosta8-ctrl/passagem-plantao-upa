@@ -4,6 +4,7 @@ import { runMockupsFase2Tests } from '../tests/fidelity/mockups-fase2.test.js';
 import { runModularizacaoTests } from '../tests/architecture/modularizacao.test.js';
 import { runDatabaseMigrationsTests } from '../tests/architecture/database-migrations.test.js';
 import { runPwaOfflineTests } from '../tests/unit/pwa-offline.test.js';
+import { runTelasTests } from '../tests/ui/telas.test.js';
 
 // Cores ANSI para saída no terminal
 const CORES = {
@@ -76,6 +77,7 @@ async function main() {
   // 6. Resiliência Offline e Estratégia de Cache PWA
   const testPwa = criarSuite('Resiliência Offline e Estratégia de Cache PWA (UPA 24h Breves)');
   runPwaOfflineTests(testPwa);
+  runTelasTests(testPwa);
   console.log('');
 
   const fim = performance.now();

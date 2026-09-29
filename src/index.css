@@ -120,6 +120,17 @@
   --color-text-muted:     var(--c-text-muted);
   --color-success:        var(--c-success);
   --color-danger:         var(--c-danger);
+  /* Apelidos de nomes antigos usados em telas mais velhas (antes caíam no padrão do navegador) */
+  --c-text:               var(--c-text-primary);
+  --color-text-main:      var(--c-text-primary);
+  --color-text-strong:    var(--c-text-primary);
+  --bg-app:               var(--c-bg);
+  --bg-surface:           var(--c-surface);
+  --primary:              var(--c-primary);
+  --primary-light:        var(--c-surface-inset);
+  --info:                 var(--c-info);
+  --warning:              var(--c-warning);
+  --mc-laranja-light:     var(--mc-laranja-bg);
   --color-warning:        var(--c-warning);
   --color-accent:         var(--c-primary);
   --color-accent-light:   var(--c-primary-light);
