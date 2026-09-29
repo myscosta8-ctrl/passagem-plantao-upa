@@ -78,7 +78,7 @@
   height: 32px;
   border-radius: 50%;
   background: var(--c-surface-inset);
-  color: var(--c-primary);
+  color: var(--c-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,7 +162,7 @@
 .atendimento-medico-container .btn-toggle-pb {
   background: transparent;
   border: none;
-  color: var(--c-primary);
+  color: var(--c-text-secondary);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -344,7 +344,7 @@
 }
 .atendimento-medico-container .info-integration-box h3 {
   font-size: 11px;
-  color: var(--c-primary);
+  color: var(--c-text-secondary);
   text-transform: uppercase;
   margin-bottom: 6px;
   display: flex;
@@ -558,8 +558,8 @@
 }
 .atendimento-medico-container .btn-add-chip {
   background: transparent;
-  border: 1px dashed var(--c-primary);
-  color: var(--c-primary);
+  border: 1px dashed var(--c-border-dark);
+  color: var(--c-text-secondary);
   padding: 4px 10px;
   border-radius: 14px;
   font-size: 11px;
@@ -573,7 +573,7 @@
   background: var(--c-surface-inset);
 }
 .atendimento-medico-container .btn-add-chip.on {
-  background: var(--c-primary);
+  background: var(--c-selected);
   border-style: solid;
   color: #fff;
 }
@@ -584,7 +584,7 @@
   border-radius: 50%;
   border: 1px solid var(--c-border-dark);
   background: var(--c-surface-inset);
-  color: var(--c-primary);
+  color: var(--c-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -736,9 +736,9 @@
   background: var(--c-surface-inset);
 }
 .atendimento-medico-container .quick-chip.active {
-  background: var(--c-primary);
+  background: var(--c-selected);
   color: white;
-  border-color: var(--c-primary);
+  border-color: var(--c-selected);
 }
 
 /* RODAPÉ UNIVERSAL */
@@ -772,8 +772,8 @@
 }
 .atendimento-medico-container .btn-save-draft {
   background: var(--c-surface);
-  border: 1px solid var(--c-primary);
-  color: var(--c-primary);
+  border: 1px solid var(--c-border-dark);
+  color: var(--c-text-secondary);
   padding: 7px 16px;
   border-radius: 6px;
   font-weight: 600;
@@ -902,12 +902,12 @@
 }
 .atendimento-medico-container .tl-item.expanded .tl-preview {
   -webkit-line-clamp: unset;
-  border-color: var(--c-primary);
+  border-color: var(--c-border-dark);
 }
 .atendimento-medico-container .tl-print {
   border: none;
   background: transparent;
-  color: var(--c-primary);
+  color: var(--c-text-secondary);
   font-weight: 700;
   font-size: 11px;
   cursor: pointer;
@@ -990,7 +990,7 @@
 .atendimento-medico-container .item-actions button:hover { background: var(--danger-light, var(--c-danger-light)); }
 
 .atendimento-medico-container .presc-input-row { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: var(--primary-light, var(--c-surface-inset)); border-top: 1px solid var(--border-light, #E8EDF3); }
-.atendimento-medico-container .presc-input-row .item-num { background: transparent; border: 1px solid var(--primary, var(--c-primary)); color: var(--primary, var(--c-primary)); flex-shrink: 0; }
+.atendimento-medico-container .presc-input-row .item-num { background: transparent; border: 1px solid var(--primary, var(--c-border-dark)); color: var(--primary, var(--c-primary)); flex-shrink: 0; }
 .atendimento-medico-container .presc-input-row input, .atendimento-medico-container .presc-input-row select { padding: 6px 10px; border: 1px solid var(--border-strong, var(--c-border-dark)); border-radius: 6px; font-size: 11px; outline: none; width: 100%; }
 .atendimento-medico-container .presc-input-linha1 { display: flex; align-items: center; gap: 8px; }
 .atendimento-medico-container .presc-input-linha1 .autocomplete-wrap { flex: 1; min-width: 0; }
@@ -1024,7 +1024,7 @@
 
 .calc-result-highlight { background: var(--c-surface-inset); border: 1px solid var(--c-border-dark); padding: 8px; border-radius: 8px; text-align: center; }
 .calc-result-highlight span { font-size: 11px; font-weight: 700; color: var(--primary, var(--c-primary)); text-transform: uppercase; }
-.calc-result-highlight strong { font-size: 17px; color: var(--c-primary); display: block; margin-top: 2px; font-weight: 800; }
+.calc-result-highlight strong { font-size: 17px; color: var(--c-text-secondary); display: block; margin-top: 2px; font-weight: 800; }
 
 .calc-final-text { background: var(--c-surface-inset); border: 1px dashed var(--border-strong, var(--c-border-dark)); padding: 10px; border-radius: 8px; font-size: 12px; color: var(--text-main, var(--c-text-primary)); line-height: 1.4; font-family: monospace; }
 .modal-footer { padding: 10px 14px; background: var(--c-surface-inset); border-top: 1px solid var(--border-light, var(--c-border)); display: flex; justify-content: flex-end; gap: 10px; }
@@ -1061,7 +1061,7 @@
 .atendimento-medico-container .receita-item .rm-btn:hover { background: var(--danger-light, var(--c-danger-light)); }
 .atendimento-medico-container .badge-2vias { font-size: 9px; font-weight: 700; background: var(--mc-laranja-light, #FFEDD5); color: var(--mc-laranja, #EA580C); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; display: inline-block; margin-left: 8px; }
 
-.atendimento-medico-container .add-med-bar { display: flex; gap: 12px; align-items: center; background: var(--c-surface-inset); padding: 12px; border: 1px dashed var(--primary, var(--c-primary)); border-radius: 8px; position: relative; }
+.atendimento-medico-container .add-med-bar { display: flex; gap: 12px; align-items: center; background: var(--c-surface-inset); padding: 12px; border: 1px dashed var(--primary, var(--c-border-dark)); border-radius: 8px; position: relative; }
 
 .atendimento-medico-container .ac-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
 .atendimento-medico-container .ac-badge.comum { background: #E2E8F0; color: var(--c-text-secondary); }
@@ -1080,7 +1080,7 @@
 .atendimento-medico-container .meta-row select { width: 140px; }
 .atendimento-medico-container .btn-remove-meta { background: var(--danger-light, var(--c-danger-light)); color: var(--danger, var(--c-danger)); border: 1px solid var(--c-danger-border-strong); border-radius: 6px; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
 .atendimento-medico-container .btn-remove-meta:hover { background: var(--c-danger-strong-light); }
-.atendimento-medico-container .btn-add-meta { background: transparent; border: 1px dashed var(--primary, var(--c-primary)); color: var(--primary, var(--c-primary)); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; width: max-content; margin-top: 4px; font-size: 12px; transition: 0.2s; }
+.atendimento-medico-container .btn-add-meta { background: transparent; border: 1px dashed var(--primary, var(--c-border-dark)); color: var(--primary, var(--c-primary)); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; width: max-content; margin-top: 4px; font-size: 12px; transition: 0.2s; }
 .atendimento-medico-container .btn-add-meta:hover { background: var(--primary-light, var(--c-surface-inset)); }
 
 /* Checkbox Grids */
@@ -1119,11 +1119,11 @@
 .atendimento-medico-container .hemo-chip-btn:hover { border-color: var(--primary, var(--c-primary)); }
 .atendimento-medico-container .hemo-chip-btn i { font-size: 14px; }
 .atendimento-medico-container .hemo-chip.ativo .hemo-chip-btn { background: var(--c-surface-inset); border-color: var(--primary, var(--c-primary)); color: var(--primary, var(--c-primary)); }
-.atendimento-medico-container .hemo-chip-qtd { width: 110px; padding: 7px 10px; font-size: 11px; border: 1px solid var(--primary, var(--c-primary)); border-radius: 20px; outline: none; text-align: center; }
+.atendimento-medico-container .hemo-chip-qtd { width: 110px; padding: 7px 10px; font-size: 11px; border: 1px solid var(--primary, var(--c-border-dark)); border-radius: 20px; outline: none; text-align: center; }
 
 /* MOCKUP 16 APAC */
 .atendimento-medico-container .blocking-alert-box {
-  background: var(--c-surface-inset); border: 1px solid var(--c-border-dark); border-left: 4px solid var(--primary, var(--c-primary));
+  background: var(--c-surface-inset); border: 1px solid var(--c-border-dark); border-left: 4px solid var(--primary, var(--c-border-dark));
   border-radius: 6px; padding: 10px 12px; font-size: 11.5px; line-height: 1.35; margin-bottom: 12px;
 }
 .atendimento-medico-container .blocking-alert-box strong { color: var(--text-main, var(--c-text-primary)); display: block; margin-bottom: 3px; }
@@ -1225,13 +1225,13 @@
 
 
 /* Banner do paciente compartilhado (layout do Prontuário de Enfermagem) */
-.atendimento-medico-container .patient-banner.enf-banner { background: var(--c-surface); border: 1px solid var(--c-primary); border-left: 6px solid var(--c-primary); border-radius: 8px; padding: 0; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.atendimento-medico-container .patient-banner.enf-banner { background: var(--c-surface); border: 1px solid var(--c-border-dark); border-left: 6px solid var(--c-border-dark); border-radius: 8px; padding: 0; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
 
 /* Topo igual ao do Prontuário de Enfermagem (mesmos botões, relógio e selo do profissional) */
 .atendimento-medico-container .topbar { height: 50px; padding: 0 16px; box-shadow: 0 1px 2px rgba(0,0,0,.05); border-bottom: 1px solid var(--c-border-dark); }
 .atendimento-medico-container .topbar .btn-voltar { background: transparent; border: 1px solid var(--c-border-dark); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--c-text-secondary); display: flex; align-items: center; gap: 6px; }
 .atendimento-medico-container .topbar-right { gap: 14px; }
 .atendimento-medico-container .topbar .sys-time { font-size: 11px; font-weight: 600; color: var(--c-text-muted); padding-right: 14px; border-right: 1px solid var(--c-border); }
-.atendimento-medico-container .btn-pilar { background: var(--c-surface); border: 1px solid var(--c-border-dark); border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: var(--c-primary); cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.atendimento-medico-container .btn-pilar { background: var(--c-surface); border: 1px solid var(--c-border-dark); border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: var(--c-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .atendimento-medico-container .btn-pilar:hover { background: var(--c-surface-inset); border-color: var(--c-primary); }
-.atendimento-medico-container .enf-avatar { padding: 4px 10px; border-radius: 20px; background: var(--c-surface-inset); color: var(--c-primary); border: 1px solid var(--c-primary); display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 11px; white-space: nowrap; }
+.atendimento-medico-container .enf-avatar { padding: 4px 10px; border-radius: 20px; background: var(--c-surface-inset); color: var(--c-text-secondary); border: 1px solid var(--c-border-dark); display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 11px; white-space: nowrap; }

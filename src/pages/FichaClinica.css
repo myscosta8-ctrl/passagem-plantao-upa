@@ -165,7 +165,7 @@
 }
 
 .secao-resumo.preenchido {
-  color: var(--c-primary);
+  color: var(--c-text-secondary);
   font-weight: 500;
 }
 
@@ -177,7 +177,7 @@
 
 .secao-exame.aberta .secao-seta {
   transform: rotate(180deg);
-  color: var(--c-primary);
+  color: var(--c-text-secondary);
 }
 
 .secao-exame-corpo {
@@ -211,8 +211,8 @@
 }
 
 .chip-admissao.sel {
-  background: var(--c-primary);
-  border-color: var(--c-primary);
+  background: var(--c-selected);
+  border-color: var(--c-selected);
   color: #fff;
   font-weight: 600;
 }

@@ -69,6 +69,7 @@
   --c-danger-border-strong:#E6B3B3;
   --c-warning-text:        #7A5514;
   --c-success-text:        #3E5E4D;
+  --c-selected:            #334155;   /* item escolhido (chip, segmento, turno) */
 
   /* TIPOGRAFIA */
   --font-ui:          'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -165,6 +166,7 @@
   --c-warning-light:       rgba(217, 119, 6, 0.14);
   --c-warning-border:      #6B5320;
   --c-warning-text:        #E3B96A;
+  --c-selected:            #475A78;
   --c-success-light:       rgba(22, 163, 74, 0.14);
   --c-success-border:      #2F6B4A;
   --c-success-text:        #86C9A0;

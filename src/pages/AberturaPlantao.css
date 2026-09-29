@@ -273,7 +273,7 @@
 }
 
 .turno-btn.active {
-  background: var(--c-primary);
+  background: var(--c-selected);
   color: white;
 }
 
@@ -283,7 +283,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--c-primary);
+  color: var(--c-text-secondary);
   margin: 4px 0 14px;
 }
 

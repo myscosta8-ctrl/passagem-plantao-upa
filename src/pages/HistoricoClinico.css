@@ -1,7 +1,7 @@
 /* Histórico Clínico do Paciente — mesma linguagem visual do banner (verde #0D9488) */
 .hc-card { background: var(--c-surface); border: 1px solid var(--c-border-dark); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.05); flex-shrink: 0; }
 .hc-topo { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 16px; background: transparent; border: none; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--c-text-primary); text-align: left; }
-.hc-topo i { color: var(--c-primary); }
+.hc-topo i { color: var(--c-text-secondary); }
 .hc-topo-dica { font-size: 11px; font-weight: 600; color: var(--c-text-muted); display: flex; align-items: center; gap: 6px; }
 .hc-corpo { border-top: 1px solid var(--c-border); padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
 .hc-filtros { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -20,7 +20,7 @@
 .hc-vazio { font-size: 12px; color: var(--c-text-muted); margin: 4px 0; }
 .hc-atendimento { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
 .hc-atendimento-topo { font-size: 11.5px; font-weight: 700; color: var(--c-text-secondary); background: var(--c-fill); border-radius: 4px; padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
-.hc-item { border: 1px solid var(--c-border); border-left: 4px solid var(--c-primary); border-radius: 6px; background: var(--c-surface); }
+.hc-item { border: 1px solid var(--c-border); border-left: 4px solid var(--c-border-dark); border-radius: 6px; background: var(--c-surface); }
 .hc-item.medico { border-left-color: #475569; }
 .hc-item-topo { display: flex; align-items: center; gap: 10px; padding: 6px 10px; cursor: pointer; flex-wrap: wrap; }
 .hc-data { font-size: 11px; font-weight: 700; color: var(--c-text-secondary); min-width: 118px; }
@@ -31,7 +31,7 @@
 .hc-resumo { font-size: 12px; color: var(--c-text-primary); padding: 0 10px 7px; line-height: 1.45; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .hc-resumo.aberto { display: block; }
 .hc-acoes { padding: 0 10px 8px; }
-.hc-btn { border: 1px solid var(--c-primary); background: var(--c-surface-inset); color: var(--c-text-secondary); border-radius: 6px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.hc-btn { border: 1px solid var(--c-border-dark); background: var(--c-surface-inset); color: var(--c-text-secondary); border-radius: 6px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
 .hc-nota { font-size: 10.5px; color: var(--c-text-muted); margin: 0; }
 .hc-print-overlay { position: fixed; inset: 0; z-index: 3000; background: var(--c-surface); overflow: auto; }
 
@@ -57,7 +57,7 @@
 .hc-gaveta { width: min(680px, 100vw); height: 100%; background: var(--c-surface); box-shadow: -8px 0 24px rgba(0,0,0,.12); display: flex; flex-direction: column; animation: hc-entrar .18s ease-out; }
 @keyframes hc-entrar { from { transform: translateX(40px); opacity: .6; } to { transform: none; opacity: 1; } }
 .hc-gaveta-topo { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--c-border); font-size: 14px; font-weight: 700; color: var(--c-text-primary); }
-.hc-gaveta-topo i.ph-clock-counter-clockwise { color: var(--c-primary); }
+.hc-gaveta-topo i.ph-clock-counter-clockwise { color: var(--c-text-secondary); }
 .hc-fechar { border: 1px solid var(--c-border-dark); background: var(--c-surface); border-radius: 6px; padding: 4px 8px; cursor: pointer; color: var(--c-text-secondary); }
 .hc-gaveta .hc-corpo { border-top: none; overflow-y: auto; flex: 1; }
 .hc-gaveta .hc-bloco-corpo { max-height: none; }
@@ -86,7 +86,7 @@
 .aviso-rascunho { display: flex; align-items: center; gap: 8px; background: var(--c-warning-light); border: 1px solid var(--c-warning-border); color: var(--c-warning-text); border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
 .campo-data-registro { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; color: var(--c-text-soft); margin-right: auto; }
 .campo-data-registro input { border: 1px solid var(--c-border-dark); border-radius: 6px; padding: 4px 6px; font-size: 12px; }
-.campo-data-registro button { border: none; background: transparent; color: var(--c-primary); font-weight: 700; cursor: pointer; font-size: 11px; }
+.campo-data-registro button { border: none; background: transparent; color: var(--c-text-secondary); font-weight: 700; cursor: pointer; font-size: 11px; }
 .erro-inline { display: flex; align-items: center; gap: 8px; background: var(--c-danger-light); border: 1px solid var(--c-danger-border-strong); color: #991B1B; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
 
 .hc-aviso-autor { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--c-text-muted); }

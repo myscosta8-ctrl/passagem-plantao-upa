@@ -33,8 +33,8 @@
 }
 .btn-save-draft {
   background: var(--c-surface);
-  border: 1px solid var(--c-primary);
-  color: var(--c-primary);
+  border: 1px solid var(--c-border-dark);
+  color: var(--c-text-secondary);
   padding: 7px 16px;
   border-radius: 6px;
   font-weight: 600;
