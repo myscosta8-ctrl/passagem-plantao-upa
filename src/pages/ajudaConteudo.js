@@ -21,6 +21,7 @@ export const SECOES_AJUDA = [
       { p: 'Como funciona o painel?', r: 'Mostra os setores (Sala Vermelha, Internação, Pediatria e Observação) com seus leitos. O último leito de Internação, Pediatria e Observação é o Isolamento. Use "Grade" ou "Lista" para trocar a visualização.' },
       { p: 'Como interno um paciente?', r: 'Toque num leito livre (ou em "Admitir" na lista), preencha nome, diagnóstico, data de admissão, data de nascimento, classificação de Manchester e status, e toque em "Internar".' },
       { p: 'Como realoco (troco de leito/setor)?', r: 'No card do paciente toque em "Realocar", escolha o setor de destino e depois um leito livre (o isolamento aparece destacado em âmbar como "ISO"). Os dados clínicos são mantidos. Se o setor estiver lotado, dá para abrir um leito extra.' },
+      { p: 'Como sinalizo que o paciente foi internado (saiu da observação)?', r: 'Enfermagem: no card do paciente em "Em observação", toque no ícone da cama e confirme. Recepção (e enfermagem, pelo menu Recepção): aba "Sinalizar internação", toque em "Sinalizar internação" ao lado do nome e confirme. O card passa a mostrar "Internado" e fica registrado quem sinalizou, quando e de qual status para qual. Se marcou por engano, na mesma aba use "Voltar p/ observação" — também fica registrado. Em Internação o paciente já entra como Internado.' },
       { p: 'Como dou alta, transferência ou óbito?', r: 'No card do paciente toque no botão vermelho "Desfecho" e escolha o tipo. O prontuário continua guardado e pode ser consultado depois em "Desfechos".' },
     ],
   },
@@ -65,6 +66,7 @@ export const SECOES_AJUDA = [
     id: 'recepcao', titulo: 'Recepção', icone: 'ph-identification-card', perfis: ['recepcao', 'admin', 'enfermagem'],
     itens: [
       { p: 'Cadastro do paciente', r: 'Menu → Recepção. Busque primeiro pelo nome, CPF ou CNS para evitar cadastro duplicado. Se não existir, use "Novo cadastro". Em "Duplicatas" dá para revisar cadastros repetidos.' },
+      { p: 'Sinalizar internação', r: 'Aba "Sinalizar internação": lista quem está em observação e quem está internado. Toque em "Sinalizar internação" ao lado do paciente que passou a ser internado e confirme. Fica registrado com seu nome, data e hora. A decisão clínica é da equipe assistencial — aqui é só a sinalização.' },
       { p: 'Ficha de identificação', r: 'Depois de salvar o cadastro, a ficha de identificação pode ser impressa pela própria tela da Recepção.' },
     ],
   },

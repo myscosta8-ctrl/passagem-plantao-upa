@@ -1,4 +1,8 @@
+import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { usePainel } from './PainelContext'
+import ConfirmModal from '../ConfirmModal'
+import { sinalizarInternacaoPep } from '../../lib/pepAtendimentos'
 import { normalizarNome } from './constantes'
 import styles from './PainelCards.module.css'
 import { sinaisDoLeito, FILTROS_RESUMO } from './sinaisLeito'
@@ -108,7 +112,24 @@ export default function PainelCards({ setoresVisiveis }) {
     abrirLeitoExtra,
     indicadoresPorPaciente,
     filtroResumo,
+    enfermeiro,
   } = usePainel()
+  const queryClient = useQueryClient()
+  const [confirmarInternacao, setConfirmarInternacao] = useState(null)
+  const [erroInternacao, setErroInternacao] = useState('')
+
+  async function sinalizarInternado() {
+    const alvo = confirmarInternacao
+    if (!alvo) return
+    const { error } = await sinalizarInternacaoPep({ atendimentoId: alvo.paciente.id, novoStatus: 'Internado' })
+    setConfirmarInternacao(null)
+    if (error) { setErroInternacao('Não foi possível sinalizar a internação. Tente de novo.'); return }
+    setErroInternacao('')
+    queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => old && ({
+      ...old,
+      pacientesPorLeito: { ...(old.pacientesPorLeito || {}), [alvo.leito.id]: { ...alvo.paciente, status_internacao: 'Internado' } },
+    }))
+  }
 
   const buscaNorm = normalizarNome(busca || '')
 
@@ -259,6 +280,11 @@ export default function PainelCards({ setoresVisiveis }) {
                         </button>
 
                         <div className={cx('footer-actions-right')}>
+                          {paciente.status_internacao !== 'Internado' && (
+                            <button type="button" className={cx('btn-footer', 'icon-only')} title="Sinalizar internação" onClick={() => setConfirmarInternacao({ paciente, leito })}>
+                              <i className={cx('ph', 'ph-bed')} />
+                            </button>
+                          )}
                           <button type="button" className={cx('btn-footer', 'icon-only')} title="Realocar / Transferir" onClick={() => setModalRealocar({ paciente, leitoOrigem: leito })}>
                             <i className={cx('ph', 'ph-arrows-left-right')} />
                           </button>
@@ -284,6 +310,16 @@ export default function PainelCards({ setoresVisiveis }) {
             </section>
           )
         })}
+      {erroInternacao && <div role="alert" className="faixa-erro-app">{erroInternacao}<button type="button" onClick={() => setErroInternacao('')}>Fechar</button></div>}
+      {confirmarInternacao && (
+        <ConfirmModal
+          titulo="Sinalizar internação"
+          mensagem={`Confirma que ${formatarNomePaciente(confirmarInternacao.paciente.nome)} passa de "Em observação" para "Internado"? Fica registrado com o seu nome, data e hora.`}
+          confirmarTexto="Sinalizar internação"
+          onConfirmar={sinalizarInternado}
+          onCancelar={() => setConfirmarInternacao(null)}
+        />
+      )}
     </>
   )
 }

@@ -4,6 +4,7 @@ import { useAuth } from '../lib/AuthContext'
 import { listarCadastrosRecentes, listarDuplicatasPendentes } from '../lib/pepRecepcao'
 import {
   AbaDesfecho,
+  AbaInternacao,
   AbaDuplicatas,
   AbaBusca,
   AbaFormNovo,
@@ -64,6 +65,12 @@ export default function CadastroPacientes() {
             <i className="ph ph-copy" /> Duplicatas{qtdDuplicatas > 0 ? ` (${qtdDuplicatas})` : ''}
           </button>
           <button
+            className={`doc-subtab ${aba === 'internacao' ? 'active' : ''}`}
+            onClick={() => { setAba('internacao'); setPessoaParaEditar(null) }}
+          >
+            <i className="ph ph-bed" /> Sinalizar internação
+          </button>
+          <button
             className={`doc-subtab ${aba === 'desfecho' ? 'active' : ''}`}
             onClick={() => { setAba('desfecho'); setPessoaParaEditar(null) }}
           >
@@ -72,6 +79,7 @@ export default function CadastroPacientes() {
         </div>
 
       <div style={{ marginTop: 22 }}>
+        {aba === 'internacao' && <AbaInternacao />}
         {aba === 'desfecho' && <AbaDesfecho />}
         {aba === 'novo' && (
           <AbaFormNovo

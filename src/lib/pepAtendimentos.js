@@ -473,3 +473,9 @@ export async function carregarResumoProntuario(atendimentoIds) {
   for (const a of at.data ?? []) if (a.regulacao_flag) mapa[a.id]?.itens.push(`Regulação: aberta${a.regulacao_tipo ? ` · ${a.regulacao_tipo}` : ''}`)
   return mapa
 }
+
+// Sinaliza observação <-> internado. A regra (perfil, auditoria, encerrado) fica no banco.
+export async function sinalizarInternacaoPep({ atendimentoId, novoStatus }) {
+  const { data, error } = await supabase.rpc('sinalizar_internacao', { p_atendimento_id: atendimentoId, p_novo_status: novoStatus })
+  return { data, error }
+}
