@@ -278,6 +278,10 @@ export async function obterOuCriarAtendimentoParaPaciente(pacienteId) {
     .from('atendimentos')
     .select('id, pessoa_id')
     .eq('migrado_de_paciente_id', pacienteId)
+    // Pode haver mais de um (duplicados antigos): usa o mais antigo em vez de
+    // falhar e acabar criando outro atendimento a cada abertura.
+    .order('criado_em', { ascending: true })
+    .limit(1)
     .maybeSingle()
   if (erroConsulta4) avisarErro('pepAtendimentos', erroConsulta4)
   if (atendimentoExistente) {
@@ -296,6 +300,8 @@ export async function obterOuCriarAtendimentoParaPaciente(pacienteId) {
     .from('pessoas')
     .select('id')
     .eq('migrado_de_paciente_id', pacienteId)
+    .order('criado_em', { ascending: true })
+    .limit(1)
     .maybeSingle()
   if (erroConsulta5) avisarErro('pepAtendimentos', erroConsulta5)
 
@@ -326,7 +332,9 @@ export async function obterOuCriarAtendimentoParaPaciente(pacienteId) {
       migrado_de_paciente_id: pacienteId,
       setor_id: leito?.setor_id ?? null,
       tipo: 'internacao',
-      status: 'internado',
+      // Espelha a situação do paciente: quem já recebeu alta não nasce "internado".
+      status: pacienteRow.status === 'internado' ? 'internado' : 'alta',
+      encerrado_em: pacienteRow.status === 'internado' ? null : new Date().toISOString(),
       status_internacao: pacienteRow.status_internacao ?? 'Em observação',
       classificacao_risco_cor: pacienteRow.classificacao_manchester ?? null,
     })
