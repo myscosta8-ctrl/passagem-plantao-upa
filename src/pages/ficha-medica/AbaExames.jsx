@@ -527,6 +527,14 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           </div><div style={{display:'flex', gap: 12, alignItems: 'center'}}><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)' }}>Em Aberto - Urgência</span><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div></header>
 
         <div className="cc-body">
+          <div className="modality-nav modality-nav-topo" role="tablist" aria-label="Tipo de pedido">
+            {[['lab', 'ph-flask', 'Laboratório', countLab], ['img', 'ph-scan', 'Imagem', countImg], ['ecg', 'ph-heartbeat', 'ECG', countEcg], ['apac', 'ph-file-text', 'APAC', countApac]].map(([k, ic, rot, n]) => (
+              <button key={k} type="button" role="tab" aria-selected={modalidade === k} className={'modality-btn ' + (modalidade === k ? 'active' : '')} onClick={() => setModalidade(k)}>
+                <span><i className={'ph ' + ic} /> {rot}</span>
+                {n > 0 && <span className="modality-badge">{n}</span>}
+              </button>
+            ))}
+          </div>
 
           {/* 1. DADOS DO PEDIDO — por modalidade, com identificação real do atendimento/médico */}
           {(modalidade === 'lab' || modalidade === 'img' || modalidade === 'ecg') && (

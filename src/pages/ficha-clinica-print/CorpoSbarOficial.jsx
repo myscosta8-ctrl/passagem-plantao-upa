@@ -92,7 +92,7 @@ export default function CorpoSbarOficial({ registro, pessoa, atendimento, idade,
       <div className="doc-rodape-container">
         <div className="doc-rodape-externo">
           <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
+            <div className="cidade-data">Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
             <div className="hora-envio"><b>Horário da Transferência:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
             <div style={{ fontSize: '8px', color: '#64748b', marginTop: 2 }}>Origem: {setorNome || 'Setor de Origem'} &bull; Leito {leitoNumero || '—'}</div>
           </div>

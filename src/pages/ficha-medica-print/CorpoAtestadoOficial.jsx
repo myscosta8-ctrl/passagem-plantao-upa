@@ -26,7 +26,7 @@ export default function CorpoAtestadoOficial({ registro, pessoa, atendimento, id
       <div className="doc-rodape-container">
         <div className="doc-rodape-externo">
           <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
+            <div className="cidade-data">Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
           </div>
           <div className="doc-bloco-assinatura">
             <div className="linha-sig" />

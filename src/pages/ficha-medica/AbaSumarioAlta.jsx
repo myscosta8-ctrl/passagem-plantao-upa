@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { buscarSumarioAlta, salvarSumarioAlta, mensagemErroSalvar } from '../../lib/pepMedico';
+import { buscarSumarioAlta, salvarSumarioAlta, mensagemErroSalvar, buscarDadosParaSumario } from '../../lib/pepMedico';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { descartarRascunho } from '../../lib/documentos'
@@ -30,8 +30,21 @@ export default function AbaSumarioAlta({ atendimento, medicoId, onImprimir, onFe
           resumo_clinico: s.resumo_clinico || '', orientacoes_continuidade: s.orientacoes_continuidade || '',
         })
         setSalvo(s)
+        setCarregando(false)
+        return
       }
-      setCarregando(false)
+      // Sumário novo: já traz o que foi registrado na admissão/AIH (o médico revisa).
+      buscarDadosParaSumario(atendimento.atendimento_id).then((sug) => {
+        const hoje = new Date()
+        const hojeIso = new Date(hoje.getTime() - hoje.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
+        setDados((prev) => ({
+          ...prev,
+          data_internacao: prev.data_internacao || sug.data_internacao,
+          data_alta: prev.data_alta || hojeIso,
+          diagnostico_internacao: prev.diagnostico_internacao || sug.diagnostico_internacao,
+          cid_internacao: prev.cid_internacao || sug.cid_internacao,
+        }))
+      }).finally(() => setCarregando(false))
     })
   }, [atendimento.atendimento_id])
 

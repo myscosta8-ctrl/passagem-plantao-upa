@@ -65,7 +65,7 @@ function ReceitaColuna({ via, viaRotulo, registro, pessoa, atendimento, idade, l
       <div className="doc-rodape-container" style={{ marginTop: 'auto' }}>
         <div className="doc-rodape-externo" style={{ padding: '3px 2px 2px' }}>
           <div className="doc-bloco-datahora">
-            <div className="cidade-data" style={{ fontSize: '8.2px' }}>Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
+            <div className="cidade-data" style={{ fontSize: '8.2px' }}>Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
             <div className="hora-envio" style={{ fontSize: '7.2px' }}><b>Emissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
           </div>
           <div className="doc-bloco-assinatura" style={{ minWidth: '140px' }}>

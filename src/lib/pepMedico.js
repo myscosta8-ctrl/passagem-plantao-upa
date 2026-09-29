@@ -535,3 +535,19 @@ export function mensagemErroSalvar(error, documento = 'o registro') {
   if (error?.code === '42501' || /JWT|permission|row-level/i.test(txt)) return 'Sua sessão expirou ou não tem permissão. Entre novamente no sistema.'
   return `Não foi possível salvar ${documento}. Tente de novo.`
 }
+
+// Sugestão para o Sumário de Alta: o que já foi registrado na admissão/AIH.
+export async function buscarDadosParaSumario(atendimentoId) {
+  const [{ data: atd }, { data: intern }, { data: cons }, { data: aih }] = await Promise.all([
+    supabase.from('atendimentos').select('criado_em, queixa_principal').eq('id', atendimentoId).maybeSingle(),
+    supabase.from('internacoes').select('internado_em, diagnostico_admissao').eq('atendimento_id', atendimentoId).order('internado_em', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('consultas_medicas').select('hipotese_diagnostica').eq('atendimento_id', atendimentoId).neq('situacao', 'invalidado').order('criado_em', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('aih_solicitacoes').select('cid_principal').eq('atendimento_id', atendimentoId).neq('situacao', 'invalidado').order('criado_em', { ascending: false }).limit(1).maybeSingle(),
+  ])
+  const inicio = intern?.internado_em || atd?.criado_em
+  return {
+    data_internacao: inicio ? String(inicio).slice(0, 10) : '',
+    diagnostico_internacao: cons?.hipotese_diagnostica || intern?.diagnostico_admissao || atd?.queixa_principal || '',
+    cid_internacao: aih?.cid_principal || '',
+  }
+}

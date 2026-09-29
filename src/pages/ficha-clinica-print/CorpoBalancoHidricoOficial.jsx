@@ -166,7 +166,7 @@ export default function CorpoBalancoHidricoOficial({ registro, pessoa, atendimen
       <div className="doc-rodape-container">
         <div className="doc-rodape-externo">
           <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
+            <div className="cidade-data">Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
             <div className="hora-envio"><b>Fechamento das 24 Horas:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : (dataHora.split(' ')[1] || dataHora)}</div>
             <div style={{ fontSize: '8px', color: '#334155', marginTop: 2 }}>
               Balanço Hídrico Acumulado:{' '}
