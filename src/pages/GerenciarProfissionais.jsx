@@ -11,8 +11,25 @@ const TIPOS = [
   { valor: 'recepcao', rotulo: 'Recepção', conselho: null },
 ]
 const UFS = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
-const conselhoDe = (tipo) => TIPOS.find((t) => t.valor === tipo)?.conselho
-const registroDe = (p) => (p.tipo === 'medico' ? p.crm : p.coren) || ''
+const FILTROS = [...TIPOS, { valor: 'apoio', rotulo: 'Outros' }]
+const ROTULO_TIPO = { medico: 'Médico', enfermagem: 'Enfermagem', recepcao: 'Recepção', apoio: 'Apoio' }
+// Conselho profissional: vem da função escolhida; sem função, deduz pelo tipo.
+const conselhoDe = (tipo, funcao, funcoes = []) => {
+  if (funcao) return funcoes.find((x) => x.chave === funcao)?.conselho || null
+  return TIPOS.find((t) => t.valor === tipo)?.conselho || null
+}
+const registroDe = (p) => (p.tipo === 'medico' ? p.crm : p.tipo === 'enfermagem' ? (p.coren || p.registro_profissional) : p.registro_profissional) || ''
+const nomeFuncao = (p, funcoes) => p.funcao_nome || funcoes.find((x) => x.chave === p.funcao)?.nome || ROTULO_TIPO[p.tipo] || p.tipo
+// Onde gravar o número do registro, conforme o conselho.
+function camposRegistro(tipo, conselho, registro, uf) {
+  const r = (registro || '').trim() || null
+  return {
+    crm: tipo === 'medico' ? r : null,
+    coren: tipo !== 'medico' && conselho === 'COREN' ? r : null,
+    registro_profissional: tipo !== 'medico' && conselho && conselho !== 'COREN' ? r : null,
+    conselho_uf: conselho ? uf : null,
+  }
+}
 const nomeDe = (p) => p.nome_exibicao || p.nome
 
 // Permissões que a pessoa tem de fato: as do cargo, mais as extras, menos as removidas.
@@ -65,14 +82,13 @@ function SenhaGerada({ usuario, senha }) {
   )
 }
 
-function CampoRegistro({ tipo, registro, uf, onRegistro, onUf }) {
-  const conselho = conselhoDe(tipo)
+function CampoRegistro({ conselho, registro, uf, onRegistro, onUf }) {
   if (!conselho) return null
   return (
     <div className="gp-linha2">
       <div className="gp-campo">
         <label>Nº do {conselho}</label>
-        <input value={registro} onChange={(e) => onRegistro(e.target.value.replace(/[^\dA-Za-z.-]/g, ''))} placeholder={conselho === 'CRM' ? 'ex: 12345' : 'ex: 123456'} />
+        <input value={registro} onChange={(e) => onRegistro(e.target.value.replace(/[^\dA-Za-z.-]/g, ''))} placeholder="ex: 123456" />
       </div>
       <div className="gp-campo gp-uf">
         <label>UF do {conselho}</label>
@@ -82,13 +98,22 @@ function CampoRegistro({ tipo, registro, uf, onRegistro, onUf }) {
   )
 }
 
-function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, focar, perm, souAdmin, cargos }) {
+function SeletorFuncao({ valor, funcoes, onChange, vazio }) {
+  return (
+    <select value={valor} onChange={(e) => onChange(e.target.value)}>
+      {vazio && <option value="">{vazio}</option>}
+      {funcoes.map((x) => <option key={x.chave} value={x.chave}>{x.nome}</option>)}
+    </select>
+  )
+}
+
+function LinhaProfissional({ p, funcoes, meuId, onSalvo, onResetar, onAlternarAtivo, focar, perm, souAdmin, cargos }) {
   const bloqueado = p.role === 'admin' && !souAdmin // só o administrador geral mexe em outro administrador
   const [aberto, setAberto] = useState(false)
   const [f, setF] = useState(null)
   const [salvando, setSalvando] = useState(false)
   const [msg, setMsg] = useState(null)
-  const abrir = () => { setF({ nome: p.nome || '', nome_exibicao: p.nome_exibicao || '', tipo: p.tipo || 'enfermagem', registro: registroDe(p), uf: p.conselho_uf || 'PA', admin: p.role === 'admin', cargo: p.cargo_admin || '', perms: permsEfetivas(p, cargos) }); setMsg(null); setAberto(true) }
+  const abrir = () => { setF({ nome: p.nome || '', nome_exibicao: p.nome_exibicao || '', tipo: p.tipo || 'enfermagem', funcao: p.funcao || '', registro: registroDe(p), uf: p.conselho_uf || 'PA', admin: p.role === 'admin', cargo: p.cargo_admin || '', perms: permsEfetivas(p, cargos) }); setMsg(null); setAberto(true) }
   const set = (k, v) => setF((x) => ({ ...x, [k]: v }))
   useEffect(() => { if (focar) abrir() }, [focar])
 
@@ -96,12 +121,8 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, foca
     if (!f.nome.trim()) { setMsg({ erro: true, t: 'Informe o nome.' }); return }
     if (souAdmin && p.id === meuId && !f.admin) { setMsg({ erro: true, t: 'Você não pode retirar o seu próprio acesso de administrador geral.' }); return }
     setSalvando(true)
-    const dados = {
-      nome: f.nome.trim(), nome_exibicao: f.nome_exibicao.trim() || null, tipo: f.tipo,
-      crm: f.tipo === 'medico' ? (f.registro.trim() || null) : null,
-      coren: f.tipo === 'enfermagem' ? (f.registro.trim() || null) : null,
-      conselho_uf: conselhoDe(f.tipo) ? f.uf : null,
-    }
+    const dados = { nome: f.nome.trim(), nome_exibicao: f.nome_exibicao.trim() || null, ...camposRegistro(f.tipo, conselhoDe(f.tipo, f.funcao, funcoes), f.registro, f.uf) }
+    if (f.funcao && f.funcao !== (p.funcao || '')) dados.funcao = f.funcao
     if (souAdmin) dados.role = f.admin ? 'admin' : 'enfermeiro'
     const { error } = await supabase.from('enfermeiros').update(dados).eq('id', p.id)
     if (error) { setSalvando(false); avisarErro('GerenciarProfissionais', error); setMsg({ erro: true, t: 'Não foi possível salvar.' }); return }
@@ -114,7 +135,7 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, foca
     setAberto(false); onSalvo()
   }
 
-  const conselho = conselhoDe(p.tipo)
+  const conselho = conselhoDe(p.tipo, p.funcao, funcoes)
   const ativo = p.ativo !== false
   return (
     <div className={`gp-item ${!ativo ? 'inativo' : ''} ${aberto ? 'aberto' : ''}`}>
@@ -123,7 +144,7 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, foca
         <div className="gp-item-info">
           <div className="gp-nome">{nomeDe(p)} {p.role === 'admin' && <span className="gp-selo admin">Administrador geral</span>}{p.role !== 'admin' && p.cargo_admin && <span className="gp-selo">{nomeCargo(p.cargo_admin, cargos)}</span>} {!ativo && <span className="gp-selo">Desativado</span>} {p.deve_trocar_senha && <span className="gp-selo ambar">Trocar senha</span>}</div>
           <div className="gp-sub">
-            {p.nome} · {TIPOS.find((t) => t.valor === p.tipo)?.rotulo || p.tipo}
+            {p.nome} · {nomeFuncao(p, funcoes)}
             {conselho && (registroDe(p) ? ` · ${conselho}-${p.conselho_uf || 'PA'} ${registroDe(p)}` : <span className="gp-falta"> · {conselho} não informado</span>)}
           </div>
           <div className="gp-sub gp-meta">{p.usuario && <span><i className="ph ph-at" /> {p.usuario}</span>}<span><i className="ph ph-clock" /> {ultimoAcessoTexto(p)}</span></div>
@@ -145,10 +166,12 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, foca
             <div className="gp-campo"><label>Nome completo</label><input value={f.nome} onChange={(e) => set('nome', e.target.value)} /></div>
             <div className="gp-campo"><label>Nome de exibição (sai nos documentos)</label><input value={f.nome_exibicao} onChange={(e) => set('nome_exibicao', e.target.value.toUpperCase())} placeholder="ex: ENF.MARIA / DR.JOAO" /></div>
           </div>
-          <div className="gp-campo"><label>Tipo</label>
-            <div className="gp-segmento">{TIPOS.map((t) => <button key={t.valor} type="button" className={f.tipo === t.valor ? 'on' : ''} onClick={() => set('tipo', t.valor)}>{t.rotulo}</button>)}</div>
+          <div className="gp-campo"><label>Função</label>
+            {souAdmin || perm.editar
+              ? <SeletorFuncao valor={f.funcao} funcoes={funcoes} vazio={`${ROTULO_TIPO[f.tipo] || f.tipo} (escolher função)`} onChange={(v) => setF((x) => ({ ...x, funcao: v, tipo: funcoes.find((y) => y.chave === v)?.perfil_base || x.tipo }))} />
+              : <input value={nomeFuncao(p, funcoes)} disabled />}
           </div>
-          <CampoRegistro tipo={f.tipo} registro={f.registro} uf={f.uf} onRegistro={(v) => set('registro', v)} onUf={(v) => set('uf', v)} />
+          <CampoRegistro conselho={conselhoDe(f.tipo, f.funcao, funcoes)} registro={f.registro} uf={f.uf} onRegistro={(v) => set('registro', v)} onUf={(v) => set('uf', v)} />
           {souAdmin && (
             <>
               <label className="gp-check"><input type="checkbox" checked={f.admin} onChange={(e) => set('admin', e.target.checked)} /> Administrador geral (acesso total ao sistema — use só para você)</label>
@@ -190,6 +213,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
   const souAdmin = euPerfil?.role === 'admin'
   const perm = { criar: temPermissao('cadastrar_funcionarios'), editar: temPermissao('editar_cadastro'), resetar: temPermissao('resetar_senha'), ativar: temPermissao('ativar_desativar') }
   const [cargos, setCargos] = useState([])
+  const [funcoes, setFuncoes] = useState([])
   const [profissionais, setProfissionais] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [busca, setBusca] = useState('')
@@ -199,7 +223,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
   const [nome, setNome] = useState('')
   const [username, setUsername] = useState('')
   const [exibicao, setExibicao] = useState('')
-  const [tipo, setTipo] = useState('enfermagem')
+  const [funcao, setFuncao] = useState('enfermeiro')
   const [registro, setRegistro] = useState('')
   const [uf, setUf] = useState('PA')
   const [criando, setCriando] = useState(false)
@@ -217,6 +241,8 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
     setProfissionais(data ?? [])
     const { data: cg } = await supabase.from('cargos_admin').select('*').order('ordem')
     setCargos(cg ?? [])
+    const { data: fn } = await supabase.from('funcoes_profissionais').select('*').order('ordem')
+    setFuncoes(fn ?? [])
     setCarregando(false)
   }
 
@@ -224,9 +250,9 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
     const b = busca.trim().toLowerCase()
     return profissionais.filter((p) => (mostrarInativos || p.ativo !== false)
       && (filtroTipo === 'todos' || p.tipo === filtroTipo)
-      && (!b || `${p.nome} ${p.nome_exibicao} ${p.usuario || ''} ${p.crm || ''} ${p.coren || ''}`.toLowerCase().includes(b)))
+      && (!b || `${p.nome} ${p.nome_exibicao} ${p.usuario || ''} ${p.crm || ''} ${p.coren || ''} ${p.registro_profissional || ''} ${p.funcao_nome || ''}`.toLowerCase().includes(b)))
   }, [profissionais, busca, filtroTipo, mostrarInativos])
-  const semRegistro = profissionais.filter((p) => p.ativo !== false && conselhoDe(p.tipo) && !registroDe(p)).length
+  const semRegistro = profissionais.filter((p) => p.ativo !== false && conselhoDe(p.tipo, p.funcao, funcoes) && !registroDe(p)).length
 
   async function criarLogin(e) {
     e.preventDefault()
@@ -234,7 +260,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
     if (!nome.trim() || !username.trim()) { setErroCriar('Preencha nome e usuário.'); return }
     setCriando(true)
     const { data, error } = await supabase.functions.invoke('criar-login-profissional', {
-      body: { nome: nome.trim(), username: username.trim(), nome_exibicao: exibicao.trim(), tipo, registro: registro.trim(), conselho_uf: uf },
+      body: { nome: nome.trim(), username: username.trim(), nome_exibicao: exibicao.trim(), funcao, registro: registro.trim(), conselho_uf: uf },
     })
     setCriando(false)
     if (error || data?.error || !data?.senha_provisoria) {
@@ -293,13 +319,13 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
           <div className="gp-form-l1">
             <div className="gp-campo"><label>Nome completo</label><input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome como no documento" /></div>
             <div className="gp-campo"><label>Usuário (login)</label><input placeholder="ex: enf.maria" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={username} onChange={(e) => setUsername(e.target.value)} /></div>
-            <div className="gp-campo"><label>Nome de exibição <small>(sai nos documentos)</small></label><input value={exibicao} onChange={(e) => setExibicao(e.target.value.toUpperCase())} placeholder={`ex: ${tipo === 'medico' ? 'DR.' : tipo === 'recepcao' ? 'REC.' : 'ENF.'}${(nome.trim().split(/\s+/)[0] || 'MARIA').toUpperCase()}`} /></div>
+            <div className="gp-campo"><label>Nome de exibição <small>(sai nos documentos)</small></label><input value={exibicao} onChange={(e) => setExibicao(e.target.value.toUpperCase())} placeholder={`ex: ${funcoes.find((x) => x.chave === funcao)?.prefixo_exibicao || ''}${(nome.trim().split(/\s+/)[0] || 'MARIA').toUpperCase()}`} /></div>
           </div>
           <div className="gp-form-l2">
-            <div className="gp-campo"><label>Tipo</label>
-              <div className="gp-segmento">{TIPOS.map((t) => <button key={t.valor} type="button" className={tipo === t.valor ? 'on' : ''} onClick={() => setTipo(t.valor)}>{t.rotulo}</button>)}</div>
+            <div className="gp-campo"><label>Função</label>
+              <SeletorFuncao valor={funcao} funcoes={funcoes} onChange={setFuncao} />
             </div>
-            <CampoRegistro tipo={tipo} registro={registro} uf={uf} onRegistro={setRegistro} onUf={setUf} />
+            <CampoRegistro conselho={conselhoDe(null, funcao, funcoes)} registro={registro} uf={uf} onRegistro={setRegistro} onUf={setUf} />
             <button type="submit" className="gp-btn gp-btn-pri gp-criar" disabled={criando}><i className="ph ph-user-plus" /> {criando ? 'Criando...' : 'Criar login'}</button>
           </div>
           <p className="gp-dica">Se o nome de exibição ficar em branco, ele é gerado a partir do primeiro nome. A senha provisória aparece logo após criar.</p>
@@ -316,13 +342,13 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
         <div className="gp-filtros">
           <label className="gp-busca"><i className="ph ph-magnifying-glass" /><input type="search" placeholder="Buscar por nome, usuário, COREN ou CRM" value={busca} onChange={(e) => setBusca(e.target.value)} /></label>
           <div className="gp-segmento gp-seg-suave">
-            {[{ valor: 'todos', rotulo: 'Todos' }, ...TIPOS].map((t) => <button key={t.valor} type="button" className={filtroTipo === t.valor ? 'on' : ''} onClick={() => setFiltroTipo(t.valor)}>{t.rotulo}</button>)}
+            {[{ valor: 'todos', rotulo: 'Todos' }, ...FILTROS].map((t) => <button key={t.valor} type="button" className={filtroTipo === t.valor ? 'on' : ''} onClick={() => setFiltroTipo(t.valor)}>{t.rotulo}</button>)}
           </div>
           <label className="gp-switch"><input type="checkbox" checked={mostrarInativos} onChange={(e) => setMostrarInativos(e.target.checked)} /><span aria-hidden="true" /> Mostrar desativados</label>
         </div>
         {carregando ? <p className="gp-vazio">Carregando...</p> : lista.length === 0 ? <p className="gp-vazio">Nenhum login encontrado.</p> : (
           <div className="gp-lista">{lista.map((p) => (
-            <LinhaProfissional key={p.id} p={p} meuId={eu} focar={p.id === focoId} onSalvo={carregar} perm={perm} souAdmin={souAdmin} cargos={cargos}
+            <LinhaProfissional key={p.id} p={p} funcoes={funcoes} meuId={eu} focar={p.id === focoId} onSalvo={carregar} perm={perm} souAdmin={souAdmin} cargos={cargos}
               onResetar={(x) => setJanela({ tipo: 'reset', p: x })}
               onAlternarAtivo={(x) => setJanela({ tipo: 'ativo', p: x })} />
           ))}</div>

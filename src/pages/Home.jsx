@@ -20,6 +20,7 @@ const IndicadoresPainel = lazy(() => import('./IndicadoresPainel'))
 const CompartilharPlantao = lazy(() => import('./CompartilharPlantao'))
 const PainelEquipe = lazy(() => import('./PainelEquipe'))
 const GerenciarProfissionais = lazy(() => import('./GerenciarProfissionais'))
+const TelaApoio = lazy(() => import('./TelaApoio'))
 const PainelMedico = lazy(() => import('./PainelMedico'))
 const CadastroPacientes = lazy(() => import('./CadastroPacientes'))
 
@@ -98,6 +99,8 @@ export default function Home() {
   // Mesmo raciocínio do médico: recepção não abre plantão de enfermagem, vai
   // direto pro cadastro de pacientes — trabalho dela é identidade, não leito.
   const ehRecepcao = enfermeiro?.tipo === 'recepcao'
+  // Demais funções da UPA (farmácia, serviço social, etc.): só consulta, sem plantão de enfermagem.
+  const ehApoio = enfermeiro?.tipo === 'apoio'
   // "Encerrar plantonista" é destrutivo demais pra qualquer conta admin — só o Marcus.
   // Telas de administração: qualquer conta com papel admin no banco.
   // Administrador geral OU quem recebeu algum cargo/permissão administrativa (ver Profissionais → Cargo).
@@ -195,7 +198,7 @@ export default function Home() {
   const [sidebarAberta, setSidebarAberta] = useState(false)
 
   useEffect(() => {
-    if (ehMedico || ehRecepcao) {
+    if (ehMedico || ehRecepcao || ehApoio) {
       setVerificandoRetomada(false)
       return
     }
@@ -313,7 +316,7 @@ export default function Home() {
     )
   }
 
-  if (ehMedico || ehRecepcao) {
+  if (ehMedico || ehRecepcao || ehApoio) {
     return (
       <div className="shell">
         {erroApp && (<div role="alert" className="faixa-erro-app"><i className="ph ph-warning-circle" /> Falha ao carregar dados ({erroApp.contexto}). Verifique a conexão — as informações exibidas podem estar incompletas.<button type="button" onClick={() => setErroApp(null)}>Fechar</button></div>)}
@@ -344,6 +347,7 @@ export default function Home() {
           {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} />
             : tela === 'equipe' && podeAdministrar ? <PainelEquipe onVoltar={() => setTela('painel')} podeAdministrar={podeAdministrar} onGerenciar={(id) => { setFocoProfissional(id); setTela('profissionais') }} />
             : tela === 'profissionais' && podeAdministrar ? <GerenciarProfissionais onVoltar={() => setTela('painel')} focoId={focoProfissional} onAbrirEquipe={() => setTela('equipe')} />
+            : ehApoio ? <TelaApoio enfermeiro={enfermeiro} podeAdministrar={podeAdministrar} onEquipe={() => setTela('equipe')} onProfissionais={() => setTela('profissionais')} onConta={() => setTela('conta')} />
             : ehMedico ? <PainelMedico /> : <CadastroPacientes />}
         </Suspense>
       </div>

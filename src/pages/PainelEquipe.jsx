@@ -4,13 +4,14 @@ import { supabase } from '../lib/supabaseClient'
 import { avisarErro } from '../lib/erros'
 import './PainelEquipe.css'
 
-const TIPO = { medico: 'Médico', enfermagem: 'Enfermagem', recepcao: 'Recepção' }
+const TIPO = { medico: 'Médico', enfermagem: 'Enfermagem', recepcao: 'Recepção', apoio: 'Apoio' }
 const CONSELHO = { medico: 'CRM', enfermagem: 'COREN' }
+const conselhoDe = (p) => (p.funcao ? p.funcao_conselho : CONSELHO[p.tipo]) || null
 const MIN = 60000
 const ONLINE_MS = 5 * MIN
 
-const registro = (p) => (p.tipo === 'medico' ? p.crm : p.tipo === 'enfermagem' ? p.coren : null)
-const semRegistro = (p) => !!CONSELHO[p.tipo] && !registro(p)
+const registro = (p) => (p.tipo === 'medico' ? p.crm : p.tipo === 'enfermagem' ? (p.coren || p.registro_profissional) : p.registro_profissional) || null
+const semRegistro = (p) => !!conselhoDe(p) && !registro(p)
 const ultimoUso = (p) => Math.max(p.ultimo_acesso_em ? Date.parse(p.ultimo_acesso_em) : 0, p.ultimo_login ? Date.parse(p.ultimo_login) : 0) || null
 const online = (p, agora) => p.ultimo_acesso_em && agora - Date.parse(p.ultimo_acesso_em) < ONLINE_MS
 function haQuanto(ms, agora) {
@@ -59,14 +60,14 @@ export default function PainelEquipe({ onVoltar, podeAdministrar, onGerenciar })
     const f = FILTROS.find((x) => x.k === filtro)?.f || (() => true)
     const b = busca.trim().toLowerCase()
     const r = base.filter((p) => f(p, agora) && (tipo === 'todos' || p.tipo === tipo)
-      && (!b || `${p.nome} ${p.nome_exibicao} ${p.usuario} ${p.crm || ''} ${p.coren || ''}`.toLowerCase().includes(b)))
+      && (!b || `${p.nome} ${p.nome_exibicao} ${p.usuario} ${p.crm || ''} ${p.coren || ''} ${p.registro_profissional || ''} ${p.funcao_nome || ''}`.toLowerCase().includes(b)))
     const peso = (p) => (online(p, agora) ? 0 : p.em_plantao ? 1 : 2)
     return r.sort((a, c) => ordem === 'nome' ? String(a.nome).localeCompare(c.nome)
       : ordem === 'acesso' ? (ultimoUso(c) || 0) - (ultimoUso(a) || 0)
       : peso(a) - peso(c) || String(a.nome).localeCompare(c.nome))
   }, [base, filtro, tipo, busca, ordem, agora])
 
-  const TIPOS_SEG = [['todos', 'Todos'], ['enfermagem', 'Enfermagem'], ['medico', 'Médico'], ['recepcao', 'Recepção']]
+  const TIPOS_SEG = [['todos', 'Todos'], ['enfermagem', 'Enfermagem'], ['medico', 'Médico'], ['recepcao', 'Recepção'], ['apoio', 'Outros']]
   const ICONE_FILTRO = { todos: 'ph-users-three', online: 'ph-wifi-high', plantao: 'ph-first-aid-kit', semreg: 'ph-identification-card', senha: 'ph-key', ausente: 'ph-clock-counter-clockwise', admin: 'ph-shield-check' }
 
   return (
@@ -126,7 +127,7 @@ export default function PainelEquipe({ onVoltar, podeAdministrar, onGerenciar })
           {visiveis.map((p) => {
             const on = online(p, agora)
             const reg = registro(p)
-            const conselho = CONSELHO[p.tipo]
+            const conselho = conselhoDe(p)
             return (
               <article key={p.id} className={`pe-card tipo-${p.tipo} ${!p.ativo ? 'inativo' : ''}`}>
                 <div className="pe-topo">
@@ -135,7 +136,7 @@ export default function PainelEquipe({ onVoltar, podeAdministrar, onGerenciar })
                     <div className="pe-nome" title={p.nome}>{p.nome}</div>
                     <div className="pe-exib" title={p.nome_exibicao || ''}>{p.nome_exibicao || 'Sem nome de exibição'}</div>
                   </div>
-                  <span className={`pe-tipo tipo-${p.tipo}`}>{TIPO[p.tipo] || p.tipo}</span>
+                  <span className={`pe-tipo tipo-${p.tipo}`}>{p.funcao_nome || TIPO[p.tipo] || p.tipo}</span>
                 </div>
 
                 <div className="pe-status">

@@ -1,6 +1,6 @@
 // Conteúdo da Ajuda. `perfis`: quem vê a seção (enfermagem, medico, recepcao, admin).
 // Mantenha os textos curtos, no passo a passo que a equipe usa no plantão.
-const TODOS = ['enfermagem', 'medico', 'recepcao', 'admin']
+const TODOS = ['enfermagem', 'medico', 'recepcao', 'apoio', 'admin']
 const CLINICOS = ['enfermagem', 'medico', 'admin']
 
 export const SECOES_AJUDA = [
@@ -74,6 +74,7 @@ export const SECOES_AJUDA = [
     id: 'administracao', titulo: 'Administração: cargos e permissões', icone: 'ph-shield-check', perfis: ['admin', 'gestao'],
     itens: [
       { p: 'Quem pode cadastrar funcionários?', r: 'O administrador geral (dono do sistema) e quem receber um cargo administrativo. Se a pessoa que costuma cadastrar estiver ausente, o administrador geral pode dar o cargo a outra pessoa na hora.' },
+      { p: 'Quais funções posso cadastrar?', r: 'Médico, enfermeiro, técnico de enfermagem, recepção, farmacêutico, assistente social, psicólogo, fisioterapeuta, nutricionista, biomédico, técnico de radiologia, administrativo e apoio operacional. Ao criar o login, escolha a função; o campo do conselho (CRM, COREN, CRF etc.) muda sozinho. Médico, enfermeiro e técnico atuam como antes; as demais funções só consultam e não criam documentos clínicos.' },
       { p: 'Como dou um cargo a alguém?', r: 'Menu → Profissionais → Editar (na pessoa) → em "Cargo administrativo", escolha o cargo e, se quiser, ajuste as permissões uma a uma → Salvar alterações. A pessoa precisa sair e entrar de novo para ver o menu novo.' },
       { p: 'Quais são os cargos prontos?', r: 'Gestão de pessoal (cadastra, edita, reseta senha, ativa/desativa e vê a equipe); Cadastro de funcionários (cria login e edita cadastro, sem resetar senha nem desativar); Consulta da equipe (só vê o Painel de Equipe).' },
       { p: 'Como retiro o cargo?', r: 'Profissionais → Editar → Cargo administrativo → "Nenhum" → Salvar. O acesso administrativo some na próxima vez que a pessoa entrar.' },

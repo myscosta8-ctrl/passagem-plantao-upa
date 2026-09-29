@@ -34,7 +34,7 @@ function Gate() {
   // O guia de boas-vindas explica plantão/setores/impressão — fluxo de
   // enfermagem. Médico e recepção têm telas próprias, bem mais simples; não
   // faz sentido mostrar esse guia pra eles.
-  const mostrarBemVindo = enfermeiro.primeiro_acesso && !['medico', 'recepcao'].includes(enfermeiro.tipo)
+  const mostrarBemVindo = enfermeiro.primeiro_acesso && !['medico', 'recepcao', 'apoio'].includes(enfermeiro.tipo)
 
   return (
     <>

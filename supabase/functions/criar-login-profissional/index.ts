@@ -33,15 +33,29 @@ Deno.serve(async (req: Request) => {
   const body = await req.json().catch(() => ({}));
   const nome = (body.nome ?? "").trim();
   const username = (body.username ?? "").trim().toLowerCase().replace(/\s+/g, ".");
-  const tipo = body.tipo;
   const registro = String(body.registro ?? body.crm ?? "").trim() || null;
   const uf = UFS.includes(body.conselho_uf) ? body.conselho_uf : "PA";
   const exibicaoInformada = String(body.nome_exibicao ?? "").trim().toUpperCase().slice(0, 60);
-  if (!nome || !username || !["medico", "enfermagem", "recepcao"].includes(tipo)) {
-    return json({ error: "nome, username e tipo (medico|enfermagem|recepcao) são obrigatórios" }, 400);
-  }
 
   const clienteAdmin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
+
+  // Função profissional (catálogo) — com compatibilidade para o parâmetro antigo "tipo"
+  let funcao: string | null = null;
+  let tipo: string = body.tipo;
+  let conselho: string | null = null;
+  let prefixo = "";
+  if (body.funcao) {
+    const { data: f } = await clienteAdmin.from("funcoes_profissionais").select("chave, perfil_base, conselho, prefixo_exibicao").eq("chave", String(body.funcao)).maybeSingle();
+    if (!f) return json({ error: "Função profissional inválida" }, 400);
+    funcao = f.chave; tipo = f.perfil_base; conselho = f.conselho; prefixo = f.prefixo_exibicao ?? "";
+  } else {
+    conselho = tipo === "medico" ? "CRM" : tipo === "enfermagem" ? "COREN" : null;
+    prefixo = PREFIXO_EXIBICAO[tipo] ?? "";
+  }
+  if (!nome || !username || !["medico", "enfermagem", "recepcao", "apoio"].includes(tipo)) {
+    return json({ error: "nome, username e função são obrigatórios" }, 400);
+  }
+
   let senha = "";
   let criado: { user: { id: string } | null } | null = null;
   let erroCriar: { message: string } | null = null;
@@ -56,11 +70,13 @@ Deno.serve(async (req: Request) => {
     return json({ error: msg }, 400);
   }
 
-  const nomeExibicao = exibicaoInformada || ((PREFIXO_EXIBICAO[tipo] ?? "") + nome.split(/\s+/)[0].toUpperCase());
+  const nomeExibicao = exibicaoInformada || (prefixo + nome.split(/\s+/)[0].toUpperCase());
   const { error: erroPerfil } = await clienteAdmin.from("enfermeiros").insert({
-    id: criado.user.id, nome, nome_exibicao: nomeExibicao, tipo, role: "enfermeiro", deve_trocar_senha: true,
-    crm: tipo === "medico" ? registro : null, coren: tipo === "enfermagem" ? registro : null,
-    conselho_uf: tipo === "recepcao" ? null : uf,
+    id: criado.user.id, nome, nome_exibicao: nomeExibicao, tipo, funcao, role: "enfermeiro", deve_trocar_senha: true,
+    crm: tipo === "medico" ? registro : null,
+    coren: tipo === "enfermagem" && (!funcao || conselho === "COREN") ? registro : null,
+    registro_profissional: (tipo === "apoio" || (tipo === "enfermagem" && conselho && conselho !== "COREN") ) && conselho ? registro : null,
+    conselho_uf: conselho ? uf : null,
   });
   if (erroPerfil) {
     await clienteAdmin.auth.admin.deleteUser(criado.user.id);
@@ -68,7 +84,7 @@ Deno.serve(async (req: Request) => {
   }
   await clienteAdmin.from("eventos_auditoria").insert({
     autor_id: userData.user.id, acao: "criar_login", entidade: "enfermeiros", entidade_id: criado.user.id,
-    dados_novos: { username, tipo, nome_exibicao: nomeExibicao },
+    dados_novos: { username, tipo, funcao, nome_exibicao: nomeExibicao },
   });
   return json({ ok: true, id: criado.user.id, username, senha_provisoria: senha });
 });
