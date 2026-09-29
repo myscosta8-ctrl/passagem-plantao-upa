@@ -381,9 +381,9 @@
 .submit-btn {
   width: 100%;
   padding: 9px 16px;
-  border: 1px solid #0D9488;
+  border: 1px solid var(--c-primary);
   border-radius: 6px;
-  background: #0D9488;
+  background: var(--c-primary);
   color: white;
   font-weight: 600;
   font-size: 13px;

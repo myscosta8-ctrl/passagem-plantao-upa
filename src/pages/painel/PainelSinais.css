@@ -1,35 +1,35 @@
 /* Painel de Leitos — faixa de resumo, informações do card e alertas */
 .pl-resumo { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
-.pl-resumo-item { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #E2E8F0; background: #fff; color: #475569; border-radius: 18px; padding: 5px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
-.pl-resumo-item:hover { border-color: #0D9488; }
+.pl-resumo-item { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text-soft); border-radius: 18px; padding: 5px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.pl-resumo-item:hover { border-color: var(--c-primary); }
 /* Resumo neutro: só o ícone ganha cor quando há algo a resolver; "ok" não pinta nada. */
-.pl-resumo-item.critico { border-color: #E2E8F0; }
-.pl-resumo-item.critico i { color: #B91C1C; }
-.pl-resumo-item.atencao { border-color: #E2E8F0; }
-.pl-resumo-item.atencao i { color: #8A5A12; }
-.pl-resumo-item.ativo { outline: 2px solid #0D9488; outline-offset: 1px; }
-.pl-resumo-limpar { border: none; background: transparent; color: #0D9488; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+.pl-resumo-item.critico { border-color: var(--c-border); }
+.pl-resumo-item.critico i { color: var(--c-danger-strong); }
+.pl-resumo-item.atencao { border-color: var(--c-border); }
+.pl-resumo-item.atencao i { color: var(--c-warning-text); }
+.pl-resumo-item.ativo { outline: 2px solid var(--c-primary); outline-offset: 1px; }
+.pl-resumo-limpar { border: none; background: transparent; color: var(--c-primary); font-weight: 700; font-size: 12.5px; cursor: pointer; }
 
-.pl-permanencia { font-size: 11px; font-weight: 600; color: #64748B; background: transparent; border-radius: 10px; padding: 2px 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
-.pl-linha { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 11.5px; color: #334155; margin-top: 6px; }
+.pl-permanencia { font-size: 11px; font-weight: 600; color: var(--c-text-muted); background: transparent; border-radius: 10px; padding: 2px 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.pl-linha { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 11.5px; color: var(--c-text-secondary); margin-top: 6px; }
 .pl-linha span { display: inline-flex; align-items: center; gap: 4px; }
-.pl-tag { border-radius: 10px; padding: 1px 8px; font-weight: 600; font-size: 11px; border: 1px solid #E2E8F0; }
-.pl-tag.alergia { background: #fff; color: #B91C1C; border-color: #F0C4C4; }
-.pl-tag.isolamento, .pl-tag.regulacao { background: #fff; color: #64748B; }
-.pl-dispositivos span { background: #F1F5F9; border-radius: 4px; padding: 1px 6px; font-weight: 600; }
-.pl-pendencias { color: #7A5514; font-weight: 600; }
-.pl-registros { justify-content: space-between; border-top: 1px dashed #E2E8F0; padding-top: 6px; }
+.pl-tag { border-radius: 10px; padding: 1px 8px; font-weight: 600; font-size: 11px; border: 1px solid var(--c-border); }
+.pl-tag.alergia { background: var(--c-surface); color: var(--c-danger-strong); border-color: #F0C4C4; }
+.pl-tag.isolamento, .pl-tag.regulacao { background: var(--c-surface); color: var(--c-text-muted); }
+.pl-dispositivos span { background: var(--c-fill); border-radius: 4px; padding: 1px 6px; font-weight: 600; }
+.pl-pendencias { color: var(--c-warning-text); font-weight: 600; }
+.pl-registros { justify-content: space-between; border-top: 1px dashed var(--c-border); padding-top: 6px; }
 .pl-presc { font-weight: 700; }
-.pl-presc.ok { color: #475569; }
-.pl-presc.pendente { color: #8A5A12; }
-.pl-presc.vencida { color: #B91C1C; }
-.pl-ok { color: #475569; font-weight: 600; }
-.pl-pendente { color: #64748B; font-weight: 600; }
+.pl-presc.ok { color: var(--c-text-soft); }
+.pl-presc.pendente { color: var(--c-warning-text); }
+.pl-presc.vencida { color: var(--c-danger-strong); }
+.pl-ok { color: var(--c-text-soft); font-weight: 600; }
+.pl-pendente { color: var(--c-text-muted); font-weight: 600; }
 .pl-alertas { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
 .pl-alerta { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; border-radius: 6px; padding: 2px 0; }
-.pl-alerta.atencao { background: transparent; color: #8A5A12; }
-.pl-alerta.critico { background: transparent; color: #B91C1C; }
-.pl-alerta.info { background: transparent; color: #64748B; }
+.pl-alerta.atencao { background: transparent; color: var(--c-warning-text); }
+.pl-alerta.critico { background: transparent; color: var(--c-danger-strong); }
+.pl-alerta.info { background: transparent; color: var(--c-text-muted); }
 /* borda do card conforme o alerta mais grave */
-.pl-card-critico { box-shadow: none !important; border-color: #E6B3B3 !important; }
+.pl-card-critico { box-shadow: none !important; border-color: var(--c-danger-border-strong) !important; }
 .pl-card-atencao { box-shadow: none; }

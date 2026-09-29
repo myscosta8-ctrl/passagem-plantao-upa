@@ -11,13 +11,13 @@
   transition: 0.3s ease;
   height: 100vh;
   overflow: hidden;
-  background: #F1F5F9;
+  background: var(--c-fill);
 }
 
 .topbar {
   height: 64px;
-  background: #ffffff;
-  border-bottom: 1px solid #E2E8F0;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -37,7 +37,7 @@
 .topbar-hamburguer-btn {
   background: transparent;
   border: none;
-  color: #334155;
+  color: var(--c-text-secondary);
   cursor: pointer;
   width: 36px;
   height: 36px;
@@ -52,8 +52,8 @@
 }
 
 .topbar-hamburguer-btn:hover {
-  background: #F1F5F9;
-  color: #0D9488;
+  background: var(--c-fill);
+  color: var(--c-primary);
 }
 
 .breadcrumb {
@@ -61,17 +61,17 @@
   align-items: center;
   gap: 8px;
   font-size: 13.5px;
-  color: #64748B;
+  color: var(--c-text-muted);
   font-weight: 500;
 }
 
 .breadcrumb i {
   font-size: 15px;
-  color: #64748B;
+  color: var(--c-text-muted);
 }
 
 .breadcrumb span.current {
-  color: #0F172A;
+  color: var(--c-text-primary);
   font-weight: 700;
 }
 
@@ -84,9 +84,9 @@
 .sys-time {
   font-size: 12px;
   font-weight: 600;
-  color: #64748B;
+  color: var(--c-text-muted);
   padding-right: 20px;
-  border-right: 1px solid #E2E8F0;
+  border-right: 1px solid var(--c-border);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -100,14 +100,14 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #F8FAFC;
-  color: #0D9488;
+  background: var(--c-surface-inset);
+  color: var(--c-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 13px;
-  border: 1px solid #CBD5E1;
+  border: 1px solid var(--c-border-dark);
 }
 
 /* -----------------------------------------
@@ -132,7 +132,7 @@
   padding: 32px 40px;
   display: flex;
   flex-direction: column;
-  background: #F1F5F9;
+  background: var(--c-fill);
   width: 100%;
 }
 
@@ -150,14 +150,14 @@
 .painel-title h1 {
   font-size: 24px;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--c-text-primary);
   margin-bottom: 6px;
   letter-spacing: -0.02em;
 }
 
 .painel-title p {
   font-size: 14px;
-  color: #334155;
+  color: var(--c-text-secondary);
   margin: 0;
 }
 
@@ -169,13 +169,13 @@
 }
 
 .control-btn {
-  background: #ffffff;
-  border: 1px solid #CBD5E1;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-dark);
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 13.5px;
   font-weight: 600;
-  color: #334155;
+  color: var(--c-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -185,15 +185,15 @@
 }
 
 .control-btn:hover {
-  background: #F8FAFC;
-  border-color: #0D9488;
-  color: #0D9488;
+  background: var(--c-surface-inset);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 
 .control-btn.active {
-  background: #F8FAFC;
-  border-color: #0D9488;
-  color: #0D9488;
+  background: var(--c-surface-inset);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 
 .search-bar {
@@ -204,24 +204,24 @@
   position: absolute;
   left: 12px;
   top: 11px;
-  color: #64748B;
+  color: var(--c-text-muted);
   font-size: 16px;
 }
 
 .search-bar .search-input {
   width: 280px;
   padding: 9px 12px 9px 36px !important;
-  border: 1px solid #CBD5E1;
+  border: 1px solid var(--c-border-dark);
   border-radius: 6px;
   font-size: 13.5px;
   outline: none;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
-  background: #ffffff;
-  color: #0F172A;
+  background: var(--c-surface);
+  color: var(--c-text-primary);
 }
 
 .search-bar .search-input:focus {
-  border-color: #0D9488;
+  border-color: var(--c-primary);
   box-shadow: 0 0 0 3px #F8FAFC;
 }
 
@@ -230,8 +230,8 @@
   top: calc(100% + 6px);
   right: 0;
   z-index: 30;
-  background: #ffffff;
-  border: 1px solid #CBD5E1;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-dark);
   border-radius: 10px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   padding: 14px;
@@ -254,7 +254,7 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #CBD5E1;
+  border-bottom: 1px solid var(--c-border-dark);
   padding-bottom: 12px;
 }
 
@@ -267,14 +267,14 @@
 .setor-header h3 {
   font-size: 16px;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--c-text-primary);
   margin: 0;
 }
 
 .setor-badge,
 .setor-secao-titulo .count {
   background: #E2E8F0;
-  color: #334155;
+  color: var(--c-text-secondary);
   font-size: 12px;
   font-weight: 700;
   padding: 4px 10px;
@@ -282,9 +282,9 @@
 }
 
 .btn-setor-extra {
-  background: #ffffff;
+  background: var(--c-surface);
   border: 1px dashed #94A3B8;
-  color: #0D9488;
+  color: var(--c-primary);
   font-size: 12px;
   font-weight: 600;
   padding: 5px 12px;
@@ -298,8 +298,8 @@
 }
 
 .btn-setor-extra:hover {
-  background: #F8FAFC;
-  border-color: #0D9488;
+  background: var(--c-surface-inset);
+  border-color: var(--c-primary);
   border-style: solid;
 }
 
@@ -312,8 +312,8 @@
 
 /* CARDS DE LEITO - ESTILO ENTERPRISE */
 .leito-card {
-  background: #ffffff;
-  border: 1px solid #CBD5E1;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-dark);
   border-radius: 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   position: relative;
@@ -342,7 +342,7 @@
 .risk-laranja  { background: #EA580C; }
 .risk-amarelo  { background: #EAB308; }
 .risk-verde    { background: #16A34A; }
-.risk-azul     { background: #0D9488; }
+.risk-azul     { background: var(--c-primary); }
 
 .leito-header,
 .leito-card-header {
@@ -355,7 +355,7 @@
 .leito-numero {
   font-size: 12px;
   font-weight: 700;
-  color: #64748B;
+  color: var(--c-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   display: flex;
@@ -368,7 +368,7 @@
 }
 
 .leito-numero.extra {
-  color: #DC2626;
+  color: var(--c-danger);
 }
 
 .leito-status {
@@ -381,15 +381,15 @@
 }
 
 .status-internado {
-  background: #E8EDF3;
-  color: #334155;
-  border: 1px solid #CBD5E1;
+  background: var(--c-fill);
+  color: var(--c-text-secondary);
+  border: 1px solid var(--c-border-dark);
 }
 
 .status-observacao {
-  background: #F1F5F9;
-  color: #475569;
-  border: 1px solid #CBD5E1;
+  background: var(--c-fill);
+  color: var(--c-text-soft);
+  border: 1px solid var(--c-border-dark);
 }
 
 .leito-body,
@@ -404,7 +404,7 @@
 .leito-paciente-nome {
   font-size: 15px;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--c-text-primary);
   margin-bottom: 6px;
   line-height: 1.3;
   display: flex;
@@ -416,7 +416,7 @@
 .paciente-meta,
 .leito-paciente-meta {
   font-size: 12.5px;
-  color: #334155;
+  color: var(--c-text-secondary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -426,18 +426,18 @@
 
 .paciente-meta i,
 .leito-paciente-meta i {
-  color: #64748B;
+  color: var(--c-text-muted);
   font-size: 15px;
 }
 
 .paciente-hd,
 .leito-paciente-diag {
   font-size: 12.5px;
-  color: #334155;
-  background: #F8FAFC;
+  color: var(--c-text-secondary);
+  background: var(--c-surface-inset);
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--c-border);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -448,19 +448,19 @@
 
 .paciente-hd strong,
 .leito-paciente-diag strong {
-  color: #0F172A;
+  color: var(--c-text-primary);
   font-weight: 600;
 }
 
 .leito-footer {
-  border-top: 1px solid #E2E8F0;
+  border-top: 1px solid var(--c-border);
   padding: 12px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #FAFAF9;
   font-size: 11.5px;
-  color: #64748B;
+  color: var(--c-text-muted);
   font-weight: 500;
   margin-top: auto;
   position: relative;
@@ -481,7 +481,7 @@
   border: none;
   cursor: pointer;
   font-size: 16px;
-  color: #64748B;
+  color: var(--c-text-muted);
   transition: 0.2s;
   padding: 2px 4px;
   border-radius: 4px;
@@ -491,7 +491,7 @@
 }
 
 .action-btn:hover {
-  color: #0D9488;
+  color: var(--c-primary);
   background: rgba(0, 0, 0, 0.05);
 }
 
@@ -504,8 +504,8 @@
   bottom: calc(100% + 4px);
   right: 0;
   z-index: 25;
-  background: #ffffff;
-  border: 1px solid #CBD5E1;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-dark);
   border-radius: 8px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   min-width: 170px;
@@ -522,20 +522,20 @@
   background: none;
   border: none;
   font-size: 13px;
-  color: #0F172A;
+  color: var(--c-text-primary);
   cursor: pointer;
 }
 
 .leito-menu-dropdown button:hover {
-  background: #F8FAFC;
-  color: #0D9488;
+  background: var(--c-surface-inset);
+  color: var(--c-primary);
 }
 
 /* LEITO VAZIO */
 .leito-card.leito-vazio,
 .leito-card.vazio {
   background: transparent;
-  border: 2px dashed #CBD5E1;
+  border: 2px dashed var(--c-border-dark);
   box-shadow: none;
   justify-content: center;
   align-items: center;
@@ -546,8 +546,8 @@
 
 .leito-card.leito-vazio:hover,
 .leito-card.vazio:hover {
-  border-color: #0D9488;
-  background: #F8FAFC;
+  border-color: var(--c-primary);
+  background: var(--c-surface-inset);
 }
 
 .leito-card.leito-vazio .risk-bar,
@@ -557,7 +557,7 @@
 
 .vazio-icon {
   font-size: 32px;
-  color: #64748B;
+  color: var(--c-text-muted);
   margin-bottom: 12px;
   transition: 0.2s;
 }
@@ -565,27 +565,27 @@
 .vazio-title {
   font-size: 14px;
   font-weight: 600;
-  color: #334155;
+  color: var(--c-text-secondary);
   margin-bottom: 4px;
   transition: 0.2s;
 }
 
 .vazio-subtitle {
   font-size: 12px;
-  color: #64748B;
+  color: var(--c-text-muted);
 }
 
 .leito-card.leito-vazio:hover .vazio-icon,
 .leito-card.leito-vazio:hover .vazio-title,
 .leito-card.vazio:hover .vazio-icon,
 .leito-card.vazio:hover .vazio-title {
-  color: #0D9488;
+  color: var(--c-primary);
 }
 
 /* ===================== VISUALIZAÇÃO EM TABELA ===================== */
 .tabela-painel-wrap {
-  background: #ffffff;
-  border: 1px solid #CBD5E1;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-dark);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -597,15 +597,15 @@
 }
 
 .tabela-painel thead tr {
-  background: #F8FAFC;
-  border-bottom: 1px solid #CBD5E1;
+  background: var(--c-surface-inset);
+  border-bottom: 1px solid var(--c-border-dark);
 }
 
 .tabela-painel th {
   padding: 10px 14px;
   font-size: 11px;
   font-weight: 700;
-  color: #64748B;
+  color: var(--c-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-align: left;
@@ -614,21 +614,21 @@
 .tabela-painel td {
   padding: 12px 14px;
   font-size: 13px;
-  border-bottom: 1px solid #E2E8F0;
-  color: #0F172A;
+  border-bottom: 1px solid var(--c-border);
+  color: var(--c-text-primary);
 }
 
 .tabela-painel tr:hover td {
-  background: #F8FAFC;
+  background: var(--c-surface-inset);
   cursor: pointer;
 }
 
 .tabela-painel-rodape {
   padding: 12px 16px;
   font-size: 12px;
-  color: #64748B;
+  color: var(--c-text-muted);
   background: #FAFAF9;
-  border-top: 1px solid #E2E8F0;
+  border-top: 1px solid var(--c-border);
 }
 
 /* Topo principal em telas estreitas: continua numa linha só (uma regra

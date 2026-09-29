@@ -18,7 +18,7 @@
   z-index: 230;
   background: transparent;
   border: none;
-  color: #334155;
+  color: var(--c-text-secondary);
   cursor: pointer;
   width: 36px;
   height: 36px;
@@ -31,7 +31,7 @@
 
 .floating-btn:hover {
   background: rgba(0, 0, 0, 0.05);
-  color: #0D9488;
+  color: var(--c-primary);
 }
 
 .floating-btn i {
@@ -81,7 +81,7 @@
 .sidebar-fechar {
   background: transparent;
   border: none;
-  color: #94A3B8;
+  color: var(--c-text-faint);
   font-size: 18px;
   cursor: pointer;
   padding: 6px;
@@ -114,7 +114,7 @@
 
 .sidebar-marca-sub {
   font-size: 11px;
-  color: #94A3B8;
+  color: var(--c-text-faint);
 }
 
 /* Corpo navegável */
@@ -141,7 +141,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #64748B;
+  color: var(--c-text-muted);
   padding: 12px 10px 4px;
 }
 
@@ -182,7 +182,7 @@
   text-align: center;
   flex-shrink: 0;
   font-size: 17px;
-  color: #94A3B8;
+  color: var(--c-text-faint);
   display: flex;
   align-items: center;
   justify-content: center;

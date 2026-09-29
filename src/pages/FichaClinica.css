@@ -39,7 +39,7 @@
 }
 
 .clinical-tabs .tab-btn.active {
-  background: #ffffff;
+  background: var(--c-surface);
   color: var(--c-primary);
   font-weight: 700;
   box-shadow: var(--shadow-sm);

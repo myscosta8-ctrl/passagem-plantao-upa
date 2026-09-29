@@ -115,19 +115,19 @@
 .empty-state p { font-size: 14px; color: var(--c-text-secondary); max-width: 400px; margin: 0 auto; }
 .badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.02em; }
 .badge-red { background: var(--c-danger-light); color: var(--c-danger); }
-.badge-yellow { background: var(--c-warning-light); color: #8A5A12; }
+.badge-yellow { background: var(--c-warning-light); color: var(--c-warning-text); }
 .badge-blue { background: var(--c-info-light); color: var(--c-info); }
 .badge-green { background: var(--c-success-light); color: var(--c-success); }
 
 /* Meus documentos não finalizados (rascunhos) */
-.mr-bloco { background: #FAF8F1; border: 1px solid #E8DFC0; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
-.mr-topo { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; color: #7A5514; }
+.mr-bloco { background: var(--c-warning-light); border: 1px solid var(--c-warning-border); border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+.mr-topo { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; color: var(--c-warning-text); }
 .mr-topo > i { font-size: 22px; }
 .mr-topo b { display: block; font-size: 14px; }
 .mr-topo span { font-size: 12.5px; color: #A16207; }
-.mr-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #F7F3E8; border-radius: 9px; padding: 9px 11px; margin-top: 6px; flex-wrap: wrap; }
-.mr-area { font-size: 10.5px; font-weight: 700; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; background: #F8FAFC; color: #334155; }
-.mr-area.medico { background: #F3F6FA; color: #475569; }
+.mr-item { display: flex; align-items: center; gap: 10px; background: var(--c-surface); border: 1px solid #F7F3E8; border-radius: 9px; padding: 9px 11px; margin-top: 6px; flex-wrap: wrap; }
+.mr-area { font-size: 10.5px; font-weight: 700; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; background: var(--c-surface-inset); color: var(--c-text-secondary); }
+.mr-area.medico { background: #F3F6FA; color: var(--c-text-soft); }
 .mr-info { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.mr-info b { font-size: 13.5px; color: #0F172A; }
-.mr-info span, .mr-data { font-size: 12px; color: #64748B; }
+.mr-info b { font-size: 13.5px; color: var(--c-text-primary); }
+.mr-info span, .mr-data { font-size: 12px; color: var(--c-text-muted); }
