@@ -19,14 +19,15 @@ export function runTelasTests(test) {
     assert.deepEqual(faltando, [], `Variáveis sem definição: ${faltando.join(', ')}`);
   });
 
-  test('Tela médica: clicar no paciente abre a ficha no lugar da lista', () => {
+  test('Tela médica: mesma estrutura do card da enfermagem e ficha abre no lugar da lista', () => {
     const s = fs.readFileSync(path.join(SRC, 'pages/PainelMedico.jsx'), 'utf8');
     assert.match(s, /onClick=\{\(\) => setSelecionado\(a\)\}/, 'card precisa abrir o paciente ao clicar');
-    assert.match(s, /<button[^>]*className="pm-card"/, 'card precisa ser um botão');
+    assert.match(s, /PainelCards\.module\.css/, 'usar o mesmo estilo dos cards da enfermagem');
+    for (const parte of ['risk-bar', 'leito-status', 'paciente-hd', 'paciente-admissao', 'leito-footer', 'pl-tag alergia']) {
+      assert.ok(s.includes(parte), `card médico sem a parte: ${parte}`);
+    }
     const iRetorno = s.indexOf('if (selecionado)');
-    const iLista = s.indexOf('pm-grid');
-    assert.ok(iRetorno > -1 && iRetorno < iLista, 'a ficha deve substituir a lista (retorno antecipado), não ser desenhada abaixo dela');
-    assert.ok(fs.existsSync(path.join(SRC, 'pages/PainelMedico.css')), 'tela médica precisa do próprio CSS');
-    assert.doesNotMatch(s, /className="leito-card"/, 'não reutilizar o card do painel de enfermagem');
+    const iLista = s.indexOf('leitos-grid');
+    assert.ok(iRetorno > -1 && iRetorno < iLista, 'a ficha deve substituir a lista, não ser desenhada abaixo dela');
   });
 }

@@ -31,6 +31,22 @@ export async function listarAtendimentosAtivos() {
   if (erroConsulta3) avisarErro('pepMedico', erroConsulta3)
   const pessoaPorId = Object.fromEntries((pessoas ?? []).map((p) => [p.id, p]))
 
+  // Mesmos sinais do card da enfermagem: alergia, isolamento e hipótese diagnóstica.
+  const [{ data: alergias }, { data: isolamentos }, { data: consultas }] = await Promise.all([
+    supabase.from('alergias').select('pessoa_id, substancia, status').in('pessoa_id', pessoaIds),
+    supabase.from('isolamentos').select('atendimento_id, tipo, ativo, fim_em').in('atendimento_id', atendimentoIds),
+    supabase.from('consultas_medicas').select('atendimento_id, hipotese_diagnostica, criado_em').in('atendimento_id', atendimentoIds).order('criado_em', { ascending: false }),
+  ])
+  const alergiaPorPessoa = {}
+  for (const x of alergias ?? []) {
+    if (x.status && /inativ|descart|resolv/i.test(x.status)) continue
+    ;(alergiaPorPessoa[x.pessoa_id] ||= []).push(x.substancia)
+  }
+  const isolamentoPorAtend = {}
+  for (const x of isolamentos ?? []) if (x.ativo !== false && !x.fim_em) isolamentoPorAtend[x.atendimento_id] = x.tipo || 'Isolamento'
+  const hdPorAtend = {}
+  for (const x of consultas ?? []) if (x.hipotese_diagnostica && !hdPorAtend[x.atendimento_id]) hdPorAtend[x.atendimento_id] = x.hipotese_diagnostica
+
   return (ocupacoes ?? [])
     .map((oc) => {
       const atendimento = (atendimentos ?? []).find((a) => a.id === oc.atendimento_id)
@@ -45,7 +61,13 @@ export async function listarAtendimentosAtivos() {
         leito_numero: oc.leitos?.numero,
         setor_nome: oc.leitos?.setores?.nome,
         status: atendimento.status,
-        classificacao: atendimento.classificacao_manchester ?? null,
+        classificacao: atendimento.classificacao_risco_cor ?? atendimento.classificacao_manchester ?? null,
+        status_internacao: atendimento.status_internacao ?? null,
+        diagnostico: hdPorAtend[atendimento.id] || atendimento.queixa_principal || null,
+        entrada: atendimento.criado_em,
+        alergias: (alergiaPorPessoa[pessoa.id] || []).filter(Boolean),
+        isolamento: isolamentoPorAtend[atendimento.id] || null,
+        regulacao: !!atendimento.regulacao_flag,
       }
     })
     .filter(Boolean)
