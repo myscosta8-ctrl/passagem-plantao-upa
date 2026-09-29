@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined) // undefined = loading, null = signed out
   const [enfermeiro, setEnfermeiro] = useState(null)
   const [profileLoading, setProfileLoading] = useState(false)
+  const [permissoes, setPermissoes] = useState([]) // permissões administrativas da conta (cargo + ajustes)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -55,6 +56,18 @@ export function AuthProvider({ children }) {
         setProfileLoading(false)
       })
   }, [enfermeiroId])
+
+  // Permissões administrativas (cadastrar funcionários, resetar senha...). A regra real vive no banco.
+  useEffect(() => {
+    if (!enfermeiroId) { setPermissoes([]); return }
+    supabase.rpc('minhas_permissoes').then(({ data, error }) => {
+      if (error) console.error('Erro ao buscar permissões:', error)
+      setPermissoes(Array.isArray(data) ? data : [])
+    })
+  }, [enfermeiroId])
+
+  const ehAdminGeral = enfermeiro?.role === 'admin'
+  const temPermissao = (k) => ehAdminGeral || permissoes.includes(k)
 
   async function completarPerfil(nome) {
     if (!session?.user) return { error: new Error('Sem sessão ativa') }
@@ -139,6 +152,8 @@ export function AuthProvider({ children }) {
     enfermeiro,
     loading: session === undefined,
     profileLoading,
+    permissoes,
+    temPermissao,
     login,
     cadastrar,
     logout,

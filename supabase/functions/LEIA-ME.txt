@@ -1,6 +1,7 @@
 Funções do servidor (Supabase Edge Functions) — cópia do código publicado.
 
-- criar-login-profissional (versão 9): cria o login e o cadastro do profissional; devolve a senha provisória "upa" + 6 números.
-- resetar-senha-profissional (versão 6): gera nova senha provisória e obriga a troca no próximo acesso.
+- criar-login-profissional (versão 10): cria o login e o cadastro do profissional; devolve a senha provisória "upa" + 6 números. Exige a permissão "cadastrar_funcionarios" (administrador geral ou cargo com essa permissão). Registra na auditoria.
+- resetar-senha-profissional (versão 7): gera nova senha provisória e obriga a troca no próximo acesso. Exige a permissão "resetar_senha". Só o administrador geral reseta a senha de outro administrador. Registra na auditoria.
 
-Ambas exigem login de administrador (is_admin). Ao alterar, publique pelo Supabase e atualize esta cópia.
+As permissões vêm das funções do banco tem_permissao() / minhas_permissoes() (migração 20260929000010_cargos_administrativos.sql).
+Ao alterar, publique pelo Supabase e atualize esta cópia.

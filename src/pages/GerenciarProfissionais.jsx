@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { avisarErro } from '../lib/erros'
+import { useAuth } from '../lib/AuthContext'
+import { PERMISSOES, nomeCargo } from '../lib/cargos'
 import './GerenciarProfissionais.css'
 
 const TIPOS = [
@@ -12,6 +14,20 @@ const UFS = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', '
 const conselhoDe = (tipo) => TIPOS.find((t) => t.valor === tipo)?.conselho
 const registroDe = (p) => (p.tipo === 'medico' ? p.crm : p.coren) || ''
 const nomeDe = (p) => p.nome_exibicao || p.nome
+
+// Permissões que a pessoa tem de fato: as do cargo, mais as extras, menos as removidas.
+function permsEfetivas(p, cargos) {
+  const c = cargos.find((x) => x.chave === p.cargo_admin)
+  const base = new Set(c?.permissoes || [])
+  ;(p.permissoes_extra || []).forEach((k) => base.add(k))
+  ;(p.permissoes_removidas || []).forEach((k) => base.delete(k))
+  return PERMISSOES.map((x) => x.k).filter((k) => base.has(k))
+}
+// O que gravar: só a diferença em relação ao cargo escolhido.
+function calcularAjustes(cargoChave, marcadas, cargos) {
+  const doCargo = new Set(cargos.find((x) => x.chave === cargoChave)?.permissoes || [])
+  return { extra: marcadas.filter((k) => !doCargo.has(k)), removidas: [...doCargo].filter((k) => !marcadas.includes(k)) }
+}
 
 function ultimoAcessoTexto(p) {
   const t = Math.max(p.ultimo_acesso_em ? Date.parse(p.ultimo_acesso_em) : 0, p.ultimo_login ? Date.parse(p.ultimo_login) : 0)
@@ -66,29 +82,35 @@ function CampoRegistro({ tipo, registro, uf, onRegistro, onUf }) {
   )
 }
 
-function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, focar }) {
+function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, focar, perm, souAdmin, cargos }) {
+  const bloqueado = p.role === 'admin' && !souAdmin // só o administrador geral mexe em outro administrador
   const [aberto, setAberto] = useState(false)
   const [f, setF] = useState(null)
   const [salvando, setSalvando] = useState(false)
   const [msg, setMsg] = useState(null)
-  const abrir = () => { setF({ nome: p.nome || '', nome_exibicao: p.nome_exibicao || '', tipo: p.tipo || 'enfermagem', registro: registroDe(p), uf: p.conselho_uf || 'PA', admin: p.role === 'admin' }); setMsg(null); setAberto(true) }
+  const abrir = () => { setF({ nome: p.nome || '', nome_exibicao: p.nome_exibicao || '', tipo: p.tipo || 'enfermagem', registro: registroDe(p), uf: p.conselho_uf || 'PA', admin: p.role === 'admin', cargo: p.cargo_admin || '', perms: permsEfetivas(p, cargos) }); setMsg(null); setAberto(true) }
   const set = (k, v) => setF((x) => ({ ...x, [k]: v }))
   useEffect(() => { if (focar) abrir() }, [focar])
 
   async function salvar() {
     if (!f.nome.trim()) { setMsg({ erro: true, t: 'Informe o nome.' }); return }
-    if (p.id === meuId && !f.admin) { setMsg({ erro: true, t: 'Você não pode retirar o seu próprio acesso de administrador.' }); return }
+    if (souAdmin && p.id === meuId && !f.admin) { setMsg({ erro: true, t: 'Você não pode retirar o seu próprio acesso de administrador geral.' }); return }
     setSalvando(true)
     const dados = {
       nome: f.nome.trim(), nome_exibicao: f.nome_exibicao.trim() || null, tipo: f.tipo,
       crm: f.tipo === 'medico' ? (f.registro.trim() || null) : null,
       coren: f.tipo === 'enfermagem' ? (f.registro.trim() || null) : null,
       conselho_uf: conselhoDe(f.tipo) ? f.uf : null,
-      role: f.admin ? 'admin' : 'enfermeiro',
     }
+    if (souAdmin) dados.role = f.admin ? 'admin' : 'enfermeiro'
     const { error } = await supabase.from('enfermeiros').update(dados).eq('id', p.id)
+    if (error) { setSalvando(false); avisarErro('GerenciarProfissionais', error); setMsg({ erro: true, t: 'Não foi possível salvar.' }); return }
+    if (souAdmin && !f.admin) {
+      const { extra, removidas } = calcularAjustes(f.cargo, f.perms, cargos)
+      const { error: erroCargo } = await supabase.rpc('definir_cargo_profissional', { p_id: p.id, p_cargo: f.cargo || null, p_extra: extra, p_removidas: removidas })
+      if (erroCargo) { setSalvando(false); avisarErro('GerenciarProfissionais', erroCargo); setMsg({ erro: true, t: 'Os dados foram salvos, mas não foi possível gravar o cargo e as permissões.' }); return }
+    }
     setSalvando(false)
-    if (error) { avisarErro('GerenciarProfissionais', error); setMsg({ erro: true, t: 'Não foi possível salvar.' }); return }
     setAberto(false); onSalvo()
   }
 
@@ -99,7 +121,7 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, foca
       <div className="gp-item-topo">
         <div className={`gp-av tipo-${p.tipo}`}>{String(p.nome || '?').trim().split(/\s+/).filter((w) => w.length > 2).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?'}</div>
         <div className="gp-item-info">
-          <div className="gp-nome">{nomeDe(p)} {p.role === 'admin' && <span className="gp-selo admin">Administrador</span>} {!ativo && <span className="gp-selo">Desativado</span>} {p.deve_trocar_senha && <span className="gp-selo ambar">Trocar senha</span>}</div>
+          <div className="gp-nome">{nomeDe(p)} {p.role === 'admin' && <span className="gp-selo admin">Administrador geral</span>}{p.role !== 'admin' && p.cargo_admin && <span className="gp-selo">{nomeCargo(p.cargo_admin, cargos)}</span>} {!ativo && <span className="gp-selo">Desativado</span>} {p.deve_trocar_senha && <span className="gp-selo ambar">Trocar senha</span>}</div>
           <div className="gp-sub">
             {p.nome} · {TIPOS.find((t) => t.valor === p.tipo)?.rotulo || p.tipo}
             {conselho && (registroDe(p) ? ` · ${conselho}-${p.conselho_uf || 'PA'} ${registroDe(p)}` : <span className="gp-falta"> · {conselho} não informado</span>)}
@@ -107,9 +129,10 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, foca
           <div className="gp-sub gp-meta">{p.usuario && <span><i className="ph ph-at" /> {p.usuario}</span>}<span><i className="ph ph-clock" /> {ultimoAcessoTexto(p)}</span></div>
         </div>
         <div className="gp-acoes">
-          <button type="button" className="gp-btn gp-btn-sec" onClick={aberto ? () => setAberto(false) : abrir}><i className={`ph ${aberto ? 'ph-x' : 'ph-pencil-simple'}`} /> {aberto ? 'Fechar' : 'Editar'}</button>
-          <button type="button" className="gp-btn gp-btn-sec" onClick={() => onResetar(p)} disabled={!ativo}><i className="ph ph-key" /> Resetar senha</button>
-          {p.id !== meuId && (
+          {bloqueado && <span className="gp-sub">Conta do administrador geral</span>}
+          {!bloqueado && (perm.editar || souAdmin) && <button type="button" className="gp-btn gp-btn-sec" onClick={aberto ? () => setAberto(false) : abrir}><i className={`ph ${aberto ? 'ph-x' : 'ph-pencil-simple'}`} /> {aberto ? 'Fechar' : 'Editar'}</button>}
+          {!bloqueado && perm.resetar && <button type="button" className="gp-btn gp-btn-sec" onClick={() => onResetar(p)} disabled={!ativo}><i className="ph ph-key" /> Resetar senha</button>}
+          {!bloqueado && perm.ativar && p.id !== meuId && (
             <button type="button" className={`gp-btn ${ativo ? 'gp-btn-perigo' : 'gp-btn-ok'}`} onClick={() => onAlternarAtivo(p)}>
               <i className={`ph ${ativo ? 'ph-prohibit' : 'ph-lock-open'}`} /> {ativo ? 'Desativar' : 'Reativar'}
             </button>
@@ -126,7 +149,31 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, foca
             <div className="gp-segmento">{TIPOS.map((t) => <button key={t.valor} type="button" className={f.tipo === t.valor ? 'on' : ''} onClick={() => set('tipo', t.valor)}>{t.rotulo}</button>)}</div>
           </div>
           <CampoRegistro tipo={f.tipo} registro={f.registro} uf={f.uf} onRegistro={(v) => set('registro', v)} onUf={(v) => set('uf', v)} />
-          <label className="gp-check"><input type="checkbox" checked={f.admin} onChange={(e) => set('admin', e.target.checked)} /> Administrador (pode gerenciar logins e equipe)</label>
+          {souAdmin && (
+            <>
+              <label className="gp-check"><input type="checkbox" checked={f.admin} onChange={(e) => set('admin', e.target.checked)} /> Administrador geral (acesso total ao sistema — use só para você)</label>
+              {!f.admin && (
+                <div className="gp-cargo">
+                  <div className="gp-campo"><label>Cargo administrativo</label>
+                    <select value={f.cargo} onChange={(e) => { const c = cargos.find((x) => x.chave === e.target.value); setF((x) => ({ ...x, cargo: e.target.value, perms: c ? [...c.permissoes] : [] })) }}>
+                      <option value="">Nenhum (só atua no plantão)</option>
+                      {cargos.map((c) => <option key={c.chave} value={c.chave}>{c.nome}</option>)}
+                    </select>
+                    {f.cargo && <p className="gp-dica">{cargos.find((c) => c.chave === f.cargo)?.descricao}</p>}
+                  </div>
+                  <div className="gp-perms">
+                    <label>Permissões desta pessoa <small>(ajuste individual sobre o cargo)</small></label>
+                    {PERMISSOES.map((x) => (
+                      <label key={x.k} className="gp-check">
+                        <input type="checkbox" checked={f.perms.includes(x.k)} onChange={(e) => setF((y) => ({ ...y, perms: e.target.checked ? [...y.perms, x.k] : y.perms.filter((k) => k !== x.k) }))} />
+                        <span><b>{x.nome}</b> — {x.desc}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
           {msg && <div className={msg.erro ? 'gp-erro' : 'gp-ok'}>{msg.t}</div>}
           <div className="gp-rodape">
             <button type="button" className="gp-btn gp-btn-sec" onClick={() => setAberto(false)}>Cancelar</button>
@@ -139,6 +186,10 @@ function LinhaProfissional({ p, meuId, onSalvo, onResetar, onAlternarAtivo, foca
 }
 
 export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbrirEquipe }) {
+  const { enfermeiro: euPerfil, temPermissao } = useAuth()
+  const souAdmin = euPerfil?.role === 'admin'
+  const perm = { criar: temPermissao('cadastrar_funcionarios'), editar: temPermissao('editar_cadastro'), resetar: temPermissao('resetar_senha'), ativar: temPermissao('ativar_desativar') }
+  const [cargos, setCargos] = useState([])
   const [profissionais, setProfissionais] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [busca, setBusca] = useState('')
@@ -164,6 +215,8 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
     const { data, error } = await supabase.rpc('painel_equipe')
     if (error) avisarErro('GerenciarProfissionais', error)
     setProfissionais(data ?? [])
+    const { data: cg } = await supabase.from('cargos_admin').select('*').order('ordem')
+    setCargos(cg ?? [])
     setCarregando(false)
   }
 
@@ -233,6 +286,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
         </div>
       </div>
 
+      {perm.criar && (
       <div className="card gp-card">
         <div className="section-label">Criar login</div>
         <form onSubmit={criarLogin} className="gp-form">
@@ -252,6 +306,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
           {erroCriar && <div className="gp-erro">{erroCriar}</div>}
         </form>
       </div>
+      )}
 
       <div className="card gp-card">
         <div className="gp-lista-topo">
@@ -267,7 +322,7 @@ export default function GerenciarProfissionais({ onVoltar, meuId, focoId, onAbri
         </div>
         {carregando ? <p className="gp-vazio">Carregando...</p> : lista.length === 0 ? <p className="gp-vazio">Nenhum login encontrado.</p> : (
           <div className="gp-lista">{lista.map((p) => (
-            <LinhaProfissional key={p.id} p={p} meuId={eu} focar={p.id === focoId} onSalvo={carregar}
+            <LinhaProfissional key={p.id} p={p} meuId={eu} focar={p.id === focoId} onSalvo={carregar} perm={perm} souAdmin={souAdmin} cargos={cargos}
               onResetar={(x) => setJanela({ tipo: 'reset', p: x })}
               onAlternarAtivo={(x) => setJanela({ tipo: 'ativo', p: x })} />
           ))}</div>

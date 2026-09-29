@@ -6,8 +6,9 @@ import './Ajuda.css'
 const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
 export default function Ajuda({ onVoltar }) {
-  const { enfermeiro } = useAuth()
+  const { enfermeiro, permissoes } = useAuth()
   const ehAdmin = enfermeiro?.role === 'admin'
+  const temGestao = ehAdmin || (permissoes?.length > 0)
   const perfil = enfermeiro?.tipo || 'enfermagem'
   const [busca, setBusca] = useState('')
   const [aberto, setAberto] = useState(null)
@@ -15,10 +16,10 @@ export default function Ajuda({ onVoltar }) {
   const secoes = useMemo(() => {
     const b = semAcento(busca.trim())
     return SECOES_AJUDA
-      .filter((s) => s.perfis.includes(perfil) || (ehAdmin && s.perfis.includes('admin')))
+      .filter((s) => s.perfis.includes(perfil) || (ehAdmin && s.perfis.includes('admin')) || (temGestao && s.perfis.includes('gestao')))
       .map((s) => ({ ...s, itens: b ? s.itens.filter((i) => semAcento(`${i.p} ${i.r}`).includes(b)) : s.itens }))
       .filter((s) => s.itens.length)
-  }, [busca, perfil, ehAdmin])
+  }, [busca, perfil, ehAdmin, temGestao])
 
   return (
     <div className="workspace aj-page">

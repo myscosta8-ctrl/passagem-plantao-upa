@@ -71,6 +71,17 @@ export const SECOES_AJUDA = [
     ],
   },
   {
+    id: 'administracao', titulo: 'Administração: cargos e permissões', icone: 'ph-shield-check', perfis: ['admin', 'gestao'],
+    itens: [
+      { p: 'Quem pode cadastrar funcionários?', r: 'O administrador geral (dono do sistema) e quem receber um cargo administrativo. Se a pessoa que costuma cadastrar estiver ausente, o administrador geral pode dar o cargo a outra pessoa na hora.' },
+      { p: 'Como dou um cargo a alguém?', r: 'Menu → Profissionais → Editar (na pessoa) → em "Cargo administrativo", escolha o cargo e, se quiser, ajuste as permissões uma a uma → Salvar alterações. A pessoa precisa sair e entrar de novo para ver o menu novo.' },
+      { p: 'Quais são os cargos prontos?', r: 'Gestão de pessoal (cadastra, edita, reseta senha, ativa/desativa e vê a equipe); Cadastro de funcionários (cria login e edita cadastro, sem resetar senha nem desativar); Consulta da equipe (só vê o Painel de Equipe).' },
+      { p: 'Como retiro o cargo?', r: 'Profissionais → Editar → Cargo administrativo → "Nenhum" → Salvar. O acesso administrativo some na próxima vez que a pessoa entrar.' },
+      { p: 'O que só o administrador geral faz?', r: 'Definir cargos e permissões, tornar alguém administrador geral e mexer na conta de outro administrador. Ninguém consegue dar permissão a si mesmo.' },
+      { p: 'Tudo fica registrado?', r: 'Sim. Criar login, resetar senha e mudar cargo ou permissões ficam na trilha de auditoria, com quem fez e quando.' },
+    ],
+  },
+  {
     id: 'faq', titulo: 'Problemas comuns', icone: 'ph-question', perfis: TODOS,
     itens: [
       { p: 'A tela não rola até o fim no celular.', r: 'Isso foi corrigido. Se ainda acontecer, atualize o app (veja "O app parece desatualizado") e avise o administrativo com um print da tela.' },

@@ -124,3 +124,9 @@
   .gp-page .gp-seg-suave { width: 100%; }
   .gp-page .gp-seg-suave button { flex: 1; }
 }
+
+/* Cargo administrativo e permissões (só o administrador geral vê) */
+.gp-page .gp-cargo { display: flex; flex-direction: column; gap: 12px; padding: 12px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-surface-inset); }
+.gp-page .gp-perms { display: flex; flex-direction: column; gap: 8px; }
+.gp-page .gp-perms > label:first-child { font-size: 12px; font-weight: 700; color: var(--c-text-secondary); }
+.gp-page .gp-perms small { font-weight: 500; color: var(--c-text-muted); }

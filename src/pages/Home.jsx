@@ -90,7 +90,7 @@ function lerTelaSalva() {
 }
 
 export default function Home() {
-  const { enfermeiro, logout } = useAuth()
+  const { enfermeiro, logout, permissoes } = useAuth()
   const isAdmin = enfermeiro?.role === 'admin'
   // Médico não participa do fluxo de plantão de enfermagem (abertura/setores) —
   // vai direto pro painel dele, sobre a estrutura nova (atendimentos/leito_ocupacoes).
@@ -100,7 +100,8 @@ export default function Home() {
   const ehRecepcao = enfermeiro?.tipo === 'recepcao'
   // "Encerrar plantonista" é destrutivo demais pra qualquer conta admin — só o Marcus.
   // Telas de administração: qualquer conta com papel admin no banco.
-  const podeAdministrar = isAdmin
+  // Administrador geral OU quem recebeu algum cargo/permissão administrativa (ver Profissionais → Cargo).
+  const podeAdministrar = isAdmin || (permissoes?.length > 0)
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
@@ -330,6 +331,8 @@ export default function Home() {
                 {contaMenuAberto && (
                   <div className="topbar-menu-panel topbar-menu-panel-conta" onClick={() => setContaMenuAberto(false)}>
                     <button onClick={() => setTela('conta')}>Minha conta</button>
+                    {podeAdministrar && <button onClick={() => setTela('equipe')}>Painel de Equipe</button>}
+                    {podeAdministrar && <button onClick={() => setTela('profissionais')}>Profissionais</button>}
                     <button onClick={logout} className="topbar-menu-danger">Sair</button>
                   </div>
                 )}
@@ -338,7 +341,10 @@ export default function Home() {
           </div>
         </div>
         <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
-          {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} /> : ehMedico ? <PainelMedico /> : <CadastroPacientes />}
+          {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} />
+            : tela === 'equipe' && podeAdministrar ? <PainelEquipe onVoltar={() => setTela('painel')} podeAdministrar={podeAdministrar} onGerenciar={(id) => { setFocoProfissional(id); setTela('profissionais') }} />
+            : tela === 'profissionais' && podeAdministrar ? <GerenciarProfissionais onVoltar={() => setTela('painel')} focoId={focoProfissional} onAbrirEquipe={() => setTela('equipe')} />
+            : ehMedico ? <PainelMedico /> : <CadastroPacientes />}
         </Suspense>
       </div>
     )

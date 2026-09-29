@@ -1,3 +1,4 @@
+import { nomeCargo } from '../lib/cargos'
 import { useState } from 'react'
 import { useAuth } from '../lib/AuthContext'
 
@@ -75,7 +76,7 @@ export default function MinhaConta({ onVoltar }) {
           </h3>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
             Seu login: <strong>{enfermeiro?.usuario}</strong> <br/>
-            Cargo: <strong>{enfermeiro?.role === 'admin' ? 'Administrador' : (enfermeiro?.role || 'Profissional')}</strong>
+            Cargo: <strong>{enfermeiro?.role === 'admin' ? 'Administrador geral' : (enfermeiro?.cargo_admin ? nomeCargo(enfermeiro.cargo_admin) : 'Profissional')}</strong>
           </p>
 
           <form onSubmit={salvarNome}>

@@ -27,8 +27,8 @@ Deno.serve(async (req: Request) => {
   const clienteChamador = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: authHeader } }, auth: { persistSession: false } });
   const { data: userData, error: erroUser } = await clienteChamador.auth.getUser(token);
   if (erroUser || !userData?.user) return json({ error: "Não autenticado" }, 401);
-  const { data: ehAdmin, error: erroAdmin } = await clienteChamador.rpc("is_admin");
-  if (erroAdmin || !ehAdmin) return json({ error: "Só a direção pode criar login de profissional" }, 403);
+  const { data: podeCriar, error: erroPerm } = await clienteChamador.rpc("tem_permissao", { p: "cadastrar_funcionarios" });
+  if (erroPerm || !podeCriar) return json({ error: "Você não tem permissão para cadastrar funcionários" }, 403);
 
   const body = await req.json().catch(() => ({}));
   const nome = (body.nome ?? "").trim();
@@ -66,5 +66,9 @@ Deno.serve(async (req: Request) => {
     await clienteAdmin.auth.admin.deleteUser(criado.user.id);
     return json({ error: erroPerfil.message }, 500);
   }
+  await clienteAdmin.from("eventos_auditoria").insert({
+    autor_id: userData.user.id, acao: "criar_login", entidade: "enfermeiros", entidade_id: criado.user.id,
+    dados_novos: { username, tipo, nome_exibicao: nomeExibicao },
+  });
   return json({ ok: true, id: criado.user.id, username, senha_provisoria: senha });
 });

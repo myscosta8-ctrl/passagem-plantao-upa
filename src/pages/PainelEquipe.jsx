@@ -1,3 +1,4 @@
+import { nomeCargo } from '../lib/cargos'
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { avisarErro } from '../lib/erros'
@@ -163,7 +164,8 @@ export default function PainelEquipe({ onVoltar, podeAdministrar, onGerenciar })
 
                 <footer className="pe-rodape">
                   <div className="pe-selos">
-                    {p.role === 'admin' && <span className="pe-selo azul"><i className="ph ph-shield-check" /> Admin</span>}
+                    {p.role === 'admin' && <span className="pe-selo azul"><i className="ph ph-shield-check" /> Admin geral</span>}
+                    {p.role !== 'admin' && p.cargo_admin && <span className="pe-selo teal"><i className="ph ph-briefcase" /> {nomeCargo(p.cargo_admin)}</span>}
                     {p.deve_trocar_senha && <span className="pe-selo ambar"><i className="ph ph-key" /> Trocar senha</span>}
                     {!p.ativo && <span className="pe-selo cinza">Desativado</span>}
                   </div>
