@@ -18,6 +18,15 @@ export default function PainelMedico() {
     setCarregando(false)
   }
 
+  // Ficha aberta: ocupa a tela toda no lugar da lista (antes era renderizada abaixo da lista e passava despercebida).
+  if (selecionado) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, height: '100%', width: '100%' }}>
+        <FichaMedica atendimento={selecionado} onFechar={() => setSelecionado(null)} />
+      </div>
+    )
+  }
+
   if (carregando) {
     return <div className="page"><p style={{ color: 'var(--color-text-muted)' }}>Carregando...</p></div>
   }
@@ -59,10 +68,6 @@ export default function PainelMedico() {
           </div>
         </div>
       ))}
-
-      {selecionado && (
-        <FichaMedica atendimento={selecionado} onFechar={() => setSelecionado(null)} />
-      )}
     </div>
   )
 }
