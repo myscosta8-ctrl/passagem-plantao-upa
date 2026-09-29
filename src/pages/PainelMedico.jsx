@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { listarAtendimentosAtivos } from '../lib/pepMedico'
 import FichaMedica from './FichaMedica'
 import './Painel.css'
+import './PainelMedico.css'
 
 export default function PainelMedico() {
   const [atendimentos, setAtendimentos] = useState([])
@@ -53,18 +54,19 @@ export default function PainelMedico() {
             {setor}
             <span className="count">{lista.length}</span>
           </div>
-          <div className="leitos-grid">
-            {lista.map((a) => (
-              <div key={a.atendimento_id} className="leito-card" onClick={() => setSelecionado(a)}>
-                <span className="leito-numero">Leito {a.leito_numero}</span>
-                <div className="leito-paciente-nome">{a.nome}</div>
-                <div className="leito-paciente-extra">
-                  {a.idade ? `${a.idade} anos` : null}
-                  {a.idade && a.sexo ? ' · ' : null}
-                  {a.sexo === 'F' ? 'Feminino' : a.sexo === 'M' ? 'Masculino' : null}
-                </div>
-              </div>
-            ))}
+          <div className="pm-grid">
+            {lista.map((a) => {
+              const extra = [a.idade ? `${a.idade} anos` : null, a.sexo === 'F' || a.sexo === 'Feminino' ? 'Feminino' : a.sexo === 'M' || a.sexo === 'Masculino' ? 'Masculino' : null].filter(Boolean).join(' · ')
+              return (
+                <button type="button" key={a.atendimento_id} className="pm-card" onClick={() => setSelecionado(a)}>
+                  <span className={`pm-risco ${a.classificacao ? `r-${String(a.classificacao).toLowerCase()}` : ''}`} aria-hidden="true" />
+                  <span className="pm-leito">Leito {a.leito_numero}</span>
+                  <span className="pm-nome">{a.nome}</span>
+                  {extra && <span className="pm-extra">{extra}</span>}
+                  <span className="pm-abrir">Abrir ficha <i className="ph ph-arrow-right" /></span>
+                </button>
+              )
+            })}
           </div>
         </div>
       ))}

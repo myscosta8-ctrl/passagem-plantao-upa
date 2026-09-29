@@ -45,6 +45,7 @@ export async function listarAtendimentosAtivos() {
         leito_numero: oc.leitos?.numero,
         setor_nome: oc.leitos?.setores?.nome,
         status: atendimento.status,
+        classificacao: atendimento.classificacao_manchester ?? null,
       }
     })
     .filter(Boolean)
