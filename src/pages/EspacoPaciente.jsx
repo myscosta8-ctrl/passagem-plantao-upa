@@ -26,12 +26,13 @@ export default function EspacoPaciente({
   leito,
   setorNome,
   onFechar,
+  pilarInicial = 'enfermagem',
 }) {
   // Card do paciente mostra os prontuários (enfermagem/médico) — a edição de
   // diagnóstico/status/Manchester/pendências (antigo pilar "Passagem de
   // Plantão") foi movida para dentro da tela "Passagem de Plantão" do menu
   // lateral, ver PassagemColetiva.jsx.
-  const [pilarAtivo, setPilarAtivo] = useState('enfermagem') // 'enfermagem' | 'medico'
+  const [pilarAtivo, setPilarAtivo] = useState(pilarInicial) // 'enfermagem' | 'medico'
   const [atendimentoResolvido, setAtendimentoResolvido] = useState(null)
   const [resolvendo, setResolvendo] = useState(false)
   const [erroPonte, setErroPonte] = useState('')
@@ -85,7 +86,7 @@ export default function EspacoPaciente({
   }
 
   useEffect(() => {
-    garantirAtendimento('enfermagem')
+    garantirAtendimento(pilarInicial)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

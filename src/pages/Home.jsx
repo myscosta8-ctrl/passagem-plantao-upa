@@ -21,7 +21,6 @@ const CompartilharPlantao = lazy(() => import('./CompartilharPlantao'))
 const PainelEquipe = lazy(() => import('./PainelEquipe'))
 const GerenciarProfissionais = lazy(() => import('./GerenciarProfissionais'))
 const TelaApoio = lazy(() => import('./TelaApoio'))
-const PainelMedico = lazy(() => import('./PainelMedico'))
 const CadastroPacientes = lazy(() => import('./CadastroPacientes'))
 
 // Leitos extras que não possuem paciente ativo desaparecem automaticamente
@@ -317,22 +316,32 @@ export default function Home() {
   }
 
   if (ehMedico || ehRecepcao || ehApoio) {
+    // Mesmo esqueleto visual da enfermagem (topo com trilha, relógio e avatar),
+    // sem o fluxo de plantão.
+    const tituloInicio = ehMedico ? 'Painel Médico' : ehRecepcao ? 'Recepção' : 'Início'
+    const tituloTela = tela === 'conta' ? 'Minha conta' : tela === 'equipe' ? 'Painel de Equipe' : tela === 'profissionais' ? 'Profissionais' : tituloInicio
     return (
-      <div className="shell">
-        {erroApp && (<div role="alert" className="faixa-erro-app"><i className="ph ph-warning-circle" /> Falha ao carregar dados ({erroApp.contexto}). Verifique a conexão — as informações exibidas podem estar incompletas.<button type="button" onClick={() => setErroApp(null)}>Fechar</button></div>)}
-        <div className="topbar no-print">
-          <div className="topbar-brand">
-            <span className="topbar-title">Passagem de Plantão</span>
-          </div>
-          <div className="topbar-user">
-            <div className="topbar-group">
+      <div className="app-shell-sidebar-layout">
+        <div className="main-content">
+          <header className="topbar no-print">
+            <div className="topbar-left">
+              <div className="breadcrumb">
+                <i className="ph ph-house" />
+                <button type="button" onClick={() => setTela('painel')} style={{ background: 'none', border: 0, padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer' }}>Prontuário Eletrônico</button>
+                <i className="ph ph-caret-right" />
+                <span className="current">{tituloTela}</span>
+              </div>
+            </div>
+            <div className="topbar-right">
+              <div className="sys-time"><i className="ph ph-clock" /> {horaFormatada}</div>
               <div className="topbar-menu">
-                <button className="topbar-conta-btn" onClick={() => setContaMenuAberto((v) => !v)}>
-                  <span className="topbar-nome">{enfermeiro?.nome_exibicao || enfermeiro?.nome}</span>
-                  <span aria-hidden="true">▾</span>
+                <button type="button" className="top-avatar" title={enfermeiro?.nome_exibicao || enfermeiro?.nome} onClick={() => setContaMenuAberto((v) => !v)} style={{ cursor: 'pointer' }}>
+                  {iniciais(enfermeiro?.nome_exibicao || enfermeiro?.nome)}
                 </button>
                 {contaMenuAberto && (
-                  <div className="topbar-menu-panel topbar-menu-panel-conta" onClick={() => setContaMenuAberto(false)}>
+                  <div className="topbar-menu-panel topbar-menu-panel-conta" style={{ right: 0 }} onClick={() => setContaMenuAberto(false)}>
+                    <div style={{ padding: '8px 12px', fontWeight: 600 }}>{enfermeiro?.nome_exibicao || enfermeiro?.nome}</div>
+                    <button onClick={() => setTela('painel')}>{tituloInicio}</button>
                     <button onClick={() => setTela('conta')}>Minha conta</button>
                     {podeAdministrar && <button onClick={() => setTela('equipe')}>Painel de Equipe</button>}
                     {podeAdministrar && <button onClick={() => setTela('profissionais')}>Profissionais</button>}
@@ -341,15 +350,21 @@ export default function Home() {
                 )}
               </div>
             </div>
-          </div>
+          </header>
+          <main className="main-viewport">
+            {erroApp && (<div role="alert" className="faixa-erro-app"><i className="ph ph-warning-circle" /> Falha ao carregar dados ({erroApp.contexto}). Verifique a conexão — as informações exibidas podem estar incompletas.<button type="button" onClick={() => setErroApp(null)}>Fechar</button></div>)}
+            <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} />
+                  : tela === 'equipe' && podeAdministrar ? <PainelEquipe onVoltar={() => setTela('painel')} podeAdministrar={podeAdministrar} onGerenciar={(id) => { setFocoProfissional(id); setTela('profissionais') }} />
+                  : tela === 'profissionais' && podeAdministrar ? <GerenciarProfissionais onVoltar={() => setTela('painel')} focoId={focoProfissional} onAbrirEquipe={() => setTela('equipe')} />
+                  : ehApoio ? <TelaApoio enfermeiro={enfermeiro} podeAdministrar={podeAdministrar} onEquipe={() => setTela('equipe')} onProfissionais={() => setTela('profissionais')} onConta={() => setTela('conta')} />
+                  : ehMedico ? <Painel modo="medico" />
+                  : <CadastroPacientes />}
+              </div>
+            </Suspense>
+          </main>
         </div>
-        <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
-          {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} />
-            : tela === 'equipe' && podeAdministrar ? <PainelEquipe onVoltar={() => setTela('painel')} podeAdministrar={podeAdministrar} onGerenciar={(id) => { setFocoProfissional(id); setTela('profissionais') }} />
-            : tela === 'profissionais' && podeAdministrar ? <GerenciarProfissionais onVoltar={() => setTela('painel')} focoId={focoProfissional} onAbrirEquipe={() => setTela('equipe')} />
-            : ehApoio ? <TelaApoio enfermeiro={enfermeiro} podeAdministrar={podeAdministrar} onEquipe={() => setTela('equipe')} onProfissionais={() => setTela('profissionais')} onConta={() => setTela('conta')} />
-            : ehMedico ? <PainelMedico /> : <CadastroPacientes />}
-        </Suspense>
       </div>
     )
   }

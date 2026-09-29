@@ -12,6 +12,7 @@ const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
 // Componente interno que consome o contexto
 function PainelInterno({ setoresIds }) {
   const {
+    ehMedico,
     enfermeiro,
     setores,
     leitos,
@@ -62,14 +63,14 @@ function PainelInterno({ setoresIds }) {
     return <div className="page"><p style={{ color: 'var(--color-text-muted)' }}>Carregando painel...</p></div>
   }
 
-  const setoresVisiveis = setores.filter((s) => setoresIds.includes(s.id))
+  const setoresVisiveis = setoresIds ? setores.filter((s) => setoresIds.includes(s.id)) : setores
 
   return (
     <div className="workspace">
       <div className="painel-header">
         <div className="painel-title">
-          <h1>Painel do Plantão</h1>
-          <p>Visão geral de ocupação, classificação de risco e admissão de pacientes da UPA.</p>
+          <h1>{ehMedico ? 'Painel Médico' : 'Painel do Plantão'}</h1>
+          <p>{ehMedico ? 'Pacientes internados e em observação. Clique no paciente para abrir o prontuário médico.' : 'Visão geral de ocupação, classificação de risco e admissão de pacientes da UPA.'}</p>
         </div>
         <PainelResumo setoresVisiveis={setoresVisiveis} />
         <PainelControles setoresVisiveis={setoresVisiveis} />
@@ -90,7 +91,7 @@ function PainelInterno({ setoresIds }) {
           onAbrirLeito={(paciente, leito) => {
             if (paciente) {
               abrirPassagem(paciente, leito)
-            } else {
+            } else if (!ehMedico) {
               setModalLeito(leito)
             }
           }}
@@ -101,7 +102,7 @@ function PainelInterno({ setoresIds }) {
         <PainelCards setoresVisiveis={setoresVisiveis} />
       )}
 
-      {modalLeito && (
+      {modalLeito && !ehMedico && (
         <ModalInternar
           leito={modalLeito}
           setorNome={setores.find((s) => s.id === modalLeito.setor_id)?.nome}
@@ -119,6 +120,7 @@ function PainelInterno({ setoresIds }) {
             leito={modalPassagem.leito}
             setorNome={setores.find((s) => s.id === modalPassagem.leito.setor_id)?.nome}
             onFechar={fecharPassagem}
+            pilarInicial={ehMedico ? 'medico' : 'enfermagem'}
           />
         </Suspense>
       )}
@@ -150,9 +152,9 @@ function PainelInterno({ setoresIds }) {
 }
 
 // Componente externo que fornece o contexto
-export default function Painel({ plantao, setoresIds }) {
+export default function Painel({ plantao, setoresIds, modo = 'enfermagem' }) {
   return (
-    <PainelProvider>
+    <PainelProvider modo={modo}>
       <PainelInterno setoresIds={setoresIds} />
     </PainelProvider>
   )

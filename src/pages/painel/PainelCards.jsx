@@ -113,6 +113,7 @@ export default function PainelCards({ setoresVisiveis }) {
     indicadoresPorPaciente,
     filtroResumo,
     enfermeiro,
+    ehMedico,
   } = usePainel()
   const queryClient = useQueryClient()
   const [confirmarInternacao, setConfirmarInternacao] = useState(null)
@@ -184,14 +185,14 @@ export default function PainelCards({ setoresVisiveis }) {
                   <div className={cx('ocupacao-bar')}>
                     <div className={cx('ocupacao-fill')} style={{ width: `${perc}%`, background: colorPerc }} />
                   </div>
-                  <button
+                  {!ehMedico && <button
                     type="button"
                     className={cx('btn-setor-extra')}
                     onClick={() => abrirLeitoExtra(setor.id)}
                     title={`Abrir leito extra em ${formatarNomeSetor(setor.nome)}`}
                   >
                     <i className={cx('ph', 'ph-plus')} /> Leito Extra
-                  </button>
+                  </button>}
                 </div>
               </header>
 
@@ -279,7 +280,7 @@ export default function PainelCards({ setoresVisiveis }) {
                           <i className={cx('ph', 'ph-folder-open')} /> Prontuário
                         </button>
 
-                        <div className={cx('footer-actions-right')}>
+                        {!ehMedico && <div className={cx('footer-actions-right')}>
                           {paciente.status_internacao !== 'Internado' && (
                             <button type="button" className={cx('btn-footer', 'icon-only')} title="Sinalizar internação" onClick={() => setConfirmarInternacao({ paciente, leito })}>
                               <i className={cx('ph', 'ph-bed')} />
@@ -291,18 +292,19 @@ export default function PainelCards({ setoresVisiveis }) {
                           <button type="button" className={cx('btn-footer', 'icon-only', 'danger')} title="Sinalizar Desfecho" onClick={() => setModalDesfecho({ paciente, leitoOrigem: leito })}>
                             <i className={cx('ph', 'ph-sign-out')} />
                           </button>
-                        </div>
+                        </div>}
                       </div>
                     </div>
                   ) : (
                     <div
                       key={leito.id}
                       className={cx('leito-card', 'leito-vazio')}
-                      onClick={() => setModalLeito(leito)}
+                      onClick={() => { if (!ehMedico) setModalLeito(leito) }}
+                      style={ehMedico ? { cursor: 'default' } : undefined}
                     >
-                      <i className={cx('ph', 'ph-plus-circle', 'vazio-icon')} />
+                      <i className={cx('ph', ehMedico ? 'ph-bed' : 'ph-plus-circle', 'vazio-icon')} />
                       <div className={cx('vazio-title')}>Leito {formatarNumeroLeito(leito.numero)}</div>
-                      <div className={cx('vazio-subtitle')}>Livre • Clique p/ Internar</div>
+                      <div className={cx('vazio-subtitle')}>{ehMedico ? 'Livre' : 'Livre • Clique p/ Internar'}</div>
                     </div>
                   )
                 })}

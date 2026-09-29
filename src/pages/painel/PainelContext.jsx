@@ -3,10 +3,10 @@ import { usePainelState } from './usePainelState'
 
 export const PainelContext = createContext(null)
 
-export function PainelProvider({ children }) {
+export function PainelProvider({ children, modo = 'enfermagem' }) {
   const state = usePainelState()
   return (
-    <PainelContext.Provider value={state}>
+    <PainelContext.Provider value={{ ...state, modo, ehMedico: modo === 'medico' }}>
       {children}
     </PainelContext.Provider>
   )
