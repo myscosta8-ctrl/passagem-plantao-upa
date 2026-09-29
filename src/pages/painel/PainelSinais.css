@@ -6,7 +6,7 @@
 .pl-resumo-item.critico { border-color: #E2E8F0; }
 .pl-resumo-item.critico i { color: #B91C1C; }
 .pl-resumo-item.atencao { border-color: #E2E8F0; }
-.pl-resumo-item.atencao i { color: #B45309; }
+.pl-resumo-item.atencao i { color: #8A5A12; }
 .pl-resumo-item.ativo { outline: 2px solid #0D9488; outline-offset: 1px; }
 .pl-resumo-limpar { border: none; background: transparent; color: #0D9488; font-weight: 700; font-size: 12.5px; cursor: pointer; }
 
@@ -17,11 +17,11 @@
 .pl-tag.alergia { background: #fff; color: #B91C1C; border-color: #F0C4C4; }
 .pl-tag.isolamento, .pl-tag.regulacao { background: #fff; color: #64748B; }
 .pl-dispositivos span { background: #F1F5F9; border-radius: 4px; padding: 1px 6px; font-weight: 600; }
-.pl-pendencias { color: #92400E; font-weight: 600; }
+.pl-pendencias { color: #7A5514; font-weight: 600; }
 .pl-registros { justify-content: space-between; border-top: 1px dashed #E2E8F0; padding-top: 6px; }
 .pl-presc { font-weight: 700; }
 .pl-presc.ok { color: #475569; }
-.pl-presc.pendente { color: #B45309; }
+.pl-presc.pendente { color: #8A5A12; }
 .pl-presc.vencida { color: #B91C1C; }
 .pl-ok { color: #475569; font-weight: 600; }
 .pl-pendente { color: #64748B; font-weight: 600; }

@@ -27,9 +27,9 @@
   transition: 0.2s;
 }
 .btn-cancel:hover {
-  background: #FEF2F2;
+  background: #FBF3F3;
   color: #DC2626;
-  border-color: #FECACA;
+  border-color: #EBCFCF;
 }
 .btn-save-draft {
   background: #fff;
@@ -46,7 +46,7 @@
   transition: 0.2s;
 }
 .btn-save-draft:hover {
-  background: #F0FDFA;
+  background: #F8FAFC;
 }
 .btn-save-print {
   background: #0D9488;

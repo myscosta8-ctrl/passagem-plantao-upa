@@ -18,17 +18,17 @@
 .gp-btn-sec:hover:not(:disabled) { background: #F1F5F9; }
 .gp-btn-pri { background: #0D9488; border-color: #0D9488; color: #fff; }
 .gp-btn-pri:hover:not(:disabled) { background: #0F766E; }
-.gp-btn-perigo { background: #fff; border-color: #FECACA; color: #B91C1C; }
-.gp-btn-perigo:hover:not(:disabled) { background: #FEF2F2; }
+.gp-btn-perigo { background: #fff; border-color: #EBCFCF; color: #B91C1C; }
+.gp-btn-perigo:hover:not(:disabled) { background: #FBF3F3; }
 .gp-btn-perigo-cheio { background: #DC2626; border-color: #DC2626; color: #fff; }
 .gp-btn-perigo-cheio:hover:not(:disabled) { background: #B91C1C; }
-.gp-btn-ok { background: #fff; border-color: #99F6E4; color: #0F766E; }
-.gp-btn-ok:hover:not(:disabled) { background: #F0FDFA; }
+.gp-btn-ok { background: #fff; border-color: #CBD5E1; color: #334155; }
+.gp-btn-ok:hover:not(:disabled) { background: #F8FAFC; }
 
 .gp-segmento { display: inline-flex; border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden; background: #fff; }
 .gp-segmento button { border: none; background: transparent; padding: 0 14px; height: 32px; font-size: 12.5px; font-weight: 600; color: #475569; cursor: pointer; font-family: inherit; width: auto; }
 .gp-segmento button + button { border-left: 1px solid #E2E8F0; }
-.gp-segmento button.on { background: #0D9488; color: #fff; }
+.gp-segmento button.on { background: #334155; color: #fff; }
 
 .gp-page .gp-lista { display: flex; flex-direction: column; }
 .gp-page .gp-item { border-bottom: 1px solid #E2E8F0; padding: 12px 4px; }
@@ -40,13 +40,13 @@
 .gp-page .gp-sub { font-size: 12.5px; color: #64748B; margin-top: 2px; }
 .gp-page .gp-acoes { display: flex; gap: 6px; flex-wrap: wrap; }
 .gp-page .gp-selo { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; background: #F1F5F9; color: #475569; text-transform: uppercase; }
-.gp-page .gp-selo.admin { background: #CCFBF1; color: #0F766E; }
-.gp-page .gp-selo.ambar { background: #FEF3C7; color: #92400E; }
-.gp-page .gp-falta { color: #B45309; font-size: 12.5px; font-weight: 600; }
+.gp-page .gp-selo.admin { background: #E8EDF3; color: #334155; }
+.gp-page .gp-selo.ambar { background: #F7F3E8; color: #7A5514; }
+.gp-page .gp-falta { color: #8A5A12; font-size: 12.5px; font-weight: 600; }
 .gp-page .gp-editor { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; margin-top: 10px; }
 .gp-page .gp-rodape { display: flex; justify-content: flex-end; gap: 8px; }
-.gp-ok { color: #0F766E; font-size: 13px; margin: 0 0 12px; }
-.gp-erro { background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; font-size: 13px; border-radius: 8px; padding: 8px 10px; margin: 0 0 12px; }
+.gp-ok { color: #334155; font-size: 13px; margin: 0 0 12px; }
+.gp-erro { background: #FBF3F3; border: 1px solid #EBCFCF; color: #B91C1C; font-size: 13px; border-radius: 8px; padding: 8px 10px; margin: 0 0 12px; }
 .gp-page .gp-vazio { color: #64748B; font-size: 13px; }
 
 /* Janela centralizada */
@@ -60,9 +60,9 @@
 .gp-janela-corpo { padding: 6px 18px 4px; font-size: 13.5px; color: #475569; line-height: 1.5; }
 .gp-janela-corpo p { margin: 0 0 12px; }
 .gp-janela-acoes { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px 16px; }
-.gp-senha { display: flex; flex-direction: column; gap: 8px; background: #F0FDFA; border: 1px solid #99F6E4; border-radius: 10px; padding: 12px; }
+.gp-senha { display: flex; flex-direction: column; gap: 8px; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 10px; padding: 12px; }
 .gp-senha div { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
-.gp-senha span { font-size: 11px; font-weight: 700; color: #0F766E; text-transform: uppercase; letter-spacing: .04em; }
+.gp-senha span { font-size: 11px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: .04em; }
 .gp-senha b { font-size: 14px; color: #0F172A; }
 .gp-senha .gp-senha-valor { font-family: ui-monospace, Consolas, monospace; font-size: 18px; letter-spacing: .05em; }
 .gp-senha p { margin: 0; font-size: 12px; color: #475569; }
@@ -89,7 +89,7 @@
 .gp-page .gp-filtros .gp-busca input { flex: 1; min-width: 0; height: 100% !important; border: 0 !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; font-size: 14px; outline: none; }
 .gp-page .gp-seg-suave { border: 0; background: #EEF2F6; padding: 3px; gap: 2px; border-radius: 9px; }
 .gp-page .gp-seg-suave button { border: 0 !important; border-radius: 7px; height: 32px; }
-.gp-page .gp-seg-suave button.on { background: #fff; color: #0F766E; box-shadow: 0 1px 3px rgba(15, 23, 42, .12); }
+.gp-page .gp-seg-suave button.on { background: #fff; color: #334155; box-shadow: 0 1px 3px rgba(15, 23, 42, .12); }
 .gp-page .gp-switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; user-select: none; padding: 0 6px; }
 .gp-page .gp-switch input { position: absolute; opacity: 0; width: 1px !important; height: 1px !important; pointer-events: none; }
 .gp-page .gp-switch span { position: relative; width: 36px; height: 20px; border-radius: 20px; background: #CBD5E1; transition: background .15s; flex-shrink: 0; }
@@ -101,9 +101,9 @@
 .gp-page .gp-item:hover { background: #FAFCFD; }
 .gp-page .gp-item-topo { flex-wrap: nowrap; }
 .gp-page .gp-av { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; background: #E2E8F0; color: #334155; }
-.gp-page .gp-av.tipo-enfermagem { background: #CCFBF1; color: #0F766E; }
-.gp-page .gp-av.tipo-medico { background: #DBEAFE; color: #1D4ED8; }
-.gp-page .gp-av.tipo-recepcao { background: #EDE9FE; color: #6D28D9; }
+.gp-page .gp-av.tipo-enfermagem { background: #E8EDF3; color: #334155; }
+.gp-page .gp-av.tipo-medico { background: #EAEFF6; color: #475569; }
+.gp-page .gp-av.tipo-recepcao { background: #EDE9FE; color: #475569; }
 .gp-page .gp-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; }
 .gp-page .gp-meta span { display: inline-flex; align-items: center; gap: 4px; }
 .gp-page .gp-meta i { color: #94A3B8; }

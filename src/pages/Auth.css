@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+  background: linear-gradient(135deg, #F0F9FF 0%, #EAF1F6 100%);
   padding: 24px;
 }
 
@@ -125,8 +125,8 @@
 }
 
 .auth-error {
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
+  background: #FBF3F3;
+  border: 1px solid #EBCFCF;
   color: #DC2626;
   padding: 12px 16px;
   border-radius: 10px;
@@ -161,7 +161,7 @@
 }
 
 .auth-submit:hover:not(:disabled) {
-  background: #1D4ED8;
+  background: #475569;
   transform: translateY(-1px);
 }
 

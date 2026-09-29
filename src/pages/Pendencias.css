@@ -115,19 +115,19 @@
 .empty-state p { font-size: 14px; color: var(--c-text-secondary); max-width: 400px; margin: 0 auto; }
 .badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.02em; }
 .badge-red { background: var(--c-danger-light); color: var(--c-danger); }
-.badge-yellow { background: var(--c-warning-light); color: #B45309; }
+.badge-yellow { background: var(--c-warning-light); color: #8A5A12; }
 .badge-blue { background: var(--c-info-light); color: var(--c-info); }
 .badge-green { background: var(--c-success-light); color: var(--c-success); }
 
 /* Meus documentos não finalizados (rascunhos) */
-.mr-bloco { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
-.mr-topo { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; color: #92400E; }
+.mr-bloco { background: #FAF8F1; border: 1px solid #E8DFC0; border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+.mr-topo { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; color: #7A5514; }
 .mr-topo > i { font-size: 22px; }
 .mr-topo b { display: block; font-size: 14px; }
 .mr-topo span { font-size: 12.5px; color: #A16207; }
-.mr-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #FEF3C7; border-radius: 9px; padding: 9px 11px; margin-top: 6px; flex-wrap: wrap; }
-.mr-area { font-size: 10.5px; font-weight: 700; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; background: #F0FDFA; color: #0F766E; }
-.mr-area.medico { background: #EFF6FF; color: #1D4ED8; }
+.mr-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #F7F3E8; border-radius: 9px; padding: 9px 11px; margin-top: 6px; flex-wrap: wrap; }
+.mr-area { font-size: 10.5px; font-weight: 700; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; background: #F8FAFC; color: #334155; }
+.mr-area.medico { background: #F3F6FA; color: #475569; }
 .mr-info { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .mr-info b { font-size: 13.5px; color: #0F172A; }
 .mr-info span, .mr-data { font-size: 12px; color: #64748B; }

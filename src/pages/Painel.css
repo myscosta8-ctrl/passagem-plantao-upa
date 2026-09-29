@@ -100,14 +100,14 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #F0FDFA;
+  background: #F8FAFC;
   color: #0D9488;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 13px;
-  border: 1px solid #99F6E4;
+  border: 1px solid #CBD5E1;
 }
 
 /* -----------------------------------------
@@ -191,7 +191,7 @@
 }
 
 .control-btn.active {
-  background: #F0FDFA;
+  background: #F8FAFC;
   border-color: #0D9488;
   color: #0D9488;
 }
@@ -222,7 +222,7 @@
 
 .search-bar .search-input:focus {
   border-color: #0D9488;
-  box-shadow: 0 0 0 3px #F0FDFA;
+  box-shadow: 0 0 0 3px #F8FAFC;
 }
 
 .painel-filtro-dropdown {
@@ -298,7 +298,7 @@
 }
 
 .btn-setor-extra:hover {
-  background: #F0FDFA;
+  background: #F8FAFC;
   border-color: #0D9488;
   border-style: solid;
 }
@@ -381,9 +381,9 @@
 }
 
 .status-internado {
-  background: #CCFBF1;
-  color: #0F766E;
-  border: 1px solid #99F6E4;
+  background: #E8EDF3;
+  color: #334155;
+  border: 1px solid #CBD5E1;
 }
 
 .status-observacao {
@@ -527,7 +527,7 @@
 }
 
 .leito-menu-dropdown button:hover {
-  background: #F0FDFA;
+  background: #F8FAFC;
   color: #0D9488;
 }
 
@@ -547,7 +547,7 @@
 .leito-card.leito-vazio:hover,
 .leito-card.vazio:hover {
   border-color: #0D9488;
-  background: #F0FDFA;
+  background: #F8FAFC;
 }
 
 .leito-card.leito-vazio .risk-bar,

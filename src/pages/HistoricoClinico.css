@@ -15,23 +15,23 @@
 .hc-bloco-topo { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #F8FAFC; border: none; cursor: pointer; text-align: left; }
 .hc-bloco-titulo { font-size: 12.5px; font-weight: 700; color: #0F172A; }
 .hc-bloco-sub { font-size: 11px; color: #64748B; flex: 1; }
-.hc-contador { background: #CCFBF1; color: #0F766E; font-size: 10.5px; font-weight: 700; border-radius: 10px; padding: 1px 8px; }
+.hc-contador { background: #E8EDF3; color: #334155; font-size: 10.5px; font-weight: 700; border-radius: 10px; padding: 1px 8px; }
 .hc-bloco-corpo { padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 6px; max-height: 460px; overflow-y: auto; }
 .hc-vazio { font-size: 12px; color: #64748B; margin: 4px 0; }
 .hc-atendimento { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
 .hc-atendimento-topo { font-size: 11.5px; font-weight: 700; color: #334155; background: #F1F5F9; border-radius: 4px; padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
 .hc-item { border: 1px solid #E2E8F0; border-left: 4px solid #0D9488; border-radius: 6px; background: #fff; }
-.hc-item.medico { border-left-color: #1D4ED8; }
+.hc-item.medico { border-left-color: #475569; }
 .hc-item-topo { display: flex; align-items: center; gap: 10px; padding: 6px 10px; cursor: pointer; flex-wrap: wrap; }
 .hc-data { font-size: 11px; font-weight: 700; color: #334155; min-width: 118px; }
-.hc-tipo { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: #CCFBF1; color: #0F766E; }
-.hc-tipo.medico { background: #DBEAFE; color: #1E40AF; }
+.hc-tipo { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: #E8EDF3; color: #334155; }
+.hc-tipo.medico { background: #EAEFF6; color: #1E40AF; }
 .hc-autor { font-size: 11px; color: #64748B; flex: 1; }
 .hc-item-topo > i { color: #64748B; }
 .hc-resumo { font-size: 12px; color: #0F172A; padding: 0 10px 7px; line-height: 1.45; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .hc-resumo.aberto { display: block; }
 .hc-acoes { padding: 0 10px 8px; }
-.hc-btn { border: 1px solid #0D9488; background: #F0FDFA; color: #0F766E; border-radius: 6px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.hc-btn { border: 1px solid #0D9488; background: #F8FAFC; color: #334155; border-radius: 6px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
 .hc-nota { font-size: 10.5px; color: #64748B; margin: 0; }
 .hc-print-overlay { position: fixed; inset: 0; z-index: 3000; background: #fff; overflow: auto; }
 
@@ -43,7 +43,7 @@
 .somente-leitura .template-btn, .somente-leitura .qs-gerenciar { pointer-events: none; }
 .somente-leitura .workspace textarea, .somente-leitura .workspace input:not([type=checkbox]):not([type=radio]), .somente-leitura .workspace select { background: #F8FAFC !important; color: #475569; }
 .somente-leitura .hc-card input { pointer-events: auto; background: transparent !important; color: inherit; }
-.aviso-somente-leitura { display: flex; align-items: center; gap: 8px; background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.aviso-somente-leitura { display: flex; align-items: center; gap: 8px; background: #FAF8F1; border: 1px solid #E8DFC0; color: #7A5514; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
 
 @media print {
   body.hc-imprimindo * { visibility: hidden; }
@@ -67,13 +67,13 @@
 
 /* Situação do documento clínico */
 .hc-situacao { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: .03em; }
-.hc-situacao.rascunho { background: #FEF3C7; color: #92400E; }
-.hc-situacao.finalizado { background: #DCFCE7; color: #166534; }
-.hc-situacao.invalido { background: #FEE2E2; color: #991B1B; }
+.hc-situacao.rascunho { background: #F7F3E8; color: #7A5514; }
+.hc-situacao.finalizado { background: #EDF3EF; color: #3E5E4D; }
+.hc-situacao.invalido { background: #F6E4E4; color: #991B1B; }
 .hc-item.hc-invalido { opacity: .75; border-left-color: #DC2626 !important; }
 .hc-item.hc-invalido .hc-resumo { text-decoration: line-through; }
 .hc-acoes { display: flex; gap: 6px; flex-wrap: wrap; }
-.hc-btn-perigo { border-color: #DC2626; background: #FEF2F2; color: #B91C1C; }
+.hc-btn-perigo { border-color: #DC2626; background: #FBF3F3; color: #B91C1C; }
 .hc-motivo { font-size: 11.5px; color: #991B1B; padding: 0 10px 7px; }
 .hc-invalidar { display: flex; gap: 6px; align-items: center; padding: 0 10px 8px; flex-wrap: wrap; }
 .hc-invalidar input { flex: 1; min-width: 220px; border: 1px solid #CBD5E1; border-radius: 6px; padding: 5px 8px; font-size: 12px; }
@@ -83,10 +83,10 @@
 .hc-alteracao-campo { font-size: 11px; color: #334155; word-break: break-word; }
 .hc-alteracao-campo s { color: #991B1B; }
 /* Rascunho e data retroativa nas abas */
-.aviso-rascunho { display: flex; align-items: center; gap: 8px; background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
+.aviso-rascunho { display: flex; align-items: center; gap: 8px; background: #FAF8F1; border: 1px solid #E8DFC0; color: #7A5514; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
 .campo-data-registro { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; color: #475569; margin-right: auto; }
 .campo-data-registro input { border: 1px solid #CBD5E1; border-radius: 6px; padding: 4px 6px; font-size: 12px; }
 .campo-data-registro button { border: none; background: transparent; color: #0D9488; font-weight: 700; cursor: pointer; font-size: 11px; }
-.erro-inline { display: flex; align-items: center; gap: 8px; background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
+.erro-inline { display: flex; align-items: center; gap: 8px; background: #FBF3F3; border: 1px solid #E6B3B3; color: #991B1B; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
 
 .hc-aviso-autor { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #64748B; }

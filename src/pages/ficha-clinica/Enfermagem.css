@@ -5,12 +5,12 @@
 .enf-theme {
   --enf-primary: #0D9488;
   --enf-hover: #0F766E;
-  --enf-light: #F0FDFA;
-  --enf-badge: #CCFBF1;
+  --enf-light: #F8FAFC;
+  --enf-badge: #E8EDF3;
   --danger: #DC2626;
-  --danger-light: #FEF2F2;
+  --danger-light: #FBF3F3;
   --success: #16A34A;
-  --success-light: #DCFCE7;
+  --success-light: #EDF3EF;
   background: #F1F5F9;
 }
 
@@ -33,9 +33,9 @@
 .enf-theme .scale-card { border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; background: #FAFAFA; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
 .enf-theme .scale-title { font-size: 12px; font-weight: 700; color: #0F172A; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
 .enf-theme .scale-badge { font-size: 10px; padding: 3px 7px; border-radius: 4px; font-weight: 700; white-space: nowrap; }
-.enf-theme .scale-badge.risco-alto { background: var(--danger-light); color: var(--danger); border: 1px solid #FECACA; }
+.enf-theme .scale-badge.risco-alto { background: var(--danger-light); color: var(--danger); border: 1px solid #EBCFCF; }
 .enf-theme .scale-badge.risco-medio { background: #FEF08A; color: #854D0E; border: 1px solid #FDE047; }
-.enf-theme .scale-badge.risco-baixo { background: var(--success-light); color: var(--success); border: 1px solid #BBF7D0; }
+.enf-theme .scale-badge.risco-baixo { background: var(--success-light); color: var(--success); border: 1px solid #D3E3DA; }
 .enf-theme .scale-badge.sem-dado { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; }
 .enf-theme .scale-desc { font-size: 11px; color: #334155; line-height: 1.4; margin: 0; }
 .enf-theme .qs-label { font-size: 11.5px; font-weight: 700; color: #0F172A; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
@@ -44,7 +44,7 @@
 .enf-theme .device-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; padding: 8px 10px; background: #fff; border: 1px solid #E2E8F0; border-radius: 6px; }
 .enf-theme .device-item strong { color: #0F172A; font-weight: 600; font-size: 12px; }
 .enf-theme .device-item span.sub { font-size: 10.5px; color: #64748B; }
-.enf-theme .alergia-box { padding: 10px 12px; background: var(--danger-light); border: 1px solid #FECACA; border-radius: 6px; font-size: 12px; color: #991B1B; line-height: 1.4; }
+.enf-theme .alergia-box { padding: 10px 12px; background: var(--danger-light); border: 1px solid #EBCFCF; border-radius: 6px; font-size: 12px; color: #991B1B; line-height: 1.4; }
 .enf-theme .qs-vazio { font-size: 11px; color: #94A3B8; }
 
 /* CARD PRINCIPAL */
@@ -91,7 +91,7 @@
 .enf-theme .check-item:hover { background: var(--enf-light); border-color: var(--enf-primary); }
 .enf-theme .check-item input { width: 16px; height: 16px; accent-color: var(--enf-primary); cursor: pointer; margin: 0; }
 .enf-theme .check-item.active { background: var(--enf-light); border-color: var(--enf-primary); font-weight: 600; color: var(--enf-hover); }
-.enf-theme .check-item.alerta { border-color: #FCA5A5; background: #FEF2F2; }
+.enf-theme .check-item.alerta { border-color: #E6B3B3; background: #FBF3F3; }
 .enf-theme .check-item.alerta strong { color: #991B1B; }
 .enf-theme .condicional-box { background: var(--enf-light); border: 1px solid var(--enf-badge); padding: 12px 14px; border-radius: 6px; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
 .enf-theme .condicional-box label { font-size: 12px; font-weight: 700; color: var(--enf-hover); display: flex; align-items: center; gap: 6px; }
@@ -113,7 +113,7 @@
 .enf-theme .topbar .sys-time { font-size: 11px; font-weight: 600; color: #64748B; padding-right: 14px; border-right: 1px solid #E2E8F0; }
 .enf-theme .topbar-right { gap: 14px; }
 .enf-theme .btn-pilar { background: #fff; border: 1px solid #CBD5E1; border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #0D9488; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.enf-theme .btn-pilar:hover { background: #F0FDFA; border-color: #0D9488; }
+.enf-theme .btn-pilar:hover { background: #F8FAFC; border-color: #0D9488; }
 .enf-theme .workspace { padding: 4px 6px; gap: 2px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 /* PATIENT BANNER (mockup 08) */
@@ -214,10 +214,10 @@
 .enf-theme .bh-summary-strip { padding: 12px 18px; background: #F8FAFC; border-bottom: 1px solid #CBD5E1; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
 .enf-theme .bh-card-metric { display: flex; align-items: center; gap: 12px; }
 .enf-theme .metric-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-.enf-theme .metric-icon.in { background: #E0F2FE; color: #0284C7; }
-.enf-theme .metric-icon.out { background: #FEF3C7; color: #D97706; }
-.enf-theme .metric-icon.balance { background: #DCFCE7; color: #16A34A; }
-.enf-theme .metric-icon.negative { background: #FEE2E2; color: #DC2626; }
+.enf-theme .metric-icon.in { background: #EAF1F6; color: #0284C7; }
+.enf-theme .metric-icon.out { background: #F7F3E8; color: #D97706; }
+.enf-theme .metric-icon.balance { background: #EDF3EF; color: #16A34A; }
+.enf-theme .metric-icon.negative { background: #F6E4E4; color: #DC2626; }
 .enf-theme .metric-info { display: flex; flex-direction: column; }
 .enf-theme .metric-label { font-size: 10.5px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .04em; }
 .enf-theme .metric-val { font-size: 18px; font-weight: 700; color: #0F172A; }
@@ -226,8 +226,8 @@
 .enf-theme .bh-box { border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden; background: #fff; min-width: 0; }
 .enf-theme .bh-box-header { padding: 8px 14px; font-size: 12px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid #CBD5E1; }
 .enf-theme .bh-box-header span { display: flex; align-items: center; gap: 6px; }
-.enf-theme .bh-box-header.entradas { background: #E0F2FE; color: #0369A1; }
-.enf-theme .bh-box-header.saidas { background: #FEF3C7; color: #92400E; }
+.enf-theme .bh-box-header.entradas { background: #EAF1F6; color: #475569; }
+.enf-theme .bh-box-header.saidas { background: #F7F3E8; color: #7A5514; }
 .enf-theme .bh-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .enf-theme .bh-table th { background: #F1F5F9; padding: 6px 10px; font-size: 10.5px; font-weight: 700; color: #334155; text-align: left; border-bottom: 1px solid #CBD5E1; text-transform: uppercase; }
 .enf-theme .bh-table td { padding: 6px 10px; border-bottom: 1px solid #E2E8F0; vertical-align: middle; }
@@ -319,6 +319,6 @@
 }
 
 /* Banner compartilhado com o Prontuário Médico: variáveis próprias (fora do .enf-theme) */
-.enf-banner { --enf-primary: #0D9488; --enf-hover: #0F766E; --enf-badge: #CCFBF1; --danger: #DC2626; --danger-light: #FEF2F2; }
-.enf-banner .pb-pediatrico { background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }
+.enf-banner { --enf-primary: #0D9488; --enf-hover: #0F766E; --enf-badge: #E8EDF3; --danger: #DC2626; --danger-light: #FBF3F3; }
+.enf-banner .pb-pediatrico { background: #F7F3E8; color: #7A5514; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }
 .enf-banner .pb-classificacao { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }

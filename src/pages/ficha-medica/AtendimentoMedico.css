@@ -77,14 +77,14 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #F0FDFA;
+  background: #F8FAFC;
   color: #0D9488;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 12px;
-  border: 1px solid #99F6E4;
+  border: 1px solid #CBD5E1;
 }
 
 /* ÁREA DE TRABALHO */
@@ -125,11 +125,11 @@
 .atendimento-medico-container .badge-alergia-pb {
   font-size: 10px;
   font-weight: 700;
-  background: #FEF2F2;
+  background: #FBF3F3;
   color: #DC2626;
   padding: 2px 8px;
   border-radius: 12px;
-  border: 1px solid #FECACA;
+  border: 1px solid #EBCFCF;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -149,8 +149,8 @@
   gap: 4px;
 }
 .atendimento-medico-container .weight-badge {
-  background: #FEF3C7;
-  color: #92400E;
+  background: #F7F3E8;
+  color: #7A5514;
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 4px;
@@ -328,8 +328,8 @@
   margin-top: 2px;
 }
 .atendimento-medico-container .vital-box.alert {
-  background: #FEF2F2;
-  border-color: #FECACA;
+  background: #FBF3F3;
+  border-color: #EBCFCF;
 }
 .atendimento-medico-container .vital-box.alert strong {
   color: #DC2626;
@@ -337,8 +337,8 @@
 
 /* Banners Auxiliares da Barra Lateral */
 .atendimento-medico-container .info-integration-box {
-  background: #F0FDFA;
-  border: 1px solid #99F6E4;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
   border-radius: 8px;
   padding: 10px;
 }
@@ -375,7 +375,7 @@
 }
 .atendimento-medico-container .template-btn:hover {
   border-color: #0D9488;
-  background: #F0FDFA;
+  background: #F8FAFC;
 }
 .atendimento-medico-container .template-btn strong {
   display: block;
@@ -484,12 +484,12 @@
 .atendimento-medico-container .form-group textarea:focus,
 .atendimento-medico-container .form-group select:focus {
   border-color: #0D9488;
-  box-shadow: 0 0 0 3px #F0FDFA;
+  box-shadow: 0 0 0 3px #F8FAFC;
 }
 
 .atendimento-medico-container .badge-auto {
-  background: #DCFCE7;
-  color: #166534;
+  background: #EDF3EF;
+  color: #3E5E4D;
   font-size: 9px;
   font-weight: 700;
   padding: 1px 6px;
@@ -497,11 +497,11 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  border: 1px solid #BBF7D0;
+  border: 1px solid #D3E3DA;
 }
 .atendimento-medico-container .badge-manual {
-  background: #FEF3C7;
-  color: #92400E;
+  background: #F7F3E8;
+  color: #7A5514;
   font-size: 9px;
   font-weight: 700;
   padding: 1px 6px;
@@ -509,12 +509,12 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  border: 1px solid #FDE68A;
+  border: 1px solid #E8DFC0;
 }
 
 .atendimento-medico-container .allergy-alert {
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
+  background: #FBF3F3;
+  border: 1px solid #EBCFCF;
   border-radius: 6px;
   padding: 8px 14px;
   display: flex;
@@ -570,7 +570,7 @@
   gap: 4px;
 }
 .atendimento-medico-container .btn-add-chip:hover {
-  background: #F0FDFA;
+  background: #F8FAFC;
 }
 .atendimento-medico-container .btn-add-chip.on {
   background: #0D9488;
@@ -582,8 +582,8 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 1px solid #99F6E4;
-  background: #F0FDFA;
+  border: 1px solid #CBD5E1;
+  background: #F8FAFC;
   color: #0D9488;
   display: flex;
   align-items: center;
@@ -692,8 +692,8 @@
   border-color: #E2E8F0;
 }
 .atendimento-medico-container .aih-field-box.highlight {
-  background: #F0FDFA;
-  border-color: #99F6E4;
+  background: #F8FAFC;
+  border-color: #CBD5E1;
 }
 .atendimento-medico-container .aih-field-header {
   display: flex;
@@ -733,7 +733,7 @@
 .atendimento-medico-container .quick-chip:hover {
   border-color: #0D9488;
   color: #0D9488;
-  background: #F0FDFA;
+  background: #F8FAFC;
 }
 .atendimento-medico-container .quick-chip.active {
   background: #0D9488;
@@ -766,9 +766,9 @@
   transition: 0.2s;
 }
 .atendimento-medico-container .btn-cancel:hover {
-  background: #FEF2F2;
+  background: #FBF3F3;
   color: #DC2626;
-  border-color: #FECACA;
+  border-color: #EBCFCF;
 }
 .atendimento-medico-container .btn-save-draft {
   background: #fff;
@@ -785,7 +785,7 @@
   transition: 0.2s;
 }
 .atendimento-medico-container .btn-save-draft:hover {
-  background: #F0FDFA;
+  background: #F8FAFC;
 }
 .atendimento-medico-container .btn-save-print {
   background: #0D9488;
@@ -953,10 +953,10 @@
 .atendimento-medico-container .vital-input-wrapper span { font-size: 11px; font-weight: 600; color: var(--text-muted, #64748B); }
 
 .atendimento-medico-container .form-control { width: 100%; padding: 8px 10px; border: 1px solid #94A3B8; border-radius: 6px; font-size: 12px; outline: none; background: #FFFFFF; color: var(--text-main, #0F172A); transition: 0.2s; font-family: 'Inter', sans-serif; }
-.atendimento-medico-container .form-control:focus { background: #fff; border-color: var(--primary, #0D9488); box-shadow: 0 0 0 3px var(--primary-light, #F0FDFA); }
+.atendimento-medico-container .form-control:focus { background: #fff; border-color: var(--primary, #0D9488); box-shadow: 0 0 0 3px var(--primary-light, #F8FAFC); }
 
 .atendimento-medico-container .form-control-area { width: 100%; padding: 8px 10px; border: 1px solid #94A3B8; border-radius: 6px; font-size: 12px; outline: none; background: #FFFFFF; color: var(--text-main, #0F172A); transition: 0.2s; min-height: 80px; font-family: 'Inter', sans-serif; resize: vertical; line-height: 1.5; }
-.atendimento-medico-container .form-control-area:focus { background: #fff; border-color: var(--primary, #0D9488); box-shadow: 0 0 0 3px var(--primary-light, #F0FDFA); }
+.atendimento-medico-container .form-control-area:focus { background: #fff; border-color: var(--primary, #0D9488); box-shadow: 0 0 0 3px var(--primary-light, #F8FAFC); }
 .atendimento-medico-container .form-control-area.large { min-height: 180px; }
 
 .atendimento-medico-container .triage-card .vitals-grid { display: grid; grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
@@ -987,9 +987,9 @@
 .atendimento-medico-container .item-sub { font-size: 11px; color: var(--text-secondary, #334155); display: flex; gap: 12px; margin-top: 2px; }
 .atendimento-medico-container .item-sub span { display: flex; align-items: center; gap: 4px; }
 .atendimento-medico-container .item-actions button { background: transparent; border: none; color: var(--danger, #DC2626); font-size: 15px; cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s; }
-.atendimento-medico-container .item-actions button:hover { background: var(--danger-light, #FEF2F2); }
+.atendimento-medico-container .item-actions button:hover { background: var(--danger-light, #FBF3F3); }
 
-.atendimento-medico-container .presc-input-row { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: var(--primary-light, #F0FDFA); border-top: 1px solid var(--border-light, #CCFBF1); }
+.atendimento-medico-container .presc-input-row { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: var(--primary-light, #F8FAFC); border-top: 1px solid var(--border-light, #E8EDF3); }
 .atendimento-medico-container .presc-input-row .item-num { background: transparent; border: 1px solid var(--primary, #0D9488); color: var(--primary, #0D9488); flex-shrink: 0; }
 .atendimento-medico-container .presc-input-row input, .atendimento-medico-container .presc-input-row select { padding: 6px 10px; border: 1px solid var(--border-strong, #CBD5E1); border-radius: 6px; font-size: 11px; outline: none; width: 100%; }
 .atendimento-medico-container .presc-input-linha1 { display: flex; align-items: center; gap: 8px; }
@@ -1011,9 +1011,9 @@
 .modal-close { background: transparent; border: none; color: white; cursor: pointer; font-size: 18px; }
 .modal-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 
-.calc-info-bar { display: flex; justify-content: space-between; background: #FFFBEB; padding: 8px 10px; border: 1px solid #FEF3C7; border-radius: 8px; }
+.calc-info-bar { display: flex; justify-content: space-between; background: #FAF8F1; padding: 8px 10px; border: 1px solid #F7F3E8; border-radius: 8px; }
 .calc-info-item { display: flex; flex-direction: column; }
-.calc-info-item label { font-size: 10px; font-weight: 700; color: #92400E; text-transform: uppercase; }
+.calc-info-item label { font-size: 10px; font-weight: 700; color: #7A5514; text-transform: uppercase; }
 .calc-info-item span { font-size: 14px; font-weight: 700; color: #D97706; }
 
 .calc-row { display: flex; gap: 8px; align-items: flex-start; }
@@ -1022,7 +1022,7 @@
 .calc-box input, .calc-box select { width: 100%; border: 1px solid var(--border-strong, #CBD5E1); padding: 6px 8px; border-radius: 6px; font-size: 12px; outline: none; }
 .calc-box input:focus { border-color: var(--primary, #0D9488); }
 
-.calc-result-highlight { background: #F0FDFA; border: 1px solid #99F6E4; padding: 8px; border-radius: 8px; text-align: center; }
+.calc-result-highlight { background: #F8FAFC; border: 1px solid #CBD5E1; padding: 8px; border-radius: 8px; text-align: center; }
 .calc-result-highlight span { font-size: 11px; font-weight: 700; color: var(--primary, #0D9488); text-transform: uppercase; }
 .calc-result-highlight strong { font-size: 17px; color: #0D9488; display: block; margin-top: 2px; font-weight: 800; }
 
@@ -1038,8 +1038,8 @@
 /* =============== NOVOS ESTILOS RECEITUARIO E DOCUMENTOS (mockups-fase2/05) =============== */
 
 .atendimento-medico-container .protocol-btn { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #F8FAFC; border: 1px solid var(--border-strong, #CBD5E1); border-radius: 8px; cursor: pointer; margin-bottom: 8px; text-align: left; transition: 0.2s; }
-.atendimento-medico-container .protocol-btn:hover { background: #F0FDFA; border-color: var(--primary, #0D9488); }
-.atendimento-medico-container .protocol-btn.active { background: var(--primary-light, #F0FDFA); border-color: var(--primary, #0D9488); }
+.atendimento-medico-container .protocol-btn:hover { background: #F8FAFC; border-color: var(--primary, #0D9488); }
+.atendimento-medico-container .protocol-btn.active { background: var(--primary-light, #F8FAFC); border-color: var(--primary, #0D9488); }
 .atendimento-medico-container .protocol-btn strong { display: block; font-size: 12px; color: var(--text-main, #0F172A); }
 .atendimento-medico-container .protocol-btn span { font-size: 10px; color: var(--text-muted, #64748B); }
 
@@ -1058,14 +1058,14 @@
 .atendimento-medico-container .receita-item { border: 1px solid var(--border-light, #E2E8F0); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; position: relative; animation: slideIn 0.3s ease-out; margin-bottom: 12px; }
 @keyframes slideIn { from { opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
 .atendimento-medico-container .receita-item .rm-btn { position: absolute; top: 12px; right: 12px; color: var(--danger, #DC2626); background: none; border: none; cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s; }
-.atendimento-medico-container .receita-item .rm-btn:hover { background: var(--danger-light, #FEF2F2); }
+.atendimento-medico-container .receita-item .rm-btn:hover { background: var(--danger-light, #FBF3F3); }
 .atendimento-medico-container .badge-2vias { font-size: 9px; font-weight: 700; background: var(--mc-laranja-light, #FFEDD5); color: var(--mc-laranja, #EA580C); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; display: inline-block; margin-left: 8px; }
 
 .atendimento-medico-container .add-med-bar { display: flex; gap: 12px; align-items: center; background: #F8FAFC; padding: 12px; border: 1px dashed var(--primary, #0D9488); border-radius: 8px; position: relative; }
 
 .atendimento-medico-container .ac-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
 .atendimento-medico-container .ac-badge.comum { background: #E2E8F0; color: #334155; }
-.atendimento-medico-container .ac-badge.atb { background: #CCFBF1; color: #0F766E; }
+.atendimento-medico-container .ac-badge.atb { background: #E8EDF3; color: #334155; }
 .atendimento-medico-container .ac-badge.c1 { background: #FFEDD5; color: #9A3412; }
 /* =============== NOVOS ESTILOS PLANO TERAPEUTICO (mockups-fase2/07) =============== */
 
@@ -1078,10 +1078,10 @@
 .atendimento-medico-container .meta-row { display: flex; gap: 12px; align-items: flex-start; }
 .atendimento-medico-container .meta-row input { flex: 1; }
 .atendimento-medico-container .meta-row select { width: 140px; }
-.atendimento-medico-container .btn-remove-meta { background: var(--danger-light, #FEF2F2); color: var(--danger, #DC2626); border: 1px solid #FCA5A5; border-radius: 6px; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-.atendimento-medico-container .btn-remove-meta:hover { background: #FEE2E2; }
+.atendimento-medico-container .btn-remove-meta { background: var(--danger-light, #FBF3F3); color: var(--danger, #DC2626); border: 1px solid #E6B3B3; border-radius: 6px; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.atendimento-medico-container .btn-remove-meta:hover { background: #F6E4E4; }
 .atendimento-medico-container .btn-add-meta { background: transparent; border: 1px dashed var(--primary, #0D9488); color: var(--primary, #0D9488); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; width: max-content; margin-top: 4px; font-size: 12px; transition: 0.2s; }
-.atendimento-medico-container .btn-add-meta:hover { background: var(--primary-light, #F0FDFA); }
+.atendimento-medico-container .btn-add-meta:hover { background: var(--primary-light, #F8FAFC); }
 
 /* Checkbox Grids */
 .atendimento-medico-container .check-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -1101,8 +1101,8 @@
 
 .atendimento-medico-container .modality-nav { display: flex; flex-direction: column; gap: 6px; }
 .atendimento-medico-container .modality-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border-strong, #CBD5E1); background: #fff; font-size: 12px; font-weight: 700; color: var(--text-secondary, #475569); cursor: pointer; transition: 0.15s; text-align: left; }
-.atendimento-medico-container .modality-btn:hover { border-color: var(--primary, #0D9488); background: var(--primary-light, #F0FDFA); color: var(--primary, #0D9488); }
-.atendimento-medico-container .modality-btn.active { border-color: var(--primary, #0D9488); background: var(--primary-light, #F0FDFA); color: var(--primary, #0D9488); box-shadow: 0 0 0 1px var(--primary, #0D9488); }
+.atendimento-medico-container .modality-btn:hover { border-color: var(--primary, #0D9488); background: var(--primary-light, #F8FAFC); color: var(--primary, #0D9488); }
+.atendimento-medico-container .modality-btn.active { border-color: var(--primary, #0D9488); background: var(--primary-light, #F8FAFC); color: var(--primary, #0D9488); box-shadow: 0 0 0 1px var(--primary, #0D9488); }
 
 .atendimento-medico-container .modality-badge { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 12px; background: #E2E8F0; color: #475569; }
 .atendimento-medico-container .modality-btn.active .modality-badge { background: var(--primary, #0D9488); color: #fff; }
@@ -1118,7 +1118,7 @@
 .atendimento-medico-container .hemo-chip-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border-strong, #CBD5E1); background: #fff; color: var(--text-secondary, #334155); font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.15s; white-space: nowrap; }
 .atendimento-medico-container .hemo-chip-btn:hover { border-color: var(--primary, #0D9488); }
 .atendimento-medico-container .hemo-chip-btn i { font-size: 14px; }
-.atendimento-medico-container .hemo-chip.ativo .hemo-chip-btn { background: #F0FDFA; border-color: var(--primary, #0D9488); color: var(--primary, #0D9488); }
+.atendimento-medico-container .hemo-chip.ativo .hemo-chip-btn { background: #F8FAFC; border-color: var(--primary, #0D9488); color: var(--primary, #0D9488); }
 .atendimento-medico-container .hemo-chip-qtd { width: 110px; padding: 7px 10px; font-size: 11px; border: 1px solid var(--primary, #0D9488); border-radius: 20px; outline: none; text-align: center; }
 
 /* MOCKUP 16 APAC */
@@ -1207,14 +1207,14 @@
 .atendimento-medico-container .adm-checks { display: flex; flex-wrap: wrap; gap: 6px 8px; }
 .atendimento-medico-container .adm-check { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #fff; font-size: 12.5px; font-weight: 500; text-transform: none; cursor: pointer; white-space: nowrap; }
 .atendimento-medico-container .adm-check input { width: 15px; height: 15px; margin: 0; }
-.atendimento-medico-container .adm-check.on { border-color: #0D9488; background: #F0FDFA; color: #0F766E; }
-.atendimento-medico-container .adm-check.on.alerta { border-color: #DC2626; background: #FEF2F2; color: #991B1B; }
+.atendimento-medico-container .adm-check.on { border-color: #0D9488; background: #F8FAFC; color: #334155; }
+.atendimento-medico-container .adm-check.on.alerta { border-color: #DC2626; background: #FBF3F3; color: #991B1B; }
 .atendimento-medico-container .adm-side-card { border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; background: #F8FAFC; font-size: 12px; }
-.atendimento-medico-container .adm-side-alerta { border-color: #FECACA; background: #FEF2F2; }
+.atendimento-medico-container .adm-side-alerta { border-color: #EBCFCF; background: #FBF3F3; }
 .atendimento-medico-container .adm-side-title { font-weight: 700; font-size: 11px; text-transform: uppercase; color: #334155; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .atendimento-medico-container .adm-side-item { margin-bottom: 8px; display: flex; flex-direction: column; gap: 2px; }
 .atendimento-medico-container .adm-side-item p { margin: 0; color: #64748B; font-size: 11px; }
-.atendimento-medico-container .adm-side-badge { align-self: flex-start; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #FEF3C7; color: #92400E; }
+.atendimento-medico-container .adm-side-badge { align-self: flex-start; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #F7F3E8; color: #7A5514; }
 .atendimento-medico-container .adm-side-vazio { color: #94A3B8; font-size: 11px; }
 
 /* Evita que conteúdo largo (sub-abas, grids) empurre o card além da tela */
@@ -1233,5 +1233,5 @@
 .atendimento-medico-container .topbar-right { gap: 14px; }
 .atendimento-medico-container .topbar .sys-time { font-size: 11px; font-weight: 600; color: #64748B; padding-right: 14px; border-right: 1px solid #E2E8F0; }
 .atendimento-medico-container .btn-pilar { background: #fff; border: 1px solid #CBD5E1; border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #0D9488; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.atendimento-medico-container .btn-pilar:hover { background: #F0FDFA; border-color: #0D9488; }
-.atendimento-medico-container .enf-avatar { padding: 4px 10px; border-radius: 20px; background: #F0FDFA; color: #0D9488; border: 1px solid #0D9488; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 11px; white-space: nowrap; }
+.atendimento-medico-container .btn-pilar:hover { background: #F8FAFC; border-color: #0D9488; }
+.atendimento-medico-container .enf-avatar { padding: 4px 10px; border-radius: 20px; background: #F8FAFC; color: #0D9488; border: 1px solid #0D9488; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 11px; white-space: nowrap; }

@@ -1,12 +1,12 @@
 .dup-evo { position: relative; }
-.dup-evo-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid #99F6E4; background: #F0FDFA; color: #0F766E; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.dup-evo-btn:hover { background: #CCFBF1; }
+.dup-evo-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid #CBD5E1; background: #F8FAFC; color: #334155; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.dup-evo-btn:hover { background: #E8EDF3; }
 .dup-evo-painel { position: absolute; right: 0; top: calc(100% + 6px); z-index: 50; width: min(440px, calc(100vw - 32px)); max-height: 380px; overflow-y: auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 16px 40px rgba(15, 23, 42, .18); padding: 8px; }
 .dup-evo-topo { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px 8px; font-size: 13px; color: #0F172A; }
 .dup-evo-topo button { border: 0; background: transparent; cursor: pointer; color: #64748B; font-size: 16px; }
 .dup-evo-item { display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left; border: 1px solid #F1F5F9; background: #F8FAFC; border-radius: 9px; padding: 9px 10px; margin-bottom: 6px; cursor: pointer; }
-.dup-evo-item:hover { border-color: #0D9488; background: #F0FDFA; }
-.dup-evo-meta { font-size: 11.5px; font-weight: 700; color: #0F766E; }
+.dup-evo-item:hover { border-color: #0D9488; background: #F8FAFC; }
+.dup-evo-meta { font-size: 11.5px; font-weight: 700; color: #334155; }
 .dup-evo-resumo { font-size: 12.5px; color: #334155; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .dup-evo-vazio { font-size: 12.5px; color: #64748B; padding: 8px 6px; margin: 0; }
 .dup-evo-nota { font-size: 11px; color: #64748B; margin: 4px 6px 2px; display: flex; gap: 5px; align-items: flex-start; }

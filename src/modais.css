@@ -11,8 +11,8 @@
 .modal-card .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
 .modal-card .chip { border: 1px solid #CBD5E1; background: #fff; color: #334155; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; width: auto; }
 .modal-card .chip:hover { background: #F1F5F9; }
-.modal-card .chip.on { background: #0D9488; border-color: #0D9488; color: #fff; }
-.modal-card .error-box { background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; font-size: 13px; border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; }
+.modal-card .chip.on { background: #334155; border-color: #334155; color: #fff; }
+.modal-card .error-box { background: #FBF3F3; border: 1px solid #EBCFCF; color: #B91C1C; font-size: 13px; border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 .modal-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; width: auto; text-transform: none; letter-spacing: 0; }
 .modal-btn-primary { border: 1px solid #0D9488; background: #0D9488; color: #fff; }
