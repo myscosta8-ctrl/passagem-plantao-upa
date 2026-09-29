@@ -319,7 +319,7 @@ export default function Home() {
     // Mesmo esqueleto visual da enfermagem (topo com trilha, relógio e avatar),
     // sem o fluxo de plantão.
     const tituloInicio = ehMedico ? 'Painel Médico' : ehRecepcao ? 'Recepção' : 'Início'
-    const tituloTela = tela === 'conta' ? 'Minha conta' : tela === 'equipe' ? 'Painel de Equipe' : tela === 'profissionais' ? 'Profissionais' : tituloInicio
+    const tituloTela = tela === 'conta' ? 'Minha conta' : tela === 'equipe' && podeAdministrar ? 'Painel de Equipe' : tela === 'profissionais' && podeAdministrar ? 'Profissionais' : tituloInicio
     return (
       <div className="app-shell-sidebar-layout">
         <div className="main-content">
