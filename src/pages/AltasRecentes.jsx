@@ -1,6 +1,8 @@
 import { numeroLimpo } from '../lib/numeros'
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { useAuth } from '../lib/AuthContext'
+import './AltasRecentes.css'
 
 const CORES_DESFECHO = {
   'Alta':          { bg: '#dcfce7', txt: '#166534' },
@@ -40,6 +42,7 @@ function normalizarDesfecho(raw) {
 }
 
 export default function AltasRecentes({ onVoltar }) {
+  const { enfermeiro } = useAuth()
   const [desfechos, setDesfechos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [busca, setBusca] = useState('')
@@ -115,6 +118,72 @@ export default function AltasRecentes({ onVoltar }) {
     { key: 'mes', label: 'Este Mês' },
     { key: 'custom', label: 'Período' },
   ]
+
+  // ===== Nova interface (contas pep_beta) — mockup 10 =====
+  if (enfermeiro?.pep_beta === true) {
+    const porNome = desfechos.filter((d) => !busca || d.nome.toLowerCase().includes(busca.toLowerCase()))
+    const conta = (t) => porNome.filter((d) => d.tipo_desfecho === t).length
+    const kpis = [
+      { t: '', n: porNome.length, r: 'saídas', ic: 'ph-list' },
+      { t: 'Alta', n: conta('Alta'), r: 'altas', ic: 'ph-check' },
+      { t: 'Transferência', n: conta('Transferência'), r: 'transferências', ic: 'ph-arrows-left-right' },
+      { t: 'Óbito', n: conta('Óbito'), r: 'óbitos', ic: 'ph-cross' },
+      { t: 'Evasão', n: conta('Evasão'), r: 'evasões', ic: 'ph-sign-out' },
+    ]
+    const CLS = { Alta: 'alta', 'Transferência': 'tr', 'Óbito': 'ob', 'Evasão': 'ev' }
+    const dia = (d) => {
+      const dt = new Date(d); const hoje = new Date(); const ontem = new Date(); ontem.setDate(hoje.getDate() - 1)
+      const dm = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+      return dt.toDateString() === hoje.toDateString() ? `Hoje · ${dm}` : dt.toDateString() === ontem.toDateString() ? `Ontem · ${dm}` : dt.toLocaleDateString('pt-BR')
+    }
+    const PER = [['hoje', 'Hoje'], ['semana', '7 dias'], ['mes', '30 dias'], ['custom', 'Personalizado']]
+    return (
+      <div className="workspace ds-v2">
+        <div className="ds-topo">
+          <h1>Desfechos e Saídas</h1>
+          <span className="ds-sub">Altas, transferências, óbitos e evasões</span>
+          <button type="button" className="ds-imprimir" onClick={() => window.print()}><i className="ph ph-printer" /> Imprimir</button>
+        </div>
+        <div className="ds-kpis no-print">
+          {kpis.map((k) => (
+            <button key={k.r} type="button" className={'ds-kpi' + (filtroTipo === k.t ? ' on' : '')} onClick={() => setFiltroTipo(k.t)} title={k.t ? `Mostrar só ${k.r}` : 'Mostrar todos'}>
+              <span className="ds-k"><i className={'ph ' + k.ic} /></span><b>{carregando ? '—' : k.n}</b><small>{k.r}</small>
+            </button>
+          ))}
+        </div>
+        <div className="ds-filtros no-print">
+          <div className="ds-seg">
+            {PER.map(([k, r]) => <button key={k} type="button" className={periodo === k ? 'on' : ''} onClick={() => setPeriodo(k)}>{r}</button>)}
+          </div>
+          {periodo === 'custom' && (
+            <div className="ds-datas">
+              <input type="date" value={dataInicioCustom} onChange={(e) => setDataInicioCustom(e.target.value)} />
+              <span>até</span>
+              <input type="date" value={dataFimCustom} onChange={(e) => setDataFimCustom(e.target.value)} />
+            </div>
+          )}
+          <label className="ds-busca"><i className="ph ph-magnifying-glass" /><input type="text" placeholder="Buscar paciente…" value={busca} onChange={(e) => setBusca(e.target.value)} /></label>
+        </div>
+        <div className="ds-lista">
+          {carregando ? <p className="ds-vazio">Carregando…</p> : filtrados.length === 0 ? <p className="ds-vazio">Nenhum registro para o período e filtros selecionados.</p> : filtrados.map((d, i) => (
+            <div key={d.id}>
+              {d.data_desfecho && (i === 0 || dia(filtrados[i - 1].data_desfecho) !== dia(d.data_desfecho)) && <div className="ds-grupo">{dia(d.data_desfecho)}</div>}
+              <div className="ds-linha">
+                <span className="ds-hora">{d.data_desfecho ? new Date(d.data_desfecho).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
+                <span className={'ds-tipo ' + (CLS[d.tipo_desfecho] || 'alta')}>{d.tipo_desfecho}</span>
+                <div className="ds-pac"><b>{d.nome}</b>{d.prontuario && <small>Pront. {d.prontuario}</small>}</div>
+                <span className="ds-set">{d.leito_info}</span>
+                <div className="ds-mot">
+                  {d.tipo_desfecho === 'Transferência' && <b className={d.destino ? 'ds-dest' : 'ds-dest vazio'}><i className="ph ph-arrow-right" /> {d.destino || 'Destino não informado'}</b>}
+                  <span title={d.diagnostico}>{d.diagnostico}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="workspace" style={{ overflowY: 'auto', flex: 1 }}>
