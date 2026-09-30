@@ -15,3 +15,6 @@
 .fc-tabs-area > .clinical-tabs { margin: 0; flex: 1; }
 .btn-historico-clinico { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border: 1px solid var(--c-border, #CBD5E1); border-radius: 8px; background: var(--c-surface, #fff); color: var(--c-text-primary, #0F172A); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 .btn-historico-clinico:hover { border-color: var(--c-primary, #1B4555); color: var(--c-primary, #1B4555); }
+
+/* Na janela flutuante, o título do formulário já aparece na barra escura: esconde o cabeçalho repetido da SAE */
+.jf-corpo .sae-card > .sc-header { display: none; }

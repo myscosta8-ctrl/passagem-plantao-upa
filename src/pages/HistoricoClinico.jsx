@@ -44,24 +44,25 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar }) {
         <span className={`hc-tipo ${fonte.area}`}>{fonte.rotulo}</span>
         <span className={`hc-situacao ${situacao}`}>{SITUACOES[situacao] || situacao}</span>
         <span className="hc-autor">{autor ? `${autor.nome_exibicao || autor.nome}${autor.crm ? ` · CRM ${autor.crm}` : autor.coren ? ` · COREN ${autor.coren}` : ''}` : '—'}</span>
-        {onDuplicar && situacao === 'finalizado' && onDuplicar.pode(item) && (
-          <button type="button" className="hc-duplicar" title="Copiar esta evolução para uma nova (os sinais vitais não são copiados)" onClick={(e) => { e.stopPropagation(); onDuplicar.fazer(item) }}>
-            <i className="ph ph-copy" /> Duplicar
-          </button>
-        )}
+        <span className="hc-acoes-linha" onClick={(e) => e.stopPropagation()}>
+          {tipoImpresso(fonte, registro) && (
+            <button type="button" className="hc-ic" title="Visualizar documento" aria-label="Visualizar" onClick={() => onImprimir(item)}><i className="ph ph-magnifying-glass" /></button>
+          )}
+          {souAutor && situacao !== 'invalido' && (
+            <button type="button" className="hc-ic perigo" title="Invalidar documento" aria-label="Invalidar" onClick={() => { setAberto(true); setInvalidando(true) }}><i className="ph ph-prohibit" /></button>
+          )}
+          {onDuplicar && situacao === 'finalizado' && onDuplicar.pode(item) && (
+            <button type="button" className="hc-ic" title="Duplicar: copiar para uma nova evolução (sinais vitais não são copiados)" aria-label="Duplicar" onClick={() => onDuplicar.fazer(item)}><i className="ph ph-copy" /></button>
+          )}
+        </span>
         <i className={`ph ph-caret-${aberto ? 'up' : 'down'}`} />
       </div>
-      <div className={`hc-resumo ${aberto ? 'aberto' : ''}`}>{item.resumo || 'Sem texto registrado.'}</div>
       {aberto && situacao === 'invalido' && (
         <div className="hc-motivo"><i className="ph ph-prohibit" /> Invalidado em {fmtData(registro.invalidado_em)} — motivo: {registro.motivo_invalidacao || '—'}</div>
       )}
       {aberto && (
         <div className="hc-acoes">
-          {tipoImpresso(fonte, registro) && <button type="button" className="hc-btn" onClick={() => onImprimir(item)}><i className="ph ph-printer" /> Ver / Imprimir documento</button>}
           <button type="button" className="hc-btn" onClick={async () => setAlteracoes(alteracoes ? null : await listarAlteracoes(fonte.tabela, registro.id))}><i className="ph ph-clock-counter-clockwise" /> Histórico de alterações</button>
-          {souAutor && situacao !== 'invalido' && !invalidando && (
-            <button type="button" className="hc-btn hc-btn-perigo" onClick={() => setInvalidando(true)}><i className="ph ph-prohibit" /> Invalidar</button>
-          )}
           {!souAutor && situacao === 'finalizado' && (
             <span className="hc-aviso-autor"><i className="ph ph-info" /> Só quem registrou ({autor ? (autor.nome_exibicao || autor.nome) : 'o autor'}) pode invalidar este documento.</span>
           )}
@@ -195,10 +196,18 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
   if (imprimindo) {
     const Print = imprimindo.fonte.area === 'medico' ? FichaMedicaPrint : FichaClinicaPrint
     return (
-      <div className="hc-print-overlay">
-        <Suspense fallback={<p style={{ padding: 20 }}>Carregando documento...</p>}>
-          <Print atendimentoId={imprimindo.registro.atendimento_id} tipo={tipoImpresso(imprimindo.fonte, imprimindo.registro)} registro={imprimindo.registro} onVoltar={() => setImprimindo(null)} />
-        </Suspense>
+      <div className="hc-print-overlay" onClick={() => setImprimindo(null)}>
+        <div className="hc-doc-janela" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+          <div className="hc-doc-corpo">
+            <Suspense fallback={<p style={{ padding: 20 }}>Carregando documento...</p>}>
+              <Print atendimentoId={imprimindo.registro.atendimento_id} tipo={tipoImpresso(imprimindo.fonte, imprimindo.registro)} registro={imprimindo.registro} onVoltar={() => setImprimindo(null)} />
+            </Suspense>
+          </div>
+          <div className="hc-doc-rodape no-print">
+            <button type="button" className="hc-doc-voltar" onClick={() => setImprimindo(null)}><i className="ph ph-arrow-left" /> Voltar</button>
+            <button type="button" className="hc-doc-imprimir" onClick={() => window.print()}><i className="ph ph-printer" /> Imprimir</button>
+          </div>
+        </div>
       </div>
     )
   }

@@ -1,6 +1,6 @@
 export const ABAS_PRINCIPAIS = [
   { chave: 'admissaoEnfermagem', rotulo: 'Admissão de Enfermagem', titulo: 'Admissão de Enfermagem', icon: 'ph-clipboard-text' },
-  { chave: 'evolucao', rotulo: 'Evolução SAE', titulo: 'Evolução de Enfermagem (SAE)', icon: 'ph-activity' },
+  { chave: 'evolucao', rotulo: 'Evolução SAE', titulo: 'Evolução de Enfermagem', icon: 'ph-activity' },
   { chave: 'escalasProtocolos', rotulo: 'Escalas e Protocolos', titulo: 'Escalas, Dispositivos e Alergias', icon: 'ph-gauge' },
   { chave: 'balanco', rotulo: 'Balanço Hídrico 24h', titulo: 'Balanço Hídrico 24h', icon: 'ph-drop' },
   { chave: 'sbar', rotulo: 'Transferência Externa', titulo: 'Transferência Externa', icon: 'ph-ambulance' },
