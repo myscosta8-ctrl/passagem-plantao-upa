@@ -28,10 +28,8 @@ export default function PainelResumo({ setoresVisiveis }) {
     const tiles = [
       { k: null, icone: 'ph-bed', n: `${ocupados.length}/${doSetor.length}`, r: 'ocupados' },
       { k: 'prescricao', icone: 'ph-prescription', n: conta('prescricao'), r: 'sem prescrição do dia', alerta: conta('prescricao') > 0 },
-      { k: 'alertas', icone: 'ph-warning', n: conta('alertas'), r: 'com alerta' },
-      { k: 'alergia', icone: 'ph-warning-circle', n: conta('alergia'), r: 'com alergia' },
       { k: 'isolamento', icone: 'ph-virus', n: conta('isolamento'), r: 'em isolamento' },
-      { k: 'regulacao', icone: 'ph-ambulance', n: conta('regulacao'), r: 'em regulação' },
+      { k: 'regulacao', icone: 'ph-ambulance', n: conta('regulacao'), r: 'regulados' },
       { k: 'pendencias', icone: 'ph-flask', n: conta('pendencias'), r: 'exames pendentes' },
       { k: 'conferir', icone: 'ph-hourglass', n: conta('conferir'), r: 'passagens a conferir' },
     ]

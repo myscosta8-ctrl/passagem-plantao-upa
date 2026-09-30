@@ -95,3 +95,5 @@
 .hc-embutido { background: var(--c-surface, #fff); border: 1px solid var(--c-border, #E1E7EE); border-radius: 12px; overflow: hidden; }
 .hc-embutido .hc-corpo { overflow: visible; }
 .hc-embutido-dica { font-size: 12px; font-weight: 500; color: var(--c-text-secondary, #5A6B7B); }
+.hc-solto { border: 0; background: transparent; }
+.hc-solto .hc-bloco-corpo { padding-top: 0; }

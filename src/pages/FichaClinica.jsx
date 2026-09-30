@@ -60,9 +60,9 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
 
         <div className="fc-tabs-linha">
           <div className="fc-tabs-area"><FichaClinicaTabs aba={aba} onSelecionarAba={escolherAba} /></div>
-          <button type="button" className="btn-historico-clinico" onClick={() => setHistoricoAberto(true)} title="Consultar o histórico clínico do paciente">
+          {!novaUI && (<button type="button" className="btn-historico-clinico" onClick={() => setHistoricoAberto(true)} title="Consultar o histórico clínico do paciente">
             <i className="ph ph-clock-counter-clockwise" /> Histórico Clínico
-          </button>
+          </button>)}
         </div>
         <JanelaFormulario ativa={novaUI} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome}
           vazio={<HistoricoClinico atendimento={atendimento} embutido />}>

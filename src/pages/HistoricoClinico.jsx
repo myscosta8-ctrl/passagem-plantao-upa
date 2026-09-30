@@ -86,7 +86,7 @@ function Linha({ item, onImprimir, meuId, onAlterado }) {
   )
 }
 
-function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento, meuId }) {
+function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento, meuId, solto = false }) {
   const [aberto, setAberto] = useState(false)
   const [estado, setEstado] = useState({ carregando: false, itens: null, atendimentos: [] })
 
@@ -110,17 +110,20 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
     (filtroArea === 'todos' || i.fonte.area === filtroArea) &&
     (!termo || `${i.fonte.rotulo} ${i.resumo} ${i.autor?.nome_exibicao || ''} ${i.autor?.nome || ''}`.toLowerCase().includes(termo)))
 
+  // Solto (nova interface): os registros do atendimento atual já aparecem abertos, sem o título do bloco.
+  useEffect(() => { if (solto && !aberto) abrir() }, [solto]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Com uma pesquisa digitada, o bloco abre sozinho.
   useEffect(() => { if (termo && !aberto) abrir() }, [termo]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="hc-bloco">
-      <button type="button" className="hc-bloco-topo" onClick={abrir}>
+    <div className={solto ? 'hc-bloco hc-solto' : 'hc-bloco'}>
+      {!solto && <button type="button" className="hc-bloco-topo" onClick={abrir}>
         <i className={`ph ph-caret-${aberto ? 'down' : 'right'}`} />
         <span className="hc-bloco-titulo">{titulo}</span>
         <span className="hc-bloco-sub">{subtitulo}</span>
         {estado.itens && <span className="hc-contador">{itens.length}</span>}
-      </button>
+      </button>}
       {aberto && (
         <div className="hc-bloco-corpo">
           {estado.carregando && <p className="hc-vazio">Carregando registros...</p>}
@@ -193,7 +196,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
               ))}
             </div>
           </div>
-          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, em ordem cronológica" carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} />
+          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, em ordem cronológica" solto={embutido} carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} />
           <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} agruparPorAtendimento meuId={enfermeiro?.id} />
           <p className="hc-nota">A Prescrição Médica continua no histórico da própria aba (com a opção Duplicar).</p>
         </div>
