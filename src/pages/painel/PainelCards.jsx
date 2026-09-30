@@ -115,6 +115,7 @@ export default function PainelCards({ setoresVisiveis }) {
     enfermeiro,
     ehMedico,
   } = usePainel()
+  const novaUI = enfermeiro?.pep_beta === true
   const queryClient = useQueryClient()
   const [confirmarInternacao, setConfirmarInternacao] = useState(null)
   const [erroInternacao, setErroInternacao] = useState('')
@@ -279,6 +280,11 @@ export default function PainelCards({ setoresVisiveis }) {
                         <button type="button" className={cx('btn-footer', 'action-btn')} onClick={() => abrirPassagem(paciente, leito)}>
                           <i className={cx('ph', 'ph-folder-open')} /> Prontuário
                         </button>
+                        {novaUI && (
+                          <button type="button" className="pl-btn-evoluir" onClick={() => abrirPassagem(paciente, leito, 'evolucao')} title="Abrir direto a evolução do paciente">
+                            <i className="ph ph-pencil-simple" /> Evoluir
+                          </button>
+                        )}
 
                         {!ehMedico && <div className={cx('footer-actions-right')}>
                           {paciente.status_internacao !== 'Internado' && (

@@ -128,8 +128,8 @@ export function usePainelState() {
   }
 
 
-  function abrirPassagem(paciente, leito) {
-    setModalPassagem({ paciente, leito })
+  function abrirPassagem(paciente, leito, abaInicial) {
+    setModalPassagem({ paciente, leito, abaInicial: typeof abaInicial === 'string' ? abaInicial : undefined })
   }
 
   function fecharPassagem() {

@@ -121,6 +121,7 @@ function PainelInterno({ setoresIds }) {
             setorNome={setores.find((s) => s.id === modalPassagem.leito.setor_id)?.nome}
             onFechar={fecharPassagem}
             pilarInicial={ehMedico ? 'medico' : 'enfermagem'}
+            abaInicial={modalPassagem.abaInicial}
           />
         </Suspense>
       )}

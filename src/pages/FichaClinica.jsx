@@ -12,14 +12,14 @@ import './PassagemForm.css';
 import './FichaClinica.css';
 import './ficha-clinica/Enfermagem.css';
 
-export default function FichaClinica({ atendimento, onFechar, onTrocarPilar }) {
+export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, abaInicial }) {
   const { enfermeiro } = useAuth();
-  const [aba, setAba] = useState('admissaoEnfermagem');
+  const [aba, setAba] = useState(abaInicial || 'admissaoEnfermagem');
   const [imprimindo, setImprimindo] = useState(null);
   const [historicoAberto, setHistoricoAberto] = useState(false);
   // Nova interface: o formulário da aba abre em janela flutuante (contas com pep_beta).
   const novaUI = enfermeiro?.pep_beta === true;
-  const [formAberto, setFormAberto] = useState(false);
+  const [formAberto, setFormAberto] = useState(!!abaInicial);
   const escolherAba = (a) => { setAba(a); setFormAberto(true); };
 
   if (imprimindo) {

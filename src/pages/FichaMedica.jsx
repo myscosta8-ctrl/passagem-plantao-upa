@@ -10,14 +10,14 @@ import FichaMedicaTabs, { ABAS_PRINCIPAIS } from './ficha-medica/FichaMedicaTabs
 import FichaMedicaConteudo from './ficha-medica/FichaMedicaConteudo';
 import './ficha-medica/AtendimentoMedico.css';
 
-export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, initialTab = 'consulta' }) {
+export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, initialTab = 'consulta', abrirFormulario = false }) {
   const { enfermeiro } = useAuth();
   const [aba, setAba] = useState(initialTab);
   const [imprimindo, setImprimindo] = useState(null);
   const [historicoAberto, setHistoricoAberto] = useState(false);
   // Nova interface: o formulário da aba abre em janela flutuante (contas com pep_beta).
   const novaUI = enfermeiro?.pep_beta === true;
-  const [formAberto, setFormAberto] = useState(false);
+  const [formAberto, setFormAberto] = useState(abrirFormulario);
   const escolherAba = (a) => { setAba(a); setFormAberto(true); };
   const areaRef = useRef(null);
   // Mensagem de erro/validação aparece no fim do formulário, longe do botão: rola até ela.
