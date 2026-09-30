@@ -106,7 +106,6 @@ function dataCurta(dataStr) {
 // Card da nova interface (contas pep_beta) — segue o mockup 01-painel-de-leitos.
 function CardLeitoV2({ leito, paciente, sn, classeRisco, ehMedico, abrirPassagem, onInternar, onRealocar, onDesfecho }) {
   const internado = paciente.status_internacao === 'Internado'
-  const outrosAlertas = sn.alertas.filter((a) => !/Prescri/.test(a.texto))
   return (
     <article className="pv-card" style={{ '--pv-risco': COR_RISCO[classeRisco] || '#D9A62E' }} onClick={() => abrirPassagem(paciente, leito)}>
       <div className="pv-top">
@@ -118,18 +117,6 @@ function CardLeitoV2({ leito, paciente, sn, classeRisco, ehMedico, abrirPassagem
       <div className="pv-meta"><i className="ph ph-user" /> {paciente.idade ? `${paciente.idade} anos` : 'Adulto'} · {paciente.sexo === 'F' ? 'Fem' : 'Masc'}</div>
       <div className="pv-hd"><b>HD:</b> {paciente.diagnostico || 'Não registrado'}</div>
       <div className="pv-hd"><b>Entrada:</b> {dataCurta(paciente.data_admissao)}</div>
-      <div className="pv-sin">
-        {sn.prescricao.nivel !== 'ok' && <span className={'pv-s ' + (sn.prescricao.nivel === 'vencida' ? 'red' : 'warn')}><i className="ph ph-prescription" /> {sn.prescricao.texto}</span>}
-        <span className={'pv-s ' + (sn.conferida ? 'ok' : '')}><i className={'ph ' + (sn.conferida ? 'ph-check' : 'ph-hourglass')} /> {sn.conferida ? 'Passagem conferida' : 'Passagem a conferir'}</span>
-        {sn.alergia && <span className="pv-s al"><i className="ph ph-warning" /> Alergia: {sn.alergia}</span>}
-        {sn.isolamento && <span className="pv-s iso"><i className="ph ph-virus" /> {sn.isolamento}</span>}
-        {sn.regulacao && <span className="pv-s blue"><i className="ph ph-ambulance" /> Regulação</span>}
-        {sn.exames > 0 && <span className="pv-s blue"><i className="ph ph-flask" /> {sn.exames} exame{sn.exames > 1 ? 's' : ''} pendente{sn.exames > 1 ? 's' : ''}</span>}
-        {sn.sorologias > 0 && <span className="pv-s blue"><i className="ph ph-test-tube" /> {sn.sorologias} sorologia(s)</span>}
-        {sn.hemo > 0 && <span className="pv-s blue"><i className="ph ph-drop" /> {sn.hemo} hemocomponente(s)</span>}
-        {sn.dispositivos.length > 0 && <span className="pv-s"><i className="ph ph-first-aid" /> {sn.dispositivos.map((d) => (d === 'AVP' && sn.avpDia ? `AVP D${sn.avpDia}` : d)).join(', ')}</span>}
-        {outrosAlertas.map((a) => <span key={a.texto} className={'pv-s ' + (a.nivel === 'critico' ? 'red' : a.nivel === 'atencao' ? 'warn' : '')}><i className={'ph ' + a.icone} /> {a.texto}</span>)}
-      </div>
       <div className="pv-foot no-print" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="pv-pr" onClick={() => abrirPassagem(paciente, leito)}><i className="ph ph-folder" /> Prontuário</button>
         <button type="button" className="pv-ev" onClick={() => abrirPassagem(paciente, leito, 'evolucao')}><i className="ph ph-pencil-simple" /> Evoluir</button>
