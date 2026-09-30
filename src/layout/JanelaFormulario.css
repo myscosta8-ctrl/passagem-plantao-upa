@@ -8,3 +8,10 @@
 .jf-corpo { flex: 1; min-height: 0; overflow: auto; padding: 14px 16px; display: flex; flex-direction: column; }
 .jf-corpo > * { flex: 1 0 auto; }
 @media (max-width: 700px) { .jf-fundo { padding: 0; } .jf-janela { border-radius: 0; } }
+
+/* Linha das abas + botão Histórico Clínico (mesma altura e alinhamento) */
+.fc-tabs-linha { display: flex; align-items: stretch; gap: 8px; margin: 14px 0 20px; }
+.fc-tabs-area { flex: 1; min-width: 0; display: flex; }
+.fc-tabs-area > .clinical-tabs { margin: 0; flex: 1; }
+.btn-historico-clinico { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border: 1px solid var(--c-border, #CBD5E1); border-radius: 8px; background: var(--c-surface, #fff); color: var(--c-text-primary, #0F172A); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.btn-historico-clinico:hover { border-color: var(--c-primary, #1B4555); color: var(--c-primary, #1B4555); }

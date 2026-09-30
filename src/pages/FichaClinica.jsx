@@ -50,7 +50,6 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
         enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
         enfermeiroCoren={enfermeiro?.coren}
         onTrocarPilar={onTrocarPilar}
-        onAbrirHistorico={() => setHistoricoAberto(true)}
       />
       <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} />
       <div className="workspace">
@@ -59,10 +58,9 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
           <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos de enfermagem, mas não criá-los.</div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ flex: 1, minWidth: 0 }}><FichaClinicaTabs aba={aba} onSelecionarAba={escolherAba} /></div>
-          <button type="button" className="btn-historico-clinico" onClick={() => setHistoricoAberto(true)}
-            style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', border: '1px solid var(--c-border, #CBD5E1)', borderRadius: 8, background: 'var(--c-surface, #fff)', color: 'var(--c-text-primary, #0F172A)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+        <div className="fc-tabs-linha">
+          <div className="fc-tabs-area"><FichaClinicaTabs aba={aba} onSelecionarAba={escolherAba} /></div>
+          <button type="button" className="btn-historico-clinico" onClick={() => setHistoricoAberto(true)} title="Consultar o histórico clínico do paciente">
             <i className="ph ph-clock-counter-clockwise" /> Histórico Clínico
           </button>
         </div>
