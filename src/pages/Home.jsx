@@ -107,6 +107,11 @@ export default function Home() {
   const podeAdministrar = isAdmin || (permissoes?.length > 0)
   // Nova interface (menu no topo, tela cheia): liberada por pessoa em enfermeiros.pep_beta.
   const novaUI = enfermeiro?.pep_beta === true
+  // Marca a página para que os estilos da nova interface (janela flutuante etc.) valham só para quem tem acesso.
+  useEffect(() => {
+    document.body.classList.toggle('ui-v2', novaUI)
+    return () => document.body.classList.remove('ui-v2')
+  }, [novaUI])
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
