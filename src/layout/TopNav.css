@@ -24,18 +24,18 @@
 @media (max-width: 900px) { .tn-marca span:last-child, .tn-hora { display: none; } .tn-item span { display: none; } .tn-item { padding: 0 10px; } }
 .app-v2 > .main-content { width: 100%; }
 
-/* Nova interface: sem verde. Cor de ação = azul-petróleo escuro da barra superior */
+/* Nova interface: sem verde. Cor de ação = azul-petróleo da logo (#1B4555) */
 body.ui-v2 {
-  --c-primary: #1F3A56;
-  --c-primary-mid: #1F3A56;
-  --c-primary-hover: #152B40;
-  --c-primary-soft: #EEF2F6;
-  --c-primary-borda: #C9D4E0;
-  --primary: #1F3A56;
-  --primary-hover: #152B40;
-  --color-primary: #1F3A56;
-  --color-accent: #1F3A56;
-  --color-acao: #1F3A56;
-  --color-acao-hover: #152B40;
+  --c-primary: #1B4555;
+  --c-primary-mid: #1B4555;
+  --c-primary-hover: #133541;
+  --c-primary-soft: #E9F1F3;
+  --c-primary-borda: #BCD2D8;
+  --primary: #1B4555;
+  --primary-hover: #133541;
+  --color-primary: #1B4555;
+  --color-accent: #1B4555;
+  --color-acao: #1B4555;
+  --color-acao-hover: #133541;
 }
-body.ui-v2 .enf-theme, body.ui-v2 .enf-banner, body.ui-v2 .pc-page { --enf-primary: #1F3A56; --enf-hover: #152B40; --sbar-a: #1F3A56; }
+body.ui-v2 .enf-theme, body.ui-v2 .enf-banner, body.ui-v2 .pc-page { --enf-primary: #1B4555; --enf-hover: #133541; --sbar-a: #1B4555; }

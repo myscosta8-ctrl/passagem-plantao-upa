@@ -30,7 +30,11 @@ export default function AbaEscalas({ atendimento, onFechar }) {
   }
 
   async function registrar() {
-    if (!completo) return
+    if (!completo) {
+      const faltam = campos.filter((c) => respostas[c.chave] === undefined).length
+      setErro(`Responda todos os itens da escala antes de salvar (falta${faltam > 1 ? 'm' : ''} ${faltam}).`)
+      return
+    }
     setErro('')
     setSalvando(true)
     const { error } = await registrarEscala({
@@ -83,7 +87,7 @@ export default function AbaEscalas({ atendimento, onFechar }) {
         <button type="button" className="btn-cancel" onClick={onFechar}>
           <i className="ph ph-x-circle" /> Cancelar
         </button>
-        <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando || !completo}>
+        <button className="submit-btn" style={{ maxWidth: 240 }} onClick={registrar} disabled={salvando}>
           {salvando ? 'Salvando...' : 'Salvar'}
         </button>
       </div>
