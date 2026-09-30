@@ -88,16 +88,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
       <div className="clinical-card">
         
           <div className="cc-body">
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
-            <DuplicarEvolucao categoria="medico" atendimentoId={atendimento.atendimento_id}
-              temConteudo={!!(dados.evolucao_dia?.trim() || dados.exame_fisico?.trim() || dados.diagnosticos?.trim())}
-              onEscolher={(r, msg) => {
-                const T = ['diagnosticos', 'historia_doenca_atual', 'comorbidades_texto', 'antibioticoterapia', 'evolucao_dia', 'exame_fisico', 'conduta_medica', 'risco_tev']
-                setDados((prev) => ({ ...prev, ...Object.fromEntries(T.map((k) => [k, r[k] ?? ''])), criterios_sepse: !!r.criterios_sepse }))
-                setAviso(msg)
-              }} />
-          </div>
-
+          
 
           <div className="assess-grid">
             <div className="form-group">
@@ -163,7 +154,16 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
 
           {/* Campos de Texto Oficiais */}
           <div className="form-group">
-            <label><i className="ph ph-text-align-left" /> Evolução Clínica do Dia e Queixas *</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+              <label style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Dia e Queixas *</label>
+              <DuplicarEvolucao categoria="medico" atendimentoId={atendimento.atendimento_id}
+              temConteudo={!!(dados.evolucao_dia?.trim() || dados.exame_fisico?.trim() || dados.diagnosticos?.trim())}
+              onEscolher={(r, msg) => {
+                const T = ['diagnosticos', 'historia_doenca_atual', 'comorbidades_texto', 'antibioticoterapia', 'evolucao_dia', 'exame_fisico', 'conduta_medica', 'risco_tev']
+                setDados((prev) => ({ ...prev, ...Object.fromEntries(T.map((k) => [k, r[k] ?? ''])), criterios_sepse: !!r.criterios_sepse }))
+                setAviso(msg)
+              }} />
+            </div>
             <textarea className="form-control-area large" placeholder="Descreva o estado geral, queixas, evolução do quadro..." value={dados.evolucao_dia} onChange={(e) => set('evolucao_dia', e.target.value)} />
           </div>
 

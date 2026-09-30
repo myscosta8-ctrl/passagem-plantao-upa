@@ -54,7 +54,7 @@
 
 /* Gaveta lateral: não ocupa espaço da tela de evolução */
 .hc-gaveta-fundo { position: fixed; inset: 0; z-index: 2500; background: rgba(15, 23, 42, .35); display: flex; justify-content: flex-end; }
-.hc-gaveta { width: min(680px, 100vw); height: 100%; background: var(--c-surface); box-shadow: -8px 0 24px rgba(0,0,0,.12); display: flex; flex-direction: column; animation: hc-entrar .18s ease-out; }
+.hc-gaveta { width: min(1280px, calc(100vw - 24px)); height: 100%; background: var(--c-surface); box-shadow: -8px 0 24px rgba(0,0,0,.12); display: flex; flex-direction: column; animation: hc-entrar .18s ease-out; }
 @keyframes hc-entrar { from { transform: translateX(40px); opacity: .6; } to { transform: none; opacity: 1; } }
 .hc-gaveta-topo { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--c-border); font-size: 14px; font-weight: 700; color: var(--c-text-primary); }
 .hc-gaveta-topo i.ph-clock-counter-clockwise { color: var(--c-text-secondary); }

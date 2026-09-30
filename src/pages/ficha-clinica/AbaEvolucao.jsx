@@ -100,10 +100,6 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
         <div className="sc-header" style={{ flexWrap: 'nowrap' }}><div className="sc-title">
             <h2><i className="ph ph-activity" /> Nova Evolução do Enfermeiro (SAE)</h2>
             
-          </div><div className="sc-actions">
-            <DuplicarEvolucao categoria="enfermagem" atendimentoId={atendimento.atendimento_id}
-              temConteudo={!!(texto.trim() || nanda.length || nic.length)}
-              onEscolher={(r, msg) => { setTexto(r.texto || ''); setNanda(r.diagnosticos_nanda || []); setNic(r.prescricao_nic || []); setAvisoRasc(msg); }} />
           </div></div>
 
         <div className="sc-body">
@@ -170,7 +166,12 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
           </div>
 
           <div className="enf-group">
-            <label><i className="ph ph-text-align-left" /> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <label style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
+              <DuplicarEvolucao categoria="enfermagem" atendimentoId={atendimento.atendimento_id}
+              temConteudo={!!(texto.trim() || nanda.length || nic.length)}
+              onEscolher={(r, msg) => { setTexto(r.texto || ''); setNanda(r.diagnosticos_nanda || []); setNic(r.prescricao_nic || []); setAvisoRasc(msg); }} />
+            </div>
             <textarea className="enf-control" rows="4" value={texto} onChange={(e) => setTexto(e.target.value)} />
           </div>
 

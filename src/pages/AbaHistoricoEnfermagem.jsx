@@ -129,7 +129,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
   const [mensagem, setMensagem] = useState(null)
   const [filtro, setFiltro] = useState('procedencia')
   const [recolhidas, setRecolhidas] = useState(() => new Set())
-  const [painelAberto, setPainelAberto] = useState(true)
+  const [painelAberto] = useState(false) // escalas/dispositivos/alergias agora têm aba própria no topo
   const [gerenciar, setGerenciar] = useState(null) // 'alergias' | 'dispositivos' | 'escalas'
   const [escalas, setEscalas] = useState([])
   const [dispositivos, setDispositivos] = useState([])
@@ -286,9 +286,6 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
             
           </div>
           <div className="ac-actions">
-              <button type="button" className="btn-toggle-sidebar" onClick={() => setPainelAberto((v) => !v)}>
-                <i className={'ph ' + (painelAberto ? 'ph-sidebar-simple' : 'ph-sidebar')} /> {painelAberto ? 'Recolher Escalas' : 'Expandir Escalas'}
-              </button>
               <button type="button" className="btn-toggle-sidebar" disabled={!salvo} title={salvo ? '' : 'Salve a admissão para visualizar o impresso'} onClick={() => salvo && onImprimir({ ...salvo, _variante: 'projeto' })}>
               <i className="ph ph-printer" /> Visualizar Impresso Oficial
             </button>

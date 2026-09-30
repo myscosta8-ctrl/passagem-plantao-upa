@@ -6,6 +6,9 @@ const AbaIsolamento = lazy(() => import('./AbaIsolamento'));
 const AbaSbar = lazy(() => import('./AbaSbar'));
 const AbaEventosAdversos = lazy(() => import('./AbaEventosAdversos'));
 const PainelSubAbas = lazy(() => import('./PainelSubAbas'));
+const AbaEscalas = lazy(() => import('./AbaEscalas'));
+const AbaDispositivos = lazy(() => import('./AbaDispositivos'));
+const AbaAlergias = lazy(() => import('./AbaAlergias'));
 
 // Estrutura dos mockups 08–14: Admissão, Evolução SAE, Cardex/Aprazamento,
 // Balanço Hídrico 24h, Transferência SBAR e Intercorrências. As telas que não
@@ -14,7 +17,18 @@ function ConteudoAba({ atendimento, autorId, aba, onImprimir, onFechar }) {
   const comum = { atendimento, autorId, onFechar };
 
   // Admissão (mockup 08): alergias, dispositivos e escalas ficam no painel lateral da própria tela.
-  if (['admissaoEnfermagem', 'dispositivos', 'escalas', 'alergias'].includes(aba)) {
+  if (['escalasProtocolos', 'dispositivos', 'escalas', 'alergias'].includes(aba)) {
+    return (
+      <PainelSubAbas titulo="Escalas e Protocolos" icon="ph-gauge"
+        docInicial={['dispositivos', 'alergias'].includes(aba) ? aba : 'escalas'}
+        docs={[
+          { chave: 'escalas', rotulo: 'Escalas (Braden, Morse e outras)', icon: 'ph-gauge', render: () => <AbaEscalas atendimento={atendimento} onFechar={onFechar} /> },
+          { chave: 'dispositivos', rotulo: 'Dispositivos Invasivos', icon: 'ph-needle', render: () => <AbaDispositivos atendimento={atendimento} onFechar={onFechar} /> },
+          { chave: 'alergias', rotulo: 'Alergias e Restrições', icon: 'ph-shield-warning', render: () => <AbaAlergias atendimento={atendimento} onFechar={onFechar} /> },
+        ]} />
+    );
+  }
+  if (aba === 'admissaoEnfermagem') {
     return (
       <AbaHistoricoEnfermagem
         atendimento={atendimento}
