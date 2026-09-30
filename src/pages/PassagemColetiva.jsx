@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { marcarPassagemConferida, atualizarCamposPassagem, salvarPassagemPep } from '../lib/pepAtendimentos'
 import { DISPOSITIVOS_OPCOES, NIVEIS_CONSCIENCIA } from './passagem-form/constantes'
 import { carregarResumoProntuario } from '../lib/pepAtendimentos'
+import { useAuth } from '../lib/AuthContext'
 import './PassagemColetiva.css'
 
 // Cópia literal de mockups-fase2/12-passagem-plantao-design.html, com os
@@ -54,6 +55,9 @@ export default function PassagemColetiva({
   const [setorAtivoId, setSetorAtivoId] = useState(null)
   const [filtro, setFiltro] = useState('todos')
   const [modo, setModo] = useState('cards') // cards | table | focus
+  const { enfermeiro: usuarioAtual } = useAuth()
+  const novaUI = usuarioAtual?.pep_beta === true
+  const [menuImprimir, setMenuImprimir] = useState(false)
   const [focoLeitoId, setFocoLeitoId] = useState(null)
   const [conferindoId, setConferindoId] = useState(null)
   const [conferindoTodos, setConferindoTodos] = useState(false)
@@ -271,6 +275,63 @@ export default function PassagemColetiva({
 
   return (
     <div className="pc-page">
+      {novaUI ? (
+      <div className="sector-control-card pcv2">
+        <div className="pcv2-linha">
+          <div className="sector-nav-pills">
+            {setoresVisiveis.map((s) => {
+              const ls = leitos.filter((l) => l.setor_id === s.id)
+              const ocupados = ls.filter((l) => pacientesPorLeito[l.id]).length
+              return (
+                <button key={s.id} type="button" className={`sec-pill ${setorAtivo?.id === s.id ? 'active' : ''}`} onClick={() => { setSetorAtivoId(s.id); setFocoLeitoId(null) }}>
+                  <span>{s.nome}</span>
+                  <span className="badge-count">{ocupados}/{ls.length}</span>
+                </button>
+              )
+            })}
+          </div>
+          <div className="view-toggle pcv2-vistas">
+            <button type="button" className={`vt-btn ${modo === 'cards' ? 'active' : ''}`} onClick={() => setModo('cards')} title="Grade" aria-label="Grade"><i className="ph ph-squares-four" /></button>
+            <button type="button" className={`vt-btn ${modo === 'table' ? 'active' : ''}`} onClick={() => setModo('table')} title="Tabela" aria-label="Tabela"><i className="ph ph-table" /></button>
+            <button type="button" className={`vt-btn ${modo === 'focus' ? 'active' : ''}`} onClick={() => setModo('focus')} title="Detalhe" aria-label="Detalhe"><i className="ph ph-user" /></button>
+          </div>
+        </div>
+        <div className="pcv2-linha">
+          <div className="filter-row">
+            <button type="button" className={`filter-chip ${filtro === 'todos' ? 'active' : ''}`} onClick={() => setFiltro('todos')}>Todos ({contagens.todos})</button>
+            <button type="button" className={`filter-chip ${filtro === 'pendencias' ? 'active' : ''}`} onClick={() => setFiltro('pendencias')}>Com pendências ({contagens.pendencias})</button>
+            <button type="button" className={`filter-chip ${filtro === 'a-conferir' ? 'active' : ''}`} onClick={() => setFiltro('a-conferir')}>A conferir ({contagens['a-conferir']})</button>
+            <button type="button" className={`filter-chip ${filtro === 'conferidos' ? 'active' : ''}`} onClick={() => setFiltro('conferidos')}>Conferidos ({contagens.conferidos})</button>
+          </div>
+          <div className="pcv2-acoes">
+            <button type="button" className="btn-compact-tool pcv2-ic" onClick={() => (recolhidos.size > 0 ? setRecolhidos(new Set()) : setRecolhidos(new Set(leitosFiltrados.map((l) => l.id))))} title={recolhidos.size > 0 ? 'Expandir todos' : 'Recolher todos'} aria-label={recolhidos.size > 0 ? 'Expandir todos' : 'Recolher todos'}>
+              <i className={`ph ${recolhidos.size > 0 ? 'ph-arrows-out-line-vertical' : 'ph-arrows-in-line-vertical'}`} />
+            </button>
+            <button type="button" className="btn-compact-tool" onClick={conferirTodos} disabled={conferindoTodos || contagens['a-conferir'] === 0}>
+              <i className="ph ph-check-square" /> {conferindoTodos ? 'Conferindo...' : 'Conferir todos'}
+            </button>
+            {onImprimir && (
+              <div className="pcv2-menu">
+                <button type="button" className="btn-compact-tool primary" onClick={() => setMenuImprimir((v) => !v)} aria-expanded={menuImprimir}>
+                  <i className="ph ph-printer" /> Imprimir <i className="ph ph-caret-down" />
+                </button>
+                {menuImprimir && (
+                  <div className="pcv2-menu-lista" onMouseLeave={() => setMenuImprimir(false)}>
+                    <button type="button" onClick={() => { setMenuImprimir(false); onImprimir('print1') }}>Sala Vermelha e Internação</button>
+                    <button type="button" onClick={() => { setMenuImprimir(false); onImprimir('print2') }}>Pediatria e Observação</button>
+                  </div>
+                )}
+              </div>
+            )}
+            {onCompartilhar && (
+              <button type="button" className="btn-compact-tool pcv2-ic" onClick={onCompartilhar} title="Compartilhar plantão (resumo para WhatsApp)" aria-label="Compartilhar plantão">
+                <i className="ph ph-share-network" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+      ) : (
       <div className="sector-control-card">
         <div className="scc-top">
           <div className="sector-nav-pills">
@@ -329,6 +390,7 @@ export default function PassagemColetiva({
           </div>
         </div>
       </div>
+      )}
 
       <div className="main-view-card">
         {modo === 'cards' && (

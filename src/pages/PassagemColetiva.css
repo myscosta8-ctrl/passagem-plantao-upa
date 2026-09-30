@@ -579,3 +579,14 @@ body.ui-v2 .pc-page .col-block-pending { background: #FFFCF3; }
 body.ui-v2 .pc-page .btn-view-patient, body.ui-v2 .pc-page .btn-status-toggle { border-radius: 9px; height: 34px; }
 body.ui-v2 .pc-page .q-chip { border-radius: 999px; }
 body.ui-v2 .pc-page .vt-btn.active { background: var(--c-primary-soft, #E9F1F3); color: var(--c-primary, #1B4555); }
+/* Barra de controle enxuta (nova interface): 2 linhas — setores + vistas; filtros + ações */
+body.ui-v2 .pc-page .pcv2 { gap: 10px; }
+.pcv2-linha { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pcv2-linha > .sector-nav-pills, .pcv2-linha > .filter-row { flex: 1; min-width: 0; }
+.pcv2-acoes { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.pcv2-ic { width: 36px; padding: 0 !important; justify-content: center; }
+.pcv2-vistas .vt-btn { width: 34px; padding: 0; justify-content: center; }
+.pcv2-menu { position: relative; }
+.pcv2-menu-lista { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; min-width: 240px; background: #fff; border: 1px solid #E1E7EE; border-radius: 10px; box-shadow: 0 10px 30px rgba(15, 34, 48, .15); padding: 4px; display: flex; flex-direction: column; }
+.pcv2-menu-lista button { text-align: left; border: 0; background: none; padding: 9px 12px; border-radius: 7px; font: inherit; font-size: 13px; font-weight: 600; color: #0F2230; cursor: pointer; }
+.pcv2-menu-lista button:hover { background: #F3F6F9; }
