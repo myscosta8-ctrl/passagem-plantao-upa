@@ -81,6 +81,70 @@ export default function Pendencias({ plantao, onVoltar }) {
 
   const deveMostrar = (categoria) => filtroTab === 'Todas' || filtroTab === categoria
 
+  // ===== Nova interface (contas pep_beta) — mockup 09 =====
+  if (enfermeiro?.pep_beta === true) {
+    const itens = [
+      ...(deveMostrar('Exames') ? examesFiltrados.map(({ paciente, passagem }) => ({ k: 'ex_' + paciente.id, paciente, icone: 'ph-flask', titulo: passagem.exame_nome || 'Exame de laboratório / imagem', st: passagem.exame_status, tom: passagem.exame_status === 'Aguardando laudo' ? 'az' : 'am' })) : []),
+      ...(deveMostrar('Sorologia') ? soroFiltradas.map(({ paciente, passagem }) => ({ k: 'so_' + paciente.id, paciente, icone: 'ph-test-tube', titulo: `Sorologia: ${passagem.sorologias || '—'}`, st: passagem.sorologia_status, tom: 'am' })) : []),
+      ...(deveMostrar('Hemoderivados') ? hemoFiltrados.map(({ paciente, passagem }) => ({ k: 'hm_' + paciente.id, paciente, icone: 'ph-drop', titulo: `Transfusão: ${passagem.hemo_tipo || 'hemoderivado'}`, st: 'Aguardando transfusão', tom: 'vm' })) : []),
+      ...(deveMostrar('Outras') ? outrasFiltradas.map(({ paciente, passagem }) => ({ k: 'ou_' + paciente.id, paciente, icone: 'ph-clipboard-text', titulo: passagem.pendencias, st: 'Outra', tom: '' })) : []),
+    ]
+    const setores = [...new Set(itens.map((i) => i.paciente.leitos?.setores?.nome || 'Sem setor'))].sort()
+    const abas = [
+      ['Todas', exames.length + sorologiasPendentes.length + hemoderivados.length + outras.length],
+      ['Exames', exames.length], ['Sorologia', sorologiasPendentes.length, 'Sorologias'], ['Hemoderivados', hemoderivados.length], ['Outras', outras.length],
+    ]
+    return (
+      <div className="page pd-v2">
+        <div className="pd-topo">
+          <h1>Pendências do Plantão</h1>
+          <span className="pd-sub">Rascunhos, exames, sorologias e hemoderivados em aberto</span>
+          <label className="pd-busca"><i className="ph ph-magnifying-glass" /><input type="text" placeholder="Buscar paciente…" value={busca} onChange={(e) => setBusca(e.target.value)} /></label>
+        </div>
+        <div className="doc-subtabs pd-abas">
+          {abas.map(([k, n, r]) => (
+            <button key={k} type="button" className={filtroTab === k ? 'active' : ''} onClick={() => setFiltroTab(k)}>{r || k} <span className="pd-cont">{n}</span></button>
+          ))}
+        </div>
+        <div className="pd-grade">
+          <div className="pd-lista">
+            {carregando ? <p className="pd-vazio">Buscando pendências…</p> : itens.length === 0 ? (
+              <div className="pd-vazio"><i className="ph ph-check-circle" /> Nenhuma pendência nesta categoria.</div>
+            ) : setores.map((setor) => (
+              <div key={setor}>
+                <div className="pd-grupo">{setor}</div>
+                {itens.filter((i) => (i.paciente.leitos?.setores?.nome || 'Sem setor') === setor).map((i) => (
+                  <div key={i.k} className="pd-linha">
+                    <span className="pd-ic"><i className={'ph ' + i.icone} /></span>
+                    <div className="pd-txt"><b>{i.titulo}</b><small>{i.paciente.nome}{i.paciente.leitos?.numero ? ` · Leito ${i.paciente.leitos.numero}` : ''}</small></div>
+                    {i.st && <span className={'pd-st ' + i.tom}>{i.st}</span>}
+                    <button type="button" className="pd-abrir" onClick={() => abrirPaciente(i.paciente)}>Abrir</button>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <aside className="pd-lado">
+            <MeusRascunhos compacto />
+            <div className="pd-card">
+              <h4>Resumo</h4>
+              <div className="pd-resumo">
+                <div><b>{exames.length}</b><small>exames</small></div>
+                <div><b>{sorologiasPendentes.length}</b><small>sorologias</small></div>
+                <div><b>{hemoderivados.length}</b><small>hemoderivados</small></div>
+                <div><b>{outras.length}</b><small>outras</small></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+        {modalPassagem && (
+          <PassagemForm paciente={modalPassagem.paciente} leito={modalPassagem.leito} setorNome={modalPassagem.setorNome} plantaoId={plantao.id} enfermeiroId={enfermeiro?.id}
+            onFechar={() => setModalPassagem(null)} onSalvo={carregar} onRealocar={() => setModalPassagem(null)} />
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="workspace pendencias-tela">
       <div className="page-header">

@@ -25,7 +25,7 @@ export async function listarMeusRascunhos() {
 
 const fmt = (d) => new Date(d).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
-export default function MeusRascunhos() {
+export default function MeusRascunhos({ compacto = false }) {
   const [lista, setLista] = useState(null)
   useEffect(() => {
     let t
@@ -36,6 +36,23 @@ export default function MeusRascunhos() {
     return () => { clearTimeout(t); window.removeEventListener(EVENTO_DOCUMENTOS, aoMudar) }
   }, [])
   if (!lista || lista.length === 0) return null
+  if (compacto) {
+    return (
+      <div className="pd-card">
+        <h4>Meus rascunhos <em>{lista.length}</em></h4>
+        {lista.map((r) => {
+          const info = infoTabela(r.tabela)
+          return (
+            <div key={r.tabela + r.registro_id} className="pd-rasc">
+              <b>{info.rotulo}</b>
+              <small>{r.paciente || 'Paciente'}{r.leito ? ` · Leito ${r.leito}` : ''} · {fmt(r.salvo_em)}</small>
+            </div>
+          )
+        })}
+        <p className="pd-dica">Abra o paciente na mesma aba: o rascunho reabre sozinho.</p>
+      </div>
+    )
+  }
   return (
     <div className="mr-bloco">
       <div className="mr-topo">
