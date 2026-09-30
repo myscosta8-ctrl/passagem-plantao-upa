@@ -124,3 +124,5 @@
   body.hc-imprimindo .hc-doc-janela { width: auto; height: auto; box-shadow: none; border-radius: 0; overflow: visible; display: block; }
   body.hc-imprimindo .hc-doc-corpo { overflow: visible; }
 }
+/* O impresso normalmente cobre a tela inteira; dentro da janela de visualização ele fica contido nela */
+html .hc-doc-corpo .print-page { position: static; inset: auto; z-index: auto; overflow: visible; min-height: 100%; padding: 16px 0; }
