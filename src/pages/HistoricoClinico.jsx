@@ -145,7 +145,7 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
   )
 }
 
-export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
+export default function HistoricoClinico({ atendimento, aberto, onFechar, embutido = false }) {
   const [busca, setBusca] = useState('')
   const [filtroArea, setFiltroArea] = useState('todos')
   const [imprimindo, setImprimindo] = useState(null)
@@ -181,16 +181,9 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
     )
   }
 
-  if (!aberto) return null
+  if (!aberto && !embutido) return null
 
-  return (
-    <div className="hc-gaveta-fundo no-print" onClick={onFechar}>
-      <aside className="hc-gaveta" onClick={(e) => e.stopPropagation()}>
-        <div className="hc-gaveta-topo">
-          <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
-          <button type="button" className="hc-fechar" onClick={onFechar} title="Fechar"><i className="ph ph-x" /></button>
-        </div>
-      {(
+  const corpo = (
         <div className="hc-corpo">
           <div className="hc-filtros">
             <div className="hc-busca"><i className="ph ph-magnifying-glass" /><input type="text" placeholder="Pesquisar no histórico (texto, tipo de documento ou profissional)..." value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
@@ -204,7 +197,29 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar }) {
           <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} agruparPorAtendimento meuId={enfermeiro?.id} />
           <p className="hc-nota">A Prescrição Médica continua no histórico da própria aba (com a opção Duplicar).</p>
         </div>
-      )}
+  )
+
+  // Nova interface: histórico completo embutido na área livre abaixo das abas.
+  if (embutido) {
+    return (
+      <section className="hc-embutido no-print">
+        <div className="hc-gaveta-topo">
+          <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
+          <span className="hc-embutido-dica">Escolha uma aba acima para registrar um novo documento</span>
+        </div>
+        {corpo}
+      </section>
+    )
+  }
+
+  return (
+    <div className="hc-gaveta-fundo no-print" onClick={onFechar}>
+      <aside className="hc-gaveta" onClick={(e) => e.stopPropagation()}>
+        <div className="hc-gaveta-topo">
+          <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
+          <button type="button" className="hc-fechar" onClick={onFechar} title="Fechar"><i className="ph ph-x" /></button>
+        </div>
+        {corpo}
       </aside>
     </div>
   )

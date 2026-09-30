@@ -90,3 +90,8 @@
 .erro-inline { display: flex; align-items: center; gap: 8px; background: var(--c-danger-light); border: 1px solid var(--c-danger-border-strong); color: #991B1B; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
 
 .hc-aviso-autor { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--c-text-muted); }
+
+/* Nova interface: histórico embutido abaixo das abas */
+.hc-embutido { background: var(--c-surface, #fff); border: 1px solid var(--c-border, #E1E7EE); border-radius: 12px; overflow: hidden; }
+.hc-embutido .hc-corpo { overflow: visible; }
+.hc-embutido-dica { font-size: 12px; font-weight: 500; color: var(--c-text-secondary, #5A6B7B); }

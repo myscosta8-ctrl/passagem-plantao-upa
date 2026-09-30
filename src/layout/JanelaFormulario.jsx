@@ -4,7 +4,7 @@ import './JanelaFormulario.css'
 // Nova interface: o prontuário (cabeçalho do paciente + abas) fica na tela
 // normal; só o formulário da aba escolhida abre numa janela flutuante que
 // ocupa quase toda a tela. Sem a nova interface, mostra o formulário como hoje.
-export default function JanelaFormulario({ ativa, aberta, onFechar, titulo, paciente, children }) {
+export default function JanelaFormulario({ ativa, aberta, onFechar, titulo, paciente, vazio, children }) {
   useEffect(() => {
     if (!ativa || !aberta) return
     const esc = (e) => { if (e.key === 'Escape') onFechar() }
@@ -14,6 +14,7 @@ export default function JanelaFormulario({ ativa, aberta, onFechar, titulo, paci
 
   if (!ativa) return children
   if (!aberta) {
+    if (vazio) return vazio
     return (
       <div className="jf-dica">
         <i className="ph ph-hand-pointing" /> Escolha uma aba acima para abrir o formulário.
