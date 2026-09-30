@@ -33,7 +33,7 @@ export default function PassagemColetivaTela({ plantao, setoresIds, onImprimir, 
   const setoresVisiveis = setores.filter((s) => setoresIds.includes(s.id))
 
   return (
-    <div className="page" style={{ maxWidth: 1400 }}>
+    <div className="page" style={{ maxWidth: 1400, width: "100%", boxSizing: "border-box" }}>
       <PassagemColetiva
         plantao={plantao}
         enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}

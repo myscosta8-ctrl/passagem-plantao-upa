@@ -590,3 +590,6 @@ body.ui-v2 .pc-page .pcv2 { gap: 10px; }
 .pcv2-menu-lista { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; min-width: 240px; background: #fff; border: 1px solid #E1E7EE; border-radius: 10px; box-shadow: 0 10px 30px rgba(15, 34, 48, .15); padding: 4px; display: flex; flex-direction: column; }
 .pcv2-menu-lista button { text-align: left; border: 0; background: none; padding: 9px 12px; border-radius: 7px; font: inherit; font-size: 13px; font-weight: 600; color: #0F2230; cursor: pointer; }
 .pcv2-menu-lista button:hover { background: #F3F6F9; }
+
+/* A tela mantém a mesma largura em Grade, Tabela e Detalhe */
+.pc-page, .pc-page .main-view-card, .pc-page .sector-control-card { width: 100%; box-sizing: border-box; }
