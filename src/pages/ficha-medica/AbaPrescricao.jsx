@@ -486,7 +486,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                   <div key={i} className="presc-item" style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <div className="item-num">{String(i + 1).padStart(2, '0')}</div>
                     <div className="item-details">
-                      <div className="item-name">{it.medicamento_nome} {it.dose && `- ${it.dose} ${it.dose_unidade}`}{it.condicao && <span className="badge-2vias" style={{ background: '#CCFBF1', color: '#0F766E' }}>{it.condicao}</span>}</div>
+                      <div className="item-name">{it.medicamento_nome} {it.dose && `- ${it.dose} ${it.dose_unidade}`}{it.condicao && <span className="badge-2vias" style={{ background: 'var(--c-primary-soft, #CCFBF1)', color: 'var(--c-primary-hover, #0F766E)' }}>{it.condicao}</span>}</div>
                       <div className="item-sub">
                         <span><i className="ph ph-syringe"></i> {it.via || 'Via não def.'}</span>
                         <span><i className="ph ph-clock"></i> {it.frequencia || 'Frequência não def.'}</span>
@@ -506,7 +506,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                   const i = itens.length - 1
                   const it = itens[i]
                   return (
-                  <div style={{ background: 'var(--primary-light, #F0FDFA)' }}>
+                  <div style={{ background: 'var(--primary-light, var(--c-primary-soft, #F0FDFA))' }}>
                     <div className="presc-input-row presc-input-row-compact">
                       <div className="presc-input-linha1">
                         <div className="item-num">{String(i + 1).padStart(2, '0')}</div>

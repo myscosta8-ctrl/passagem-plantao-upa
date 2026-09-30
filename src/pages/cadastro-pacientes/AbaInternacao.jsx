@@ -58,7 +58,7 @@ export default function AbaInternacao() {
         Marque aqui o paciente que passou de observação para internado. A mudança fica registrada com o seu nome, data e hora.
       </p>
       {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      {ok && <div role="status" style={{ marginBottom: 14, padding: '8px 12px', borderRadius: 8, background: '#F0FDFA', color: '#0F766E', fontSize: 13 }}>{ok}</div>}
+      {ok && <div role="status" style={{ marginBottom: 14, padding: '8px 12px', borderRadius: 8, background: 'var(--c-primary-soft, #F0FDFA)', color: 'var(--c-primary-hover, #0F766E)', fontSize: 13 }}>{ok}</div>}
       {carregando ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
       ) : pacientes.length === 0 ? (

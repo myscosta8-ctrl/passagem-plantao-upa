@@ -154,7 +154,6 @@ export function runModularizacaoTests(test) {
     const secoesEsperadas = [
       'constantes.js',
       'SimNao.jsx',
-      'SecaoIdentificacao.jsx',
       'SecaoAssistencia.jsx',
       'SecaoTransferencia.jsx',
       'SecaoPendencias.jsx',

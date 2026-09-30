@@ -303,7 +303,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
               <div className="col-4">
                 <div className="aih-field-box readonly">
                   <div className="aih-field-header"><label>2 - CNES</label></div>
-                  <div className="aih-field-value" style={{ letterSpacing: 2, fontWeight: 800, color: '#0D9488' }}>
+                  <div className="aih-field-value" style={{ letterSpacing: 2, fontWeight: 800, color: 'var(--c-primary, #0D9488)' }}>
                     0 2 9 6 7 9 6
                   </div>
                 </div>
@@ -317,7 +317,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
               <div className="col-4">
                 <div className="aih-field-box readonly">
                   <div className="aih-field-header"><label>4 - CNES</label></div>
-                  <div className="aih-field-value" style={{ letterSpacing: 2, fontWeight: 800, color: '#0D9488' }}>
+                  <div className="aih-field-value" style={{ letterSpacing: 2, fontWeight: 800, color: 'var(--c-primary, #0D9488)' }}>
                     0 2 9 6 7 9 6
                   </div>
                 </div>
@@ -462,7 +462,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                   </div>
                   <input
                     type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 11.5, fontWeight: 800, color: '#0D9488', background: 'transparent' }}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 11.5, fontWeight: 800, color: 'var(--c-primary, #0D9488)', background: 'transparent' }}
                     value={dados.cid_principal}
                     onChange={(e) => set('cid_principal', e.target.value)}
                   />
@@ -498,7 +498,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                   </div>
                   <input
                     type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 11.5, fontWeight: 700, color: '#0D9488', background: 'transparent' }}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 11.5, fontWeight: 700, color: 'var(--c-primary, #0D9488)', background: 'transparent' }}
                     value={dados.procedimento_principal_nome}
                     onChange={(e) => set('procedimento_principal_nome', e.target.value)}
                   />
@@ -509,7 +509,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                   <div className="aih-field-header"><label>28 - CÓDIGO SIGTAP</label></div>
                   <input
                     type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 800, color: '#0D9488', letterSpacing: 2, background: 'transparent' }}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 800, color: 'var(--c-primary, #0D9488)', letterSpacing: 2, background: 'transparent' }}
                     value={dados.procedimento_principal_codigo}
                     onChange={(e) => set('procedimento_principal_codigo', e.target.value)}
                   />
@@ -638,7 +638,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
               <div className="col-3">
                 <div className="aih-field-box readonly">
                   <div className="aih-field-header"><label>52 - Nº DA AIH</label></div>
-                  <div className="aih-field-value" style={{ fontWeight: 800, color: '#0D9488' }}>{dados.numero_autorizacao}</div>
+                  <div className="aih-field-value" style={{ fontWeight: 800, color: 'var(--c-primary, #0D9488)' }}>{dados.numero_autorizacao}</div>
                 </div>
               </div>
             </div>
