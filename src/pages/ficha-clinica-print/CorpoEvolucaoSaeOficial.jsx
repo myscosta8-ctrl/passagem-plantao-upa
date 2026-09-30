@@ -5,7 +5,7 @@ export default function CorpoEvolucaoSaeOficial({ registro, pessoa, atendimento,
   return (
     <div className="sae-page">
       <CabecalhoPadraoUPA
-        titulo="EVOLUÇÃO DO ENFERMEIRO — SISTEMATIZAÇÃO (SAE)"
+        titulo="EVOLUÇÃO DO ENFERMEIRO"
         pessoa={pessoa}
         atendimento={atendimento}
         idade={idade}
