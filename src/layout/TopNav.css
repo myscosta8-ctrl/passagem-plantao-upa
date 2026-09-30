@@ -23,3 +23,17 @@
 .app-v2 > .main-viewport { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 @media (max-width: 900px) { .tn-marca span:last-child, .tn-hora { display: none; } .tn-item span { display: none; } .tn-item { padding: 0 10px; } }
 .app-v2 > .main-content { width: 100%; }
+
+/* Nova interface: verde fechado dos mockups aprovados (substitui o #0D9488 claro) */
+body.ui-v2 {
+  --c-primary: #0B7C72;
+  --c-primary-mid: #0B7C72;
+  --c-primary-hover: #09655D;
+  --primary: #0B7C72;
+  --color-primary: #0B7C72;
+  --primary-hover: #09655D;
+  --color-accent: #0B7C72;
+  --color-acao: #0B7C72;
+  --color-acao-hover: #09655D;
+}
+body.ui-v2 .enf-theme, body.ui-v2 .enf-banner { --enf-primary: #0B7C72; --enf-hover: #09655D; }
