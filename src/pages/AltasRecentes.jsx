@@ -174,8 +174,9 @@ export default function AltasRecentes({ onVoltar }) {
                 <div className="ds-pac"><b>{d.nome}</b>{d.prontuario && <small>Pront. {d.prontuario}</small>}</div>
                 <span className="ds-set">{d.leito_info}</span>
                 <div className="ds-mot">
-                  {d.tipo_desfecho === 'Transferência' && <b className={d.destino ? 'ds-dest' : 'ds-dest vazio'}><i className="ph ph-arrow-right" /> {d.destino || 'Destino não informado'}</b>}
-                  <span title={d.diagnostico}>{d.diagnostico}</span>
+                  {d.tipo_desfecho === 'Transferência'
+                    ? <b className={d.destino ? 'ds-dest' : 'ds-dest vazio'}><i className="ph ph-hospital" /> Destino: {d.destino || 'não informado'}</b>
+                    : <span title={d.diagnostico}>{d.diagnostico}</span>}
                 </div>
               </div>
             </div>
@@ -299,7 +300,7 @@ export default function AltasRecentes({ onVoltar }) {
               <th>Setor de Origem</th>
               <th>Data / Hora</th>
               <th>Desfecho</th>
-              <th>Motivo / Diagnóstico</th>
+              <th>Motivo / Destino</th>
             </tr>
           </thead>
           <tbody>
@@ -336,14 +337,11 @@ export default function AltasRecentes({ onVoltar }) {
                     <span className="badge" style={{ background: cor.bg, color: cor.txt, fontWeight: 700, fontSize: 11, padding: '3px 10px', borderRadius: 20 }}>
                       {d.tipo_desfecho}
                     </span>
-                    {d.tipo_desfecho === 'Transferência' && (
-                      <div style={{ marginTop: 4, fontSize: 12, fontWeight: 600, color: d.destino ? '#1e40af' : 'var(--c-text-muted)' }}>
-                        <i className="ph ph-arrow-right" /> {d.destino || 'Destino não informado'}
-                      </div>
-                    )}
                   </td>
-                  <td style={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--c-text-muted)', fontSize: 13 }} title={d.diagnostico}>
-                    {d.diagnostico}
+                  <td style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--c-text-muted)', fontSize: 13 }} title={d.tipo_desfecho === 'Transferência' ? `Destino: ${d.destino || 'não informado'}` : d.diagnostico}>
+                    {d.tipo_desfecho === 'Transferência'
+                      ? <span style={{ fontWeight: 700, color: d.destino ? '#1e40af' : 'var(--c-text-muted)' }}><i className="ph ph-hospital" /> Destino: {d.destino || 'não informado'}</span>
+                      : d.diagnostico}
                   </td>
                 </tr>
               )
