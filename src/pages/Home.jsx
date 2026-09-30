@@ -5,6 +5,7 @@ import Painel from './Painel'
 import PassagemColetivaTela from './PassagemColetivaTela'
 import ConfirmModal from './ConfirmModal'
 import Sidebar from '../components/Sidebar'
+import TopNav from '../layout/TopNav'
 import './AberturaPlantao.css'
 import { avisarErro } from '../lib/erros'
 import { listarMeusRascunhos } from '../components/MeusRascunhos'
@@ -104,6 +105,8 @@ export default function Home() {
   // Telas de administração: qualquer conta com papel admin no banco.
   // Administrador geral OU quem recebeu algum cargo/permissão administrativa (ver Profissionais → Cargo).
   const podeAdministrar = isAdmin || (permissoes?.length > 0)
+  // Nova interface (menu no topo, tela cheia): liberada por pessoa em enfermeiros.pep_beta.
+  const novaUI = enfermeiro?.pep_beta === true
   const [plantao, setPlantao] = useState(null)
   const [setoresIds, setSetoresIds] = useState(null)
   const [tela, setTela] = useState(lerTelaSalva)
@@ -320,10 +323,15 @@ export default function Home() {
     // sem o fluxo de plantão.
     const tituloInicio = ehMedico ? 'Painel Médico' : ehRecepcao ? 'Recepção' : 'Início'
     const tituloTela = tela === 'conta' ? 'Minha conta' : tela === 'equipe' && podeAdministrar ? 'Painel de Equipe' : tela === 'profissionais' && podeAdministrar ? 'Profissionais' : tituloInicio
+    const itensShell = [
+      { tela: 'painel', rotulo: tituloInicio, icone: ehMedico ? 'ph-bed' : ehRecepcao ? 'ph-identification-card' : 'ph-house' },
+      ...(podeAdministrar ? [{ tela: 'equipe', rotulo: 'Equipe', icone: 'ph-users-three' }, { tela: 'profissionais', rotulo: 'Profissionais', icone: 'ph-identification-badge' }] : []),
+    ]
     return (
-      <div className="app-shell-sidebar-layout">
+      <div className={novaUI ? 'app-v2' : 'app-shell-sidebar-layout'}>
         <div className="main-content">
-          <header className="topbar no-print">
+          {novaUI && <TopNav itens={itensShell} telaAtual={tela} onNavegar={setTela} enfermeiro={enfermeiro} isAdmin={isAdmin} onLogout={logout} />}
+          {!novaUI && <header className="topbar no-print">
             <div className="topbar-left">
               <div className="breadcrumb">
                 <i className="ph ph-house" />
@@ -350,7 +358,7 @@ export default function Home() {
                 )}
               </div>
             </div>
-          </header>
+          </header>}
           <main className="main-viewport">
             {erroApp && (<div role="alert" className="faixa-erro-app"><i className="ph ph-warning-circle" /> Falha ao carregar dados ({erroApp.contexto}). Verifique a conexão — as informações exibidas podem estar incompletas.<button type="button" onClick={() => setErroApp(null)}>Fechar</button></div>)}
             <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
@@ -369,9 +377,18 @@ export default function Home() {
     )
   }
 
+  const itensEnf = [
+    { tela: 'painel', rotulo: 'Leitos', icone: 'ph-bed' },
+    { tela: 'passagemColetiva', rotulo: 'Passagem', icone: 'ph-arrows-left-right' },
+    { tela: 'pendencias', rotulo: 'Pendências', icone: 'ph-warning', contador: rascunhosPendentes },
+    { tela: 'altas', rotulo: 'Desfechos', icone: 'ph-sign-out' },
+    { tela: 'recepcao', rotulo: 'Recepção', icone: 'ph-identification-card' },
+    { tela: 'indicadoresClinicos', rotulo: 'Indicadores', icone: 'ph-chart-bar' },
+  ]
+  const extrasContaEnf = podeAdministrar ? [{ tela: 'equipe', rotulo: 'Painel de Equipe', icone: 'ph-users-three' }, { tela: 'profissionais', rotulo: 'Profissionais', icone: 'ph-identification-badge' }] : []
   return (
-    <div className="app-shell-sidebar-layout">
-      <Sidebar
+    <div className={novaUI ? 'app-v2' : 'app-shell-sidebar-layout'}>
+      {!novaUI && <Sidebar
         aberto={sidebarAberta}
         onFechar={() => setSidebarAberta(false)}
         enfermeiro={enfermeiro}
@@ -388,9 +405,10 @@ export default function Home() {
         onEncerrarPlantao={encerrarPlantao}
         encerrandoPlantao={encerrando}
         onLogout={logout}
-      />
+      />}
       <div className="main-content">
-        <header className="topbar">
+        {novaUI && <TopNav itens={itensEnf} extrasConta={extrasContaEnf} telaAtual={tela} onNavegar={setTela} enfermeiro={enfermeiro} isAdmin={isAdmin} plantao={plantao} podeEncerrar={Boolean(plantao && setoresIds) && !isAdmin} onEncerrarPlantao={encerrarPlantao} encerrando={encerrando} onLogout={logout} />}
+        {!novaUI && <header className="topbar">
           <div className="topbar-left">
             <button
               type="button"
@@ -416,7 +434,7 @@ export default function Home() {
               {iniciais(enfermeiro?.nome_exibicao || enfermeiro?.nome)}
             </div>
           </div>
-        </header>
+        </header>}
 
         <main className="main-viewport">
 
