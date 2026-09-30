@@ -46,16 +46,16 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
 
   return (
     <div className={'atendimento-medico-container enf-theme' + (podeCriar ? '' : ' somente-leitura')} onClick={(e) => e.stopPropagation()}>
-      <FichaClinicaHeader
+      {!novaUI && <FichaClinicaHeader
         onFechar={onFechar}
         rotuloAbaAtual={rotuloAbaAtual}
         enfermeiroNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
         enfermeiroCoren={enfermeiro?.coren}
         onTrocarPilar={onTrocarPilar}
-      />
+      />}
       <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="enfermagem" onDuplicado={aposDuplicar} />
       <div className="workspace">
-        <BannerPacienteEnf atendimento={atendimento} />
+        <BannerPacienteEnf atendimento={atendimento} pilar="enfermagem" onVoltar={onFechar} onTrocarPilar={onTrocarPilar} />
         {!podeCriar && (
           <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos de enfermagem, mas não criá-los.</div>
         )}

@@ -59,16 +59,16 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
 
   return (
     <div className={'atendimento-medico-container' + (podeCriar ? '' : ' somente-leitura')} onClick={(e) => e.stopPropagation()}>
-      <FichaMedicaHeader
+      {!novaUI && <FichaMedicaHeader
         onFechar={onFechar}
         rotuloAbaAtual={rotuloAbaAtual}
         medicoNome={enfermeiro?.nome_exibicao || enfermeiro?.nome}
         medicoCrm={enfermeiro?.crm}
         onTrocarPilar={onTrocarPilar}
-      />
+      />}
       <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="medico" onDuplicado={aposDuplicar} />
       <div className="workspace" ref={areaRef}>
-        <BannerPacienteEnf atendimento={atendimento} />
+        <BannerPacienteEnf atendimento={atendimento} pilar="medico" onVoltar={onFechar} onTrocarPilar={onTrocarPilar} />
         {!podeCriar && (
           <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos médicos, mas não criá-los.</div>
         )}

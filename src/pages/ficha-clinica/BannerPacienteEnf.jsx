@@ -10,7 +10,7 @@ import { useAuth } from '../../lib/AuthContext';
 const fmt = (v) => (v === null || v === undefined || v === '' ? '—' : v);
 const limpar = (v) => String(v || '').replace(/^#?\s*(PEP|AT|REG)-?/i, '');
 
-export default function BannerPacienteEnf({ atendimento }) {
+export default function BannerPacienteEnf({ atendimento, pilar, onVoltar, onTrocarPilar }) {
   const [cab, setCab] = useState(null);
   const [sv, setSv] = useState(null);
   const [alergias, setAlergias] = useState([]);
@@ -69,6 +69,7 @@ export default function BannerPacienteEnf({ atendimento }) {
     return (
       <div className="faixa-pac-wrap">
         <div className="fpj faixa-pac">
+          {onVoltar && <button type="button" className="faixa-pac-voltar" onClick={onVoltar} title="Voltar ao Painel de Leitos" aria-label="Voltar ao Painel de Leitos"><i className="ph ph-arrow-left" /></button>}
           <span className="fpj-av">{sigla}</span>
           <div className="fpj-id"><b>{String(nome).toUpperCase()}</b>{meta && <small>{meta}</small>}</div>
           <div className="fpj-chips">
@@ -83,6 +84,12 @@ export default function BannerPacienteEnf({ atendimento }) {
             {sv && <span><b>PA</b> {sv.pa_sistolica && sv.pa_diastolica ? `${sv.pa_sistolica}/${sv.pa_diastolica}` : '—'} · <b>FC</b> {sv.fc || '—'} · <b>SpO₂</b> {sv.spo2 ? `${sv.spo2}%` : '—'}</span>}
             <button type="button" onClick={() => setAberto((v) => !v)}><i className={'ph ph-caret-' + (aberto ? 'up' : 'down')} /> {aberto ? 'Ocultar ficha completa' : 'Exibir ficha completa'}</button>
           </div>
+          {pilar && onTrocarPilar && (
+            <div className="chave-pilar escura" role="tablist" aria-label="Prontuário">
+              <button type="button" role="tab" aria-selected={pilar === 'enfermagem'} className={pilar === 'enfermagem' ? 'on' : ''} onClick={pilar === 'enfermagem' ? undefined : onTrocarPilar}>Enfermagem</button>
+              <button type="button" role="tab" aria-selected={pilar === 'medico'} className={pilar === 'medico' ? 'on' : ''} onClick={pilar === 'medico' ? undefined : onTrocarPilar}>Médico</button>
+            </div>
+          )}
         </div>
         {detalhes && <div className="patient-banner enf-banner faixa-pac-detalhes">{detalhes}</div>}
       </div>
