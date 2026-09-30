@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AbaReceituarioMedico from './AbaReceituarioMedico';
 import AbaAtestadoMedico from './AbaAtestadoMedico';
+import './AbaDocumentosAlta.css';
 import AbaSumarioAlta from './AbaSumarioAlta';
 
 // Tela única "Receituário & Alta" (mockup 05-receituario-alta-design.html):
@@ -24,16 +25,14 @@ export default function AbaDocumentosAlta({ atendimento, medicoId, onImprimir, o
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, minHeight: 0, minWidth: 0 }}>
       <div className="clinical-card" style={{ flex: '0 0 auto' }}>
-        <div className="cc-header">
-          <div className="cc-title">
-            <h2><i className="ph ph-folder-open" style={{ color: 'var(--success, #16A34A)' }} /> Documentos de Alta do Paciente</h2>
-          </div>
-          <div className="doc-subtabs">
+        <div className="da-header">
+          <h2 className="da-titulo"><i className="ph ph-folder-open" /> Documentos de Alta do Paciente</h2>
+          <div className="da-abas" role="tablist">
             {abas.map((a) => (
               <button
                 key={a.chave}
                 type="button"
-                className={'doc-tab' + (doc === a.chave ? ' active' : '') + (a.chave === 'controle' && pulse ? ' highlight-pulse' : '')}
+                className={'da-aba' + (doc === a.chave ? ' ativa' : '') + (a.chave === 'controle' && pulse ? ' highlight-pulse' : '')}
                 onClick={() => setDoc(a.chave)}
               >
                 <i className={'ph ' + a.icon} /> {a.rotulo}

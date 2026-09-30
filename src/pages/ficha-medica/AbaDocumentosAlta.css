@@ -1,0 +1,10 @@
+/* Documentos de Alta: título em cima e os 4 documentos numa faixa única, alinhada */
+.da-header { display: flex; flex-direction: column; gap: 12px; padding: 16px 20px; }
+.da-titulo { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--c-text-primary, #0F2230); }
+.da-titulo i { color: var(--c-text-secondary, #5A6B7B); font-size: 20px; }
+.da-abas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 4px; background: #E9EEF3; border-radius: 10px; }
+.da-aba { height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: var(--c-text-secondary, #5A6B7B); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.da-aba:hover { background: rgba(255, 255, 255, .7); color: var(--c-text-primary, #0F2230); }
+.da-aba.ativa { background: #fff; color: var(--c-primary, #1B4555); box-shadow: 0 1px 3px rgba(15, 34, 48, .12); }
+.da-aba.highlight-pulse { outline: 2px solid #D9A62E; }
+@media (max-width: 760px) { .da-abas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
