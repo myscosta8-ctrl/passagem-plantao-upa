@@ -1,0 +1,10 @@
+.jf-dica { margin-top: 18px; padding: 28px; border: 1px dashed var(--c-border-dark, #CBD5E1); border-radius: 12px; text-align: center; color: var(--c-text-muted, #5A6B7B); font-size: 14px; background: var(--c-surface, #fff); }
+.jf-fundo { position: fixed; inset: 0; z-index: 90; background: rgba(14, 42, 54, .55); padding: 14px; display: flex; }
+.jf-janela { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--c-bg, #F3F6F9); border-radius: 16px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, .35); }
+.jf-topo { display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: linear-gradient(90deg, #0E2A36, #15414E); color: #fff; flex-shrink: 0; }
+.jf-pac { font-size: 15px; letter-spacing: .01em; }
+.jf-titulo { font-size: 13px; color: #A9C3CC; }
+.jf-fechar { margin-left: auto; display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid #ffffff30; background: #ffffff10; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+.jf-corpo { flex: 1; min-height: 0; overflow: auto; padding: 14px 16px; display: flex; flex-direction: column; }
+.jf-corpo > * { flex: 1 0 auto; }
+@media (max-width: 700px) { .jf-fundo { padding: 0; } .jf-janela { border-radius: 0; } }

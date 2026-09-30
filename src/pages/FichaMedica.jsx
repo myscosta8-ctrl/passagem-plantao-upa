@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense, useEffect, useRef } from 'react';
 import { useAuth } from '../lib/AuthContext';
 import HistoricoClinico from './HistoricoClinico';
+import JanelaFormulario from '../layout/JanelaFormulario';
 const FichaMedicaPrint = lazy(() => import('./FichaMedicaPrint'));
 import BannerPacienteEnf from './ficha-clinica/BannerPacienteEnf';
 import './ficha-clinica/Enfermagem.css';
@@ -14,6 +15,10 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
   const [aba, setAba] = useState(initialTab);
   const [imprimindo, setImprimindo] = useState(null);
   const [historicoAberto, setHistoricoAberto] = useState(false);
+  // Nova interface: o formulário da aba abre em janela flutuante (contas com pep_beta).
+  const novaUI = enfermeiro?.pep_beta === true;
+  const [formAberto, setFormAberto] = useState(false);
+  const escolherAba = (a) => { setAba(a); setFormAberto(true); };
   const areaRef = useRef(null);
   // Mensagem de erro/validação aparece no fim do formulário, longe do botão: rola até ela.
   useEffect(() => {
@@ -67,7 +72,8 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
           <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos médicos, mas não criá-los.</div>
         )}
 
-        <FichaMedicaTabs aba={aba} onSelecionarAba={setAba} />
+        <FichaMedicaTabs aba={aba} onSelecionarAba={escolherAba} />
+        <JanelaFormulario ativa={novaUI} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome}>
         <FichaMedicaConteudo
           atendimento={atendimento}
           medicoId={enfermeiro?.id}
@@ -76,8 +82,9 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
           aba={aba}
           onSelecionarAba={setAba}
           onImprimir={setImprimindo}
-          onFechar={onFechar}
+          onFechar={novaUI ? () => setFormAberto(false) : onFechar}
         />
+        </JanelaFormulario>
       </div>
     </div>
   );

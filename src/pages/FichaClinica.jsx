@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../lib/AuthContext';
 import HistoricoClinico from './HistoricoClinico';
+import JanelaFormulario from '../layout/JanelaFormulario';
 const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'));
 import BannerPacienteEnf from './ficha-clinica/BannerPacienteEnf';
 import FichaClinicaHeader from './ficha-clinica/FichaClinicaHeader';
@@ -16,6 +17,10 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar }) {
   const [aba, setAba] = useState('admissaoEnfermagem');
   const [imprimindo, setImprimindo] = useState(null);
   const [historicoAberto, setHistoricoAberto] = useState(false);
+  // Nova interface: o formulário da aba abre em janela flutuante (contas com pep_beta).
+  const novaUI = enfermeiro?.pep_beta === true;
+  const [formAberto, setFormAberto] = useState(false);
+  const escolherAba = (a) => { setAba(a); setFormAberto(true); };
 
   if (imprimindo) {
     return (
@@ -54,14 +59,16 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar }) {
           <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos de enfermagem, mas não criá-los.</div>
         )}
 
-        <FichaClinicaTabs aba={aba} onSelecionarAba={setAba} />
+        <FichaClinicaTabs aba={aba} onSelecionarAba={escolherAba} />
+        <JanelaFormulario ativa={novaUI} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome}>
         <FichaClinicaConteudo
           atendimento={atendimento}
           autorId={enfermeiro?.id}
           aba={aba}
           onImprimir={setImprimindo}
-          onFechar={onFechar}
+          onFechar={novaUI ? () => setFormAberto(false) : onFechar}
         />
+        </JanelaFormulario>
       </div>
     </div>
   );
