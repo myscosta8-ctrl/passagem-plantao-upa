@@ -21,6 +21,7 @@ export default function CadastroPacientes() {
   const [pessoaParaEditar, setPessoaParaEditar] = useState(null)
   const [recentes, setRecentes] = useState([])
   const [qtdDuplicatas, setQtdDuplicatas] = useState(0)
+  const novaUI = enfermeiro?.pep_beta === true
 
   useEffect(() => { carregarRecentes() }, [])
   useEffect(() => { carregarQtdDuplicatas() }, [])
@@ -39,11 +40,13 @@ export default function CadastroPacientes() {
   }
 
   return (
-    <div className="page recepcao-page-scroll">
+    <div className={novaUI ? 'page recepcao-page-scroll rc-v2' : 'page recepcao-page-scroll'}>
       <h1 className="page-title">Recepção — Cadastro e Identificação</h1>
       <p className="page-subtitle">
-        Ficha de Identificação do Paciente — busque primeiro para evitar registros duplicados. Complete os documentos (CPF, CNS, endereço) de pacientes já abertos no leito ou inicie novo cadastro caso não exista.
+        {novaUI ? 'Ficha de Identificação do Paciente — busque primeiro para evitar registros duplicados.' : 'Ficha de Identificação do Paciente — busque primeiro para evitar registros duplicados. Complete os documentos (CPF, CNS, endereço) de pacientes já abertos no leito ou inicie novo cadastro caso não exista.'}
       </p>
+      <div className="rc-layout">
+      <div className="rc-principal">
 
       <div className="doc-subtabs" style={{ marginBottom: 24 }}>
           <button
@@ -78,7 +81,7 @@ export default function CadastroPacientes() {
           </button>
         </div>
 
-      <div style={{ marginTop: 22 }}>
+      <div className={aba === 'novo' ? 'rc-conteudo rc-form' : 'rc-conteudo'} style={{ marginTop: 22 }}>
         {aba === 'internacao' && <AbaInternacao />}
         {aba === 'desfecho' && <AbaDesfecho />}
         {aba === 'novo' && (
@@ -102,7 +105,8 @@ export default function CadastroPacientes() {
         )}
       </div>
 
-      <div className="form-section" style={{ marginTop: 32 }}>
+      </div>
+      <aside className="form-section rc-recentes" style={{ marginTop: 32 }}>
         <div className="form-section-title">Cadastrados recentemente</div>
         {recentes.length === 0 ? (
           <p style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>Nenhum cadastro ainda.</p>
@@ -116,6 +120,7 @@ export default function CadastroPacientes() {
             </div>
           ))
         )}
+      </aside>
       </div>
     </div>
   )
