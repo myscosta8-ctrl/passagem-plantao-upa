@@ -30,7 +30,6 @@ export default function JanelaFormulario({ ativa, aberta, onFechar, titulo, paci
           {atendimento ? <FaixaPacienteJanela atendimento={atendimento} nomeFallback={paciente} /> : (paciente && <b className="jf-pac">{paciente}</b>)}
           <button type="button" className="jf-fechar" onClick={onFechar} aria-label="Fechar formulário"><i className="ph ph-x" /> Fechar</button>
         </div>
-        <div className="jf-titulo-linha"><h2>{titulo}</h2></div>
         <div className="jf-area">
           <div className="jf-corpo">{children}</div>
           {atendimento && <ColunaConsulta atendimentoId={atendimento.atendimento_id} categoria={categoria} />}

@@ -17,7 +17,7 @@
 .btn-historico-clinico:hover { border-color: var(--c-primary, #1B4555); color: var(--c-primary, #1B4555); }
 
 /* Na janela flutuante, o título do formulário já aparece na barra escura: esconde o cabeçalho repetido da SAE */
-.jf-corpo .sae-card > .sc-header { display: none; }
+
 
 /* ===== Janela completa (mockup 02): faixa do paciente, título, formulário + coluna de consulta ===== */
 .jf-topo { padding: 12px 16px; gap: 12px; }

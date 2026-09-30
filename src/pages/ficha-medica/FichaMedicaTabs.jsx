@@ -5,8 +5,8 @@ export const ABAS_PRINCIPAIS = [
   { chave: 'evolucao', rotulo: '4. Evoluções Médicas', icon: 'ph-activity' },
   { chave: 'prescricao', rotulo: '5. Prescrição Médica', icon: 'ph-pill' },
   { chave: 'exames', rotulo: '6. Exames & APAC', icon: 'ph-flask' },
-  { chave: 'sangue', rotulo: '7. Hemoterapia', icon: 'ph-drop' },
-  { chave: 'receituario', rotulo: '8. Receituário & Alta', icon: 'ph-file-text' },
+  { chave: 'sangue', rotulo: '7. Solicitação de Sangue, Componentes e Derivados', icon: 'ph-drop' },
+  { chave: 'receituario', rotulo: '8. Documentos de Alta do Paciente', icon: 'ph-file-text' },
 ];
 
 

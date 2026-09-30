@@ -105,7 +105,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
 
       <div className="sae-card">
         <div className="sc-header" style={{ flexWrap: 'nowrap' }}><div className="sc-title">
-            <h2><i className="ph ph-activity" /> Nova Evolução do Enfermeiro (SAE)</h2>
+            <h2><i className="ph ph-activity" /> Evolução de Enfermagem</h2>
             
           </div></div>
 
