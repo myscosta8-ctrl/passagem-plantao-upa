@@ -30,3 +30,14 @@ html .clinical-tabs > .tab-btn { flex: 1 1 0 !important; min-width: max-content;
 .chave-pilar.escura button { color: #C9DAE0; }
 .chave-pilar.escura button:hover:not(.on) { background: #ffffff1c; color: #fff; }
 .chave-pilar.escura button.on { background: #fff; color: var(--c-primary, #1B4555); }
+
+/* ===== Blocos numerados (padrão único em todos os formulários das fichas) =====
+   O número é automático (1, 2, 3…) dentro de cada cartão de formulário; nenhum
+   título traz mais o número escrito à mão. */
+.atendimento-medico-container:not(.passagem-form-scope) :is(.clinical-card, .sae-card, .admissao-card) { counter-reset: bloco; }
+.atendimento-medico-container:not(.passagem-form-scope) :is(.form-section-box-title, .form-section-title, .bloco-num) { display: flex !important; align-items: center; gap: 8px; }
+.atendimento-medico-container:not(.passagem-form-scope) :is(.form-section-box-title, .form-section-title, .bloco-num)::before {
+  counter-increment: bloco; content: counter(bloco);
+  width: 22px; height: 22px; flex-shrink: 0; border-radius: 6px; background: #EEF2F6; color: #4B5B6A;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none;
+}

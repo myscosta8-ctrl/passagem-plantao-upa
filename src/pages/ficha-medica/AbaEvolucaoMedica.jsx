@@ -103,7 +103,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
 
           <div className="assess-grid">
             <div className="form-group">
-              <label><i className="ph ph-virus" /> Diagnósticos Ativos (CID-10 / HD)</label>
+              <label className="bloco-num"><i className="ph ph-virus" /> Diagnósticos Ativos (CID-10 / HD)</label>
               <input type="text" className="form-control" value={dados.diagnosticos} onChange={(e) => set('diagnosticos', e.target.value)} />
             </div>
             <div className="form-group">
@@ -128,8 +128,8 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
           {/* Sinais Vitais */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-main, #0F172A)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <i className="ph ph-thermometer" style={{ color: 'var(--danger, #DC2626)' }} /> Sinais Vitais Atuais
+              <h3 className="bloco-num" style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-main, #0F172A)', display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
+                <i className="ph ph-thermometer" /> Sinais Vitais Atuais
               </h3>
               <span style={{ fontSize: 12, color: 'var(--text-muted, #64748B)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} onClick={puxarSinaisVitaisDaEnfermagem}>
                 <i className="ph ph-arrows-clockwise" /> {puxandoSv ? 'Buscando...' : 'Puxar da Enfermagem'}
@@ -166,18 +166,18 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
           {/* Campos de Texto Oficiais */}
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-              <label style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Dia e Queixas *</label>
+              <label className="bloco-num" style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Dia e Queixas *</label>
             </div>
             <textarea className="form-control-area large" placeholder="Descreva o estado geral, queixas, evolução do quadro..." value={dados.evolucao_dia} onChange={(e) => set('evolucao_dia', e.target.value)} />
           </div>
 
           <div className="form-group">
-            <label><i className="ph ph-stethoscope" /> Exame Físico Dirigido *</label>
+            <label className="bloco-num"><i className="ph ph-stethoscope" /> Exame Físico Dirigido *</label>
             <textarea className="form-control-area" placeholder="Ex: Bom estado geral, corado, hidratado..." value={dados.exame_fisico} onChange={(e) => set('exame_fisico', e.target.value)} />
           </div>
 
           <div className="form-group">
-            <label><i className="ph ph-list-checks" /> Conduta Médica / Plano Terapêutico</label>
+            <label className="bloco-num"><i className="ph ph-list-checks" /> Conduta Médica / Plano Terapêutico</label>
             <textarea className="form-control-area" placeholder="Conduta, exames solicitados, pendências de leito..." value={dados.conduta_medica} onChange={(e) => set('conduta_medica', e.target.value)} />
           </div>
 

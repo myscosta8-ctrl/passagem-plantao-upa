@@ -282,7 +282,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
           {/* BLOCO 1: MOTIVO DA CONSULTA E HDA */}
           <div className="form-section-box">
             <div className="form-section-box-title">
-              <i className="ph ph-chat-teardrop-text" /> 1. Motivo da Consulta e HDA
+              <i className="ph ph-chat-teardrop-text" /> Motivo da Consulta e HDA
             </div>
 
             <div className="form-group" style={{ marginBottom: 12, marginTop: 6 }}>
@@ -311,7 +311,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
           {/* BLOCO 2: ANTECEDENTES E COMORBIDADES */}
           <div className="form-section-box">
             <div className="form-section-box-title">
-              <i className="ph ph-folder" /> 2. Antecedentes e Comorbidades
+              <i className="ph ph-folder" /> Antecedentes e Comorbidades
             </div>
 
             <div className="form-group" style={{ marginTop: 6 }}>
@@ -337,7 +337,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
           {/* BLOCO 3: EXAME FÍSICO */}
           <div className="form-section-box">
             <div className="form-section-box-title">
-              <i className="ph ph-person" /> 3. Exame Físico da Admissão
+              <i className="ph ph-person" /> Exame Físico da Admissão
             </div>
 
             <div className="form-group" style={{ marginTop: 6 }}>
@@ -355,7 +355,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
           {/* BLOCO 4: HIPÓTESE DIAGNÓSTICA E CONDUTA */}
           <div className="form-section-box">
             <div className="form-section-box-title">
-              <i className="ph ph-brain" /> 4. Conclusão, Hipótese Diagnóstica & Conduta
+              <i className="ph ph-brain" /> Conclusão, Hipótese Diagnóstica & Conduta
             </div>
 
             <div className="form-group" style={{ marginTop: 6, marginBottom: 12 }}>

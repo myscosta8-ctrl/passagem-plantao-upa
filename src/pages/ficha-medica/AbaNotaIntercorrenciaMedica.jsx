@@ -53,14 +53,14 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
     <div className="clinical-card" style={{ flex: 1 }}>
       <div className="cc-body">
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-bell-ringing" /> 1. Motivo do Chamado e Descrição da Intercorrência *</div>
+          <div className="form-section-box-title"><i className="ph ph-bell-ringing" /> Motivo do Chamado e Descrição da Intercorrência *</div>
           <div className="form-group">
             <textarea className="form-control-area" rows="4" value={d.descricao} onChange={(e) => set('descricao', e.target.value)} placeholder="Quem solicitou, horário, queixa e achados no momento do chamado." />
           </div>
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-stethoscope" /> 2. Exame Físico no Momento da Avaliação</div>
+          <div className="form-section-box-title"><i className="ph ph-stethoscope" /> Exame Físico no Momento da Avaliação</div>
           <div className="assess-grid" style={{ gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
             {sv.map(([k, rotulo, ph]) => (
               <div key={k} className="form-group"><label>{rotulo}</label><input type="text" placeholder={ph || ''} value={d[k]} inputMode="decimal" onChange={(e) => set(k, e.target.value.replace(/[^\d/xX.,]/g, ''))} /></div>
@@ -72,14 +72,14 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-first-aid" /> 3. Condutas Médicas Tomadas *</div>
+          <div className="form-section-box-title"><i className="ph ph-first-aid" /> Condutas Médicas Tomadas *</div>
           <div className="form-group">
             <textarea className="form-control-area" rows="4" value={d.condutas} onChange={(e) => set('condutas', e.target.value)} placeholder="Medicações administradas, exames solicitados, cuidados e monitorização." />
           </div>
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-arrows-clockwise" /> 4. Reavaliação e Desfecho</div>
+          <div className="form-section-box-title"><i className="ph ph-arrows-clockwise" /> Reavaliação e Desfecho</div>
           <div className="form-group">
             <textarea className="form-control-area" rows="3" value={d.desfecho} onChange={(e) => set('desfecho', e.target.value)} placeholder="Resposta às medidas, novos sinais vitais e destino do paciente." />
           </div>

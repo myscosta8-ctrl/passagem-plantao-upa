@@ -147,7 +147,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
         <div className="cc-body">
 
           <div className="form-section" style={{ marginTop: 8 }}>
-            <div className="form-section-title">1. Diagnósticos Clínicos e Hipóteses Ativas</div>
+            <div className="form-section-title">Diagnósticos Clínicos e Hipóteses Ativas</div>
             <div className="form-group" style={{ marginBottom: 16 }}>
               <label>Diagnóstico Principal</label>
               <input type="text" className="form-control" placeholder="Ex: S06.5 — Traumatismo Cranioencefálico (TCE) Grave..." value={dados.diagnostico_principal_cid} onChange={(e) => set('diagnostico_principal_cid', e.target.value)} />
@@ -159,14 +159,14 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
           </div>
 
           <div className="form-section">
-            <div className="form-section-title">2. Motivo da Permanência / Internação</div>
+            <div className="form-section-title">Motivo da Permanência / Internação</div>
             <div className="form-group">
               <textarea className="form-control-area" rows="3" placeholder="Qual a causa-base que justifica a observação contínua ou regulação?" value={dados.motivo_internacao} onChange={(e) => set('motivo_internacao', e.target.value)} />
             </div>
           </div>
 
           <div className="form-section">
-            <div className="form-section-title">3. Objetivos da Terapêutica (Metas e Tempos)</div>
+            <div className="form-section-title">Objetivos da Terapêutica (Metas e Tempos)</div>
             <div className="metas-list">
               {dados.problemas_ativos.map((p, i) => (
                 <div key={i} className="meta-row">
@@ -187,7 +187,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
           </div>
 
           <div className="form-section">
-            <div className="form-section-title">4. Elegível para Protocolos Institucionais</div>
+            <div className="form-section-title">Elegível para Protocolos Institucionais</div>
             <div className="check-grid">
               {PROTOCOLOS_OPCOES.map((p) => {
                 const checked = dados.protocolos_elegiveis.includes(p.nome)
@@ -205,7 +205,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
           </div>
 
           <div className="form-section">
-            <div className="form-section-title">5. Previsão de Alta e Equipe Multidisciplinar</div>
+            <div className="form-section-title">Previsão de Alta e Equipe Multidisciplinar</div>
             <div className="form-row" style={{ marginBottom: 20 }}>
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Tempo de Permanência Previsto (Na UPA)</label>

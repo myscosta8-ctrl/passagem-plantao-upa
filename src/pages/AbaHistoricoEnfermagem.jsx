@@ -15,10 +15,10 @@ import { descartarRascunho } from '../lib/documentos'
 // historico_enfermagem (info_complementares, exame_fisico — marcado com v: 2).
 
 const SECOES = [
-  { chave: 'procedencia', titulo: '1. Procedência e Acolhimento', icon: 'ph-ambulance' },
-  { chave: 'antecedentes', titulo: '2. Antecedentes e Condições Crônicas', rotuloCurto: '2. Antecedentes e Riscos', icon: 'ph-clipboard-text' },
-  { chave: 'exame', titulo: '3. Exame Físico Céfalo-Podálico', icon: 'ph-person' },
-  { chave: 'intervencoes', titulo: '4. Intervenções Iniciais de Enfermagem', rotuloCurto: '4. Intervenções Iniciais', icon: 'ph-first-aid-kit' },
+  { chave: 'procedencia', titulo: 'Procedência e Acolhimento', icon: 'ph-ambulance' },
+  { chave: 'antecedentes', titulo: 'Antecedentes e Condições Crônicas', rotuloCurto: 'Antecedentes e Riscos', icon: 'ph-clipboard-text' },
+  { chave: 'exame', titulo: 'Exame Físico Céfalo-Podálico', icon: 'ph-person' },
+  { chave: 'intervencoes', titulo: 'Intervenções Iniciais de Enfermagem', rotuloCurto: 'Intervenções Iniciais', icon: 'ph-first-aid-kit' },
 ]
 
 const PROCEDENCIAS = ['Demanda Espontânea', 'SAMU 192', 'Resgate Corpo de Bombeiros', 'Transferência Hospitalar']
@@ -207,7 +207,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
   const secao = (s, conteudo, nav) => visivel(s.chave) && (
     <section key={s.chave} className={'adm-section' + (recolhida(s.chave) ? ' collapsed' : '')}>
       <div className="adm-section-header" onClick={() => toggle(s.chave)} title="Clique para expandir ou recolher esta seção">
-        <div className="sh-left"><i className={'ph ' + SECAO_ICONE[s.chave]} /><span>{s.titulo}</span></div>
+        <div className="sh-left bloco-num"><i className={'ph ' + SECAO_ICONE[s.chave]} /><span>{s.titulo}</span></div>
         <div className="sh-right"><span>{recolhida(s.chave) ? 'Expandir' : 'Recolher'}</span><i className="ph ph-caret-down" /></div>
       </div>
       {!recolhida(s.chave) && (

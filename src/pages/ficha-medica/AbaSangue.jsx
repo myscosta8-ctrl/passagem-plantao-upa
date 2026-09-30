@@ -89,7 +89,7 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-user" /> 1. Identificação e histórico transfusional</div>
+          <div className="form-section-box-title"><i className="ph ph-user" /> Identificação e histórico transfusional</div>
           <div className="assess-grid">
             <div className="form-group"><label>Peso</label><input type="text" value={dados.peso} onChange={(e) => set('peso', e.target.value)} /></div>
             <div className="form-group"><label>HB/HT</label><input type="text" placeholder="Ex: 6,4/20,9" value={dados.hb_ht} onChange={(e) => set('hb_ht', e.target.value)} /></div>
@@ -138,7 +138,7 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-drop" /> 2. Hemocomponentes / hemoderivados</div>
+          <div className="form-section-box-title"><i className="ph ph-drop" /> Hemocomponentes / hemoderivados</div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr>
@@ -179,7 +179,7 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-clock" /> 3. Caráter / urgência da transfusão</div>
+          <div className="form-section-box-title"><i className="ph ph-clock" /> Caráter / urgência da transfusão</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {URGENCIA_OPCOES.map(([v, r]) => (
               <label key={v} className="checkbox-item" style={{ justifyContent: 'flex-start' }}>
@@ -215,7 +215,7 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-signature" /> 4. Responsáveis e coleta de amostra</div>
+          <div className="form-section-box-title"><i className="ph ph-signature" /> Responsáveis e coleta de amostra</div>
           <div className="assess-grid">
             <div className="form-group"><label>Coletado por</label><input type="text" value={dados.coletado_por} onChange={(e) => set('coletado_por', e.target.value)} /></div>
             <div className="form-group"><label>Data</label><input type="date" value={dados.coletado_data} onChange={(e) => set('coletado_data', e.target.value)} /></div>

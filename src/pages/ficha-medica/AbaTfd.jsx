@@ -81,12 +81,12 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-notebook" /> 1. História da Doença Atual (HDA) e Justificativa de Deslocamento</div>
+          <div className="form-section-box-title"><i className="ph ph-notebook" /> História da Doença Atual (HDA) e Justificativa de Deslocamento</div>
           <div className="form-group">{area('historia_doenca_atual', 'Início, evolução, tratamentos prévios e motivo do deslocamento.', 4)}</div>
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-stethoscope" /> 2. Exame Físico Geral e Específico Dirigido</div>
+          <div className="form-section-box-title"><i className="ph ph-stethoscope" /> Exame Físico Geral e Específico Dirigido</div>
           <div className="form-group"><label>Estado geral</label>{area('exame_fisico', 'Ex: BEG, lúcido, orientado, afebril, anictérico, acianótico.', 2)}</div>
           <div className="assess-grid" style={{ gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginTop: 12 }}>
             {SV.map(([k, r, ph]) => campo('sv_' + k, r, { ph }))}
@@ -96,7 +96,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> 3. Hipótese Diagnóstica e Indisponibilidade de Tratamento Local</div>
+          <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> Hipótese Diagnóstica e Indisponibilidade de Tratamento Local</div>
           <div className="assess-grid">
             {campo('diagnostico', 'Diagnóstico principal (CID) *', { ph: 'Ex: H16.0 — Úlcera de córnea' })}
             {campo('diagnostico_secundario', 'Diagnóstico secundário (CID)')}
@@ -105,7 +105,7 @@ export default function AbaTfd({ atendimento, medicoId, onImprimir, onFechar }) 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-path" /> 4. Tratamentos Realizados e Dados do Encaminhamento TFD</div>
+          <div className="form-section-box-title"><i className="ph ph-path" /> Tratamentos Realizados e Dados do Encaminhamento TFD</div>
           <div className="form-group"><label>Exames complementares</label>{area('exame_complementar', 'Resultados relevantes.', 2)}</div>
           <div className="form-group" style={{ marginTop: 12 }}><label>Tratamento realizado na UPA</label>{area('tratamento_realizado', '', 2)}</div>
           <div className="form-group" style={{ marginTop: 12 }}><label>Tratamento indicado no destino *</label>{area('tratamento_indicado', '', 2)}</div>

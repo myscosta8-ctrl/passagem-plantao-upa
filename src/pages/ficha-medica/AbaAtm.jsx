@@ -98,7 +98,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
         )}
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> 1. Diagnóstico Clínico / Infeccioso e Admissão</div>
+          <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> Diagnóstico Clínico / Infeccioso e Admissão</div>
           <div className="assess-grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
             <div className="form-group"><label>Diagnóstico</label><input type="text" value={dados.diagnostico} onChange={(e) => set('diagnostico', e.target.value)} /></div>
             <div className="form-group"><label>Data de internação</label><input type="datetime-local" value={dados.data_internacao} onChange={(e) => set('data_internacao', e.target.value)} /></div>
@@ -106,14 +106,14 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-note-pencil" /> 2. Justificativa Clínica para o Uso de Antimicrobiano Restrito *</div>
+          <div className="form-section-box-title"><i className="ph ph-note-pencil" /> Justificativa Clínica para o Uso de Antimicrobiano Restrito *</div>
           <div className="form-group">
             <textarea className="form-control-area" rows="4" value={dados.justificativa_clinica} onChange={(e) => set('justificativa_clinica', e.target.value)} placeholder="Evolução, falha terapêutica prévia, exames (hemograma, PCR, culturas, imagem) e o que justifica o escalonamento." />
           </div>
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-pill" /> 3. Tratamento Antimicrobiano Proposto</div>
+          <div className="form-section-box-title"><i className="ph ph-pill" /> Tratamento Antimicrobiano Proposto</div>
           <div className="assess-grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
             <div className="form-group"><label>Tratamento pretendido</label><input type="text" value={dados.tratamento_pretendido} onChange={(e) => set('tratamento_pretendido', e.target.value)} /></div>
             <div className="form-group"><label>Via</label><input type="text" placeholder="Ex: Endovenosa (EV)" value={dados.via} onChange={(e) => set('via', e.target.value)} /></div>
@@ -142,7 +142,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-calculator" /> 4. Quantitativo Total do Tratamento Solicitado (DxIxT)</div>
+          <div className="form-section-box-title"><i className="ph ph-calculator" /> Quantitativo Total do Tratamento Solicitado (DxIxT)</div>
           <div className="assess-grid" style={{ gridTemplateColumns: '1.5fr 1fr 1fr 1fr' }}>
             <div className="form-group"><label>Cálculo DxIxT</label><input type="text" placeholder="Ex: 4 doses/dia × 7 dias = 28 doses" value={dados.dxixt} onChange={(e) => set('dxixt', e.target.value)} /></div>
             <div className="form-group"><label>Ampolas</label><input type="text" value={dados.ampolas} onChange={(e) => set('ampolas', e.target.value)} /></div>
@@ -152,14 +152,14 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-flask" /> 5. Parecer Farmacêutico e Controle de Estoque (CCIH / Farmácia Central)</div>
+          <div className="form-section-box-title"><i className="ph ph-flask" /> Parecer Farmacêutico e Controle de Estoque (CCIH / Farmácia Central)</div>
           <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
             Preenchido pelo farmacêutico no documento impresso: parecer (de acordo / contrário), disponibilidade em estoque (integral / parcial / indisponível), observações, assinatura e carimbo.
           </p>
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-list-checks" /> 6. Antimicrobianos de Uso Restrito Institucional (Controle Obrigatório UPA Breves)</div>
+          <div className="form-section-box-title"><i className="ph ph-list-checks" /> Antimicrobianos de Uso Restrito Institucional (Controle Obrigatório UPA Breves)</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 14px', fontSize: 12 }}>
             {ATM_RESTRITOS.map((a) => {
               const ativo = restritoAtual === a

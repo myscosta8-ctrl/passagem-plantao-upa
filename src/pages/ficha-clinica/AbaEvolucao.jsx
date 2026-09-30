@@ -112,7 +112,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
         <div className="sc-body">
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
-              <label className="enf-label forte" style={{ margin: 0 }}><i className="ph ph-thermometer" style={{ color: 'var(--danger)' }} /> Sinais Vitais do Turno</label>
+              <label className="enf-label forte bloco-num" style={{ margin: 0 }}><i className="ph ph-thermometer" /> Sinais Vitais do Turno</label>
               <span style={{ fontSize: 11, color: '#64748B' }}>
                 <i className="ph ph-clock" /> Última aferição: {ultimoSv ? new Date(ultimoSv.registrado_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
               </span>
@@ -132,7 +132,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
 
           <div className="sae-section">
             <div className="sae-header">
-              <span><i className="ph ph-stethoscope" /> Diagnósticos de Enfermagem (NANDA-I)</span>
+              <span className="bloco-num"><i className="ph ph-stethoscope" /> Diagnósticos de Enfermagem (NANDA-I)</span>
               <span className="sae-header-sub">Selecione os títulos prioritários</span>
             </div>
             <div className="sae-body">
@@ -151,7 +151,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
 
           <div className="sae-section">
             <div className="sae-header">
-              <span><i className="ph ph-list-checks" /> Prescrição de Enfermagem e Cuidados (NIC)</span>
+              <span className="bloco-num"><i className="ph ph-list-checks" /> Prescrição de Enfermagem e Cuidados (NIC)</span>
               <span className="sae-header-sub">Aprazamento pelo Enfermeiro</span>
             </div>
             <div className="sae-body">
@@ -174,7 +174,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
 
           <div className="enf-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <label style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
+              <label className="bloco-num" style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
             </div>
             <textarea className="enf-control" rows="4" value={texto} onChange={(e) => setTexto(e.target.value)} />
           </div>

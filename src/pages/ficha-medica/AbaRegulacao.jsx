@@ -119,7 +119,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> 1. Diagnóstico Regulado</div>
+          <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> Diagnóstico Regulado</div>
           <div className="form-group" style={{ marginBottom: 12 }}><label>Destino do documento (marque um ou ambos)</label>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <button type="button" className={'btn-add-chip' + (destSer ? ' on' : '')} onClick={() => setDestSer((v) => !v)}>{destSer ? '✓ ' : ''}SER</button>
@@ -158,7 +158,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-heartbeat" /> 2. Sinais Vitais</div>
+          <div className="form-section-box-title"><i className="ph ph-heartbeat" /> Sinais Vitais</div>
           <div className="assess-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
             {SINAIS.map(([k, r]) => (
               <div key={k} className="form-group"><label>{r}</label><input type="text" inputMode="decimal" value={sv[k]} onChange={(e) => setSinal(k, e.target.value)} /></div>
@@ -167,14 +167,14 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-note-pencil" /> 3. Evolução / Atualização do Quadro Clínico *</div>
+          <div className="form-section-box-title"><i className="ph ph-note-pencil" /> Evolução / Atualização do Quadro Clínico *</div>
           <div className="form-group">
             <textarea className="form-control-area" rows="5" value={evolucao} onChange={(e) => setEvolucao(e.target.value)} placeholder="Estado atual, evolução desde a última atualização, exames e resposta ao tratamento." />
           </div>
         </div>
 
         <div className="form-section-box">
-          <div className="form-section-box-title"><i className="ph ph-list-checks" /> 4. Pendências e Conduta</div>
+          <div className="form-section-box-title"><i className="ph ph-list-checks" /> Pendências e Conduta</div>
           <div className="form-group"><label>Pendências</label><textarea className="form-control-area" rows="2" value={pendencias} onChange={(e) => setPendencias(e.target.value)} /></div>
           <div className="form-group" style={{ marginTop: 12 }}><label>Conduta</label><textarea className="form-control-area" rows="2" value={conduta} onChange={(e) => setConduta(e.target.value)} /></div>
         </div>
