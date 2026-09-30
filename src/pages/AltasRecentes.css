@@ -39,3 +39,8 @@
 .ds-dest.vazio { color: #8595A4; font-weight: 500; }
 .ds-vazio { padding: 28px; text-align: center; color: #5A6B7B; font-size: 13.5px; margin: 0; }
 @media (max-width: 1000px) { .ds-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ds-linha { flex-wrap: wrap; } .ds-pac, .ds-set { width: auto; } }
+/* Colunas proporcionais: a linha ocupa a largura toda, sem sobra à direita */
+.ds-linha { display: grid; grid-template-columns: 64px 120px minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 2.2fr); gap: 18px; }
+.ds-pac, .ds-set, .ds-tipo { width: auto; }
+.ds-tipo { justify-self: start; min-width: 110px; }
+@media (max-width: 1000px) { .ds-linha { grid-template-columns: 56px 110px 1fr; } .ds-set, .ds-mot { grid-column: 3; } }
