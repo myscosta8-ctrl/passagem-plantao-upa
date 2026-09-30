@@ -79,7 +79,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
             <i className="ph ph-clock-counter-clockwise" /> Histórico Clínico
           </button>)}
         </div>
-        <JanelaFormulario ativa={novaUI} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome}
+        <JanelaFormulario ativa={novaUI} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome} atendimento={atendimento} categoria="medico"
           vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="medico" onDuplicado={aposDuplicar} />}>
         <FichaMedicaConteudo
           key={dupSeq}

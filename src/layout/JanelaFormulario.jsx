@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
 import './JanelaFormulario.css'
+import FaixaPacienteJanela from './FaixaPacienteJanela'
+import ColunaConsulta from './ColunaConsulta'
 
 // Nova interface: o prontuário (cabeçalho do paciente + abas) fica na tela
 // normal; só o formulário da aba escolhida abre numa janela flutuante que
 // ocupa quase toda a tela. Sem a nova interface, mostra o formulário como hoje.
-export default function JanelaFormulario({ ativa, aberta, onFechar, titulo, paciente, vazio, children }) {
+export default function JanelaFormulario({ ativa, aberta, onFechar, titulo, paciente, vazio, atendimento, categoria, children }) {
   useEffect(() => {
     if (!ativa || !aberta) return
     const esc = (e) => { if (e.key === 'Escape') onFechar() }
@@ -25,11 +27,14 @@ export default function JanelaFormulario({ ativa, aberta, onFechar, titulo, paci
     <div className="jf-fundo" onClick={onFechar}>
       <div className="jf-janela" role="dialog" aria-modal="true" aria-label={titulo} onClick={(e) => e.stopPropagation()}>
         <div className="jf-topo">
-          {paciente && <b className="jf-pac">{paciente}</b>}
-          <span className="jf-titulo">{titulo}</span>
+          {atendimento ? <FaixaPacienteJanela atendimento={atendimento} nomeFallback={paciente} /> : (paciente && <b className="jf-pac">{paciente}</b>)}
           <button type="button" className="jf-fechar" onClick={onFechar} aria-label="Fechar formulário"><i className="ph ph-x" /> Fechar</button>
         </div>
-        <div className="jf-corpo">{children}</div>
+        <div className="jf-titulo-linha"><h2>{titulo}</h2></div>
+        <div className="jf-area">
+          <div className="jf-corpo">{children}</div>
+          {atendimento && <ColunaConsulta atendimentoId={atendimento.atendimento_id} categoria={categoria} />}
+        </div>
       </div>
     </div>
   )
