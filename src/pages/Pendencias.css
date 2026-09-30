@@ -172,3 +172,9 @@
 .pd-resumo b { display: block; font-size: 20px; color: #0F2230; }
 .pd-resumo small { font-size: 11.5px; color: #5A6B7B; }
 @media (max-width: 1000px) { .pd-grade { flex-direction: column; } .pd-lado { width: 100%; position: static; } }
+/* Correção de dimensão: tela na largura toda e busca na mesma linha do título */
+.page.pd-v2 { width: 100%; max-width: none !important; margin: 0; box-sizing: border-box; }
+.pd-topo { flex-wrap: nowrap; }
+.pd-busca { flex-shrink: 0; }
+.pd-busca input { border: 0 !important; padding: 0 !important; height: auto !important; min-height: 0 !important; box-shadow: none !important; background: transparent !important; width: 100%; }
+@media (max-width: 900px) { .pd-topo { flex-wrap: wrap; } .pd-busca { width: 100%; margin-left: 0; } }
