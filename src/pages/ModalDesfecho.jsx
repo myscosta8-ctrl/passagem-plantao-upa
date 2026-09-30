@@ -49,7 +49,7 @@ export default function ModalDesfecho({ nomePaciente, numeroLeito, processando, 
 
         {(tipo === 'Transferência' || tipo === 'Óbito') && (
           <div className="field" style={{ marginBottom: tipo === 'Óbito' ? 14 : 0 }}>
-            <label>{tipo === 'Transferência' ? 'Para qual unidade/hospital' : 'Observação (opcional)'}</label>
+            <label>{tipo === 'Transferência' ? 'Hospital / unidade de destino *' : 'Observação (opcional)'}</label>
             <input
               type="text"
               style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--color-border)', borderRadius: 8 }}
@@ -110,7 +110,8 @@ export default function ModalDesfecho({ nomePaciente, numeroLeito, processando, 
           <button className="modal-btn-secondary" onClick={onCancelar}>Cancelar</button>
           <button
             className="modal-btn-primary"
-            disabled={!tipo || processando}
+            disabled={!tipo || processando || (tipo === 'Transferência' && !detalhe.trim())}
+            title={tipo === 'Transferência' && !detalhe.trim() ? 'Informe o hospital de destino' : undefined}
             onClick={confirmar}
           >
             {processando ? 'Salvando...' : 'Confirmar'}

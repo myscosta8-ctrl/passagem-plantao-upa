@@ -72,7 +72,9 @@ export default function AltasRecentes({ onVoltar }) {
         nome: a.pessoas?.nome || 'Não informado',
         tipo_desfecho: normalizarDesfecho(internacao.desfecho_tipo),
         data_desfecho: a.encerrado_em || internacao.encerrado_em,
-        diagnostico: internacao.desfecho_obs || internacao.resumo_alta || internacao.diagnostico_admissao || a.queixa_principal || '—',
+        // Transferência: desfecho_obs guarda o hospital de destino informado no desfecho.
+        destino: normalizarDesfecho(internacao.desfecho_tipo) === 'Transferência' ? (internacao.desfecho_obs || '') : '',
+        diagnostico: (normalizarDesfecho(internacao.desfecho_tipo) === 'Transferência' ? null : internacao.desfecho_obs) || internacao.resumo_alta || internacao.diagnostico_admissao || a.queixa_principal || '—',
         leito_info: leito ? `Leito ${leito.numero} – ${leito.setores?.nome || ''}` : 'Observação',
         prontuario: numeroLimpo(a.pessoas?.prontuario_numero),
       }
@@ -265,6 +267,11 @@ export default function AltasRecentes({ onVoltar }) {
                     <span className="badge" style={{ background: cor.bg, color: cor.txt, fontWeight: 700, fontSize: 11, padding: '3px 10px', borderRadius: 20 }}>
                       {d.tipo_desfecho}
                     </span>
+                    {d.tipo_desfecho === 'Transferência' && (
+                      <div style={{ marginTop: 4, fontSize: 12, fontWeight: 600, color: d.destino ? '#1e40af' : 'var(--c-text-muted)' }}>
+                        <i className="ph ph-arrow-right" /> {d.destino || 'Destino não informado'}
+                      </div>
+                    )}
                   </td>
                   <td style={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--c-text-muted)', fontSize: 13 }} title={d.diagnostico}>
                     {d.diagnostico}
