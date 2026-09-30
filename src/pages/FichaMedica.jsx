@@ -51,7 +51,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
   }
 
   const abaAtivaObj = ABAS_PRINCIPAIS.find((a) => a.chave === aba);
-  const rotuloAbaAtual = abaAtivaObj ? abaAtivaObj.rotulo : 'Atendimento Médico';
+  const rotuloAbaAtual = abaAtivaObj ? (abaAtivaObj.titulo || abaAtivaObj.rotulo) : 'Atendimento Médico';
 
   // Médico só consulta documentos de enfermagem e vice-versa (também bloqueado no banco).
   const perfil = enfermeiro?.role === 'admin' ? 'admin' : (enfermeiro?.tipo || 'enfermagem');

@@ -22,9 +22,10 @@ export default function FichaMedicaHeader({ onFechar, rotuloAbaAtual, medicoNome
       </div>
       <div className="topbar-right">
         {onTrocarPilar && (
-          <button type="button" className="btn-pilar" onClick={onTrocarPilar} title="Abrir o Prontuário de Enfermagem deste paciente">
-            <i className="ph ph-stethoscope" /> Prontuário de Enfermagem
-          </button>
+          <div className="chave-pilar" role="tablist" aria-label="Prontuário">
+            <button type="button" role="tab" aria-selected={false} className={''} onClick={onTrocarPilar}><i className="ph ph-clipboard-text" /> Enfermagem</button>
+            <button type="button" role="tab" aria-selected={true} className={'on'} onClick={undefined}><i className="ph ph-user" /> Médico</button>
+          </div>
         )}
         {onAbrirHistorico && (
           <button type="button" className="btn-pilar" onClick={onAbrirHistorico} title="Consultar o histórico clínico do paciente">

@@ -126,3 +126,27 @@
 }
 /* O impresso normalmente cobre a tela inteira; dentro da janela de visualização ele fica contido nela */
 html .hc-doc-corpo .print-page { position: static; inset: auto; z-index: auto; overflow: visible; min-height: 100%; padding: 16px 0; }
+
+/* ===== Histórico (mockup 05): agrupado por dia, só exceções etiquetadas, ações ao passar o mouse ===== */
+.hc-filtros { flex-wrap: nowrap; }
+.hc-filtros .hc-busca { flex: 1; max-width: 560px; }
+.hc-ver-inv { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--c-text-secondary, #5A6B7B); cursor: pointer; white-space: nowrap; }
+.hc-ver-inv input { position: absolute; opacity: 0; pointer-events: none; }
+.hc-switch { width: 30px; height: 17px; border-radius: 9px; background: #CBD5E1; position: relative; transition: background .15s; }
+.hc-switch::after { content: ''; position: absolute; left: 2px; top: 2px; width: 13px; height: 13px; border-radius: 50%; background: #fff; transition: left .15s; }
+.hc-ver-inv input:checked + .hc-switch { background: var(--c-primary, #1B4555); }
+.hc-ver-inv input:checked + .hc-switch::after { left: 15px; }
+.hc-dia { margin: 14px 0 6px; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; color: #8595A4; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.hc-dia::after { content: ''; flex: 1; height: 1px; background: #EEF2F6; }
+.hc-solto .hc-bloco-corpo > div:first-child .hc-dia { margin-top: 4px; }
+.hc-solto .hc-item { border: 0; border-left: 0; border-radius: 9px; background: transparent; margin: 0; }
+.hc-solto .hc-item:hover { background: #F5F8FA; }
+.hc-solto .hc-item.hc-invalido { opacity: .7; }
+.hc-hora { min-width: 48px; font-size: 13.5px; color: var(--c-text-primary, #0F2230); }
+.hc-tipo { font-size: 12px; min-width: 150px; padding: 3px 9px; border-radius: 6px; background: #E6EEF1; color: var(--c-primary, #1B4555); }
+.hc-tipo.medico { background: #EEF0F5; color: #4A5873; }
+.hc-autor { font-size: 13px; color: #334155; }
+.hc-acoes-linha .hc-ic:not(.hc-sempre) { visibility: hidden; }
+.hc-item:hover .hc-acoes-linha .hc-ic, .hc-item:focus-within .hc-acoes-linha .hc-ic { visibility: visible; }
+@media (hover: none) { .hc-acoes-linha .hc-ic:not(.hc-sempre) { visibility: visible; } }
+@media (max-width: 800px) { .hc-filtros { flex-wrap: wrap; } }
