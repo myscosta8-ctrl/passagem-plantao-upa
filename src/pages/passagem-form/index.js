@@ -1,6 +1,5 @@
 export * from './constantes'
 export { default as SimNao } from './SimNao'
-export { default as SecaoIdentificacao } from './SecaoIdentificacao'
 export { default as SecaoAssistencia } from './SecaoAssistencia'
 export { default as SecaoTransferencia } from './SecaoTransferencia'
 export { default as SecaoPendencias } from './SecaoPendencias'
