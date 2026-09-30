@@ -91,7 +91,7 @@ export async function listarRegistrosClinicos(atendimentoIds) {
     const porId = Object.fromEntries((profs ?? []).map((p) => [p.id, p]))
     itens.forEach((i) => { i.autor = porId[i.autorId] || null })
   }
-  return itens.sort((a, b) => new Date(a.data) - new Date(b.data))
+  return itens.sort((a, b) => new Date(b.data) - new Date(a.data)) // mais recente primeiro
 }
 
 // Trilha de alterações de um registro (quem alterou, quando e o que estava escrito).

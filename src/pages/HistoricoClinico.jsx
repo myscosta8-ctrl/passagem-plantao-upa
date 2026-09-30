@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes, buscarRegistroCompleto } from '../lib/historicoClinico'
 import { invalidarRegistro } from '../lib/documentos'
 import { useAuth } from '../lib/AuthContext'
+import { definirDuplicacao } from '../lib/duplicarPendente'
 import './HistoricoClinico.css'
 
 const FichaMedicaPrint = lazy(() => import('./FichaMedicaPrint'))
@@ -18,7 +19,7 @@ const fmtValor = (v) => (v === null || v === undefined || v === '' ? '—' : typ
 
 const tipoImpresso = (fonte, registro) => (typeof fonte.impresso === 'function' ? fonte.impresso(registro) : fonte.impresso)
 
-function Linha({ item, onImprimir, meuId, onAlterado }) {
+function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar }) {
   const [aberto, setAberto] = useState(false)
   const [invalidando, setInvalidando] = useState(false)
   const [motivo, setMotivo] = useState('')
@@ -43,6 +44,11 @@ function Linha({ item, onImprimir, meuId, onAlterado }) {
         <span className={`hc-tipo ${fonte.area}`}>{fonte.rotulo}</span>
         <span className={`hc-situacao ${situacao}`}>{SITUACOES[situacao] || situacao}</span>
         <span className="hc-autor">{autor ? `${autor.nome_exibicao || autor.nome}${autor.crm ? ` · CRM ${autor.crm}` : autor.coren ? ` · COREN ${autor.coren}` : ''}` : '—'}</span>
+        {onDuplicar && situacao === 'finalizado' && onDuplicar.pode(item) && (
+          <button type="button" className="hc-duplicar" title="Copiar esta evolução para uma nova (os sinais vitais não são copiados)" onClick={(e) => { e.stopPropagation(); onDuplicar.fazer(item) }}>
+            <i className="ph ph-copy" /> Duplicar
+          </button>
+        )}
         <i className={`ph ph-caret-${aberto ? 'up' : 'down'}`} />
       </div>
       <div className={`hc-resumo ${aberto ? 'aberto' : ''}`}>{item.resumo || 'Sem texto registrado.'}</div>
@@ -86,7 +92,7 @@ function Linha({ item, onImprimir, meuId, onAlterado }) {
   )
 }
 
-function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento, meuId, solto = false }) {
+function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento, meuId, solto = false, onDuplicar }) {
   const [aberto, setAberto] = useState(false)
   const [estado, setEstado] = useState({ carregando: false, itens: null, atendimentos: [] })
 
@@ -137,18 +143,18 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
                   <div className="hc-atendimento-topo">
                     <i className="ph ph-folder-simple" /> Atendimento {limpar(a.numero_atendimento)} · {fmtData(a.criado_em)}{a.encerrado_em ? ` até ${fmtData(a.encerrado_em)}` : ''}
                   </div>
-                  {doAt.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} />)}
+                  {doAt.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} onDuplicar={onDuplicar} />)}
                 </div>
               )
             })
-            : itens.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} />)}
+            : itens.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} onDuplicar={onDuplicar} />)}
         </div>
       )}
     </div>
   )
 }
 
-export default function HistoricoClinico({ atendimento, aberto, onFechar, embutido = false }) {
+export default function HistoricoClinico({ atendimento, aberto, onFechar, embutido = false, categoriaDuplicar, onDuplicado }) {
   const [busca, setBusca] = useState('')
   const [filtroArea, setFiltroArea] = useState('todos')
   const [imprimindo, setImprimindo] = useState(null)
@@ -158,6 +164,19 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
     setImprimindo({ ...item, registro: completo || item.registro })
   }
   const atendimentoId = atendimento?.atendimento_id
+  // Botão "Duplicar" nas evoluções finalizadas do atendimento atual, da mesma categoria da ficha aberta.
+  const TABELA_DUP = { enfermagem: 'evolucoes', medico: 'evolucoes_medicas' }
+  const onDuplicar = categoriaDuplicar && onDuplicado ? {
+    pode: (item) => item.fonte.tabela === TABELA_DUP[categoriaDuplicar] && item.registro.atendimento_id === atendimentoId && (categoriaDuplicar !== 'enfermagem' || item.registro.tipo !== 'medico'),
+    fazer: async (item) => {
+      const completo = await buscarRegistroCompleto(item.fonte.tabela, item.registro.id)
+      if (!completo) return
+      const quem = item.autor ? (item.autor.nome_exibicao || item.autor.nome) : '—'
+      const quando = new Date(item.data).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+      definirDuplicacao(categoriaDuplicar, completo, `Copiado da evolução de ${quando} (${quem}). Revise e atualize tudo antes de salvar — os sinais vitais não são copiados.`)
+      onDuplicado()
+    },
+  } : null
   const pessoaId = atendimento?.pessoa_id
 
   // Ao abrir um documento do histórico, só ele vai para a impressão.
@@ -196,8 +215,8 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
               ))}
             </div>
           </div>
-          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, em ordem cronológica" solto={embutido} carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} />
-          <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} agruparPorAtendimento meuId={enfermeiro?.id} />
+          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, do mais recente para o mais antigo" solto={embutido} carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} onDuplicar={onDuplicar} />
+          <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} agruparPorAtendimento meuId={enfermeiro?.id} onDuplicar={onDuplicar} />
           <p className="hc-nota">A Prescrição Médica continua no histórico da própria aba (com a opção Duplicar).</p>
         </div>
   )

@@ -5,7 +5,7 @@ import { EVOLUCAO_VAZIA } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
-import DuplicarEvolucao from '../../components/DuplicarEvolucao'
+import { retirarDuplicacao } from '../../lib/duplicarPendente'
 
 export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState(EVOLUCAO_VAZIA)
@@ -14,6 +14,17 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
   const [editandoId, setEditandoId] = useState(null)
   const rascunho = useRascunho({ tabela: 'evolucoes_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
+  // Duplicar (escolhido no Histórico Clínico): sinais vitais não são copiados.
+  useEffect(() => {
+    const d = retirarDuplicacao('medico')
+    if (!d) return undefined
+    const T = ['diagnosticos', 'historia_doenca_atual', 'comorbidades_texto', 'antibioticoterapia', 'evolucao_dia', 'exame_fisico', 'conduta_medica', 'risco_tev']
+    const t = setTimeout(() => {
+      setDados((prev) => ({ ...prev, ...Object.fromEntries(T.map((k) => [k, d.registro[k] ?? ''])), criterios_sepse: !!d.registro.criterios_sepse }))
+      setAviso(d.mensagem)
+    }, 400)
+    return () => clearTimeout(t)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const [erro, setErro] = useState('')
   const [puxandoSv, setPuxandoSv] = useState(false)
   const [svInfo, setSvInfo] = useState('')
@@ -156,13 +167,6 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
               <label style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Dia e Queixas *</label>
-              <DuplicarEvolucao categoria="medico" atendimentoId={atendimento.atendimento_id}
-              temConteudo={!!(dados.evolucao_dia?.trim() || dados.exame_fisico?.trim() || dados.diagnosticos?.trim())}
-              onEscolher={(r, msg) => {
-                const T = ['diagnosticos', 'historia_doenca_atual', 'comorbidades_texto', 'antibioticoterapia', 'evolucao_dia', 'exame_fisico', 'conduta_medica', 'risco_tev']
-                setDados((prev) => ({ ...prev, ...Object.fromEntries(T.map((k) => [k, r[k] ?? ''])), criterios_sepse: !!r.criterios_sepse }))
-                setAviso(msg)
-              }} />
             </div>
             <textarea className="form-control-area large" placeholder="Descreva o estado geral, queixas, evolução do quadro..." value={dados.evolucao_dia} onChange={(e) => set('evolucao_dia', e.target.value)} />
           </div>

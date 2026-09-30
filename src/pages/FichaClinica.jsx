@@ -19,6 +19,8 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
   const [historicoAberto, setHistoricoAberto] = useState(false);
   // Nova interface: o formulário da aba abre em janela flutuante (contas com pep_beta).
   const novaUI = enfermeiro?.pep_beta === true;
+  const [dupSeq, setDupSeq] = useState(0);
+  const aposDuplicar = () => { setHistoricoAberto(false); setAba('evolucao'); setFormAberto(true); setDupSeq((n) => n + 1); };
   const [formAberto, setFormAberto] = useState(!!abaInicial);
   const escolherAba = (a) => { setAba(a); setFormAberto(true); };
 
@@ -51,7 +53,7 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
         enfermeiroCoren={enfermeiro?.coren}
         onTrocarPilar={onTrocarPilar}
       />
-      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} />
+      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="enfermagem" onDuplicado={aposDuplicar} />
       <div className="workspace">
         <BannerPacienteEnf atendimento={atendimento} />
         {!podeCriar && (
@@ -65,8 +67,9 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
           </button>)}
         </div>
         <JanelaFormulario ativa={novaUI} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome}
-          vazio={<HistoricoClinico atendimento={atendimento} embutido />}>
+          vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="enfermagem" onDuplicado={aposDuplicar} />}>
         <FichaClinicaConteudo
+          key={dupSeq}
           atendimento={atendimento}
           autorId={enfermeiro?.id}
           aba={aba}

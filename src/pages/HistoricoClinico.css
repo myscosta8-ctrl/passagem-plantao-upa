@@ -97,3 +97,6 @@
 .hc-embutido-dica { font-size: 12px; font-weight: 500; color: var(--c-text-secondary, #5A6B7B); }
 .hc-solto { border: 0; background: transparent; }
 .hc-solto .hc-bloco-corpo { padding-top: 0; }
+.hc-duplicar { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border: 1px solid var(--c-primary-borda, #BCD2D8); border-radius: 7px; background: #fff; color: var(--c-primary, #1B4555); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.hc-duplicar:hover { background: var(--c-primary-soft, #E9F1F3); }
+.hc-duplicar + i { margin-left: 8px; }

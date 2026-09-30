@@ -4,7 +4,7 @@ import { NANDA_OPCOES, NIC_OPCOES } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
-import DuplicarEvolucao from '../../components/DuplicarEvolucao';
+import { retirarDuplicacao } from '../../lib/duplicarPendente';
 
 // Evolução do Enfermeiro (SAE) — mockups-fase2/09-evolucao-enfermagem-sae-design.html.
 // Os sinais vitais do turno são gravados em sinais_vitais e um resumo vai para
@@ -49,6 +49,13 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
   const [editandoId, setEditandoId] = useState(null);
   const rascunho = useRascunho({ tabela: 'evolucoes', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { texto: [texto, setTexto], nanda: [nanda, setNanda], nic: [nic, setNic], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAvisoRasc('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
   const [avisoRasc, setAvisoRasc] = useState('');
+  // Duplicar (escolhido no Histórico Clínico): traz texto, NANDA e NIC; sinais vitais não são copiados.
+  useEffect(() => {
+    const d = retirarDuplicacao('enfermagem');
+    if (!d) return undefined;
+    const t = setTimeout(() => { setTexto(d.registro.texto || ''); setNanda(d.registro.diagnosticos_nanda || []); setNic(d.registro.prescricao_nic || []); setAvisoRasc(d.mensagem); }, 400);
+    return () => clearTimeout(t);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [erro, setErro] = useState('');
 
   useEffect(() => { carregar(); }, []);
@@ -168,9 +175,6 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
           <div className="enf-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <label style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
-              <DuplicarEvolucao categoria="enfermagem" atendimentoId={atendimento.atendimento_id}
-              temConteudo={!!(texto.trim() || nanda.length || nic.length)}
-              onEscolher={(r, msg) => { setTexto(r.texto || ''); setNanda(r.diagnosticos_nanda || []); setNic(r.prescricao_nic || []); setAvisoRasc(msg); }} />
             </div>
             <textarea className="enf-control" rows="4" value={texto} onChange={(e) => setTexto(e.target.value)} />
           </div>
