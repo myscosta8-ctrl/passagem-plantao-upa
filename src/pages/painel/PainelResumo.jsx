@@ -3,7 +3,7 @@ import { sinaisDoLeito, FILTROS_RESUMO } from './sinaisLeito'
 
 // Faixa de resumo do plantão; cada indicador também filtra os cards.
 export default function PainelResumo({ setoresVisiveis }) {
-  const { leitos, pacientesPorLeito, passagemPorPaciente, indicadoresPorPaciente, filtroResumo, setFiltroResumo } = usePainel()
+  const { enfermeiro, leitos, pacientesPorLeito, passagemPorPaciente, indicadoresPorPaciente, filtroResumo, setFiltroResumo } = usePainel()
   const idsSetores = new Set((setoresVisiveis || []).map((s) => s.id))
   const doSetor = (leitos || []).filter((l) => idsSetores.has(l.setor_id))
   const ocupados = doSetor.filter((l) => pacientesPorLeito[l.id])
@@ -23,6 +23,30 @@ export default function PainelResumo({ setoresVisiveis }) {
     { k: 'pendencias', icone: 'ph-flask', rotulo: `${conta('pendencias')} com exames/pendências`, tom: 'neutro' },
     { k: 'conferir', icone: 'ph-hourglass', rotulo: `${conta('conferir')} passagens a conferir`, tom: 'neutro' },
   ]
+
+  if (enfermeiro?.pep_beta === true) {
+    const tiles = [
+      { k: null, icone: 'ph-bed', n: `${ocupados.length}/${doSetor.length}`, r: 'ocupados' },
+      { k: 'prescricao', icone: 'ph-prescription', n: conta('prescricao'), r: 'sem prescrição do dia', alerta: conta('prescricao') > 0 },
+      { k: 'alertas', icone: 'ph-warning', n: conta('alertas'), r: 'com alerta' },
+      { k: 'alergia', icone: 'ph-warning-circle', n: conta('alergia'), r: 'com alergia' },
+      { k: 'isolamento', icone: 'ph-virus', n: conta('isolamento'), r: 'em isolamento' },
+      { k: 'regulacao', icone: 'ph-ambulance', n: conta('regulacao'), r: 'em regulação' },
+      { k: 'pendencias', icone: 'ph-flask', n: conta('pendencias'), r: 'exames pendentes' },
+      { k: 'conferir', icone: 'ph-hourglass', n: conta('conferir'), r: 'passagens a conferir' },
+    ]
+    return (
+      <div className="pv-kpis no-print">
+        {tiles.map((t) => (
+          <button key={t.r} type="button" className={`pv-kpi ${t.alerta ? 'red' : ''} ${filtroResumo === t.k && t.k ? 'ativo' : ''}`}
+            onClick={() => setFiltroResumo(t.k && filtroResumo !== t.k ? t.k : null)} title={t.k ? 'Clique para mostrar só esses leitos' : 'Mostrar todos'}>
+            <span className="pv-k"><i className={`ph ${t.icone}`} /></span>
+            <span><b>{t.n}</b><small>{t.r}</small></span>
+          </button>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="pl-resumo no-print">

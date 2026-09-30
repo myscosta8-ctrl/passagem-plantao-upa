@@ -6,6 +6,7 @@ import { ModalInternar, PainelTabela, PainelCards, PainelControles } from './pai
 import PainelResumo from './painel/PainelResumo'
 import { PainelProvider, usePainel } from './painel/PainelContext'
 import './Painel.css'
+import './painel/PainelV2.css'
 
 const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
 
@@ -65,8 +66,20 @@ function PainelInterno({ setoresIds }) {
 
   const setoresVisiveis = setoresIds ? setores.filter((s) => setoresIds.includes(s.id)) : setores
 
+  const novaUI = enfermeiro?.pep_beta === true
+
   return (
-    <div className="workspace">
+    <div className={novaUI ? 'workspace pv-workspace' : 'workspace'}>
+      {novaUI ? (
+        <>
+          <div className="pv-barra-top">
+            <h1>{ehMedico ? 'Painel Médico' : 'Painel de Leitos'}</h1>
+            <span className="pv-sub">{ehMedico ? 'Pacientes internados e em observação' : 'Ocupação, risco e pendências do plantão'}</span>
+            <div className="pv-ctr"><PainelControles setoresVisiveis={setoresVisiveis} /></div>
+          </div>
+          <PainelResumo setoresVisiveis={setoresVisiveis} />
+        </>
+      ) : (
       <div className="painel-header">
         <div className="painel-title">
           <h1>{ehMedico ? 'Painel Médico' : 'Painel do Plantão'}</h1>
@@ -75,6 +88,7 @@ function PainelInterno({ setoresIds }) {
         <PainelResumo setoresVisiveis={setoresVisiveis} />
         <PainelControles setoresVisiveis={setoresVisiveis} />
       </div>
+      )}
 
       {erroGeral && (
         <div className="error-box" style={{ marginBottom: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -95,6 +95,56 @@ export function ordenarLeitos(a, b) {
   return an.localeCompare(bn, undefined, { numeric: true })
 }
 
+const COR_RISCO = { vermelho: '#C93A3A', laranja: '#D9722E', amarelo: '#D9A62E', verde: '#3E8E5E', azul: '#4A78B5' }
+
+function dataCurta(dataStr) {
+  if (!dataStr) return 'Não informada'
+  const d = new Date(String(dataStr).includes('T') ? dataStr : `${dataStr}T12:00:00`)
+  return Number.isNaN(d.getTime()) ? String(dataStr) : d.toLocaleDateString('pt-BR')
+}
+
+// Card da nova interface (contas pep_beta) — segue o mockup 01-painel-de-leitos.
+function CardLeitoV2({ leito, paciente, sn, classeRisco, ehMedico, abrirPassagem, onInternar, onRealocar, onDesfecho }) {
+  const internado = paciente.status_internacao === 'Internado'
+  const outrosAlertas = sn.alertas.filter((a) => !/Prescri/.test(a.texto))
+  return (
+    <article className="pv-card" style={{ '--pv-risco': COR_RISCO[classeRisco] || '#D9A62E' }} onClick={() => abrirPassagem(paciente, leito)}>
+      <div className="pv-top">
+        <span className="pv-leito"><i className="ph ph-bed" /> Leito {formatarNumeroLeito(leito.numero)}</span>
+        <span className={'pv-st ' + (internado ? 'int' : 'obs')}>● {internado ? 'INTERNADO' : 'EM OBSERVAÇÃO'}</span>
+        {sn.permanencia && <span className="pv-perm" title="Tempo de permanência"><i className="ph ph-clock" /> {sn.permanencia}</span>}
+      </div>
+      <div className="pv-nome">{formatarNomePaciente(paciente.nome)}</div>
+      <div className="pv-meta"><i className="ph ph-user" /> {paciente.idade ? `${paciente.idade} anos` : 'Adulto'} · {paciente.sexo === 'F' ? 'Fem' : 'Masc'}</div>
+      <div className="pv-hd"><b>HD:</b> {paciente.diagnostico || 'Não registrado'}</div>
+      <div className="pv-hd"><b>Entrada:</b> {dataCurta(paciente.data_admissao)}</div>
+      <div className="pv-sin">
+        {sn.prescricao.nivel !== 'ok' && <span className={'pv-s ' + (sn.prescricao.nivel === 'vencida' ? 'red' : 'warn')}><i className="ph ph-prescription" /> {sn.prescricao.texto}</span>}
+        <span className={'pv-s ' + (sn.conferida ? 'ok' : '')}><i className={'ph ' + (sn.conferida ? 'ph-check' : 'ph-hourglass')} /> {sn.conferida ? 'Passagem conferida' : 'Passagem a conferir'}</span>
+        {sn.alergia && <span className="pv-s al"><i className="ph ph-warning" /> Alergia: {sn.alergia}</span>}
+        {sn.isolamento && <span className="pv-s iso"><i className="ph ph-virus" /> {sn.isolamento}</span>}
+        {sn.regulacao && <span className="pv-s blue"><i className="ph ph-ambulance" /> Regulação</span>}
+        {sn.exames > 0 && <span className="pv-s blue"><i className="ph ph-flask" /> {sn.exames} exame{sn.exames > 1 ? 's' : ''} pendente{sn.exames > 1 ? 's' : ''}</span>}
+        {sn.sorologias > 0 && <span className="pv-s blue"><i className="ph ph-test-tube" /> {sn.sorologias} sorologia(s)</span>}
+        {sn.hemo > 0 && <span className="pv-s blue"><i className="ph ph-drop" /> {sn.hemo} hemocomponente(s)</span>}
+        {sn.dispositivos.length > 0 && <span className="pv-s"><i className="ph ph-first-aid" /> {sn.dispositivos.map((d) => (d === 'AVP' && sn.avpDia ? `AVP D${sn.avpDia}` : d)).join(', ')}</span>}
+        {outrosAlertas.map((a) => <span key={a.texto} className={'pv-s ' + (a.nivel === 'critico' ? 'red' : a.nivel === 'atencao' ? 'warn' : '')}><i className={'ph ' + a.icone} /> {a.texto}</span>)}
+      </div>
+      <div className="pv-foot no-print" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="pv-pr" onClick={() => abrirPassagem(paciente, leito)}><i className="ph ph-folder" /> Prontuário</button>
+        <button type="button" className="pv-ev" onClick={() => abrirPassagem(paciente, leito, 'evolucao')}><i className="ph ph-pencil-simple" /> Evoluir</button>
+        {!ehMedico && (
+          <span className="pv-icones">
+            {!internado && <button type="button" className="pv-ic" title="Sinalizar internação" onClick={onInternar}><i className="ph ph-bed" /></button>}
+            <button type="button" className="pv-ic" title="Realocar / Transferir" onClick={onRealocar}><i className="ph ph-arrows-left-right" /></button>
+            <button type="button" className="pv-ic red" title="Sinalizar desfecho" onClick={onDesfecho}><i className="ph ph-sign-out" /></button>
+          </span>
+        )}
+      </div>
+    </article>
+  )
+}
+
 export default function PainelCards({ setoresVisiveis }) {
   const {
     leitos,
@@ -176,8 +226,8 @@ export default function PainelCards({ setoresVisiveis }) {
           const colorPerc = perc > 90 ? 'var(--color-danger)' : perc > 70 ? 'var(--color-warning)' : 'var(--color-success)'
 
           return (
-            <section key={setor.id} className={cx('setor-section')}>
-              <header className={cx('setor-header')}>
+            <section key={setor.id} className={novaUI ? 'pv-setor' : cx('setor-section')}>
+              <header className={novaUI ? 'pv-setor-head' : cx('setor-header')}>
                 <h2>{formatarNomeSetor(setor.nome)}</h2>
                 <div className={cx('setor-stats')}>
                   <span className={cx('ocupacao-text')} style={{ color: colorPerc }}>
@@ -197,12 +247,30 @@ export default function PainelCards({ setoresVisiveis }) {
                 </div>
               </header>
 
-              <div className={cx('leitos-grid')}>
+              <div className={novaUI ? 'pv-grid' : cx('leitos-grid')}>
                 {leitosDoSetor.map((leito) => {
                   const paciente = pacientesPorLeito[leito.id]
                   const classeRisco = paciente ? obterClasseRisco(paciente.classificacao_manchester, setor.nome) : ''
                   const sn = paciente ? sinaisDoLeito(paciente, passagemPorPaciente[paciente.id], indicadoresPorPaciente[paciente.id]) : null
 
+                  if (novaUI && paciente) {
+                    return (
+                      <CardLeitoV2 key={leito.id} leito={leito} paciente={paciente} sn={sn} classeRisco={classeRisco} ehMedico={ehMedico}
+                        abrirPassagem={abrirPassagem}
+                        onInternar={() => setConfirmarInternacao({ paciente, leito })}
+                        onRealocar={() => setModalRealocar({ paciente, leitoOrigem: leito })}
+                        onDesfecho={() => setModalDesfecho({ paciente, leitoOrigem: leito })} />
+                    )
+                  }
+                  if (novaUI) {
+                    return (
+                      <article key={leito.id} className="pv-card pv-vazio" onClick={() => { if (!ehMedico) setModalLeito(leito) }} style={ehMedico ? { cursor: 'default' } : undefined}>
+                        {!ehMedico && <i className="ph ph-plus pv-plus" />}
+                        <b>Leito {formatarNumeroLeito(leito.numero)}</b>
+                        <span>{ehMedico ? 'Livre' : 'Livre · Clique p/ Internar'}</span>
+                      </article>
+                    )
+                  }
                   return paciente ? (
                     <div
                       key={leito.id}
@@ -280,11 +348,6 @@ export default function PainelCards({ setoresVisiveis }) {
                         <button type="button" className={cx('btn-footer', 'action-btn')} onClick={() => abrirPassagem(paciente, leito)}>
                           <i className={cx('ph', 'ph-folder-open')} /> Prontuário
                         </button>
-                        {novaUI && (
-                          <button type="button" className="pl-btn-evoluir" onClick={() => abrirPassagem(paciente, leito, 'evolucao')} title="Abrir direto a evolução do paciente">
-                            <i className="ph ph-pencil-simple" /> Evoluir
-                          </button>
-                        )}
 
                         {!ehMedico && <div className={cx('footer-actions-right')}>
                           {paciente.status_internacao !== 'Internado' && (
