@@ -60,3 +60,11 @@
 .pv-kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 @media (max-width: 1100px) { .pv-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .pv-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Ajuste: título na fonte do sistema; indicadores compactos em uma linha (ícone · número · nome) */
+.pv-barra-top h1 { font-family: inherit; font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+.pv-kpi { padding: 6px 10px; gap: 8px; min-height: 0; }
+.pv-kpi > span:last-child { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.pv-k { width: 26px; height: 26px; font-size: 14px; border-radius: 7px; }
+.pv-kpi b { display: inline; font-size: 17px; line-height: 1; }
+.pv-kpi small { font-size: 12px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
