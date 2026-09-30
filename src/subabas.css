@@ -1,0 +1,26 @@
+/* ===== Padrão único de SUB-ABAS (todas as telas) =====
+   Título do cartão em cima; as opções numa faixa única logo abaixo, com a
+   opção aberta em destaque branco. Vale para: Evoluções Médicas, Prescrição/ATM,
+   Documentos de Alta, Escalas e Protocolos, Exames (Laboratório/Imagem/ECG/APAC),
+   Admissão de Enfermagem, Transferência Externa e Cadastro de Pacientes. */
+html .cc-header:has(> .doc-subtabs), html .cc-header:has(.doc-subtabs) {
+  flex-direction: column !important; align-items: stretch !important; gap: 12px !important; flex-wrap: nowrap !important;
+}
+html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) {
+  display: flex !important; flex-wrap: nowrap !important; gap: 4px !important; padding: 4px !important; margin: 0 !important;
+  background: #E9EEF3 !important; border: 0 !important; border-radius: 10px !important; overflow-x: auto; width: 100%; box-sizing: border-box;
+}
+html .modality-nav { margin: 0 0 14px !important; }
+html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) > button {
+  flex: 1 1 0 !important; min-width: max-content; height: 38px !important; padding: 0 14px !important; margin: 0 !important;
+  display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important;
+  border: 0 !important; border-radius: 8px !important; background: transparent !important; box-shadow: none !important;
+  color: var(--c-text-secondary, #5A6B7B) !important; font: inherit; font-size: 13px !important; font-weight: 600 !important;
+  white-space: nowrap; cursor: pointer; outline: none;
+}
+html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) > button:hover { background: rgba(255, 255, 255, .7) !important; color: var(--c-text-primary, #0F2230) !important; }
+html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) > button:is(.active, .ativa, .on) {
+  background: #fff !important; color: var(--c-primary, #1B4555) !important; box-shadow: 0 1px 3px rgba(15, 34, 48, .12) !important;
+}
+html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) > button::after { display: none !important; }
+html .doc-subtabs > button.highlight-pulse { outline: 2px solid #D9A62E !important; }
