@@ -62,12 +62,12 @@ export default {
     {
       titulo: 'Antecedentes epidemiológicos',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 56.9, [69.4, 84.7, 98.6, 111.4, 125.8, 140.6, 155.5], 163.4, 331, 12), { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 56.9, [69.4, 84.7, 98.6, 111.4, 125.8, 140.6, 155.5], 163.4, 331, 12), {}),
         txt('32', 'ocupacao', 'Ocupação', { p: 0, x: 175, y: 332, w: 385, h: 10 }, { larg: 9 }),
         sni('33', 'epizootias', 'Investigação entomológica/epizootias: ocorrência de epizootias (mortandade de macacos)', cx(0, 189.8, 296.6, 15.8, 15.4), { larg: 6 }),
         sni('33', 'isolamento_mosquitos', 'Investigação entomológica: isolamento de vírus em mosquitos', cx(0, 190.1, 280.1, 15.6, 14.4), { larg: 6 }),
         sni('33', 'aedes_urbano', 'Presença de mosquito Aedes aegypti em área urbana (observar período de viremia do paciente)', cx(0, 190.1, 263.5, 15.6, 14.4), { larg: 6 }),
-        sni('34', 'vacinado', 'Vacinado contra febre amarela', cx(0, 376.8, 239.0, 12.7, 12.7), { larg: 4, obrig: true }),
+        sni('34', 'vacinado', 'Vacinado contra febre amarela', cx(0, 376.8, 239.0, 12.7, 12.7), { larg: 4 }),
         data('35', 'data_vacina', 'Caso afirmativo: data da vacinação', dataCel(0, 413.3, [425.8, 440.4, 454.8, 468.7, 483.6, 498.5, 513.4], 526.6, 232.3, 11), { quando: sim('vacinado') }),
         { n: '36', chave: 'uf_vacina', rotulo: 'UF da vacinação', tipo: 'uf', caixa: { p: 0, x: 534, y: 232.3, w: 27, h: 10 }, larg: 1, quando: sim('vacinado') },
         txt('37', 'municipio_vacina', 'Município da vacinação', { p: 0, x: 52, y: 206, w: 165, h: 9 }, { fonte: 7.5, quando: sim('vacinado') }),
@@ -79,10 +79,10 @@ export default {
     {
       titulo: 'Dados clínicos e atendimento',
       campos: [
-        sni('39', 'sinal_dor_abdominal', 'Dor abdominal', cx(0, 61.4, 175.2, 10.8, 12.2), { obrig: true }),
-        sni('39', 'sinal_faget', 'Sinal de Faget (temperatura alta e frequência cardíaca lenta)', cx(0, 62.2, 155.8, 10.8, 11), { obrig: true }),
-        sni('39', 'sinal_hemorragicos', 'Sinais hemorrágicos (hematêmese, melena, epistaxe, gengivorragia etc.)', cx(0, 313.0, 179.8), { obrig: true }),
-        sni('39', 'sinal_renal', 'Distúrbios de excreção renal (oligúria e/ou anúria)', cx(0, 313.0, 158.6), { obrig: true }),
+        sni('39', 'sinal_dor_abdominal', 'Dor abdominal', cx(0, 61.4, 175.2, 10.8, 12.2), {}),
+        sni('39', 'sinal_faget', 'Sinal de Faget (temperatura alta e frequência cardíaca lenta)', cx(0, 62.2, 155.8, 10.8, 11), {}),
+        sni('39', 'sinal_hemorragicos', 'Sinais hemorrágicos (hematêmese, melena, epistaxe, gengivorragia etc.)', cx(0, 313.0, 179.8), {}),
+        sni('39', 'sinal_renal', 'Distúrbios de excreção renal (oligúria e/ou anúria)', cx(0, 313.0, 158.6), {}),
         sni('40', 'hospitalizacao', 'Ocorreu hospitalização?', cx(0, 383.5, 135.1, 10.8, 10.8)),
         data('41', 'data_internacao', 'Data da internação', dataCel(0, 414.5, [427.0, 441.6, 456.0, 469.9, 484.8, 499.7, 514.6], 526.6, 123.6, 12), { quando: sim('hospitalizacao') }),
         { n: '42', chave: 'uf_hospital', rotulo: 'UF', tipo: 'uf', caixa: { p: 0, x: 535, y: 123.6, w: 27, h: 10 }, larg: 1, quando: sim('hospitalizacao') },

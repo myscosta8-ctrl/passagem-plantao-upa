@@ -54,17 +54,17 @@ export default {
     {
       titulo: 'Agravo',
       campos: [
-        txt('2', 'agravo', 'Agravo/doença', { p: 0, x: 70, y: 727, w: 300, h: 11 }, { larg: 8, obrig: true }),
-        txt('2', 'cid', 'Código (CID-10)', { p: 0, x: 378, y: 727, w: 54, h: 11 }, { larg: 2, obrig: true }),
+        txt('2', 'agravo', 'Agravo/doença', { p: 0, x: 70, y: 727, w: 300, h: 11 }, { larg: 8 }),
+        txt('2', 'cid', 'Código (CID-10)', { p: 0, x: 378, y: 727, w: 54, h: 11 }, { larg: 2 }),
       ],
     },
     ...cabecalhoInvestigacao(g),
     {
       titulo: 'Conclusão',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 58.4, [70.5, 86.1, 99.3, 114.4, 128.1, 142.5, 156.9], 169.8, 363.4, 12), { obrig: true }),
-        cod('32', 'classificacao_final', 'Classificação final', [['1', 'Confirmado'], ['2', 'Descartado']], cx(0, 300.0, 381.1, 11, 10.8), { obrig: true }),
-        cod('33', 'criterio', 'Critério de confirmação/descarte', [['1', 'Laboratorial'], ['2', 'Clínico-epidemiológico']], cx(0, 534.7, 379.2, 11, 10.8), { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 58.4, [70.5, 86.1, 99.3, 114.4, 128.1, 142.5, 156.9], 169.8, 363.4, 12), {}),
+        cod('32', 'classificacao_final', 'Classificação final', [['1', 'Confirmado'], ['2', 'Descartado']], cx(0, 300.0, 381.1, 11, 10.8), {}),
+        cod('33', 'criterio', 'Critério de confirmação/descarte', [['1', 'Laboratorial'], ['2', 'Clínico-epidemiológico']], cx(0, 534.7, 379.2, 11, 10.8), {}),
         cod('34', 'autoctone', 'O caso é autóctone do município de residência?', [['1', 'Sim'], ['2', 'Não'], ['3', 'Indeterminado']], cx(0, 301.9, 333.1, 10.8, 11), { larg: 4, quando: (d) => d.classificacao_final === '1' }),
         { n: '35', chave: 'uf_infeccao', rotulo: 'UF', tipo: 'uf', caixa: { p: 0, x: 341.4, y: 322.4, w: 26.9, h: 9.1 }, larg: 1, quando: naoAut },
         txt('36', 'pais_infeccao', 'País', { p: 0, x: 378, y: 323, w: 185, h: 10 }, { quando: naoAut }),
@@ -73,9 +73,9 @@ export default {
         txt('38', 'distrito_infeccao', 'Distrito', { p: 0, x: 298, y: 293, w: 140, h: 10 }, { quando: naoAut }),
         txt('39', 'bairro_infeccao', 'Bairro', { p: 0, x: 442, y: 293, w: 122, h: 10 }, { quando: naoAut }),
         cod('40', 'doenca_trabalho', 'Doença relacionada ao trabalho', SIM_NAO_IGN, cx(0, 177.6, 268.3, 11, 10.8)),
-        cod('41', 'evolucao', 'Evolução do caso', [['1', 'Cura'], ['2', 'Óbito pelo agravo notificado'], ['3', 'Óbito por outras causas'], ['9', 'Ignorado']], cx(0, 548.6, 276.2), { larg: 4, obrig: true }),
+        cod('41', 'evolucao', 'Evolução do caso', [['1', 'Cura'], ['2', 'Óbito pelo agravo notificado'], ['3', 'Óbito por outras causas'], ['9', 'Ignorado']], cx(0, 548.6, 276.2), { larg: 4 }),
         data('42', 'data_obito', 'Data do óbito', dataCel(0, 59.4, [71.5, 86.4, 99.7, 114.7, 128.4, 142.9, 157.3], 172.0, 238.1, 12), { quando: (d) => ['2', '3'].includes(d.evolucao) }),
-        data('43', 'data_encerramento', 'Data do encerramento', dataCel(0, 183.0, [195.0, 210.0, 223.3, 238.4, 252.1, 266.6, 281.0], 295.6, 238.1, 12), { obrig: true }),
+        data('43', 'data_encerramento', 'Data do encerramento', dataCel(0, 183.0, [195.0, 210.0, 223.3, 238.4, 252.1, 266.6, 281.0], 295.6, 238.1, 12), {}),
       ],
     },
     {

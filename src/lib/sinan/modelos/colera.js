@@ -71,9 +71,9 @@ export default {
     {
       titulo: 'Antecedentes epidemiológicos',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 63.0, [75.0, 90.6, 103.9, 118.9, 132.7, 147.1, 161.5], 174.4, 298.9, 11.9), { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 63.0, [75.0, 90.6, 103.9, 118.9, 132.7, 147.1, 161.5], 174.4, 298.9, 11.9), {}),
         txt('32', 'ocupacao', 'Ocupação', { p: 0, x: 185, y: 300, w: 375, h: 10 }, { larg: 9 }),
-        cod('33', 'contato', 'Contato com caso suspeito ou confirmado de cólera (até 10 dias antes do início dos sinais e sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outro estado/município'], ['7', 'Outros'], ['8', 'Sem história de contato'], ['9', 'Ignorado']], cx(0, 551.3, 282.5, 10.8, 11), { larg: 6, obrig: true }),
+        cod('33', 'contato', 'Contato com caso suspeito ou confirmado de cólera (até 10 dias antes do início dos sinais e sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outro estado/município'], ['7', 'Outros'], ['8', 'Sem história de contato'], ['9', 'Ignorado']], cx(0, 551.3, 282.5, 10.8, 11), { larg: 6 }),
         txt('33', 'contato_outro', 'Outro local de contato (qual?)', { p: 0, x: 228, y: 270, w: 118, h: 8 }, { fonte: 7, larg: 4, quando: (d) => d.contato === '7' }),
         txt('34', 'contato_nome', 'Nome do contato', { p: 0, x: 66, y: 242, w: 380, h: 10 }, { larg: 6, quando: comContato }),
         { n: '35', chave: 'contato_fone', rotulo: '(DDD) Telefone do contato', tipo: 'digitos', digitos: 10, celulas: cel([460.7, 469.8, 481.2, 493.1, 502.2, 513.7, 525.1, 536.6, 548.1, 559.5, 568.8]), caixa: { p: 0, x: 460.7, y: 237.3, w: 108.1, h: 11.9 }, larg: 3, quando: comContato },
@@ -85,13 +85,13 @@ export default {
     {
       titulo: 'Dados clínicos',
       campos: [
-        sni('38', 'sinal_assintomatico', 'Assintomático', cx(0, 73.0, 147.1, 10.8, 11), { obrig: true }),
-        sni('38', 'sinal_diarreia', 'Diarreia', cx(0, 72.7, 134.4), { obrig: true }),
-        sni('38', 'sinal_vomitos', 'Vômitos', cx(0, 73.4, 120.5, 10.8, 11), { obrig: true }),
-        sni('38', 'sinal_caimbras', 'Câimbras', cx(0, 158.4, 134.9, 10.8, 11), { obrig: true }),
-        sni('38', 'sinal_dor_abdominal', 'Dor abdominal', cx(0, 158.4, 120.2), { obrig: true }),
-        sni('38', 'sinal_febre', 'Febre', cx(0, 234.5, 134.2, 11, 10.8), { obrig: true }),
-        sni('38', 'sinal_choque', 'Choque', cx(0, 234.5, 119.5), { obrig: true }),
+        sni('38', 'sinal_assintomatico', 'Assintomático', cx(0, 73.0, 147.1, 10.8, 11), {}),
+        sni('38', 'sinal_diarreia', 'Diarreia', cx(0, 72.7, 134.4), {}),
+        sni('38', 'sinal_vomitos', 'Vômitos', cx(0, 73.4, 120.5, 10.8, 11), {}),
+        sni('38', 'sinal_caimbras', 'Câimbras', cx(0, 158.4, 134.9, 10.8, 11), {}),
+        sni('38', 'sinal_dor_abdominal', 'Dor abdominal', cx(0, 158.4, 120.2), {}),
+        sni('38', 'sinal_febre', 'Febre', cx(0, 234.5, 134.2, 11, 10.8), {}),
+        sni('38', 'sinal_choque', 'Choque', cx(0, 234.5, 119.5), {}),
         cod('39', 'desidratacao', 'Desidratação', [['1', 'Não'], ['2', 'Algum grau'], ['3', 'Grave'], ['9', 'Ignorado']], cx(0, 411.8, 157.4)),
         cod('40', 'diarreia_caracteristica', 'Característica da diarreia', [['1', 'Aquosa/amarelada'], ['2', 'Aquosa/água de arroz'], ['3', 'Pastosa'], ['9', 'Ignorado']], cx(0, 555.1, 156.0, 11, 10.8), { quando: sim('sinal_diarreia') }),
         cod('41', 'frequencia_dia', 'Frequência/dia', [['1', 'Até 5 evacuações'], ['2', 'De 6 a 10 evacuações'], ['3', 'De 11 a 20 evacuações'], ['4', 'Acima de 20 evacuações']], cx(0, 212.9, 98.2, 11, 10.8), { quando: sim('sinal_diarreia') }),

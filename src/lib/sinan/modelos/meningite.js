@@ -57,7 +57,7 @@ const VACINAS = [
 ].flatMap(([k, r, b, dz, dt]) => {
   const vac = (d) => d[`vac_${k}`] === '1'
   return [
-    sni('33', `vac_${k}`, `Vacinação: ${r}`, cx(0, b[0], b[1]), { obrig: true }),
+    sni('33', `vac_${k}`, `Vacinação: ${r}`, cx(0, b[0], b[1]), {}),
     ...(dz ? [{ n: '33', chave: `vac_${k}_doses`, rotulo: `${r}: nº de doses`, tipo: 'digitos', digitos: 2, caixa: { p: 0, x: dz[0], y: dz[1], w: 27, h: 12.1 }, larg: 2, quando: vac }] : []),
     data('33', `vac_${k}_data`, `${r}: data da última dose`, { p: 0, x: dt[0], y: dt[1], w: 115.2, h: 11.9 }, { quando: vac }),
   ]
@@ -88,20 +88,20 @@ export default {
     return { ...dados, agravo_codigo: dados.agravo_codigo || (c.startsWith('A39') ? '1' : /^(G0[0-3]|A17\.?0|A87)/.test(c) ? '2' : '') }
   },
   secoes: [
-    { titulo: 'Agravo', campos: [cod('2', 'agravo_codigo', 'Agravo/doença', [['1', 'Doença meningocócica'], ['2', 'Outras meningites']], cx(0, 357.8, 696.5), { larg: 4, obrig: true })] },
+    { titulo: 'Agravo', campos: [cod('2', 'agravo_codigo', 'Agravo/doença', [['1', 'Doença meningocócica'], ['2', 'Outras meningites']], cx(0, 357.8, 696.5), { larg: 4 })] },
     ...cabecalhoInvestigacao(g),
     {
       titulo: 'Antecedentes epidemiológicos',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', { p: 0, x: 62.2, y: 325.4, w: 106.3, h: 11.9 }, { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', { p: 0, x: 62.2, y: 325.4, w: 106.3, h: 11.9 }, {}),
         txt('32', 'ocupacao', 'Ocupação', { p: 0, x: 192, y: 327, w: 373, h: 10 }, { larg: 9 }),
         ...VACINAS,
         txt('33', 'vac_outra_espec', 'Outra vacina (especificar)', { p: 0, x: 385, y: 236, w: 55, h: 7 }, { fonte: 6, quando: (d) => d.vac_outra === '1' }),
         ...[['aids', 'AIDS/HIV+', 76.8, 196.6], ['traumatismo', 'Traumatismo', 77.5, 182.4], ['imunodepressoras', 'Outras doenças imunodepressoras', 163.2, 198.0], ['infeccao_hospitalar', 'Infecção hospitalar', 163.9, 180.7],
           ['ira', 'IRA', 331.2, 195.8], ['outro', 'Outro', 283.9, 182.4], ['tuberculose', 'Tuberculose', 400.1, 196.6]]
-          .map(([k, r, x, y]) => sni('34', `doenca_${k}`, `Doença pré-existente: ${r}`, cx(0, x, y), { obrig: true })),
+          .map(([k, r, x, y]) => sni('34', `doenca_${k}`, `Doença pré-existente: ${r}`, cx(0, x, y), {})),
         txt('34', 'doenca_outro_espec', 'Outra doença pré-existente (especificar)', { p: 0, x: 300, y: 182, w: 150, h: 7 }, { fonte: 6.5, quando: (d) => d.doenca_outro === '1' }),
-        cod('35', 'contato_caso', 'Contato com caso suspeito ou confirmado (até 15 dias antes do início dos sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outro estado/município'], ['7', 'Sem história de contato'], ['8', 'Outro país'], ['9', 'Ignorado']], cx(0, 552.7, 156.7), { larg: 5, obrig: true }),
+        cod('35', 'contato_caso', 'Contato com caso suspeito ou confirmado (até 15 dias antes do início dos sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outro estado/município'], ['7', 'Sem história de contato'], ['8', 'Outro país'], ['9', 'Ignorado']], cx(0, 552.7, 156.7), { larg: 5 }),
         txt('36', 'contato_nome', 'Nome do contato', { p: 0, x: 66, y: 112, w: 370, h: 10 }, { larg: 6, quando: (d) => d.contato_caso && !['7', '9'].includes(d.contato_caso) }),
         { n: '37', chave: 'contato_telefone', rotulo: '(DDD) Telefone do contato', tipo: 'digitos', digitos: 10, caixa: { p: 0, x: 438, y: 109, w: 128, h: 9 }, larg: 3, quando: (d) => d.contato_caso && !['7', '9'].includes(d.contato_caso) },
         txt('38', 'contato_endereco', 'Endereço do contato (rua, av., apto., bairro, localidade etc.)', { p: 0, x: 66, y: 87, w: 375, h: 10 }, { larg: 9, quando: (d) => d.contato_caso && !['7', '9'].includes(d.contato_caso) }),
@@ -113,14 +113,14 @@ export default {
       campos: [
         ...[['cefaleia', 'Cefaleia', 177.1, 70.3], ['febre', 'Febre', 177.1, 55.7], ['vomitos', 'Vômitos', 223.9, 70.8], ['convulsoes', 'Convulsões', 223.9, 56.2], ['rigidez_nuca', 'Rigidez de nuca', 278.9, 70.8],
           ['kernig', 'Kernig/Brudzinski', 278.9, 56.2], ['abaulamento', 'Abaulamento de fontanela', 358.1, 70.3], ['coma', 'Coma', 358.1, 55.7], ['petequias', 'Petéquias/sufusões hemorrágicas', 423.4, 70.3], ['outros', 'Outros', 423.4, 55.7]]
-          .map(([k, r, x, y]) => sni('40', `sinal_${k}`, `Sinal/sintoma: ${r}`, cx(0, x, y), { obrig: true })),
+          .map(([k, r, x, y]) => sni('40', `sinal_${k}`, `Sinal/sintoma: ${r}`, cx(0, x, y), {})),
         txt('40', 'sinal_outros_espec', 'Outros sinais (especificar)', { p: 0, x: 470, y: 57, w: 95, h: 7 }, { fonte: 6.5, quando: (d) => d.sinal_outros === '1' }),
       ],
     },
     {
       titulo: 'Atendimento',
       campos: [
-        sni('41', 'hospitalizacao', 'Ocorreu hospitalização', cx(1, 151.9, 792.5), { obrig: true }),
+        sni('41', 'hospitalizacao', 'Ocorreu hospitalização', cx(1, 151.9, 792.5), {}),
         data('42', 'data_hospitalizacao', 'Data da internação', { p: 1, x: 175.1, y: 782.4, w: 115.2, h: 8.9 }, { quando: hosp }),
         { n: '43', chave: 'uf_hospital', rotulo: 'UF', tipo: 'uf', caixa: { p: 1, x: 295, y: 780, w: 27, h: 9 }, larg: 1, quando: hosp },
         txt('44', 'municipio_hospital', 'Município do hospital', { p: 1, x: 340, y: 781, w: 130, h: 9 }, { fonte: 7.5, quando: hosp }),
@@ -132,7 +132,7 @@ export default {
     {
       titulo: 'Dados do laboratório',
       campos: [
-        sni('46', 'puncao_lombar', 'Punção lombar', cx(1, 155.8, 735.4), { obrig: true }),
+        sni('46', 'puncao_lombar', 'Punção lombar', cx(1, 155.8, 735.4), {}),
         data('47', 'data_puncao', 'Data da punção', { p: 1, x: 177.9, y: 723.3, w: 105.7, h: 11.9 }, { quando: (d) => d.puncao_lombar === '1' }),
         cod('48', 'aspecto_liquor', 'Aspecto do líquor', [['1', 'Límpido'], ['2', 'Purulento'], ['3', 'Hemorrágico'], ['4', 'Turvo'], ['5', 'Xantocrômico'], ['6', 'Outro'], ['9', 'Ignorado']], cx(1, 548.4, 736.6), { quando: (d) => d.puncao_lombar === '1' }),
         ...LAB,

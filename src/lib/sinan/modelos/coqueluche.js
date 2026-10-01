@@ -60,14 +60,14 @@ export default {
     {
       titulo: 'Antecedentes epidemiológicos',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 60.2, [74.2, 90.1, 103.3, 116.6, 130.3, 144.8, 159.3], 173.7, 296, 11), { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 60.2, [74.2, 90.1, 103.3, 116.6, 130.3, 144.8, 159.3], 173.7, 296, 11), {}),
         { n: '32', chave: 'ocupacao', rotulo: 'Ocupação', tipo: 'texto', caixa: { p: 0, x: 180, y: 297, w: 230, h: 10 }, larg: 5 },
         sni('33', 'unidade_sentinela', 'A unidade notificante é sentinela?', cx(0, 552.5, 308.2), { larg: 4 }),
-        cod('34', 'contato', 'Contato com caso suspeito ou confirmado de coqueluche (até 14 dias antes do início dos sinais e sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outro estado/município'], ['7', 'Outro'], ['8', 'Sem história de contato'], ['9', 'Ignorado']], cx(0, 552.2, 284.2, 11, 10.8), { larg: 6, obrig: true }),
+        cod('34', 'contato', 'Contato com caso suspeito ou confirmado de coqueluche (até 14 dias antes do início dos sinais e sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outro estado/município'], ['7', 'Outro'], ['8', 'Sem história de contato'], ['9', 'Ignorado']], cx(0, 552.2, 284.2, 11, 10.8), { larg: 6 }),
         { n: '34', chave: 'contato_outro', rotulo: 'Outro local de contato (qual?)', tipo: 'texto', caixa: { p: 0, x: 242, y: 266.5, w: 120, h: 8 }, fonte: 7, larg: 4, quando: (d) => d.contato === '7' },
         { n: '35', chave: 'contato_nome', rotulo: 'Nome do contato', tipo: 'texto', caixa: { p: 0, x: 66, y: 233, w: 495, h: 10 }, larg: 6, quando: (d) => d.contato && !['8', '9'].includes(d.contato) },
         { n: '36', chave: 'contato_endereco', rotulo: 'Endereço do contato (rua, av., apto., bairro, localidade etc.)', tipo: 'texto', caixa: { p: 0, x: 66, y: 207.5, w: 495, h: 9 }, larg: 6, quando: (d) => d.contato && !['8', '9'].includes(d.contato) },
-        cod('37', 'doses_vacina', 'Nº de doses da vacina tríplice (DTP) ou tetravalente (DTP+Hib)', [['1', 'Uma'], ['2', 'Duas'], ['3', 'Três'], ['4', 'Três + um reforço'], ['5', 'Três + dois reforços'], ['6', 'Nunca vacinado'], ['9', 'Ignorado']], cx(0, 429.4, 179.3, 11, 10.8), { larg: 4, obrig: true }),
+        cod('37', 'doses_vacina', 'Nº de doses da vacina tríplice (DTP) ou tetravalente (DTP+Hib)', [['1', 'Uma'], ['2', 'Duas'], ['3', 'Três'], ['4', 'Três + um reforço'], ['5', 'Três + dois reforços'], ['6', 'Nunca vacinado'], ['9', 'Ignorado']], cx(0, 429.4, 179.3, 11, 10.8), { larg: 4 }),
         data('38', 'data_ultima_dose', 'Data da última dose', dataCel(0, 457.5, [471.9, 486.3, 501.1, 514.3, 528.1, 542.5, 557.0], 566, 166, 11), { quando: (d) => ['1', '2', '3', '4', '5'].includes(d.doses_vacina) }),
       ],
     },
@@ -75,7 +75,7 @@ export default {
       titulo: 'Dados clínicos',
       campos: [
         data('39', 'data_inicio_tosse', 'Data do início da tosse', dataCel(0, 63, [77.2, 93.0, 106.3, 118.8, 133.3, 147.8, 162.3], 176.5, 135, 11)),
-        ...SINAIS.map(([k, r, x, y]) => sni('40', `sinal_${k}`, `Sinais e sintomas: ${r}`, cx(0, x, y), { obrig: true })),
+        ...SINAIS.map(([k, r, x, y]) => sni('40', `sinal_${k}`, `Sinais e sintomas: ${r}`, cx(0, x, y), {})),
         { n: '40', chave: 'sinal_outros_espec', rotulo: 'Outros sinais (quais?)', tipo: 'texto', caixa: { p: 0, x: 500, y: 84, w: 62, h: 8 }, fonte: 6.5, larg: 3, quando: sim('sinal_outros') },
         ...COMPLIC.map(([k, r, x, y]) => sni('41', `complic_${k}`, `Complicações: ${r}`, cx(0, x, y, 10.8, 11))),
         { n: '41', chave: 'complic_outras_espec', rotulo: 'Outras complicações (quais?)', tipo: 'texto', caixa: { p: 0, x: 476, y: 46, w: 88, h: 8 }, fonte: 6.5, larg: 3, quando: sim('complic_outras') },

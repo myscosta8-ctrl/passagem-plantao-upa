@@ -85,7 +85,7 @@ export default {
     {
       titulo: 'Antecedentes epidemiológicos',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 59.7, [71.7, 87.6, 100.8, 114.0, 127.8, 142.3, 156.7], 166.0, 278.0, 11.9), { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 59.7, [71.7, 87.6, 100.8, 114.0, 127.8, 142.3, 156.7], 166.0, 278.0, 11.9), {}),
         txt('32', 'ocupacao', 'Ocupação', { p: 0, x: 175, y: 279, w: 280, h: 10 }, { larg: 6 }),
         data('33', 'data_primeiro_atendimento', 'Data do 1º atendimento', dataCel(0, 463.2, [475.3, 488.7, 500.7, 516.8, 528.8, 543.2, 557.6], 566.1, 280.1, 11.9)),
         casas('34', 'total_atendimentos', 'Nº total de atendimentos até a suspeição clínica', [[363.2, 375.3], [375.3, 390.2]], 0, 253.5),
@@ -103,10 +103,10 @@ export default {
     {
       titulo: 'Dados clínicos',
       campos: [
-        ...SINAIS.map(([k, r, x, y]) => sni('42', `sinal_${k}`, `Sinais e sintomas: ${r}`, cx(0, x, y), { obrig: true })),
+        ...SINAIS.map(([k, r, x, y]) => sni('42', `sinal_${k}`, `Sinais e sintomas: ${r}`, cx(0, x, y), {})),
         txt('42', 'sinal_parestesia_onde', 'Parestesia: onde?', { p: 0, x: 282, y: 79.5, w: 40, h: 8 }, { fonte: 6, quando: sim('sinal_parestesia') }),
         txt('42', 'sinal_outros_espec', 'Outros sinais (quais?)', { p: 0, x: 250, y: 66, w: 62, h: 8 }, { fonte: 6, quando: sim('sinal_outros') }),
-        ...NEUROLOGICO.map(([k, r, x, y]) => sni('43', `neuro_${k}`, `Exame neurológico: ${r}`, cx(0, x, y), { obrig: true })),
+        ...NEUROLOGICO.map(([k, r, x, y]) => sni('43', `neuro_${k}`, `Exame neurológico: ${r}`, cx(0, x, y), {})),
         cod('44', 'reflexos', 'Reflexos neurológicos', [['1', 'Normais'], ['2', 'Aumentados'], ['3', 'Reduzidos/ausentes'], ['9', 'Ignorado']], cx(0, 513.8, 43.7, 10.8, 11), { larg: 4 }),
       ],
     },

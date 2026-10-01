@@ -27,7 +27,7 @@ regra de quando o campo se aplica e a posição exata no PDF (pontos, origem no 
 - Todos os campos da ficha ficam abertos para edição na tela; nenhum é escondido por depender de outro.
   `quando` só serve para o código automático do papel (`senao`, ex.: Gestante = 6 - Não se aplica quando o campo fica em branco).
 - Obrigatórios, em qualquer ficha, são só: data da notificação, nome, data de nascimento, nome da mãe e endereço
-  (UF, município, bairro, logradouro e número) — lista `OBRIGATORIOS` em `modeloUtil.js`. O `obrig` dos modelos não é mais usado.
+  (UF, município, bairro, logradouro e número) — lista `OBRIGATORIOS` em `modeloUtil.js`. Os modelos não marcam obrigatoriedade: todo o resto (clínica, exames, conclusão) é opcional, porque as análises não são feitas na UPA.
 - IBGE, CNES e código do logradouro não aparecem na tela (`ehCodigoOculto`). Breves e a própria UPA recebem o código
   automático no papel; outro município/unidade sai em branco.
 - Fichas com duas doenças no campo 2 (Dengue/Chikungunya, Sarampo/Rubéola, Meningites) são um agravo só na lista;

@@ -61,23 +61,23 @@ export default {
     {
       titulo: 'Agravo',
       campos: [
-        { n: '2', chave: 'agravo_codigo', rotulo: 'Agravo/doença', tipo: 'codigo', opcoes: [['1', 'Dengue'], ['2', 'Chikungunya']], caixa: { p: 0, x: 346.6, y: 659.8, w: 11, h: 10.8 }, larg: 4, obrig: true },
+        { n: '2', chave: 'agravo_codigo', rotulo: 'Agravo/doença', tipo: 'codigo', opcoes: [['1', 'Dengue'], ['2', 'Chikungunya']], caixa: { p: 0, x: 346.6, y: 659.8, w: 11, h: 10.8 }, larg: 4 },
       ],
     },
     ...cabecalhoInvestigacao(g),
     {
       titulo: 'Dados clínicos e laboratoriais',
       campos: [
-        { n: '31', chave: 'data_investigacao', rotulo: 'Data da investigação', tipo: 'data', caixa: { p: 0, x: 61.7, y: 292.8, w: 109.4, h: 10.5 }, larg: 3, obrig: true },
+        { n: '31', chave: 'data_investigacao', rotulo: 'Data da investigação', tipo: 'data', caixa: { p: 0, x: 61.7, y: 292.8, w: 109.4, h: 10.5 }, larg: 3 },
         { n: '32', chave: 'ocupacao', rotulo: 'Ocupação', tipo: 'texto', caixa: { p: 0, x: 192, y: 293, w: 373, h: 10 }, larg: 9 },
         ...[['febre', 'Febre', 55.0, 259.2], ['mialgia', 'Mialgia', 55.0, 244.1], ['cefaleia', 'Cefaleia', 100.8, 259.9], ['exantema', 'Exantema', 100.8, 244.8],
           ['vomito', 'Vômito', 158.6, 259.0], ['nauseas', 'Náuseas', 158.6, 244.1], ['dor_costas', 'Dor nas costas', 215.5, 258.2], ['conjuntivite', 'Conjuntivite', 215.5, 243.4],
           ['artrite', 'Artrite', 298.8, 260.6], ['artralgia', 'Artralgia intensa', 298.8, 245.5], ['petequias', 'Petéquias', 386.4, 262.1], ['leucopenia', 'Leucopenia', 386.4, 247.0],
           ['prova_laco', 'Prova do laço positiva', 470.4, 262.1], ['dor_retroorbital', 'Dor retroorbital', 470.4, 244.1]]
-          .map(([k, r, x, y]) => sn('33', `sinal_${k}`, `Sinal clínico: ${r}`, cx(0, x, y), { obrig: true })),
+          .map(([k, r, x, y]) => sn('33', `sinal_${k}`, `Sinal clínico: ${r}`, cx(0, x, y), {})),
         ...[['diabetes', 'Diabetes', 54.2, 207.4], ['hematologicas', 'Doenças hematológicas', 54.2, 191.5], ['hepatopatias', 'Hepatopatias', 189.4, 209.0], ['renal', 'Doença renal crônica', 188.6, 193.2],
           ['hipertensao', 'Hipertensão arterial', 311.5, 209.5], ['acido_peptica', 'Doença ácido-péptica', 310.8, 194.6], ['autoimunes', 'Doenças autoimunes', 424.1, 210.2]]
-          .map(([k, r, x, y]) => sn('34', `doenca_${k}`, `Doença pré-existente: ${r}`, cx(0, x, y), { obrig: true })),
+          .map(([k, r, x, y]) => sn('34', `doenca_${k}`, `Doença pré-existente: ${r}`, cx(0, x, y), {})),
         { n: '35', chave: 'chik_data_s1', rotulo: 'Sorologia IgM Chikungunya — data da coleta da 1ª amostra (S1)', tipo: 'data', caixa: { p: 0, x: 53.3, y: 142, w: 116.6, h: 10 }, larg: 4 },
         { n: '36', chave: 'chik_data_s2', rotulo: 'Sorologia IgM Chikungunya — data da coleta da 2ª amostra (S2)', tipo: 'data', caixa: { p: 0, x: 178.6, y: 142, w: 116.6, h: 10 }, larg: 4 },
         { n: '37', chave: 'prnt_data', rotulo: 'Exame PRNT — data da coleta', tipo: 'data', caixa: { p: 0, x: 304.6, y: 142, w: 116.6, h: 10 }, larg: 4 },
@@ -100,7 +100,7 @@ export default {
     {
       titulo: 'Hospitalização',
       campos: [
-        { n: '50', chave: 'hospitalizacao', rotulo: 'Ocorreu hospitalização?', tipo: 'codigo', opcoes: SIM_NAO_IGN, caixa: { p: 1, x: 165.4, y: 783.6, w: 10.8, h: 10.8 }, larg: 3, obrig: true },
+        { n: '50', chave: 'hospitalizacao', rotulo: 'Ocorreu hospitalização?', tipo: 'codigo', opcoes: SIM_NAO_IGN, caixa: { p: 1, x: 165.4, y: 783.6, w: 10.8, h: 10.8 }, larg: 3 },
         { n: '51', chave: 'data_hospitalizacao', rotulo: 'Data da internação', tipo: 'data', caixa: { p: 1, x: 188, y: 779, w: 116.6, h: 10 }, larg: 3, quando: hosp },
         { n: '52', chave: 'uf_hospital', rotulo: 'UF', tipo: 'uf', caixa: { p: 1, x: 313, y: 779, w: 22, h: 10 }, larg: 1, quando: hosp },
         { n: '53', chave: 'municipio_hospital', rotulo: 'Município do hospital', tipo: 'texto', caixa: { p: 1, x: 362, y: 781, w: 110, h: 9 }, fonte: 7.5, larg: 3, quando: hosp },
@@ -139,7 +139,7 @@ export default {
         ...[['hipotensao', 'Hipotensão postural e/ou lipotímia', 55.0, 535.7], ['plaquetas', 'Queda abrupta de plaquetas', 55.0, 520.6], ['vomitos', 'Vômitos persistentes', 211.4, 565.2],
           ['dor_abdominal', 'Dor abdominal intensa e contínua', 211.0, 549.4], ['letargia', 'Letargia ou irritabilidade', 210.2, 532.6], ['sangramento', 'Sangramento de mucosa/outras hemorragias', 209.5, 517.7],
           ['hematocrito', 'Aumento progressivo do hematócrito', 343.0, 563.3], ['hepatomegalia', 'Hepatomegalia >= 2 cm', 342.7, 545.8], ['liquidos', 'Acúmulo de líquidos', 342.5, 529.9]]
-          .map(([k, r, x, y]) => sn('68', `alarme_${k}`, r, cx(1, x, y), { larg: 3, quando: alarme, obrig: true })),
+          .map(([k, r, x, y]) => sn('68', `alarme_${k}`, r, cx(1, x, y), { larg: 3, quando: alarme })),
         { n: '69', chave: 'data_alarme', rotulo: 'Data de início dos sinais de alarme', tipo: 'data', caixa: { p: 1, x: 454.0, y: 516, w: 115.8, h: 10 }, larg: 3, quando: alarme },
       ],
     },
@@ -151,7 +151,7 @@ export default {
           ['hipotensao_tardia', 'Extravasamento: hipotensão arterial em fase tardia', 200.4, 433.7], ['hematemese', 'Sangramento grave: hematêmese', 331.4, 482.4], ['melena', 'Sangramento grave: melena', 331.4, 465.1],
           ['metrorragia', 'Sangramento grave: metrorragia volumosa', 426.0, 483.8], ['snc', 'Sangramento grave: sangramento do SNC', 425.8, 465.1], ['ast_alt', 'Órgãos: AST/ALT > 1.000', 330.0, 431.5],
           ['miocardite', 'Órgãos: miocardite', 425.0, 433.0], ['consciencia', 'Órgãos: alteração da consciência', 484.3, 434.4], ['outros_orgaos', 'Órgãos: outros órgãos', 329.8, 413.5]]
-          .map(([k, r, x, y]) => sn('70', `grave_${k}`, r, cx(1, x, y), { larg: 3, quando: grave, obrig: true })),
+          .map(([k, r, x, y]) => sn('70', `grave_${k}`, r, cx(1, x, y), { larg: 3, quando: grave })),
         { n: '70', chave: 'grave_outros_espec', rotulo: 'Outros órgãos (especificar)', tipo: 'texto', caixa: { p: 1, x: 455, y: 414, w: 108, h: 8 }, fonte: 6.5, larg: 6, quando: (d) => grave(d) && d.grave_outros_orgaos === '1' },
         { n: '71', chave: 'data_gravidade', rotulo: 'Data de início dos sinais de gravidade', tipo: 'data', caixa: { p: 1, x: 52.6, y: 371, w: 116.5, h: 10 }, larg: 3, quando: grave },
       ],

@@ -68,33 +68,33 @@ export default {
     {
       titulo: 'Antecedentes epidemiológicos',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', { p: 0, x: 58.0, y: 308.5, w: 106.6, h: 12.5 }, { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', { p: 0, x: 58.0, y: 308.5, w: 106.6, h: 12.5 }, {}),
         { n: '32', chave: 'ocupacao', rotulo: 'Ocupação', tipo: 'texto', caixa: { p: 0, x: 187, y: 310, w: 378, h: 10 }, larg: 9 },
         ...[['agua_lama', 'Água ou lama de enchente', 62.4, 275.3], ['fossa', 'Fossa, caixa de gordura ou esgoto', 62.4, 258.7], ['rio', 'Rio, córrego, lagoa ou represa', 62.4, 242.2], ['terreno', 'Terreno baldio', 62.4, 227.3],
           ['animais', 'Criação de animais', 247.7, 273.8], ['roedores_sinais', 'Local com sinais de roedores', 247.7, 258.0], ['roedores', 'Roedores diretamente', 247.7, 240.7], ['lixo', 'Lixo/entulho', 248.4, 225.8],
           ['caixa_agua', 'Caixa d\'água', 406.8, 273.8], ['plantio', 'Plantio/colheita (lavoura)', 406.8, 259.4], ['graos', 'Armazenamento de grãos/alimentos', 407.5, 245.3], ['outras', 'Outras', 407.5, 229.4]]
-          .map(([k, r, x, y]) => sni('33', `risco_${k}`, `Situação de risco: ${r}`, cx(0, x, y), { obrig: true })),
+          .map(([k, r, x, y]) => sni('33', `risco_${k}`, `Situação de risco: ${r}`, cx(0, x, y), {})),
         { n: '33', chave: 'risco_outras_espec', rotulo: 'Outras situações de risco (especificar)', tipo: 'texto', caixa: { p: 0, x: 448, y: 229.5, w: 112, h: 8 }, fonte: 7, larg: 3, quando: (d) => d.risco_outras === '1' },
-        sni('34', 'casos_humanos', 'Casos anteriores no local provável de infecção: casos humanos', cx(0, 124.8, 196.3, 12.2, 12.2), { larg: 4, obrig: true }),
-        sni('34', 'casos_animais', 'Casos anteriores no local provável de infecção: casos animais', cx(0, 300.2, 195.6, 12.2, 12.2), { larg: 4, obrig: true }),
+        sni('34', 'casos_humanos', 'Casos anteriores no local provável de infecção: casos humanos', cx(0, 124.8, 196.3, 12.2, 12.2), { larg: 4 }),
+        sni('34', 'casos_animais', 'Casos anteriores no local provável de infecção: casos animais', cx(0, 300.2, 195.6, 12.2, 12.2), { larg: 4 }),
       ],
     },
     {
       titulo: 'Dados clínicos',
       campos: [
-        data('35', 'data_atendimento', 'Data de atendimento', { p: 0, x: 61.0, y: 162.6, w: 106.6, h: 12.4 }, { obrig: true }),
+        data('35', 'data_atendimento', 'Data de atendimento', { p: 0, x: 61.0, y: 162.6, w: 106.6, h: 12.4 }, {}),
         ...[['febre', 'Febre', 184.8, 161.0], ['congestao', 'Congestão conjuntival', 184.6, 146.9], ['ictericia', 'Icterícia', 185.5, 132.0], ['hemorragia_pulmonar', 'Hemorragia pulmonar', 185.5, 117.6],
           ['mialgia', 'Mialgia', 280.1, 159.6], ['panturrilha', 'Dor na panturrilha', 279.8, 146.2], ['insuf_renal', 'Insuficiência renal', 280.1, 132.0], ['outras_hemorragias', 'Outras hemorragias', 280.1, 116.2],
           ['cefaleia', 'Cefaleia', 368.4, 162.7], ['vomito', 'Vômito', 368.4, 148.6], ['respiratorias', 'Alterações respiratórias', 368.4, 132.7], ['meningismo', 'Meningismo', 368.4, 116.2],
           ['prostracao', 'Prostração', 439.7, 162.5], ['diarreia', 'Diarreia', 440.4, 146.9], ['cardiacas', 'Alterações cardíacas', 440.6, 132.0], ['outros', 'Outros', 440.6, 116.9]]
-          .map(([k, r, x, y]) => sni('36', `sinal_${k}`, `Sinal/sintoma: ${r}`, cx(0, x, y, 12.2, 12.2), { obrig: true })),
+          .map(([k, r, x, y]) => sni('36', `sinal_${k}`, `Sinal/sintoma: ${r}`, cx(0, x, y, 12.2, 12.2), {})),
         { n: '36', chave: 'sinal_outros_espec', rotulo: 'Outros sinais (quais?)', tipo: 'texto', caixa: { p: 0, x: 512, y: 117, w: 52, h: 8 }, fonte: 6, larg: 3, quando: (d) => d.sinal_outros === '1' },
       ],
     },
     {
       titulo: 'Atendimento',
       campos: [
-        sni('37', 'hospitalizacao', 'Ocorreu hospitalização?', cx(0, 281.3, 89.8), { obrig: true }),
+        sni('37', 'hospitalizacao', 'Ocorreu hospitalização?', cx(0, 281.3, 89.8), {}),
         data('38', 'data_hospitalizacao', 'Data da internação', { p: 0, x: 318.9, y: 81.1, w: 115.5, h: 12 }, { quando: hosp }),
         data('39', 'data_alta', 'Data da alta', { p: 0, x: 449.3, y: 80.4, w: 115.3, h: 12 }, { quando: hosp }),
         { n: '40', chave: 'uf_hospital', rotulo: 'UF', tipo: 'uf', caixa: { p: 0, x: 58.8, y: 56.0, w: 27, h: 11 }, larg: 1, quando: hosp },

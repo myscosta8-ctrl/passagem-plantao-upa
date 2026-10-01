@@ -74,18 +74,18 @@ export default {
     {
       titulo: 'Agravo',
       campos: [
-        cod('2', 'agravo_exantematica', 'Doença investigada', [['1', 'Sarampo'], ['2', 'Rubéola']], cx(0, 350.4, 648.7, 11, 10.8), { obrig: true }),
+        cod('2', 'agravo_exantematica', 'Doença investigada', [['1', 'Sarampo'], ['2', 'Rubéola']], cx(0, 350.4, 648.7, 11, 10.8), {}),
       ],
     },
     ...cabecalhoInvestigacao(g),
     {
       titulo: 'Antecedentes epidemiológicos',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 57.2, [69.3, 84.8, 98.1, 113.2, 126.9, 141.3, 155.7], 172.4, 269.7, 11), { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 57.2, [69.3, 84.8, 98.1, 113.2, 126.9, 141.3, 155.7], 172.4, 269.7, 11), {}),
         { n: '32', chave: 'ocupacao', rotulo: 'Ocupação', tipo: 'texto', caixa: { p: 0, x: 185, y: 271, w: 375, h: 10 }, larg: 9 },
-        sni('33', 'vacinado', 'Tomou vacina contra sarampo e rubéola (dupla ou tríplice viral)', cx(0, 415.7, 253.7, 11, 10.8), { larg: 4, obrig: true }),
+        sni('33', 'vacinado', 'Tomou vacina contra sarampo e rubéola (dupla ou tríplice viral)', cx(0, 415.7, 253.7, 11, 10.8), { larg: 4 }),
         data('34', 'data_ultima_dose', 'Data da última dose', dataCel(0, 441.4, [453.4, 468.6, 482.3, 496.9, 511.1, 525.5, 539.9], 556.6, 242.4, 12), { quando: sim('vacinado') }),
-        cod('35', 'contato', 'Contato com caso suspeito ou confirmado de sarampo ou rubéola (até 23 dias antes do início dos sinais e sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outro estado/município'], ['7', 'Sem história de contato'], ['8', 'Outro país'], ['9', 'Ignorado']], cx(0, 538.6, 225.8, 11, 10.1), { larg: 6, obrig: true }),
+        cod('35', 'contato', 'Contato com caso suspeito ou confirmado de sarampo ou rubéola (até 23 dias antes do início dos sinais e sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outro estado/município'], ['7', 'Sem história de contato'], ['8', 'Outro país'], ['9', 'Ignorado']], cx(0, 538.6, 225.8, 11, 10.1), { larg: 6 }),
         { n: '36', chave: 'contato_nome', rotulo: 'Nome do contato', tipo: 'texto', caixa: { p: 0, x: 66, y: 183, w: 495, h: 10 }, larg: 6, quando: (d) => d.contato && !['7', '9'].includes(d.contato) },
         { n: '37', chave: 'contato_endereco', rotulo: 'Endereço do contato (rua, av., apto., bairro, localidade etc.)', tipo: 'texto', caixa: { p: 0, x: 66, y: 157, w: 495, h: 9 }, larg: 6, quando: (d) => d.contato && !['7', '9'].includes(d.contato) },
       ],
@@ -93,14 +93,14 @@ export default {
     {
       titulo: 'Dados clínicos',
       campos: [
-        data('38', 'data_exantema', 'Data do início do exantema (manchas vermelhas no corpo)', dataCel(0, 63.5, [75.5, 90.6, 104.3, 119.0, 133.1, 147.5, 161.9], 178.7, 119.6, 11.9), { obrig: true }),
+        data('38', 'data_exantema', 'Data do início do exantema (manchas vermelhas no corpo)', dataCel(0, 63.5, [75.5, 90.6, 104.3, 119.0, 133.1, 147.5, 161.9], 178.7, 119.6, 11.9), {}),
         data('39', 'data_febre', 'Data do início da febre', dataCel(0, 190.4, [202.5, 218.0, 231.3, 246.4, 260.1, 274.5, 288.9], 301, 119.9, 11)),
-        sni('40', 'sinal_tosse', 'Tosse', cx(0, 89.3, 93.6, 10.8, 10.8), { obrig: true }),
-        sni('40', 'sinal_coriza', 'Coriza (nariz escorrendo)', cx(0, 89.3, 77.3, 10.8, 11), { obrig: true }),
-        sni('40', 'sinal_conjuntivite', 'Conjuntivite (olhos avermelhados)', cx(0, 89.3, 60.0, 10.8, 11), { obrig: true }),
-        sni('40', 'sinal_artralgia', 'Artralgia/artrite (dores nas juntas)', cx(0, 280.8, 94.3), { obrig: true }),
-        sni('40', 'sinal_ganglios', 'Gânglios retroauriculares/occipitais (caroços atrás da orelha/pescoço)', cx(0, 280.8, 77.3, 11, 10.8), { obrig: true }),
-        sni('40', 'sinal_dor_retroocular', 'Dor retro-ocular (dor acima/atrás dos olhos)', cx(0, 280.8, 61.0), { obrig: true }),
+        sni('40', 'sinal_tosse', 'Tosse', cx(0, 89.3, 93.6, 10.8, 10.8), {}),
+        sni('40', 'sinal_coriza', 'Coriza (nariz escorrendo)', cx(0, 89.3, 77.3, 10.8, 11), {}),
+        sni('40', 'sinal_conjuntivite', 'Conjuntivite (olhos avermelhados)', cx(0, 89.3, 60.0, 10.8, 11), {}),
+        sni('40', 'sinal_artralgia', 'Artralgia/artrite (dores nas juntas)', cx(0, 280.8, 94.3), {}),
+        sni('40', 'sinal_ganglios', 'Gânglios retroauriculares/occipitais (caroços atrás da orelha/pescoço)', cx(0, 280.8, 77.3, 11, 10.8), {}),
+        sni('40', 'sinal_dor_retroocular', 'Dor retro-ocular (dor acima/atrás dos olhos)', cx(0, 280.8, 61.0), {}),
       ],
     },
     {

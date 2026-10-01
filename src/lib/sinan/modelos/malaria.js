@@ -60,18 +60,18 @@ export default {
     {
       titulo: 'Antecedentes epidemiológicos',
       campos: [
-        { n: '31', chave: 'data_investigacao', rotulo: 'Data da investigação', tipo: 'data', caixa: { p: 0, x: 65.9, y: 350.3, w: 106.6, h: 12.1 }, larg: 3, obrig: true },
+        { n: '31', chave: 'data_investigacao', rotulo: 'Data da investigação', tipo: 'data', caixa: { p: 0, x: 65.9, y: 350.3, w: 106.6, h: 12.1 }, larg: 3 },
         { n: '32', chave: 'ocupacao', rotulo: 'Ocupação', tipo: 'texto', caixa: { p: 0, x: 196, y: 352, w: 372, h: 10 }, larg: 9 },
-        { n: '33', chave: 'atividade_15_dias', rotulo: 'Principal atividade nos últimos 15 dias', tipo: 'codigo', opcoes: ATIVIDADE, caixa: { p: 0, x: 371.8, y: 332.2, w: 10.8, h: 11 }, larg: 5, obrig: true },
-        { n: '34', chave: 'tipo_lamina', rotulo: 'Tipo de lâmina', tipo: 'codigo', opcoes: [['1', 'BP'], ['2', 'BA'], ['3', 'LVC']], caixa: { p: 0, x: 470.9, y: 324.7, w: 10.8, h: 11 }, larg: 3, obrig: true },
-        { n: '35', chave: 'sintomas', rotulo: 'Sintomas', tipo: 'codigo', opcoes: [['1', 'Com sintomas'], ['2', 'Sem sintomas']], caixa: { p: 0, x: 558.0, y: 324.7, w: 10.8, h: 11 }, larg: 4, obrig: true },
+        { n: '33', chave: 'atividade_15_dias', rotulo: 'Principal atividade nos últimos 15 dias', tipo: 'codigo', opcoes: ATIVIDADE, caixa: { p: 0, x: 371.8, y: 332.2, w: 10.8, h: 11 }, larg: 5 },
+        { n: '34', chave: 'tipo_lamina', rotulo: 'Tipo de lâmina', tipo: 'codigo', opcoes: [['1', 'BP'], ['2', 'BA'], ['3', 'LVC']], caixa: { p: 0, x: 470.9, y: 324.7, w: 10.8, h: 11 }, larg: 3 },
+        { n: '35', chave: 'sintomas', rotulo: 'Sintomas', tipo: 'codigo', opcoes: [['1', 'Com sintomas'], ['2', 'Sem sintomas']], caixa: { p: 0, x: 558.0, y: 324.7, w: 10.8, h: 11 }, larg: 4 },
       ],
     },
     {
       titulo: 'Dados do exame',
       campos: [
-        { n: '36', chave: 'data_exame', rotulo: 'Data do exame', tipo: 'data', caixa: { p: 0, x: 68.2, y: 268.1, w: 117.5, h: 13.3 }, larg: 3, obrig: true },
-        { n: '37', chave: 'resultado_exame', rotulo: 'Resultado do exame', tipo: 'codigo', opcoes: RESULTADO, caixa: { p: 0, x: 464.9, y: 286.3, w: 11.5, h: 11.5 }, larg: 3, obrig: true },
+        { n: '36', chave: 'data_exame', rotulo: 'Data do exame', tipo: 'data', caixa: { p: 0, x: 68.2, y: 268.1, w: 117.5, h: 13.3 }, larg: 3 },
+        { n: '37', chave: 'resultado_exame', rotulo: 'Resultado do exame', tipo: 'codigo', opcoes: RESULTADO, caixa: { p: 0, x: 464.9, y: 286.3, w: 11.5, h: 11.5 }, larg: 3 },
         { n: '38', chave: 'parasitos_mm3', rotulo: 'Parasitos por mm³', tipo: 'digitos', digitos: 7, caixa: { p: 0, x: 482, y: 268, w: 86, h: 10 }, larg: 3, quando: (d) => d.resultado_exame && d.resultado_exame !== '1' },
         { n: '39', chave: 'parasitemia', rotulo: 'Parasitemia em "cruzes"', tipo: 'codigo', opcoes: PARASITEMIA, caixa: { p: 0, x: 539.0, y: 251.0, w: 11.5, h: 11.5 }, larg: 3, quando: (d) => d.resultado_exame && d.resultado_exame !== '1' },
       ],
@@ -87,7 +87,7 @@ export default {
     {
       titulo: 'Conclusão',
       campos: [
-        { n: '42', chave: 'classificacao_final', rotulo: 'Classificação final', tipo: 'codigo', opcoes: [['1', 'Confirmado'], ['2', 'Descartado']], caixa: { p: 1, x: 193.2, y: 792.2, w: 11.5, h: 12 }, larg: 3, obrig: true },
+        { n: '42', chave: 'classificacao_final', rotulo: 'Classificação final', tipo: 'codigo', opcoes: [['1', 'Confirmado'], ['2', 'Descartado']], caixa: { p: 1, x: 193.2, y: 792.2, w: 11.5, h: 12 }, larg: 3 },
         { n: '43', chave: 'autoctone', rotulo: 'O caso é autóctone do município de residência?', tipo: 'codigo', opcoes: [['1', 'Sim'], ['2', 'Não'], ['3', 'Indeterminado']], caixa: { p: 1, x: 257.8, y: 745.7, w: 11.5, h: 12 }, larg: 4 },
         { n: '44', chave: 'infeccao_uf', rotulo: 'UF provável de infecção', tipo: 'uf', caixa: { p: 1, x: 287.2, y: 722.8, w: 27.7, h: 14.5 }, larg: 2, quando: (d) => d.autoctone && d.autoctone !== '1' },
         { n: '45', chave: 'infeccao_pais', rotulo: 'País provável de infecção', tipo: 'texto', caixa: { p: 1, x: 346, y: 726, w: 222, h: 10 }, larg: 3, quando: (d) => d.autoctone && d.autoctone !== '1' },

@@ -55,20 +55,20 @@ export default {
       titulo: 'Antecedentes epidemiológicos da mãe/HIV',
       campos: [
         { n: '31', chave: 'ocupacao', rotulo: 'Ocupação', tipo: 'texto', caixa: { p: 0, x: 52, y: 345, w: 175, h: 10 }, larg: 6 },
-        cod('32', 'evidencia_lab', 'Evidência laboratorial do HIV', [['1', 'Antes do pré-natal'], ['2', 'Durante o pré-natal'], ['3', 'Durante o parto'], ['4', 'Após o parto']], cx(0, 545.8, 360.2, 11, 10.8), { larg: 6, obrig: true }),
+        cod('32', 'evidencia_lab', 'Evidência laboratorial do HIV', [['1', 'Antes do pré-natal'], ['2', 'Durante o pré-natal'], ['3', 'Durante o parto'], ['4', 'Após o parto']], cx(0, 545.8, 360.2, 11, 10.8), { larg: 6 }),
       ],
     },
     {
       titulo: 'Pré-natal',
       campos: [
-        sni('33', 'pre_natal', 'Fez/faz pré-natal', cx(0, 153.6, 303.1, 10.8, 10.3), { obrig: true }),
+        sni('33', 'pre_natal', 'Fez/faz pré-natal', cx(0, 153.6, 303.1, 10.8, 10.3), {}),
         { n: '34', chave: 'uf_pre_natal', rotulo: 'UF', tipo: 'uf', caixa: { p: 0, x: 176.2, y: 288.0, w: 26.9, h: 11.8 }, larg: 1, quando: fezPreNatal },
         { n: '35', chave: 'municipio_pre_natal', rotulo: 'Município de realização do pré-natal', tipo: 'texto', caixa: { p: 0, x: 210, y: 289, w: 262, h: 10 }, larg: 5, quando: fezPreNatal },
         { n: '35', chave: 'ibge_pre_natal', rotulo: 'Código (IBGE)', tipo: 'digitos', digitos: 6, caixa: pente(0, [487.6, 502.1, 516.6, 531.0, 545.5], 286.5), larg: 3, quando: fezPreNatal },
         { n: '36', chave: 'unidade_pre_natal', rotulo: 'Unidade de realização do pré-natal', tipo: 'texto', caixa: { p: 0, x: 52, y: 261, w: 400, h: 10 }, larg: 9, quando: fezPreNatal },
         { n: '36', chave: 'cnes_pre_natal', rotulo: 'Código (CNES)', tipo: 'digitos', digitos: 7, caixa: pente(0, [474.3, 488.7, 503.2, 517.6, 532.1, 546.6], 259.5), larg: 3, quando: fezPreNatal },
         { n: '37', chave: 'sisprenatal', rotulo: 'Nº da gestante no SISPRENATAL', tipo: 'digitos', digitos: 11, caixa: pente(0, [64.2, 78.7, 93.1, 107.6, 122.1, 136.5, 151.0, 165.4, 179.9, 194.4], 231.5, 11), larg: 4, quando: fezPreNatal },
-        sni('38', 'arv_profilaxia', 'Uso de antirretrovirais para profilaxia', cx(0, 362.2, 240.5), { larg: 4, obrig: true }),
+        sni('38', 'arv_profilaxia', 'Uso de antirretrovirais para profilaxia', cx(0, 362.2, 240.5), { larg: 4 }),
         { n: '39', chave: 'data_inicio_arv', rotulo: 'Data do início do uso de antirretroviral para profilaxia', tipo: 'data', caixa: { p: 0, x: 457.5, y: 234, w: 111, h: 10 }, larg: 4, quando: usouArv },
       ],
     },

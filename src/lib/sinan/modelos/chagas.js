@@ -72,22 +72,22 @@ export default {
     {
       titulo: 'Antecedentes epidemiológicos',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', { p: 0, x: 62.6, y: 243.9, w: 115.3, h: 12 }, { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', { p: 0, x: 62.6, y: 243.9, w: 115.3, h: 12 }, {}),
         { n: '32', chave: 'ocupacao', rotulo: 'Ocupação', tipo: 'texto', caixa: { p: 0, x: 190, y: 245, w: 372, h: 10 }, larg: 9 },
         ...DESLOC,
-        cod('34', 'vestigios', 'Presença de vestígios de triatomíneos intradomicílio', [['1', 'Sim'], ['2', 'Não'], ['3', 'Não realizado'], ['9', 'Ignorado']], cx(0, 256.1, 142.3, 11, 10.8), { larg: 4, obrig: true }),
+        cod('34', 'vestigios', 'Presença de vestígios de triatomíneos intradomicílio', [['1', 'Sim'], ['2', 'Não'], ['3', 'Não realizado'], ['9', 'Ignorado']], cx(0, 256.1, 142.3, 11, 10.8), { larg: 4 }),
         data('35', 'data_vestigios', 'Data de encontro dos vestígios', { p: 0, x: 274.8, y: 135.2, w: 115.3, h: 12 }, { quando: reag('vestigios') }),
-        sni('36', 'uso_sangue', 'História de uso de sangue ou hemoderivados nos últimos 120 dias', cx(0, 546.5, 149.3), { larg: 4, obrig: true }),
+        sni('36', 'uso_sangue', 'História de uso de sangue ou hemoderivados nos últimos 120 dias', cx(0, 546.5, 149.3), { larg: 4 }),
         cod('37', 'controle_sorologico', 'Existência de controle sorológico na unidade de hemoterapia', SNA, cx(0, 309.6, 119.8), { larg: 4 }),
         cod('38', 'manipulacao_tcruzi', 'Manipulação/contato de material com T. cruzi', SNA, cx(0, 552.2, 123.1, 11, 10.8), { larg: 4 }),
         cod('39', 'mae_chagasica', 'Menor ou igual a 9 meses de idade: mãe com infecção chagásica', SNA, cx(0, 308.9, 80.4), { larg: 4 }),
-        sni('40', 'transmissao_oral', 'Possibilidade de transmissão por via oral', cx(0, 551.8, 81.8), { larg: 4, obrig: true }),
+        sni('40', 'transmissao_oral', 'Possibilidade de transmissão por via oral', cx(0, 551.8, 81.8), { larg: 4 }),
       ],
     },
     {
       titulo: 'Dados clínicos — sinais e sintomas',
       campos: [
-        ...SINAIS.map(([k, r, x, y]) => sni('41', `sinal_${k}`, r, cx(1, x, y), { obrig: true })),
+        ...SINAIS.map(([k, r, x, y]) => sni('41', `sinal_${k}`, r, cx(1, x, y), {})),
         { n: '41', chave: 'sinal_outros_espec', rotulo: 'Outros sinais (quais?)', tipo: 'texto', caixa: { p: 1, x: 468, y: 765, w: 92, h: 8 }, fonte: 7, larg: 3, quando: reag('sinal_outros') },
       ],
     },

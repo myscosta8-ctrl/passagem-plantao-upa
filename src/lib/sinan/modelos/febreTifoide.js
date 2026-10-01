@@ -97,15 +97,15 @@ export default {
     {
       titulo: 'Antecedentes epidemiológicos e clínicos',
       campos: [
-        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 58.4, [70.5, 86.3, 99.6, 112.8, 126.6, 141.1, 155.5], 164.8, 310.7, 11.9), { obrig: true }),
+        data('31', 'data_investigacao', 'Data da investigação', dataCel(0, 58.4, [70.5, 86.3, 99.6, 112.8, 126.6, 141.1, 155.5], 164.8, 310.7, 11.9), {}),
         txt('32', 'ocupacao', 'Ocupação', { p: 0, x: 180, y: 312, w: 380, h: 10 }, { larg: 9 }),
-        cod('33', 'contato', 'Contato compatível com caso de febre tifoide (até 45 dias antes do início dos sinais e sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outros estados/municípios'], ['7', 'Outros'], ['8', 'Sem história de contato'], ['9', 'Ignorado']], cx(0, 547.0, 296.6, 10.8, 11), { larg: 6, obrig: true }),
+        cod('33', 'contato', 'Contato compatível com caso de febre tifoide (até 45 dias antes do início dos sinais e sintomas)', [['1', 'Domicílio'], ['2', 'Vizinhança'], ['3', 'Trabalho'], ['4', 'Creche/escola'], ['5', 'Posto de saúde/hospital'], ['6', 'Outros estados/municípios'], ['7', 'Outros'], ['8', 'Sem história de contato'], ['9', 'Ignorado']], cx(0, 547.0, 296.6, 10.8, 11), { larg: 6 }),
         txt('33', 'contato_outro', 'Outro local de contato (qual?)', { p: 0, x: 116, y: 280, w: 180, h: 8 }, { fonte: 7, larg: 4, quando: (d) => d.contato === '7' }),
         txt('34', 'contato_nome', 'Nome do contato', { p: 0, x: 66, y: 252, w: 370, h: 10 }, { larg: 6, quando: comContato }),
         { n: '35', chave: 'contato_fone', rotulo: '(DDD) Telefone do contato', tipo: 'digitos', digitos: 11, celulas: cel([444.8, 453.8, 465.3, 477.2, 486.3, 497.7, 509.2, 520.6, 532.1, 543.6, 555.0, 567.6]), caixa: { p: 0, x: 444.8, y: 247.8, w: 122.8, h: 11.9 }, larg: 3, quando: comContato },
         cod('36', 'vinculo', 'Sugestão de vínculo com', [['1', 'Consumo de água não tratada'], ['2', 'Exposição a esgoto'], ['3', 'Alimento suspeito'], ['4', 'Deslocamento'], ['5', 'Outros'], ['9', 'Ignorado']], cx(0, 543.6, 231.4), { larg: 5 }),
         txt('36', 'vinculo_outros', 'Outro vínculo (qual?)', { p: 0, x: 458, y: 222, w: 52, h: 8 }, { fonte: 6.5, quando: (d) => d.vinculo === '5' }),
-        ...SINAIS.map(([k, r, x, y]) => sni('37', `sinal_${k}`, `Sinais e sintomas: ${r}`, cx(0, x, y), { obrig: true })),
+        ...SINAIS.map(([k, r, x, y]) => sni('37', `sinal_${k}`, `Sinais e sintomas: ${r}`, cx(0, x, y), {})),
         sni('38', 'complic_enterorragia', 'Complicações: enterorragia', cx(0, 205.4, 132.5)),
         sni('38', 'complic_perfuracao', 'Complicações: perfurações intestinais', cx(0, 291.1, 132.5)),
         sni('38', 'complic_outras', 'Complicações: outras', cx(0, 404.4, 132.5, 10.8, 11)),
