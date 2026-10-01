@@ -7,7 +7,7 @@
   position: relative; width: 100%; height: 100%; flex: 1; display: flex; flex-direction: column; overflow: hidden;
   background: var(--c-surface-inset);
   color: var(--c-text-primary);
-  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Atkinson Hyperlegible Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.4;
   display: flex;
@@ -952,10 +952,10 @@
 .atendimento-medico-container .vital-input-wrapper input { width: 100%; border: none; background: transparent; font-size: 15px; font-weight: 700; color: var(--text-main, var(--c-text-primary)); outline: none; padding: 0; box-shadow: none; }
 .atendimento-medico-container .vital-input-wrapper span { font-size: 12px; font-weight: 600; color: var(--text-muted, var(--c-text-muted)); }
 
-.atendimento-medico-container .form-control { width: 100%; padding: 8px 10px; border: 1px solid #94A3B8; border-radius: 6px; font-size: 12px; outline: none; background: var(--c-surface); color: var(--text-main, var(--c-text-primary)); transition: 0.2s; font-family: 'IBM Plex Sans', sans-serif; }
+.atendimento-medico-container .form-control { width: 100%; padding: 8px 10px; border: 1px solid #94A3B8; border-radius: 6px; font-size: 12px; outline: none; background: var(--c-surface); color: var(--text-main, var(--c-text-primary)); transition: 0.2s; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
 .atendimento-medico-container .form-control:focus { background: var(--c-surface); border-color: var(--primary, var(--c-primary)); box-shadow: 0 0 0 3px var(--primary-light, #F8FAFC); }
 
-.atendimento-medico-container .form-control-area { width: 100%; padding: 8px 10px; border: 1px solid #94A3B8; border-radius: 6px; font-size: 12px; outline: none; background: var(--c-surface); color: var(--text-main, var(--c-text-primary)); transition: 0.2s; min-height: 80px; font-family: 'IBM Plex Sans', sans-serif; resize: vertical; line-height: 1.5; }
+.atendimento-medico-container .form-control-area { width: 100%; padding: 8px 10px; border: 1px solid #94A3B8; border-radius: 6px; font-size: 12px; outline: none; background: var(--c-surface); color: var(--text-main, var(--c-text-primary)); transition: 0.2s; min-height: 80px; font-family: 'Atkinson Hyperlegible Next', sans-serif; resize: vertical; line-height: 1.5; }
 .atendimento-medico-container .form-control-area:focus { background: var(--c-surface); border-color: var(--primary, var(--c-primary)); box-shadow: 0 0 0 3px var(--primary-light, #F8FAFC); }
 .atendimento-medico-container .form-control-area.large { min-height: 180px; }
 

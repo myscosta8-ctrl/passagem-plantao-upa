@@ -79,7 +79,7 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
 
 /* ===== Letra do sistema: IBM Plex Sans em todas as telas e impressos =====
    Números com largura fixa (sinais vitais, doses, horários e leitos ficam alinhados). */
-html, body, input, textarea, select, button { font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif; }
+html, body, input, textarea, select, button { font-family: 'Atkinson Hyperlegible Next', Arial, Helvetica, sans-serif; }
 body { font-variant-numeric: tabular-nums; }
 
 /* ===== Menos MAIÚSCULAS nas telas (impressos não mudam) =====
@@ -90,3 +90,9 @@ body { font-variant-numeric: tabular-nums; }
   }
   body *:not(.print-page *):not(.hc-print-overlay *):not(.fi-overlay *):not(.pp-folha *):not([class*="alergia"]):not([class*="classificacao"]):not(.fpj-chip) { letter-spacing: normal !important; }
 }
+
+/* Impressos continuam em IBM Plex Sans (caixas das fichas SUS foram conferidas com ela).
+   Só no contêiner: os filhos herdam, e regras próprias (ex.: dígitos mono do SUS) continuam valendo. */
+:is(.print-page, .hc-print-overlay, .fi-overlay, .pp-folha),
+:is(.print-page, .hc-print-overlay, .fi-overlay, .pp-folha) :is(input, textarea, select, button) { font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif; }
+@media print { html, body { font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif !important; } }

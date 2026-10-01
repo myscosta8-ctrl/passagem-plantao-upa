@@ -72,10 +72,10 @@
   --c-selected:            #334155;   /* item escolhido (chip, segmento, turno) */
 
   /* TIPOGRAFIA */
-  --font-ui:          'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-ui:          'Atkinson Hyperlegible Next', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   /* Padronização: toda a interface em Inter (a fonte monoespaçada só fica nos
      campos de dígitos dos formulários SUS, em print-sus-base.css). */
-  --font-mono:        'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono:        'Atkinson Hyperlegible Next', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* ESCALA DE TEXTO */
   --text-xs:   12px;

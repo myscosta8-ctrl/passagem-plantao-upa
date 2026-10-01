@@ -49,3 +49,19 @@ html .clinical-tabs > .tab-btn { flex: 1 1 0 !important; min-width: max-content;
 .campo-periodo input { border: 0 !important; outline: 0; background: transparent !important; padding: 0 !important; height: auto !important; box-shadow: none !important; font: inherit; font-size: 14px; font-weight: 600; color: #0F2230; width: 118px; }
 .campo-periodo input::-webkit-calendar-picker-indicator { opacity: .55; cursor: pointer; }
 .cp-sep { width: 1px; height: 18px; background: #E1E7EE; }
+
+/* Larguras intermediárias (notebook/tablet deitado): abas numa linha só, sem sumir nenhuma.
+   Abaixo de 1280px os ícones saem e o espaçamento diminui; abaixo de 1100px as abas quebram em duas linhas. */
+@media (max-width: 1280px) {
+  html .clinical-tabs { overflow-x: auto; scrollbar-width: thin; }
+  html .clinical-tabs > .tab-btn { padding-left: 10px !important; padding-right: 10px !important; }
+  html .clinical-tabs > .tab-btn > i.ph { display: none; }
+}
+/* Faixa do paciente: etiquetas descem para uma linha própria antes de ficarem espremidas */
+@media (max-width: 1100px) {
+  .faixa-pac { flex-wrap: wrap; row-gap: 8px; }
+  .faixa-pac .fpj-chips { flex: 1 1 100%; order: 5; }
+  html .clinical-tabs { flex-wrap: wrap !important; overflow-x: visible; }
+  html .clinical-tabs > .tab-btn { flex: 1 1 auto !important; }
+}
+html .fc-tabs-area > .clinical-tabs { min-width: 0; }
