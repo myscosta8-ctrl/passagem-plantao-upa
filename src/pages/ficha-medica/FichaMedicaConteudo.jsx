@@ -8,8 +8,12 @@ const AbaDocumentosAlta = lazy(() => import('./AbaDocumentosAlta'));
 const AbaEvolucoesMedicas = lazy(() => import('./AbaEvolucoesMedicas'));
 const AbaPrescricaoMedica = lazy(() => import('./AbaPrescricaoMedica'));
 const AbaSangue = lazy(() => import('./AbaSangue'));
+const AbaNotificacaoSinan = lazy(() => import('../sinan/AbaNotificacaoSinan'));
 
 function ConteudoAba({ atendimento, medicoId, medicoNome, medicoCrm, aba, onSelecionarAba, onImprimir, onFechar }) {
+  if (aba === 'sinan') {
+    return <AbaNotificacaoSinan atendimento={atendimento} onFechar={onFechar} />;
+  }
   if (aba === 'consulta') {
     return (
       <AbaConsulta

@@ -7,6 +7,7 @@ export const ABAS_PRINCIPAIS = [
   { chave: 'exames', rotulo: '6. Exames & APAC', icon: 'ph-flask' },
   { chave: 'sangue', rotulo: '7. Sangue e Derivados', titulo: 'Solicitação de Sangue, Componentes e Derivados', icon: 'ph-drop' },
   { chave: 'receituario', rotulo: '8. Documentos de Alta', titulo: 'Documentos de Alta do Paciente', icon: 'ph-file-text' },
+  { chave: 'sinan', rotulo: '9. Notificação SINAN', titulo: 'Notificação Compulsória (SINAN)', icon: 'ph-megaphone' },
 ];
 
 

@@ -21,7 +21,7 @@ export default defineConfig({
         // fica no precache pelo globPattern acima. Sem isso o build do PWA
         // falha (excede o limite padrão de 2MB do Workbox) por um arquivo que
         // não é realmente necessário offline.
-        globIgnores: ['**/Phosphor-*.svg'],
+        globIgnores: ['**/Phosphor-*.svg', '**/vendor-pdf-*.js'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
@@ -80,6 +80,10 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            // pdf-lib só carrega quando alguém imprime uma ficha SINAN (não entra no pacote de todos).
+            if (id.includes('pdf-lib') || id.includes('@pdf-lib') || id.includes('pako')) {
+              return 'vendor-pdf'
+            }
             if (id.includes('@supabase')) {
               return 'vendor-supabase'
             }

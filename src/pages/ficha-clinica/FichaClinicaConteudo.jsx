@@ -9,6 +9,7 @@ const PainelSubAbas = lazy(() => import('./PainelSubAbas'));
 const AbaEscalas = lazy(() => import('./AbaEscalas'));
 const AbaDispositivos = lazy(() => import('./AbaDispositivos'));
 const AbaAlergias = lazy(() => import('./AbaAlergias'));
+const AbaNotificacaoSinan = lazy(() => import('../sinan/AbaNotificacaoSinan'));
 
 // Estrutura dos mockups 08–14: Admissão, Evolução SAE, Cardex/Aprazamento,
 // Balanço Hídrico 24h, Transferência SBAR e Intercorrências. As telas que não
@@ -27,6 +28,9 @@ function ConteudoAba({ atendimento, autorId, aba, onImprimir, onFechar }) {
           { chave: 'alergias', rotulo: 'Alergias e Restrições', icon: 'ph-shield-warning', render: () => <AbaAlergias atendimento={atendimento} onFechar={onFechar} /> },
         ]} />
     );
+  }
+  if (aba === 'sinan') {
+    return <AbaNotificacaoSinan atendimento={atendimento} onFechar={onFechar} />;
   }
   if (aba === 'admissaoEnfermagem') {
     return (
