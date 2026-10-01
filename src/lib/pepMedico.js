@@ -541,8 +541,8 @@ export async function buscarDadosParaSumario(atendimentoId) {
   const [{ data: atd }, { data: intern }, { data: cons }, { data: aih }] = await Promise.all([
     supabase.from('atendimentos').select('criado_em, queixa_principal').eq('id', atendimentoId).maybeSingle(),
     supabase.from('internacoes').select('internado_em, diagnostico_admissao').eq('atendimento_id', atendimentoId).order('internado_em', { ascending: false }).limit(1).maybeSingle(),
-    supabase.from('consultas_medicas').select('hipotese_diagnostica').eq('atendimento_id', atendimentoId).neq('situacao', 'invalidado').order('criado_em', { ascending: false }).limit(1).maybeSingle(),
-    supabase.from('aih_solicitacoes').select('cid_principal').eq('atendimento_id', atendimentoId).neq('situacao', 'invalidado').order('criado_em', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('consultas_medicas').select('hipotese_diagnostica').eq('atendimento_id', atendimentoId).neq('situacao', 'invalido').order('criado_em', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('aih_solicitacoes').select('cid_principal').eq('atendimento_id', atendimentoId).neq('situacao', 'invalido').order('criado_em', { ascending: false }).limit(1).maybeSingle(),
   ])
   const inicio = intern?.internado_em || atd?.criado_em
   return {

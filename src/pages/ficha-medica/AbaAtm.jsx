@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { criarAtm } from '../../lib/pepMedico';
-import { ATM_VAZIA, ATM_RESTRITOS, ATM_PENDENTES_KEY, atbRestrito } from './constantes';
+import { useEffect, useState } from 'react';
+import { criarAtm, listarAtm, listarPrescricoes, buscarDadosParaSumario } from '../../lib/pepMedico';
+import { ATM_VAZIA, ATM_RESTRITOS, atbRestrito, viaIntravenosa, atmPendentes, calculoDxIxT } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
@@ -8,25 +8,15 @@ import { useRascunho } from '../../hooks/useRascunho'
 // Solicitação de Autorização de Uso de Antimicrobiano (ATM) — modelo
 // 11-formulario-antimicrobiano-atm.html. Documento interno obrigatório sempre
 // que a Prescrição Médica inclui um antimicrobiano da lista de uso restrito:
-// a prescrição grava os itens em sessionStorage e abre esta aba já preenchida.
-function lerPendentes(atendimentoId) {
-  try { return JSON.parse(sessionStorage.getItem(ATM_PENDENTES_KEY + ':' + atendimentoId) || '[]') } catch { return [] }
-}
-function gravarPendentes(atendimentoId, lista) {
-  try {
-    if (lista.length) sessionStorage.setItem(ATM_PENDENTES_KEY + ':' + atendimentoId, JSON.stringify(lista))
-    else sessionStorage.removeItem(ATM_PENDENTES_KEY + ':' + atendimentoId)
-  } catch { /* ignore */ }
-}
+// os pendentes vêm do banco (prescrições não invalidadas com antimicrobiano restrito EV e ainda sem ATM),
+// então a fila aparece em qualquer aparelho e também para prescrição salva só como rascunho.
 
 export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , headerTabs }) {
   const atdId = atendimento.atendimento_id
-  const [pendentes, setPendentes] = useState(() => lerPendentes(atdId))
-  const [dados, setDados] = useState(() => {
-    const p = lerPendentes(atdId)[0]
-    return p ? { ...ATM_VAZIA, ...p } : ATM_VAZIA
-  })
-  const [origemPrescricao, setOrigemPrescricao] = useState(() => lerPendentes(atdId).length > 0)
+  const [pendentes, setPendentes] = useState([])
+  const [base, setBase] = useState({}) // diagnóstico e data de internação do atendimento
+  const [dados, setDados] = useState(ATM_VAZIA)
+  const [origemPrescricao, setOrigemPrescricao] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
@@ -34,11 +24,35 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
-  function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
+  // Carrega a fila de ATM pendente e os dados da internação. Um rascunho reaberto (useRascunho) tem prioridade.
+  async function carregarPendentes(preencher) {
+    const [prescricoes, atms, sug] = await Promise.all([listarPrescricoes(atdId), listarAtm(atdId), buscarDadosParaSumario(atdId)])
+    const lista = atmPendentes(prescricoes, atms)
+    const b = { diagnostico: sug.diagnostico_internacao || '', data_internacao: sug.data_internacao || '' }
+    setPendentes(lista); setBase(b)
+    if (preencher) {
+      setDados((prev) => (prev.medicamento || prev.justificativa_clinica ? prev : { ...ATM_VAZIA, ...b, ...(lista[0] || {}) }))
+      if (lista[0]) setOrigemPrescricao(true)
+    }
+    return { lista, b }
+  }
+  useEffect(() => { carregarPendentes(true) }, [atdId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function usarPendente(p) { setDados({ ...ATM_VAZIA, ...p }); setOrigemPrescricao(true); setErro('') }
+  // Intervalo ou tempo de uso mudou: refaz o DxIxT se ele estava vazio ou era o calculado automaticamente.
+  function set(campo, valor) {
+    setDados((prev) => {
+      const next = { ...prev, [campo]: valor }
+      if ((campo === 'intervalo' || campo === 'tempo_uso_dias') && (!prev.dxixt || prev.dxixt === calculoDxIxT(prev.intervalo, prev.tempo_uso_dias))) {
+        next.dxixt = calculoDxIxT(next.intervalo, next.tempo_uso_dias)
+      }
+      return next
+    })
+  }
+
+  function usarPendente(p, b = base) { setDados({ ...ATM_VAZIA, ...b, ...p }); setOrigemPrescricao(true); setErro('') }
 
   const restritoAtual = atbRestrito(dados.medicamento)
+  const viaNaoEv = !!dados.via && !viaIntravenosa(dados.via)
 
   async function salvar(imprimir = false) {
     if (!dados.medicamento.trim() || !dados.justificativa_clinica.trim()) {
@@ -65,12 +79,10 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
     if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
 
-    // Tira da fila o antibiótico que acabou de ser solicitado e já carrega o próximo.
-    const restantes = pendentes.filter((p) => p.medicamento !== medicamento)
-    gravarPendentes(atdId, restantes)
-    setPendentes(restantes)
-    if (restantes[0]) usarPendente(restantes[0])
-    else { setDados(ATM_VAZIA); setOrigemPrescricao(false) }
+    // Recarrega a fila (o antibiótico solicitado sai dela) e já abre o próximo pendente.
+    const { lista, b } = await carregarPendentes(false)
+    if (lista[0]) usarPendente(lista[0], b)
+    else { setDados({ ...ATM_VAZIA, ...b }); setOrigemPrescricao(false) }
  
   }
 
@@ -101,7 +113,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
           <div className="form-section-box-title"><i className="ph ph-clipboard-text" /> Diagnóstico Clínico / Infeccioso e Admissão</div>
           <div className="assess-grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
             <div className="form-group"><label>Diagnóstico</label><input type="text" value={dados.diagnostico} onChange={(e) => set('diagnostico', e.target.value)} /></div>
-            <div className="form-group"><label>Data de internação</label><input type="datetime-local" value={dados.data_internacao} onChange={(e) => set('data_internacao', e.target.value)} /></div>
+            <div className="form-group"><label>Data de internação</label><input type="date" value={String(dados.data_internacao || '').slice(0, 10)} onChange={(e) => set('data_internacao', e.target.value)} /></div>
           </div>
         </div>
 
@@ -123,6 +135,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
               <label>Medicamento solicitado *
                 {origemPrescricao && <span className="badge-2vias" style={{ background: 'var(--c-primary-soft, #CCFBF1)', color: 'var(--c-primary-hover, #0F766E)' }}>Da prescrição</span>}
                 {dados.medicamento && !restritoAtual && <span className="badge-2vias">Fora da lista restrita</span>}
+                {restritoAtual && viaNaoEv && <span className="badge-2vias">Via não intravenosa — ATM não exigida</span>}
               </label>
               <input type="text" list="atm-restritos" value={dados.medicamento} onChange={(e) => set('medicamento', e.target.value)} />
               <datalist id="atm-restritos">{ATM_RESTRITOS.map((a) => <option key={a.rotulo} value={a.rotulo} />)}</datalist>

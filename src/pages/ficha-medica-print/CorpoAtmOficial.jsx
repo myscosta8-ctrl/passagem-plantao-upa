@@ -12,6 +12,12 @@ const ATMF_ANTIBIOTICOS = [
   ['LEVOFLOXACINO', 'VANCOMICINA'],
 ]
 
+// Data de internação em DD/MM/AAAA. Aceita "AAAA-MM-DD" e também o formato antigo com hora ("AAAA-MM-DDTHH:MM").
+function dataBR(v) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v || ''))
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : ''
+}
+
 export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const cf = registro.campos_extra || {}
 
@@ -33,7 +39,7 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
           <div className="med-secao-header">1. Diagnóstico Clínico / Infeccioso e Admissão</div>
           <div className="med-secao-body" style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div><b>DIAGNÓSTICO:</b> {cf.diagnostico || registro.diagnostico || '—'}</div>
-            <div><b>DATA DE INTERNAÇÃO:</b> {cf.data_internacao ? new Date(cf.data_internacao + 'T00:00:00').toLocaleDateString('pt-BR') : dataHora.split(',')[0]}</div>
+            <div><b>DATA DE INTERNAÇÃO:</b> {dataBR(cf.data_internacao) || dataHora.split(',')[0]}</div>
           </div>
         </div>
 

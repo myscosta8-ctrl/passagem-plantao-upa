@@ -299,5 +299,62 @@ export function atbRestrito(nome) {
   return ATM_RESTRITOS.find((a) => a.termos.some((t) => n.includes(t))) || null;
 }
 
-// Chave usada para levar os antibióticos restritos da Prescrição até a ficha de ATM.
-export const ATM_PENDENTES_KEY = 'atm_pendentes';
+// Via intravenosa (EV/IV, endovenosa, intravenosa). A ATM só vale para o antibiótico restrito por essa via.
+export function viaIntravenosa(via) {
+  const v = (via || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  return /\b(EV|IV)\b/.test(v) || v.includes('ENDOVEN') || v.includes('INTRAVEN');
+}
+
+// Item de prescrição que exige ATM: antimicrobiano da lista restrita E por via intravenosa.
+export function exigeAtm(nome, via) {
+  return viaIntravenosa(via) ? atbRestrito(nome) : null;
+}
+
+// Doses por dia a partir do intervalo da prescrição (6/6h → 4; 12/12h → 2; dose única → 1).
+export function dosesPorDia(intervalo) {
+  const t = (intervalo || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  if (/DOSE UNICA|AGORA/.test(t)) return 1;
+  const m = t.match(/(\d+)\s*\/\s*(\d+)\s*H/) || t.match(/(\d+)\s*\/\s*(\d+)/);
+  if (m && Number(m[2]) > 0) return Math.round(24 / Number(m[2]));
+  const h = t.match(/(\d+)\s*(H|HORAS)/);
+  if (h && Number(h[1]) > 0) return Math.round(24 / Number(h[1]));
+  return null;
+}
+
+// Cálculo DxIxT (doses/dia × dias) em texto, ou '' se faltar intervalo ou tempo de uso.
+export function calculoDxIxT(intervalo, dias) {
+  const d = dosesPorDia(intervalo); const n = Number(dias);
+  if (!d || !n) return '';
+  return `${d} dose${d > 1 ? 's' : ''}/dia × ${n} dia${n > 1 ? 's' : ''} = ${d * n} doses`;
+}
+
+const ROTULO_VIA = { EV: 'Intravenosa (EV)', IV: 'Intravenosa (EV)' };
+
+// ATMs pendentes do atendimento, a partir do banco (não depende do navegador):
+// itens das prescrições não invalidadas (inclusive rascunho) que exigem ATM,
+// menos os antimicrobianos que já têm ATM não invalidada.
+export function atmPendentes(prescricoes = [], atms = []) {
+  const feitos = new Set(atms.filter((a) => a.situacao !== 'invalido').map((a) => atbRestrito(a.medicamento)?.rotulo).filter(Boolean));
+  const vistos = new Set();
+  const lista = [];
+  const ordenadas = [...prescricoes].sort((a, b) => String(b.criado_em).localeCompare(String(a.criado_em)));
+  for (const p of ordenadas) {
+    if (p.situacao === 'invalido' || p.status === 'cancelada') continue;
+    for (const it of p.prescricao_itens || []) {
+      const r = exigeAtm(it.medicamento_nome, it.via);
+      if (!r || feitos.has(r.rotulo) || vistos.has(r.rotulo)) continue;
+      vistos.add(r.rotulo);
+      const dias = (String(it.duracao || '').match(/\d+/) || [''])[0];
+      lista.push({
+        medicamento: it.medicamento_nome,
+        dose: [it.dose, it.dose_unidade].filter((x) => x !== null && x !== undefined && x !== '').join(' '),
+        via: ROTULO_VIA[(it.via || '').toUpperCase()] || it.via || '',
+        intervalo: it.frequencia || '',
+        posologia: [it.diluicao, it.instrucoes].filter(Boolean).join(' — '),
+        tempo_uso_dias: dias,
+        dxixt: calculoDxIxT(it.frequencia, dias),
+      });
+    }
+  }
+  return lista;
+}

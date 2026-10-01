@@ -2,20 +2,17 @@ import { useEffect, useState } from 'react';
 import AbaPrescricao from './AbaPrescricao';
 import AbaAtm from './AbaAtm';
 import { listarPrescricoes, listarAtm } from '../../lib/pepMedico';
-import { atbRestrito, ATM_PENDENTES_KEY } from './constantes';
+import { atmPendentes } from './constantes';
 
 export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir, onFechar, docInicial = 'prescricao' }) {
   const atdId = atendimento.atendimento_id
   const [doc, setDoc] = useState(docInicial)
   const [temAtm, setTemAtm] = useState(docInicial === 'atm')
 
+  // A sub-aba ATM aparece quando há antimicrobiano restrito EV prescrito (pendente) ou ATM já registrada.
   async function verificarAtm() {
-    let pendente = false
-    try { pendente = JSON.parse(sessionStorage.getItem(ATM_PENDENTES_KEY + ':' + atdId) || '[]').length > 0 } catch { /* ignore */ }
-    if (pendente) { setTemAtm(true); return }
     const [prescricoes, atms] = await Promise.all([listarPrescricoes(atdId), listarAtm(atdId)])
-    const prescrito = prescricoes.some((p) => p.status !== 'cancelada' && (p.prescricao_itens || []).some((it) => atbRestrito(it.medicamento_nome)))
-    setTemAtm(prescrito || atms.length > 0)
+    setTemAtm(atmPendentes(prescricoes, atms).length > 0 || atms.some((a) => a.situacao !== 'invalido'))
   }
   useEffect(() => { verificarAtm() }, [atdId])
 
@@ -36,7 +33,7 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
         {doc === 'atm' ? (
           <AbaAtm atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'atm', registro })} onFechar={onFechar} headerTabs={subtabs} />
         ) : (
-          <AbaPrescricao atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })} onFechar={onFechar} headerTabs={subtabs} onAbrirAtm={() => { setTemAtm(true); setDoc('atm') }} />
+          <AbaPrescricao atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })} onFechar={onFechar} headerTabs={subtabs} onAbrirAtm={() => { setTemAtm(true); setDoc('atm') }} onAtualizarAtm={verificarAtm} />
         )}
       </div>
     </div>
