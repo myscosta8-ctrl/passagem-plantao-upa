@@ -88,3 +88,9 @@ export function pente(p, separadores, y, h = 10, passoFixo = 14.4) {
   const x = separadores[0] - passo
   return { p, x, y, w: passo * (separadores.length + 1), h }
 }
+
+// Data com casas irregulares (traços impressos): início, separadores internos e fim do pente.
+export function dataCel(p, x0, separadores, x1, y, h = 11.5) {
+  const b = [x0, ...separadores, x1]
+  return { celulas: b.slice(0, -1).map((x, i) => [x, b[i + 1]]), caixa: { p, x: x0, y, w: x1 - x0, h } }
+}

@@ -92,11 +92,13 @@ function escrever(page, font, campo, valor) {
     }
     return
   }
-  const texto = limpar(campo.tipo === 'texto' ? so(valor).toUpperCase() : valor)
+  let texto = limpar(campo.tipo === 'texto' ? so(valor).toUpperCase() : valor)
   if (!texto) return
   const centro = campo.tipo === 'codigo' || campo.tipo === 'uf'
   const maximo = campo.fonte || (centro ? 9 : 8.5)
   const tam = caberFonte(font, texto, c.w - (centro ? 1 : 3), Math.min(maximo, c.h - 1))
+  // Nem na fonte mínima coube: corta o excedente para não invadir o campo vizinho.
+  while (texto.length > 1 && font.widthOfTextAtSize(texto, tam) > c.w - (centro ? 1 : 3)) texto = texto.slice(0, -1)
   const w = font.widthOfTextAtSize(texto, tam)
   page.drawText(texto, {
     x: centro ? c.x + (c.w - w) / 2 : c.x + 1.5,
