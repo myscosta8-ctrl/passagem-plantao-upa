@@ -1,5 +1,5 @@
 import { numeroLimpo } from '../../lib/numeros'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
 import {
@@ -55,6 +55,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
   const [fichaImpressao, setFichaImpressao] = useState(null)
   const [setores, setSetores] = useState([])
   const [salvando, setSalvando] = useState(false)
+  const travaSalvar = useRef(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(null)
   const [candidatosDuplicata, setCandidatosDuplicata] = useState([])
@@ -84,6 +85,14 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
   function setA(campo, valor) { setAtd((prev) => ({ ...prev, [campo]: valor })) }
 
   async function salvar(imprimir = false) {
+    // Trava contra duplo clique: o estado "salvando" só muda na próxima renderização,
+    // então um segundo clique imediato passaria. A referência bloqueia na hora.
+    if (travaSalvar.current) return
+    travaSalvar.current = true
+    try { await salvarDeVerdade(imprimir) } finally { travaSalvar.current = false }
+  }
+
+  async function salvarDeVerdade(imprimir = false) {
     if (!dados.nome.trim()) {
       setErro('Nome completo é obrigatório.')
       return

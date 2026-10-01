@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ConfirmModal from '../ConfirmModal'
 import { MANCHESTER_CORES, normalizarNome } from './constantes'
 
 export default function ModalInternar({ leito, setorNome, pacientesExistentes, erroExterno, onCancelar, onConfirmar }) {
+  const enviando = useRef(false)
+  useEffect(() => { if (erroExterno) enviando.current = false }, [erroExterno])
   const travado = setorNome === 'Internação'
   const chaveRascunho = `rascunho_internar_${leito.id}`
 
@@ -77,6 +79,10 @@ export default function ModalInternar({ leito, setorNome, pacientesExistentes, e
       setConfirmouDuplicata(true) // primeiro clique só revela o aviso/confirmação
       return
     }
+    // Trava contra duplo clique: só um envio por vez (libera se voltar com erro).
+    if (enviando.current) return
+    enviando.current = true
+    setTimeout(() => { enviando.current = false }, 8000)
     localStorage.removeItem(chaveRascunho)
     onConfirmar({ nome, diagnostico, dataAdmissao, dataNascimento, classificacaoManchester, status })
   }
