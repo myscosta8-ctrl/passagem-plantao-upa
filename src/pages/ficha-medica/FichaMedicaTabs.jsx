@@ -1,3 +1,5 @@
+import AbasRolaveis from '../../components/AbasRolaveis';
+
 export const ABAS_PRINCIPAIS = [
   { chave: 'consulta', rotulo: '1. Admissão', titulo: 'Admissão Médica', icon: 'ph-stethoscope' },
   { chave: 'aih', rotulo: '2. AIH', titulo: 'Laudo de AIH', icon: 'ph-hospital' },
@@ -13,7 +15,7 @@ export const ABAS_PRINCIPAIS = [
 
 export default function FichaMedicaTabs({ aba, onSelecionarAba }) {
   return (
-    <div className="clinical-tabs">
+    <AbasRolaveis ativa={aba}>
       {ABAS_PRINCIPAIS.map((a) => (
         <button
           key={a.chave}
@@ -26,6 +28,6 @@ export default function FichaMedicaTabs({ aba, onSelecionarAba }) {
         </button>
       ))}
 
-    </div>
+    </AbasRolaveis>
   );
 }
