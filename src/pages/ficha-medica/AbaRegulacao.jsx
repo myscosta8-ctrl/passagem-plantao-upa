@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarRegulacao, registrarRegulacao, buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao, pesquisarCid } from '../../lib/pepMedico';
+import { registrarRegulacao, buscarAberturaRegulacao, abrirRegulacao, encerrarRegulacao, pesquisarCid } from '../../lib/pepMedico';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'

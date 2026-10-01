@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { buscarOcupacaoAtiva, listarTransferenciasSbar, registrarTransferenciaSbar, listarAlergias, listarSinaisVitais } from '../../lib/pepClinico';
+import { buscarOcupacaoAtiva, registrarTransferenciaSbar, listarAlergias, listarSinaisVitais } from '../../lib/pepClinico';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
@@ -61,7 +61,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
   const set = (k, v) => setD((p) => ({ ...p, [k]: v }));
   const visivel = (c) => filtro === 'todas' || filtro === c;
   const recolhida = (c) => recolhidas.has(c);
-  const toggle = (c) => setRecolhidas((prev) => { const n = new Set(prev); n.has(c) ? n.delete(c) : n.add(c); return n; });
+  const toggle = (c) => setRecolhidas((prev) => { const n = new Set(prev); if (n.has(c)) n.delete(c); else n.add(c); return n; });
   const todasRecolhidas = SECOES.every((s) => recolhidas.has(s.chave));
   const toggleTodas = () => setRecolhidas(todasRecolhidas ? new Set() : new Set(SECOES.map((s) => s.chave)));
   const alergiaTxt = alergias.map((a) => `${String(a.substancia).toUpperCase()}${a.reacao ? ` (${a.reacao})` : ''}`).join('; ');

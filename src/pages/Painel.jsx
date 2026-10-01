@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense } from 'react'
 import RealocarModal from './RealocarModal'
 import ModalDesfecho from './ModalDesfecho'
 import { registrarDesfechoPep } from '../lib/pepAtendimentos'

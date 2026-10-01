@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient.js'
-import { calcularIdade, registrarEventoAuditoria } from './pepAtendimentos.js'
+import { calcularIdade } from './pepAtendimentos.js'
 
 import { gravar, MSG_FINALIZADO } from './documentos.js'
 import { avisarErro } from './erros.js'

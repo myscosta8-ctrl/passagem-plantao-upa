@@ -1,5 +1,5 @@
 ﻿import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { criarLeitoExtra, recolherLeitosExtras } from '../../lib/leitosExtras'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'

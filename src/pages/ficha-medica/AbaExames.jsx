@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarExames, criarExame, buscarCabecalhoImpressao, criarApac } from '../../lib/pepMedico';
+import { criarExame, buscarCabecalhoImpressao, criarApac } from '../../lib/pepMedico';
 import AbaApac from './AbaApac';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';

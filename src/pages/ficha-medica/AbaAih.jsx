@@ -1,6 +1,6 @@
 import { numeroLimpo } from '../../lib/numeros'
 import { useEffect, useState } from 'react';
-import { listarAih, criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar } from '../../lib/pepMedico';
+import { criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar } from '../../lib/pepMedico';
 import { AIH_VAZIA } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';

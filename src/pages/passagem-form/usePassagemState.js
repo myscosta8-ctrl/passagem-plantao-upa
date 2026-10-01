@@ -1,12 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { pepEstaAtivo } from '../../lib/pepConfig'
-import {
-  buscarPassagemAtualPep,
-  buscarUltimaPassagemPep,
-  salvarPassagemPep,
-  salvarIdentificacaoPep,
-} from '../../lib/pepAtendimentos'
+import { buscarPassagemAtualPep, buscarUltimaPassagemPep, salvarPassagemPep } from '../../lib/pepAtendimentos'
 import { PASSAGEM_VAZIA } from './constantes'
 
 export function usePassagemState({ paciente, leito, setorNome, plantaoId, enfermeiroId, onSalvo, onFechar }) {

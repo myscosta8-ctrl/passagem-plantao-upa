@@ -41,8 +41,6 @@ export default function IndicadoresPainel({ onVoltar }) {
   if (novaUI) {
     const CORES = { Vermelho: '#C93A3A', Laranja: '#E07A2E', Amarelo: '#E0B43A', Verde: '#3E8E5E', Azul: '#4A78B5', 'Não classificado': '#9AA8B5' }
     const rotPer = periodo === 'hoje' ? 'hoje' : periodo === '7dias' ? 'nos últimos 7 dias' : periodo === '30dias' ? 'nos últimos 30 dias' : 'no período escolhido'
-    const man = dados ? Object.entries(dados.porManchester) : []
-    const totMan = man.reduce((a, [, q]) => a + q, 0)
     const diag = dados ? dados.internaram.porDiagnostico : []
     const maxD = Math.max(1, ...diag.map((d) => d[1]))
     return (

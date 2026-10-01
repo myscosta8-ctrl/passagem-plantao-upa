@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { listarAtm, criarAtm } from '../../lib/pepMedico';
+import { useState } from 'react';
+import { criarAtm } from '../../lib/pepMedico';
 import { ATM_VAZIA, ATM_RESTRITOS, ATM_PENDENTES_KEY, atbRestrito } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'

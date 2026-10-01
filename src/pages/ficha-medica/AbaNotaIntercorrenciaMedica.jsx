@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { listarNotasIntercorrenciaMedica, criarNotaIntercorrenciaMedica } from '../../lib/pepMedico';
+import { useState } from 'react';
+import { criarNotaIntercorrenciaMedica } from '../../lib/pepMedico';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'

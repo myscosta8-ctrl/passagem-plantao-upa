@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarReceitasMedicas, criarReceitaMedica, listarCatalogoMedicamentos, buscarCabecalhoImpressao } from '../../lib/pepMedico';
+import { criarReceitaMedica, listarCatalogoMedicamentos, buscarCabecalhoImpressao } from '../../lib/pepMedico';
 import { RECEITA_ITEM_VAZIO, VIAS_RECEITA, TAGS_INSTRUCAO, RECEITA_TIPO_LABEL } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'

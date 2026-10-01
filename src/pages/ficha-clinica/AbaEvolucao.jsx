@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarEvolucoes, registrarEvolucao, listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
+import { registrarEvolucao, listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
 import { NANDA_OPCOES, NIC_OPCOES } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
@@ -26,15 +26,6 @@ function resumoSv(s) {
     s.pa && `PA ${s.pa} mmHg`, s.fc && `FC ${s.fc} bpm`, s.fr && `FR ${s.fr} irpm`, s.temperatura && `Tax ${s.temperatura} °C`,
     s.spo2 && `SpO₂ ${s.spo2}%`, s.glicemia && `HGT ${s.glicemia} mg/dL`, s.dor_escala !== '' && `Dor EVA ${s.dor_escala}/10`,
   ].filter(Boolean).join(' • ');
-}
-
-function rotuloData(d) {
-  const dt = new Date(d);
-  const hoje = new Date(); const ontem = new Date(); ontem.setDate(hoje.getDate() - 1);
-  const hora = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  if (dt.toDateString() === hoje.toDateString()) return `Hoje, ${hora}`;
-  if (dt.toDateString() === ontem.toDateString()) return `Ontem, ${hora}`;
-  return `${dt.toLocaleDateString('pt-BR')}, ${hora}`;
 }
 
 export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar }) {

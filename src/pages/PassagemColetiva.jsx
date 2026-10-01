@@ -127,7 +127,7 @@ export default function PassagemColetiva({
     setConferindoTodos(false)
   }
 
-  const toggleRecolhido = (id) => setRecolhidos((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  const toggleRecolhido = (id) => setRecolhidos((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
 
   function adicionarChip(ps, chip) {
     const atual = pendenciaDe(ps)
@@ -167,22 +167,6 @@ export default function PassagemColetiva({
 
   function abrirFoco(leitoId) { setFocoLeitoId(leitoId); setModo('focus') }
   const leitoFoco = leitosFiltrados.find((l) => l.id === focoLeitoId) || leitosFiltrados[0]
-
-  function blocoDispositivos(ps) {
-    const lista = dispositivosDe(ps)
-    return (
-      <>
-        <div className="disp-chips">
-          {DISPOSITIVOS_OPCOES.map((d) => (
-            <button key={d} type="button" className={`disp-chip ${lista.includes(d) ? 'on' : ''}`} onClick={() => toggleDispositivo(ps, d)}>
-              <i className={`ph ${lista.includes(d) ? 'ph-check' : 'ph-plus'}`} /> {d}
-            </button>
-          ))}
-        </div>
-        <textarea className="pending-input disp-input" value={detalheDe(ps)} onChange={(e) => editar(ps, 'dispositivos_detalhe', e.target.value)} placeholder="Detalhe: local, calibre, data de inserção, cuidados..." />
-      </>
-    )
-  }
 
   function SimNao({ ps, k }) {
     const v = campo(ps, k)

@@ -2,8 +2,6 @@ import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
 
 const HORAS_DIA = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 const HORAS_NOITE = [19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6]
-const LINHAS_GANHO = ['vo', 'sne', 'sg', 'sf', 'med', 'outros_ganhos']
-const LINHAS_PERDA = ['diurese', 'drenos', 'vomitos', 'fezes', 'aspiracao', 'outras_perdas']
 
 function sem(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() }
 function linhaGanho(h) {

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { listarSolicitacoesSangue, criarSolicitacaoSangue } from '../../lib/pepMedico';
+import { useState } from 'react';
+import { criarSolicitacaoSangue } from '../../lib/pepMedico';
 import { SANGUE_VAZIA, HEMOCOMPONENTES_OPCOES, URGENCIA_OPCOES } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'

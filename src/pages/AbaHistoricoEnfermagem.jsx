@@ -155,7 +155,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
 
   const visivel = (c) => filtro === 'todas' || filtro === c
   const recolhida = (c) => recolhidas.has(c)
-  const toggle = (c) => setRecolhidas((prev) => { const n = new Set(prev); n.has(c) ? n.delete(c) : n.add(c); return n })
+  const toggle = (c) => setRecolhidas((prev) => { const n = new Set(prev); if (n.has(c)) n.delete(c); else n.add(c); return n })
       const irPara = (c) => { setFiltro(c); setRecolhidas(new Set()) }
 
   async function salvar(imprimir = false) {

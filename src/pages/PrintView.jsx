@@ -20,8 +20,6 @@ const TITULO_SETOR = { 'Sala Vermelha': 'Sala Vermelha — Emergência e Estabil
 
 const sn = (v) => (v === true ? 'S' : v === false ? 'N' : '—')
 const dataBR = (d) => (d ? new Date(String(d).length === 10 ? `${d}T00:00:00` : d).toLocaleDateString('pt-BR') : '')
-const limpar = (v) => String(v || '').replace(/^(PEP|AT)-?/i, '')
-
 async function carregarDados(plantao, viaHistorico) {
   const [{ data: setores }, { data: leitos }, { data: equipe }, { data: chefe }] = await Promise.all([
     supabase.from('setores').select('*').order('ordem'),

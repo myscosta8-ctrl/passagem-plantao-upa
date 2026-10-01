@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarEvolucoesMedicas, criarEvolucaoMedica } from '../../lib/pepMedico';
+import { criarEvolucaoMedica } from '../../lib/pepMedico';
 import { listarSinaisVitais } from '../../lib/pepClinico';
 import { EVOLUCAO_VAZIA } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'

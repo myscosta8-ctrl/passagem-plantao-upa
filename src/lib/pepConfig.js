@@ -1,5 +1,3 @@
-import { supabase } from './supabaseClient.js'
-
 // O PEP (pessoas/atendimentos/internacoes/leito_ocupacoes) é a única fonte de
 // dados. A antiga chave `configuracoes.pep_ativo` era comparada como boolean,
 // mas o banco guarda texto ('true'), então o PEP só ligava para quem tinha

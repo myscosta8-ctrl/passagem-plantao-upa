@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { listarTfd, criarTfd } from '../../lib/pepMedico';
+import { useState } from 'react';
+import { criarTfd } from '../../lib/pepMedico';
 import { TFD_VAZIA } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'

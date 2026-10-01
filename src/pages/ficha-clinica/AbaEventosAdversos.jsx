@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { listarEventosAdversos, registrarEventoAdverso } from '../../lib/pepClinico';
+import { useState } from 'react';
+import { registrarEventoAdverso } from '../../lib/pepClinico';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
