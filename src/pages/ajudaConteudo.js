@@ -22,7 +22,7 @@ export const SECOES_AJUDA = [
       { p: 'Como interno um paciente?', r: 'Toque num leito livre (ou em "Admitir" na lista), preencha nome, diagnóstico, data de admissão, data de nascimento, classificação de Manchester e status, e toque em "Internar".' },
       { p: 'Como realoco (troco de leito/setor)?', r: 'No card do paciente toque em "Realocar", escolha o setor de destino e depois um leito livre (o isolamento aparece destacado em âmbar como "ISO"). Os dados clínicos são mantidos. Se o setor estiver lotado, dá para abrir um leito extra.' },
       { p: 'Como sinalizo que o paciente foi internado (saiu da observação)?', r: 'Enfermagem: no card do paciente em "Em observação", toque no ícone da cama e confirme. Recepção (e enfermagem, pelo menu Recepção): aba "Sinalizar internação", toque em "Sinalizar internação" ao lado do nome e confirme. O card passa a mostrar "Internado" e fica registrado quem sinalizou, quando e de qual status para qual. Se marcou por engano, na mesma aba use "Voltar p/ observação" — também fica registrado. Em Internação o paciente já entra como Internado.' },
-      { p: 'Como dou alta, transferência ou óbito?', r: 'No card do paciente toque no botão vermelho "Desfecho" e escolha o tipo. O prontuário continua guardado e pode ser consultado depois em "Desfechos".' },
+      { p: 'Como dou alta, transferência ou óbito?', r: 'No card do paciente toque no botão vermelho "Desfecho" e escolha o tipo. O prontuário continua guardado e pode ser consultado e impresso depois pelo menu "Desfechos" (veja "Depois da alta: Desfechos").' },
     ],
   },
   {
@@ -37,7 +37,8 @@ export const SECOES_AJUDA = [
   {
     id: 'enfermagem', titulo: 'Prontuário de Enfermagem', icone: 'ph-first-aid-kit', perfis: ['enfermagem', 'medico', 'admin'],
     itens: [
-      { p: 'Onde fica?', r: 'Toque no paciente no painel. O prontuário abre na parte de Enfermagem, com as abas: Admissão de Enfermagem, Evolução SAE, Balanço Hídrico 24h, Transferência Externa (SBAR) e Nota de Intercorrência.' },
+      { p: 'Onde fica?', r: 'Toque no paciente no painel. O prontuário abre na parte de Enfermagem, com as abas: Admissão, Evolução SAE, Escalas e Protocolos, Balanço Hídrico 24h, Transferência Externa (SBAR), Nota de Intercorrência e Notificação Compulsória (SINAN).' },
+      { p: 'As abas não cabem na tela. Como vejo as outras?', r: 'Quando as abas não cabem numa linha (comum no celular e no tablet), aparecem setas ‹ e › nas pontas. Toque na seta para deslizar as abas para a direita ou para a esquerda. A aba aberta fica sempre à vista.' },
       { p: 'Evolução SAE', r: 'Registre os sinais vitais do turno, marque os diagnósticos NANDA-I e os cuidados NIC e escreva a evolução (SOAP ou descritiva).' },
       { p: 'Duplicar evolução anterior', r: 'Na Evolução SAE, toque em "Duplicar evolução anterior" e escolha uma evolução de enfermagem já finalizada do paciente. O texto, os diagnósticos NANDA-I e os cuidados NIC vêm para o formulário. Os sinais vitais NÃO são copiados — afira de novo. Revise tudo antes de salvar: o documento novo sai com o seu nome. Enfermagem só duplica evolução de enfermagem.' },
       { p: 'O médico pode escrever aqui?', r: 'Não. O médico consegue ver os registros da enfermagem, mas não criar. O mesmo vale ao contrário.' },
@@ -46,20 +47,45 @@ export const SECOES_AJUDA = [
   {
     id: 'medico', titulo: 'Prontuário Médico', icone: 'ph-stethoscope', perfis: ['medico', 'enfermagem', 'admin'],
     itens: [
-      { p: 'Onde fica?', r: 'No prontuário do paciente, toque em "Prontuário Médico" no topo. São 8 abas: Admissão Médica, Laudo de AIH, Plano Terapêutico, Evoluções Médicas, Prescrição Médica, Exames & APAC, Hemoterapia e Receituário & Alta.' },
+      { p: 'Onde fica?', r: 'No prontuário do paciente, toque em "Prontuário Médico" no topo. São 9 abas: Admissão, AIH, Plano Terapêutico, Evoluções, Prescrição, Exames & APAC, Sangue e Derivados, Documentos de Alta e Notificação Compulsória (SINAN). Se não couberem na tela, use as setas ‹ › nas pontas da linha de abas.' },
       { p: 'Duplicar evolução médica', r: 'Em Evoluções Médicas → Evolução Diária, toque em "Duplicar evolução anterior" e escolha uma evolução médica já finalizada. Diagnósticos, história, evolução, exame físico e conduta vêm para o formulário; os sinais vitais NÃO são copiados (use "Puxar da enfermagem" ou digite). Revise antes de salvar. Médico só duplica evolução médica.' },
       { p: 'Duplicar prescrição', r: 'Na Prescrição Médica, no histórico da própria aba, toque em "Duplicar" numa prescrição anterior: medicamentos, dieta e orientações vêm para uma nova prescrição.' },
+      { p: 'Quando preciso preencher a Ficha de ATM?', r: 'Só quando a prescrição tem antimicrobiano de uso restrito por via INTRAVENOSA (EV). Ao salvar uma prescrição assim, o sistema avisa e, dentro da aba Prescrição, aparece a sub-aba "ATM - Antimicrobiano Restrito". O mesmo antibiótico por via oral ou intramuscular não pede ATM — na ficha ele aparece com a marca "Via não intravenosa".' },
+      { p: 'Como preencho a Ficha de ATM?', r: 'Prescrição → sub-aba "ATM - Antimicrobiano Restrito". A ficha já vem com os antimicrobianos EV pendentes, o diagnóstico e a data. A dose diária e o cálculo D × I × T são feitos sozinhos a partir da prescrição; confira e complete o que faltar. Depois, "Salvar e Imprimir". A pendência some quando todos os antimicrobianos EV tiverem ATM registrada.' },
     ],
   },
   {
     id: 'documentos', titulo: 'Salvar, finalizar e invalidar', icone: 'ph-file-text', perfis: CLINICOS,
     itens: [
       { p: 'Qual a diferença entre "Salvar" e "Salvar e Imprimir"?', r: '"Salvar" guarda um RASCUNHO: só você vê e pode continuar editando depois. "Salvar e Imprimir" FINALIZA o documento: ele entra no prontuário, é impresso e não pode mais ser editado — só invalidado.' },
-      { p: 'Onde vejo os documentos que salvei e não finalizei?', r: 'Em Pendências → "Meus documentos não finalizados". Quando houver algum, o item Pendências do menu mostra um número em laranja. Para continuar, abra o paciente e vá na mesma aba: o rascunho reabre sozinho.' },
+      { p: 'Onde vejo os documentos que salvei e não finalizei?', r: 'Em Pendências → "Meus documentos não finalizados". Quando houver algum, o item Pendências do menu mostra um número em laranja. Para continuar, abra o paciente e vá na mesma aba: o rascunho reabre sozinho. Ou use o lápis no Histórico Clínico (veja abaixo).' },
+      { p: 'Como edito um rascunho pelo Histórico Clínico?', r: 'Histórico Clínico → no seu rascunho, toque no ícone de lápis (ao lado de Visualizar e Invalidar). O sistema abre a aba certa do prontuário já com aquele rascunho carregado. O lápis só aparece nos rascunhos que você mesmo salvou.' },
       { p: 'O que o "Cancelar" faz?', r: 'Com um rascunho aberto, "Cancelar" descarta esse rascunho em definitivo (o sistema pede confirmação). Documentos finalizados nunca são apagados.' },
       { p: 'Onde fica o Histórico Clínico?', r: 'No topo do prontuário, botão "Histórico Clínico". Ele reúne em ordem cronológica todos os registros do paciente, desta internação e das anteriores, com opção de ver/imprimir cada documento e ver o histórico de alterações.' },
       { p: 'Como invalido um documento finalizado?', r: 'Histórico Clínico → toque no registro → "Invalidar" → escreva o motivo → Confirmar. Só quem criou o documento pode invalidar. O documento não é apagado: fica marcado como "Invalidado", com motivo, data e quem invalidou.' },
       { p: 'Posso registrar com data anterior?', r: 'Sim. No rodapé do documento há o campo "Data do registro" para registros retroativos. A data de impressão é sempre a atual.' },
+    ],
+  },
+  {
+    id: 'sinan', titulo: 'Notificação Compulsória (SINAN)', icone: 'ph-megaphone', perfis: CLINICOS,
+    itens: [
+      { p: 'Onde fica?', r: 'No prontuário, na aba "Notificação Compulsória" — tanto no Prontuário de Enfermagem quanto no Prontuário Médico. A ficha sai impressa no modelo oficial do Ministério da Saúde, para entregar à vigilância epidemiológica.' },
+      { p: 'Como faço uma notificação?', r: 'Toque em "Nova notificação" e escolha o agravo. Se o diagnóstico do paciente tiver CID, o sistema sugere o agravo certo no topo. Também dá para buscar pelo nome ou pelo CID (ex.: malária, B54). Doenças sem ficha própria saem na Ficha de Notificação Individual.' },
+      { p: 'Dengue e Chikungunya, Meningites, Sarampo e Rubéola', r: 'Usam uma ficha só cada: "Dengue e Chikungunya" (CID A90, A91, A92.0); "Meningites"; "Sarampo e Rubéola (doenças exantemáticas)". Dentro da ficha você marca qual é a suspeita.' },
+      { p: 'Quais campos são obrigatórios?', r: 'Só os dados gerais: data da notificação, nome completo, data de nascimento, nome da mãe e endereço completo (UF, município, bairro, logradouro e número). Todos os outros campos são editáveis e opcionais. Se faltar algo obrigatório, o sistema avisa e permite "Imprimir mesmo assim".' },
+      { p: 'E os códigos do IBGE e do CNES?', r: 'Não precisa digitar: o sistema preenche sozinho a partir do município e da unidade informados (Breves e a UPA já saem com o código).' },
+      { p: 'Os dados do paciente vêm prontos?', r: 'Sim. Nome, nascimento, mãe, endereço, CNS e dados da unidade vêm do cadastro e do atendimento. Confira e corrija na própria ficha se precisar.' },
+      { p: 'Salvar, imprimir e entregar', r: '"Salvar" guarda rascunho (depois use "Continuar" na lista). "Salvar e Imprimir" registra e imprime. Na lista dá para reimprimir, marcar "Entregue à vigilância" e invalidar. Notificações marcadas "24h" são de notificação imediata; as "Sigilosas" ficam protegidas.' },
+    ],
+  },
+  {
+    id: 'desfechos', titulo: 'Depois da alta: Desfechos', icone: 'ph-door-open', perfis: CLINICOS,
+    itens: [
+      { p: 'Dei alta e esqueci de imprimir a evolução. E agora?', r: 'Menu → Desfechos → ache o paciente → toque no botão da impressora na linha dele. O sistema abre o ÚLTIMO documento que VOCÊ registrou para aquele paciente, pronto para imprimir. Se você não registrou nada nesse atendimento, aparece um aviso na linha.' },
+      { p: 'Como encontro um paciente que já saiu?', r: 'Na barra de busca de Desfechos, digite o nome completo ou o número do prontuário. A busca procura em TODAS as altas, sem limite de data, e acha o nome com ou sem acento (ex.: "conceicao" encontra "Conceição"). Use o X para limpar a busca.' },
+      { p: 'Como abro o prontuário depois da alta?', r: 'Desfechos → "Abrir prontuário" na linha do paciente. O prontuário abre só para consulta, com um aviso no topo mostrando a data da alta. Pelo Histórico Clínico dá para visualizar e imprimir qualquer documento.' },
+      { p: 'Posso registrar algo depois da alta?', r: 'Documento novo, não: as abas de registro ficam escondidas. Mas o seu RASCUNHO pode ser finalizado até 24 horas depois da alta: Histórico Clínico → lápis no rascunho → revise → "Salvar e Imprimir". O aviso no topo mostra até quando. Depois desse prazo, fica só consulta e impressão.' },
+      { p: 'Fica registrado?', r: 'Sim. Cada abertura de prontuário e cada impressão feita depois da alta ficam na trilha de auditoria, com quem fez e quando.' },
     ],
   },
   {
