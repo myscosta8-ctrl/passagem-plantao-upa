@@ -28,9 +28,54 @@ function escreverLinhas(paginas, font, campo, valor) {
   }
 }
 
+// Marca um "X" centralizado na caixa (fichas do tipo |__| Sim |__| Não).
+function marcarX(page, font, c) {
+  const tam = Math.min(9, c.h)
+  const w = font.widthOfTextAtSize('X', tam)
+  page.drawText('X', { x: c.x + (c.w - w) / 2, y: c.y + (c.h - tam * 0.72) / 2, size: tam, font, color: rgb(0, 0, 0) })
+}
+
+// Escreve caracteres um por casa, em casas de posição conhecida ([x0, x1] de cada casa).
+function porCasas(page, font, celulas, y, h, chars, tamMax = 8.5) {
+  const tam = Math.min(tamMax, h - 1)
+  celulas.forEach(([x0, x1], i) => {
+    const ch = chars[i]
+    if (!ch) return
+    const w = font.widthOfTextAtSize(ch, tam)
+    page.drawText(ch, { x: (x0 + x1 - w) / 2, y: y + (h - tam * 0.72) / 2, size: tam, font, color: rgb(0, 0, 0) })
+  })
+}
+
 function escrever(page, font, campo, valor) {
   const c = campo.caixa
   const cor = rgb(0, 0, 0)
+  if (campo.tipo === 'data' && campo.comoTexto) {
+    const d = dataParaPapel(valor)
+    valor = d.length === 8 ? `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}` : valor
+    campo = { ...campo, tipo: 'texto' }
+  }
+  if (campo.tipo === 'marca') { if (valor === '1' || valor === true) marcarX(page, font, c); return }
+  if (campo.tipo === 'escolha') { const cx = campo.caixas?.[valor]; if (cx) marcarX(page, font, cx); return }
+  if (campo.celulas) {
+    const bruto = campo.tipo === 'data' ? dataParaPapel(valor) : (campo.alfa ? limpar(so(valor).toUpperCase()).replace(/\s/g, '') : so(valor).replace(/\D/g, ''))
+    porCasas(page, font, campo.celulas, c.y, c.h, bruto, campo.fonte || 8.5)
+    return
+  }
+  if (campo.tipo === 'data' && campo.partes) {
+    // Data em 3 trechos (dia | mês | ano), cada trecho com suas casas.
+    const d = dataParaPapel(valor)
+    const pedacos = [d.slice(0, 2), d.slice(2, 4), campo.partes[2][2] === 2 ? d.slice(6, 8) : d.slice(4, 8)]
+    const tam = Math.min(campo.fonte || 8.5, c.h - 1)
+    campo.partes.forEach(([x, w, n], i) => {
+      const t = pedacos[i] || ''
+      for (let k = 0; k < t.length; k++) {
+        const cw = w / n
+        const lw = font.widthOfTextAtSize(t[k], tam)
+        page.drawText(t[k], { x: x + cw * k + (cw - lw) / 2, y: c.y + (c.h - tam * 0.72) / 2, size: tam, font, color: cor })
+      }
+    })
+    return
+  }
   if (campo.tipo === 'data' || campo.tipo === 'digitos' || (campo.tipo === 'codigo' && campo.digitos > 1)) {
     let chars
     if (campo.tipo === 'data') chars = campo.formato === 'ddmm' ? dataParaPapel(valor).slice(0, 4) : dataParaPapel(valor).slice(0, 8)
@@ -68,10 +113,10 @@ export async function gerarPdfFicha(modelo, dados, { base = './sinan' } = {}) {
   const paginas = pdf.getPages()
   for (const campo of camposDe(modelo)) {
     const v = valorEfetivo(campo, dados)
-    if (v === '' || v == null) continue
+    if (v === '' || v == null || v === false) continue
     if (campo.linhas) { escreverLinhas(paginas, font, campo, v); continue }
-    if (!campo.caixa) continue
-    const page = paginas[campo.caixa.p ?? 0]
+    if (!campo.caixa && !campo.caixas) continue
+    const page = paginas[(campo.caixa || Object.values(campo.caixas)[0]).p ?? 0]
     if (page) escrever(page, font, campo, v)
   }
   return pdf.save()

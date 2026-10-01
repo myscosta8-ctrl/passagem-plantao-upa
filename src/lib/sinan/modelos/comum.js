@@ -83,8 +83,8 @@ export function cabecalhoInvestigacao(g, { rotulo7 = 'Data dos primeiros sintoma
 }
 
 // Caixa de pente (dígito por dígito) a partir dos traços separadores impressos.
-export function pente(p, separadores, y, h = 10) {
-  const passo = (separadores[separadores.length - 1] - separadores[0]) / (separadores.length - 1)
+export function pente(p, separadores, y, h = 10, passoFixo = 14.4) {
+  const passo = separadores.length > 1 ? (separadores[separadores.length - 1] - separadores[0]) / (separadores.length - 1) : passoFixo
   const x = separadores[0] - passo
   return { p, x, y, w: passo * (separadores.length + 1), h }
 }

@@ -62,6 +62,8 @@ export function valoresIniciais(ctx = {}) {
     sexo: sexoSinan(p.sexo),
     raca: racaSinan(p.raca_cor),
     cns: digitos(p.cns).slice(0, 15),
+    cpf: digitos(p.cpf).slice(0, 11),
+    tem_cpf: digitos(p.cpf).length === 11 ? '1' : '',
     nome_mae: p.nome_mae || '',
     uf_residencia: p.uf || (residenteBreves ? 'PA' : ''),
     municipio_residencia: p.cidade || '',

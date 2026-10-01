@@ -70,3 +70,5 @@
 .sn-msg { padding: 10px 12px; border-radius: 10px; background: #E8F4EC; color: #256B45; font-size: 14px; }
 .sn-msg.erro { background: #FDECEC; color: #9B2C2C; }
 .sn-na.sn-auto { font-style: normal; color: #0F2230; font-size: 14px; } .sn-na.sn-auto small { color: #8595A4; font-size: 12px; }
+.sn-marca { display: inline-flex; align-items: center; gap: 8px; height: 34px; font-size: 14px; color: #0F2230; cursor: pointer; }
+.sn-marca input { width: 18px !important; height: 18px !important; accent-color: #1B4555; }

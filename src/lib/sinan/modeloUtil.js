@@ -23,7 +23,7 @@ export function validarCampo(campo, valor) {
     if (!m) return 'Data inválida'
   }
   if (campo.tipo === 'digitos' && !campo.alfa && v.replace(/\D/g, '').length > campo.digitos) return `Máximo de ${campo.digitos} dígitos`
-  if (campo.tipo === 'codigo' && campo.opcoes && !campo.opcoes.some(([c]) => c === v)) return 'Código inválido'
+  if ((campo.tipo === 'codigo' || campo.tipo === 'escolha') && campo.opcoes && !campo.opcoes.some(([c]) => c === v)) return 'Opção inválida'
   return null
 }
 

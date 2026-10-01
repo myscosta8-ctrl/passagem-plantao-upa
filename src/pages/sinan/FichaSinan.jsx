@@ -15,10 +15,21 @@ function Campo({ campo, valor, dados, onChange }) {
   let controle
   if (campo.espelho || campo.derivar) {
     const v = valorEfetivo(campo, dados)
-    const txt = campo.tipo === 'codigo' ? rotuloOpcao(campo.opcoes, v) : campo.tipo === 'data' && v ? String(v).split('-').reverse().join('/') : v
+    const txt = campo.tipo === 'codigo' || campo.tipo === 'escolha' ? rotuloOpcao(campo.opcoes, v) : campo.tipo === 'data' && v ? String(v).split('-').reverse().join('/') : v
     controle = <div className="sn-na sn-auto">{txt || '—'} <small>(automático)</small></div>
   } else if (!ativo) {
     controle = <div className="sn-na">{campo.senao ? rotuloOpcao(campo.opcoes, campo.senao) : 'Não se aplica'}</div>
+  } else if (campo.tipo === 'marca') {
+    controle = (
+      <label className="sn-marca"><input id={id} type="checkbox" checked={valor === '1'} onChange={(e) => onChange(e.target.checked ? '1' : '')} /> Marcar (X)</label>
+    )
+  } else if (campo.tipo === 'escolha') {
+    controle = (
+      <select id={id} value={valor ?? ''} onChange={(e) => onChange(e.target.value)}>
+        <option value="">—</option>
+        {campo.opcoes.map(([c, r]) => <option key={c} value={c}>{r}</option>)}
+      </select>
+    )
   } else if (campo.tipo === 'codigo') {
     controle = (
       <select id={id} value={valor ?? ''} onChange={(e) => onChange(e.target.value)}>
