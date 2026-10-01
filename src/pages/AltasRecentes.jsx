@@ -1,9 +1,58 @@
 import { numeroLimpo } from '../lib/numeros'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, lazy, Suspense } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
+import { registrarEventoAuditoria } from '../lib/pepAtendimentos'
+import { VisualizarRegistro, ultimoDocumentoDoAutor } from './HistoricoClinico'
 import './AltasRecentes.css'
 import CampoPeriodo, { periodoPadrao } from '../components/CampoPeriodo'
+
+const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
+
+const SELECT_DESFECHO = 'id, pessoa_id, encerrado_em, queixa_principal, pessoas(nome, prontuario_numero), internacoes(resumo_alta, diagnostico_admissao, desfecho_tipo, desfecho_obs, encerrado_em), leito_ocupacoes(liberado_em, leitos(numero, setor_id, setores(nome)))'
+const semAcento = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+// Linha da lista a partir do atendimento encerrado.
+function mapearDesfecho(a) {
+  const internacao = (Array.isArray(a.internacoes) ? a.internacoes[0] : a.internacoes) || {}
+  const ultimaOcupacao = [...(a.leito_ocupacoes ?? [])].sort((x, y) => new Date(y.liberado_em || 0) - new Date(x.liberado_em || 0))[0]
+  const leito = ultimaOcupacao?.leitos
+  const tipo = normalizarDesfecho(internacao.desfecho_tipo)
+  return {
+    id: `pep-${a.id}`,
+    atendimentoId: a.id,
+    pessoaId: a.pessoa_id,
+    nome: a.pessoas?.nome || 'Não informado',
+    tipo_desfecho: tipo,
+    data_desfecho: a.encerrado_em || internacao.encerrado_em,
+    // Transferência: desfecho_obs guarda o hospital de destino informado no desfecho.
+    destino: tipo === 'Transferência' ? (internacao.desfecho_obs || '') : '',
+    diagnostico: (tipo === 'Transferência' ? null : internacao.desfecho_obs) || internacao.resumo_alta || internacao.diagnostico_admissao || a.queixa_principal || '—',
+    leito_info: leito ? `Leito ${leito.numero} – ${leito.setores?.nome || ''}` : 'Observação',
+    leito: leito ? { id: `pos-alta-${a.id}`, numero: leito.numero, setor_id: leito.setor_id } : { id: `pos-alta-${a.id}`, numero: '—', setor_id: null },
+    setorNome: leito?.setores?.nome || '',
+    prontuario: numeroLimpo(a.pessoas?.prontuario_numero),
+  }
+}
+
+// Busca por nome completo (ou parte) ou nº do prontuário em TODAS as saídas, sem limite de período.
+async function buscarSaidas(termo) {
+  const t = String(termo || '').replace(/[,()*%\\]/g, ' ').trim()
+  if (!t) return []
+  const numero = t.replace(/^#?\s*(PEP|AT|REG)-?/i, '')
+  let q = supabase.from('pessoas').select('id').is('mesclado_com_id', null).limit(60)
+  // Nome: vogais e "c" viram curinga de 1 letra, para achar com ou sem acento (Goncalves = Gonçalves); a lista refina depois.
+  const padraoNome = `%${semAcento(t).split(/\s+/).map((w) => w.replace(/[aeiouc]/g, '_')).join('%')}%`
+  q = /^\d+$/.test(numero) ? q.ilike('prontuario_numero', `%${numero}%`) : q.ilike('nome', padraoNome)
+  const { data: pessoas, error: e1 } = await q
+  if (e1) { console.error('Busca de pacientes (Desfechos):', e1); return [] }
+  const ids = (pessoas ?? []).map((p) => p.id)
+  if (!ids.length) return []
+  const { data, error: e2 } = await supabase.from('atendimentos').select(SELECT_DESFECHO)
+    .in('pessoa_id', ids).eq('status', 'alta').order('encerrado_em', { ascending: false }).limit(300)
+  if (e2) { console.error('Busca de saídas (Desfechos):', e2); return [] }
+  return (data ?? []).map(mapearDesfecho)
+}
 
 const CORES_DESFECHO = {
   'Alta':          { bg: '#dcfce7', txt: '#166534' },
@@ -59,7 +108,7 @@ export default function AltasRecentes({ onVoltar }) {
     // Fonte oficial (PEP): atendimentos encerrados no período.
     const { data: atendimentosAlta, error } = await supabase
       .from('atendimentos')
-      .select('id, encerrado_em, queixa_principal, pessoas(nome, prontuario_numero), internacoes(resumo_alta, diagnostico_admissao, desfecho_tipo, desfecho_obs, encerrado_em), leito_ocupacoes(liberado_em, leitos(numero, setores(nome)))')
+      .select(SELECT_DESFECHO)
       .eq('status', 'alta')
       .gte('encerrado_em', inicio)
       .lte('encerrado_em', fim)
@@ -67,22 +116,7 @@ export default function AltasRecentes({ onVoltar }) {
       .limit(2000)
     if (error) console.error('Erro ao carregar desfechos:', error)
 
-    const todos = (atendimentosAlta ?? []).map((a) => {
-      const internacao = (Array.isArray(a.internacoes) ? a.internacoes[0] : a.internacoes) || {}
-      const ultimaOcupacao = [...(a.leito_ocupacoes ?? [])].sort((x, y) => new Date(y.liberado_em || 0) - new Date(x.liberado_em || 0))[0]
-      const leito = ultimaOcupacao?.leitos
-      return {
-        id: `pep-${a.id}`,
-        nome: a.pessoas?.nome || 'Não informado',
-        tipo_desfecho: normalizarDesfecho(internacao.desfecho_tipo),
-        data_desfecho: a.encerrado_em || internacao.encerrado_em,
-        // Transferência: desfecho_obs guarda o hospital de destino informado no desfecho.
-        destino: normalizarDesfecho(internacao.desfecho_tipo) === 'Transferência' ? (internacao.desfecho_obs || '') : '',
-        diagnostico: (normalizarDesfecho(internacao.desfecho_tipo) === 'Transferência' ? null : internacao.desfecho_obs) || internacao.resumo_alta || internacao.diagnostico_admissao || a.queixa_principal || '—',
-        leito_info: leito ? `Leito ${leito.numero} – ${leito.setores?.nome || ''}` : 'Observação',
-        prontuario: numeroLimpo(a.pessoas?.prontuario_numero),
-      }
-    })
+    const todos = (atendimentosAlta ?? []).map(mapearDesfecho)
 
     todos.sort((a, b) => new Date(b.data_desfecho) - new Date(a.data_desfecho))
     setDesfechos(todos)
@@ -91,12 +125,72 @@ export default function AltasRecentes({ onVoltar }) {
 
   useEffect(() => { carregar() }, [carregar])
 
-  // Filtros aplicados
-  const filtrados = desfechos.filter(d => {
-    const bateNome = !busca || d.nome.toLowerCase().includes(busca.toLowerCase())
+  // Busca por nome/prontuário em todo o histórico (a partir de 3 letras ou qualquer número).
+  const [resultadosBusca, setResultadosBusca] = useState(null)
+  const [buscando, setBuscando] = useState(false)
+  useEffect(() => {
+    const t = busca.trim()
+    if (!(t.length >= 3 || /^\d+$/.test(t))) { setResultadosBusca(null); return undefined }
+    let vivo = true
+    setBuscando(true)
+    const tm = setTimeout(async () => {
+      const r = await buscarSaidas(t)
+      if (vivo) { setResultadosBusca(r); setBuscando(false) }
+    }, 350)
+    return () => { vivo = false; clearTimeout(tm) }
+  }, [busca])
+
+  // Prontuário de quem já saiu (somente consulta/impressão) e impressão rápida do último documento do profissional.
+  const [abertoPac, setAbertoPac] = useState(null)
+  const [docRapido, setDocRapido] = useState(null)
+  const [avisoLinha, setAvisoLinha] = useState(null)
+  function abrirProntuario(d) {
+    registrarEventoAuditoria({ atendimentoId: d.atendimentoId, autorId: enfermeiro?.id, acao: 'prontuario_consultado_pos_alta', dados: { tipo_desfecho: d.tipo_desfecho } })
+    setAbertoPac(d)
+  }
+  async function imprimirMeuUltimo(d) {
+    setAvisoLinha({ id: d.id, texto: 'Procurando seu último documento…' })
+    const item = await ultimoDocumentoDoAutor(d.atendimentoId, enfermeiro?.id)
+    if (!item) { setAvisoLinha({ id: d.id, texto: 'Você não tem documento neste atendimento. Use "Abrir prontuário" para ver os da equipe.' }); return }
+    registrarEventoAuditoria({ atendimentoId: d.atendimentoId, autorId: enfermeiro?.id, acao: 'documento_impresso_pos_alta', dados: { tabela: item.fonte.tabela, registro_id: item.registro.id } })
+    setAvisoLinha(null)
+    setDocRapido(item)
+  }
+
+  const termoBusca = semAcento(busca.trim())
+  const baseLista = resultadosBusca ?? desfechos
+  // Filtros aplicados: nome (sem acento) ou nº do prontuário, e tipo de desfecho.
+  const filtrados = baseLista.filter(d => {
+    const bateNome = !termoBusca || semAcento(d.nome).includes(termoBusca) || (d.prontuario && String(d.prontuario).includes(termoBusca.replace(/^#?\s*(pep|at|reg)-?/i, '')))
     const bateTipo = !filtroTipo || d.tipo_desfecho === filtroTipo
     return bateNome && bateTipo
   })
+
+  const acoesLinha = (d) => (
+    <span className="ds-acoes no-print">
+      <button type="button" className="ds-acao" onClick={() => abrirProntuario(d)} title="Abrir o prontuário (consulta e impressão)"><i className="ph ph-folder-open" /> <span>Abrir prontuário</span></button>
+      <button type="button" className="ds-acao ic" onClick={() => imprimirMeuUltimo(d)} title="Imprimir o meu último documento neste atendimento" aria-label="Imprimir meu último documento"><i className="ph ph-printer" /></button>
+    </span>
+  )
+  const avisoDaLinha = (d) => (avisoLinha?.id === d.id ? <div className="ds-aviso-linha no-print"><i className="ph ph-info" /> {avisoLinha.texto}</div> : null)
+
+  const sobreposicoes = (
+    <>
+      {abertoPac && (
+        <Suspense fallback={<div className="modal-backdrop" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="modal-card" style={{ padding: 24 }}>Carregando prontuário do paciente...</div></div>}>
+          <EspacoPaciente
+            paciente={{ id: abertoPac.atendimentoId, pessoa_id: abertoPac.pessoaId, nome: abertoPac.nome, pep_nativo: true }}
+            leito={abertoPac.leito}
+            setorNome={abertoPac.setorNome}
+            onFechar={() => setAbertoPac(null)}
+            pilarInicial={enfermeiro?.tipo === 'medico' ? 'medico' : 'enfermagem'}
+            posAlta={{ encerradoEm: abertoPac.data_desfecho, tipo: abertoPac.tipo_desfecho }}
+          />
+        </Suspense>
+      )}
+      {docRapido && <VisualizarRegistro item={docRapido} onFechar={() => setDocRapido(null)} />}
+    </>
+  )
 
   // Indicadores
   const total = filtrados.length
@@ -122,7 +216,7 @@ export default function AltasRecentes({ onVoltar }) {
 
   // ===== Nova interface (contas pep_beta) — mockup 10 =====
   if (enfermeiro?.pep_beta === true) {
-    const porNome = desfechos.filter((d) => !busca || d.nome.toLowerCase().includes(busca.toLowerCase()))
+    const porNome = baseLista.filter((d) => !termoBusca || semAcento(d.nome).includes(termoBusca) || (d.prontuario && String(d.prontuario).includes(termoBusca)))
     const conta = (t) => porNome.filter((d) => d.tipo_desfecho === t).length
     const kpis = [
       { t: '', n: porNome.length, r: 'saídas', ic: 'ph-list' },
@@ -157,10 +251,11 @@ export default function AltasRecentes({ onVoltar }) {
             {PER.map(([k, r]) => <button key={k} type="button" className={periodo === k ? 'on' : ''} onClick={() => { if (k === 'custom' && !dataInicioCustom) { const d = periodoPadrao(); setDataInicioCustom(d.inicio); setDataFimCustom(d.fim) } setPeriodo(k) }}>{r}</button>)}
           </div>
           {periodo === 'custom' && <CampoPeriodo inicio={dataInicioCustom} fim={dataFimCustom} onInicio={setDataInicioCustom} onFim={setDataFimCustom} />}
-          <label className="ds-busca"><i className="ph ph-magnifying-glass" /><input type="text" placeholder="Buscar paciente…" value={busca} onChange={(e) => setBusca(e.target.value)} /></label>
+          <label className="ds-busca"><i className="ph ph-magnifying-glass" /><input type="text" placeholder="Buscar por nome completo ou nº do prontuário…" value={busca} onChange={(e) => setBusca(e.target.value)} />{busca && <button type="button" className="ds-limpar" onClick={() => setBusca('')} aria-label="Limpar busca"><i className="ph ph-x" /></button>}</label>
         </div>
+        {resultadosBusca && <div className="ds-busca-info no-print"><i className="ph ph-magnifying-glass" /> {buscando ? 'Buscando…' : `${filtrados.length} saída(s) encontrada(s) para "${busca.trim()}" em todo o histórico (sem limite de período).`}</div>}
         <div className="ds-lista">
-          {carregando ? <p className="ds-vazio">Carregando…</p> : filtrados.length === 0 ? <p className="ds-vazio">Nenhum registro para o período e filtros selecionados.</p> : filtrados.map((d, i) => (
+          {carregando || (buscando && !resultadosBusca) ? <p className="ds-vazio">Carregando…</p> : filtrados.length === 0 ? <p className="ds-vazio">Nenhum registro para o período e filtros selecionados.</p> : filtrados.map((d, i) => (
             <div key={d.id}>
               {d.data_desfecho && (i === 0 || dia(filtrados[i - 1].data_desfecho) !== dia(d.data_desfecho)) && <div className="ds-grupo">{dia(d.data_desfecho)}</div>}
               <div className="ds-linha">
@@ -173,16 +268,20 @@ export default function AltasRecentes({ onVoltar }) {
                     ? <b className={d.destino ? 'ds-dest' : 'ds-dest vazio'}><i className="ph ph-hospital" /> Destino: {d.destino || 'não informado'}</b>
                     : <span title={d.diagnostico}>{d.diagnostico}</span>}
                 </div>
+                {acoesLinha(d)}
               </div>
+              {avisoDaLinha(d)}
             </div>
           ))}
         </div>
+        {sobreposicoes}
       </div>
     )
   }
 
   return (
     <div className="workspace" style={{ overflowY: 'auto', flex: 1 }}>
+      {sobreposicoes}
       {/* Cabeçalho */}
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
         <div className="page-title">
@@ -277,7 +376,7 @@ export default function AltasRecentes({ onVoltar }) {
             <i className="ph ph-magnifying-glass" style={{ position: 'absolute', left: 10, color: 'var(--c-text-muted)', fontSize: 15 }} />
             <input
               type="text"
-              placeholder="Buscar paciente..."
+              placeholder="Nome completo ou nº do prontuário..."
               value={busca}
               onChange={e => setBusca(e.target.value)}
               style={{ padding: '6px 12px 6px 32px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 12, width: 200 }}
@@ -296,19 +395,20 @@ export default function AltasRecentes({ onVoltar }) {
               <th>Data / Hora</th>
               <th>Desfecho</th>
               <th>Motivo / Destino</th>
+              <th className="no-print">Documentos</th>
             </tr>
           </thead>
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', color: 'var(--c-text-muted)', padding: 40 }}>
+                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--c-text-muted)', padding: 40 }}>
                   <i className="ph ph-spinner" /> Carregando registros...
                 </td>
               </tr>
             )}
             {!carregando && filtrados.length === 0 && (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', color: 'var(--c-text-muted)', padding: 40 }}>
+                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--c-text-muted)', padding: 40 }}>
                   Nenhum registro encontrado para o período e filtros selecionados.
                 </td>
               </tr>
@@ -338,6 +438,7 @@ export default function AltasRecentes({ onVoltar }) {
                       ? <span style={{ fontWeight: 700, color: d.destino ? '#1e40af' : 'var(--c-text-muted)' }}><i className="ph ph-hospital" /> Destino: {d.destino || 'não informado'}</span>
                       : d.diagnostico}
                   </td>
+                  <td className="no-print">{acoesLinha(d)}{avisoDaLinha(d)}</td>
                 </tr>
               )
             })}

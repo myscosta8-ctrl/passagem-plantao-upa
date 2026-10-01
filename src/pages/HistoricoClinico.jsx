@@ -186,6 +186,42 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
   )
 }
 
+// Documento do histórico aberto em janela, com Voltar e Imprimir (também usado pela tela Desfechos).
+export function VisualizarRegistro({ item, onFechar }) {
+  useEffect(() => {
+    document.body.classList.add('hc-imprimindo')
+    return () => document.body.classList.remove('hc-imprimindo')
+  }, [])
+  const Print = item.fonte.area === 'medico' ? FichaMedicaPrint : FichaClinicaPrint
+  return (
+    <div className="hc-print-overlay" onClick={onFechar}>
+      <div className="hc-doc-janela" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+        <div className="hc-doc-corpo">
+          <Suspense fallback={<p style={{ padding: 20 }}>Carregando documento...</p>}>
+            <Print atendimentoId={item.registro.atendimento_id} tipo={tipoImpresso(item.fonte, item.registro)} registro={item.registro} onVoltar={onFechar} />
+          </Suspense>
+        </div>
+        <div className="hc-doc-rodape no-print">
+          <button type="button" className="hc-doc-voltar" onClick={onFechar}><i className="ph ph-arrow-left" /> Voltar</button>
+          <button type="button" className="hc-doc-imprimir" onClick={() => window.print()}><i className="ph ph-printer" /> Imprimir</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Último documento (com impresso, não invalidado) que o profissional registrou no atendimento, já completo para impressão.
+export async function ultimoDocumentoDoAutor(atendimentoId, autorId) {
+  if (!atendimentoId || !autorId) return null
+  const itens = (await listarRegistrosClinicos([atendimentoId]))
+    .filter((i) => i.registro.autor_auth === autorId && i.registro.situacao !== 'invalido' && tipoImpresso(i.fonte, i.registro))
+    .sort((a, b) => new Date(b.data) - new Date(a.data))
+  const it = itens[0]
+  if (!it) return null
+  const completo = await buscarRegistroCompleto(it.fonte.tabela, it.registro.id, it.fonte.selectCompleto)
+  return { ...it, registro: completo || it.registro }
+}
+
 export default function HistoricoClinico({ atendimento, aberto, onFechar, embutido = false, categoriaDuplicar, onDuplicado, onEditarRascunho }) {
   const [busca, setBusca] = useState('')
   const [filtroArea, setFiltroArea] = useState('todos')
@@ -218,37 +254,13 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
   } : null
   const pessoaId = atendimento?.pessoa_id
 
-  // Ao abrir um documento do histórico, só ele vai para a impressão.
-  useEffect(() => {
-    if (!imprimindo) return undefined
-    document.body.classList.add('hc-imprimindo')
-    return () => document.body.classList.remove('hc-imprimindo')
-  }, [imprimindo])
-
   const carregarAtual = useMemo(() => async () => ({ itens: await listarRegistrosClinicos([atendimentoId]), atendimentos: [] }), [atendimentoId])
   const carregarAnteriores = useMemo(() => async () => {
     const ats = (await listarAtendimentosDaPessoa(pessoaId)).filter((a) => a.id !== atendimentoId)
     return { itens: await listarRegistrosClinicos(ats.map((a) => a.id)), atendimentos: ats }
   }, [pessoaId, atendimentoId])
 
-  if (imprimindo) {
-    const Print = imprimindo.fonte.area === 'medico' ? FichaMedicaPrint : FichaClinicaPrint
-    return (
-      <div className="hc-print-overlay" onClick={() => setImprimindo(null)}>
-        <div className="hc-doc-janela" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-          <div className="hc-doc-corpo">
-            <Suspense fallback={<p style={{ padding: 20 }}>Carregando documento...</p>}>
-              <Print atendimentoId={imprimindo.registro.atendimento_id} tipo={tipoImpresso(imprimindo.fonte, imprimindo.registro)} registro={imprimindo.registro} onVoltar={() => setImprimindo(null)} />
-            </Suspense>
-          </div>
-          <div className="hc-doc-rodape no-print">
-            <button type="button" className="hc-doc-voltar" onClick={() => setImprimindo(null)}><i className="ph ph-arrow-left" /> Voltar</button>
-            <button type="button" className="hc-doc-imprimir" onClick={() => window.print()}><i className="ph ph-printer" /> Imprimir</button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  if (imprimindo) return <VisualizarRegistro item={imprimindo} onFechar={() => setImprimindo(null)} />
 
   if (!aberto && !embutido) return null
 

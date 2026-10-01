@@ -11,7 +11,7 @@ import FichaMedicaTabs, { ABAS_PRINCIPAIS } from './ficha-medica/FichaMedicaTabs
 import FichaMedicaConteudo from './ficha-medica/FichaMedicaConteudo';
 import './ficha-medica/AtendimentoMedico.css';
 
-export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, initialTab = 'consulta', abrirFormulario = false }) {
+export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, initialTab = 'consulta', abrirFormulario = false, posAlta }) {
   const { enfermeiro } = useAuth();
   const [aba, setAba] = useState(initialTab);
   const [imprimindo, setImprimindo] = useState(null);
@@ -22,6 +22,12 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
   const aposDuplicar = () => { setHistoricoAberto(false); setAba('evolucao'); setFormAberto(true); setDupSeq((n) => n + 1); };
   // Histórico Clínico → "Editar rascunho": abre a aba do documento já com aquele rascunho carregado.
   const editarRascunho = (tabela, id, abaDestino) => { definirRascunhoAlvo(tabela, id); setHistoricoAberto(false); setAba(abaDestino); setFormAberto(true); setDupSeq((n) => n + 1); };
+  // Paciente que já saiu (aberto pela tela Desfechos): só consulta e impressão pelo histórico;
+  // o profissional ainda pode finalizar o próprio rascunho até 24 h depois da saída.
+  const limiteRascunho = posAlta?.encerradoEm ? new Date(new Date(posAlta.encerradoEm).getTime() + 24 * 3600 * 1000) : null;
+  const rascunhoLiberado = !posAlta || (limiteRascunho && new Date() < limiteRascunho);
+  const onEditarRascunhoPerm = rascunhoLiberado ? editarRascunho : undefined;
+  const imprimir = (x) => { setImprimindo(x); if (posAlta) setFormAberto(false); };
   const [formAberto, setFormAberto] = useState(abrirFormulario);
   const escolherAba = (a) => { setAba(a); setFormAberto(true); };
   const areaRef = useRef(null);
@@ -69,21 +75,24 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
         medicoCrm={enfermeiro?.crm}
         onTrocarPilar={onTrocarPilar}
       />}
-      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="medico" onDuplicado={aposDuplicar} onEditarRascunho={editarRascunho} />
+      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="medico" onDuplicado={posAlta ? undefined : aposDuplicar} onEditarRascunho={onEditarRascunhoPerm} />
       <div className="workspace" ref={areaRef}>
         <BannerPacienteEnf atendimento={atendimento} pilar="medico" onVoltar={onFechar} onTrocarPilar={onTrocarPilar} />
         {!podeCriar && (
           <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos médicos, mas não criá-los.</div>
         )}
 
-        <div className="fc-tabs-linha">
+        {posAlta && (
+          <div className="aviso-somente-leitura aviso-pos-alta"><i className="ph ph-sign-out" /> {posAlta.tipo || 'Saída'} em {new Date(posAlta.encerradoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })} — modo consulta: visualize e imprima os documentos pela lupa abaixo.{rascunhoLiberado ? ` Seus rascunhos podem ser finalizados até ${limiteRascunho.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} (lápis).` : ''}</div>
+        )}
+        {!posAlta && <div className="fc-tabs-linha">
           <div className="fc-tabs-area"><FichaMedicaTabs aba={aba} onSelecionarAba={escolherAba} /></div>
           {!novaUI && (<button type="button" className="btn-historico-clinico" onClick={() => setHistoricoAberto(true)} title="Consultar o histórico clínico do paciente">
             <i className="ph ph-clock-counter-clockwise" /> Histórico Clínico
           </button>)}
-        </div>
-        <JanelaFormulario ativa={novaUI} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome} atendimento={atendimento} categoria="medico"
-          vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="medico" onDuplicado={aposDuplicar} onEditarRascunho={editarRascunho} />}>
+        </div>}
+        <JanelaFormulario ativa={novaUI || !!posAlta} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome} atendimento={atendimento} categoria="medico"
+          vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="medico" onDuplicado={posAlta ? undefined : aposDuplicar} onEditarRascunho={onEditarRascunhoPerm} />}>
         <FichaMedicaConteudo
           key={dupSeq}
           atendimento={atendimento}
@@ -92,7 +101,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
           medicoCrm={enfermeiro?.crm}
           aba={aba}
           onSelecionarAba={setAba}
-          onImprimir={setImprimindo}
+          onImprimir={imprimir}
           onFechar={novaUI ? () => setFormAberto(false) : onFechar}
         />
         </JanelaFormulario>

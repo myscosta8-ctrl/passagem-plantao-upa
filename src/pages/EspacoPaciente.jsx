@@ -28,6 +28,7 @@ export default function EspacoPaciente({
   onFechar,
   pilarInicial = 'enfermagem',
   abaInicial,
+  posAlta, // { encerradoEm, tipo } quando aberto pela tela Desfechos (paciente que já saiu)
 }) {
   // Card do paciente mostra os prontuários (enfermagem/médico) — a edição de
   // diagnóstico/status/Manchester/pendências (antigo pilar "Passagem de
@@ -166,6 +167,7 @@ export default function EspacoPaciente({
                   atendimento={atendimentoResolvido}
                   onFechar={onFechar}
                   onTrocarPilar={() => trocarPilar('medico')}
+                  posAlta={posAlta}
                 />
               )}
 
@@ -176,6 +178,7 @@ export default function EspacoPaciente({
                   atendimento={atendimentoResolvido}
                   onFechar={onFechar}
                   onTrocarPilar={() => trocarPilar('enfermagem')}
+                  posAlta={posAlta}
                 />
               )}
             </>
