@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { calcularIndicadoresClinicos } from '../lib/pepIndicadores'
 import { useAuth } from '../lib/AuthContext'
 import './IndicadoresPainel.css'
+import CampoPeriodo, { periodoPadrao } from '../components/CampoPeriodo'
 
 const PERIODOS = [
   { chave: 'hoje', rotulo: 'Hoje' },
@@ -50,16 +51,10 @@ export default function IndicadoresPainel({ onVoltar }) {
           <h1>Indicadores Clínicos</h1>
           <span className="ind-sub">Métricas da unidade e dos plantões</span>
           <div className="ind-per">
-            {periodo === 'custom' && (
-              <span className="ind-datas">
-                <input type="date" value={dataIni} onChange={(e) => setDataIni(e.target.value)} aria-label="Data inicial" />
-                <span>até</span>
-                <input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} aria-label="Data final" />
-              </span>
-            )}
+            {periodo === 'custom' && <CampoPeriodo inicio={dataIni} fim={dataFim} onInicio={setDataIni} onFim={setDataFim} />}
             <div className="ind-seg">
               {[['hoje', 'Hoje'], ['7dias', '7 dias'], ['30dias', '30 dias'], ['custom', 'Período']].map(([k, r]) => (
-                <button key={k} type="button" className={periodo === k ? 'on' : ''} onClick={() => setPeriodo(k)}>{r}</button>
+                <button key={k} type="button" className={periodo === k ? 'on' : ''} onClick={() => { if (k === 'custom' && !dataIni) { const d = periodoPadrao(); setDataIni(d.inicio); setDataFim(d.fim) } setPeriodo(k) }}>{r}</button>
               ))}
             </div>
           </div>

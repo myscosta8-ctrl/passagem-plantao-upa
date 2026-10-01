@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
 import './AltasRecentes.css'
+import CampoPeriodo, { periodoPadrao } from '../components/CampoPeriodo'
 
 const CORES_DESFECHO = {
   'Alta':          { bg: '#dcfce7', txt: '#166534' },
@@ -153,15 +154,9 @@ export default function AltasRecentes({ onVoltar }) {
         </div>
         <div className="ds-filtros no-print">
           <div className="ds-seg">
-            {PER.map(([k, r]) => <button key={k} type="button" className={periodo === k ? 'on' : ''} onClick={() => setPeriodo(k)}>{r}</button>)}
+            {PER.map(([k, r]) => <button key={k} type="button" className={periodo === k ? 'on' : ''} onClick={() => { if (k === 'custom' && !dataInicioCustom) { const d = periodoPadrao(); setDataInicioCustom(d.inicio); setDataFimCustom(d.fim) } setPeriodo(k) }}>{r}</button>)}
           </div>
-          {periodo === 'custom' && (
-            <div className="ds-datas">
-              <input type="date" value={dataInicioCustom} onChange={(e) => setDataInicioCustom(e.target.value)} />
-              <span>até</span>
-              <input type="date" value={dataFimCustom} onChange={(e) => setDataFimCustom(e.target.value)} />
-            </div>
-          )}
+          {periodo === 'custom' && <CampoPeriodo inicio={dataInicioCustom} fim={dataFimCustom} onInicio={setDataInicioCustom} onFim={setDataFimCustom} />}
           <label className="ds-busca"><i className="ph ph-magnifying-glass" /><input type="text" placeholder="Buscar paciente…" value={busca} onChange={(e) => setBusca(e.target.value)} /></label>
         </div>
         <div className="ds-lista">
