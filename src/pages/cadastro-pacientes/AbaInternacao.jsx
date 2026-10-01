@@ -45,8 +45,8 @@ export default function AbaInternacao() {
         <div style={{ fontWeight: 600 }}>{p.nome}</div>
         <div style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>{p.diagnostico || 'Sem diagnóstico registrado'}</div>
       </div>
-      <button type="button" className={perigo ? 'btn-cancel' : 'btn-save'} onClick={() => { setOk(''); setAlvo({ id: p.id, nome: p.nome, para }) }}>
-        {rotulo}
+      <button type="button" className={perigo ? 'btn-secondary' : 'btn-primary'} style={{ flexShrink: 0, whiteSpace: 'nowrap', cursor: 'pointer' }} onClick={() => { setOk(''); setAlvo({ id: p.id, nome: p.nome, para }) }}>
+        <i className={'ph ' + (perigo ? 'ph-arrow-u-up-left' : 'ph-bed')} /> {rotulo}
       </button>
     </div>
   )
