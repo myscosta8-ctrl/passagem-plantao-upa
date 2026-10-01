@@ -5,7 +5,7 @@ export const ABAS_PRINCIPAIS = [
   { chave: 'balanco', rotulo: '4. Balanço Hídrico 24h', titulo: 'Balanço Hídrico 24h', icon: 'ph-drop' },
   { chave: 'sbar', rotulo: '5. Transferência Externa', titulo: 'Transferência Externa', icon: 'ph-ambulance' },
   { chave: 'intercorrencias', rotulo: '6. Nota de Intercorrência', titulo: 'Nota de Intercorrência', icon: 'ph-warning-octagon' },
-  { chave: 'sinan', rotulo: '7. Notificação SINAN', titulo: 'Notificação Compulsória (SINAN)', icon: 'ph-megaphone' },
+  { chave: 'sinan', rotulo: '7. Notificação Compulsória', titulo: 'Notificação Compulsória (SINAN)', icon: 'ph-megaphone' },
 ];
 
 export default function FichaClinicaTabs({ aba, onSelecionarAba }) {
