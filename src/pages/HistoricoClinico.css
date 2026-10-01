@@ -146,7 +146,67 @@ html .hc-doc-corpo .print-page { position: static; inset: auto; z-index: auto; o
 .hc-tipo { font-size: 12px; min-width: 150px; padding: 3px 9px; border-radius: 6px; background: #E6EEF1; color: var(--c-primary, #1B4555); }
 .hc-tipo.medico { background: #EEF0F5; color: #4A5873; }
 .hc-autor { font-size: 14px; color: #334155; }
-.hc-acoes-linha .hc-ic:not(.hc-sempre) { visibility: hidden; }
-.hc-item:hover .hc-acoes-linha .hc-ic, .hc-item:focus-within .hc-acoes-linha .hc-ic { visibility: visible; }
-@media (hover: none) { .hc-acoes-linha .hc-ic:not(.hc-sempre) { visibility: visible; } }
 @media (max-width: 800px) { .hc-filtros { flex-wrap: wrap; } }
+
+/* ===== Histórico em tabela compacta (proposta A): Hora | Documento | Profissional | Situação | Ações ===== */
+.hc-bloco-corpo { padding: 0; gap: 0; }
+.hc-bloco-corpo > .hc-vazio { padding: 10px 14px; margin: 0; }
+.hc-atendimento { gap: 0; margin: 0; }
+.hc-atendimento-topo { border-radius: 0; padding: 6px 12px; border-bottom: 1px solid var(--c-border, #E1E7EE); border-top: 1px solid var(--c-border, #E1E7EE); background: #F3F6F9; }
+.hc-cabecalho, html .hc-item-topo {
+  display: grid; grid-template-columns: 64px minmax(150px, 190px) minmax(0, 1fr) 112px 140px;
+  align-items: center; column-gap: 12px; padding: 0 12px;
+}
+.hc-data-completa .hc-item-topo, .hc-cabecalho.hc-data-completa { grid-template-columns: 128px minmax(150px, 190px) minmax(0, 1fr) 112px 140px; }
+.hc-cabecalho { position: sticky; top: 0; z-index: 2; height: 30px; background: #F7F9FB; border-bottom: 1px solid var(--c-border, #E1E7EE); font-size: 11px; font-weight: 700; color: var(--c-text-muted, #6B7C8C); text-transform: uppercase; letter-spacing: .05em; }
+.hc-cab-acoes { text-align: right; }
+html .hc-dia { margin: 0; height: 28px; padding: 0 12px; display: flex; align-items: center; gap: 8px; background: #FAFBFC; border-bottom: 1px solid var(--c-border, #E1E7EE); font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--c-primary, #1B4555); }
+html .hc-dia::after { display: none; }
+.hc-dia small { font-size: 11px; font-weight: 500; color: var(--c-text-muted, #6B7C8C); }
+html .hc-bloco-corpo > div:not(:first-child) > .hc-dia { border-top: 1px solid var(--c-border, #E1E7EE); }
+html .hc-item, html .hc-solto .hc-item { border: 0; border-bottom: 1px solid #EEF2F6; border-left: 3px solid #7FA3B0; border-radius: 0; background: var(--c-surface, #fff); margin: 0; }
+html .hc-item.medico, html .hc-solto .hc-item.medico { border-left-color: #8B95AB; }
+html .hc-item.hc-invalido { border-left-color: var(--c-danger, #DC2626) !important; opacity: 1; }
+.hc-item.hc-invalido .hc-item-topo > :not(.hc-acoes-linha) { opacity: .6; }
+.hc-item.hc-invalido .hc-tipo { text-decoration: line-through; }
+html .hc-item-topo { min-height: 38px; padding-top: 4px; padding-bottom: 4px; gap: 0 12px; flex-wrap: nowrap; }
+html .hc-item:hover, html .hc-solto .hc-item:hover { background: #F5F8FA; }
+html .hc-data { min-width: 0; font-size: 13px; font-weight: 600; color: var(--c-text-primary, #0F2230); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hc-col-tipo, .hc-col-sit { min-width: 0; }
+html .hc-tipo { display: inline-block; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
+html .hc-autor { min-width: 0; flex: none; font-size: 13px; color: var(--c-text-secondary, #334155); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hc-autor b { font-weight: 600; color: var(--c-text-primary, #0F2230); }
+.hc-conselho { margin-left: 8px; font-size: 12px; color: var(--c-text-muted, #6B7C8C); }
+html .hc-situacao { font-size: 11px; padding: 2px 8px; }
+html .hc-acoes-linha { margin-left: 0; justify-content: flex-end; gap: 4px; }
+html .hc-acoes-linha .hc-ic { visibility: visible; width: 28px; height: 28px; font-size: 14px; }
+/* Detalhes abertos (motivo, alterações, invalidar) alinhados com a coluna Documento */
+.hc-item .hc-motivo, .hc-item .hc-acoes, .hc-item .hc-invalidar, .hc-item .hc-alteracoes { padding-left: 88px; }
+.hc-item .hc-alteracoes { margin-left: 88px; padding-left: 0; }
+.hc-data-completa .hc-item :is(.hc-motivo, .hc-acoes, .hc-invalidar) { padding-left: 152px; }
+.hc-data-completa .hc-item .hc-alteracoes { margin-left: 152px; }
+
+/* Tablet: a coluna Situação encolhe e só mostra Rascunho/Invalidado; some o nº do conselho */
+@media (max-width: 1000px) {
+  .hc-cabecalho, html .hc-item-topo { grid-template-columns: 56px minmax(120px, 170px) minmax(0, 1fr) auto auto; }
+  .hc-data-completa .hc-item-topo, .hc-cabecalho.hc-data-completa { grid-template-columns: 112px minmax(120px, 170px) minmax(0, 1fr) auto auto; }
+  .hc-cabecalho .hc-col-sit { visibility: hidden; }
+  html .hc-situacao.finalizado { display: none; }
+  .hc-conselho { display: none; }
+}
+/* Celular: hora | documento + profissional (2ª linha) | ações */
+@media (max-width: 700px) {
+  .hc-cabecalho { display: none; }
+  html .hc-item-topo, .hc-data-completa .hc-item-topo { grid-template-columns: auto minmax(0, 1fr) auto auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; padding: 7px 10px; }
+  html .hc-data { grid-row: 1 / span 2; align-self: center; font-size: 13px; }
+  .hc-data-completa .hc-data { white-space: normal; width: 64px; font-size: 12px; line-height: 1.25; }
+  .hc-item-topo .hc-col-tipo { grid-column: 2 / span 2; grid-row: 1; }
+  .hc-item-topo .hc-col-sit { grid-column: 3; grid-row: 2; }
+  html .hc-autor { grid-column: 2; grid-row: 2; font-size: 12px; color: var(--c-text-muted, #6B7C8C); }
+  .hc-autor b { font-weight: 500; color: inherit; }
+  html .hc-acoes-linha { grid-column: 4; grid-row: 1 / span 2; display: grid; grid-template-columns: repeat(2, 36px); gap: 4px; align-content: center; }
+  html .hc-acoes-linha .hc-ic:only-child { grid-column: 2; }
+  html .hc-acoes-linha .hc-ic { width: 36px; height: 36px; font-size: 16px; }
+  .hc-item .hc-motivo, .hc-item .hc-acoes, .hc-item .hc-invalidar, .hc-data-completa .hc-item :is(.hc-motivo, .hc-acoes, .hc-invalidar) { padding-left: 10px; padding-right: 10px; }
+  .hc-item .hc-alteracoes, .hc-data-completa .hc-item .hc-alteracoes { margin-left: 10px; }
+}

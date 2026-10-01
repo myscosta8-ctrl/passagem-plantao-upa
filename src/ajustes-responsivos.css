@@ -60,11 +60,7 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
   .hc-filtros { flex-wrap: wrap !important; }
   .hc-filtros > .hc-busca { flex: 1 1 100% !important; max-width: none !important; width: 100% !important; }
   .hc-ver-inv { margin-left: 0; }
-  .hc-item-topo { flex-wrap: wrap; row-gap: 4px; }
-  .hc-tipo { min-width: 0; }
-  .hc-acoes-linha { order: 1; margin-left: auto; }
-  .hc-item-topo > i { order: 2; }
-  .hc-autor { flex: 1 1 100%; order: 5; padding-left: 58px; font-size: 12px; }
+  /* Linhas do Histórico Clínico no celular: ver HistoricoClinico.css (tabela compacta) */
   .jf-topo { padding: 10px 12px; }
   .fpj-av { display: none; }
   .fpj-id b { font-size: 14px; }

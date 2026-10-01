@@ -58,8 +58,6 @@ html :is(.atendimento-medico-container, .enf-theme) .clinical-tabs { scrollbar-w
 
 /* ---------- Histórico Clínico (gaveta) ---------- */
 @media (max-width: 640px) {
-  html .hc-item-topo { gap: 6px; }
-  html .hc-data { min-width: 0; }
   html .hc-busca { min-width: 0; }
 }
 

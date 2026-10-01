@@ -60,14 +60,19 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHo
 
   return (
     <div className={`hc-item ${fonte.area} ${situacao === 'invalido' ? 'hc-invalido' : ''}`}>
-      <div className="hc-item-topo" onClick={() => setAberto((v) => !v)}>
+      <div className="hc-item-topo" onClick={() => setAberto((v) => !v)} title={aberto ? 'Fechar detalhes' : 'Ver detalhes e histórico de alterações'}>
         <span className={soHora ? 'hc-data hc-hora' : 'hc-data'}>{soHora ? fmtHora(item.data) : fmtData(item.data)}</span>
-        <span className={`hc-tipo ${fonte.area}`} title={fonte.rotulo}>{rotuloCurto(fonte)}</span>
-        {situacao !== 'finalizado' && <span className={`hc-situacao ${situacao}`}>{SITUACOES[situacao] || situacao}</span>}
-        <span className="hc-autor">{autor ? `${autor.nome_exibicao || autor.nome}${autor.crm ? ` · CRM ${autor.crm}` : autor.coren ? ` · COREN ${autor.coren}` : ''}` : '—'}</span>
+        <span className="hc-col-tipo"><span className={`hc-tipo ${fonte.area}`} title={fonte.rotulo}>{rotuloCurto(fonte)}</span></span>
+        <span className="hc-autor">
+          {autor ? <><b>{autor.nome_exibicao || autor.nome}</b>{(autor.crm || autor.coren) && <span className="hc-conselho">{autor.crm ? `CRM ${autor.crm}` : `COREN ${autor.coren}`}</span>}</> : '—'}
+        </span>
+        <span className="hc-col-sit"><span className={`hc-situacao ${situacao}`}>{SITUACOES[situacao] || situacao}</span></span>
         <span className="hc-acoes-linha" onClick={(e) => e.stopPropagation()}>
           {tipoImpresso(fonte, registro) && (
             <button type="button" className="hc-ic hc-sempre" title="Visualizar documento" aria-label="Visualizar" onClick={() => onImprimir(item)}><i className="ph ph-magnifying-glass" /></button>
+          )}
+          {tipoImpresso(fonte, registro) && situacao !== 'invalido' && (
+            <button type="button" className="hc-ic hc-sempre" title="Imprimir documento" aria-label="Imprimir" onClick={() => onImprimir(item, { imprimir: true })}><i className="ph ph-printer" /></button>
           )}
           {onEditar && situacao === 'rascunho' && souAutor && onEditar.pode(item) && (
             <button type="button" className="hc-ic hc-sempre hc-editar" title="Editar rascunho" aria-label="Editar rascunho" onClick={() => onEditar.fazer(item)}><i className="ph ph-pencil-simple" /></button>
@@ -79,7 +84,6 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHo
             <button type="button" className="hc-ic" title="Duplicar: copiar para uma nova evolução (sinais vitais não são copiados)" aria-label="Duplicar" onClick={() => onDuplicar.fazer(item)}><i className="ph ph-copy" /></button>
           )}
         </span>
-        <i className={`ph ph-caret-${aberto ? 'up' : 'down'}`} />
       </div>
       {aberto && situacao === 'invalido' && (
         <div className="hc-motivo"><i className="ph ph-prohibit" /> Invalidado em {fmtData(registro.invalidado_em)} — motivo: {registro.motivo_invalidacao || '—'}</div>
@@ -161,12 +165,17 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
         <div className="hc-bloco-corpo">
           {estado.carregando && <p className="hc-vazio">Carregando registros...</p>}
           {!estado.carregando && estado.itens && itens.length === 0 && <p className="hc-vazio">Nenhum registro encontrado.</p>}
+          {!estado.carregando && itens.length > 0 && (
+            <div className={agruparPorAtendimento ? 'hc-cabecalho hc-data-completa' : 'hc-cabecalho'} aria-hidden="true">
+              <span>{agruparPorAtendimento ? 'Data' : 'Hora'}</span><span>Documento</span><span>Profissional</span><span className="hc-col-sit">Situação</span><span className="hc-cab-acoes">Ações</span>
+            </div>
+          )}
           {!estado.carregando && agruparPorAtendimento
             ? estado.atendimentos.map((a) => {
               const doAt = itens.filter((i) => i.registro.atendimento_id === a.id)
               if (doAt.length === 0) return null
               return (
-                <div key={a.id} className="hc-atendimento">
+                <div key={a.id} className="hc-atendimento hc-data-completa">
                   <div className="hc-atendimento-topo">
                     <i className="ph ph-folder-simple" /> Atendimento {limpar(a.numero_atendimento)} · {fmtData(a.criado_em)}{a.encerrado_em ? ` até ${fmtData(a.encerrado_em)}` : ''}
                   </div>
@@ -176,7 +185,10 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
             })
             : itens.map((i, k) => (
               <div key={i.id}>
-                {(k === 0 || rotuloDia(itens[k - 1].data) !== rotuloDia(i.data)) && <div className="hc-dia">{rotuloDia(i.data)}</div>}
+                {(k === 0 || rotuloDia(itens[k - 1].data) !== rotuloDia(i.data)) && (() => {
+                  const n = itens.filter((x) => rotuloDia(x.data) === rotuloDia(i.data)).length
+                  return <div className="hc-dia">{rotuloDia(i.data)}<small>{n} {n === 1 ? 'registro' : 'registros'}</small></div>
+                })()}
                 <Linha item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} onDuplicar={onDuplicar} onEditar={onEditar} soHora />
               </div>
             ))}
@@ -187,11 +199,25 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
 }
 
 // Documento do histórico aberto em janela, com Voltar e Imprimir (também usado pela tela Desfechos).
-export function VisualizarRegistro({ item, onFechar }) {
+export function VisualizarRegistro({ item, onFechar, imprimirAoAbrir = false }) {
   useEffect(() => {
     document.body.classList.add('hc-imprimindo')
     return () => document.body.classList.remove('hc-imprimindo')
   }, [])
+  // Botão "Imprimir" da lista: espera o documento carregar e já abre a impressão.
+  useEffect(() => {
+    if (!imprimirAoAbrir) return undefined
+    let tentativas = 0
+    const t = setInterval(() => {
+      tentativas += 1
+      const pronto = document.querySelector('.hc-doc-corpo .print-page')
+      if (pronto || tentativas > 40) {
+        clearInterval(t)
+        if (pronto) setTimeout(() => window.print(), 800)
+      }
+    }, 250)
+    return () => clearInterval(t)
+  }, [imprimirAoAbrir])
   const Print = item.fonte.area === 'medico' ? FichaMedicaPrint : FichaClinicaPrint
   return (
     <div className="hc-print-overlay" onClick={onFechar}>
@@ -229,9 +255,9 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
   const [nInv, setNInv] = useState({ atual: 0, anteriores: 0 })
   const [imprimindo, setImprimindo] = useState(null)
   const { enfermeiro } = useAuth()
-  async function abrirImpressao(item) {
+  async function abrirImpressao(item, opcoes = {}) {
     const completo = await buscarRegistroCompleto(item.fonte.tabela, item.registro.id, item.fonte.selectCompleto)
-    setImprimindo({ ...item, registro: completo || item.registro })
+    setImprimindo({ ...item, registro: completo || item.registro, imprimirAoAbrir: !!opcoes.imprimir })
   }
   const atendimentoId = atendimento?.atendimento_id
   // Botão "Duplicar" nas evoluções finalizadas do atendimento atual, da mesma categoria da ficha aberta.
@@ -260,7 +286,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
     return { itens: await listarRegistrosClinicos(ats.map((a) => a.id)), atendimentos: ats }
   }, [pessoaId, atendimentoId])
 
-  if (imprimindo) return <VisualizarRegistro item={imprimindo} onFechar={() => setImprimindo(null)} />
+  if (imprimindo) return <VisualizarRegistro item={imprimindo} imprimirAoAbrir={imprimindo.imprimirAoAbrir} onFechar={() => setImprimindo(null)} />
 
   if (!aberto && !embutido) return null
 
