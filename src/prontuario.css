@@ -65,3 +65,20 @@ html .clinical-tabs > .tab-btn { flex: 1 1 0 !important; min-width: max-content;
   html .clinical-tabs > .tab-btn { flex: 1 1 auto !important; }
 }
 html .fc-tabs-area > .clinical-tabs { min-width: 0; }
+
+/* Celular: faixa do paciente compacta (nome ao lado do avatar, chave Enfermagem|Médico
+   em largura total, sinais vitais numa linha) e abas numa linha só, deslizando de lado. */
+@media (max-width: 700px) {
+  .faixa-pac { padding: 10px 12px !important; gap: 8px 10px !important; border-radius: 12px; }
+  .faixa-pac .faixa-pac-voltar { order: 0; width: 30px; height: 30px; }
+  .faixa-pac .fpj-av { order: 1; width: 32px; height: 32px; font-size: 12px; border-width: 1.5px; }
+  .faixa-pac .fpj-id { order: 2; flex: 1 1 0 !important; min-width: 0; margin: 0; }
+  .faixa-pac .fpj-id b { font-size: 14px; line-height: 1.25; }
+  .faixa-pac .chave-pilar { order: 3; flex: 1 1 100%; }
+  .faixa-pac .chave-pilar button { flex: 1; padding-top: 6px !important; padding-bottom: 6px !important; }
+  .faixa-pac .faixa-pac-sv { order: 4; flex: 1 1 100%; flex-direction: row !important; flex-wrap: wrap; align-items: center !important; justify-content: space-between; gap: 4px 10px; }
+  .faixa-pac .fpj-chips { order: 5; gap: 4px !important; }
+  .faixa-pac .fpj-chip { padding: 3px 8px; }
+  html .clinical-tabs { flex-wrap: nowrap !important; overflow-x: auto !important; scrollbar-width: none; }
+  html .clinical-tabs > .tab-btn { flex: 0 0 auto !important; }
+}
