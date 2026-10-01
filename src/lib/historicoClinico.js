@@ -53,6 +53,14 @@ export const FONTES = [
   { tabela: 'receitas_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,tipo,itens,orientacoes_gerais', rotulo: 'Receituário', area: 'medico', impresso: 'receituario',
     resumo: (r) => txt({ controle_especial: 'Controle especial', antimicrobiano: 'Antimicrobiano' }[r.tipo], Array.isArray(r.itens) ? r.itens.map((i) => i?.medicamento).filter(Boolean).join(', ') : '', r.orientacoes_gerais) },
 ]
+// Aba da ficha onde cada rascunho é editado ("Editar rascunho" no Histórico Clínico).
+// Exames (sem reabertura de rascunho) e a admissão antiga ficam de fora.
+export const ABA_EDICAO = {
+  historico_enfermagem: 'admissaoEnfermagem', evolucoes: 'evolucao', transferencias_sbar: 'sbar', eventos_adversos: 'intercorrencias',
+  consultas_medicas: 'consulta', evolucoes_medicas: 'evolucao', regulacao_atualizacoes: 'regulacao', notas_intercorrencia_medica: 'intercorrencia',
+  tfd_solicitacoes: 'tfd', planos_terapeuticos: 'plano', atestados_medicos: 'atestado', sumarios_alta: 'alta', receitas_medicas: 'receituario',
+  aih_solicitacoes: 'aih', apac_solicitacoes: 'apac', solicitacoes_atm: 'atm', solicitacoes_sangue: 'sangue',
+}
 const COLUNAS_AUTOR = ['autor_id', 'solicitante_id', 'solicitado_por', 'criado_por', 'enfermeiro_entrega', 'transferido_por', 'relator_id', 'medico_id', 'profissional_responsavel', 'atualizado_por', 'enfermeiro_id']
 
 // Passagens (atendimentos) do paciente, mais recente primeiro.

@@ -34,9 +34,22 @@ export function metaDoc(finalizar, dataRegistro, estadoFormulario) {
   return meta
 }
 
+// Rascunho escolhido no Histórico Clínico ("Editar rascunho"): a próxima abertura
+// do formulário daquela tabela reabre exatamente esse rascunho (uma vez só).
+let rascunhoAlvo = null
+export function definirRascunhoAlvo(tabela, id) { rascunhoAlvo = { tabela, id } }
+
 // Último rascunho do próprio profissional neste atendimento (ou null).
 export async function buscarRascunho(tabela, atendimentoId, autorId) {
   if (!atendimentoId || !autorId) return null
+  if (rascunhoAlvo?.tabela === tabela) {
+    const { id } = rascunhoAlvo
+    rascunhoAlvo = null
+    const { data: alvo, error: erroAlvo } = await supabase.from(tabela).select('*')
+      .eq('id', id).eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('autor_auth', autorId).maybeSingle()
+    if (erroAlvo) avisarErro('documentos', erroAlvo)
+    if (alvo) return alvo
+  }
   const { data, error: erroConsulta1 } = await supabase.from(tabela).select('*')
     .eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('autor_auth', autorId)
     .order('criado_em', { ascending: false }).limit(1).maybeSingle()

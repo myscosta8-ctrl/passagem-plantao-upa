@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
-import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes, buscarRegistroCompleto } from '../lib/historicoClinico'
+import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes, buscarRegistroCompleto, ABA_EDICAO } from '../lib/historicoClinico'
 import { invalidarRegistro } from '../lib/documentos'
 import { useAuth } from '../lib/AuthContext'
 import { definirDuplicacao } from '../lib/duplicarPendente'
@@ -40,7 +40,7 @@ const fmtValor = (v) => (v === null || v === undefined || v === '' ? '—' : typ
 
 const tipoImpresso = (fonte, registro) => (typeof fonte.impresso === 'function' ? fonte.impresso(registro) : fonte.impresso)
 
-function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, soHora = false }) {
+function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHora = false }) {
   const [aberto, setAberto] = useState(false)
   const [invalidando, setInvalidando] = useState(false)
   const [motivo, setMotivo] = useState('')
@@ -68,6 +68,9 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, soHora = false
         <span className="hc-acoes-linha" onClick={(e) => e.stopPropagation()}>
           {tipoImpresso(fonte, registro) && (
             <button type="button" className="hc-ic hc-sempre" title="Visualizar documento" aria-label="Visualizar" onClick={() => onImprimir(item)}><i className="ph ph-magnifying-glass" /></button>
+          )}
+          {onEditar && situacao === 'rascunho' && souAutor && onEditar.pode(item) && (
+            <button type="button" className="hc-ic hc-sempre hc-editar" title="Editar rascunho" aria-label="Editar rascunho" onClick={() => onEditar.fazer(item)}><i className="ph ph-pencil-simple" /></button>
           )}
           {souAutor && situacao !== 'invalido' && (
             <button type="button" className="hc-ic perigo" title="Invalidar documento" aria-label="Invalidar" onClick={() => { setAberto(true); setInvalidando(true) }}><i className="ph ph-prohibit" /></button>
@@ -114,7 +117,7 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, soHora = false
   )
 }
 
-function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento, meuId, solto = false, onDuplicar, mostrarInvalidados = true, onContarInvalidados }) {
+function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento, meuId, solto = false, onDuplicar, onEditar, mostrarInvalidados = true, onContarInvalidados }) {
   const [aberto, setAberto] = useState(false)
   const [estado, setEstado] = useState({ carregando: false, itens: null, atendimentos: [] })
 
@@ -167,14 +170,14 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
                   <div className="hc-atendimento-topo">
                     <i className="ph ph-folder-simple" /> Atendimento {limpar(a.numero_atendimento)} · {fmtData(a.criado_em)}{a.encerrado_em ? ` até ${fmtData(a.encerrado_em)}` : ''}
                   </div>
-                  {doAt.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} onDuplicar={onDuplicar} />)}
+                  {doAt.map((i) => <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} onDuplicar={onDuplicar} onEditar={onEditar} />)}
                 </div>
               )
             })
             : itens.map((i, k) => (
               <div key={i.id}>
                 {(k === 0 || rotuloDia(itens[k - 1].data) !== rotuloDia(i.data)) && <div className="hc-dia">{rotuloDia(i.data)}</div>}
-                <Linha item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} onDuplicar={onDuplicar} soHora />
+                <Linha item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} onDuplicar={onDuplicar} onEditar={onEditar} soHora />
               </div>
             ))}
         </div>
@@ -183,7 +186,7 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
   )
 }
 
-export default function HistoricoClinico({ atendimento, aberto, onFechar, embutido = false, categoriaDuplicar, onDuplicado }) {
+export default function HistoricoClinico({ atendimento, aberto, onFechar, embutido = false, categoriaDuplicar, onDuplicado, onEditarRascunho }) {
   const [busca, setBusca] = useState('')
   const [filtroArea, setFiltroArea] = useState('todos')
   const [verInvalidados, setVerInvalidados] = useState(false)
@@ -207,6 +210,11 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
       definirDuplicacao(categoriaDuplicar, completo, `Copiado da evolução de ${quando} (${quem}). Revise e atualize tudo antes de salvar — os sinais vitais não são copiados.`)
       onDuplicado()
     },
+  } : null
+  // "Editar rascunho": só os rascunhos do próprio profissional, deste atendimento e da ficha aberta (enfermagem/médico).
+  const onEditar = onEditarRascunho && categoriaDuplicar ? {
+    pode: (item) => item.registro.atendimento_id === atendimentoId && item.fonte.area === categoriaDuplicar && !!ABA_EDICAO[item.fonte.tabela],
+    fazer: (item) => onEditarRascunho(item.fonte.tabela, item.registro.id, ABA_EDICAO[item.fonte.tabela]),
   } : null
   const pessoaId = atendimento?.pessoa_id
 
@@ -258,7 +266,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
               <span className="hc-switch" /> Mostrar invalidados{nInv.atual + nInv.anteriores > 0 ? ` (${nInv.atual + nInv.anteriores})` : ''}
             </label>
           </div>
-          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, do mais recente para o mais antigo" solto={embutido} carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} onDuplicar={onDuplicar} mostrarInvalidados={verInvalidados} onContarInvalidados={(n) => setNInv((v) => ({ ...v, atual: n }))} />
+          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, do mais recente para o mais antigo" solto={embutido} carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} onDuplicar={onDuplicar} onEditar={onEditar} mostrarInvalidados={verInvalidados} onContarInvalidados={(n) => setNInv((v) => ({ ...v, atual: n }))} />
           <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} agruparPorAtendimento meuId={enfermeiro?.id} onDuplicar={onDuplicar} mostrarInvalidados={verInvalidados} onContarInvalidados={(n) => setNInv((v) => ({ ...v, anteriores: n }))} />
         </div>
   )

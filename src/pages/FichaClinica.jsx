@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../lib/AuthContext';
 import HistoricoClinico from './HistoricoClinico';
+import { definirRascunhoAlvo } from '../lib/documentos';
 import JanelaFormulario from '../layout/JanelaFormulario';
 const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'));
 import BannerPacienteEnf from './ficha-clinica/BannerPacienteEnf';
@@ -21,6 +22,8 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
   const novaUI = enfermeiro?.pep_beta === true;
   const [dupSeq, setDupSeq] = useState(0);
   const aposDuplicar = () => { setHistoricoAberto(false); setAba('evolucao'); setFormAberto(true); setDupSeq((n) => n + 1); };
+  // Histórico Clínico → "Editar rascunho": abre a aba do documento já com aquele rascunho carregado.
+  const editarRascunho = (tabela, id, abaDestino) => { definirRascunhoAlvo(tabela, id); setHistoricoAberto(false); setAba(abaDestino); setFormAberto(true); setDupSeq((n) => n + 1); };
   const [formAberto, setFormAberto] = useState(!!abaInicial);
   const escolherAba = (a) => { setAba(a); setFormAberto(true); };
 
@@ -53,7 +56,7 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
         enfermeiroCoren={enfermeiro?.coren}
         onTrocarPilar={onTrocarPilar}
       />}
-      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="enfermagem" onDuplicado={aposDuplicar} />
+      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="enfermagem" onDuplicado={aposDuplicar} onEditarRascunho={editarRascunho} />
       <div className="workspace">
         <BannerPacienteEnf atendimento={atendimento} pilar="enfermagem" onVoltar={onFechar} onTrocarPilar={onTrocarPilar} />
         {!podeCriar && (
@@ -67,7 +70,7 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
           </button>)}
         </div>
         <JanelaFormulario ativa={novaUI} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome} atendimento={atendimento} categoria="enfermagem"
-          vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="enfermagem" onDuplicado={aposDuplicar} />}>
+          vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="enfermagem" onDuplicado={aposDuplicar} onEditarRascunho={editarRascunho} />}>
         <FichaClinicaConteudo
           key={dupSeq}
           atendimento={atendimento}
