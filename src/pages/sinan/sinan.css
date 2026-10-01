@@ -26,8 +26,21 @@
 .sn-erro { color: #C93A3A; font-size: 12px; }
 .sn-dica { display: block; margin-top: 4px; font-size: var(--text-xs, 12px); color: var(--color-text-muted, #5B6B7B); }
 .sn-na { height: 34px; display: flex; align-items: center; font-size: 12px; color: #8595A4; font-style: italic; }
-@media (max-width: 900px) { .sn-grade { grid-template-columns: repeat(6, minmax(0, 1fr)); } .sn-grade > [class*="sn-col-"] { grid-column: span 3; } .sn-grade > .sn-col-12, .sn-grade > .sn-col-8, .sn-grade > .sn-col-9, .sn-grade > .sn-col-10 { grid-column: span 6; } }
-@media (max-width: 560px) { .sn-grade > [class*="sn-col-"] { grid-column: span 6; } }
+/* Responsivo: tablet deitado (até 1280) não deixa campo de 1 coluna estreito demais (UF, código);
+   tablet em pé (até 900) usa 6 colunas: campos curtos 3 por linha, médios 2 por linha, longos inteiros;
+   celular (até 560): curtos 2 por linha, o resto inteiro. */
+@media (max-width: 1280px) { .sn-grade > .sn-col-1 { grid-column: span 2; } }
+@media (max-width: 900px) {
+  .sn-grade { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .sn-grade > :is(.sn-col-1, .sn-col-2) { grid-column: span 2; }
+  .sn-grade > :is(.sn-col-3, .sn-col-4, .sn-col-5) { grid-column: span 3; }
+  .sn-grade > :is(.sn-col-6, .sn-col-7, .sn-col-8, .sn-col-9, .sn-col-10, .sn-col-11, .sn-col-12) { grid-column: span 6; }
+}
+@media (max-width: 560px) {
+  .sn-grade > [class*="sn-col-"] { grid-column: span 6; }
+  .sn-grade > :is(.sn-col-1, .sn-col-2) { grid-column: span 3; }
+}
+.sn-campo label { flex-wrap: wrap; overflow-wrap: anywhere; }
 
 /* Lista de notificações do atendimento */
 .sn-aba { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; }
@@ -47,7 +60,7 @@
 .sn-item-info b { font-size: 14px; color: #0F2230; }
 .sn-item-info small { display: block; font-size: 12px; color: #5A6B7B; }
 .sn-item-acoes { display: flex; gap: 6px; flex-wrap: wrap; }
-.sn-chip { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #EEF2F6; color: #334155; }
+.sn-chip { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #EEF2F6; color: #334155; }
 .sn-chip.rascunho { background: #FFF4E5; color: #8A5A00; }
 .sn-chip.registrada { background: #E9F1F3; color: #1B4555; }
 .sn-chip.entregue { background: #E8F4EC; color: #256B45; }
@@ -64,7 +77,15 @@
 .sn-agravo b { font-size: 14px; color: #0F2230; }
 .sn-agravo small { font-size: 12px; color: #5A6B7B; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .sn-sugestao { padding: 10px 12px; border-radius: 10px; background: #E9F1F3; font-size: 14px; color: #1B4555; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.sn-rodape { position: sticky; bottom: 0; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 10px 0 2px; background: linear-gradient(to top, var(--c-bg, #F3F6F9) 70%, transparent); }
+.sn-rodape { position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 12px; margin: 0 -4px; background: var(--c-surface, #fff); border-top: 1px solid #E1E7EE; border-radius: 10px 10px 0 0; box-shadow: 0 -4px 12px rgba(15, 23, 42, .08); }
+/* Celular: os 3 botões lado a lado, como nos outros rodapés do prontuário */
+@media (max-width: 520px) {
+  .sn-rodape { flex-wrap: nowrap; gap: 6px; padding: 8px 10px; }
+  .sn-rodape > div { display: contents !important; }
+  .sn-rodape .sn-btn { flex: 1 1 0; min-width: 0; height: auto; min-height: 44px; padding: 8px 6px; justify-content: center; text-align: center; white-space: normal; line-height: 1.15; }
+  .sn-rodape > .sn-btn:first-child { flex: 0 0 auto; padding: 8px 10px; }
+  .sn-rodape .sn-btn.prim { flex: 1.4 1 0; }
+}
 .sn-alerta { padding: 10px 12px; border-radius: 10px; background: #FFF4E5; border: 1px solid #F0D9A8; color: #6B4A00; font-size: 14px; }
 .sn-alerta ul { margin: 6px 0 0; padding-left: 18px; font-size: 12px; }
 .sn-msg { padding: 10px 12px; border-radius: 10px; background: #E8F4EC; color: #256B45; font-size: 14px; }
@@ -72,3 +93,4 @@
 .sn-na.sn-auto { font-style: normal; color: #0F2230; font-size: 14px; } .sn-na.sn-auto small { color: #8595A4; font-size: 12px; }
 .sn-marca { display: inline-flex; align-items: center; gap: 8px; height: 34px; font-size: 14px; color: #0F2230; cursor: pointer; }
 .sn-marca input { width: 18px !important; height: 18px !important; accent-color: #1B4555; }
+@media (pointer: coarse) { .sn-marca { height: 40px; } .sn-marca input { width: 22px !important; height: 22px !important; } }
