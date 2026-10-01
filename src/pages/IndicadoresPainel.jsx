@@ -61,27 +61,49 @@ export default function IndicadoresPainel({ onVoltar }) {
         </div>
         {periodo === 'custom' && !dataIni ? <p className="ind-vazio">Escolha a data inicial do período.</p> : carregando || !dados ? <p className="ind-vazio">Carregando métricas…</p> : (
           <>
-            <div className="ind-k4">
-              <div className="ind-kc"><small>Em observação agora</small><b>{dados.emObservacaoAgora}</b><span>pacientes no painel</span></div>
-              <div className="ind-kc"><small>Internaram</small><b>{dados.internaram.total}</b><span>{rotPer}</span></div>
-              <div className="ind-kc"><small>Tempo médio de internação</small><b>{formatarHoras(dados.tempoMedioInternacaoHoras)}</b><span>da admissão ao desfecho</span></div>
-              <div className="ind-kc"><small>Tempo médio até a conduta</small><b>{formatarHoras(dados.tempoMedioAteCondutaHoras)}</b><span>da porta até a decisão</span></div>
+            <div className="ind-grupos">
+              <section className="ind-grupo">
+                <h3><span className="ind-tag obs">Observação</span></h3>
+                <div className="ind-k3">
+                  <div className="ind-kc"><small>Em observação agora</small><b>{dados.emObservacaoAgora}</b><span>pacientes no painel</span></div>
+                  <div className="ind-kc"><small>Saíram da observação</small><b>{dados.saidasObservacao}</b><span>{rotPer}, sem internar</span></div>
+                  <div className="ind-kc"><small>Tempo médio em observação</small><b>{formatarHoras(dados.tempoMedioObservacaoHoras)}</b><span>da entrada à saída</span></div>
+                </div>
+              </section>
+              <section className="ind-grupo">
+                <h3><span className="ind-tag int">Internação</span></h3>
+                <div className="ind-k3">
+                  <div className="ind-kc"><small>Internados agora</small><b>{dados.internadosAgora}</b><span>pacientes no painel</span></div>
+                  <div className="ind-kc"><small>Internaram</small><b>{dados.internaram.total}</b><span>{rotPer}</span></div>
+                  <div className="ind-kc"><small>Tempo médio de internação</small><b>{formatarHoras(dados.tempoMedioInternacaoHoras)}</b><span>da admissão ao desfecho</span></div>
+                </div>
+              </section>
             </div>
+            <div className="ind-conduta"><i className="ph ph-timer" /> Tempo médio até a conduta (da porta até a decisão de observar ou internar): <b>{formatarHoras(dados.tempoMedioAteCondutaHoras)}</b></div>
             <div className="ind-g2">
               <div className="ind-cd">
-                <h4>Diagnósticos mais frequentes na internação</h4>
+                <h4>Diagnósticos mais frequentes de quem internou</h4>
                 {diag.length === 0 ? <p className="ind-vazio">Nenhuma internação registrada.</p> : diag.map(([d, q]) => (
                   <div key={d} className="ind-bar"><div><span title={d}>{d}</span><span>{q}</span></div><i><em style={{ width: `${(q / maxD) * 100}%` }} /></i></div>
                 ))}
               </div>
               <div className="ind-cd">
-                <h4>Ocupação por classificação de Manchester</h4>
-                {totMan === 0 ? <p className="ind-vazio">Nenhum paciente classificado agora.</p> : (
-                  <>
-                    <div className="ind-stk">{man.map(([c, q]) => <span key={c} style={{ width: `${(q / totMan) * 100}%`, background: CORES[c] || '#9AA8B5' }} title={`${c}: ${q}`} />)}</div>
-                    <div className="ind-leg">{man.map(([c, q]) => <div key={c}><s style={{ background: CORES[c] || '#9AA8B5' }} />{c}<b>{q} ({Math.round((q / totMan) * 100)}%)</b></div>)}</div>
-                  </>
-                )}
+                <h4>Ocupação agora por classificação de Manchester</h4>
+                {[['Em observação', 'Observação'], ['Internado', 'Internação']].map(([sit, rot]) => {
+                  const lista = Object.entries(dados.manchesterPorSituacao?.[sit] || {})
+                  const tot = lista.reduce((a, [, q]) => a + q, 0)
+                  return (
+                    <div key={sit} className="ind-man">
+                      <div className="ind-man-tit"><span className={'ind-tag ' + (sit === 'Internado' ? 'int' : 'obs')}>{rot}</span><b>{tot}</b></div>
+                      {tot === 0 ? <p className="ind-vazio ind-vazio-p">Nenhum paciente agora.</p> : (
+                        <>
+                          <div className="ind-stk">{lista.map(([c, q]) => <span key={c} style={{ width: `${(q / tot) * 100}%`, background: CORES[c] || '#9AA8B5' }} title={`${c}: ${q}`} />)}</div>
+                          <div className="ind-leg">{lista.map(([c, q]) => <div key={c}><s style={{ background: CORES[c] || '#9AA8B5' }} />{c}<b>{q} ({Math.round((q / tot) * 100)}%)</b></div>)}</div>
+                        </>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </>

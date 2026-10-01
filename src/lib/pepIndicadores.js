@@ -28,7 +28,7 @@ export async function calcularIndicadoresClinicos(periodo, datas = {}) {
   const ateISO = custom && datas.fim ? new Date(`${datas.fim}T23:59:59-03:00`).toISOString() : new Date(Date.now() + 60000).toISOString()
 
   const INT = 'internacoes(diagnostico_admissao, encerrado_em)'
-  const [r1, r2, r3, r4, r5] = await Promise.all([
+  const [r1, r2, r3, r4, r5, r6] = await Promise.all([
     // "Agora" = quem está de fato num leito (ocupação ativa), como no Painel.
     supabase.from('atendimentos').select('id, leito_ocupacoes!inner(status)', { count: 'exact', head: true })
       .eq('status', 'internado').eq('status_internacao', 'Em observação').eq('leito_ocupacoes.status', 'ativo'),
@@ -39,9 +39,13 @@ export async function calcularIndicadoresClinicos(periodo, datas = {}) {
       .gte('encerrado_em', desdeISO).lte('encerrado_em', ateISO).limit(5000),
     supabase.from('atendimentos').select('criado_em, data_conduta_definida')
       .gte('data_conduta_definida', desdeISO).lte('data_conduta_definida', ateISO).limit(5000),
-    supabase.from('atendimentos').select('classificacao_risco_cor, leito_ocupacoes!inner(status)').eq('status', 'internado').eq('leito_ocupacoes.status', 'ativo').limit(2000),
+    supabase.from('atendimentos').select('classificacao_risco_cor, status_internacao, leito_ocupacoes!inner(status)').eq('status', 'internado').eq('leito_ocupacoes.status', 'ativo').limit(2000),
+    // Observação que saiu no período (sem virar internação): permanência da porta à saída.
+    supabase.from('atendimentos').select('criado_em, encerrado_em')
+      .eq('status', 'alta').eq('status_internacao', 'Em observação')
+      .gte('encerrado_em', desdeISO).lte('encerrado_em', ateISO).limit(5000),
   ])
-  const erro = [r1, r2, r3, r4, r5].find((r) => r.error)?.error
+  const erro = [r1, r2, r3, r4, r5, r6].find((r) => r.error)?.error
   if (erro) throw erro
   const emObservacaoAgora = r1.count
   const internaram = (r2.data ?? []).map((a) => {
@@ -50,7 +54,18 @@ export async function calcularIndicadoresClinicos(periodo, datas = {}) {
   })
   const desfechosInternados = (r3.data ?? []).map((a) => ({ inicio: a.criado_em, fim: a.encerrado_em }))
   const condutas = (r4.data ?? []).map((a) => ({ inicio: a.criado_em, fim: a.data_conduta_definida }))
-  const internadosAgora = (r5.data ?? []).map((a) => ({ classificacao_manchester: a.classificacao_risco_cor }))
+  const internadosAgora = (r5.data ?? []).map((a) => ({ classificacao_manchester: a.classificacao_risco_cor, situacao: a.status_internacao }))
+  const internadosAgoraTotal = internadosAgora.filter((a) => a.situacao === 'Internado').length
+  const saidasObservacao = (r6.data ?? []).map((a) => ({ inicio: new Date(a.criado_em), fim: new Date(a.encerrado_em) }))
+  const tempoMedioObservacaoHoras = mediaHoras(saidasObservacao)
+  // Manchester separado por situação (Em observação × Internado)
+  const manchesterPorSituacao = { 'Em observação': {}, Internado: {} }
+  for (const p of internadosAgora) {
+    const grupo = manchesterPorSituacao[p.situacao]
+    if (!grupo) continue
+    const chave = p.classificacao_manchester || 'Não classificado'
+    grupo[chave] = (grupo[chave] || 0) + 1
+  }
 
   const porDiagnostico = {}
   for (const p of internaram ?? []) {
@@ -74,6 +89,10 @@ export async function calcularIndicadoresClinicos(periodo, datas = {}) {
 
   return {
     emObservacaoAgora: emObservacaoAgora ?? 0,
+    internadosAgora: internadosAgoraTotal,
+    saidasObservacao: saidasObservacao.length,
+    tempoMedioObservacaoHoras,
+    manchesterPorSituacao,
     internaram: {
       total: internaram?.length ?? 0,
       porDiagnostico: Object.entries(porDiagnostico).sort((a, b) => b[1] - a[1]),
