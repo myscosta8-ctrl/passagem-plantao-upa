@@ -9,6 +9,7 @@ import TopNav from '../layout/TopNav'
 import './AberturaPlantao.css'
 import { avisarErro } from '../lib/erros'
 import { listarMeusRascunhos } from '../components/MeusRascunhos'
+import { recolherLeitosExtras } from '../lib/leitosExtras'
 import { EVENTO_DOCUMENTOS } from '../lib/documentos'
 
 // Telas carregadas sob demanda via React.lazy (Code-Splitting)
@@ -30,6 +31,7 @@ async function limparLeitosExtrasNaoUsados() {
     .from('leitos')
     .select('id')
     .eq('tipo', 'extra')
+    .eq('ativo', true)
   if (erroConsulta1) avisarErro('Home', erroConsulta1)
   if (!candidatos?.length) return
 
@@ -38,7 +40,7 @@ async function limparLeitosExtrasNaoUsados() {
   if (erroConsulta2) avisarErro('Home', erroConsulta2)
   const ocupadosSet = new Set((ocupacoesPep ?? []).map((o) => o.leito_id))
   const paraExcluir = ids.filter((id) => !ocupadosSet.has(id))
-  if (paraExcluir.length) await supabase.from('leitos').delete().in('id', paraExcluir)
+  if (paraExcluir.length) await recolherLeitosExtras(paraExcluir)
 }
 
 function hojeISOLocal() {

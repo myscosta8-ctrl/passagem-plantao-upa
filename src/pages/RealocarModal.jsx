@@ -62,14 +62,16 @@ export default function RealocarModal({ paciente, leitoOrigem, enfermeiroId, onF
       return
     }
 
-    await supabase.from('realocacoes').insert({
-      paciente_id: paciente.id,
+    // Histórico da realocação: o id aqui é do atendimento (PEP), não da tabela antiga de pacientes.
+    const { error: erroHist } = await supabase.from('realocacoes').insert({
+      atendimento_id: paciente.id,
       setor_origem_id: leitoOrigem.setor_id,
       leito_origem_id: leitoOrigem.id,
       setor_destino_id: Number(setorDestinoId),
       leito_destino_id: Number(leitoDestinoId),
       enfermeiro_id: enfermeiroId,
     })
+    if (erroHist) avisarErro('RealocarModal', erroHist)
 
     setSalvando(false)
     onRealocado?.()
