@@ -21,8 +21,11 @@ function mediaHoras(pares) {
   return horas.reduce((soma, h) => soma + h, 0) / horas.length
 }
 
-export async function calcularIndicadoresClinicos(periodo) {
-  const desdeISO = inicioPeriodoISO(periodo)
+// periodo: 'hoje' | '7dias' | '30dias' | 'custom' (com datas { inicio, fim } no formato AAAA-MM-DD)
+export async function calcularIndicadoresClinicos(periodo, datas = {}) {
+  const custom = periodo === 'custom' && datas.inicio
+  const desdeISO = custom ? new Date(`${datas.inicio}T00:00:00-03:00`).toISOString() : inicioPeriodoISO(periodo)
+  const ateISO = custom && datas.fim ? new Date(`${datas.fim}T23:59:59-03:00`).toISOString() : new Date(Date.now() + 60000).toISOString()
 
   const INT = 'internacoes(diagnostico_admissao, encerrado_em)'
   const [r1, r2, r3, r4, r5] = await Promise.all([
@@ -30,12 +33,12 @@ export async function calcularIndicadoresClinicos(periodo) {
     supabase.from('atendimentos').select('id, leito_ocupacoes!inner(status)', { count: 'exact', head: true })
       .eq('status', 'internado').eq('status_internacao', 'Em observação').eq('leito_ocupacoes.status', 'ativo'),
     supabase.from('atendimentos').select(`queixa_principal, ${INT}`)
-      .eq('status_internacao', 'Internado').gte('data_conduta_definida', desdeISO).limit(5000),
+      .eq('status_internacao', 'Internado').gte('data_conduta_definida', desdeISO).lte('data_conduta_definida', ateISO).limit(5000),
     supabase.from('atendimentos').select('criado_em, encerrado_em')
       .eq('status', 'alta').eq('status_internacao', 'Internado')
-      .gte('encerrado_em', desdeISO).limit(5000),
+      .gte('encerrado_em', desdeISO).lte('encerrado_em', ateISO).limit(5000),
     supabase.from('atendimentos').select('criado_em, data_conduta_definida')
-      .gte('data_conduta_definida', desdeISO).limit(5000),
+      .gte('data_conduta_definida', desdeISO).lte('data_conduta_definida', ateISO).limit(5000),
     supabase.from('atendimentos').select('classificacao_risco_cor, leito_ocupacoes!inner(status)').eq('status', 'internado').eq('leito_ocupacoes.status', 'ativo').limit(2000),
   ])
   const erro = [r1, r2, r3, r4, r5].find((r) => r.error)?.error

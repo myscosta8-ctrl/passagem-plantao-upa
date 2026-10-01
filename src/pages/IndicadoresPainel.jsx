@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { calcularIndicadoresClinicos } from '../lib/pepIndicadores'
+import { useAuth } from '../lib/AuthContext'
+import './IndicadoresPainel.css'
 
 const PERIODOS = [
   { chave: 'hoje', rotulo: 'Hoje' },
@@ -23,11 +25,75 @@ export default function IndicadoresPainel({ onVoltar }) {
   const [periodo, setPeriodo] = useState('7dias')
   const [dados, setDados] = useState(null)
   const [carregando, setCarregando] = useState(true)
+  const [dataIni, setDataIni] = useState('')
+  const [dataFim, setDataFim] = useState('')
+  const { enfermeiro } = useAuth()
+  const novaUI = enfermeiro?.pep_beta === true
 
   useEffect(() => {
+    if (periodo === 'custom' && !dataIni) return
     setCarregando(true)
-    calcularIndicadoresClinicos(periodo).then((r) => { setDados(r); setCarregando(false) })
-  }, [periodo])
+    calcularIndicadoresClinicos(periodo, { inicio: dataIni, fim: dataFim }).then((r) => { setDados(r); setCarregando(false) })
+  }, [periodo, dataIni, dataFim])
+
+  // ===== Nova interface (contas pep_beta) — mockup 11 =====
+  if (novaUI) {
+    const CORES = { Vermelho: '#C93A3A', Laranja: '#E07A2E', Amarelo: '#E0B43A', Verde: '#3E8E5E', Azul: '#4A78B5', 'Não classificado': '#9AA8B5' }
+    const rotPer = periodo === 'hoje' ? 'hoje' : periodo === '7dias' ? 'nos últimos 7 dias' : periodo === '30dias' ? 'nos últimos 30 dias' : 'no período escolhido'
+    const man = dados ? Object.entries(dados.porManchester) : []
+    const totMan = man.reduce((a, [, q]) => a + q, 0)
+    const diag = dados ? dados.internaram.porDiagnostico : []
+    const maxD = Math.max(1, ...diag.map((d) => d[1]))
+    return (
+      <div className="workspace ind-v2">
+        <div className="ind-topo">
+          <h1>Indicadores Clínicos</h1>
+          <span className="ind-sub">Métricas da unidade e dos plantões</span>
+          <div className="ind-per">
+            {periodo === 'custom' && (
+              <span className="ind-datas">
+                <input type="date" value={dataIni} onChange={(e) => setDataIni(e.target.value)} aria-label="Data inicial" />
+                <span>até</span>
+                <input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} aria-label="Data final" />
+              </span>
+            )}
+            <div className="ind-seg">
+              {[['hoje', 'Hoje'], ['7dias', '7 dias'], ['30dias', '30 dias'], ['custom', 'Período']].map(([k, r]) => (
+                <button key={k} type="button" className={periodo === k ? 'on' : ''} onClick={() => setPeriodo(k)}>{r}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+        {periodo === 'custom' && !dataIni ? <p className="ind-vazio">Escolha a data inicial do período.</p> : carregando || !dados ? <p className="ind-vazio">Carregando métricas…</p> : (
+          <>
+            <div className="ind-k4">
+              <div className="ind-kc"><small>Em observação agora</small><b>{dados.emObservacaoAgora}</b><span>pacientes no painel</span></div>
+              <div className="ind-kc"><small>Internaram</small><b>{dados.internaram.total}</b><span>{rotPer}</span></div>
+              <div className="ind-kc"><small>Tempo médio de internação</small><b>{formatarHoras(dados.tempoMedioInternacaoHoras)}</b><span>da admissão ao desfecho</span></div>
+              <div className="ind-kc"><small>Tempo médio até a conduta</small><b>{formatarHoras(dados.tempoMedioAteCondutaHoras)}</b><span>da porta até a decisão</span></div>
+            </div>
+            <div className="ind-g2">
+              <div className="ind-cd">
+                <h4>Diagnósticos mais frequentes na internação</h4>
+                {diag.length === 0 ? <p className="ind-vazio">Nenhuma internação registrada.</p> : diag.map(([d, q]) => (
+                  <div key={d} className="ind-bar"><div><span title={d}>{d}</span><span>{q}</span></div><i><em style={{ width: `${(q / maxD) * 100}%` }} /></i></div>
+                ))}
+              </div>
+              <div className="ind-cd">
+                <h4>Ocupação por classificação de Manchester</h4>
+                {totMan === 0 ? <p className="ind-vazio">Nenhum paciente classificado agora.</p> : (
+                  <>
+                    <div className="ind-stk">{man.map(([c, q]) => <span key={c} style={{ width: `${(q / totMan) * 100}%`, background: CORES[c] || '#9AA8B5' }} title={`${c}: ${q}`} />)}</div>
+                    <div className="ind-leg">{man.map(([c, q]) => <div key={c}><s style={{ background: CORES[c] || '#9AA8B5' }} />{c}<b>{q} ({Math.round((q / totMan) * 100)}%)</b></div>)}</div>
+                  </>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="workspace">
