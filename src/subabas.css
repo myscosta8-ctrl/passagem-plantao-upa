@@ -9,6 +9,8 @@ html .cc-header:has(> .doc-subtabs), html .cc-header:has(.doc-subtabs) {
 html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) {
   display: flex !important; flex-wrap: nowrap !important; gap: 4px !important; padding: 4px !important; margin: 0 !important;
   background: #E9EEF3 !important; border: 0 !important; border-radius: 10px !important; overflow-x: auto; width: 100%; box-sizing: border-box;
+  /* Dentro de painéis em coluna (cc-body), a faixa com rolagem horizontal não pode ser espremida na altura */
+  flex-shrink: 0 !important; min-height: max-content !important; overflow-y: hidden !important;
 }
 html .modality-nav { margin: 0 0 14px !important; }
 html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) > button {
