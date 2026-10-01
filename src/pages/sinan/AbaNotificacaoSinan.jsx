@@ -15,12 +15,15 @@ const semAcento = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, ''
 
 function funcaoDe(e) {
   if (!e) return ''
-  const base = e.funcao || (e.tipo === 'medico' ? 'Médico(a)' : 'Enfermeiro(a)')
+  const NOMES = { medico: 'Médico(a)', enfermeiro: 'Enfermeiro(a)', tecnico: 'Técnico(a) de enfermagem', farmaceutico: 'Farmacêutico(a)', administrativo: 'Administrativo', recepcao: 'Recepção' }
+  const base = NOMES[e.funcao] || e.funcao || (e.tipo === 'medico' ? 'Médico(a)' : 'Enfermeiro(a)')
   const reg = e.crm ? `CRM ${e.crm}` : e.coren ? `COREN ${e.coren}` : e.registro_profissional || ''
   return [base, reg].filter(Boolean).join(' - ')
 }
 
 export default function AbaNotificacaoSinan({ atendimento, onFechar }) {
+  // As fichas passam o atendimento como { atendimento_id, pessoa_id, ... } (EspacoPaciente).
+  const atendimentoId = atendimento?.atendimento_id || atendimento?.id
   const { enfermeiro } = useAuth()
   const [lista, setLista] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -35,10 +38,10 @@ export default function AbaNotificacaoSinan({ atendimento, onFechar }) {
 
   async function recarregar() {
     setCarregando(true)
-    const [l, c] = await Promise.all([listarNotificacoes(atendimento.id), ctx ? Promise.resolve(ctx) : buscarContexto(atendimento.id)])
+    const [l, c] = await Promise.all([listarNotificacoes(atendimentoId), ctx ? Promise.resolve(ctx) : buscarContexto(atendimentoId)])
     setLista(l); setCtx(c); setCarregando(false)
   }
-  useEffect(() => { recarregar() }, [atendimento?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { recarregar() }, [atendimentoId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const cidAtual = ctx?.internacao?.cid_admissao || ctx?.internacao?.diagnostico_cid || ''
   const sugeridos = useMemo(() => agravosPorCid(cidAtual), [cidAtual])
@@ -72,7 +75,7 @@ export default function AbaNotificacaoSinan({ atendimento, onFechar }) {
     travaRef.current = true; setSalvando(true); setMsg(null)
     const situacao = imprimir ? 'registrada' : (atual.situacao && atual.situacao !== 'rascunho' ? atual.situacao : 'rascunho')
     const { data, error } = await salvarNotificacao({
-      id: atual.id, atendimentoId: atendimento.id, pessoaId: ctx?.pessoa?.id || ctx?.atendimento?.pessoa_id,
+      id: atual.id, atendimentoId, pessoaId: ctx?.pessoa?.id || ctx?.atendimento?.pessoa_id,
       modelo: atual.modelo.id, agravo: atual.agravo.nome, dados: atual.dados, situacao, sigiloso: atual.sigiloso,
     })
     if (error) {
@@ -81,7 +84,7 @@ export default function AbaNotificacaoSinan({ atendimento, onFechar }) {
     }
     setAtual((a) => ({ ...a, id: data.id, situacao }))
     if (imprimir) {
-      registrarEventoAuditoria({ atendimentoId: atendimento.id, autorId: enfermeiro?.id, acao: 'notificacao_sinan_registrada', dados: { notificacao_id: data.id, agravo: atual.agravo.nome, modelo: atual.modelo.id } })
+      registrarEventoAuditoria({ atendimentoId, autorId: enfermeiro?.id, acao: 'notificacao_sinan_registrada', dados: { notificacao_id: data.id, agravo: atual.agravo.nome, modelo: atual.modelo.id } })
       try {
         const { imprimirFicha } = await import('../../lib/sinan/imprimirFicha')
         await imprimirFicha(atual.modelo, atual.dados)
@@ -107,7 +110,7 @@ export default function AbaNotificacaoSinan({ atendimento, onFechar }) {
     const motivo = window.prompt('Motivo da invalidação (a notificação não é apagada, só fica marcada como invalidada):')
     if (motivo === null) return
     const { error } = await invalidarNotificacao(reg.id, enfermeiro?.id, motivo)
-    if (!error) registrarEventoAuditoria({ atendimentoId: atendimento.id, autorId: enfermeiro?.id, acao: 'notificacao_sinan_invalidada', dados: { notificacao_id: reg.id, motivo } })
+    if (!error) registrarEventoAuditoria({ atendimentoId, autorId: enfermeiro?.id, acao: 'notificacao_sinan_invalidada', dados: { notificacao_id: reg.id, motivo } })
     recarregar()
   }
 

@@ -66,7 +66,8 @@ export function valoresIniciais(ctx = {}) {
     tem_cpf: digitos(p.cpf).length === 11 ? '1' : '',
     nome_mae: p.nome_mae || '',
     uf_residencia: p.uf || (residenteBreves ? 'PA' : ''),
-    municipio_residencia: p.cidade || '',
+    // Sem cidade cadastrada, mas com o código IBGE de Breves: o município é Breves.
+    municipio_residencia: p.cidade || (digitos(p.municipio_ibge).startsWith(UNIDADE.municipio_ibge) ? UNIDADE.municipio : ''),
     ibge_residencia: digitos(p.municipio_ibge).slice(0, 6) || (residenteBreves ? UNIDADE.municipio_ibge : ''),
     bairro: p.bairro || '',
     logradouro: p.endereco || '',
