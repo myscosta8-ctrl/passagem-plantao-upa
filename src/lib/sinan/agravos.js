@@ -1,0 +1,71 @@
+// Agravos de notificação compulsória disponíveis no programa.
+// `modelo` = ficha usada (as que não têm ficha própria saem na Notificação Individual).
+// `imediata` = notificação em até 24 horas.
+// `sigiloso` = ficha com acesso restrito (só quem notificou e administradores).
+// CID-10 conforme a ficha/Lista Nacional; o campo continua editável na tela.
+export const AGRAVOS = [
+  { nome: 'Dengue', cid: 'A90', modelo: 'DENGUE_CHIKUNGUNYA' },
+  { nome: 'Febre de Chikungunya', cid: 'A92.0', modelo: 'DENGUE_CHIKUNGUNYA' },
+  { nome: 'Malária', cid: 'B54', modelo: 'MALARIA', imediata: true, obs: 'Imediata quando fora da região amazônica' },
+  { nome: 'Acidente por animal peçonhento', cid: 'X29', modelo: 'ANIMAIS_PECONHENTOS' },
+  { nome: 'Atendimento antirrábico humano', cid: 'W64', modelo: 'ANTIRRABICO' },
+  { nome: 'Violência interpessoal/autoprovocada', cid: 'Y09', modelo: 'VIOLENCIA', sigiloso: true },
+  // Sem ficha própria neste lote: Notificação Individual
+  { nome: 'Acidente de trabalho com exposição a material biológico', cid: 'Z20.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Acidente de trabalho grave, fatal e em crianças e adolescentes', cid: 'Y96', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Botulismo', cid: 'A05.1', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Cólera', cid: 'A00.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Coqueluche', cid: 'A37.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Doença de Chagas aguda', cid: 'B57.1', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Difteria', cid: 'A36.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Doença meningocócica e outras meningites', cid: 'G03.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Esquistossomose', cid: 'B65.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Evento adverso grave ou óbito pós-vacinação', cid: 'T88.1', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Febre amarela', cid: 'A95.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Febre maculosa e outras riquetsioses', cid: 'A77.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Febre tifoide', cid: 'A01.0', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Hanseníase', cid: 'A30.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Hantavirose', cid: 'A98.5', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Hepatites virais', cid: 'B19', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'HIV/AIDS', cid: 'B24', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Influenza humana produzida por novo subtipo viral', cid: 'J11', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Intoxicação exógena', cid: 'T65.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Leishmaniose tegumentar americana', cid: 'B55.1', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Leishmaniose visceral', cid: 'B55.0', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Leptospirose', cid: 'A27.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Paralisia flácida aguda / Poliomielite', cid: 'A80.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Peste', cid: 'A20.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Raiva humana', cid: 'A82.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Rubéola', cid: 'B06.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Sarampo', cid: 'B05.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
+  { nome: 'Sífilis adquirida', cid: 'A53.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Sífilis em gestante', cid: 'O98.1', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Sífilis congênita', cid: 'A50.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Síndrome respiratória aguda grave (SRAG)', cid: 'J22', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Tétano acidental', cid: 'A35', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Tétano neonatal', cid: 'A33', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Toxoplasmose gestacional e congênita', cid: 'O98.6', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Tuberculose', cid: 'A16.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Varicela (caso grave internado ou óbito)', cid: 'B01.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Zika vírus', cid: 'A92.8', modelo: 'NOTIFICACAO_INDIVIDUAL' },
+  { nome: 'Outro agravo (informar)', cid: '', modelo: 'NOTIFICACAO_INDIVIDUAL', livre: true },
+]
+
+// Fichas disponíveis (carregadas só quando abertas).
+export const MODELOS = {
+  NOTIFICACAO_INDIVIDUAL: () => import('./modelos/notificacaoIndividual'),
+  DENGUE_CHIKUNGUNYA: () => import('./modelos/dengueChikungunya'),
+  MALARIA: () => import('./modelos/malaria'),
+  ANIMAIS_PECONHENTOS: () => import('./modelos/animaisPeconhentos'),
+  ANTIRRABICO: () => import('./modelos/antirrabico'),
+  VIOLENCIA: () => import('./modelos/violencia'),
+}
+
+export const carregarModelo = async (id) => (await MODELOS[id]()).default
+
+// Sugere agravos pelo CID do diagnóstico (ex.: B54 → Malária).
+export function agravosPorCid(cid) {
+  const c = String(cid || '').toUpperCase().replace(/\s/g, '')
+  if (!c) return []
+  return AGRAVOS.filter((a) => a.cid && (c.startsWith(a.cid.replace('.', '')) || c.startsWith(a.cid)))
+}
