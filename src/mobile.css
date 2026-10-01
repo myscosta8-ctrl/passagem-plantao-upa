@@ -47,7 +47,7 @@
   html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .campo-data-registro input { max-width: 200px; padding: 6px 8px; }
   html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) button {
     order: 2 !important; flex: 1 1 0 !important; width: auto !important; min-width: 0 !important; min-height: 44px;
-    padding: 8px 6px !important; font-size: 13px !important; white-space: normal !important; line-height: 1.15 !important; text-align: center; justify-content: center; margin: 0 !important;
+    padding: 8px 6px !important; font-size: 14px !important; white-space: normal !important; line-height: 1.15 !important; text-align: center; justify-content: center; margin: 0 !important;
   }
   html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .btn-cancel { flex: 0 0 auto !important; padding: 8px 10px !important; }
   html body :is(.cc-footer, .ac-footer, .sc-footer, .bh-footer, .tc-footer, .fc-footer) .btn-save-print { flex: 1.4 1 0 !important; }
@@ -66,5 +66,5 @@
 
 /* Celular: 16px nos campos evita o zoom automático ao digitar */
 @media (max-width: 640px) and (pointer: coarse) {
-  input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; }
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 15px !important; }
 }

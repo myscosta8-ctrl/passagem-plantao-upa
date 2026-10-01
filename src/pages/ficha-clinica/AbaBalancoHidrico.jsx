@@ -37,7 +37,7 @@ function Tabela({ tipo, titulo, icon, cols, linhas, nova, setNova, itens, vias, 
     <div className="bh-box">
       <div className={'bh-box-header ' + (tipo === 'entrada' ? 'entradas' : 'saidas')}>
         <span><i className={'ph ' + icon} /> {titulo}</span>
-        <span style={{ fontSize: 11 }}>Total Parcial {turnoAtual()}: <strong>{fmt(parcial)} mL</strong></span>
+        <span style={{ fontSize: 12 }}>Total Parcial {turnoAtual()}: <strong>{fmt(parcial)} mL</strong></span>
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table className="bh-table">
@@ -51,7 +51,7 @@ function Tabela({ tipo, titulo, icon, cols, linhas, nova, setNova, itens, vias, 
           </thead>
           <tbody>
             {linhas.length === 0 && (
-              <tr><td colSpan={4} style={{ color: '#94A3B8', fontSize: 11.5 }}>Nenhum lançamento nas últimas 24h.</td></tr>
+              <tr><td colSpan={4} style={{ color: '#94A3B8', fontSize: 12 }}>Nenhum lançamento nas últimas 24h.</td></tr>
             )}
             {linhas.map((h) => (
               <tr key={h.id}>
@@ -194,7 +194,7 @@ export default function AbaBalancoHidrico({ atendimento, autorId, onImprimir, on
         )}
         {msg && (
           <div className="condicional-box" style={msg.erro ? { background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' } : undefined}>
-            <span style={{ fontSize: 12.5, fontWeight: 600 }}><i className={'ph ' + (msg.erro ? 'ph-warning' : 'ph-check-circle')} /> {msg.t}</span>
+            <span style={{ fontSize: 12, fontWeight: 600 }}><i className={'ph ' + (msg.erro ? 'ph-warning' : 'ph-check-circle')} /> {msg.t}</span>
           </div>
         )}
       </div>

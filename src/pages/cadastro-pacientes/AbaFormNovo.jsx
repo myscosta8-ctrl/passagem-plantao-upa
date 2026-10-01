@@ -176,13 +176,13 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {candidatosDuplicata.map((c) => (
               <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '6px 10px', borderRadius: 6, border: '1px solid #ECD99F' }}>
-                <span style={{ fontSize: 13 }}>
+                <span style={{ fontSize: 14 }}>
                   <b>{c.nome}</b> {numeroLimpo(c.prontuario_numero) ? `· Prontuário: ${numeroLimpo(c.prontuario_numero)}` : ''} {c.cpf ? `· CPF: ${c.cpf}` : ''}
                 </span>
                 <button
                   type="button"
                   className="modal-btn-secondary"
-                  style={{ fontSize: 11, padding: '4px 10px' }}
+                  style={{ fontSize: 12, padding: '4px 10px' }}
                   onClick={() => {
                     setDados({
                       nome: c.nome || '',

@@ -139,11 +139,11 @@ export default function AbaSangue({ atendimento, medicoId, onImprimir, onFechar 
 
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-drop" /> Hemocomponentes / hemoderivados</div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '6px 8px', borderBottom: '1px solid var(--border-strong)', color: 'var(--text-secondary)', fontSize: 11, textTransform: 'uppercase' }}>Descrição</th>
-                <th style={{ textAlign: 'center', padding: '6px 8px', borderBottom: '1px solid var(--border-strong)', color: 'var(--text-secondary)', fontSize: 11, textTransform: 'uppercase', width: 140 }}>Quantidade</th>
+                <th style={{ textAlign: 'left', padding: '6px 8px', borderBottom: '1px solid var(--border-strong)', color: 'var(--text-secondary)', fontSize: 12, textTransform: 'uppercase' }}>Descrição</th>
+                <th style={{ textAlign: 'center', padding: '6px 8px', borderBottom: '1px solid var(--border-strong)', color: 'var(--text-secondary)', fontSize: 12, textTransform: 'uppercase', width: 140 }}>Quantidade</th>
               </tr>
             </thead>
             <tbody>

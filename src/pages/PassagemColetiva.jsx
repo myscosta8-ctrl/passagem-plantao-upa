@@ -382,7 +382,7 @@ export default function PassagemColetiva({
             {plantao?.turno && <span>Turno: <strong>{plantao.turno}</strong></span>}
           </div>
           <div className="filter-row">
-            <span style={{ fontSize: 11, color: 'var(--text-muted)', marginRight: 4 }}>Filtro:</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', marginRight: 4 }}>Filtro:</span>
             <button type="button" className={`filter-chip ${filtro === 'todos' ? 'active' : ''}`} onClick={() => setFiltro('todos')}>Todos ({contagens.todos})</button>
             <button type="button" className={`filter-chip ${filtro === 'pendencias' ? 'active' : ''}`} onClick={() => setFiltro('pendencias')}>Com Pendências ({contagens.pendencias})</button>
             <button type="button" className={`filter-chip ${filtro === 'a-conferir' ? 'active' : ''}`} onClick={() => setFiltro('a-conferir')}>A Conferir ({contagens['a-conferir']})</button>
@@ -474,7 +474,7 @@ export default function PassagemColetiva({
                       <tr key={leito.id} className="vago">
                         <td><strong>Leito {leito.numero}</strong></td>
                         <td colSpan={4}><span style={{ color: 'var(--text-muted)' }}>[ Leito vago ]</span></td>
-                        <td style={{ textAlign: 'center' }}><span style={{ color: 'var(--text-muted)', fontSize: 11 }}>Vago</span></td>
+                        <td style={{ textAlign: 'center' }}><span style={{ color: 'var(--text-muted)', fontSize: 12 }}>Vago</span></td>
                       </tr>
                     ) : null
                   }
@@ -484,7 +484,7 @@ export default function PassagemColetiva({
                   return (
                     <tr key={leito.id} className={ok ? 'checked' : ''} onClick={() => abrirFoco(leito.id)} style={{ cursor: 'pointer' }}>
                       <td><strong>Leito {leito.numero}</strong></td>
-                      <td><strong>{paciente.nome}</strong>{paciente.idade ? `, ${paciente.idade}a` : ''} {temAlergia(paciente) && <span className="tag-alergia" style={{ fontSize: 9 }}>{textoAlergia(paciente) || 'Alergia'}</span>}</td>
+                      <td><strong>{paciente.nome}</strong>{paciente.idade ? `, ${paciente.idade}a` : ''} {temAlergia(paciente) && <span className="tag-alergia" style={{ fontSize: 12 }}>{textoAlergia(paciente) || 'Alergia'}</span>}</td>
                       <td>{paciente.diagnostico || ps?.diagnostico || '—'}</td>
                       <td>{resumoDisp(ps) || '—'}</td>
                       <td>{pendenciaDe(ps) || '—'}</td>

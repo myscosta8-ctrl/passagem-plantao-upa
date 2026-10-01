@@ -115,7 +115,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
         <>
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
           <aside className="tools-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
-<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
+<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
 
         <div className="pane-header"><i className="ph ph-magic-wand" /> Auto-preenchimento</div>
         <div className="tools-body">
@@ -129,7 +129,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
                 <strong><i className={"ph " + kit.icon} /> Kit {kit.titulo}</strong>
                 <span>Aplica bundle de protocolos e equipe sugerida.</span>
               </div>
-              <i className="ph ph-caret-right" style={{ color: 'var(--primary)', fontSize: 16 }} />
+              <i className="ph ph-caret-right" style={{ color: 'var(--primary)', fontSize: 15 }} />
             </button>
           ))}
         </div>

@@ -17,7 +17,7 @@ export default function CamposAtendimento({ atd, set, setores }) {
       </div>
 
       <div className="form-section-title" style={{ marginTop: 22 }}>Responsável pelo paciente</div>
-      <p style={{ fontSize: 11.5, color: 'var(--c-text-muted)', marginTop: -10, marginBottom: 14 }}>
+      <p style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: -10, marginBottom: 14 }}>
         Pra declaração/termo de responsabilidade — assinado em papel na hora da internação.
       </p>
       <div className="form-grid">

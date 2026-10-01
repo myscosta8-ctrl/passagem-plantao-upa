@@ -51,7 +51,7 @@ export default function AbaDesfecho() {
   return (
     <div className="form-section">
       <div className="form-section-title">Sinalizar desfecho</div>
-      <p style={{ fontSize: 13, color: 'var(--c-text-muted)', marginTop: -8, marginBottom: 16 }}>
+      <p style={{ fontSize: 14, color: 'var(--c-text-muted)', marginTop: -8, marginBottom: 16 }}>
         Registre aqui o que já foi decidido pela equipe assistencial (alta, transferência, evasão ou óbito) —
         é só a sinalização administrativa que libera o leito, não uma decisão clínica.
       </p>
@@ -62,7 +62,7 @@ export default function AbaDesfecho() {
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhum paciente internado no momento.</p>
       ) : (
         pacientes.map((p) => (
-          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 13 }}>
+          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 14 }}>
             <div>
               <div style={{ fontWeight: 600 }}>{p.nome}</div>
               <div style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>

@@ -113,7 +113,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
           </div>
 
           <div className="checkbox-group">
-            <label style={{ fontWeight: 700, color: 'var(--text-main, #0F172A)', fontSize: 13 }}>Risco e Avaliação Rápida:</label>
+            <label style={{ fontWeight: 700, color: 'var(--text-main, #0F172A)', fontSize: 14 }}>Risco e Avaliação Rápida:</label>
             <label className="checkbox-item">
               <input type="checkbox" checked={dados.risco_tev === 'Sim'} onChange={(e) => set('risco_tev', e.target.checked ? 'Sim' : '')} /> Risco TEV
             </label>
@@ -136,7 +136,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
               </span>
             </div>
             {svInfo && (
-              <p style={{ fontSize: 11.5, color: 'var(--text-muted, #64748B)', margin: '0 0 10px' }}>{svInfo}</p>
+              <p style={{ fontSize: 12, color: 'var(--text-muted, #64748B)', margin: '0 0 10px' }}>{svInfo}</p>
             )}
             <div className="vitals-grid">
               <div className="vital-box">

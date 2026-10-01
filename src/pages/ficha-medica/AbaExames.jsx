@@ -461,7 +461,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         <>
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
           <aside className="tools-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
-<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
+<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
 
         <div className="pane-header">
           <span><i className="ph ph-navigation-arrow" /> Modalidade do Pedido</span>
@@ -524,7 +524,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         <header className="cc-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: 16 }}><div>
             <h2 id="card-main-title"><i className={cfg.icon} /> {cfg.titulo}</h2>
             
-          </div><div style={{display:'flex', gap: 12, alignItems: 'center'}}><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)' }}>Em Aberto - Urgência</span><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div></header>
+          </div><div style={{display:'flex', gap: 12, alignItems: 'center'}}><span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>Em Aberto - Urgência</span><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div></header>
 
         <div className="cc-body">
           <div className="modality-nav modality-nav-topo" role="tablist" aria-label="Tipo de pedido">
@@ -603,7 +603,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
               <div className="form-section">
                 <div className="form-section-title">
                   <span className="st-left"><i className="ph ph-buildings" /> Estabelecimento Solicitante (Campos 1 e 2)</span>
-                  <span style={{ fontSize: 11, color: 'var(--c-primary-hover, #0F766E)', fontWeight: 700 }}>Regulação Externa SUS / SER-PA</span>
+                  <span style={{ fontSize: 12, color: 'var(--c-primary-hover, #0F766E)', fontWeight: 700 }}>Regulação Externa SUS / SER-PA</span>
                 </div>
                 <div className="grid-2">
                   <div className="form-group">
@@ -677,7 +677,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
                 </div>
               </div>
 
-              <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0 }}>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
                 Este é um resumo rápido da APAC (campos essenciais). Para o laudo oficial com todos os 52 campos, use o botão "Abrir Laudo APAC Completo" acima.
               </p>
             </div>

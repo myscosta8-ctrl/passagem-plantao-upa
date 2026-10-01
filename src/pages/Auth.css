@@ -35,7 +35,7 @@
 }
 
 .auth-brand h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--color-text-strong);
   margin: 0 0 4px;
@@ -62,7 +62,7 @@
 }
 
 .auth-header h2 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--color-text-strong);
   margin: 0 0 6px;
@@ -82,7 +82,7 @@
 
 .form-group label {
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-text-main);
   margin-bottom: 6px;
@@ -108,7 +108,7 @@
   background: var(--c-surface-inset);
   border: 1px solid var(--c-border);
   border-radius: 12px;
-  font-size: 14.5px;
+  font-size: 14px;
   color: var(--color-text-strong);
   transition: all 0.2s;
 }
@@ -130,7 +130,7 @@
   color: var(--c-danger);
   padding: 12px 16px;
   border-radius: 10px;
-  font-size: 13.5px;
+  font-size: 14px;
   display: flex;
   align-items: flex-start;
   gap: 10px;

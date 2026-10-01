@@ -1,38 +1,38 @@
 /* Histórico Clínico do Paciente — mesma linguagem visual do banner (verde #0D9488) */
 .hc-card { background: var(--c-surface); border: 1px solid var(--c-border-dark); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.05); flex-shrink: 0; }
-.hc-topo { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 16px; background: transparent; border: none; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--c-text-primary); text-align: left; }
+.hc-topo { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 16px; background: transparent; border: none; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--c-text-primary); text-align: left; }
 .hc-topo i { color: var(--c-text-secondary); }
-.hc-topo-dica { font-size: 11px; font-weight: 600; color: var(--c-text-muted); display: flex; align-items: center; gap: 6px; }
+.hc-topo-dica { font-size: 12px; font-weight: 600; color: var(--c-text-muted); display: flex; align-items: center; gap: 6px; }
 .hc-corpo { border-top: 1px solid var(--c-border); padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
 .hc-filtros { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .hc-busca { flex: 1; min-width: 240px; display: flex; align-items: center; gap: 8px; background: var(--c-fill); border: 1px solid var(--c-border-dark); border-radius: 6px; padding: 6px 10px; }
 .hc-busca i { color: var(--c-text-muted); }
-.hc-busca input { border: none; background: transparent; outline: none; width: 100%; font-size: 12.5px; }
+.hc-busca input { border: none; background: transparent; outline: none; width: 100%; font-size: 12px; }
 .hc-areas { display: flex; gap: 2px; background: var(--c-fill); padding: 2px; border-radius: 6px; border: 1px solid var(--c-border); }
-.hc-areas button { border: none; background: transparent; padding: 4px 10px; font-size: 11.5px; font-weight: 600; color: var(--c-text-secondary); border-radius: 4px; cursor: pointer; }
+.hc-areas button { border: none; background: transparent; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--c-text-secondary); border-radius: 4px; cursor: pointer; }
 .hc-areas button.ativo { background: var(--c-surface); color: var(--c-primary); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
 .hc-bloco { border: 1px solid var(--c-border); border-radius: 6px; overflow: hidden; }
 .hc-bloco-topo { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--c-surface-inset); border: none; cursor: pointer; text-align: left; }
-.hc-bloco-titulo { font-size: 12.5px; font-weight: 700; color: var(--c-text-primary); }
-.hc-bloco-sub { font-size: 11px; color: var(--c-text-muted); flex: 1; }
-.hc-contador { background: var(--c-fill); color: var(--c-text-secondary); font-size: 10.5px; font-weight: 700; border-radius: 10px; padding: 1px 8px; }
+.hc-bloco-titulo { font-size: 12px; font-weight: 700; color: var(--c-text-primary); }
+.hc-bloco-sub { font-size: 12px; color: var(--c-text-muted); flex: 1; }
+.hc-contador { background: var(--c-fill); color: var(--c-text-secondary); font-size: 12px; font-weight: 700; border-radius: 10px; padding: 1px 8px; }
 .hc-bloco-corpo { padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 6px; max-height: 460px; overflow-y: auto; }
 .hc-vazio { font-size: 12px; color: var(--c-text-muted); margin: 4px 0; }
 .hc-atendimento { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
-.hc-atendimento-topo { font-size: 11.5px; font-weight: 700; color: var(--c-text-secondary); background: var(--c-fill); border-radius: 4px; padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
+.hc-atendimento-topo { font-size: 12px; font-weight: 700; color: var(--c-text-secondary); background: var(--c-fill); border-radius: 4px; padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
 .hc-item { border: 1px solid var(--c-border); border-left: 4px solid var(--c-border-dark); border-radius: 6px; background: var(--c-surface); }
 .hc-item.medico { border-left-color: #475569; }
 .hc-item-topo { display: flex; align-items: center; gap: 10px; padding: 6px 10px; cursor: pointer; flex-wrap: wrap; }
-.hc-data { font-size: 11px; font-weight: 700; color: var(--c-text-secondary); min-width: 118px; }
-.hc-tipo { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: var(--c-fill); color: var(--c-text-secondary); }
+.hc-data { font-size: 12px; font-weight: 700; color: var(--c-text-secondary); min-width: 118px; }
+.hc-tipo { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: var(--c-fill); color: var(--c-text-secondary); }
 .hc-tipo.medico { background: #EAEFF6; color: #1E40AF; }
-.hc-autor { font-size: 11px; color: var(--c-text-muted); flex: 1; }
+.hc-autor { font-size: 12px; color: var(--c-text-muted); flex: 1; }
 .hc-item-topo > i { color: var(--c-text-muted); }
 .hc-resumo { font-size: 12px; color: var(--c-text-primary); padding: 0 10px 7px; line-height: 1.45; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .hc-resumo.aberto { display: block; }
 .hc-acoes { padding: 0 10px 8px; }
-.hc-btn { border: 1px solid var(--c-border-dark); background: var(--c-surface-inset); color: var(--c-text-secondary); border-radius: 6px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
-.hc-nota { font-size: 10.5px; color: var(--c-text-muted); margin: 0; }
+.hc-btn { border: 1px solid var(--c-border-dark); background: var(--c-surface-inset); color: var(--c-text-secondary); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.hc-nota { font-size: 12px; color: var(--c-text-muted); margin: 0; }
 .hc-print-overlay { position: fixed; inset: 0; z-index: 3000; background: var(--c-surface); overflow: auto; }
 
 /* Modo somente leitura: o profissional pode consultar e imprimir, mas não criar */
@@ -66,7 +66,7 @@
 .hc-gaveta .hc-corpo > * { flex-shrink: 0; }
 
 /* Situação do documento clínico */
-.hc-situacao { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: .03em; }
+.hc-situacao { font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: .03em; }
 .hc-situacao.rascunho { background: var(--c-warning-light); color: var(--c-warning-text); }
 .hc-situacao.finalizado { background: var(--c-success-light); color: var(--c-success-text); }
 .hc-situacao.invalido { background: var(--c-danger-strong-light); color: #991B1B; }
@@ -74,19 +74,19 @@
 .hc-item.hc-invalido .hc-resumo { text-decoration: line-through; }
 .hc-acoes { display: flex; gap: 6px; flex-wrap: wrap; }
 .hc-btn-perigo { border-color: var(--c-danger); background: var(--c-danger-light); color: var(--c-danger-strong); }
-.hc-motivo { font-size: 11.5px; color: #991B1B; padding: 0 10px 7px; }
+.hc-motivo { font-size: 12px; color: #991B1B; padding: 0 10px 7px; }
 .hc-invalidar { display: flex; gap: 6px; align-items: center; padding: 0 10px 8px; flex-wrap: wrap; }
 .hc-invalidar input { flex: 1; min-width: 220px; border: 1px solid var(--c-border-dark); border-radius: 6px; padding: 5px 8px; font-size: 12px; }
-.hc-erro { color: var(--c-danger-strong); font-size: 11.5px; }
+.hc-erro { color: var(--c-danger-strong); font-size: 12px; }
 .hc-alteracoes { margin: 0 10px 8px; border-top: 1px dashed var(--c-border-dark); padding-top: 6px; display: flex; flex-direction: column; gap: 6px; }
-.hc-alteracao-topo { font-size: 11px; font-weight: 700; color: var(--c-text-secondary); }
-.hc-alteracao-campo { font-size: 11px; color: var(--c-text-secondary); word-break: break-word; }
+.hc-alteracao-topo { font-size: 12px; font-weight: 700; color: var(--c-text-secondary); }
+.hc-alteracao-campo { font-size: 12px; color: var(--c-text-secondary); word-break: break-word; }
 .hc-alteracao-campo s { color: #991B1B; }
 /* Rascunho e data retroativa nas abas */
 .aviso-rascunho { display: flex; align-items: center; gap: 8px; background: var(--c-warning-light); border: 1px solid var(--c-warning-border); color: var(--c-warning-text); border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
-.campo-data-registro { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; color: var(--c-text-soft); margin-right: auto; }
+.campo-data-registro { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--c-text-soft); margin-right: auto; }
 .campo-data-registro input { border: 1px solid var(--c-border-dark); border-radius: 6px; padding: 4px 6px; font-size: 12px; }
-.campo-data-registro button { border: none; background: transparent; color: var(--c-text-secondary); font-weight: 700; cursor: pointer; font-size: 11px; }
+.campo-data-registro button { border: none; background: transparent; color: var(--c-text-secondary); font-weight: 700; cursor: pointer; font-size: 12px; }
 .erro-inline { display: flex; align-items: center; gap: 8px; background: var(--c-danger-light); border: 1px solid var(--c-danger-border-strong); color: #991B1B; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; margin: 6px 0; }
 
 .hc-aviso-autor { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--c-text-muted); }
@@ -116,7 +116,7 @@
 .hc-doc-corpo { flex: 1; overflow: auto; }
 .hc-doc-corpo .barra-impressao { display: none !important; }
 .hc-doc-rodape { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-top: 1px solid var(--c-border, #E1E7EE); background: #FBFCFD; }
-.hc-doc-voltar, .hc-doc-imprimir { height: 36px; padding: 0 16px; border-radius: 8px; font: inherit; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.hc-doc-voltar, .hc-doc-imprimir { height: 36px; padding: 0 16px; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 .hc-doc-voltar { border: 1px solid var(--c-border, #CBD5E1); background: #fff; color: var(--c-text-primary, #0F2230); }
 .hc-doc-imprimir { border: 0; background: var(--c-primary, #1B4555); color: #fff; }
 @media print {
@@ -130,22 +130,22 @@ html .hc-doc-corpo .print-page { position: static; inset: auto; z-index: auto; o
 /* ===== Histórico (mockup 05): agrupado por dia, só exceções etiquetadas, ações ao passar o mouse ===== */
 .hc-filtros { flex-wrap: nowrap; }
 .hc-filtros .hc-busca { flex: 1; max-width: 560px; }
-.hc-ver-inv { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--c-text-secondary, #5A6B7B); cursor: pointer; white-space: nowrap; }
+.hc-ver-inv { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--c-text-secondary, #5A6B7B); cursor: pointer; white-space: nowrap; }
 .hc-ver-inv input { position: absolute; opacity: 0; pointer-events: none; }
 .hc-switch { width: 30px; height: 17px; border-radius: 9px; background: #CBD5E1; position: relative; transition: background .15s; }
 .hc-switch::after { content: ''; position: absolute; left: 2px; top: 2px; width: 13px; height: 13px; border-radius: 50%; background: #fff; transition: left .15s; }
 .hc-ver-inv input:checked + .hc-switch { background: var(--c-primary, #1B4555); }
 .hc-ver-inv input:checked + .hc-switch::after { left: 15px; }
-.hc-dia { margin: 14px 0 6px; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; color: #8595A4; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.hc-dia { margin: 14px 0 6px; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: #8595A4; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
 .hc-dia::after { content: ''; flex: 1; height: 1px; background: #EEF2F6; }
 .hc-solto .hc-bloco-corpo > div:first-child .hc-dia { margin-top: 4px; }
 .hc-solto .hc-item { border: 0; border-left: 0; border-radius: 9px; background: transparent; margin: 0; }
 .hc-solto .hc-item:hover { background: #F5F8FA; }
 .hc-solto .hc-item.hc-invalido { opacity: .7; }
-.hc-hora { min-width: 48px; font-size: 13.5px; color: var(--c-text-primary, #0F2230); }
+.hc-hora { min-width: 48px; font-size: 14px; color: var(--c-text-primary, #0F2230); }
 .hc-tipo { font-size: 12px; min-width: 150px; padding: 3px 9px; border-radius: 6px; background: #E6EEF1; color: var(--c-primary, #1B4555); }
 .hc-tipo.medico { background: #EEF0F5; color: #4A5873; }
-.hc-autor { font-size: 13px; color: #334155; }
+.hc-autor { font-size: 14px; color: #334155; }
 .hc-acoes-linha .hc-ic:not(.hc-sempre) { visibility: hidden; }
 .hc-item:hover .hc-acoes-linha .hc-ic, .hc-item:focus-within .hc-acoes-linha .hc-ic { visibility: visible; }
 @media (hover: none) { .hc-acoes-linha .hc-ic:not(.hc-sempre) { visibility: visible; } }

@@ -187,7 +187,7 @@ export default function AltasRecentes({ onVoltar }) {
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
         <div className="page-title">
           <h1>Desfechos e Saídas</h1>
-          <p style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>
+          <p style={{ color: 'var(--c-text-muted)', fontSize: 14 }}>
             Altas médicas, transferências, óbitos e evasões — com indicadores e filtros por período.
           </p>
         </div>
@@ -323,17 +323,17 @@ export default function AltasRecentes({ onVoltar }) {
                   <td>
                     <strong>{d.nome}</strong>
                     {d.prontuario && (
-                      <><br /><span style={{ color: 'var(--c-text-muted)', fontSize: 11 }}>Pront. {d.prontuario}</span></>
+                      <><br /><span style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>Pront. {d.prontuario}</span></>
                     )}
                   </td>
-                  <td style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>{d.leito_info}</td>
-                  <td style={{ whiteSpace: 'nowrap', fontSize: 13 }}>{dataHora}</td>
+                  <td style={{ color: 'var(--c-text-muted)', fontSize: 14 }}>{d.leito_info}</td>
+                  <td style={{ whiteSpace: 'nowrap', fontSize: 14 }}>{dataHora}</td>
                   <td>
-                    <span className="badge" style={{ background: cor.bg, color: cor.txt, fontWeight: 700, fontSize: 11, padding: '3px 10px', borderRadius: 20 }}>
+                    <span className="badge" style={{ background: cor.bg, color: cor.txt, fontWeight: 700, fontSize: 12, padding: '3px 10px', borderRadius: 20 }}>
                       {d.tipo_desfecho}
                     </span>
                   </td>
-                  <td style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--c-text-muted)', fontSize: 13 }} title={d.tipo_desfecho === 'Transferência' ? `Destino: ${d.destino || 'não informado'}` : d.diagnostico}>
+                  <td style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--c-text-muted)', fontSize: 14 }} title={d.tipo_desfecho === 'Transferência' ? `Destino: ${d.destino || 'não informado'}` : d.diagnostico}>
                     {d.tipo_desfecho === 'Transferência'
                       ? <span style={{ fontWeight: 700, color: d.destino ? '#1e40af' : 'var(--c-text-muted)' }}><i className="ph ph-hospital" /> Destino: {d.destino || 'não informado'}</span>
                       : d.diagnostico}
@@ -348,7 +348,7 @@ export default function AltasRecentes({ onVoltar }) {
         {!carregando && (
           <div style={{ padding: '10px 16px', borderTop: '1px solid var(--c-border)', color: 'var(--c-text-muted)', fontSize: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span><strong>{filtrados.length}</strong> registro{filtrados.length !== 1 ? 's' : ''} encontrado{filtrados.length !== 1 ? 's' : ''}</span>
-            <button className="btn btn-outline" style={{ fontSize: 11, padding: '4px 12px' }} onClick={() => window.print()}>
+            <button className="btn btn-outline" style={{ fontSize: 12, padding: '4px 12px' }} onClick={() => window.print()}>
               <i className="ph ph-printer" /> Exportar / Imprimir
             </button>
           </div>

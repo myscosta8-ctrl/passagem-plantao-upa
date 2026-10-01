@@ -109,7 +109,7 @@ export default function CadastroPacientes() {
       <aside className="form-section rc-recentes" style={{ marginTop: 32 }}>
         <div className="form-section-title">Cadastrados recentemente</div>
         {recentes.length === 0 ? (
-          <p style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>Nenhum cadastro ainda.</p>
+          <p style={{ color: 'var(--c-text-muted)', fontSize: 14 }}>Nenhum cadastro ainda.</p>
         ) : (
           recentes.map((a) => (
             <div key={a.id} className="recepcao-recentes-item">

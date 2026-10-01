@@ -134,7 +134,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
               <label>Dose Alvo (mg/kg)</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="number" step="0.1" value={calc.doseAlvoMgKg} onChange={(e) => onChange('doseAlvoMgKg', e.target.value)} />
-                <span style={{ fontSize: 11, fontWeight: 700 }}>mg</span>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>mg</span>
               </div>
             </div>
           </div>
@@ -144,21 +144,21 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
               <label>Apresentação</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="number" value={calc.apresentacaoMg} onChange={(e) => onChange('apresentacaoMg', e.target.value)} />
-                <span style={{ fontSize: 11, fontWeight: 700 }}>mg</span>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>mg</span>
               </div>
             </div>
             <div className="calc-box">
               <label>Diluente da Ampola</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="number" value={calc.diluenteMl} onChange={(e) => onChange('diluenteMl', e.target.value)} />
-                <span style={{ fontSize: 11, fontWeight: 700 }}>mL (AD)</span>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>mL (AD)</span>
               </div>
             </div>
             <div className="calc-box">
               <label>Soro de Rediluição</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="number" value={calc.soroMl} onChange={(e) => onChange('soroMl', e.target.value)} placeholder="Opcional" />
-                <span style={{ fontSize: 11, fontWeight: 700 }}>mL (SF)</span>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>mL (SF)</span>
               </div>
             </div>
           </div>
@@ -580,7 +580,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                         </button>
                       )}
                       {textoDiluicao(it) && (
-                        <div style={{ fontSize: 11.5, color: 'var(--text-secondary)', marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
                           <i className="ph ph-eye" /> Na prescrição: <strong>{textoDiluicao(it)}</strong>
                         </div>
                       )}
@@ -690,24 +690,24 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                 </div>
                 <div className="presc-list" style={{ padding: '12px 16px' }}>
                   {historico.map((p) => (
-                    <div key={p.id} style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: 12, marginBottom: 12, fontSize: 12.5 }}>
+                    <div key={p.id} style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: 12, marginBottom: 12, fontSize: 12 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span style={{ fontWeight: 600 }}>
                           {(p.prescricao_itens ?? []).map((it) => it.medicamento_nome).join(', ')}
                         </span>
-                        <span style={{ fontSize: 11, color: p.status === 'cancelada' ? '#DC2626' : 'var(--text-muted)' }}>
+                        <span style={{ fontSize: 12, color: p.status === 'cancelada' ? '#DC2626' : 'var(--text-muted)' }}>
                           {p.situacao === 'invalido' ? 'invalidada' : p.status}
                         </span>
                       </div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
+                      <div style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 4 }}>
                         Prescrito por {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} • {new Date(p.criado_em).toLocaleString('pt-BR')}
                         {p.data_referencia && <> • <strong>Válida {textoValidade(p.data_referencia, p.criado_em)}</strong></>}
                       </div>
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => onImprimir(p)}>
+                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onImprimir(p)}>
                           <i className="ph ph-printer" /> Reimprimir
                         </button>
-                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => duplicar(p)} title="Copia medicamentos, dieta e orientações para uma nova prescrição">
+                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => duplicar(p)} title="Copia medicamentos, dieta e orientações para uma nova prescrição">
                           <i className="ph ph-copy" /> Duplicar
                         </button>
                         <SeloSituacao registro={p} />

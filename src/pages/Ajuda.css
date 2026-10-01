@@ -1,22 +1,22 @@
 .aj-page { padding: 24px 28px 48px !important; overflow-y: auto; background: var(--c-fill); max-width: 980px; width: 100%; margin: 0 auto; }
 .aj-cab { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-.aj-cab h1 { margin: 0; font-size: 24px; font-weight: 800; color: var(--c-text-primary); }
-.aj-cab p { margin: 4px 0 0; font-size: 13.5px; color: var(--c-text-muted); }
-.aj-btn { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; border: 1px solid var(--c-border-dark); background: var(--c-surface); border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--c-text-secondary); cursor: pointer; }
+.aj-cab h1 { margin: 0; font-size: 22px; font-weight: 800; color: var(--c-text-primary); }
+.aj-cab p { margin: 4px 0 0; font-size: 14px; color: var(--c-text-muted); }
+.aj-btn { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; border: 1px solid var(--c-border-dark); background: var(--c-surface); border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--c-text-secondary); cursor: pointer; }
 .aj-busca { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px; margin-bottom: 14px; }
 .aj-busca:focus-within { border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(13, 148, 136, .12); }
-.aj-busca i { font-size: 19px; color: var(--c-text-faint); }
+.aj-busca i { font-size: 18px; color: var(--c-text-faint); }
 .aj-busca input { flex: 1; min-width: 0; border: 0 !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; height: 100% !important; font-size: 15px; outline: none; }
 .aj-atalhos { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
-.aj-atalhos a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 20px; font-size: 12.5px; font-weight: 600; color: var(--c-text-secondary); text-decoration: none; }
+.aj-atalhos a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--c-text-secondary); text-decoration: none; }
 .aj-atalhos a:hover { border-color: var(--c-primary); background: var(--c-surface-inset); }
 .aj-secao { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; scroll-margin-top: 12px; }
-.aj-secao h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 16px; font-weight: 800; color: var(--c-text-primary); }
-.aj-secao h2 i { width: 30px; height: 30px; border-radius: 8px; background: var(--c-fill); color: var(--c-text-secondary); display: inline-flex; align-items: center; justify-content: center; font-size: 17px; }
+.aj-secao h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 15px; font-weight: 800; color: var(--c-text-primary); }
+.aj-secao h2 i { width: 30px; height: 30px; border-radius: 8px; background: var(--c-fill); color: var(--c-text-secondary); display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
 .aj-item { border-top: 1px solid var(--c-border-light); }
 .aj-pergunta { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 2px; border: 0; background: transparent; text-align: left; font-size: 14px; font-weight: 600; color: #1E293B; cursor: pointer; }
 .aj-pergunta i { color: var(--c-text-faint); flex-shrink: 0; }
 .aj-item.on .aj-pergunta { color: var(--c-text-secondary); }
-.aj-resposta { margin: 0 0 12px; padding: 10px 12px; background: var(--c-surface-inset); border-left: 3px solid var(--c-primary); border-radius: 0 8px 8px 0; font-size: 13.5px; line-height: 1.6; color: var(--c-text-secondary); }
-.aj-vazio, .aj-rodape { font-size: 13.5px; color: var(--c-text-muted); display: flex; align-items: center; gap: 6px; }
-@media (max-width: 640px) { .aj-page { padding: 16px 14px 40px !important; } .aj-cab h1 { font-size: 20px; } }
+.aj-resposta { margin: 0 0 12px; padding: 10px 12px; background: var(--c-surface-inset); border-left: 3px solid var(--c-primary); border-radius: 0 8px 8px 0; font-size: 14px; line-height: 1.6; color: var(--c-text-secondary); }
+.aj-vazio, .aj-rodape { font-size: 14px; color: var(--c-text-muted); display: flex; align-items: center; gap: 6px; }
+@media (max-width: 640px) { .aj-page { padding: 16px 14px 40px !important; } .aj-cab h1 { font-size: 18px; } }

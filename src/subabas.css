@@ -15,7 +15,7 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) > button 
   flex: 1 1 0 !important; min-width: max-content; height: 38px !important; padding: 0 14px !important; margin: 0 !important;
   display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important;
   border: 0 !important; border-radius: 8px !important; background: transparent !important; box-shadow: none !important;
-  color: var(--c-text-secondary, #5A6B7B) !important; font: inherit; font-size: 13px !important; font-weight: 600 !important;
+  color: var(--c-text-secondary, #5A6B7B) !important; font: inherit; font-size: 14px !important; font-weight: 600 !important;
   white-space: nowrap; cursor: pointer; outline: none;
 }
 html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) > button:hover { background: rgba(255, 255, 255, .7) !important; color: var(--c-text-primary, #0F2230) !important; }

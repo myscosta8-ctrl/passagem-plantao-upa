@@ -56,7 +56,7 @@ export default function SecaoAssistencia({ passagem, set, toggleDispositivo }) {
               />
             </div>
             <div className="form-field span-3">
-              <p style={{ fontSize: 11.5, color: 'var(--color-text-muted)', margin: 0 }}>
+              <p style={{ fontSize: 12, color: 'var(--color-text-muted)', margin: 0 }}>
                 Usado para alertar a troca do AVP nas 96h.
               </p>
             </div>

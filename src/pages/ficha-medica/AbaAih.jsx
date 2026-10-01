@@ -191,13 +191,13 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
         <>
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
           <aside className="tools-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
-<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
+<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
 
         <div className="pane-header">
           <span >
             <i className="ph ph-hospital" style={{ fontSize: 14 }} /> Regulação SUS / AIH
           </span>
-          <span style={{ fontSize: 10, color: '#16A34A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ fontSize: 12, color: '#16A34A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
             <i className="ph ph-check-circle" /> Conectado
           </span>
         </div>
@@ -205,7 +205,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
         <div className="tools-body">
           <div className="info-integration-box" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
             <h3 style={{ color: '#166534', margin: 0, marginBottom: 4 }}><i className="ph ph-check" /> Estabelecimento UPA 24h</h3>
-            <p style={{ fontSize: 11, color: '#14532D', margin: 0, lineHeight: 1.4 }}>
+            <p style={{ fontSize: 12, color: '#14532D', margin: 0, lineHeight: 1.4 }}>
               <strong>Unidade:</strong> UPA 24H BREVES<br />
               <strong>CNES:</strong> 02.967.963<br />
               <strong>Caráter:</strong> 02 - Urgência<br />
@@ -218,7 +218,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             <p style={{ margin: 0, marginBottom: 6 }}>
               Os campos clínicos desta AIH foram preenchidos a partir da <strong>Admissão Médica</strong>:
             </p>
-            <ul style={{ fontSize: 11, color: '#475569', marginLeft: 16, marginBottom: 8, lineHeight: 1.4 }}>
+            <ul style={{ fontSize: 12, color: '#475569', marginLeft: 16, marginBottom: 8, lineHeight: 1.4 }}>
               <li>Queixa e HDA &rarr; Sinais e Sintomas</li>
               <li>Comorbidades &rarr; CID Secundário</li>
               <li>Hipótese &rarr; CID-10 Principal</li>
@@ -234,7 +234,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
           </div>
 
           <div>
-            <h3 style={{ fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
+            <h3 style={{ fontSize: 12, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
               <i className="ph ph-needle" /> Procedimentos SIGTAP Frequentes
             </h3>
             {PROCEDIMENTOS_RAPIDOS.map((p) => (
@@ -462,7 +462,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                   </div>
                   <input
                     type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 11.5, fontWeight: 800, color: 'var(--c-primary, #0D9488)', background: 'transparent' }}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 800, color: 'var(--c-primary, #0D9488)', background: 'transparent' }}
                     value={dados.cid_principal}
                     onChange={(e) => set('cid_principal', e.target.value)}
                   />
@@ -476,7 +476,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                   </div>
                   <input
                     type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 11, fontWeight: 700, background: 'transparent' }}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, background: 'transparent' }}
                     value={dados.cid_secundario}
                     onChange={(e) => set('cid_secundario', e.target.value)}
                   />
@@ -498,7 +498,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                   </div>
                   <input
                     type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 11.5, fontWeight: 700, color: 'var(--c-primary, #0D9488)', background: 'transparent' }}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, color: 'var(--c-primary, #0D9488)', background: 'transparent' }}
                     value={dados.procedimento_principal_nome}
                     onChange={(e) => set('procedimento_principal_nome', e.target.value)}
                   />
@@ -520,7 +520,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                   <div className="aih-field-header"><label>29 - CLÍNICA</label></div>
                   <input
                     type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 11, fontWeight: 700, background: 'transparent' }}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, background: 'transparent' }}
                     value={dados.clinica}
                     onChange={(e) => set('clinica', e.target.value)}
                   />
@@ -531,7 +531,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                   <div className="aih-field-header"><label>30 - CARÁTER DA INTERNAÇÃO</label></div>
                   <input
                     type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 11, fontWeight: 700, background: 'transparent' }}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, background: 'transparent' }}
                     value={dados.carater_internacao}
                     onChange={(e) => set('carater_internacao', e.target.value)}
                   />
@@ -567,7 +567,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             </div>
             <div className="aih-grid" style={{ marginTop: 4 }}>
               <div className="col-4">
-                <label style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
                   <input
                     type="checkbox"
                     checked={dados.causa_externa_transito}
@@ -577,7 +577,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                 </label>
               </div>
               <div className="col-4">
-                <label style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
                   <input
                     type="checkbox"
                     checked={dados.causa_externa_trabalho_tipico}
@@ -587,7 +587,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                 </label>
               </div>
               <div className="col-4">
-                <label style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
                   <input
                     type="checkbox"
                     checked={dados.causa_externa_trabalho_trajeto}
@@ -597,10 +597,10 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                 </label>
               </div>
               <div className="col-12" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 4, padding: '6px 10px', marginTop: 2 }}>
-                <span style={{ fontSize: 9.5, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
                   45 - Vínculo Previdenciário:
                 </span>
-                <div style={{ display: 'flex', gap: 14, marginTop: 4, fontSize: 11, fontWeight: 600, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 14, marginTop: 4, fontSize: 12, fontWeight: 600, flexWrap: 'wrap' }}>
                   {['Empregado', 'Autônomo', 'Aposentado', isPediatrico ? 'NÃO SEGURADO (MENOR)' : 'Não Segurado'].map((v) => (
                     <label key={v} style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
                       <input

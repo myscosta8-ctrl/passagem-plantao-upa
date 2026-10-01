@@ -191,7 +191,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
             <div className="form-section-box-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span><i className="ph ph-pill" /> {i + 1}) Medicamento</span>
               {(it.controlado || it.antimicrobiano) && (
-                <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: it.controlado ? '#FEE2E2' : '#FEF3C7', color: it.controlado ? '#DC2626' : '#92400E' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: it.controlado ? '#FEE2E2' : '#FEF3C7', color: it.controlado ? '#DC2626' : '#92400E' }}>
                   {it.controlado ? 'Controlado (Lista C1)' : 'Antimicrobiano'}
                 </span>
               )}
@@ -225,7 +225,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
             </div>
 
             <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: 6 }}>
                 <i className="ph ph-magic-wand" /> Construtores rápidos de posologia (clique para preencher)
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>

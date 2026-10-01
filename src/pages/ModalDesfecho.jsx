@@ -26,7 +26,7 @@ export default function ModalDesfecho({ nomePaciente, numeroLeito, processando, 
     <div className="modal-backdrop">
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <h2 className="modal-title">Desfecho de {nomePaciente}</h2>
-        <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 16 }}>
+        <p style={{ fontSize: 14, color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 16 }}>
           {numeroLeito ? `O leito ${numeroLeito} fica liberado. ` : ''}Isso fica registrado no histórico dos próximos 7 dias.
         </p>
 

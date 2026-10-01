@@ -33,7 +33,7 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
   .ind-k3 { grid-template-columns: 1fr; }
   .ind-grupo .ind-kc { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 10px; }
   .ind-grupo .ind-kc small { flex-basis: 100%; }
-  .ind-grupo .ind-kc b { font-size: 24px; margin: 2px 0 0; }
+  .ind-grupo .ind-kc b { font-size: 22px; margin: 2px 0 0; }
   .ind-topo { flex-direction: column; align-items: flex-start; }
   .ind-per { margin-left: 0; flex-wrap: wrap; }
 }
@@ -51,7 +51,7 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
   .ds-tipo { justify-self: start; }
   .ds-pac b { overflow-wrap: anywhere; }
 }
-@media (max-width: 600px) { .pd-topo h1 { font-size: 20px; } }
+@media (max-width: 600px) { .pd-topo h1 { font-size: 18px; } }
 
 /* Prontuário no celular: etiquetas da faixa (alergia!) sempre visíveis; histórico legível */
 @media (max-width: 700px) {
@@ -81,3 +81,12 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
    Números com largura fixa (sinais vitais, doses, horários e leitos ficam alinhados). */
 html, body, input, textarea, select, button { font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif; }
 body { font-variant-numeric: tabular-nums; }
+
+/* ===== Menos MAIÚSCULAS nas telas (impressos não mudam) =====
+   Ficam em maiúsculas só o nome do paciente e as etiquetas de alerta (alergia, classificação). */
+@media screen {
+  body *:not(.print-page *):not(.hc-print-overlay *):not(.fi-overlay *):not(.pp-folha *):not([class*="alergia"]):not([class*="classificacao"]):not(.fpj-chip):not(.pb-name) {
+    text-transform: none !important;
+  }
+  body *:not(.print-page *):not(.hc-print-overlay *):not(.fi-overlay *):not(.pp-folha *):not([class*="alergia"]):not([class*="classificacao"]):not(.fpj-chip) { letter-spacing: normal !important; }
+}

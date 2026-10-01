@@ -16,15 +16,15 @@ function CartaoPessoa({ pessoa, titulo, selecionada, onSelecionar }) {
         background: selecionada ? 'var(--c-primary-light)' : 'var(--c-surface)',
       }}
     >
-      <div className="mono" style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 4 }}>{titulo}</div>
-      <div style={{ fontWeight: 600, fontSize: 13.5 }}>{pessoa.nome}</div>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--c-text-muted)', marginTop: 3 }}>
+      <div className="mono" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 4 }}>{titulo}</div>
+      <div style={{ fontWeight: 600, fontSize: 14 }}>{pessoa.nome}</div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--c-text-muted)', marginTop: 3 }}>
         {numeroLimpo(pessoa.prontuario_numero) || '—'}
         {pessoa.data_nascimento ? ` · nasc. ${new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}
         {pessoa.cpf ? ` · CPF ${pessoa.cpf}` : ''}
         {pessoa.cns ? ` · CNS ${pessoa.cns}` : ''}
       </div>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--c-text-muted)', marginTop: 3 }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--c-text-muted)', marginTop: 3 }}>
         cadastrada em {new Date(pessoa.criado_em).toLocaleDateString('pt-BR')}
       </div>
     </div>
@@ -90,7 +90,7 @@ function ItemDuplicata({ item, enfermeiroId, onResolvido }) {
         </div>
       ) : (
         <div style={{ marginTop: 12 }}>
-          <p style={{ fontSize: 11.5, color: 'var(--c-text-muted)', marginBottom: 10 }}>
+          <p style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 10 }}>
             Clique em qual dos dois cadastros deve continuar valendo. O outro fica marcado como mesclado (nada é apagado).
           </p>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -127,7 +127,7 @@ export default function AbaDuplicatas({ enfermeiroId, onResolvida }) {
 
   return (
     <div>
-      <p style={{ fontSize: 12.5, color: 'var(--c-text-muted)', marginBottom: 16 }}>
+      <p style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 16 }}>
         O sistema encontrou cadastros com o mesmo nome. Revise cada um: se for a mesma pessoa, escolha qual prontuário continua sendo usado.
       </p>
       {itens.map((item) => (

@@ -60,7 +60,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--c-text-muted);
   font-weight: 500;
 }
@@ -106,7 +106,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   border: 1px solid var(--c-border-dark);
 }
 
@@ -148,7 +148,7 @@
 }
 
 .painel-title h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--c-text-primary);
   margin-bottom: 6px;
@@ -173,7 +173,7 @@
   border: 1px solid var(--c-border-dark);
   padding: 8px 16px;
   border-radius: 6px;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--c-text-secondary);
   cursor: pointer;
@@ -205,7 +205,7 @@
   left: 12px;
   top: 11px;
   color: var(--c-text-muted);
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .search-bar .search-input {
@@ -213,7 +213,7 @@
   padding: 9px 12px 9px 36px !important;
   border: 1px solid var(--c-border-dark);
   border-radius: 6px;
-  font-size: 13.5px;
+  font-size: 14px;
   outline: none;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
   background: var(--c-surface);
@@ -265,7 +265,7 @@
 }
 
 .setor-header h3 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--c-text-primary);
   margin: 0;
@@ -372,7 +372,7 @@
 }
 
 .leito-status {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   padding: 4px 8px;
   border-radius: 4px;
@@ -415,7 +415,7 @@
 
 .paciente-meta,
 .leito-paciente-meta {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--c-text-secondary);
   display: flex;
   align-items: center;
@@ -432,7 +432,7 @@
 
 .paciente-hd,
 .leito-paciente-diag {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--c-text-secondary);
   background: var(--c-surface-inset);
   padding: 10px;
@@ -459,7 +459,7 @@
   justify-content: space-between;
   align-items: center;
   background: #FAFAF9;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--c-text-muted);
   font-weight: 500;
   margin-top: auto;
@@ -480,7 +480,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
   color: var(--c-text-muted);
   transition: 0.2s;
   padding: 2px 4px;
@@ -521,7 +521,7 @@
   padding: 9px 12px;
   background: none;
   border: none;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--c-text-primary);
   cursor: pointer;
 }
@@ -603,7 +603,7 @@
 
 .tabela-painel th {
   padding: 10px 14px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--c-text-muted);
   text-transform: uppercase;
@@ -613,7 +613,7 @@
 
 .tabela-painel td {
   padding: 12px 14px;
-  font-size: 13px;
+  font-size: 14px;
   border-bottom: 1px solid var(--c-border);
   color: var(--c-text-primary);
 }

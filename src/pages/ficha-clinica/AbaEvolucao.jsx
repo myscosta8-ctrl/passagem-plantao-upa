@@ -113,7 +113,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
               <label className="enf-label forte bloco-num" style={{ margin: 0 }}><i className="ph ph-thermometer" /> Sinais Vitais do Turno</label>
-              <span style={{ fontSize: 11, color: '#64748B' }}>
+              <span style={{ fontSize: 12, color: '#64748B' }}>
                 <i className="ph ph-clock" /> Última aferição: {ultimoSv ? new Date(ultimoSv.registrado_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
               </span>
             </div>
@@ -183,7 +183,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
 
           {erro && (
             <div className="condicional-box" style={{ background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' }}>
-              <span style={{ fontSize: 12.5, fontWeight: 600 }}><i className="ph ph-warning" /> {erro}</span>
+              <span style={{ fontSize: 12, fontWeight: 600 }}><i className="ph ph-warning" /> {erro}</span>
             </div>
           )}
         </div>

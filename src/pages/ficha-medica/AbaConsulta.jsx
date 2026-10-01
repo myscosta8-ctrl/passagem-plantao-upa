@@ -155,13 +155,13 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
         <>
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
           <aside className="tools-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
-<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
+<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
 
         <div className="pane-header">
           <span >
             <i className="ph ph-heartbeat" /> Triagem & Ferramentas
           </span>
-          <span style={{ fontSize: 10, color: '#94A3B8' }}>Recepção</span>
+          <span style={{ fontSize: 12, color: '#94A3B8' }}>Recepção</span>
         </div>
 
         <div className="tools-body">
@@ -186,14 +186,14 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
               </div>
             </div>
             {paciente?.queixa_principal && (
-              <div style={{ marginTop: 8, fontSize: 11, color: '#475569', lineHeight: 1.3 }}>
+              <div style={{ marginTop: 8, fontSize: 12, color: '#475569', lineHeight: 1.3 }}>
                 <strong>Queixa na Triagem:</strong> {paciente.queixa_principal}
               </div>
             )}
           </div>
 
           <div>
-            <h3 style={{ fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
+            <h3 style={{ fontSize: 12, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
               <i className="ph ph-magic-wand" /> Modelos de Admissão
             </h3>
             <button
@@ -205,7 +205,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
                 <strong>Pneumonia Pediátrica</strong>
                 <span>Preenche HDA + EF completo</span>
               </div>
-              <i className="ph ph-plus-circle" style={{ color: 'var(--c-primary, #0D9488)', fontSize: 16 }} />
+              <i className="ph ph-plus-circle" style={{ color: 'var(--c-primary, #0D9488)', fontSize: 15 }} />
             </button>
             <button
               type="button"
@@ -216,7 +216,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
                 <strong>Bronquiolite / Asma Grave</strong>
                 <span>Cianose, sibilos e oxigenoterapia</span>
               </div>
-              <i className="ph ph-plus-circle" style={{ color: 'var(--c-primary, #0D9488)', fontSize: 16 }} />
+              <i className="ph ph-plus-circle" style={{ color: 'var(--c-primary, #0D9488)', fontSize: 15 }} />
             </button>
             <button
               type="button"
@@ -227,7 +227,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
                 <strong>Gastroenterite + Desidratação</strong>
                 <span>Vômitos, diarreia e hidratação EV</span>
               </div>
-              <i className="ph ph-plus-circle" style={{ color: 'var(--c-primary, #0D9488)', fontSize: 16 }} />
+              <i className="ph ph-plus-circle" style={{ color: 'var(--c-primary, #0D9488)', fontSize: 15 }} />
             </button>
           </div>
 
@@ -241,7 +241,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
       <div className="clinical-card">
         <div className="cc-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="cc-header-info">
-              <h2 style={{ margin: 0, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h2 style={{ margin: 0, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <i className="ph ph-stethoscope" /> Admissão Médica
               </h2>
             </div>
