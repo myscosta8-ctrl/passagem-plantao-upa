@@ -54,7 +54,7 @@ export default function AbaNotificacaoSinan({ atendimento, onFechar }) {
     const modelo = await carregarModelo(agravo.modelo)
     const base = valoresIniciais({ ...ctx, notificante: { nome: enfermeiro?.nome_exibicao || enfermeiro?.nome || '', funcao: funcaoDe(enfermeiro) } })
     let dados = { ...base, agravo: agravo.livre ? '' : `${agravo.nome}${agravo.cid ? ` (${agravo.cid})` : ''}` }
-    if (modelo.inicializar) dados = modelo.inicializar(dados, agravo)
+    if (modelo.inicializar) dados = modelo.inicializar(dados, { ...agravo, cidDiagnostico: cidAtual })
     setAtual({ id: null, agravo, modelo, dados, sigiloso: !!(agravo.sigiloso || modelo.sigilosa) })
     setMsg(null); setFaltando(null); setModo('ficha')
   }

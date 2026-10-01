@@ -24,7 +24,7 @@
 .sn-campo.falta { border-color: #E0B43A; background: #FFFBF0; }
 .sn-campo.com-erro { border-color: #C93A3A; }
 .sn-erro { color: #C93A3A; font-size: 12px; }
-.sn-campo.inativo { background: #F3F6F9; border-style: dashed; }
+.sn-dica { display: block; margin-top: 4px; font-size: var(--text-xs, 12px); color: var(--color-text-muted, #5B6B7B); }
 .sn-na { height: 34px; display: flex; align-items: center; font-size: 12px; color: #8595A4; font-style: italic; }
 @media (max-width: 900px) { .sn-grade { grid-template-columns: repeat(6, minmax(0, 1fr)); } .sn-grade > [class*="sn-col-"] { grid-column: span 3; } .sn-grade > .sn-col-12, .sn-grade > .sn-col-8, .sn-grade > .sn-col-9, .sn-grade > .sn-col-10 { grid-column: span 6; } }
 @media (max-width: 560px) { .sn-grade > [class*="sn-col-"] { grid-column: span 6; } }

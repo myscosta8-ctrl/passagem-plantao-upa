@@ -4,8 +4,7 @@
 // `sigiloso` = ficha com acesso restrito (só quem notificou e administradores).
 // CID-10 conforme a ficha/Lista Nacional; o campo continua editável na tela.
 export const AGRAVOS = [
-  { nome: 'Dengue', cid: 'A90', modelo: 'DENGUE_CHIKUNGUNYA' },
-  { nome: 'Febre de Chikungunya', cid: 'A92.0', modelo: 'DENGUE_CHIKUNGUNYA' },
+  { nome: 'Dengue e Chikungunya', cid: 'A90 / A92.0', cids: ['A90', 'A91', 'A92.0'], modelo: 'DENGUE_CHIKUNGUNYA' },
   { nome: 'Malária', cid: 'B54', modelo: 'MALARIA', imediata: true, obs: 'Imediata quando fora da região amazônica' },
   { nome: 'Acidente por animal peçonhento', cid: 'X29', modelo: 'ANIMAIS_PECONHENTOS' },
   { nome: 'Atendimento antirrábico humano', cid: 'W64', modelo: 'ANTIRRABICO' },
@@ -17,8 +16,7 @@ export const AGRAVOS = [
   { nome: 'Coqueluche', cid: 'A37.9', modelo: 'COQUELUCHE', imediata: true },
   { nome: 'Doença de Chagas aguda', cid: 'B57.1', modelo: 'CHAGAS', imediata: true },
   { nome: 'Difteria', cid: 'A36.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
-  { nome: 'Doença meningocócica', cid: 'A39.9', modelo: 'MENINGITE', imediata: true },
-  { nome: 'Outras meningites', cid: 'G03.9', modelo: 'MENINGITE' },
+  { nome: 'Meningites (doença meningocócica e outras meningites)', cid: 'A39.9 / G03.9', cids: ['A39', 'G00', 'G01', 'G02', 'G03', 'A17.0', 'A87'], modelo: 'MENINGITE', imediata: true },
   { nome: 'Esquistossomose', cid: 'B65.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
   { nome: 'Evento adverso grave ou óbito pós-vacinação', cid: 'T88.1', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
   { nome: 'Febre amarela', cid: 'A95.9', modelo: 'FEBRE_AMARELA', imediata: true },
@@ -38,8 +36,7 @@ export const AGRAVOS = [
   { nome: 'Paralisia flácida aguda / Poliomielite', cid: 'A80.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
   { nome: 'Peste', cid: 'A20.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
   { nome: 'Raiva humana', cid: 'A82.9', modelo: 'NOTIFICACAO_INDIVIDUAL', imediata: true },
-  { nome: 'Rubéola', cid: 'B06.9', modelo: 'EXANTEMATICA', imediata: true },
-  { nome: 'Sarampo', cid: 'B05.9', modelo: 'EXANTEMATICA', imediata: true },
+  { nome: 'Sarampo e Rubéola (doenças exantemáticas)', cid: 'B05.9 / B06.9', cids: ['B05', 'B06'], modelo: 'EXANTEMATICA', imediata: true },
   { nome: 'Sífilis adquirida', cid: 'A53.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
   { nome: 'Sífilis em gestante', cid: 'O98.1', modelo: 'NOTIFICACAO_INDIVIDUAL' },
   { nome: 'Sífilis congênita', cid: 'A50.9', modelo: 'NOTIFICACAO_INDIVIDUAL' },
@@ -89,5 +86,6 @@ export const carregarModelo = async (id) => (await MODELOS[id]()).default
 export function agravosPorCid(cid) {
   const c = String(cid || '').toUpperCase().replace(/\s/g, '')
   if (!c) return []
-  return AGRAVOS.filter((a) => a.cid && (c.startsWith(a.cid.replace('.', '')) || c.startsWith(a.cid)))
+  const bate = (k) => c.startsWith(k.replace('.', '')) || c.startsWith(k)
+  return AGRAVOS.filter((a) => (a.cids || (a.cid ? [a.cid] : [])).some(bate))
 }

@@ -82,7 +82,11 @@ export default {
   id: 'MENINGITE',
   titulo: 'Ficha de Investigação — Meningite',
   arquivo: 'Meningite_v5.pdf',
-  inicializar: (dados, agravo) => ({ ...dados, agravo_codigo: /meningoc/i.test(agravo?.nome || '') ? '1' : '2' }),
+  // Campo 2 (1 - Doença meningocócica / 2 - Outras meningites) pelo CID do diagnóstico, quando houver; senão o profissional escolhe.
+  inicializar: (dados, agravo) => {
+    const c = String(agravo?.cidDiagnostico || '').toUpperCase()
+    return { ...dados, agravo_codigo: dados.agravo_codigo || (c.startsWith('A39') ? '1' : /^(G0[0-3]|A17\.?0|A87)/.test(c) ? '2' : '') }
+  },
   secoes: [
     { titulo: 'Agravo', campos: [cod('2', 'agravo_codigo', 'Agravo/doença', [['1', 'Doença meningocócica'], ['2', 'Outras meningites']], cx(0, 357.8, 696.5), { larg: 4, obrig: true })] },
     ...cabecalhoInvestigacao(g),

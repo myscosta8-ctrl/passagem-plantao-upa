@@ -65,8 +65,11 @@ export default {
   id: 'EXANTEMATICA',
   titulo: 'Ficha de Investigação — Doenças Exantemáticas Febris (Sarampo/Rubéola)',
   arquivo: 'Exantematica_v5.pdf',
-  // Campo 2: 1 - Sarampo / 2 - Rubéola, conforme o agravo escolhido.
-  inicializar: (d, agravo) => ({ ...d, agravo_exantematica: /rub[eé]ola/i.test(agravo?.nome || '') ? '2' : '1' }),
+  // Campo 2 (1 - Sarampo / 2 - Rubéola) pelo CID do diagnóstico, quando houver; senão o profissional escolhe.
+  inicializar: (d, agravo) => {
+    const c = String(agravo?.cidDiagnostico || '').toUpperCase()
+    return { ...d, agravo_exantematica: d.agravo_exantematica || (c.startsWith('B05') ? '1' : c.startsWith('B06') ? '2' : '') }
+  },
   secoes: [
     {
       titulo: 'Agravo',

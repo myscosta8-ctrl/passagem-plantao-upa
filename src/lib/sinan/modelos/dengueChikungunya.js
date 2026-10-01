@@ -52,8 +52,11 @@ export default {
   id: 'DENGUE_CHIKUNGUNYA',
   titulo: 'Ficha de Investigação — Dengue e Febre de Chikungunya',
   arquivo: 'Ficha_DENGCHIK_FINAL.pdf',
-  // O campo 2 traz as duas doenças: marca 1 (Dengue) ou 2 (Chikungunya) conforme o agravo escolhido.
-  inicializar: (dados, agravo) => ({ ...dados, agravo_codigo: /chikungunya/i.test(agravo?.nome || '') ? '2' : '1' }),
+  // Uma ficha só para as duas doenças: o campo 2 (1 - Dengue / 2 - Chikungunya) vem do CID do diagnóstico, quando houver; senão o profissional escolhe.
+  inicializar: (dados, agravo) => {
+    const c = String(agravo?.cidDiagnostico || '').toUpperCase().replace('.', '')
+    return { ...dados, agravo_codigo: dados.agravo_codigo || (c.startsWith('A920') ? '2' : /^A9[01]/.test(c) ? '1' : '') }
+  },
   secoes: [
     {
       titulo: 'Agravo',
@@ -131,7 +134,7 @@ export default {
       ],
     },
     {
-      titulo: 'Dengue com sinais de alarme (preencher só se classificação 11)',
+      titulo: 'Dengue com sinais de alarme (classificação 11)',
       campos: [
         ...[['hipotensao', 'Hipotensão postural e/ou lipotímia', 55.0, 535.7], ['plaquetas', 'Queda abrupta de plaquetas', 55.0, 520.6], ['vomitos', 'Vômitos persistentes', 211.4, 565.2],
           ['dor_abdominal', 'Dor abdominal intensa e contínua', 211.0, 549.4], ['letargia', 'Letargia ou irritabilidade', 210.2, 532.6], ['sangramento', 'Sangramento de mucosa/outras hemorragias', 209.5, 517.7],
@@ -141,7 +144,7 @@ export default {
       ],
     },
     {
-      titulo: 'Dengue grave (preencher só se classificação 12)',
+      titulo: 'Dengue grave (classificação 12)',
       campos: [
         ...[['pulso', 'Extravasamento: pulso débil ou indetectável', 56.6, 467.5], ['pa_convergente', 'Extravasamento: PA convergente <= 20 mmHg', 56.4, 450.2], ['enchimento', 'Extravasamento: tempo de enchimento capilar', 55.7, 433.7],
           ['liquidos_resp', 'Extravasamento: acúmulo de líquidos com insuficiência respiratória', 55.7, 418.8], ['taquicardia', 'Extravasamento: taquicardia', 200.4, 465.1], ['extremidades', 'Extravasamento: extremidades frias', 200.4, 450.2],

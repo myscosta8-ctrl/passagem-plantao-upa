@@ -1,6 +1,7 @@
 // Réplica na tela da ficha oficial SINAN: mesmos blocos, mesma numeração e os mesmos códigos do impresso.
 import { useMemo } from 'react'
-import { visivel, pendencias as listarPendencias, validarCampo, valorEfetivo } from '../../lib/sinan/modeloUtil'
+import { visivel, pendencias as listarPendencias, validarCampo, valorEfetivo, ehObrigatorio, ehCodigoOculto } from '../../lib/sinan/modeloUtil'
+import { UNIDADE } from '../../lib/sinan/modelos/comum'
 import './sinan.css'
 
 function rotuloOpcao(opcoes, v) {
@@ -9,16 +10,16 @@ function rotuloOpcao(opcoes, v) {
 }
 
 function Campo({ campo, valor, dados, onChange }) {
-  const ativo = visivel(campo, dados)
-  const erro = ativo ? validarCampo(campo, valor) : null
+  const obrig = ehObrigatorio(campo)
+  const erro = validarCampo(campo, valor)
+  // Campo que não se aplica ao caso e tem código automático: avisa o que sai no papel se ficar vazio.
+  const dica = !visivel(campo, dados) && campo.senao && !String(valor ?? '').trim() ? `Em branco sai: ${rotuloOpcao(campo.opcoes, campo.senao)}` : null
   const id = `sn-${campo.chave}`
   let controle
   if (campo.espelho || campo.derivar) {
     const v = valorEfetivo(campo, dados)
     const txt = campo.tipo === 'codigo' || campo.tipo === 'escolha' ? rotuloOpcao(campo.opcoes, v) : campo.tipo === 'data' && v ? String(v).split('-').reverse().join('/') : v
     controle = <div className="sn-na sn-auto">{txt || '—'} <small>(automático)</small></div>
-  } else if (!ativo) {
-    controle = <div className="sn-na">{campo.senao ? rotuloOpcao(campo.opcoes, campo.senao) : 'Não se aplica'}</div>
   } else if (campo.tipo === 'marca') {
     controle = (
       <label className="sn-marca"><input id={id} type="checkbox" checked={valor === '1'} onChange={(e) => onChange(e.target.checked ? '1' : '')} /> Marcar (X)</label>
@@ -54,20 +55,38 @@ function Campo({ campo, valor, dados, onChange }) {
   }
   return (
     <div className={`sn-col sn-col-${campo.larg || 4}`}>
-      <div className={`sn-campo${ativo ? '' : ' inativo'}${erro ? ' com-erro' : ''}${campo.obrig && ativo && !String(valor ?? '').trim() ? ' falta' : ''}`}>
+      <div className={`sn-campo${erro ? ' com-erro' : ''}${obrig && !String(valor ?? '').trim() ? ' falta' : ''}`}>
         <label htmlFor={id}>
           {campo.n && <span className="sn-num">{campo.n}</span>}
-          {campo.rotulo}{campo.obrig && ativo ? <b className="sn-obrig" title="Obrigatório">*</b> : null}
+          {campo.rotulo}{obrig ? <b className="sn-obrig" title="Obrigatório">*</b> : null}
         </label>
         {controle}
         {erro && <small className="sn-erro">{erro}</small>}
+        {dica && <small className="sn-dica">{dica}</small>}
       </div>
     </div>
   )
 }
 
+const semAcento = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase()
+
+// IBGE e CNES não aparecem na tela: acompanham o município/unidade digitados.
+// Breves e a própria UPA recebem o código automático; qualquer outro local deixa o código em branco no papel.
+function ajustarCodigos(d, chave, v) {
+  const breves = semAcento(v) === semAcento(UNIDADE.municipio)
+  const upa = semAcento(v) === semAcento(UNIDADE.nome)
+  if (chave.startsWith('municipio_')) d[`ibge_${chave.slice(10)}`] = breves ? UNIDADE.municipio_ibge : ''
+  else if (chave.endsWith('_municipio')) d[`${chave.slice(0, -10)}_ibge`] = breves ? UNIDADE.municipio_ibge : ''
+  else if (chave === 'unidade_notificadora') d.cnes = upa ? UNIDADE.cnes : ''
+  else if (chave === 'nome_hospital' || chave.startsWith('unidade_') || chave.startsWith('nome_hospital')) {
+    const k = chave === 'nome_hospital' ? 'cnes_hospital' : `cnes_${chave.replace(/^(unidade|nome)_/, '')}`
+    if (k in d || upa) d[k] = upa ? UNIDADE.cnes : ''
+  }
+  return d
+}
+
 export default function FichaSinan({ modelo, dados, onChange, cabecalho }) {
-  const set = (chave, v) => onChange({ ...dados, [chave]: v })
+  const set = (chave, v) => onChange(ajustarCodigos({ ...dados, [chave]: v }, chave, v))
   const faltam = useMemo(() => listarPendencias(modelo, dados), [modelo, dados])
   return (
     <div className="sn-ficha">
@@ -86,7 +105,7 @@ export default function FichaSinan({ modelo, dados, onChange, cabecalho }) {
           <legend>{s.titulo}</legend>
           {s.aviso && <p className="sn-aviso">{s.aviso}</p>}
           <div className="sn-grade">
-            {s.campos.map((c, i) => <Campo key={`${c.chave}-${i}`} campo={c} valor={dados[c.chave]} dados={dados} onChange={(v) => set(c.chave, v)} />)}
+            {s.campos.map((c, i) => ehCodigoOculto(c) ? null : <Campo key={`${c.chave}-${i}`} campo={c} valor={dados[c.chave]} dados={dados} onChange={(v) => set(c.chave, v)} />)}
           </div>
         </fieldset>
       ))}
