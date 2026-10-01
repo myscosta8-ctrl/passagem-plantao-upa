@@ -1,7 +1,7 @@
 /* ===== Nova interface (contas pep_beta) — Painel de Leitos conforme mockup 01 ===== */
 .pv-workspace { background: #F3F6F9; padding: 12px 18px 24px; }
 .pv-barra-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.pv-barra-top h1 { margin: 0; font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 600; color: #0F2230; }
+.pv-barra-top h1 { margin: 0; font-family: inherit; font-size: 24px; font-weight: 600; color: #0F2230; }
 .pv-sub { font-size: 13px; color: #5A6B7B; }
 .pv-ctr { margin-left: auto; }
 .pv-ctr .painel-controls { display: flex; gap: 8px; align-items: center; margin: 0; }

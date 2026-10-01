@@ -1,6 +1,6 @@
 /* Ficha de Identificação e Termos — estilos copiados de
    modelos_impressao_html/22-ficha-identificacao-termos.html, escopo .fi-overlay */
-.fi-overlay { position: fixed; inset: 0; z-index: 10000; background: #e2e8f0; overflow: auto; font-family: 'Inter', Arial, Helvetica, sans-serif; }
+.fi-overlay { position: fixed; inset: 0; z-index: 10000; background: #e2e8f0; overflow: auto; font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif; }
 .fi-toolbar { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 20px; background: #0f172a; color: #fff; z-index: 1; }
 .fi-toolbar h1 { font-size: 14px; font-weight: 700; margin: 0; }
 .fi-btn { border: 1px solid #94a3b8; background: transparent; color: #fff; border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 13px; cursor: pointer; }

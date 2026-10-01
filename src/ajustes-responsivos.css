@@ -76,3 +76,8 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
 
 /* Títulos de bloco numerados: mesmo tamanho, peso e cor em todos os formulários */
 .atendimento-medico-container:not(.passagem-form-scope) :is(.form-section-box-title, .form-section-title, .bloco-num) { text-transform: none !important; letter-spacing: 0 !important; font-size: 14px !important; font-weight: 700 !important; color: #0F2230 !important; }
+
+/* ===== Letra do sistema: IBM Plex Sans em todas as telas e impressos =====
+   Números com largura fixa (sinais vitais, doses, horários e leitos ficam alinhados). */
+html, body, input, textarea, select, button { font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif; }
+body { font-variant-numeric: tabular-nums; }

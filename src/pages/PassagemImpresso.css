@@ -1,5 +1,5 @@
 /* Passagem de Plantão (modelo 15) — classes do modelo oficial, escopo .pp-folha */
-.pp-folha { page: passagem; font-family: 'Inter', Arial, Helvetica, sans-serif; font-size: 8.5px; color: #0f172a; line-height: 1.25; background: #fff; width: 210mm; min-height: 297mm; margin: 12px auto; padding: 4mm 5.5mm 3.5mm; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 20px rgba(0,0,0,.1); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pp-folha { page: passagem; font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif; font-size: 8.5px; color: #0f172a; line-height: 1.25; background: #fff; width: 210mm; min-height: 297mm; margin: 12px auto; padding: 4mm 5.5mm 3.5mm; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 20px rgba(0,0,0,.1); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .pp-folha * { box-sizing: border-box; }
 .pp-folha .pr-topo { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .pp-folha .pr-topo-texto { flex: 1; }

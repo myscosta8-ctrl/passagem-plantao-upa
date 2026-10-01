@@ -26,7 +26,7 @@
 /* Fonte fixa (sans-serif) independente do documento que hospeda este
    cabeçalho — TFD/SER usam Times New Roman no corpo, mas o cabeçalho
    padrão UPA deve ficar sempre igual, não herdar a fonte do documento. */
-.pr-topo, .pr-titulo, .pr-info { font-family: 'Inter', Arial, Helvetica, sans-serif; }
+.pr-topo, .pr-titulo, .pr-info { font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif; }
 .pr-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pr-topo-texto { flex: 1; }
 .pr-topo-texto .nome { font-weight: 700; font-size: 10px; color: #000; letter-spacing: 0.2px; }

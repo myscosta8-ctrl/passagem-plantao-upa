@@ -1,6 +1,6 @@
 /* Admissão de Enfermagem — réplica fiel (checkboxes ☒/☐ burocráticos,
    igual ao modelo "HISTÓRICO DE ENFERMAGEM" original). */
-.hef-page { width: 190mm; max-width: 190mm; margin: 0 auto; font-family: 'Inter', Arial, sans-serif; font-size: 8.5px; line-height: 1.5; color: #0f172a; }
+.hef-page { width: 190mm; max-width: 190mm; margin: 0 auto; font-family: 'IBM Plex Sans', Arial, sans-serif; font-size: 8.5px; line-height: 1.5; color: #0f172a; }
 .hef-secao-titulo { background: #e2e8f0; border: 1px solid #94a3b8; border-top: none; font-weight: 700; text-align: center; font-size: 9px; padding: 1mm; }
 .hef-caixa { border: 1px solid #94a3b8; border-top: none; padding: 1.5mm 2mm; }
 .hef-caixa-titulo { background: #e2e8f0; font-weight: 700; text-align: center; font-size: 8.5px; padding: 0.8mm; margin: -1.5mm -2mm 1mm; border-bottom: 1px solid #94a3b8; }
@@ -296,7 +296,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
   color: #111;
 }
 .bh-tabela-container {
@@ -399,7 +399,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   min-height: 278mm;
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
   font-size: 9px;
   line-height: 1.35;
   color: #111;
@@ -478,7 +478,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   min-height: 278mm;
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
   font-size: 9px;
   line-height: 1.35;
   color: #111;
@@ -495,7 +495,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   min-height: 278mm;
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
   font-size: 9px;
   line-height: 1.35;
   color: #111;
@@ -512,7 +512,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
   min-height: 278mm;
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
   font-size: 9px;
   line-height: 1.35;
   color: #111;

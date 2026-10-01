@@ -1,5 +1,5 @@
 /* Requisições de exames (modelos 19, 20 e 21) — classes copiadas dos modelos oficiais */
-.rq-page { font-family: 'Inter', Arial, Helvetica, sans-serif; color: #000; display: flex; flex-direction: column; gap: 3px; }
+.rq-page { font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif; color: #000; display: flex; flex-direction: column; gap: 3px; }
 .rq-page .pr-titulo { margin: 0; text-align: left; }
 .pr-titulo-banner { display: flex; justify-content: space-between; align-items: center; border: 1px solid #777; background: #f8fafc; padding: 3px 8px; }
 .pr-titulo-banner h2 { font-size: 10.8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; color: #000; margin: 0; }

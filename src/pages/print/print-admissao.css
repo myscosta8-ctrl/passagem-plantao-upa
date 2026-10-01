@@ -156,7 +156,7 @@
   width: 100%;
   max-width: 210mm;
   margin: 0 auto;
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
   font-size: 9.5px;
   color: var(--admf-dark);
 }
