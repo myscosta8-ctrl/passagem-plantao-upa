@@ -4,26 +4,14 @@ import AbaAtm from './AbaAtm';
 import { listarPrescricoes, listarAtm, criarReceitaMedica, buscarCabecalhoImpressao } from '../../lib/pepMedico';
 import { atmPendentes } from './constantes';
 import { metaDoc } from '../../lib/documentos';
-import { quantidadeDia } from '../../lib/frequencia';
-
-const VIA_RECEITA = { VO: 'ORAL', EV: 'INTRAVENOSO (EV)', IM: 'INTRAMUSCULAR (IM)', SC: 'SUBCUTÂNEO (SC)', INAL: 'INALATÓRIO', SL: 'SUBLINGUAL', VR: 'RETAL', ID: 'INTRADÉRMICO' }
+import { itemReceitaControle, impressaoVinculada } from '../../lib/documentosVinculados';
 
 // Receita de Controle Especial (Portaria 344/98) gerada a partir dos itens controlados da prescrição.
 async function gerarReceitaControle({ atendimentoId, medicoId, controlados }) {
   const cab = await buscarCabecalhoImpressao(atendimentoId).catch(() => null)
   const p = cab?.pessoa || {}
   const endereco = [[p.endereco, p.endereco_numero].filter(Boolean).join(', '), p.bairro, p.cidade].filter(Boolean).join(' — ')
-  const itens = controlados.map((it) => {
-    const qtd = quantidadeDia(it)
-    return {
-      medicamento: it.medicamento_nome.trim(),
-      instrucao: [it.dose ? `${it.dose} ${it.dose_unidade || ''}`.trim() : '', it.via, it.frequencia, it.condicao, it.duracao ? `por ${it.duracao}` : '', it.instrucoes].filter(Boolean).join(', '),
-      quantidade: qtd ? `${qtd} por dia` : '',
-      via: VIA_RECEITA[it.via] || it.via || 'ORAL',
-      controlado: true,
-      antimicrobiano: false,
-    }
-  })
+  const itens = controlados.map(itemReceitaControle)
   const { data, error } = await criarReceitaMedica({
     atendimentoId, criadoPor: medicoId, situacao: metaDoc(true),
     dados: { itens, tipo: 'controle_especial', orientacoes_gerais: `Endereço do paciente: ${endereco || 'não informado no cadastro'}` },
@@ -84,7 +72,7 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
           <AbaAtm atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'atm', registro })} onFechar={onFechar} headerTabs={subtabs}
             emPacote={!!pacote} onAtmNoPacote={atmNoPacote} onImprimirPacoteAgora={() => pacote && imprimirPacote(pacote)} />
         ) : (
-          <AbaPrescricao atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })} onFinalizada={prescricaoFinalizada} onFechar={onFechar} headerTabs={subtabs} onAbrirAtm={() => { setTemAtm(true); setDoc('atm') }} onAtualizarAtm={verificarAtm} />
+          <AbaPrescricao atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })} onFinalizada={prescricaoFinalizada} onReimprimirVinculado={async (qual, p) => { const pedido = await impressaoVinculada(qual, p); if (pedido) onImprimir(pedido) }} onFechar={onFechar} headerTabs={subtabs} onAbrirAtm={() => { setTemAtm(true); setDoc('atm') }} onAtualizarAtm={verificarAtm} />
         )}
       </div>
     </div>

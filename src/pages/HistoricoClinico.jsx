@@ -3,6 +3,7 @@ import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes, 
 import { invalidarRegistro } from '../lib/documentos'
 import { useAuth } from '../lib/AuthContext'
 import { definirDuplicacao } from '../lib/duplicarPendente'
+import { precisaAtm, itensControlados, carregarCatalogo, impressaoVinculada } from '../lib/documentosVinculados'
 import './HistoricoClinico.css'
 
 const FichaMedicaPrint = lazy(() => import('./FichaMedicaPrint'))
@@ -48,6 +49,12 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHo
   const [alteracoes, setAlteracoes] = useState(null)
   const { fonte, autor, registro } = item
   const situacao = registro.situacao || 'finalizado'
+  // Prescrição finalizada com antimicrobiano restrito EV / medicamento controlado: reimpressão da ATM e da Receita de Controle Especial.
+  const ehPrescricao = fonte.tabela === 'prescricoes_medicas' && situacao === 'finalizado'
+  const [catalogo, setCatalogo] = useState(null)
+  useEffect(() => { if (ehPrescricao) carregarCatalogo().then(setCatalogo) }, [ehPrescricao])
+  const temAtm = ehPrescricao && precisaAtm(registro)
+  const temControle = ehPrescricao && !!catalogo && itensControlados(registro, catalogo).length > 0
   const souAutor = registro.autor_auth && registro.autor_auth === meuId
   // AIH pré-preenchida pela enfermagem/recepção e encaminhada a mim: posso revisar e assinar.
   const encaminhadaAMim = fonte.tabela === 'aih_solicitacoes' && registro.medico_destino_id === meuId && !!registro.encaminhado_em
@@ -75,6 +82,12 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHo
           )}
           {tipoImpresso(fonte, registro) && situacao !== 'invalido' && (
             <button type="button" className="hc-ic hc-sempre" title="Imprimir documento" aria-label="Imprimir" onClick={() => onImprimir(item, { imprimir: true })}><i className="ph ph-printer" /></button>
+          )}
+          {temAtm && (
+            <button type="button" className="hc-ic hc-sempre hc-vinc" title="Reimprimir Ficha de ATM (antimicrobiano restrito)" aria-label="Reimprimir ATM" onClick={() => onImprimir(item, { vinculado: 'atm' })}><i className="ph ph-shield-warning" /></button>
+          )}
+          {temControle && (
+            <button type="button" className="hc-ic hc-sempre hc-vinc" title="Reimprimir Receita de Controle Especial (Portaria 344)" aria-label="Reimprimir Controle Especial" onClick={() => onImprimir(item, { vinculado: 'controle' })}><i className="ph ph-seal-warning" /></button>
           )}
           {onEditar && situacao === 'rascunho' && (souAutor || encaminhadaAMim) && onEditar.pode(item) && (
             <button type="button" className="hc-ic hc-sempre hc-editar" title="Editar rascunho" aria-label="Editar rascunho" onClick={() => onEditar.fazer(item)}><i className="ph ph-pencil-simple" /></button>
@@ -202,17 +215,19 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
 
 // Documento do histórico aberto em janela, com Voltar e Imprimir (também usado pela tela Desfechos).
 export function VisualizarRegistro({ item, onFechar, imprimirAoAbrir = false }) {
+  const conjunta = !!item.extras?.length
   useEffect(() => {
+    if (conjunta) return undefined // impressão conjunta usa a própria tela (fora da janela do histórico)
     document.body.classList.add('hc-imprimindo')
     return () => document.body.classList.remove('hc-imprimindo')
-  }, [])
+  }, [conjunta])
   // Botão "Imprimir" da lista: espera o documento carregar e já abre a impressão.
   useEffect(() => {
     if (!imprimirAoAbrir) return undefined
     let tentativas = 0
     const t = setInterval(() => {
       tentativas += 1
-      const pronto = document.querySelector('.hc-doc-corpo .print-page')
+      const pronto = document.querySelector('.hc-doc-corpo .print-page, .impressao-pacote .pacote-doc')
       if (pronto || tentativas > 40) {
         clearInterval(t)
         if (pronto) setTimeout(() => window.print(), 800)
@@ -221,6 +236,14 @@ export function VisualizarRegistro({ item, onFechar, imprimirAoAbrir = false }) 
     return () => clearInterval(t)
   }, [imprimirAoAbrir])
   const Print = item.fonte.area === 'medico' ? FichaMedicaPrint : FichaClinicaPrint
+  // Mais de um documento (ex.: duas ATMs da mesma prescrição): impressão conjunta, com Voltar/Imprimir próprios.
+  if (conjunta) {
+    return (
+      <Suspense fallback={<p style={{ padding: 20 }}>Carregando documento...</p>}>
+        <FichaMedicaPrint atendimentoId={item.registro.atendimento_id} tipo={tipoImpresso(item.fonte, item.registro)} registro={item.registro} extras={item.extras} onVoltar={onFechar} />
+      </Suspense>
+    )
+  }
   return (
     <div className="hc-print-overlay" onClick={onFechar}>
       <div className="hc-doc-janela" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
@@ -259,6 +282,12 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
   const { enfermeiro } = useAuth()
   async function abrirImpressao(item, opcoes = {}) {
     const completo = await buscarRegistroCompleto(item.fonte.tabela, item.registro.id, item.fonte.selectCompleto)
+    if (opcoes.vinculado) {
+      const pedido = await impressaoVinculada(opcoes.vinculado, completo || item.registro)
+      if (!pedido) return
+      setImprimindo({ ...item, fonte: { ...item.fonte, area: 'medico', impresso: pedido.tipo }, registro: pedido.registro, extras: pedido.extras, imprimirAoAbrir: true })
+      return
+    }
     setImprimindo({ ...item, registro: completo || item.registro, imprimirAoAbrir: !!opcoes.imprimir })
   }
   const atendimentoId = atendimento?.atendimento_id

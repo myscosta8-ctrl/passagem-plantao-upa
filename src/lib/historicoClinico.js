@@ -25,7 +25,7 @@ export const FONTES = [
     resumo: (r) => txt(r.categoria, r.descricao, r.acao_imediata && `Condutas: ${r.acao_imediata}`) },
   { tabela: 'consultas_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,medico_id,queixa_principal,hipotese_diagnostica,hipoteses_diagnosticas,conduta_inicial,conduta', rotulo: 'Admissão Médica', area: 'medico', impresso: 'consulta',
     resumo: (r) => txt(r.queixa_principal && `QP: ${r.queixa_principal}`, r.hipotese_diagnostica || r.hipoteses_diagnosticas, r.conduta_inicial || r.conduta) },
-  { tabela: 'prescricoes_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,medico_id,data_referencia,observacoes,prescricao_itens(medicamento_nome)', rotulo: 'Prescrição Médica', area: 'medico', impresso: 'prescricao',
+  { tabela: 'prescricoes_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,medico_id,data_referencia,observacoes,prescricao_itens(medicamento_nome,via)', rotulo: 'Prescrição Médica', area: 'medico', impresso: 'prescricao',
     selectCompleto: '*, enfermeiros!prescricoes_medicas_medico_id_fkey(nome_exibicao, nome, crm, coren, conselho_uf), prescricao_itens(*)',
     resumo: (r) => txt(r.data_referencia && `Válida ${textoValidade(r.data_referencia, r.criado_em)}`, lista((r.prescricao_itens || []).map((i) => i.medicamento_nome).filter(Boolean)), r.observacoes) },
   { tabela: 'evolucoes_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,medico_id,diagnosticos,evolucao_dia,conduta_medica', rotulo: 'Evolução Médica', area: 'medico', impresso: 'evolucao',

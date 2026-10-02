@@ -8,6 +8,7 @@ import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocument
 import { quantidadeDia, APRESENTACOES, apresentacaoDaForma } from '../../lib/frequencia'
 import { hojeBelem, somarDias, textoValidade } from '../../lib/prescricaoValidade';
 import { filtrarCatalogo, rotuloMedicamento, descricaoMedicamento, detalheMedicamento, ehControlado } from '../../lib/catalogoMedicamentos';
+import { precisaAtm, itensControlados } from '../../lib/documentosVinculados';
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
@@ -203,7 +204,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
 }
 
 
-export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFinalizada, onFechar, onAbrirAtm, onAtualizarAtm, headerTabs }) {
+export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFinalizada, onReimprimirVinculado, onFechar, onAbrirAtm, onAtualizarAtm, headerTabs }) {
   const [historico, setHistorico] = useState([])
   const [historicoAberto, setHistoricoAberto] = useState(false)
   const [carregando, setCarregando] = useState(true)
@@ -727,6 +728,16 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
                         <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => duplicar(p)} title="Copia medicamentos, dieta e orientações para uma nova prescrição">
                           <i className="ph ph-copy" /> Duplicar
                         </button>
+                        {onReimprimirVinculado && p.situacao === 'finalizado' && precisaAtm(p) && (
+                          <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onReimprimirVinculado('atm', p)} title="Reimprimir a Ficha de ATM desta prescrição">
+                            <i className="ph ph-shield-warning" /> ATM
+                          </button>
+                        )}
+                        {onReimprimirVinculado && p.situacao === 'finalizado' && itensControlados(p, catalogo).length > 0 && (
+                          <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onReimprimirVinculado('controle', p)} title="Reimprimir a Receita de Controle Especial desta prescrição">
+                            <i className="ph ph-seal-warning" /> Controle Especial
+                          </button>
+                        )}
                         {p.situacao === 'rascunho' && p.autor_auth === medicoId && (
                           <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => editarRascunhoDaLista(p)} title="Abrir este rascunho no formulário para continuar editando">
                             <i className="ph ph-pencil-simple" /> Editar rascunho
