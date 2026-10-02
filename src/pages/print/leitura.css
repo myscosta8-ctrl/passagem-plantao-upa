@@ -1,0 +1,23 @@
+/* ===== Tamanho de letra dos documentos clínicos (legibilidade) =====
+   Meio-termo entre o tamanho antigo (6,5–7 pt, pequeno demais) e o padrão ABNT (12 pt):
+   texto 10 pt; tabelas e itens da prescrição 9,5 pt; cabeçalho do paciente, notas e
+   rodapé 8 pt; títulos das seções 10 pt negrito; título do documento 12 pt.
+   Vale só para documentos marcados com .doc-leitura (formulários oficiais do SUS —
+   AIH, APAC, SINAN, hemoterapia — mantêm o layout do modelo oficial). */
+.doc-leitura * { font-size: 10pt !important; line-height: 1.35 !important; }
+.doc-leitura :is(.pr-topo, .pr-info, .doc-rodape-container, .doc-rodape-sistema, .doc-rodape-meta, .pr-nota),
+.doc-leitura :is(.pr-topo, .pr-info, .doc-rodape-container, .doc-rodape-sistema, .doc-rodape-meta, .pr-nota) * {
+  font-size: 8pt !important; line-height: 1.25 !important;
+}
+.doc-leitura table, .doc-leitura table * { font-size: 9.5pt !important; line-height: 1.3 !important; }
+.doc-leitura table th { font-size: 8.5pt !important; }
+.doc-leitura .pr-titulo { font-size: 12pt !important; font-weight: 700 !important; }
+.doc-leitura .pr-topo .nome, .doc-leitura .pr-topo .nome * { font-size: 9pt !important; }
+/* Altura mínima um pouco menor que a área útil do A4 (assinatura no pé da folha sem empurrar uma folha em branco) */
+.doc-leitura > * { min-height: 265mm !important; }
+.doc-leitura > .pr-page { min-height: 182mm !important; }
+/* Prescrição (paisagem, folha única): um pouco mais compacta para caber os medicamentos do dia */
+.doc-leitura .pr-page * { line-height: 1.25 !important; }
+.doc-leitura .pr-page table td, .doc-leitura .pr-page table td * { font-size: 9pt !important; }
+.doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade), .doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade) * { font-size: 9pt !important; }
+.doc-leitura .pr-page table.pr-tabela tbody td { height: 7.5mm; }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { buscarCabecalhoImpressao, buscarAutorRegistro } from '../lib/pepMedico'
 import { CorpoHistoricoEnfermagemFiel, CorpoHistoricoEnfermagemProjeto } from './CorpoHistoricoEnfermagem'
 import './PrintView.css'
+import './print/leitura.css'
 import PaginaImpressao from '../components/PaginaImpressao'
 
 import CorpoSbarOficial from './ficha-clinica-print/CorpoSbarOficial'
@@ -56,7 +57,8 @@ export default function FichaClinicaPrint({ atendimentoId, tipo, registro = {}, 
         <button type="button" className="bi-imprimir" onClick={() => window.print()}><i className="ph ph-printer" /> Imprimir / Salvar PDF</button>
       </div>
 
-      <div className="print-area">
+      {/* Letra maior em todos os documentos de enfermagem e multiprofissionais, exceto o Balanço Hídrico (grade). */}
+      <div className={'print-area' + (tipo === 'balanco' ? '' : ' doc-leitura')}>
         {tipo === 'historico_enfermagem_projeto' && (
           <CorpoHistoricoEnfermagemProjeto {...propsComuns} />
         )}

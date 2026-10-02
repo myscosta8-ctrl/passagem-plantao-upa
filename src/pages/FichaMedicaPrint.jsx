@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { buscarCabecalhoImpressao, buscarAutorRegistro } from '../lib/pepMedico'
 import './PrintView.css'
+import './print/leitura.css'
+
+// Documentos de texto com letra maior (formulários oficiais do SUS ficam no modelo oficial).
+const TIPOS_LEITURA = ['consulta', 'prescricao', 'plano', 'tfd', 'regulacao', 'alta', 'evolucao', 'intercorrencia', 'atestado']
 import PaginaImpressao from '../components/PaginaImpressao'
 import CorpoRequisicaoExamesOficial from './ficha-medica-print/CorpoRequisicaoExamesOficial'
 
@@ -115,7 +119,7 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
       <div className="print-page">
         <BotoesImpressao onVoltar={onVoltar} />
         <PaginaImpressao paisagem={tipo === 'prescricao' || tipo === 'receituario'} margem={tipo === 'receituario' ? '5mm 6mm' : '10mm'} />
-        <div className="print-area">
+        <div className={'print-area' + (TIPOS_LEITURA.includes(tipo) ? ' doc-leitura' : '')}>
           {mapaCorpos[tipo]}
         </div>
       </div>
