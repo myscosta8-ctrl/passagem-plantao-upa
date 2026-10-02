@@ -118,7 +118,7 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
     return (
       <div className="print-page">
         <BotoesImpressao onVoltar={onVoltar} />
-        <PaginaImpressao paisagem={tipo === 'prescricao' || tipo === 'receituario'} margem={tipo === 'receituario' ? '5mm 6mm' : '10mm'} />
+        <PaginaImpressao paisagem={tipo === 'prescricao' || tipo === 'receituario'} margem={tipo === 'receituario' ? '5mm 6mm' : tipo === 'aih' ? '8mm' : '10mm'} />
         <div className={'print-area' + (TIPOS_LEITURA.includes(tipo) ? ' doc-leitura' : '')}>
           {mapaCorpos[tipo]}
         </div>
