@@ -110,9 +110,9 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
             </div>
             <div className="calc-info-item" style={{ alignItems: 'flex-end' }}>
               <label>Peso (base de cálculo) *</label>
-              <span style={{ fontSize: 18, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 'var(--fs-lg)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 <input type="text" inputMode="decimal" autoFocus placeholder="ex.: 12,5" aria-label="Peso em kg"
-                  style={{ width: 90, border: '2px solid ' + (pesoKg ? '#F5C77E' : '#DC2626'), borderRadius: 6, background: '#fff', textAlign: 'right', fontWeight: 700, color: '#B45309', outline: 'none', padding: '4px 8px', fontSize: 16 }}
+                  style={{ width: 90, border: '2px solid ' + (pesoKg ? '#F5C77E' : '#DC2626'), borderRadius: 6, background: '#fff', textAlign: 'right', fontWeight: 700, color: '#B45309', outline: 'none', padding: '4px 8px', fontSize: 'var(--fs-md)' }}
                   value={calc.pesoKg !== '' ? calc.pesoKg : (pacientePeso || '')} onChange={(e) => onChange('pesoKg', e.target.value.replace(/[^\d.,]/g, ''))} /> kg
               </span>
             </div>
@@ -127,7 +127,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
               <label>Dose Alvo</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="text" inputMode="decimal" placeholder="ex.: 50" value={calc.doseAlvoMgKg} onChange={(e) => onChange('doseAlvoMgKg', e.target.value.replace(/[^\d.,]/g, ''))} />
-                <select value={calc.tipoDose || 'dose'} onChange={(e) => onChange('tipoDose', e.target.value)} style={{ fontSize: 12, fontWeight: 700 }} title="Dose por tomada ou dose diária total">
+                <select value={calc.tipoDose || 'dose'} onChange={(e) => onChange('tipoDose', e.target.value)} style={{ fontSize: 'var(--fs-xs)', fontWeight: 700 }} title="Dose por tomada ou dose diária total">
                   <option value="dose">mg/kg/dose</option>
                   <option value="dia">mg/kg/dia</option>
                 </select>
@@ -151,13 +151,13 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
             </div>
           </div>
           {porDia && doseDiariaMg > 0 && (
-            <div style={{ fontSize: 12, color: '#0F766E', fontWeight: 600 }}>
+            <div style={{ fontSize: 'var(--fs-xs)', color: '#0F766E', fontWeight: 600 }}>
               <i className="ph ph-divide" /> Dose diária {fmtMg(doseDiariaMg)} mg{dosesDia ? ` ÷ ${dosesDia} doses (${calc.frequencia}) = ${fmtMg(doseCalculadaMg)} mg por dose` : ' — escolha o horário de administração para dividir'}
               {doseCalculadaMg > 0 && doseTotalMg !== doseCalculadaMg ? ` → arredondada para ${fmtMg(doseTotalMg)} mg` : ''}
             </div>
           )}
           {!porDia && doseCalculadaMg > 0 && doseTotalMg !== doseCalculadaMg && (
-            <div style={{ fontSize: 12, color: '#0F766E', fontWeight: 600 }}><i className="ph ph-arrows-in-line-vertical" /> Dose calculada {fmtMg(doseCalculadaMg)} mg → arredondada para {fmtMg(doseTotalMg)} mg</div>
+            <div style={{ fontSize: 'var(--fs-xs)', color: '#0F766E', fontWeight: 600 }}><i className="ph ph-arrows-in-line-vertical" /> Dose calculada {fmtMg(doseCalculadaMg)} mg → arredondada para {fmtMg(doseTotalMg)} mg</div>
           )}
 
           <div className="calc-row">
@@ -165,21 +165,21 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
               <label>Apresentação</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="text" inputMode="decimal" value={calc.apresentacaoMg} onChange={(e) => onChange('apresentacaoMg', e.target.value.replace(/[^\d.,]/g, ''))} />
-                <span style={{ fontSize: 12, fontWeight: 700 }}>mg</span>
+                <span style={{ fontSize: 'var(--fs-xs)', fontWeight: 700 }}>mg</span>
               </div>
             </div>
             <div className="calc-box">
               <label>Diluente da Ampola</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="text" inputMode="decimal" value={calc.diluenteMl} onChange={(e) => onChange('diluenteMl', e.target.value.replace(/[^\d.,]/g, ''))} />
-                <span style={{ fontSize: 12, fontWeight: 700 }}>mL (AD)</span>
+                <span style={{ fontSize: 'var(--fs-xs)', fontWeight: 700 }}>mL (AD)</span>
               </div>
             </div>
             <div className="calc-box">
               <label>Soro de Rediluição</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="text" inputMode="decimal" value={calc.soroMl} onChange={(e) => onChange('soroMl', e.target.value.replace(/[^\d.,]/g, ''))} placeholder="Opcional" />
-                <span style={{ fontSize: 12, fontWeight: 700 }}>mL (SF)</span>
+                <span style={{ fontSize: 'var(--fs-xs)', fontWeight: 700 }}>mL (SF)</span>
               </div>
             </div>
           </div>
@@ -196,7 +196,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
           </div>
 
           {!textoFinal && faltando.length > 0 && (
-            <div style={{ fontSize: 12, color: '#B45309', fontWeight: 600 }}><i className="ph ph-info" /> Para calcular, preencha: {faltando.join(', ')}.</div>
+            <div style={{ fontSize: 'var(--fs-xs)', color: '#B45309', fontWeight: 600 }}><i className="ph ph-info" /> Para calcular, preencha: {faltando.join(', ')}.</div>
           )}
           {textoFinal && (
             <div className="calc-final-text">
@@ -537,7 +537,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
               </div>
               <div className="presc-list">
                 {itens.length === 1 && (
-                  <div style={{ padding: '10px 16px', fontSize: 12, color: 'var(--text-muted)' }}>Nenhum medicamento adicionado ainda.</div>
+                  <div style={{ padding: '10px 16px', fontSize: 'var(--fs-xs)', color: 'var(--text-muted)' }}>Nenhum medicamento adicionado ainda.</div>
                 )}
                 {itens.slice(0, -1).map((it, i) => (
                   <div key={i} className="presc-item" style={{ borderBottom: '1px solid var(--border-light)' }}>
@@ -637,7 +637,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
                         </button>
                       )}
                       {textoDiluicao(it) && (
-                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+                        <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-secondary)', marginTop: 4 }}>
                           <i className="ph ph-eye" /> Na prescrição: <strong>{textoDiluicao(it)}</strong>
                         </div>
                       )}
@@ -751,38 +751,38 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
                 </div>
                 <div className="presc-list" style={{ padding: '12px 16px' }}>
                   {historico.map((p) => (
-                    <div key={p.id} style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: 12, marginBottom: 12, fontSize: 12 }}>
+                    <div key={p.id} style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: 12, marginBottom: 12, fontSize: 'var(--fs-xs)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span style={{ fontWeight: 600 }}>
                           {(p.prescricao_itens ?? []).map((it) => it.medicamento_nome).join(', ')}
                         </span>
-                        <span style={{ fontSize: 12, color: p.status === 'cancelada' ? '#DC2626' : 'var(--text-muted)' }}>
+                        <span style={{ fontSize: 'var(--fs-xs)', color: p.status === 'cancelada' ? '#DC2626' : 'var(--text-muted)' }}>
                           {p.situacao === 'invalido' ? 'invalidada' : p.status}
                         </span>
                       </div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 4 }}>
+                      <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', marginTop: 4 }}>
                         Prescrito por {p.enfermeiros?.nome_exibicao || p.enfermeiros?.nome} • {new Date(p.criado_em).toLocaleString('pt-BR')}
                         {p.data_referencia && <> • <strong>Válida {textoValidade(p.data_referencia, p.criado_em)}</strong></>}
                       </div>
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onImprimir(p)}>
+                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 'var(--fs-xs)' }} onClick={() => onImprimir(p)}>
                           <i className="ph ph-printer" /> Reimprimir
                         </button>
-                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => duplicar(p)} title="Copia medicamentos, dieta e orientações para uma nova prescrição">
+                        <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 'var(--fs-xs)' }} onClick={() => duplicar(p)} title="Copia medicamentos, dieta e orientações para uma nova prescrição">
                           <i className="ph ph-copy" /> Duplicar
                         </button>
                         {onReimprimirVinculado && p.situacao === 'finalizado' && precisaAtm(p) && (
-                          <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onReimprimirVinculado('atm', p)} title="Reimprimir a Ficha de ATM desta prescrição">
+                          <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 'var(--fs-xs)' }} onClick={() => onReimprimirVinculado('atm', p)} title="Reimprimir a Ficha de ATM desta prescrição">
                             <i className="ph ph-shield-warning" /> ATM
                           </button>
                         )}
                         {onReimprimirVinculado && p.situacao === 'finalizado' && itensControlados(p, catalogo).length > 0 && (
-                          <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onReimprimirVinculado('controle', p)} title="Reimprimir a Receita de Controle Especial desta prescrição">
+                          <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 'var(--fs-xs)' }} onClick={() => onReimprimirVinculado('controle', p)} title="Reimprimir a Receita de Controle Especial desta prescrição">
                             <i className="ph ph-seal-warning" /> Controle Especial
                           </button>
                         )}
                         {p.situacao === 'rascunho' && p.autor_auth === medicoId && (
-                          <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => editarRascunhoDaLista(p)} title="Abrir este rascunho no formulário para continuar editando">
+                          <button type="button" className="btn-save-draft" style={{ padding: '4px 10px', fontSize: 'var(--fs-xs)' }} onClick={() => editarRascunhoDaLista(p)} title="Abrir este rascunho no formulário para continuar editando">
                             <i className="ph ph-pencil-simple" /> Editar rascunho
                           </button>
                         )}

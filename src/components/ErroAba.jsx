@@ -30,11 +30,11 @@ export default class ErroAba extends Component {
     const antiga = ehVersaoAntiga(erro)
     return (
       <div role="alert" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24, textAlign: 'center' }}>
-        <i className="ph ph-warning-circle" style={{ fontSize: 36, color: '#B45309' }} />
-        <strong style={{ fontSize: 16, color: 'var(--c-text, #143641)' }}>
+        <i className="ph ph-warning-circle" style={{ fontSize: 'var(--fs-3xl)', color: '#B45309' }} />
+        <strong style={{ fontSize: 'var(--fs-md)', color: 'var(--c-text, #143641)' }}>
           {antiga ? 'O sistema foi atualizado' : 'Esta aba encontrou um problema'}
         </strong>
-        <p style={{ margin: 0, maxWidth: 440, fontSize: 14, color: 'var(--c-text-muted, #5A6B78)' }}>
+        <p style={{ margin: 0, maxWidth: 440, fontSize: 'var(--fs-sm)', color: 'var(--c-text-muted, #5A6B78)' }}>
           {antiga
             ? 'Há uma versão nova publicada. Recarregue a página para abrir esta aba — o que já foi salvo continua no banco.'
             : 'O que já foi salvo continua no banco. Tente de novo; as outras abas seguem funcionando. Se repetir, avise o suporte com o que estava fazendo.'}

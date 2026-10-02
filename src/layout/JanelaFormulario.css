@@ -1,20 +1,20 @@
-.jf-dica { margin-top: 18px; padding: 28px; border: 1px dashed var(--c-border-dark, #CBD5E1); border-radius: 12px; text-align: center; color: var(--c-text-muted, #5A6B7B); font-size: 14px; background: var(--c-surface, #fff); }
+.jf-dica { margin-top: 18px; padding: 28px; border: 1px dashed var(--c-border-dark, #CBD5E1); border-radius: 12px; text-align: center; color: var(--c-text-muted, #5A6B7B); font-size: var(--fs-sm); background: var(--c-surface, #fff); }
 .jf-fundo { position: fixed; inset: 0; z-index: 90; background: rgba(14, 42, 54, .55); padding: 14px; display: flex; }
 .jf-janela { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--c-bg, #F3F6F9); border-radius: 16px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, .35); }
 .jf-topo { display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: linear-gradient(90deg, #0E2A36, #15414E); color: #fff; flex-shrink: 0; }
-.jf-pac { font-size: 15px; letter-spacing: .01em; }
-.jf-titulo { font-size: 14px; color: #A9C3CC; }
-.jf-fechar { margin-left: auto; display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid #ffffff30; background: #ffffff10; color: #fff; font: inherit; font-size: 14px; cursor: pointer; }
+.jf-pac { font-size: var(--fs-md); letter-spacing: .01em; }
+.jf-titulo { font-size: var(--fs-sm); color: #A9C3CC; }
+.jf-fechar { margin-left: auto; display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid #ffffff30; background: #ffffff10; color: #fff; font: inherit; font-size: var(--fs-sm); cursor: pointer; }
 .jf-corpo { flex: 1; min-height: 0; overflow: auto; padding: 14px 16px; display: flex; flex-direction: column; }
 .jf-corpo > * { flex: 1 0 auto; }
-@media (max-width: 700px) { .jf-fundo { padding: 0; } .jf-janela { border-radius: 0; } }
+@media (max-width: 640px) { .jf-fundo { padding: 0; } .jf-janela { border-radius: 0; } }
 
 /* Linha das abas + botão Histórico Clínico (mesma altura e alinhamento) */
 .fc-tabs-linha { display: flex; align-items: stretch; gap: 8px; margin: 14px 0 20px; }
 .fc-tabs-area { flex: 1; min-width: 0; display: flex; }
 .fc-tabs-area > .clinical-tabs { margin: 0; flex: 1; }
-.btn-historico-clinico { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border: 1px solid var(--c-border, #CBD5E1); border-radius: 8px; background: var(--c-surface, #fff); color: var(--c-text-primary, #0F172A); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.btn-historico-clinico:hover { border-color: var(--c-primary, #1B4555); color: var(--c-primary, #1B4555); }
+.btn-historico-clinico { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border: 1px solid var(--c-border, #CBD5E1); border-radius: 8px; background: var(--c-surface, #fff); color: var(--c-text-primary, #0F172A); font: inherit; font-size: var(--fs-xs); font-weight: 600; cursor: pointer; white-space: nowrap; }
+.btn-historico-clinico:hover { border-color: var(--c-primary); color: var(--c-primary); }
 
 /* Na janela flutuante, o título do formulário já aparece na barra escura: esconde o cabeçalho repetido da SAE */
 
@@ -22,27 +22,27 @@
 /* ===== Janela completa (mockup 02): faixa do paciente, título, formulário + coluna de consulta ===== */
 .jf-topo { padding: 12px 16px; gap: 12px; }
 .fpj { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; flex-wrap: wrap; }
-.fpj-av { width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; border: 2px solid #8FD9D0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+.fpj-av { width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; border: 2px solid #8FD9D0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--fs-md); }
 .fpj-id { display: flex; flex-direction: column; min-width: 0; margin-right: 6px; }
-.fpj-id b { font-size: 15px; letter-spacing: .01em; }
-.fpj-id small { font-size: 12px; color: #A9C3CC; }
+.fpj-id b { font-size: var(--fs-md); letter-spacing: .01em; }
+.fpj-id small { font-size: var(--fs-xs); color: #A9C3CC; }
 .fpj-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.fpj-chip { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #ffffff1c; color: #fff; display: inline-flex; align-items: center; gap: 5px; }
+.fpj-chip { font-size: var(--fs-xs); font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #ffffff1c; color: #fff; display: inline-flex; align-items: center; gap: 5px; }
 .fpj-chip.alergia { background: #C93A3A; }
 .jf-titulo-linha { display: flex; align-items: center; padding: 10px 18px; background: var(--c-surface, #fff); border-bottom: 1px solid var(--c-border, #E1E7EE); flex-shrink: 0; }
-.jf-titulo-linha h2 { margin: 0; font-size: 18px; font-weight: 600; color: #0F2230; }
+.jf-titulo-linha h2 { margin: 0; font-size: var(--fs-lg); font-weight: 600; color: #0F2230; }
 .jf-area { flex: 1; min-height: 0; display: flex; }
 .jf-area > .jf-corpo { flex: 1; min-width: 0; }
 .cc-col { width: 300px; flex-shrink: 0; overflow: auto; padding: 14px 16px 14px 0; display: flex; flex-direction: column; gap: 12px; }
 .cc-bloco { background: #fff; border: 1px solid #E1E7EE; border-radius: 12px; padding: 12px 14px; }
-.cc-bloco h4 { margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5A6B7B; }
+.cc-bloco h4 { margin: 0 0 8px; font-size: var(--fs-xs); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5A6B7B; }
 .cc-bloco ul { margin: 0; padding: 0; list-style: none; }
-.cc-bloco li { font-size: 12px; padding: 6px 0; border-top: 1px solid #EEF2F6; color: #0F2230; }
+.cc-bloco li { font-size: var(--fs-xs); padding: 6px 0; border-top: 1px solid #EEF2F6; color: #0F2230; }
 .cc-bloco li:first-child { border-top: 0; padding-top: 0; }
-.cc-texto { margin: 0; font-size: 12px; line-height: 1.5; color: #334155; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; }
-.cc-autor { margin: 6px 0 0; font-size: 12px; color: #8595A4; }
-.cc-vazio { margin: 0; font-size: 12px; color: #8595A4; }
+.cc-texto { margin: 0; font-size: var(--fs-xs); line-height: 1.5; color: #334155; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; }
+.cc-autor { margin: 6px 0 0; font-size: var(--fs-xs); color: #8595A4; }
+.cc-vazio { margin: 0; font-size: var(--fs-xs); color: #8595A4; }
 .cc-st { color: #8A5A00; }
 .cc-st.ok { color: #256B45; }
-@media (max-width: 1100px) { .cc-col { display: none; } }
-@media (max-width: 700px) { .fpj-chips { display: none; } }
+@media (max-width: 1024px) { .cc-col { display: none; } }
+@media (max-width: 640px) { .fpj-chips { display: none; } }

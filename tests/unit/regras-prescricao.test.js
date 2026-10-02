@@ -239,3 +239,27 @@ export function runImpressaoTests(test) {
     }
   });
 }
+
+// Padrão visual único (onda 3, item 15): telas usam a escala --fs, 4 larguras de tela e a cor principal por variável.
+import path from 'node:path';
+export function runPadraoVisualTests(test) {
+  const raiz = new URL('../../src/', import.meta.url).pathname;
+  const arquivos = [];
+  (function andar(d) { for (const f of fs.readdirSync(d)) { const p = path.join(d, f); if (fs.statSync(p).isDirectory()) andar(p); else arquivos.push(p); } })(raiz);
+  const impresso = (p) => /\/print\/|Print|Impresso|-print\//.test(p) || path.basename(p).startsWith('Corpo');
+  const telasCss = arquivos.filter((p) => p.endsWith('.css') && !impresso(p));
+  const telasJsx = arquivos.filter((p) => p.endsWith('.jsx') && !impresso(p));
+  test('Telas: tamanho de letra só pela escala (--fs-*), sem número solto', () => {
+    const soltos = telasCss.flatMap((p) => (fs.readFileSync(p, 'utf8').match(/font-size:\s*[0-9.]+(px|rem|em)/g) || []).map((m) => `${path.basename(p)}: ${m}`));
+    const soltosJsx = telasJsx.flatMap((p) => (fs.readFileSync(p, 'utf8').match(/fontSize:\s*[0-9.]+/g) || []).map((m) => `${path.basename(p)}: ${m}`));
+    assert.deepEqual([...soltos, ...soltosJsx], []);
+  });
+  test('Telas: só 4 larguras de tela nas media queries (640, 768, 1024, 1280)', () => {
+    const fora = telasCss.flatMap((p) => [...fs.readFileSync(p, 'utf8').matchAll(/@media[^{]*?(?:max|min)-width:\s*(\d+)px/g)].map((m) => m[1]).filter((v) => !['640', '768', '1024', '1280'].includes(v)).map((v) => `${path.basename(p)}: ${v}`));
+    assert.deepEqual(fora, []);
+  });
+  test('Cor principal só por variável (--c-primary), sem o código da cor espalhado', () => {
+    const fora = [...telasCss, ...telasJsx].filter((p) => !/index\.css$|TopNav\.css$/.test(p) && /#1B4555/i.test(fs.readFileSync(p, 'utf8'))).map((p) => path.basename(p));
+    assert.deepEqual(fora, []);
+  });
+}

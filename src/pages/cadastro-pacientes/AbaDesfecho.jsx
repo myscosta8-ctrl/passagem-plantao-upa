@@ -52,7 +52,7 @@ export default function AbaDesfecho() {
   return (
     <div className="form-section">
       <div className="form-section-title">{podeRegistrar ? 'Sinalizar desfecho' : 'Pacientes internados (consulta)'}</div>
-      <p style={{ fontSize: 14, color: 'var(--c-text-muted)', marginTop: -8, marginBottom: 16 }}>
+      <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--c-text-muted)', marginTop: -8, marginBottom: 16 }}>
         {podeRegistrar
           ? 'Registre aqui o que já foi decidido pela equipe assistencial (alta, transferência, evasão ou óbito) — libera o leito.'
           : 'Somente consulta. Alta, transferência, evasão e óbito são registrados pela enfermagem ou pelo médico.'}
@@ -64,10 +64,10 @@ export default function AbaDesfecho() {
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhum paciente internado no momento.</p>
       ) : (
         pacientes.map((p) => (
-          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 14 }}>
+          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 'var(--fs-sm)' }}>
             <div>
               <div style={{ fontWeight: 600 }}>{p.nome}</div>
-              <div style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>
+              <div style={{ color: 'var(--c-text-muted)', fontSize: 'var(--fs-xs)' }}>
                 {p.diagnostico || 'Sem diagnóstico registrado'}
               </div>
             </div>

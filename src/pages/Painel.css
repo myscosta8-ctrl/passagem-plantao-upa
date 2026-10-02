@@ -46,7 +46,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  font-size: 22px;
+  font-size: var(--fs-xl);
   line-height: 1;
   transition: all 0.15s ease;
 }
@@ -60,13 +60,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   color: var(--c-text-muted);
   font-weight: 500;
 }
 
 .breadcrumb i {
-  font-size: 15px;
+  font-size: var(--fs-md);
   color: var(--c-text-muted);
 }
 
@@ -82,7 +82,7 @@
 }
 
 .sys-time {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--c-text-muted);
   padding-right: 20px;
@@ -93,7 +93,7 @@
 }
 
 .sys-time i {
-  font-size: 15px;
+  font-size: var(--fs-md);
 }
 
 .top-avatar {
@@ -106,7 +106,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   border: 1px solid var(--c-border-dark);
 }
 
@@ -148,7 +148,7 @@
 }
 
 .painel-title h1 {
-  font-size: 22px;
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--c-text-primary);
   margin-bottom: 6px;
@@ -156,7 +156,7 @@
 }
 
 .painel-title p {
-  font-size: 14px;
+  font-size: var(--fs-sm);
   color: var(--c-text-secondary);
   margin: 0;
 }
@@ -173,7 +173,7 @@
   border: 1px solid var(--c-border-dark);
   padding: 8px 16px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--c-text-secondary);
   cursor: pointer;
@@ -205,7 +205,7 @@
   left: 12px;
   top: 11px;
   color: var(--c-text-muted);
-  font-size: 15px;
+  font-size: var(--fs-md);
 }
 
 .search-bar .search-input {
@@ -213,7 +213,7 @@
   padding: 9px 12px 9px 36px !important;
   border: 1px solid var(--c-border-dark);
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   outline: none;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
   background: var(--c-surface);
@@ -265,7 +265,7 @@
 }
 
 .setor-header h3 {
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 700;
   color: var(--c-text-primary);
   margin: 0;
@@ -275,7 +275,7 @@
 .setor-secao-titulo .count {
   background: #E2E8F0;
   color: var(--c-text-secondary);
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 12px;
@@ -285,7 +285,7 @@
   background: var(--c-surface);
   border: 1px dashed #94A3B8;
   color: var(--c-text-secondary);
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 600;
   padding: 5px 12px;
   border-radius: 6px;
@@ -353,7 +353,7 @@
 }
 
 .leito-numero {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   color: var(--c-text-muted);
   text-transform: uppercase;
@@ -364,7 +364,7 @@
 }
 
 .leito-numero i {
-  font-size: 15px;
+  font-size: var(--fs-md);
 }
 
 .leito-numero.extra {
@@ -372,7 +372,7 @@
 }
 
 .leito-status {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   padding: 4px 8px;
   border-radius: 4px;
@@ -402,7 +402,7 @@
 
 .paciente-nome,
 .leito-paciente-nome {
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 700;
   color: var(--c-text-primary);
   margin-bottom: 6px;
@@ -415,7 +415,7 @@
 
 .paciente-meta,
 .leito-paciente-meta {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-secondary);
   display: flex;
   align-items: center;
@@ -427,12 +427,12 @@
 .paciente-meta i,
 .leito-paciente-meta i {
   color: var(--c-text-muted);
-  font-size: 15px;
+  font-size: var(--fs-md);
 }
 
 .paciente-hd,
 .leito-paciente-diag {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-secondary);
   background: var(--c-surface-inset);
   padding: 10px;
@@ -459,7 +459,7 @@
   justify-content: space-between;
   align-items: center;
   background: #FAFAF9;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-muted);
   font-weight: 500;
   margin-top: auto;
@@ -473,14 +473,14 @@
 }
 
 .footer-info i {
-  font-size: 14px;
+  font-size: var(--fs-sm);
 }
 
 .action-btn {
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 15px;
+  font-size: var(--fs-md);
   color: var(--c-text-muted);
   transition: 0.2s;
   padding: 2px 4px;
@@ -521,7 +521,7 @@
   padding: 9px 12px;
   background: none;
   border: none;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   color: var(--c-text-primary);
   cursor: pointer;
 }
@@ -556,14 +556,14 @@
 }
 
 .vazio-icon {
-  font-size: 32px;
+  font-size: var(--fs-3xl);
   color: var(--c-text-muted);
   margin-bottom: 12px;
   transition: 0.2s;
 }
 
 .vazio-title {
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--c-text-secondary);
   margin-bottom: 4px;
@@ -571,7 +571,7 @@
 }
 
 .vazio-subtitle {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-muted);
 }
 
@@ -603,7 +603,7 @@
 
 .tabela-painel th {
   padding: 10px 14px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   color: var(--c-text-muted);
   text-transform: uppercase;
@@ -613,7 +613,7 @@
 
 .tabela-painel td {
   padding: 12px 14px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   border-bottom: 1px solid var(--c-border);
   color: var(--c-text-primary);
 }
@@ -625,7 +625,7 @@
 
 .tabela-painel-rodape {
   padding: 12px 16px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-muted);
   background: #FAFAF9;
   border-top: 1px solid var(--c-border);
@@ -638,7 +638,7 @@
 .main-content > .topbar .breadcrumb { min-width: 0; white-space: nowrap; overflow: hidden; }
 .main-content > .topbar .breadcrumb span.current { overflow: hidden; text-overflow: ellipsis; }
 .main-content > .topbar .topbar-right { flex-shrink: 0; }
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .main-content > .topbar { flex-direction: row; align-items: center; padding: 0 12px; min-height: 56px; height: 56px; }
   .main-content > .topbar .topbar-right { gap: 10px; }
   .main-content > .topbar .sys-time { padding-right: 10px; }
@@ -646,6 +646,6 @@
   .main-content > .topbar .breadcrumb > span:not(.current),
   .main-content > .topbar .breadcrumb > i.ph-caret-right { display: none; }
 }
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .main-content > .topbar .sys-time { display: none; }
 }

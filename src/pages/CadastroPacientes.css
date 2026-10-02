@@ -19,7 +19,7 @@
   padding: 7px 16px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -38,7 +38,7 @@
   padding: 7px 16px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -55,7 +55,7 @@
   padding: 7px 16px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -79,7 +79,7 @@
   top: 50%;
   transform: translateY(-50%);
   color: var(--c-text-muted);
-  font-size: 18px;
+  font-size: var(--fs-lg);
   pointer-events: none;
 }
 
@@ -88,7 +88,7 @@
   padding: 12px 14px 12px 40px;
   border: 1px solid var(--c-border);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   outline: none;
   background: var(--c-surface-inset);
   transition: 0.15s ease;
@@ -124,13 +124,13 @@
 
 .recepcao-resultado-nome {
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   color: var(--c-text-primary);
 }
 
 .recepcao-resultado-meta {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-muted);
   margin-top: 3px;
 }
@@ -148,12 +148,12 @@
   gap: 12px;
   padding: 10px 0;
   border-bottom: 1px solid var(--c-border-light);
-  font-size: 14px;
+  font-size: var(--fs-sm);
 }
 
 .recepcao-recentes-meta {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-muted);
   display: flex;
   align-items: center;
@@ -172,7 +172,7 @@
   padding: 32px 24px;
   width: 100%;
 }
-@media (min-width: 1200px) {
+@media (min-width: 1280px) {
   .recepcao-page-scroll {
     max-width: 100% !important;
   }
@@ -193,7 +193,7 @@
   background: transparent;
   border: none;
   padding: 12px 4px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--c-text-muted);
   cursor: pointer;
@@ -213,22 +213,22 @@
   color: var(--c-text-primary);
 }
 .doc-subtab i {
-  font-size: 18px;
+  font-size: var(--fs-lg);
 }
 
 /* ===== Nova interface (contas pep_beta) — Recepção conforme mockup 04 ===== */
 .rc-layout { display: block; }
 .rc-v2 .rc-layout { display: flex; gap: 16px; align-items: flex-start; }
 .rc-v2 .rc-principal { flex: 1; min-width: 0; }
-.rc-v2 .page-title { font-family: inherit; font-size: 22px; font-weight: 700; margin-bottom: 2px; }
-.rc-v2 .page-subtitle { font-size: 14px; color: var(--c-text-secondary, #5A6B7B); margin-bottom: 14px; }
+.rc-v2 .page-title { font-family: inherit; font-size: var(--fs-xl); font-weight: 700; margin-bottom: 2px; }
+.rc-v2 .page-subtitle { font-size: var(--fs-sm); color: var(--c-text-secondary, #5A6B7B); margin-bottom: 14px; }
 .rc-v2 .rc-recentes { width: 300px; flex-shrink: 0; margin-top: 0 !important; position: sticky; top: 12px; background: #fff; border: 1px solid #E1E7EE; border-radius: 12px; padding: 14px 16px; }
-.rc-v2 .rc-recentes .form-section-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5A6B7B; border: 0; padding: 0; margin: 0 0 10px; }
-.rc-v2 .recepcao-recentes-item { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-top: 1px solid #EEF2F6; font-size: 14px; font-weight: 700; color: #0F2230; }
+.rc-v2 .rc-recentes .form-section-title { font-size: var(--fs-xs); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5A6B7B; border: 0; padding: 0; margin: 0 0 10px; }
+.rc-v2 .recepcao-recentes-item { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-top: 1px solid #EEF2F6; font-size: var(--fs-sm); font-weight: 700; color: #0F2230; }
 .rc-v2 .recepcao-recentes-item:first-of-type { border-top: 0; padding-top: 0; }
-.rc-v2 .recepcao-recentes-meta { font-size: 12px; font-weight: 500; color: #5A6B7B; }
+.rc-v2 .recepcao-recentes-meta { font-size: var(--fs-xs); font-weight: 500; color: #5A6B7B; }
 /* Blocos numerados no formulário de cadastro (1. Identificação, 2. Endereço…) */
 .rc-v2 .rc-form { counter-reset: rc-bloco; }
-.rc-v2 .rc-form .form-section-title { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: #0F2230; text-transform: none; letter-spacing: 0; }
-.rc-v2 .rc-form .form-section-title::before { counter-increment: rc-bloco; content: counter(rc-bloco); width: 24px; height: 24px; border-radius: 7px; background: #EEF2F6; color: #4B5B6A; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-@media (max-width: 1100px) { .rc-v2 .rc-layout { flex-direction: column; } .rc-v2 .rc-recentes { width: 100%; position: static; } }
+.rc-v2 .rc-form .form-section-title { display: flex; align-items: center; gap: 10px; font-size: var(--fs-sm); font-weight: 700; color: #0F2230; text-transform: none; letter-spacing: 0; }
+.rc-v2 .rc-form .form-section-title::before { counter-increment: rc-bloco; content: counter(rc-bloco); width: 24px; height: 24px; border-radius: 7px; background: #EEF2F6; color: #4B5B6A; display: inline-flex; align-items: center; justify-content: center; font-size: var(--fs-xs); font-weight: 700; flex-shrink: 0; }
+@media (max-width: 1024px) { .rc-v2 .rc-layout { flex-direction: column; } .rc-v2 .rc-recentes { width: 100%; position: static; } }

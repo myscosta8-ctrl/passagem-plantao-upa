@@ -220,14 +220,14 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
 
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-flask" /> Parecer Farmacêutico e Controle de Estoque (CCIH / Farmácia Central)</div>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
+          <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', margin: 0 }}>
             Preenchido pelo farmacêutico no documento impresso: parecer (de acordo / contrário), disponibilidade em estoque (integral / parcial / indisponível), observações, assinatura e carimbo.
           </p>
         </div>
 
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-list-checks" /> Antimicrobianos de Uso Restrito Institucional (Controle Obrigatório UPA Breves)</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 14px', fontSize: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 14px', fontSize: 'var(--fs-xs)' }}>
             {ATM_RESTRITOS.map((a) => {
               const ativo = restritoAtual === a
               return (

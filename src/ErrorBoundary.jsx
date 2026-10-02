@@ -21,9 +21,9 @@ export default class ErrorBoundary extends Component {
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           height: '100%', padding: 24, textAlign: 'center', gap: 14, fontFamily: 'sans-serif',
         }}>
-          <div style={{ fontSize: 40 }}>⚠️</div>
+          <div style={{ fontSize: 'var(--fs-3xl)' }}>⚠️</div>
           <h2 style={{ margin: 0, color: '#143641' }}>Algo deu errado nessa tela</h2>
-          <p style={{ color: '#5A6B78', maxWidth: 420, fontSize: 14 }}>
+          <p style={{ color: '#5A6B78', maxWidth: 420, fontSize: 'var(--fs-sm)' }}>
             Nada foi perdido — o que você já salvou continua no banco. Recarregue a página para continuar.
             Se acontecer de novo no mesmo lugar, avise o suporte com o que você estava fazendo.
           </p>

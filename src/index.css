@@ -6,10 +6,12 @@
 
 :root {
   /* PALETA PRIMÁRIA E MARCA (Hospitalar Enterprise) */
-  --c-primary:        #0D9488;
-  --c-primary-hover:  #0F766E;
+  --c-primary:        #1B4555;   /* azul-petróleo da logo — cor principal única */
+  --c-primary-hover:  #133541;
+  --c-primary-soft:   #E9F1F3;
+  --c-primary-borda:  #BCD2D8;
   --c-primary-dark:   #0B192C;
-  --c-primary-mid:    #0D9488;
+  --c-primary-mid:    #1B4555;
   --c-primary-light:  #F8FAFC;
   --c-primary-border: #CBD5E1;
 
@@ -76,13 +78,28 @@
      campos de dígitos dos formulários SUS, em print-sus-base.css). */
   --font-mono:        'Atkinson Hyperlegible Next', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* ESCALA DE TEXTO */
-  --text-xs:   12px;
-  --text-sm:   12px;
-  --text-base: 14px;
-  --text-md:   15px;
-  --text-lg:   15px;
-  --text-xl:   18px;
+  /* ===== PADRÃO VISUAL ÚNICO (onda 3, item 15) =====
+     TAMANHOS DE LETRA: só estes 8. Nas telas, use sempre as variáveis --fs (nunca um número solto).
+     (Os impressos têm escala própria em pt, em src/pages/print/leitura.css.) */
+  --fs-xs:  12px;   /* rótulos, legendas, textos auxiliares */
+  --fs-sm:  14px;   /* texto padrão dos formulários e tabelas */
+  --fs-md:  15px;   /* destaque de linha, subtítulos */
+  --fs-lg:  18px;   /* título de seção / janela */
+  --fs-xl:  22px;   /* título de tela */
+  --fs-2xl: 28px;   /* números grandes de indicadores */
+  --fs-3xl: 36px;   /* ícones de aviso, números de destaque */
+  --fs-4xl: 48px;   /* ícone de tela vazia */
+  /* LARGURAS DE TELA (media queries): só 4 — 640px celular · 768px tablet · 1024px notebook pequeno · 1280px notebook.
+     Media query não aceita variável, por isso os valores ficam escritos; o teste tests/unit garante que só estes são usados. */
+  /* COR PRINCIPAL: azul-petróleo da logo (--c-primary). Use a variável --c-primary e variações, nunca o código da cor. */
+
+  /* Nomes antigos da escala (mantidos para não quebrar telas existentes) */
+  --text-xs:   var(--fs-xs);
+  --text-sm:   var(--fs-xs);
+  --text-base: var(--fs-sm);
+  --text-md:   var(--fs-md);
+  --text-lg:   var(--fs-md);
+  --text-xl:   var(--fs-lg);
 
   /* ESPAÇAMENTO */
   --sp-1: 4px;
@@ -223,7 +240,7 @@ input:not([type="checkbox"]):not([type="radio"]), select, textarea {
   border-radius: var(--r-md);
   color: var(--c-text-primary);
   padding: 8px 12px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
   transition: all var(--ease);
 }
@@ -248,7 +265,7 @@ input::placeholder, textarea::placeholder {
 
 label {
   font-family: var(--font-ui);
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--c-text-secondary);
   letter-spacing: 0.01em;
@@ -266,7 +283,7 @@ a:hover { text-decoration: underline; color: var(--c-primary-hover); }
   border: none;
   padding: 8px 16px;
   border-radius: var(--r-md);
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -286,7 +303,7 @@ a:hover { text-decoration: underline; color: var(--c-primary-hover); }
   border: 1px solid var(--border-strong);
   padding: 8px 14px;
   border-radius: var(--r-md);
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -302,7 +319,7 @@ a:hover { text-decoration: underline; color: var(--c-primary-hover); }
 
 /* ===================== BADGES E CHIPS MANCHESTER ===================== */
 .badge-manchester {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 4px;
@@ -364,7 +381,7 @@ a:hover { text-decoration: underline; color: var(--c-primary-hover); }
   padding: 8px 16px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -388,7 +405,7 @@ a:hover { text-decoration: underline; color: var(--c-primary-hover); }
   padding: 8px 16px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -411,7 +428,7 @@ a:hover { text-decoration: underline; color: var(--c-primary-hover); }
   padding: 8px 16px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -429,7 +446,7 @@ a:hover { text-decoration: underline; color: var(--c-primary-hover); }
   cursor: not-allowed;
 }
 
-.faixa-erro-app { position: sticky; top: 0; z-index: 2500; display: flex; align-items: center; gap: 8px; background: var(--c-danger-light); border-bottom: 1px solid var(--c-danger-border-strong); color: #991B1B; font-size: 12px; font-weight: 600; padding: 8px 14px; }
+.faixa-erro-app { position: sticky; top: 0; z-index: 2500; display: flex; align-items: center; gap: 8px; background: var(--c-danger-light); border-bottom: 1px solid var(--c-danger-border-strong); color: #991B1B; font-size: var(--fs-xs); font-weight: 600; padding: 8px 14px; }
 .faixa-erro-app button { margin-left: auto; border: 1px solid var(--c-danger-border-strong); background: var(--c-surface); color: #991B1B; border-radius: 6px; padding: 2px 10px; cursor: pointer; font-weight: 700; }
 
 /* Acessibilidade: foco visível em tudo que é clicável pelo teclado (Tab), mesmo onde o estilo

@@ -72,7 +72,7 @@ function ConteudoAba({ atendimento, autorId, aba, onImprimir, onFechar }) {
 export default function FichaClinicaConteudo(props) {
   return (
     <ErroAba chave={props.aba}>
-      <Suspense fallback={<div style={{ padding: 24, color: '#64748B', fontSize: 14 }}>Carregando...</div>}>
+      <Suspense fallback={<div style={{ padding: 24, color: '#64748B', fontSize: 'var(--fs-sm)' }}>Carregando...</div>}>
         <ConteudoAba {...props} />
       </Suspense>
     </ErroAba>

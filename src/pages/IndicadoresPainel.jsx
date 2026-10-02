@@ -121,7 +121,7 @@ export default function IndicadoresPainel({ onVoltar }) {
           <select 
             value={periodo} 
             onChange={(e) => setPeriodo(e.target.value)} 
-            style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-strong)', background: '#fff', fontSize: 14 }}
+            style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-strong)', background: '#fff', fontSize: 'var(--fs-sm)' }}
           >
             {PERIODOS.map(p => <option key={p.chave} value={p.chave}>{p.rotulo}</option>)}
           </select>
@@ -135,42 +135,42 @@ export default function IndicadoresPainel({ onVoltar }) {
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20, marginBottom: 24 }}>
             <div className="card" style={{ borderLeft: '4px solid var(--primary)' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>EM OBSERVAÇÃO AGORA</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-main)' }}>{dados.emObservacaoAgora}</div>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12, fontWeight: 600, marginTop: 4 }}>Pacientes no painel atual</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 700, letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>EM OBSERVAÇÃO AGORA</div>
+              <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-main)' }}>{dados.emObservacaoAgora}</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 600, marginTop: 4 }}>Pacientes no painel atual</div>
             </div>
 
             <div className="card" style={{ borderLeft: '4px solid var(--danger)' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>INTERNARAM NO PERÍODO</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-main)' }}>{dados.internaram.total}</div>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12, fontWeight: 600, marginTop: 4 }}>{PERIODOS.find(p => p.chave === periodo)?.rotulo}</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 700, letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>INTERNARAM NO PERÍODO</div>
+              <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-main)' }}>{dados.internaram.total}</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 600, marginTop: 4 }}>{PERIODOS.find(p => p.chave === periodo)?.rotulo}</div>
             </div>
 
             <div className="card" style={{ borderLeft: '4px solid var(--success)' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>TEMPO MÉDIO (INTERNAÇÃO)</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-main)' }}>{formatarHoras(dados.tempoMedioInternacaoHoras)}</div>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12, fontWeight: 600, marginTop: 4 }}>Admissão até o desfecho</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 700, letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>TEMPO MÉDIO (INTERNAÇÃO)</div>
+              <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-main)' }}>{formatarHoras(dados.tempoMedioInternacaoHoras)}</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 600, marginTop: 4 }}>Admissão até o desfecho</div>
             </div>
 
             <div className="card" style={{ borderLeft: '4px solid var(--warning)' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>TEMPO MÉDIO ATÉ CONDUTA</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-main)' }}>{formatarHoras(dados.tempoMedioAteCondutaHoras)}</div>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12, fontWeight: 600, marginTop: 4 }}>Tempo de porta até a decisão</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 700, letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>TEMPO MÉDIO ATÉ CONDUTA</div>
+              <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-main)' }}>{formatarHoras(dados.tempoMedioAteCondutaHoras)}</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 600, marginTop: 4 }}>Tempo de porta até a decisão</div>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
             <div className="card">
-              <h3 style={{ marginBottom: 20, fontSize: 14, color: 'var(--text-main)' }}>Top Diagnósticos de Internação</h3>
+              <h3 style={{ marginBottom: 20, fontSize: 'var(--fs-sm)', color: 'var(--text-main)' }}>Top Diagnósticos de Internação</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {dados.internaram.porDiagnostico.length === 0 ? (
-                  <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>Nenhuma internação registrada.</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-sm)' }}>Nenhuma internação registrada.</p>
                 ) : (
                   dados.internaram.porDiagnostico.map(([diagnostico, qtd]) => {
                     const max = Math.max(...dados.internaram.porDiagnostico.map(d => d[1]))
                     return (
                       <div key={diagnostico}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs)', fontWeight: 600, marginBottom: 6 }}>
                           <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '85%' }}>{diagnostico}</span>
                           <span>{qtd}</span>
                         </div>
@@ -185,17 +185,17 @@ export default function IndicadoresPainel({ onVoltar }) {
             </div>
 
             <div className="card">
-              <h3 style={{ marginBottom: 20, fontSize: 14, color: 'var(--text-main)' }}>Ocupação por Manchester</h3>
+              <h3 style={{ marginBottom: 20, fontSize: 'var(--fs-sm)', color: 'var(--text-main)' }}>Ocupação por Manchester</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {Object.entries(dados.porManchester).length === 0 ? (
-                  <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>Nenhum paciente classificado agora.</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-sm)' }}>Nenhum paciente classificado agora.</p>
                 ) : (
                   Object.entries(dados.porManchester).map(([cor, qtd]) => {
                     const total = Object.values(dados.porManchester).reduce((a, b) => a + b, 0)
                     const c = MANCHESTER_CORES[cor] || 'var(--text-muted)'
                     return (
                       <div key={cor}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs)', fontWeight: 600, marginBottom: 6 }}>
                           <span>{cor}</span>
                           <span>{qtd} ({Math.round((qtd / total) * 100)}%)</span>
                         </div>

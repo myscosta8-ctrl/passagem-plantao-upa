@@ -1,12 +1,12 @@
 /* Prontuário multiprofissional (Nutrição e Serviço Social) */
 .mp-grade { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px 14px; }
 .mp-grade .mp-campo { margin: 0; min-width: 0; }
-.mp-grade .mp-campo label { display: block; font-size: 12px; font-weight: 700; color: var(--c-text-secondary, #334155); margin-bottom: 4px; }
-.mp-grade .mp-campo input, .mp-grade .mp-campo select { width: 100%; height: 38px; border: 1px solid var(--c-border-dark, #CBD5E1); border-radius: 8px; padding: 0 10px; font: inherit; font-size: 14px; background: #fff; box-sizing: border-box; }
+.mp-grade .mp-campo label { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--c-text-secondary, #334155); margin-bottom: 4px; }
+.mp-grade .mp-campo input, .mp-grade .mp-campo select { width: 100%; height: 38px; border: 1px solid var(--c-border-dark, #CBD5E1); border-radius: 8px; padding: 0 10px; font: inherit; font-size: var(--fs-sm); background: #fff; box-sizing: border-box; }
 .mp-grade .mp-campo textarea { width: 100%; box-sizing: border-box; }
-.mp-grade .mp-campo input:focus, .mp-grade .mp-campo select:focus { outline: none; border-color: var(--c-primary, #1B4555); box-shadow: 0 0 0 2px rgba(27, 69, 85, .12); }
+.mp-grade .mp-campo input:focus, .mp-grade .mp-campo select:focus { outline: none; border-color: var(--c-primary); box-shadow: 0 0 0 2px rgba(27, 69, 85, .12); }
 .mp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.mp-calc { min-height: 38px; display: flex; align-items: center; padding: 0 10px; border-radius: 8px; background: #E9F1F3; color: var(--c-primary, #1B4555); font-weight: 700; font-size: 14px; }
+.mp-calc { min-height: 38px; display: flex; align-items: center; padding: 0 10px; border-radius: 8px; background: var(--c-primary-soft); color: var(--c-primary); font-weight: 700; font-size: var(--fs-sm); }
 .mp-calc.vazio { background: #F3F6F9; color: var(--c-text-muted, #8595A4); font-weight: 500; font-style: italic; }
-@media (max-width: 900px) { .mp-grade .mp-campo { grid-column: span 6 !important; } }
-@media (max-width: 600px) { .mp-grade .mp-campo { grid-column: span 12 !important; } }
+@media (max-width: 1024px) { .mp-grade .mp-campo { grid-column: span 6 !important; } }
+@media (max-width: 640px) { .mp-grade .mp-campo { grid-column: span 12 !important; } }

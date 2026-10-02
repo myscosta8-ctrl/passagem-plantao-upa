@@ -287,7 +287,7 @@ export default function AltasRecentes({ onVoltar }) {
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
         <div className="page-title">
           <h1>Desfechos e Saídas</h1>
-          <p style={{ color: 'var(--c-text-muted)', fontSize: 14 }}>
+          <p style={{ color: 'var(--c-text-muted)', fontSize: 'var(--fs-sm)' }}>
             Altas médicas, transferências, óbitos e evasões — com indicadores e filtros por período.
           </p>
         </div>
@@ -312,8 +312,8 @@ export default function AltasRecentes({ onVoltar }) {
             padding: '16px 20px',
             minWidth: 120,
           }}>
-            <div style={{ fontSize: 30, fontWeight: 800, color: ind.cor, lineHeight: 1 }}>{carregando ? '—' : ind.valor}</div>
-            <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 6 }}>{ind.label}</div>
+            <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: ind.cor, lineHeight: 1 }}>{carregando ? '—' : ind.valor}</div>
+            <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-text-muted)', marginTop: 6 }}>{ind.label}</div>
           </div>
         ))}
       </div>
@@ -328,7 +328,7 @@ export default function AltasRecentes({ onVoltar }) {
               type="button"
               className={`control-btn${periodo === p.key ? ' active' : ''}`}
               onClick={() => setPeriodo(p.key)}
-              style={{ fontSize: 12, padding: '6px 12px' }}
+              style={{ fontSize: 'var(--fs-xs)', padding: '6px 12px' }}
             >
               {p.label}
             </button>
@@ -342,16 +342,16 @@ export default function AltasRecentes({ onVoltar }) {
               type="date"
               value={dataInicioCustom}
               onChange={e => setDataInicioCustom(e.target.value)}
-              style={{ padding: '6px 10px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 12 }}
+              style={{ padding: '6px 10px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 'var(--fs-xs)' }}
             />
-            <span style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>até</span>
+            <span style={{ color: 'var(--c-text-muted)', fontSize: 'var(--fs-xs)' }}>até</span>
             <input
               type="date"
               value={dataFimCustom}
               onChange={e => setDataFimCustom(e.target.value)}
-              style={{ padding: '6px 10px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 12 }}
+              style={{ padding: '6px 10px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 'var(--fs-xs)' }}
             />
-            <button className="control-btn active" onClick={carregar} style={{ fontSize: 12, padding: '6px 12px' }}>
+            <button className="control-btn active" onClick={carregar} style={{ fontSize: 'var(--fs-xs)', padding: '6px 12px' }}>
               <i className="ph ph-magnifying-glass" /> Buscar
             </button>
           </div>
@@ -363,7 +363,7 @@ export default function AltasRecentes({ onVoltar }) {
           <select
             value={filtroTipo}
             onChange={e => setFiltroTipo(e.target.value)}
-            style={{ padding: '6px 10px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 12 }}
+            style={{ padding: '6px 10px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 'var(--fs-xs)' }}
           >
             <option value="">Todos os desfechos</option>
             <option value="Alta">Alta</option>
@@ -374,13 +374,13 @@ export default function AltasRecentes({ onVoltar }) {
 
           {/* Busca */}
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <i className="ph ph-magnifying-glass" style={{ position: 'absolute', left: 10, color: 'var(--c-text-muted)', fontSize: 15 }} />
+            <i className="ph ph-magnifying-glass" style={{ position: 'absolute', left: 10, color: 'var(--c-text-muted)', fontSize: 'var(--fs-md)' }} />
             <input
               type="text"
               placeholder="Nome completo ou nº do prontuário..."
               value={busca}
               onChange={e => setBusca(e.target.value)}
-              style={{ padding: '6px 12px 6px 32px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 12, width: 200 }}
+              style={{ padding: '6px 12px 6px 32px', border: '1px solid var(--c-border)', borderRadius: 6, fontSize: 'var(--fs-xs)', width: 200 }}
             />
           </div>
         </div>
@@ -424,17 +424,17 @@ export default function AltasRecentes({ onVoltar }) {
                   <td>
                     <strong>{d.nome}</strong>
                     {d.prontuario && (
-                      <><br /><span style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>Pront. {d.prontuario}</span></>
+                      <><br /><span style={{ color: 'var(--c-text-muted)', fontSize: 'var(--fs-xs)' }}>Pront. {d.prontuario}</span></>
                     )}
                   </td>
-                  <td style={{ color: 'var(--c-text-muted)', fontSize: 14 }}>{d.leito_info}</td>
-                  <td style={{ whiteSpace: 'nowrap', fontSize: 14 }}>{dataHora}</td>
+                  <td style={{ color: 'var(--c-text-muted)', fontSize: 'var(--fs-sm)' }}>{d.leito_info}</td>
+                  <td style={{ whiteSpace: 'nowrap', fontSize: 'var(--fs-sm)' }}>{dataHora}</td>
                   <td>
-                    <span className="badge" style={{ background: cor.bg, color: cor.txt, fontWeight: 700, fontSize: 12, padding: '3px 10px', borderRadius: 20 }}>
+                    <span className="badge" style={{ background: cor.bg, color: cor.txt, fontWeight: 700, fontSize: 'var(--fs-xs)', padding: '3px 10px', borderRadius: 20 }}>
                       {d.tipo_desfecho}
                     </span>
                   </td>
-                  <td style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--c-text-muted)', fontSize: 14 }} title={d.tipo_desfecho === 'Transferência' ? `Destino: ${d.destino || 'não informado'}` : d.diagnostico}>
+                  <td style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--c-text-muted)', fontSize: 'var(--fs-sm)' }} title={d.tipo_desfecho === 'Transferência' ? `Destino: ${d.destino || 'não informado'}` : d.diagnostico}>
                     {d.tipo_desfecho === 'Transferência'
                       ? <span style={{ fontWeight: 700, color: d.destino ? '#1e40af' : 'var(--c-text-muted)' }}><i className="ph ph-hospital" /> Destino: {d.destino || 'não informado'}</span>
                       : d.diagnostico}
@@ -448,9 +448,9 @@ export default function AltasRecentes({ onVoltar }) {
 
         {/* Rodapé */}
         {!carregando && (
-          <div style={{ padding: '10px 16px', borderTop: '1px solid var(--c-border)', color: 'var(--c-text-muted)', fontSize: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ padding: '10px 16px', borderTop: '1px solid var(--c-border)', color: 'var(--c-text-muted)', fontSize: 'var(--fs-xs)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span><strong>{filtrados.length}</strong> registro{filtrados.length !== 1 ? 's' : ''} encontrado{filtrados.length !== 1 ? 's' : ''}</span>
-            <button className="btn btn-outline" style={{ fontSize: 12, padding: '4px 12px' }} onClick={() => window.print()}>
+            <button className="btn btn-outline" style={{ fontSize: 'var(--fs-xs)', padding: '4px 12px' }} onClick={() => window.print()}>
               <i className="ph ph-printer" /> Exportar / Imprimir
             </button>
           </div>

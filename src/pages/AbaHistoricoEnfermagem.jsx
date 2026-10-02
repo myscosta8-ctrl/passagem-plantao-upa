@@ -232,7 +232,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
         <aside className="quick-sidebar">
           <div className="qs-header">
             <span><i className="ph ph-gauge" /> Escalas e Protocolos</span>
-            <span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>Segurança</span>
+            <span style={{ fontSize: 'var(--fs-xs)', color: '#64748B', fontWeight: 600 }}>Segurança</span>
           </div>
           <div className="qs-body">
             {[['braden', 'Escala de Braden'], ['morse', 'Escala de Morse (Queda)']].map(([tipo, rotulo]) => {
@@ -253,7 +253,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div className="qs-label">
-                <span><i className="ph ph-needle" style={{ color: 'var(--enf-primary)', fontSize: 15 }} /> Dispositivos Invasivos</span>
+                <span><i className="ph ph-needle" style={{ color: 'var(--enf-primary)', fontSize: 'var(--fs-md)' }} /> Dispositivos Invasivos</span>
                 <button type="button" className="qs-gerenciar" onClick={() => setGerenciar('dispositivos')}>Gerenciar</button>
               </div>
               {dispositivos.filter((x) => !x.removido_em).length === 0 ? <span className="qs-vazio">Nenhum registrado.</span> : dispositivos.filter((x) => !x.removido_em).map((x) => (
@@ -269,7 +269,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div className="qs-label">
-                <span><i className="ph ph-shield-warning" style={{ color: 'var(--danger)', fontSize: 15 }} /> Alergias e Restrições</span>
+                <span><i className="ph ph-shield-warning" style={{ color: 'var(--danger)', fontSize: 'var(--fs-md)' }} /> Alergias e Restrições</span>
                 <button type="button" className="qs-gerenciar" onClick={() => setGerenciar('alergias')}>Gerenciar</button>
               </div>
               {alergias.falhou && alergias.length === 0 ? <span className="qs-vazio" style={{ color: '#B91C1C' }}>Não foi possível carregar (falha de conexão).</span> : alergias.length === 0 ? <span className="qs-vazio">Nenhuma registrada.</span> : alergias.map((a) => (
@@ -363,7 +363,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
           {secao(SECOES[2], (
             <>
               <div>
-                <label className="enf-label forte"><i className="ph ph-brain" style={{ fontSize: 15 }} /> Estado Neurológico e Nível de Consciência:</label>
+                <label className="enf-label forte"><i className="ph ph-brain" style={{ fontSize: 'var(--fs-md)' }} /> Estado Neurológico e Nível de Consciência:</label>
                 <Radios nome="adm-neuro" opcoes={NEURO} valor={d.exame.neuro} onChange={(v) => setEx('neuro', v)} />
               </div>
               <div className="grid-3">
@@ -382,7 +382,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
                 <div className="enf-group"><label><i className="ph ph-drop" /> Eliminações Urinárias</label><Radios nome="adm-urinario" opcoes={URINARIO} valor={d.exame.urinario} onChange={(v) => setEx('urinario', v)} /></div>
               </div>
               <div>
-                <label className="enf-label forte"><i className="ph ph-person-simple-walk" style={{ fontSize: 15 }} /> Motilidade e Membros:</label>
+                <label className="enf-label forte"><i className="ph ph-person-simple-walk" style={{ fontSize: 'var(--fs-md)' }} /> Motilidade e Membros:</label>
                 <Radios nome="adm-membros" opcoes={MEMBROS} valor={d.exame.membros} onChange={(v) => setEx('membros', v)} alerta={[MEMBROS[1]]} />
                 {d.exame.membros === MEMBROS[1] && (
                   <div className="condicional-box">
@@ -392,7 +392,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
                 )}
               </div>
               <div>
-                <label className="enf-label forte"><i className="ph ph-hand-heart" style={{ fontSize: 15 }} /> Pele e Mucosas:</label>
+                <label className="enf-label forte"><i className="ph ph-hand-heart" style={{ fontSize: 'var(--fs-md)' }} /> Pele e Mucosas:</label>
                 <Checks opcoes={PELE} valor={d.exame.pele} onChange={(v) => setEx('pele', v)} />
               </div>
             </>
@@ -410,7 +410,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
 
           {mensagem && (
             <div className="condicional-box" style={mensagem.tipo === 'erro' ? { background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' } : undefined}>
-              <span style={{ fontSize: 12, fontWeight: 600 }}><i className={'ph ' + (mensagem.tipo === 'erro' ? 'ph-warning' : 'ph-check-circle')} /> {mensagem.texto}</span>
+              <span style={{ fontSize: 'var(--fs-xs)', fontWeight: 600 }}><i className={'ph ' + (mensagem.tipo === 'erro' ? 'ph-warning' : 'ph-check-circle')} /> {mensagem.texto}</span>
             </div>
           )}
         </div>

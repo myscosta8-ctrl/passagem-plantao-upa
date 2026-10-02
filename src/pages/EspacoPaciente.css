@@ -35,14 +35,14 @@
 
 .espaco-paciente-nome {
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: var(--fs-lg);
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #ffffff;
 }
 
 .espaco-paciente-meta {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-faint);
   margin-top: 4px;
   display: flex;
@@ -55,7 +55,7 @@
   border: none;
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  font-size: 22px;
+  font-size: var(--fs-xl);
   line-height: 1;
   width: 36px;
   height: 36px;
@@ -106,7 +106,7 @@
 
 .espaco-paciente-pilar-titulo {
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--c-text-secondary);
   display: flex;
@@ -119,7 +119,7 @@
 }
 
 .espaco-paciente-pilar-sub {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-muted);
   padding-left: 24px;
 }
@@ -142,7 +142,7 @@
   height: 260px;
   gap: 12px;
   color: var(--c-text-muted);
-  font-size: 14px;
+  font-size: var(--fs-sm);
 }
 
 /* Ajustes de formulários quando embutidos no modal */

@@ -13,7 +13,7 @@ export default function ConfirmModal({
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <h2 className="modal-title">{titulo}</h2>
         {mensagem && (
-          <p style={{ fontSize: 14, color: 'var(--color-text-muted)', lineHeight: 1.5, marginTop: -6, marginBottom: 18 }}>
+          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--color-text-muted)', lineHeight: 1.5, marginTop: -6, marginBottom: 18 }}>
             {mensagem}
           </p>
         )}

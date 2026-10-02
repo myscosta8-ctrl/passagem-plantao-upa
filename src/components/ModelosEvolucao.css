@@ -2,28 +2,28 @@
 .mev { position: relative; }
 /* Aberto: ocupa a linha inteira, logo acima do campo de texto (dentro da aba, sem cobrir nada). */
 .mev.aberto { flex-basis: 100%; display: flex; flex-direction: column; align-items: flex-end; }
-.mev-botao { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--c-border-dark); background: var(--c-surface); color: var(--c-text-primary); border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.mev-botao { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--c-border-dark); background: var(--c-surface); color: var(--c-text-primary); border-radius: 8px; padding: 4px 10px; font: inherit; font-size: var(--fs-xs); font-weight: 700; cursor: pointer; }
 .mev-botao:hover, .mev-botao.on { background: var(--c-fill); }
 .mev-botao:focus-visible { outline: 2px solid var(--c-text-primary); outline-offset: 1px; }
 .mev-painel { margin-top: 8px; border: 1px solid var(--c-border-dark); border-radius: 10px; background: var(--c-surface); padding: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow: auto; width: 100%; box-sizing: border-box; }
 .mev-busca { display: flex; align-items: center; gap: 8px; border: 1px solid var(--c-border-dark); border-radius: 8px; padding: 4px 10px; }
 .mev-busca i { color: var(--c-text-muted); }
-.mev-busca input, .mev-busca input:focus { border: 0 !important; box-shadow: none !important; outline: 0; padding: 4px 0 !important; flex: 1; min-width: 0; font: inherit; font-size: 13px; background: transparent !important; color: var(--c-text); }
+.mev-busca input, .mev-busca input:focus { border: 0 !important; box-shadow: none !important; outline: 0; padding: 4px 0 !important; flex: 1; min-width: 0; font: inherit; font-size: var(--fs-sm); background: transparent !important; color: var(--c-text); }
 .mev-grupo { display: flex; flex-direction: column; gap: 4px; }
-.mev-grupo-titulo { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--c-text-muted); padding: 2px 2px 0; }
+.mev-grupo-titulo { font-size: var(--fs-xs); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--c-text-muted); padding: 2px 2px 0; }
 .mev-item { display: flex; align-items: stretch; gap: 4px; }
 .mev-usar { flex: 1; min-width: 0; text-align: left; border: 1px solid var(--c-border-dark); background: var(--c-surface); border-radius: 8px; padding: 6px 10px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; font: inherit; }
 .mev-usar:hover { background: var(--c-fill); }
 .mev-usar:focus-visible { outline: 2px solid var(--c-text-primary); outline-offset: 1px; }
-.mev-titulo { font-size: 13px; font-weight: 700; color: var(--c-text-primary); }
-.mev-previa { font-size: 12px; color: var(--c-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mev-titulo { font-size: var(--fs-sm); font-weight: 700; color: var(--c-text-primary); }
+.mev-previa { font-size: var(--fs-xs); color: var(--c-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mev-excluir { border: 1px solid var(--c-border-dark); background: var(--c-surface); border-radius: 8px; padding: 0 10px; cursor: pointer; color: var(--c-text-muted); }
 .mev-excluir:hover { color: #B91C1C; }
-.mev-vazio, .mev-msg { font-size: 12px; color: var(--c-text-muted); padding: 2px; }
+.mev-vazio, .mev-msg { font-size: var(--fs-xs); color: var(--c-text-muted); padding: 2px; }
 .mev-rodape { border-top: 1px solid var(--c-border-dark); padding-top: 8px; display: flex; flex-direction: column; gap: 6px; }
-.mev-link { align-self: flex-start; border: 0; background: transparent; color: var(--c-text-primary); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; padding: 2px; }
+.mev-link { align-self: flex-start; border: 0; background: transparent; color: var(--c-text-primary); font: inherit; font-size: var(--fs-xs); font-weight: 700; cursor: pointer; padding: 2px; }
 .mev-link:disabled { color: var(--c-text-muted); cursor: not-allowed; }
 .mev-salvar { display: flex; gap: 6px; flex-wrap: wrap; }
-.mev-salvar input { flex: 1; min-width: 180px; border: 1px solid var(--c-border-dark); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 13px; }
-.mev-confirma { display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--c-text); }
+.mev-salvar input { flex: 1; min-width: 180px; border: 1px solid var(--c-border-dark); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: var(--fs-sm); }
+.mev-confirma { display: flex; flex-direction: column; gap: 10px; font-size: var(--fs-sm); color: var(--c-text); }
 .mev-acoes { display: flex; gap: 8px; flex-wrap: wrap; }

@@ -1,59 +1,59 @@
 /* ===== Nova interface (contas pep_beta) — Desfechos conforme mockup 10 ===== */
 .ds-v2 { overflow-y: auto; flex: 1; padding: 16px 20px; width: 100%; box-sizing: border-box; }
 .ds-topo { display: flex; align-items: center; gap: 12px; }
-.ds-topo h1 { margin: 0; font-size: 22px; font-weight: 700; color: #0F2230; }
-.ds-sub { font-size: 14px; color: #5A6B7B; }
-.ds-imprimir { margin-left: auto; height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: var(--c-primary, #1B4555); color: #fff; font: inherit; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.ds-topo h1 { margin: 0; font-size: var(--fs-xl); font-weight: 700; color: #0F2230; }
+.ds-sub { font-size: var(--fs-sm); color: #5A6B7B; }
+.ds-imprimir { margin-left: auto; height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: var(--c-primary); color: #fff; font: inherit; font-size: var(--fs-sm); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 .ds-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
 .ds-kpi { background: #fff; border: 1px solid #E1E7EE; border-radius: 11px; padding: 6px 12px; display: flex; align-items: baseline; gap: 6px; font: inherit; color: #0F2230; cursor: pointer; text-align: left; }
-.ds-kpi.on { border-color: var(--c-primary, #1B4555); box-shadow: inset 0 0 0 1px var(--c-primary, #1B4555); }
+.ds-kpi.on { border-color: var(--c-primary); box-shadow: inset 0 0 0 1px var(--c-primary); }
 .ds-k { align-self: center; width: 26px; height: 26px; border-radius: 7px; background: #EEF2F6; color: #4B5B6A; display: inline-flex; align-items: center; justify-content: center; margin-right: 2px; }
-.ds-kpi b { font-size: 18px; }
-.ds-kpi small { font-size: 12px; color: #5A6B7B; }
+.ds-kpi b { font-size: var(--fs-lg); }
+.ds-kpi small { font-size: var(--fs-xs); color: #5A6B7B; }
 .ds-filtros { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
 .ds-seg { display: flex; gap: 4px; background: #E9EEF3; border-radius: 10px; padding: 4px; }
-.ds-seg button { height: 32px; padding: 0 16px; border: 0; border-radius: 7px; background: transparent; font: inherit; font-size: 14px; font-weight: 600; color: #5A6B7B; cursor: pointer; }
-.ds-seg button.on { background: #fff; color: var(--c-primary, #1B4555); box-shadow: 0 1px 3px rgba(15, 34, 48, .12); }
-.ds-datas { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5A6B7B; }
-.ds-datas input { height: 34px; border: 1px solid #D5DDE6; border-radius: 8px; padding: 0 8px; font: inherit; font-size: 12px; }
+.ds-seg button { height: 32px; padding: 0 16px; border: 0; border-radius: 7px; background: transparent; font: inherit; font-size: var(--fs-sm); font-weight: 600; color: #5A6B7B; cursor: pointer; }
+.ds-seg button.on { background: #fff; color: var(--c-primary); box-shadow: 0 1px 3px rgba(15, 34, 48, .12); }
+.ds-datas { display: flex; align-items: center; gap: 8px; font-size: var(--fs-xs); color: #5A6B7B; }
+.ds-datas input { height: 34px; border: 1px solid #D5DDE6; border-radius: 8px; padding: 0 8px; font: inherit; font-size: var(--fs-xs); }
 .ds-busca { margin-left: auto; width: 320px; max-width: 100%; height: 36px; border: 1px solid #D5DDE6; border-radius: 9px; background: #fff; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: #8595A4; }
-.ds-busca input { border: 0 !important; padding: 0 !important; height: auto !important; box-shadow: none !important; background: transparent !important; outline: 0; flex: 1; font: inherit; font-size: 14px; }
+.ds-busca input { border: 0 !important; padding: 0 !important; height: auto !important; box-shadow: none !important; background: transparent !important; outline: 0; flex: 1; font: inherit; font-size: var(--fs-sm); }
 .ds-lista { margin-top: 14px; background: #fff; border: 1px solid #E1E7EE; border-radius: 14px; padding: 6px 16px 12px; }
-.ds-grupo { margin: 14px 0 6px; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: #8595A4; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.ds-grupo { margin: 14px 0 6px; font-size: var(--fs-xs); font-weight: 700; letter-spacing: .06em; color: #8595A4; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
 .ds-grupo::after { content: ''; flex: 1; height: 1px; background: #EEF2F6; }
 .ds-linha { display: flex; align-items: center; gap: 14px; min-height: 54px; padding: 6px 10px; border-radius: 9px; }
 .ds-linha:hover { background: #F5F8FA; }
-.ds-hora { width: 52px; font-weight: 700; font-size: 14px; color: #0F2230; flex-shrink: 0; }
-.ds-tipo { width: 110px; flex-shrink: 0; text-align: center; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 6px; }
+.ds-hora { width: 52px; font-weight: 700; font-size: var(--fs-sm); color: #0F2230; flex-shrink: 0; }
+.ds-tipo { width: 110px; flex-shrink: 0; text-align: center; font-size: var(--fs-xs); font-weight: 700; padding: 3px 9px; border-radius: 6px; }
 .ds-tipo.alta { background: #E6F3EC; color: #256B45; }
 .ds-tipo.tr { background: #EAF1FA; color: #2F5E97; }
 .ds-tipo.ob { background: #EFEFF1; color: #3A3F47; }
 .ds-tipo.ev { background: #FDF3E1; color: #8A5A00; }
 .ds-pac { width: 260px; flex-shrink: 0; min-width: 0; }
-.ds-pac b { display: block; font-size: 14px; color: #0F2230; }
-.ds-pac small { font-size: 12px; color: #5A6B7B; }
-.ds-set { width: 200px; flex-shrink: 0; font-size: 12px; color: #5A6B7B; }
-.ds-mot { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: #334155; }
+.ds-pac b { display: block; font-size: var(--fs-sm); color: #0F2230; }
+.ds-pac small { font-size: var(--fs-xs); color: #5A6B7B; }
+.ds-set { width: 200px; flex-shrink: 0; font-size: var(--fs-xs); color: #5A6B7B; }
+.ds-mot { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-xs); color: #334155; }
 .ds-mot span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ds-dest { font-size: 12px; color: #2F5E97; }
+.ds-dest { font-size: var(--fs-xs); color: #2F5E97; }
 .ds-dest.vazio { color: #8595A4; font-weight: 500; }
-.ds-vazio { padding: 28px; text-align: center; color: #5A6B7B; font-size: 14px; margin: 0; }
-@media (max-width: 1000px) { .ds-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ds-linha { flex-wrap: wrap; } .ds-pac, .ds-set { width: auto; } }
+.ds-vazio { padding: 28px; text-align: center; color: #5A6B7B; font-size: var(--fs-sm); margin: 0; }
+@media (max-width: 1024px) { .ds-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ds-linha { flex-wrap: wrap; } .ds-pac, .ds-set { width: auto; } }
 /* Colunas proporcionais: a linha ocupa a largura toda, sem sobra à direita */
 .ds-linha { display: grid; grid-template-columns: 64px 120px minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 2.2fr); gap: 18px; }
 .ds-pac, .ds-set, .ds-tipo { width: auto; }
 .ds-tipo { justify-self: start; min-width: 110px; }
-@media (max-width: 1000px) { .ds-linha { grid-template-columns: 56px 110px 1fr; } .ds-set, .ds-mot { grid-column: 3; } }
+@media (max-width: 1024px) { .ds-linha { grid-template-columns: 56px 110px 1fr; } .ds-set, .ds-mot { grid-column: 3; } }
 
 /* Acesso aos documentos de quem já saiu: abrir prontuário (consulta/impressão) e imprimir o meu último documento */
 .ds-linha { grid-template-columns: 64px 120px minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 2.2fr) auto; }
 .ds-acoes { display: inline-flex; align-items: center; gap: 6px; justify-self: end; }
-.ds-acao { height: 32px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border: 1px solid #D5DDE6; border-radius: 8px; background: #fff; color: var(--c-primary, #1B4555); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.ds-acao:hover { background: var(--c-primary, #1B4555); border-color: var(--c-primary, #1B4555); color: #fff; }
-.ds-acao.ic { width: 32px; padding: 0; justify-content: center; font-size: 15px; }
-.ds-aviso-linha { margin: 2px 10px 6px 202px; font-size: 12px; color: #8A5A00; background: #FFF4E5; border-radius: 6px; padding: 4px 10px; display: inline-flex; gap: 6px; align-items: center; }
+.ds-acao { height: 32px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border: 1px solid #D5DDE6; border-radius: 8px; background: #fff; color: var(--c-primary); font: inherit; font-size: var(--fs-xs); font-weight: 700; cursor: pointer; white-space: nowrap; }
+.ds-acao:hover { background: var(--c-primary); border-color: var(--c-primary); color: #fff; }
+.ds-acao.ic { width: 32px; padding: 0; justify-content: center; font-size: var(--fs-md); }
+.ds-aviso-linha { margin: 2px 10px 6px 202px; font-size: var(--fs-xs); color: #8A5A00; background: #FFF4E5; border-radius: 6px; padding: 4px 10px; display: inline-flex; gap: 6px; align-items: center; }
 .ds-busca { width: 380px; }
-.ds-limpar { border: 0; background: none; color: #8595A4; cursor: pointer; padding: 2px; display: inline-flex; font-size: 14px; }
-.ds-busca-info { font-size: 12px; color: #1B4555; background: #E9F1F3; border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; }
-@media (max-width: 1000px) { .ds-linha { grid-template-columns: 56px 110px 1fr; } .ds-acoes { grid-column: 3; justify-self: start; } .ds-aviso-linha { margin-left: 10px; } }
-@media (max-width: 560px) { .ds-acao span { display: none; } .ds-acao { width: 36px; height: 36px; padding: 0; justify-content: center; font-size: 16px; } .ds-busca { width: 100%; } }
+.ds-limpar { border: 0; background: none; color: #8595A4; cursor: pointer; padding: 2px; display: inline-flex; font-size: var(--fs-sm); }
+.ds-busca-info { font-size: var(--fs-xs); color: var(--c-primary); background: var(--c-primary-soft); border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; }
+@media (max-width: 1024px) { .ds-linha { grid-template-columns: 56px 110px 1fr; } .ds-acoes { grid-column: 3; justify-self: start; } .ds-aviso-linha { margin-left: 10px; } }
+@media (max-width: 640px) { .ds-acao span { display: none; } .ds-acao { width: 36px; height: 36px; padding: 0; justify-content: center; font-size: var(--fs-md); } .ds-busca { width: 100%; } }

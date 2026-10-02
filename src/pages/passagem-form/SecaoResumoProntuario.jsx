@@ -52,17 +52,17 @@ export default function SecaoResumoProntuario({ paciente }) {
   return (
     <div className="form-section">
       <div className="form-section-title">Resumo do Prontuário (Exames / Sorologias / Hemoterapia / Regulação)</div>
-      <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 14 }}>
+      <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 14 }}>
         Somente leitura — pra editar, abra o pilar "Prontuário Médico" no Espaço do Paciente.
       </p>
       {carregando ? (
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Carregando...</p>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--fs-sm)' }}>Carregando...</p>
       ) : erro ? (
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Não foi possível carregar o resumo do prontuário.</p>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--fs-sm)' }}>Não foi possível carregar o resumo do prontuário.</p>
       ) : vazio ? (
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Nada registrado ainda no Prontuário.</p>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--fs-sm)' }}>Nada registrado ainda no Prontuário.</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 'var(--fs-sm)' }}>
           {dados.exames.map((e) => (
             <div key={e.id}>Exame: {e.nome}{e.local ? ` · ${e.local}` : ''} · {ROTULO_STATUS_EXAME[e.status] || e.status}</div>
           ))}

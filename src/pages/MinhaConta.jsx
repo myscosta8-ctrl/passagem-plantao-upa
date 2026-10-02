@@ -78,27 +78,27 @@ export default function MinhaConta({ onVoltar }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
         <div className="card">
-          <h3 style={{ fontSize: 15, marginBottom: 16, color: 'var(--text-main)', borderBottom: '1px solid var(--border-light)', paddingBottom: 12 }}>
+          <h3 style={{ fontSize: 'var(--fs-md)', marginBottom: 16, color: 'var(--text-main)', borderBottom: '1px solid var(--border-light)', paddingBottom: 12 }}>
             <i className="ph ph-identification-card" /> Informações do Perfil
           </h3>
-          <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 16 }}>
+          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-muted)', marginBottom: 16 }}>
             Seu login: <strong>{enfermeiro?.usuario}</strong> <br/>
             Cargo: <strong>{enfermeiro?.role === 'admin' ? 'Administrador geral' : (enfermeiro?.cargo_admin ? nomeCargo(enfermeiro.cargo_admin) : 'Profissional')}</strong>
           </p>
 
           <form onSubmit={salvarNome}>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Nome de Exibição (Crachá)</label>
+              <label style={{ display: 'block', fontSize: 'var(--fs-sm)', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Nome de Exibição (Crachá)</label>
               <input
                 type="text"
                 value={nomeExibicao}
                 onChange={(e) => setNomeExibicao(e.target.value)}
                 placeholder="Ex: Enf. João"
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 14 }}
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 'var(--fs-sm)' }}
               />
             </div>
-            {erroNome && <p style={{ color: 'var(--danger)', fontSize: 14, marginBottom: 12 }}>{erroNome}</p>}
-            {mensagemNome && <p style={{ color: 'var(--success)', fontSize: 14, marginBottom: 12 }}>{mensagemNome}</p>}
+            {erroNome && <p style={{ color: 'var(--danger)', fontSize: 'var(--fs-sm)', marginBottom: 12 }}>{erroNome}</p>}
+            {mensagemNome && <p style={{ color: 'var(--success)', fontSize: 'var(--fs-sm)', marginBottom: 12 }}>{mensagemNome}</p>}
             
             <button type="submit" className="btn btn-primary" disabled={salvandoNome}>
               {salvandoNome ? 'Salvando...' : 'Salvar Perfil'}
@@ -107,32 +107,32 @@ export default function MinhaConta({ onVoltar }) {
         </div>
 
         <div className="card">
-          <h3 style={{ fontSize: 15, marginBottom: 16, color: 'var(--text-main)', borderBottom: '1px solid var(--border-light)', paddingBottom: 12 }}>
+          <h3 style={{ fontSize: 'var(--fs-md)', marginBottom: 16, color: 'var(--text-main)', borderBottom: '1px solid var(--border-light)', paddingBottom: 12 }}>
             <i className="ph ph-lock-key" /> Alterar Senha
           </h3>
           <form onSubmit={handleTrocarSenha}>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Nova Senha</label>
+              <label style={{ display: 'block', fontSize: 'var(--fs-sm)', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Nova Senha</label>
               <input
                 type="password"
                 value={senhaNova}
                 onChange={(e) => setSenhaNova(e.target.value)}
                 placeholder="Mínimo 6 caracteres"
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 14 }}
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 'var(--fs-sm)' }}
               />
             </div>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Confirmar Nova Senha</label>
+              <label style={{ display: 'block', fontSize: 'var(--fs-sm)', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Confirmar Nova Senha</label>
               <input
                 type="password"
                 value={senhaConfirmar}
                 onChange={(e) => setSenhaConfirmar(e.target.value)}
                 placeholder="Repita a senha"
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 14 }}
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 'var(--fs-sm)' }}
               />
             </div>
-            {erroSenha && <p style={{ color: 'var(--danger)', fontSize: 14, marginBottom: 12 }}>{erroSenha}</p>}
-            {mensagemSenha && <p style={{ color: 'var(--success)', fontSize: 14, marginBottom: 12 }}>{mensagemSenha}</p>}
+            {erroSenha && <p style={{ color: 'var(--danger)', fontSize: 'var(--fs-sm)', marginBottom: 12 }}>{erroSenha}</p>}
+            {mensagemSenha && <p style={{ color: 'var(--success)', fontSize: 'var(--fs-sm)', marginBottom: 12 }}>{mensagemSenha}</p>}
             
             <button type="submit" className="btn btn-primary" disabled={trocandoSenha}>
               {trocandoSenha ? 'Trocando...' : 'Atualizar Senha'}

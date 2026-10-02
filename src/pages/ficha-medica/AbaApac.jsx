@@ -268,7 +268,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
             {input('validade_inicio', '50 - Validade: início', { type: 'date' })}
             {input('validade_fim', '50 - Validade: fim', { type: 'date' })}
           </>, true)}
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '8px 0 0' }}>48 - Assinatura e carimbo do autorizador: no documento impresso.</p>
+          <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', margin: '8px 0 0' }}>48 - Assinatura e carimbo do autorizador: no documento impresso.</p>
         </>)}
 
         {secao('ph-hospital', 'Identificação do Estabelecimento de Saúde (Executante) — Campos 51 e 52', grade('3fr 1fr', <>

@@ -94,10 +94,10 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
         <div className="form-section-box">
           <div className="form-section-box-title"><i className="ph ph-flag" /> Situação da Regulação</div>
           {carregando ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: 12, margin: 0 }}>Carregando...</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', margin: 0 }}>Carregando...</p>
           ) : abertura?.regulacao_flag ? (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 14 }}>
+              <span style={{ fontSize: 'var(--fs-sm)' }}>
                 Regulação aberta · <b>{abertura.regulacao_tipo}</b>
                 {abertura.regulacao_aberta_em && ` · desde ${new Date(abertura.regulacao_aberta_em).toLocaleDateString('pt-BR')}`}
               </span>
@@ -107,7 +107,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 14, color: 'var(--text-muted)' }}>Regulação não aberta.</span>
+              <span style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-muted)' }}>Regulação não aberta.</span>
               {['SER', 'SISREG'].map((t) => (
                 <button key={t} type="button" className={'btn-add-chip' + (tipoAbertura === t ? ' on' : '')} onClick={() => setTipoAbertura(t)}>{t}</button>
               ))}

@@ -2,7 +2,7 @@
 
 /* Sub-abas: nunca alargam a tela; em telas estreitas quebram em linhas em vez de esconder opções */
 html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-width: 0 !important; max-width: 100% !important; overflow-x: auto !important; }
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { flex-wrap: wrap !important; overflow-x: visible !important; }
   html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) > button { flex: 1 1 auto !important; min-width: 0 !important; }
 }
@@ -12,10 +12,10 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
 .rc-v2 .rc-principal { min-width: 0; width: 100%; }
 .recepcao-search-bar { flex-wrap: wrap; }
 .recepcao-search-bar .recepcao-search-input, .recepcao-search-bar input { min-width: 0; flex: 1 1 200px; }
-@media (max-width: 1100px) { .rc-v2 .rc-layout { align-items: stretch; } }
+@media (max-width: 1024px) { .rc-v2 .rc-layout { align-items: stretch; } }
 
 /* Painel de Leitos no celular: busca e botões quebram linha; indicadores sem texto cortado */
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .pv-ctr { width: 100%; }
   .pv-ctr .painel-controls { flex-wrap: wrap; }
   .pv-ctr .search-bar { flex: 1 1 100%; min-width: 0 !important; }
@@ -25,21 +25,21 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
 
 /* Faixas de período: rótulos sem quebra ("7 dias") */
 .ds-seg button, .ind-seg button { white-space: nowrap; }
-@media (max-width: 600px) { .ds-seg, .ind-seg { width: 100%; } .ds-seg button, .ind-seg button { flex: 1; padding: 0 8px; } }
+@media (max-width: 640px) { .ds-seg, .ind-seg { width: 100%; } .ds-seg button, .ind-seg button { flex: 1; padding: 0 8px; } }
 
 /* Indicadores no celular: um indicador por linha (rótulo, número e explicação) */
 .ind-kc small { overflow-wrap: anywhere; }
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .ind-k3 { grid-template-columns: 1fr; }
   .ind-grupo .ind-kc { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 10px; }
   .ind-grupo .ind-kc small { flex-basis: 100%; }
-  .ind-grupo .ind-kc b { font-size: 22px; margin: 2px 0 0; }
+  .ind-grupo .ind-kc b { font-size: var(--fs-xl); margin: 2px 0 0; }
   .ind-topo { flex-direction: column; align-items: flex-start; }
   .ind-per { margin-left: 0; flex-wrap: wrap; }
 }
 
 /* Desfechos no celular: hora à esquerda e o resto empilhado */
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .ds-topo { flex-wrap: wrap; }
   .ds-imprimir { margin-left: 0; }
   .ds-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -51,10 +51,10 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
   .ds-tipo { justify-self: start; }
   .ds-pac b { overflow-wrap: anywhere; }
 }
-@media (max-width: 600px) { .pd-topo h1 { font-size: 18px; } }
+@media (max-width: 640px) { .pd-topo h1 { font-size: var(--fs-lg); } }
 
 /* Prontuário no celular: etiquetas da faixa (alergia!) sempre visíveis; histórico legível */
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .fpj-chips { display: flex !important; }
   .faixa-pac .fpj-chips { flex-basis: 100%; }
   .hc-filtros { flex-wrap: wrap !important; }
@@ -63,7 +63,7 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
   /* Linhas do Histórico Clínico no celular: ver HistoricoClinico.css (tabela compacta) */
   .jf-topo { padding: 10px 12px; }
   .fpj-av { display: none; }
-  .fpj-id b { font-size: 14px; }
+  .fpj-id b { font-size: var(--fs-sm); }
 }
 
 /* Janela do formulário: o rodapé (Cancelar/Salvar) não deixa conteúdo aparecendo por baixo */
@@ -71,7 +71,7 @@ html :is(.doc-subtabs, .transfer-subtabs, .adm-subtabs, .modality-nav) { min-wid
 .jf-corpo :is(.sc-footer, .cc-footer, .fc-footer, .ac-footer, .tc-footer) { box-shadow: 0 -6px 12px rgba(15, 34, 48, .06); z-index: 2; }
 
 /* Títulos de bloco numerados: mesmo tamanho, peso e cor em todos os formulários */
-.atendimento-medico-container:not(.passagem-form-scope) :is(.form-section-box-title, .form-section-title, .bloco-num) { text-transform: none !important; letter-spacing: 0 !important; font-size: 14px !important; font-weight: 700 !important; color: #0F2230 !important; }
+.atendimento-medico-container:not(.passagem-form-scope) :is(.form-section-box-title, .form-section-title, .bloco-num) { text-transform: none !important; letter-spacing: 0 !important; font-size: var(--fs-sm) !important; font-weight: 700 !important; color: #0F2230 !important; }
 
 /* ===== Letra do sistema: IBM Plex Sans em todas as telas e impressos =====
    Números com largura fixa (sinais vitais, doses, horários e leitos ficam alinhados). */

@@ -1,5 +1,5 @@
 import { runRegrasClinicasTests } from '../tests/unit/regras-clinicas.test.js';
-import { runRegrasPrescricaoTests, runCatalogoSaeTests, runModelosEvolucaoTests, runImpressaoTests } from '../tests/unit/regras-prescricao.test.js';
+import { runRegrasPrescricaoTests, runCatalogoSaeTests, runModelosEvolucaoTests, runImpressaoTests, runPadraoVisualTests } from '../tests/unit/regras-prescricao.test.js';
 import { runModelosImpressaoTests } from '../tests/fidelity/modelos-impressao.test.js';
 import { runMockupsFase2Tests } from '../tests/fidelity/mockups-fase2.test.js';
 import { runModularizacaoTests } from '../tests/architecture/modularizacao.test.js';
@@ -60,6 +60,7 @@ async function main() {
   runCatalogoSaeTests(criarSuite('Catálogo da SAE (diagnósticos e cuidados de enfermagem)'));
   runModelosEvolucaoTests(criarSuite('Modelos de evolução'));
   runImpressaoTests(criarSuite('Impressos: orientação, tamanhos de letra e rodapé'));
+  runPadraoVisualTests(criarSuite('Padrão visual único (letras, larguras de tela, cor principal)'));
   console.log('');
 
   // 2. Fidelidade Absoluta aos Modelos de Impressão HTML

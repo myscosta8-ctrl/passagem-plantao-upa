@@ -120,7 +120,7 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
           </div>
 
           <div className="checkbox-group">
-            <label style={{ fontWeight: 700, color: 'var(--text-main, #0F172A)', fontSize: 14 }}>Risco e Avaliação Rápida:</label>
+            <label style={{ fontWeight: 700, color: 'var(--text-main, #0F172A)', fontSize: 'var(--fs-sm)' }}>Risco e Avaliação Rápida:</label>
             <label className="checkbox-item">
               <input type="checkbox" checked={dados.risco_tev === 'Sim'} onChange={(e) => set('risco_tev', e.target.checked ? 'Sim' : '')} /> Risco TEV
             </label>
@@ -135,15 +135,15 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
           {/* Sinais Vitais */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
-              <h3 className="bloco-num" style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-main, #0F172A)', display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
+              <h3 className="bloco-num" style={{ fontSize: 'var(--fs-sm)', fontWeight: 700, color: 'var(--text-main, #0F172A)', display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
                 <i className="ph ph-thermometer" /> Sinais Vitais Atuais
               </h3>
-              <span style={{ fontSize: 12, color: 'var(--text-muted, #64748B)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} onClick={puxarSinaisVitaisDaEnfermagem}>
+              <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted, #64748B)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} onClick={puxarSinaisVitaisDaEnfermagem}>
                 <i className="ph ph-arrows-clockwise" /> {puxandoSv ? 'Buscando...' : 'Puxar da Enfermagem'}
               </span>
             </div>
             {svInfo && (
-              <p style={{ fontSize: 12, color: 'var(--text-muted, #64748B)', margin: '0 0 10px' }}>{svInfo}</p>
+              <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted, #64748B)', margin: '0 0 10px' }}>{svInfo}</p>
             )}
             <div className="vitals-grid">
               <div className="vital-box">

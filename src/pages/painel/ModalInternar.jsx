@@ -119,7 +119,7 @@ export default function ModalInternar({ leito, setorNome, pacientesExistentes, e
               value={dataAdmissao}
               onChange={(e) => { setDataAdmissao(e.target.value); setCamposFaltando([]) }}
             />
-            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 6 }}>
+            <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--color-text-muted)', marginTop: 6 }}>
               Pode ser uma data anterior a hoje (internação retroativa).
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function ModalInternar({ leito, setorNome, pacientesExistentes, e
                   style={{
                     padding: '6px 14px',
                     borderRadius: 16,
-                    fontSize: 12,
+                    fontSize: 'var(--fs-xs)',
                     fontWeight: 600,
                     border: `1.5px solid ${c.cor}`,
                     background: classificacaoManchester === c.nome ? c.cor : 'transparent',

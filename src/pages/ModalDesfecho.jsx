@@ -26,7 +26,7 @@ export default function ModalDesfecho({ nomePaciente, numeroLeito, processando, 
     <div className="modal-backdrop">
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <h2 className="modal-title">Desfecho de {nomePaciente}</h2>
-        <p style={{ fontSize: 14, color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 16 }}>
+        <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--color-text-muted)', marginTop: -10, marginBottom: 16 }}>
           {numeroLeito ? `O leito ${numeroLeito} fica liberado. ` : ''}Isso fica registrado no histórico dos próximos 7 dias.
         </p>
 
@@ -44,7 +44,7 @@ export default function ModalDesfecho({ nomePaciente, numeroLeito, processando, 
               </button>
             ))}
           </div>
-          {tipo && <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 6 }}>{TIPOS_DESFECHO.find((o) => o.tipo === tipo)?.legenda}</p>}
+          {tipo && <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--color-text-muted)', marginTop: 6 }}>{TIPOS_DESFECHO.find((o) => o.tipo === tipo)?.legenda}</p>}
         </div>
 
         {(tipo === 'Transferência' || tipo === 'Óbito') && (

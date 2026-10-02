@@ -25,7 +25,7 @@
   background: transparent;
   color: var(--c-text-secondary);
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
@@ -64,13 +64,13 @@
 }
 
 .admissao-progresso-label {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--c-text-secondary);
 }
 
 .admissao-progresso-pct {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   color: var(--c-primary);
   background: var(--c-primary-light);
@@ -131,7 +131,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--c-text-primary);
 }
@@ -155,7 +155,7 @@
 }
 
 .secao-resumo {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-muted);
   font-weight: 400;
   max-width: 420px;
@@ -171,7 +171,7 @@
 
 .secao-seta {
   color: var(--c-text-muted);
-  font-size: 12px;
+  font-size: var(--fs-xs);
   transition: transform 0.18s ease;
 }
 
@@ -198,7 +198,7 @@
   padding: 6px 13px;
   border: 1.5px solid var(--c-border);
   border-radius: 16px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--c-text-secondary);
   background: var(--c-surface);
   cursor: pointer;
@@ -231,7 +231,7 @@
 
 .extra-campo label {
   display: block;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--c-text-muted);
   text-transform: uppercase;
@@ -245,7 +245,7 @@
   padding: 7px 10px;
   border: 1px solid var(--c-border);
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   background: var(--c-surface);
   color: var(--c-text-primary);
 }

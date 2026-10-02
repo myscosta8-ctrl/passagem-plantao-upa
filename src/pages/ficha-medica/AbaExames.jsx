@@ -473,7 +473,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         <>
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
           <aside className="tools-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
-<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
+<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-lg)', color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
 
         <div className="pane-header">
           <span><i className="ph ph-navigation-arrow" /> Modalidade do Pedido</span>
@@ -536,7 +536,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
         <header className="cc-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: 16 }}><div>
             <h2 id="card-main-title"><i className={cfg.icon} /> {cfg.titulo}</h2>
             
-          </div><div style={{display:'flex', gap: 12, alignItems: 'center'}}><span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>Em Aberto - Urgência</span><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div></header>
+          </div><div style={{display:'flex', gap: 12, alignItems: 'center'}}><span style={{ fontSize: 'var(--fs-xs)', fontWeight: 700, color: 'var(--text-secondary)' }}>Em Aberto - Urgência</span><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 'var(--fs-xs)', display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div></header>
 
         <div className="cc-body">
           {navModalidades}

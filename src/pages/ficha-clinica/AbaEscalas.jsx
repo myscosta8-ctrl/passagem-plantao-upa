@@ -78,7 +78,7 @@ export default function AbaEscalas({ atendimento, onFechar }) {
         </div>
       ))}
 
-      <p style={{ fontSize: 14, fontWeight: 600, margin: '10px 0' }}>
+      <p style={{ fontSize: 'var(--fs-sm)', fontWeight: 600, margin: '10px 0' }}>
         Pontuação: {total} — {risco}
       </p>
 

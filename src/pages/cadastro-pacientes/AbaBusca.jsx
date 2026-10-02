@@ -85,7 +85,7 @@ export default function AbaBusca({ enfermeiroId, onAtendimentoAberto, onCompleta
 
       {jaBuscou && resultados.length === 0 && (
         <div style={{ textAlign: 'center', padding: '24px 16px', background: 'var(--c-surface-inset)', borderRadius: 8, margin: '14px 0' }}>
-          <p style={{ fontSize: 14, color: 'var(--c-text-secondary)', marginBottom: 12 }}>
+          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--c-text-secondary)', marginBottom: 12 }}>
             Nenhum paciente encontrado para <b>"{termo}"</b>.
           </p>
           <button type="button" className="btn-realocar" onClick={onIrParaNovo}>
@@ -103,10 +103,10 @@ export default function AbaBusca({ enfermeiroId, onAtendimentoAberto, onCompleta
             </div>
           </div>
           <div className="recepcao-resultado-acoes">
-            <button type="button" className="modal-btn-secondary" style={{ fontSize: 12 }} onClick={() => onCompletarCadastro?.(p)}>
+            <button type="button" className="modal-btn-secondary" style={{ fontSize: 'var(--fs-xs)' }} onClick={() => onCompletarCadastro?.(p)}>
               <i className="ph ph-pencil-simple" /> Completar dados
             </button>
-            <button type="button" className="btn-realocar" style={{ fontSize: 12 }} onClick={() => setSelecionada(p)}>
+            <button type="button" className="btn-realocar" style={{ fontSize: 'var(--fs-xs)' }} onClick={() => setSelecionada(p)}>
               Abrir atendimento
             </button>
           </div>

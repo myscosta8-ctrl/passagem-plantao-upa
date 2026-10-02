@@ -113,7 +113,7 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
 
           {msg && (
             <div className="condicional-box" style={msg.erro ? { background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' } : undefined}>
-              <span style={{ fontSize: 12, fontWeight: 600 }}><i className={'ph ' + (msg.erro ? 'ph-warning' : 'ph-check-circle')} /> {msg.t}</span>
+              <span style={{ fontSize: 'var(--fs-xs)', fontWeight: 600 }}><i className={'ph ' + (msg.erro ? 'ph-warning' : 'ph-check-circle')} /> {msg.t}</span>
             </div>
           )}
         </div>

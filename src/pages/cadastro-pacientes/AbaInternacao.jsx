@@ -40,10 +40,10 @@ export default function AbaInternacao() {
   const internados = pacientes.filter((p) => p.status_internacao === 'Internado')
 
   const linha = (p, para, rotulo, perigo) => (
-    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 14 }}>
+    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--c-border-light)', fontSize: 'var(--fs-sm)' }}>
       <div style={{ minWidth: 0 }}>
         <div style={{ fontWeight: 600 }}>{p.nome}</div>
-        <div style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>{p.diagnostico || 'Sem diagnóstico registrado'}</div>
+        <div style={{ color: 'var(--c-text-muted)', fontSize: 'var(--fs-xs)' }}>{p.diagnostico || 'Sem diagnóstico registrado'}</div>
       </div>
       <button type="button" className={perigo ? 'btn-secondary' : 'btn-primary'} style={{ flexShrink: 0, whiteSpace: 'nowrap', cursor: 'pointer' }} onClick={() => { setOk(''); setAlvo({ id: p.id, nome: p.nome, para }) }}>
         <i className={'ph ' + (perigo ? 'ph-arrow-u-up-left' : 'ph-bed')} /> {rotulo}
@@ -54,21 +54,21 @@ export default function AbaInternacao() {
   return (
     <div className="form-section">
       <div className="form-section-title">Sinalizar internação</div>
-      <p style={{ fontSize: 14, color: 'var(--c-text-muted)', marginTop: -8, marginBottom: 16 }}>
+      <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--c-text-muted)', marginTop: -8, marginBottom: 16 }}>
         Marque aqui o paciente que passou de observação para internado. A mudança fica registrada com o seu nome, data e hora.
       </p>
       {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
-      {ok && <div role="status" style={{ marginBottom: 14, padding: '8px 12px', borderRadius: 8, background: 'var(--c-primary-soft, #F0FDFA)', color: 'var(--c-primary-hover, #0F766E)', fontSize: 14 }}>{ok}</div>}
+      {ok && <div role="status" style={{ marginBottom: 14, padding: '8px 12px', borderRadius: 8, background: 'var(--c-primary-soft, #F0FDFA)', color: 'var(--c-primary-hover, #0F766E)', fontSize: 'var(--fs-sm)' }}>{ok}</div>}
       {carregando ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
       ) : pacientes.length === 0 ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhum paciente no painel no momento.</p>
       ) : (
         <>
-          <h4 style={{ margin: '4px 0', fontSize: 14 }}>Em observação ({emObs.length})</h4>
-          {emObs.length === 0 ? <p style={{ color: 'var(--c-text-muted)', fontSize: 14 }}>Ninguém em observação.</p> : emObs.map((p) => linha(p, 'Internado', 'Sinalizar internação', false))}
-          <h4 style={{ margin: '18px 0 4px', fontSize: 14 }}>Internados ({internados.length})</h4>
-          {internados.length === 0 ? <p style={{ color: 'var(--c-text-muted)', fontSize: 14 }}>Ninguém internado.</p> : internados.map((p) => linha(p, 'Em observação', 'Voltar p/ observação', true))}
+          <h4 style={{ margin: '4px 0', fontSize: 'var(--fs-sm)' }}>Em observação ({emObs.length})</h4>
+          {emObs.length === 0 ? <p style={{ color: 'var(--c-text-muted)', fontSize: 'var(--fs-sm)' }}>Ninguém em observação.</p> : emObs.map((p) => linha(p, 'Internado', 'Sinalizar internação', false))}
+          <h4 style={{ margin: '18px 0 4px', fontSize: 'var(--fs-sm)' }}>Internados ({internados.length})</h4>
+          {internados.length === 0 ? <p style={{ color: 'var(--c-text-muted)', fontSize: 'var(--fs-sm)' }}>Ninguém internado.</p> : internados.map((p) => linha(p, 'Em observação', 'Voltar p/ observação', true))}
         </>
       )}
 
