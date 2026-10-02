@@ -185,7 +185,7 @@ export async function buscarCabecalhoImpressao(atendimentoId) {
   }
 }
 
-export async function criarAih({ atendimentoId, pessoaId, solicitanteId,  dados, id, situacao }) {
+export async function criarAih({ atendimentoId, pessoaId, solicitanteId,  dados, id, situacao, medicoDestinoId, encaminhar = false }) {
   // Só procedimento/CID vivem como coluna própria — o resto dos campos do
   // formulário oficial do SUS (sinais clínicos, diagnóstico inicial, clínica,
   // caráter da internação etc.) fica em campos_formulario (jsonb) pra não
@@ -205,7 +205,17 @@ export async function criarAih({ atendimentoId, pessoaId, solicitanteId,  dados,
     cid_principal: cid_principal || null,
     cid_secundario: cid_secundario || null,
     campos_formulario: extras,
+    // AIH pré-preenchida pela enfermagem/recepção: vai para o médico que revisa e assina.
+    ...(medicoDestinoId ? { medico_destino_id: medicoDestinoId } : {}),
+    ...(encaminhar ? { encaminhado_em: new Date().toISOString() } : {}),
   }, situacao)
+}
+
+// Médicos ativos (destinatários possíveis de uma AIH pré-preenchida).
+export async function listarMedicosAtivos() {
+  const { data, error } = await supabase.from('enfermeiros').select('id, nome, nome_exibicao, crm, conselho_uf, ativo').eq('tipo', 'medico')
+  if (error) { avisarErro('pepMedico', error); return [] }
+  return (data ?? []).filter((m) => m.ativo !== false).sort((a, b) => (a.nome_exibicao || a.nome || '').localeCompare(b.nome_exibicao || b.nome || ''))
 }
 
 // Catálogo básico de medicamentos — carregado uma vez (tabela pequena) e

@@ -1,6 +1,8 @@
 import { numeroLimpo } from '../../lib/numeros'
 import { useEffect, useState } from 'react';
-import { criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar } from '../../lib/pepMedico';
+import { criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar, listarMedicosAtivos } from '../../lib/pepMedico';
+import { useAuth } from '../../lib/AuthContext';
+import { supabase } from '../../lib/supabaseClient';
 import { AIH_VAZIA } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
@@ -20,6 +22,23 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
   const [editandoId, setEditandoId] = useState(null);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
+
+  // Quem não é médico (enfermagem/recepção/administrativo) pré-preenche e ENCAMINHA a AIH a um
+  // médico; só o médico finaliza (o banco também bloqueia). O médico destinatário encontra a
+  // AIH nas Pendências e ao abrir esta aba, revisa e assina com "Salvar e Imprimir".
+  const { enfermeiro } = useAuth();
+  const ehMedico = enfermeiro?.tipo === 'medico';
+  const [medicos, setMedicos] = useState([]);
+  const [medicoDestino, setMedicoDestino] = useState('');
+  const [encaminhada, setEncaminhada] = useState(null); // AIH recebida (médico) — { preenchidoPor, em }
+  useEffect(() => { listarMedicosAtivos().then(setMedicos); }, []);
+  const nomeMedico = (id) => { const m = medicos.find((x) => x.id === id); return m ? (m.nome_exibicao || m.nome) : ''; };
+  const [nomePreenchedor, setNomePreenchedor] = useState('');
+  useEffect(() => {
+    if (!encaminhada?.preenchidoPor) return;
+    supabase.from('enfermeiros').select('nome, nome_exibicao').eq('id', encaminhada.preenchidoPor).maybeSingle()
+      .then(({ data }) => setNomePreenchedor(data ? (data.nome_exibicao || data.nome) : ''));
+  }, [encaminhada?.preenchidoPor]);
 
   const paciente = atendimento?.paciente || {};
   const isPediatrico = (paciente?.idade && paciente?.idade < 14) || (atendimento?.idade && atendimento?.idade < 14);
@@ -44,7 +63,17 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     clinica: isPediatrico ? 'PEDIATRIA / OBSERVAÇÃO' : 'CLÍNICA MÉDICA / OBSERVAÇÃO',
     carater_internacao: '02 - URGÊNCIA',
   });
-  const rascunho = useRascunho({ tabela: 'aih_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
+  const rascunho = useRascunho({ tabela: 'aih_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: (r) => {
+    if (r?.medico_destino_id) setMedicoDestino(r.medico_destino_id);
+    if (r && r.autor_auth !== medicoId && r.medico_destino_id === medicoId) {
+      setEncaminhada({ preenchidoPor: r.preenchido_por || r.autor_auth, em: r.encaminhado_em });
+      setSucesso('');
+      return;
+    }
+    setSucesso(r?.encaminhado_em && !ehMedico
+      ? 'Esta AIH já foi encaminhada ao médico. Enquanto ele não abrir, você ainda pode corrigir e encaminhar de novo.'
+      : 'Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.');
+  } });
 
   useEffect(() => {
     carregar();
@@ -133,6 +162,13 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
   }
 
   async function salvar(imprimirApos = false) {
+    // Não médico: o 3º botão é "Encaminhar ao médico" — continua rascunho, mas vai para o médico.
+    const encaminhar = !ehMedico && imprimirApos;
+    const finalizar = ehMedico && imprimirApos;
+    if (!ehMedico && !medicoDestino) {
+      setErro('Escolha o médico que vai revisar e assinar esta AIH.');
+      return;
+    }
     if (!dados.procedimento_principal_nome.trim() || !dados.sinais_sintomas_clinicos.trim()) {
       setErro('Preencha ao menos o procedimento solicitado e os sinais/sintomas clínicos.');
       return;
@@ -140,10 +176,12 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     setErro('');
     setSalvando(true);
     const { data: novaAih, error } = await criarAih({
-      id: editandoId, situacao: metaDoc(imprimirApos, dataRegistro, rascunho.estado),
+      id: editandoId, situacao: metaDoc(finalizar, dataRegistro, rascunho.estado),
       atendimentoId: atendimento?.atendimento_id,
       pessoaId: atendimento?.pessoa_id,
-      solicitanteId: medicoId,
+      solicitanteId: ehMedico ? medicoId : medicoDestino,
+      medicoDestinoId: ehMedico ? undefined : medicoDestino,
+      encaminhar,
       dados,
     });
     setSalvando(false);
@@ -152,13 +190,19 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
       setErro(mensagemErroSalvar(error, 'o Laudo de AIH'));
       return;
     }
-    setEditandoId(imprimirApos ? null : (novaAih?.id ?? null));
-    if (!imprimirApos) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
+    if (encaminhar) {
+      setEditandoId(novaAih?.id ?? null);
+      setSucesso(`AIH encaminhada a ${nomeMedico(medicoDestino) || 'o médico'}. Ela aparece nas Pendências dele; ele revisa e assina com o próprio login.`);
+      return;
+    }
+    if (finalizar) setEncaminhada(null);
+    setEditandoId(finalizar ? null : (novaAih?.id ?? null));
+    if (!finalizar) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
     setSucesso('Laudo de AIH registrado com sucesso!');
     setTimeout(() => setSucesso(''), 4000);
     carregar();
 
-    if (imprimirApos && novaAih) {
+    if (finalizar && novaAih) {
       onImprimir(novaAih);
     }
   }
@@ -274,6 +318,37 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
               <div className="info" style={{ color: '#DC2626' }}>
                 <i className="ph ph-warning" /> {erro}
+              </div>
+            </div>
+          )}
+
+          {!ehMedico && (
+            <div className="aih-encaminhar">
+              <div className="aih-encaminhar-txt">
+                <i className="ph ph-paper-plane-tilt" />
+                <div>
+                  <b>Pré-preenchimento da AIH</b>
+                  <span>Você preenche e encaminha; o médico escolhido revisa e assina com o login dele. Só o médico finaliza o laudo.</span>
+                </div>
+              </div>
+              <label className="aih-encaminhar-campo">
+                Médico que vai revisar e assinar *
+                <select value={medicoDestino} onChange={(e) => setMedicoDestino(e.target.value)}>
+                  <option value="">Selecione o médico...</option>
+                  {medicos.map((m) => <option key={m.id} value={m.id}>{(m.nome_exibicao || m.nome)}{m.crm ? ` · CRM ${m.crm}` : ''}</option>)}
+                </select>
+              </label>
+            </div>
+          )}
+
+          {ehMedico && encaminhada && (
+            <div className="aih-encaminhar recebida">
+              <div className="aih-encaminhar-txt">
+                <i className="ph ph-tray-arrow-down" />
+                <div>
+                  <b>AIH encaminhada a você</b>
+                  <span>Pré-preenchida por {nomePreenchedor || 'outro profissional'}{encaminhada.em ? ` em ${new Date(encaminhada.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}. Revise todos os campos; ao clicar em "Salvar e Imprimir" o laudo sai com a sua assinatura.</span>
+                </div>
               </div>
             </div>
           )}
@@ -547,7 +622,10 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                 <div className="aih-field-box readonly">
                   <div className="aih-field-header"><label>33 - NOME DO PROFISSIONAL SOLICITANTE</label></div>
                   <div className="aih-field-value">
-                    {medicoNome ? `${medicoNome.toUpperCase()}${medicoCrm ? ` \u2022 CRM-PA: ${medicoCrm}` : ''} (UPA 24H BREVES)` : 'NÃO INFORMADO'}
+                    {(() => {
+                      const m = ehMedico ? { nome: medicoNome, crm: medicoCrm } : (() => { const x = medicos.find((y) => y.id === medicoDestino); return x ? { nome: x.nome_exibicao || x.nome, crm: x.crm } : {}; })();
+                      return m.nome ? `${m.nome.toUpperCase()}${m.crm ? ` \u2022 CRM-PA: ${m.crm}` : ''} (UPA 24H BREVES)` : (ehMedico ? 'NÃO INFORMADO' : 'ESCOLHA O MÉDICO ACIMA');
+                    })()}
                   </div>
                 </div>
               </div>
@@ -651,7 +729,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             <button
               type="button"
               className="btn-cancel"
-              onClick={() => rascunho.cancelar(onFechar)}
+              onClick={() => (encaminhada ? onFechar?.() : rascunho.cancelar(onFechar))}
             >
               <i className="ph ph-x-circle" /> Cancelar
             </button>
@@ -673,7 +751,9 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
               onClick={() => salvar(true)}
               disabled={salvando}
             >
-              <i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir"}
+              {ehMedico
+                ? <><i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir"}</>
+                : <><i className="ph ph-paper-plane-tilt" /> {salvando ? "Encaminhando..." : "Encaminhar ao médico"}</>}
             </button>
           </div>
         </div>

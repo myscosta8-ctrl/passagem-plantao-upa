@@ -49,6 +49,8 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHo
   const { fonte, autor, registro } = item
   const situacao = registro.situacao || 'finalizado'
   const souAutor = registro.autor_auth && registro.autor_auth === meuId
+  // AIH pré-preenchida pela enfermagem/recepção e encaminhada a mim: posso revisar e assinar.
+  const encaminhadaAMim = fonte.tabela === 'aih_solicitacoes' && registro.medico_destino_id === meuId && !!registro.encaminhado_em
 
   async function confirmarInvalidacao() {
     if (!motivo.trim()) { setErro('Informe o motivo.'); return }
@@ -74,7 +76,7 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHo
           {tipoImpresso(fonte, registro) && situacao !== 'invalido' && (
             <button type="button" className="hc-ic hc-sempre" title="Imprimir documento" aria-label="Imprimir" onClick={() => onImprimir(item, { imprimir: true })}><i className="ph ph-printer" /></button>
           )}
-          {onEditar && situacao === 'rascunho' && souAutor && onEditar.pode(item) && (
+          {onEditar && situacao === 'rascunho' && (souAutor || encaminhadaAMim) && onEditar.pode(item) && (
             <button type="button" className="hc-ic hc-sempre hc-editar" title="Editar rascunho" aria-label="Editar rascunho" onClick={() => onEditar.fazer(item)}><i className="ph ph-pencil-simple" /></button>
           )}
           {souAutor && situacao !== 'invalido' && (

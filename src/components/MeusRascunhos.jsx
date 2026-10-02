@@ -14,6 +14,7 @@ const EXTRA = {
   solicitacoes_hemoterapia: { rotulo: 'Solicitação de Hemoterapia', area: 'medico' },
   solicitacoes_tfd: { rotulo: 'TFD', area: 'medico' },
   sorologias_notificaveis: { rotulo: 'Sorologia notificável', area: 'enfermagem' },
+  aih_encaminhada: { rotulo: 'Laudo de AIH — encaminhado a você para revisar e assinar', area: 'medico' },
 }
 export const infoTabela = (t) => { const f = FONTES.find((x) => x.tabela === t); return f ? { rotulo: f.rotulo, area: f.area } : (EXTRA[t] || { rotulo: t, area: '' }) }
 

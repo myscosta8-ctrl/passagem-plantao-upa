@@ -40,3 +40,6 @@ dist-ssr
 # Scripts temporários e raspadores locais
 scratch/
 
+
+# Fotos de documentos de pacientes: nunca vão para o repositório
+FOTOS/

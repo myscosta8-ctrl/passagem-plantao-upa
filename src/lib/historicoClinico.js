@@ -41,7 +41,7 @@ export const FONTES = [
   { tabela: 'exames_solicitados', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,solicitado_por,modalidade,nome,exames,justificativa_clinica,urgencia', rotulo: 'Solicitação de Exames', area: 'medico',
     impresso: (r) => (Array.isArray(r.exames) && ['lab', 'img', 'ecg'].includes(r.modalidade) ? `exame_${r.modalidade}` : null),
     resumo: (r) => txt({ lab: 'Laboratório', img: 'Imagem', ecg: 'ECG' }[r.modalidade], Array.isArray(r.exames) ? r.exames.map((e) => (typeof e === 'string' ? e : e?.nome)).filter(Boolean).join(', ') : r.nome, r.urgencia && urg(r.urgencia), r.justificativa_clinica) },
-  { tabela: 'aih_solicitacoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,solicitante_id,procedimento_principal_nome,cid_principal,justificativa_clinica', rotulo: 'Laudo de AIH', area: 'medico', impresso: 'aih',
+  { tabela: 'aih_solicitacoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,solicitante_id,procedimento_principal_nome,cid_principal,justificativa_clinica,medico_destino_id,encaminhado_em', rotulo: 'Laudo de AIH', area: 'medico', impresso: 'aih',
     selectCompleto: '*, cid_catalog!aih_solicitacoes_cid_principal_fkey(codigo, descricao)',
     resumo: (r) => txt(r.procedimento_principal_nome, r.cid_principal && `CID ${r.cid_principal}`, r.justificativa_clinica) },
   { tabela: 'apac_solicitacoes', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,solicitado_por,medico_id,procedimento_nome,cid_principal,justificativa', rotulo: 'Laudo de APAC', area: 'medico', impresso: 'apac',

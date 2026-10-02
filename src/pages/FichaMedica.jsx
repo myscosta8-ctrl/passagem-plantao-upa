@@ -65,9 +65,12 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
   // Médico só consulta documentos de enfermagem e vice-versa (também bloqueado no banco).
   const perfil = enfermeiro?.role === 'admin' ? 'admin' : (enfermeiro?.tipo || 'enfermagem');
   const podeCriar = ['medico', 'admin'].includes(perfil);
+  // Laudo de AIH: enfermagem e recepção podem pré-preencher e encaminhar ao médico (ele revisa e assina).
+  const preencheAih = aba === 'aih' && !podeCriar && ['enfermagem', 'recepcao'].includes(perfil);
+  const somenteLeitura = !podeCriar && !preencheAih;
 
   return (
-    <div className={'atendimento-medico-container' + (podeCriar ? '' : ' somente-leitura')} onClick={(e) => e.stopPropagation()}>
+    <div className={'atendimento-medico-container' + (somenteLeitura ? ' somente-leitura' : '')} onClick={(e) => e.stopPropagation()}>
       {!novaUI && <FichaMedicaHeader
         onFechar={onFechar}
         rotuloAbaAtual={rotuloAbaAtual}
@@ -78,8 +81,8 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
       <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="medico" onDuplicado={posAlta ? undefined : aposDuplicar} onEditarRascunho={onEditarRascunhoPerm} />
       <div className="workspace" ref={areaRef}>
         <BannerPacienteEnf atendimento={atendimento} pilar="medico" onVoltar={onFechar} onTrocarPilar={onTrocarPilar} />
-        {!podeCriar && (
-          <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos médicos, mas não criá-los.</div>
+        {somenteLeitura && (
+          <div className="aviso-somente-leitura"><i className="ph ph-lock-simple" /> Modo consulta: você pode visualizar e imprimir os documentos médicos, mas não criá-los. Exceção: o Laudo de AIH pode ser pré-preenchido e encaminhado ao médico.</div>
         )}
 
         {posAlta && (

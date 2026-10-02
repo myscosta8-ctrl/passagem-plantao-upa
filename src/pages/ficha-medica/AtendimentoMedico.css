@@ -1238,3 +1238,14 @@
 
 .atendimento-medico-container .modality-nav-topo { flex-direction: row; flex-wrap: wrap; margin-bottom: 14px; }
 .atendimento-medico-container .modality-nav-topo .modality-btn { width: auto; flex: 1 1 140px; justify-content: center; gap: 8px; }
+
+/* AIH pré-preenchida pela enfermagem/recepção e encaminhada ao médico */
+.atendimento-medico-container .aih-encaminhar { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; padding: 12px 14px; border: 1px solid #BCD2D8; background: #E9F1F3; border-radius: 10px; }
+.atendimento-medico-container .aih-encaminhar.recebida { border-color: #F3D38A; background: #FFF8E6; }
+.atendimento-medico-container .aih-encaminhar-txt { display: flex; gap: 10px; align-items: flex-start; flex: 1 1 320px; min-width: 0; }
+.atendimento-medico-container .aih-encaminhar-txt > i { font-size: 22px; color: var(--c-primary, #1B4555); margin-top: 2px; }
+.atendimento-medico-container .aih-encaminhar.recebida .aih-encaminhar-txt > i { color: #B45309; }
+.atendimento-medico-container .aih-encaminhar-txt b { display: block; font-size: 14px; color: var(--c-text-primary, #0F2230); }
+.atendimento-medico-container .aih-encaminhar-txt span { display: block; font-size: 13px; color: var(--c-text-secondary, #334155); line-height: 1.4; }
+.atendimento-medico-container .aih-encaminhar-campo { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; color: var(--c-text-secondary, #334155); flex: 0 1 340px; min-width: 220px; }
+.atendimento-medico-container .aih-encaminhar-campo select { height: 38px; border: 1px solid var(--c-border-dark, #CBD5E1); border-radius: 8px; padding: 0 10px; font: inherit; font-size: 14px; background: #fff; }

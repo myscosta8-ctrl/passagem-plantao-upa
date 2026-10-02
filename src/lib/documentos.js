@@ -49,11 +49,26 @@ export async function buscarRascunho(tabela, atendimentoId, autorId) {
       .eq('id', id).eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('autor_auth', autorId).maybeSingle()
     if (erroAlvo) avisarErro('documentos', erroAlvo)
     if (alvo) return alvo
+    if (tabela === 'aih_solicitacoes') {
+      const enc = await aihEncaminhada(atendimentoId, autorId, id)
+      if (enc) return enc
+    }
   }
   const { data, error: erroConsulta1 } = await supabase.from(tabela).select('*')
     .eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('autor_auth', autorId)
     .order('criado_em', { ascending: false }).limit(1).maybeSingle()
   if (erroConsulta1) avisarErro('documentos', erroConsulta1)
+  if (!data && tabela === 'aih_solicitacoes') return aihEncaminhada(atendimentoId, autorId)
+  return data
+}
+
+// AIH pré-preenchida pela enfermagem/recepção e encaminhada a este médico (ainda rascunho).
+async function aihEncaminhada(atendimentoId, medicoId, id) {
+  let q = supabase.from('aih_solicitacoes').select('*')
+    .eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('medico_destino_id', medicoId).not('encaminhado_em', 'is', null)
+  if (id) q = q.eq('id', id)
+  const { data, error } = await q.order('encaminhado_em', { ascending: false }).limit(1).maybeSingle()
+  if (error) avisarErro('documentos', error)
   return data
 }
 
