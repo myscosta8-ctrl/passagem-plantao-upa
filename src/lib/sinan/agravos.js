@@ -1,7 +1,7 @@
 // Agravos de notificação compulsória disponíveis no programa.
 // `modelo` = ficha usada (as que não têm ficha própria saem na Notificação Individual).
 // `imediata` = notificação em até 24 horas.
-// `sigiloso` = ficha com acesso restrito (só quem notificou e administradores).
+// `sigiloso` = ficha com aviso de sigilo (todos os profissionais cadastrados podem ver; o aviso orienta o sigilo).
 // CID-10 conforme a ficha/Lista Nacional; o campo continua editável na tela.
 export const AGRAVOS = [
   { nome: 'Dengue e Chikungunya', cid: 'A90 / A92.0', cids: ['A90', 'A91', 'A92.0'], modelo: 'DENGUE_CHIKUNGUNYA' },

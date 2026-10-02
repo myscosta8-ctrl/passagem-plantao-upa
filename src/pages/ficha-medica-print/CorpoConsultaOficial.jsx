@@ -15,7 +15,7 @@ export default function CorpoConsultaOficial({ registro, pessoa, atendimento, id
     <div className="cons-page">
       <div className="doc-corpo">
         <CabecalhoPadraoUPA
-          titulo="CONSULTA E ADMISSÃO MÉDICA"
+          titulo="ADMISSÃO MÉDICA"
           pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora}
         />
 
@@ -83,7 +83,7 @@ export default function CorpoConsultaOficial({ registro, pessoa, atendimento, id
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves</span>
-          <span>Consulta e Admissão Médica</span>
+          <span>Admissão Médica</span>
         </div>
       </div>
     </div>

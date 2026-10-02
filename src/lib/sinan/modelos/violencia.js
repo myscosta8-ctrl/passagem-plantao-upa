@@ -1,5 +1,5 @@
 // Ficha de Notificação Individual — Violência Interpessoal/Autoprovocada (Sinan, SVS 15.06.2015) — violencia_v5.pdf
-// Ficha sigilosa: acesso restrito a quem notificou e administradores.
+// Ficha sigilosa: exibe o aviso de sigilo; visível a todos os profissionais cadastrados (com login).
 import { SEXO, UNID_IDADE, GESTANTE, RACA, ESCOLARIDADE, ZONA, soFeminino, pente } from './comum'
 
 const cx = (p, x, y, w = 11, h = 11) => ({ p, x, y, w, h })

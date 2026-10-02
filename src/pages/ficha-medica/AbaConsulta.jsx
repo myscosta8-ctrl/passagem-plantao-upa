@@ -138,7 +138,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
     }
     setEditandoId(imprimirApos ? null : (novaConsulta?.id ?? null));
     if (!imprimirApos) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
-    setSucesso('Consulta de Admissão salva com sucesso!');
+    setSucesso('Admissão Médica salva com sucesso!');
     setTimeout(() => setSucesso(''), 4000);
     carregar();
 

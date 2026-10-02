@@ -76,7 +76,7 @@ export const SECOES_AJUDA = [
       { p: 'Quais campos são obrigatórios?', r: 'Só os dados gerais: data da notificação, nome completo, data de nascimento, nome da mãe e endereço completo (UF, município, bairro, logradouro e número). Todos os outros campos são editáveis e opcionais. Se faltar algo obrigatório, o sistema avisa e permite "Imprimir mesmo assim".' },
       { p: 'E os códigos do IBGE e do CNES?', r: 'Não precisa digitar: o sistema preenche sozinho a partir do município e da unidade informados (Breves e a UPA já saem com o código).' },
       { p: 'Os dados do paciente vêm prontos?', r: 'Sim. Nome, nascimento, mãe, endereço, CNS e dados da unidade vêm do cadastro e do atendimento. Confira e corrija na própria ficha se precisar.' },
-      { p: 'Salvar, imprimir e entregar', r: '"Salvar" guarda rascunho (depois use "Continuar" na lista). "Salvar e Imprimir" registra e imprime. Na lista dá para reimprimir, marcar "Entregue à vigilância" e invalidar. Notificações marcadas "24h" são de notificação imediata; as "Sigilosas" ficam protegidas.' },
+      { p: 'Salvar, imprimir e entregar', r: '"Salvar" guarda rascunho (depois use "Continuar" na lista). "Salvar e Imprimir" registra e imprime. Na lista dá para reimprimir, marcar "Entregue à vigilância" e invalidar. Notificações marcadas "24h" são de notificação imediata; as "Sigilosas" ficam visíveis a todos os profissionais cadastrados, com o aviso de sigilo — não divulgue o conteúdo fora do cuidado do paciente.' },
     ],
   },
   {

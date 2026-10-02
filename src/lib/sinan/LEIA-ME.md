@@ -7,7 +7,7 @@ Tela: aba "Notificação SINAN" no prontuário (Médico 9, Enfermagem 7) → `sr
 2. A tela mostra a réplica da ficha (`src/pages/sinan/FichaSinan.jsx`), já preenchida com o que existe no
    cadastro/atendimento (`autoPreencher.js`). Nada clínico é inventado.
 3. "Salvar" grava rascunho; "Salvar e Imprimir" registra e abre o PDF oficial preenchido (`imprimirFicha.js`, pdf-lib).
-4. Tabela `notificacoes_sinan` (sem DELETE; só invalidação). Ficha de violência é sigilosa (só quem notificou e administradores).
+4. Tabela `notificacoes_sinan` (sem DELETE; só invalidação). Fichas sigilosas (violência, HIV/AIDS) mostram o aviso de sigilo, mas são visíveis a todos os profissionais cadastrados (com login).
 
 ## Fichas (lote 1) — `modelos/`
 Cada arquivo descreve os campos da ficha: número, rótulo, tipo (texto, data, dígitos, código), opções do impresso,
