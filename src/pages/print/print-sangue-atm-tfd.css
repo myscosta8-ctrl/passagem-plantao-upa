@@ -103,7 +103,7 @@ table.sg-tabela-hemopa th { font-weight: 700; }
 .notm-page, .evol-page, .alta-page, .cons-page {
   width: 194mm;
   max-width: 194mm;
-  min-height: 278mm;
+  min-height: 270mm; /* área útil do A4 com margem de 10 mm = 277 mm; folga para a assinatura não pular de folha */
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
@@ -138,7 +138,7 @@ table.sg-tabela-hemopa th { font-weight: 700; }
 .atmf-page {
   width: 194mm;
   max-width: 194mm;
-  min-height: 278mm;
+  min-height: 270mm; /* área útil do A4 com margem de 10 mm = 277 mm; folga para a assinatura não pular de folha */
   margin: 0 auto;
   padding: 5mm 8mm 4mm;
   font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
@@ -224,7 +224,7 @@ table.sg-tabela-hemopa th { font-weight: 700; }
 .tfdf-page {
   width: 194mm;
   max-width: 194mm;
-  min-height: 278mm;
+  min-height: 270mm; /* área útil do A4 com margem de 10 mm = 277 mm; folga para a assinatura não pular de folha */
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
@@ -285,7 +285,7 @@ table.sg-tabela-hemopa th { font-weight: 700; }
 .plano-page {
   width: 194mm;
   max-width: 194mm;
-  min-height: 278mm;
+  min-height: 270mm; /* área útil do A4 com margem de 10 mm = 277 mm; folga para a assinatura não pular de folha */
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
@@ -364,7 +364,7 @@ table.sg-tabela-hemopa th { font-weight: 700; }
 .serf-page {
   width: 194mm;
   max-width: 194mm;
-  min-height: 278mm;
+  min-height: 270mm; /* área útil do A4 com margem de 10 mm = 277 mm; folga para a assinatura não pular de folha */
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;

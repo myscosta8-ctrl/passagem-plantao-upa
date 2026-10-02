@@ -83,7 +83,7 @@ export default function CorpoConsultaOficial({ registro, pessoa, atendimento, id
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves</span>
-          <span>Consulta e Admissão Médica &bull; Folha Única &bull; Página 1 de 1</span>
+          <span>Consulta e Admissão Médica</span>
         </div>
       </div>
     </div>

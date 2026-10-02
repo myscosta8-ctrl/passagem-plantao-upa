@@ -12,7 +12,7 @@ function ReceitaColuna({ via, viaRotulo, registro, pessoa, atendimento, idade, l
   return (
     <div className="rxf-coluna">
       <CabecalhoPadraoUPA
-        titulo="RECEITUÁRIO MÉDICO"
+        titulo={registro?.tipo === 'controle_especial' ? 'RECEITUÁRIO DE CONTROLE ESPECIAL' : 'RECEITUÁRIO MÉDICO'}
         pessoa={pessoa}
         atendimento={atendimento}
         idade={idade}
@@ -88,8 +88,18 @@ export default function CorpoReceituarioOficial(props) {
   return (
     <div className="rxf-page">
       <div className="rxf-duas-vias">
-        <ReceitaColuna {...props} via={1} viaRotulo="1ª VIA — PACIENTE" />
-        <ReceitaColuna {...props} via={2} viaRotulo="2ª VIA — FARMÁCIA" />
+        {/* Controle Especial (Portaria 344/98): a 1ª via fica retida na farmácia e a 2ª volta com o paciente. */}
+        {props.registro?.tipo === 'controle_especial' ? (
+          <>
+            <ReceitaColuna {...props} via={1} viaRotulo="1ª VIA — RETENÇÃO DA FARMÁCIA" />
+            <ReceitaColuna {...props} via={2} viaRotulo="2ª VIA — PACIENTE" />
+          </>
+        ) : (
+          <>
+            <ReceitaColuna {...props} via={1} viaRotulo="1ª VIA — PACIENTE" />
+            <ReceitaColuna {...props} via={2} viaRotulo="2ª VIA — FARMÁCIA" />
+          </>
+        )}
       </div>
     </div>
   )

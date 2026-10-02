@@ -180,7 +180,7 @@ export default function CorpoBalancoHidricoOficial({ registro, pessoa, atendimen
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Balanço Hídrico 24 Horas — Folha Única (Paisagem) — Página 1 de 1</span>
+          <span>Balanço Hídrico 24 Horas</span>
         </div>
       </div>
     </div>

@@ -56,7 +56,7 @@ export default function CorpoNotaIntercorrenciaOficial({ registro, pessoa, atend
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves</span>
-          <span>Nota de Intercorrência Médica &bull; Folha Única &bull; Página 1 de 1</span>
+          <span>Nota de Intercorrência Médica</span>
         </div>
       </div>
     </div>

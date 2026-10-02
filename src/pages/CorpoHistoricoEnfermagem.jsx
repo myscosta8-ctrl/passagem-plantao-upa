@@ -120,7 +120,7 @@ export function CorpoHistoricoEnfermagemFiel({ registro, pessoa, atendimento, id
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Admissão de Enfermagem (Histórico) — Folha Única</span>
+          <span>Admissão de Enfermagem (Histórico)</span>
         </div>
       </div>
     </div>
@@ -312,7 +312,7 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Admissão de Enfermagem — Folha Única — Página 1 de 1</span>
+          <span>Admissão de Enfermagem</span>
         </div>
       </div>
     </div>

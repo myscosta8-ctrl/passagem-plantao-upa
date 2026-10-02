@@ -96,7 +96,7 @@ export default function CorpoIntercorrenciaOficial({ registro, pessoa, atendimen
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Nota de Intercorrência de Enfermagem — Folha Única — Página 1 de 1</span>
+          <span>Nota de Intercorrência de Enfermagem</span>
         </div>
       </div>
     </div>

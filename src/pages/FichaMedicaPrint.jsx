@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { buscarCabecalhoImpressao, buscarAutorRegistro } from '../lib/pepMedico'
 import './PrintView.css'
 import './print/leitura.css'
 
-// Documentos de texto com letra maior (formulários oficiais do SUS ficam no modelo oficial).
-const TIPOS_LEITURA = ['consulta', 'prescricao', 'plano', 'tfd', 'regulacao', 'alta', 'evolucao', 'intercorrencia', 'atestado']
+import { corpoDoTipo, DocumentoPacote, TIPOS_LEITURA, dataHoraDe } from './ficha-medica-print/corposMedicos'
 import PaginaImpressao from '../components/PaginaImpressao'
-import CorpoRequisicaoExamesOficial from './ficha-medica-print/CorpoRequisicaoExamesOficial'
 
 import { limparPrefixo } from './ficha-medica-print/helpersSus'
 import CorpoConsultaOficial from './ficha-medica-print/CorpoConsultaOficial'
@@ -66,7 +65,7 @@ function BotoesImpressao({ onVoltar }) {
   )
 }
 
-export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVoltar }) {
+export default function FichaMedicaPrint({ atendimentoId, tipo, registro, extras, onVoltar }) {
   const [cabecalho, setCabecalho] = useState(null)
   const [autor, setAutor] = useState(null)
 
@@ -79,9 +78,27 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
 
   if (!cabecalho || !registro) return null
 
+  // Impressão conjunta (Prescrição + ATM + Receita de Controle Especial): um único "Imprimir".
+  // Fica direto no <body> para o navegador aplicar a orientação de cada folha (prescrição e
+  // receita em paisagem, ATM em retrato) — dentro da tela posicionada ele ignora isso.
+  if (extras?.length) {
+    const docs = [{ tipo, registro }, ...extras]
+    return createPortal(
+      <div className="print-page impressao-pacote">
+        <BotoesImpressao onVoltar={onVoltar} />
+        {/* Sem <PaginaImpressao>: um @page sem nome declarado depois anula as páginas nomeadas no Chrome. */}
+        <div className="no-print pacote-aviso"><i className="ph ph-files" /> Impressão conjunta: {docs.map((d) => (d.registro?.tipo === 'controle_especial' ? 'Receita de Controle Especial (2 vias)' : TITULOS[d.tipo] || d.tipo)).join(' + ')}</div>
+        <div className="print-area">
+          {docs.map((d, i) => <DocumentoPacote key={(d.registro?.id || '') + i} tipo={d.tipo} registro={d.registro} cabecalho={cabecalho} />)}
+        </div>
+      </div>,
+      document.body
+    )
+  }
+
   const { pessoa, atendimento, idade, leitoNumero, setorNome } = cabecalho
   const medico = registro.enfermeiros || autor
-  const dataHora = new Date(registro.data_registro || registro.criado_em || registro.solicitado_em || registro.atualizado_em).toLocaleString('pt-BR')
+  const dataHora = dataHoraDe(registro)
 
   const propsComuns = {
     registro,
@@ -94,33 +111,15 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, onVolt
     dataHora
   }
 
-  const mapaCorpos = {
-    aih: <CorpoAihOficial {...propsComuns} />,
-    apac: <CorpoApacOficial {...propsComuns} />,
-    consulta: <CorpoConsultaOficial {...propsComuns} />,
-    prescricao: <CorpoPrescricaoOficial {...propsComuns} />,
-    plano: <CorpoPlanoOficial {...propsComuns} />,
-    atm: <CorpoAtmOficial {...propsComuns} />,
-    tfd: <CorpoTfdOficial {...propsComuns} />,
-    regulacao: <CorpoRegulacaoOficial {...propsComuns} />,
-    sangue: <CorpoSangueOficial {...propsComuns} />,
-    alta: <CorpoSumarioAltaOficial {...propsComuns} />,
-    evolucao: <CorpoEvolucaoMedicaOficial {...propsComuns} />,
-    intercorrencia: <CorpoNotaIntercorrenciaOficial {...propsComuns} />,
-    receituario: <CorpoReceituarioOficial {...propsComuns} />,
-    atestado: <CorpoAtestadoOficial {...propsComuns} />,
-    exame_lab: <CorpoRequisicaoExamesOficial modalidade="lab" {...propsComuns} />,
-    exame_img: <CorpoRequisicaoExamesOficial modalidade="img" {...propsComuns} />,
-    exame_ecg: <CorpoRequisicaoExamesOficial modalidade="ecg" {...propsComuns} />,
-  }
+  const corpo = corpoDoTipo(tipo, propsComuns)
 
-  if (mapaCorpos[tipo]) {
+  if (corpo) {
     return (
       <div className="print-page">
         <BotoesImpressao onVoltar={onVoltar} />
         <PaginaImpressao paisagem={tipo === 'prescricao' || tipo === 'receituario'} margem={tipo === 'receituario' ? '5mm 6mm' : tipo === 'aih' ? '8mm' : '10mm'} />
         <div className={'print-area' + (TIPOS_LEITURA.includes(tipo) ? ' doc-leitura' : '')}>
-          {mapaCorpos[tipo]}
+          {corpo}
         </div>
       </div>
     )

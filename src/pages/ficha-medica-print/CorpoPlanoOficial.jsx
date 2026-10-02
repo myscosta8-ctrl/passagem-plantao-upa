@@ -136,7 +136,7 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Plano Terapêutico Hospitalar &bull; Folha Única &bull; Página 1 de 1</span>
+          <span>Plano Terapêutico Hospitalar</span>
         </div>
       </div>
     </div>

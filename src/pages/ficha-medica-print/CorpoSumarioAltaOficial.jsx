@@ -74,7 +74,7 @@ export default function CorpoSumarioAltaOficial({ registro, pessoa, atendimento,
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Sumário de Alta Hospitalar &bull; Folha Única &bull; Página 1 de 1</span>
+          <span>Sumário de Alta Hospitalar</span>
         </div>
       </div>
     </div>

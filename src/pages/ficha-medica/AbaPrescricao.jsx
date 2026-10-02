@@ -7,7 +7,7 @@ import { useRascunho } from '../../hooks/useRascunho'
 import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
 import { quantidadeDia, APRESENTACOES, apresentacaoDaForma } from '../../lib/frequencia'
 import { hojeBelem, somarDias, textoValidade } from '../../lib/prescricaoValidade';
-import { filtrarCatalogo, rotuloMedicamento, descricaoMedicamento, detalheMedicamento } from '../../lib/catalogoMedicamentos';
+import { filtrarCatalogo, rotuloMedicamento, descricaoMedicamento, detalheMedicamento, ehControlado } from '../../lib/catalogoMedicamentos';
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
@@ -203,7 +203,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
 }
 
 
-export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFechar, onAbrirAtm, onAtualizarAtm, headerTabs }) {
+export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFinalizada, onFechar, onAbrirAtm, onAtualizarAtm, headerTabs }) {
   const [historico, setHistorico] = useState([])
   const [historicoAberto, setHistoricoAberto] = useState(false)
   const [carregando, setCarregando] = useState(true)
@@ -406,11 +406,14 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
       setErro('Não foi possível salvar a prescrição. Tente de novo.')
       return
     }
-    if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); onAtualizarAtm?.(); return }
-    setEditandoId(null); setDataRegistro(''); setAviso('')
     // ATM obrigatória: antimicrobiano restrito por via intravenosa → abre a ficha de ATM, já preenchida a partir da prescrição salva.
     const restritos = validos.filter((it) => exigeAtm(it.medicamento_nome, it.via))
+    // Prescrição finalizada com ATM e/ou controlado: a ATM e a Receita de Controle Especial saem junto, na mesma impressão.
+    const emPacote = imprimir && data && onFinalizada
+    if (emPacote) onFinalizada(data, { temAtm: restritos.length > 0, controlados: validos.filter((it) => ehControlado(it.medicamento_nome, catalogo)) })
+    else if (imprimir && data) onImprimir(data)
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); onAtualizarAtm?.(); return }
+    setEditandoId(null); setDataRegistro(''); setAviso('')
     setObservacoes('')
     setDieta('')
     setItens([{ ...ITEM_VAZIO }])
@@ -418,7 +421,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
     setHemocomponentes({})
     setHemocomponenteObs('')
     carregar()
-    if (restritos.length > 0) onAbrirAtm?.()
+    if (restritos.length > 0 && !emPacote) onAbrirAtm?.()
   }
 
   return (
@@ -446,7 +449,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
           {itensRestritos.length > 0 && (
             <div className="allergy-alert" style={{ background: '#FFF7ED', borderColor: '#FDBA74', margin: '16px 20px 0' }}>
               <div className="info" style={{ color: '#9A3412' }}>
-                <i className="ph ph-shield-warning" /> <strong>ATM obrigatória:</strong> {itensRestritos.map((it) => it.medicamento_nome).join(', ')} {itensRestritos.length > 1 ? 'são antimicrobianos' : 'é antimicrobiano'} de uso restrito por via intravenosa. Ao salvar a prescrição, a Solicitação de Uso de Antimicrobiano (ATM) será aberta já preenchida.
+                <i className="ph ph-shield-warning" /> <strong>ATM obrigatória:</strong> {itensRestritos.map((it) => it.medicamento_nome).join(', ')} {itensRestritos.length > 1 ? 'são antimicrobianos' : 'é antimicrobiano'} de uso restrito por via intravenosa. Ao clicar em "Salvar e Imprimir", a Solicitação de Uso de Antimicrobiano (ATM) abre já preenchida e sai junto com a prescrição, na mesma impressão.
               </div>
             </div>
           )}

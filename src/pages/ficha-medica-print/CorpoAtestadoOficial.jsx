@@ -37,7 +37,7 @@ export default function CorpoAtestadoOficial({ registro, pessoa, atendimento, id
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves</span>
-          <span>Atestado Médico &bull; Folha Única &bull; Página 1 de 1</span>
+          <span>Atestado Médico</span>
         </div>
       </div>
     </div>

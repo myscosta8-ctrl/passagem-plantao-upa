@@ -113,7 +113,7 @@ export default function CorpoSbarOficial({ registro, pessoa, atendimento, idade,
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Transferência de Paciente (SBAR) — Folha Única — Página 1 de 1</span>
+          <span>Transferência de Paciente (SBAR)</span>
         </div>
       </div>
     </div>

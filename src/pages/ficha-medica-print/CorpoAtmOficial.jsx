@@ -144,7 +144,7 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Formulário Antimicrobiano (ATM) &bull; Uso Restrito &bull; Folha Única &bull; Página 1 de 1</span>
+          <span>Formulário Antimicrobiano (ATM) &bull; Uso Restrito</span>
         </div>
       </div>
     </div>

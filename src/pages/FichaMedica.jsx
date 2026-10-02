@@ -53,6 +53,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
           atendimentoId={atendimento?.atendimento_id}
           tipo={imprimindo.tipo}
           registro={imprimindo.registro}
+          extras={imprimindo.extras}
           onVoltar={() => setImprimindo(null)}
         />
       </Suspense>

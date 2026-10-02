@@ -1,0 +1,19 @@
+/* Impressão conjunta: Prescrição + ATM + Receita de Controle Especial no mesmo "Imprimir".
+   Cada documento começa em folha nova e usa a sua própria orientação:
+   prescrição e receita em paisagem (páginas "prescricao"/"receituario"), ATM em retrato. */
+@page atm { size: A4 portrait; margin: 8mm; }
+
+.impressao-pacote .pacote-aviso {
+  max-width: 277mm; margin: 8px auto; padding: 8px 12px; border-radius: 8px;
+  background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; font-size: 13px; font-weight: 600;
+}
+.impressao-pacote .pacote-doc + .pacote-doc { margin-top: 18px; border-top: 2px dashed #CBD5E1; padding-top: 18px; }
+
+@media print {
+  html body .print-page.impressao-pacote { position: static !important; }
+  html:has(.impressao-pacote) body { margin: 0 !important; padding: 0 !important; }
+  .impressao-pacote .pacote-doc + .pacote-doc { break-before: page; margin-top: 0; border-top: 0; padding-top: 0; }
+  .impressao-pacote .pacote-atm, .impressao-pacote .pacote-atm .atmf-page { page: atm; }
+  .impressao-pacote .pacote-prescricao { page: prescricao; }
+  .impressao-pacote .pacote-receituario { page: receituario; }
+}

@@ -396,7 +396,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
 .enf-page {
   width: 194mm;
   max-width: 194mm;
-  min-height: 278mm;
+  min-height: 270mm; /* área útil do A4 com margem de 10 mm = 277 mm; folga para a assinatura não pular de folha */
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
@@ -475,7 +475,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
 .sae-page {
   width: 194mm;
   max-width: 194mm;
-  min-height: 278mm;
+  min-height: 270mm; /* área útil do A4 com margem de 10 mm = 277 mm; folga para a assinatura não pular de folha */
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
@@ -492,7 +492,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
 .sbar-page {
   width: 194mm;
   max-width: 194mm;
-  min-height: 278mm;
+  min-height: 270mm; /* área útil do A4 com margem de 10 mm = 277 mm; folga para a assinatura não pular de folha */
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;
@@ -509,7 +509,7 @@ table.bh-grade th.th-total-geral, table.bh-grade td.td-total-geral {
 .note-page {
   width: 194mm;
   max-width: 194mm;
-  min-height: 278mm;
+  min-height: 270mm; /* área útil do A4 com margem de 10 mm = 277 mm; folga para a assinatura não pular de folha */
   margin: 0 auto;
   padding: 4mm 6mm 3mm 6mm;
   font-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif;

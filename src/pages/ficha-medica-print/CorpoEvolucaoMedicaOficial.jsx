@@ -101,7 +101,7 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves</span>
-          <span>Evolução Médica Diária &bull; Folha Única &bull; Página 1 de 1</span>
+          <span>Evolução Médica Diária</span>
         </div>
       </div>
     </div>

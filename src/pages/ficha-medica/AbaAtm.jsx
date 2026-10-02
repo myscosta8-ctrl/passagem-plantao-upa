@@ -11,7 +11,9 @@ import { useRascunho } from '../../hooks/useRascunho'
 // os pendentes vêm do banco (prescrições não invalidadas com antimicrobiano restrito EV e ainda sem ATM),
 // então a fila aparece em qualquer aparelho e também para prescrição salva só como rascunho.
 
-export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , headerTabs }) {
+// Em pacote (vinda do "Salvar e Imprimir" da prescrição): cada ATM finalizada entra na mesma
+// impressão da prescrição; quando não sobra ATM pendente, o pacote inteiro é impresso.
+export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , headerTabs, emPacote = false, onAtmNoPacote, onImprimirPacoteAgora }) {
   const atdId = atendimento.atendimento_id
   const [pendentes, setPendentes] = useState([])
   const [base, setBase] = useState({}) // diagnóstico e data de internação do atendimento
@@ -75,6 +77,14 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
     })
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    if (imprimir && data && emPacote) {
+      setEditandoId(null); setDataRegistro(''); setAviso('')
+      const { lista, b } = await carregarPendentes(false)
+      if (lista[0]) usarPendente(lista[0], b)
+      else { setDados({ ...ATM_VAZIA, ...b }); setOrigemPrescricao(false) }
+      onAtmNoPacote?.(data, lista.length === 0)
+      return
+    }
     if (imprimir && data) onImprimir(data)
     if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
@@ -96,6 +106,14 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
       </div>
 
       <div className="cc-body">
+        {emPacote && (
+          <div className="allergy-alert" style={{ background: '#EFF6FF', borderColor: '#BFDBFE' }}>
+            <div className="info" style={{ color: '#1E40AF', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+              <i className="ph ph-printer" /> <span><strong>Prescrição salva.</strong> Complete a ATM e clique em "Salvar e Imprimir": ela sai junto com a prescrição{pendentes.length > 1 ? ` (${pendentes.length} ATMs pendentes)` : ''}, na mesma impressão.</span>
+              <button type="button" className="btn-add-chip" style={{ marginLeft: 'auto' }} onClick={onImprimirPacoteAgora}>Imprimir a prescrição agora (ATM depois)</button>
+            </div>
+          </div>
+        )}
         {pendentes.length > 0 && (
           <div className="allergy-alert" style={{ background: '#FFF7ED', borderColor: '#FDBA74' }}>
             <div className="info" style={{ color: '#9A3412', display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>

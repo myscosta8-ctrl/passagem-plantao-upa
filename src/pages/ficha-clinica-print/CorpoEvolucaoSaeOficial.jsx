@@ -64,7 +64,7 @@ export default function CorpoEvolucaoSaeOficial({ registro, pessoa, atendimento,
         </div>
         <div className="doc-rodape-sistema">
           <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Evolução do Enfermeiro (SAE) — Folha Única — Página 1 de 1</span>
+          <span>Evolução do Enfermeiro (SAE)</span>
         </div>
       </div>
     </div>

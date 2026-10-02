@@ -45,3 +45,20 @@ export function detalheMedicamento(m) {
     m.antimicrobiano ? 'Antimicrobiano' : '',
   ].filter(Boolean).join(' · ')
 }
+
+// Item prescrito é medicamento controlado (Portaria 344)? Procura pelo texto gravado
+// ("Diazepam 5 mg/mL — Ampola 2 mL (Valium)") ou, se foi digitado à mão, pelo princípio ativo.
+export function ehControlado(nomePrescrito, catalogo) {
+  const n = normalizar(nomePrescrito)
+  if (!n.trim()) return false
+  const exato = catalogo.find((m) => normalizar(rotuloMedicamento(m)) === n)
+  if (exato) return !!exato.controlado
+  return catalogo.some((m) => {
+    if (!m.controlado) return false
+    const principio = normalizar(m.substancia_ativa || m.nome).replace(/\(.*?\)/g, '').trim()
+    const marca = normalizar(m.nome_comercial)
+    if (marca.length > 3 && n.includes(marca)) return true
+    // Associação ("paracetamol + codeína"): todos os componentes precisam aparecer.
+    return !!principio && principio.split(/\s*\+\s*/).every((p) => p.length > 3 && n.includes(p))
+  })
+}

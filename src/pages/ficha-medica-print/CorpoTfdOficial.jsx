@@ -114,7 +114,7 @@ export default function CorpoTfdOficial({ registro, pessoa, atendimento, idade, 
         </div>
         <div className="doc-rodape-sistema">
           <span>Sistema Único de Saúde — Tratamento Fora de Domicílio (TFD) — SEMSA / UPA 24h Breves</span>
-          <span>Laudo Médico LM/TFD Oficial &bull; Folha Única &bull; Página 1 de 1</span>
+          <span>Laudo Médico LM/TFD Oficial</span>
         </div>
       </div>
     </div>
