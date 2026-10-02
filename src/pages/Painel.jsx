@@ -135,7 +135,7 @@ function PainelInterno({ setoresIds }) {
             leito={modalPassagem.leito}
             setorNome={setores.find((s) => s.id === modalPassagem.leito.setor_id)?.nome}
             onFechar={fecharPassagem}
-            pilarInicial={modo === 'multi' ? 'multi' : ehMedico ? 'medico' : 'enfermagem'}
+            pilarInicial={modalPassagem.pilar || (modo === 'multi' ? 'multi' : ehMedico ? 'medico' : 'enfermagem')}
             abaInicial={modalPassagem.abaInicial}
           />
         </Suspense>

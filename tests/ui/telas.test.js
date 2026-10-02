@@ -26,6 +26,6 @@ export function runTelasTests(test) {
     const cards = fs.readFileSync(path.join(SRC, 'pages/painel/PainelCards.jsx'), 'utf8');
     assert.match(cards, /!ehMedico && <div className=\{cx\('footer-actions-right'\)\}/, 'médico não realoca nem dá desfecho');
     const painel = fs.readFileSync(path.join(SRC, 'pages/Painel.jsx'), 'utf8');
-    assert.match(painel, /pilarInicial=\{modo === 'multi' \? 'multi' : ehMedico \? 'medico' : 'enfermagem'\}/, 'médico abre direto o prontuário médico; nutrição/serviço social no multiprofissional');
+    assert.match(painel, /pilarInicial=\{modalPassagem\.pilar \|\| \(modo === 'multi' \? 'multi' : ehMedico \? 'medico' : 'enfermagem'\)\}/, 'médico abre direto o prontuário médico; nutrição/serviço social no multiprofissional');
   });
 }

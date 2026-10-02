@@ -3,6 +3,7 @@ import FichaClinica from './FichaClinica'
 import FichaMedica from './FichaMedica'
 import FichaMulti from './multi/FichaMulti'
 import { obterOuCriarAtendimentoParaPaciente } from '../lib/pepAtendimentos'
+import { lembrarProntuario } from '../lib/prontuarioAberto'
 import './EspacoPaciente.css'
 
 function calcularPermanencia(dataAdmissao) {
@@ -95,6 +96,7 @@ export default function EspacoPaciente({
 
   function trocarPilar(chave) {
     garantirAtendimento(chave)
+    lembrarProntuario({ pilar: chave })
   }
 
   return (

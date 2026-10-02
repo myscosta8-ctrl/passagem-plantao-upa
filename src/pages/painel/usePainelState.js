@@ -1,5 +1,6 @@
 ﻿import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { lembrarProntuario, lerProntuarioLembrado, esquecerProntuario } from '../../lib/prontuarioAberto'
 import { criarLeitoExtra, recolherLeitosExtras } from '../../lib/leitosExtras'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
@@ -130,11 +131,30 @@ export function usePainelState() {
 
   function abrirPassagem(paciente, leito, abaInicial) {
     setModalPassagem({ paciente, leito, abaInicial: typeof abaInicial === 'string' ? abaInicial : undefined })
+    lembrarProntuario({ leitoId: leito?.id, pacienteId: paciente?.id, pilar: null })
   }
 
   function fecharPassagem() {
     setModalPassagem(null)
+    esquecerProntuario()
   }
+
+  // Depois de atualizar a página (F5), reabre o prontuário que estava aberto —
+  // desde que o mesmo paciente continue no mesmo leito.
+  const restaurouRef = useRef(false)
+  useEffect(() => {
+    if (restaurouRef.current || carregando || !painelData) return
+    restaurouRef.current = true
+    const salvo = lerProntuarioLembrado()
+    if (!salvo.leitoId) return
+    const leito = (painelData.leitos || []).find((l) => String(l.id) === String(salvo.leitoId))
+    const paciente = painelData.pacientesPorLeito?.[salvo.leitoId]
+    if (leito && paciente && String(paciente.id) === String(salvo.pacienteId)) {
+      setModalPassagem({ paciente, leito, pilar: salvo.pilar || undefined })
+    } else {
+      esquecerProntuario()
+    }
+  }, [carregando, painelData])
 
   return {
 
