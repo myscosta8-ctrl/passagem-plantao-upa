@@ -3,6 +3,8 @@ export const VIAS = ['VO', 'IM', 'SC', 'EV', 'INAL', 'SL', 'ID', 'VR'];
 // Prescrição médica — opções guiadas
 export const UNIDADES_DOSE = ['mg', 'g', 'mcg', 'mL', 'UI', 'gts', 'comp', 'cáps', 'amp', 'FA', 'puff', 'sachê'];
 export const FREQUENCIAS = ['1/1h', '2/2h', '4/4h', '6/6h', '8/8h', '12/12h', '24/24h', 'Dose única', 'Agora', 'Contínuo'];
+// Cuidados e orientações de enfermagem (sinais vitais, glicemia, mudança de decúbito...): horário de aferição/realização.
+export const FREQUENCIAS_CUIDADOS = ['Contínuo', '1/1h', '2/2h', '3/3h', '4/4h', '6/6h', '8/8h', '12/12h', '24/24h', '1x ao dia', 'Por turno', 'Se necessário (SN)', 'Agora'];
 export const CONDICOES_USO = ['SN — Se necessário', 'ACM — A critério médico', 'Se dor ou febre', 'Se náuseas ou vômitos', 'Se alergia'];
 export const DILUENTES = ['SF 0,9%', 'SG 5%', 'Água destilada (AD)', 'Ringer Lactato'];
 export const TEMPOS_INFUSAO = ['Bolus lento', 'Em 15 min', 'Em 30 min', 'Em 1 h', 'Em 2 h', 'Em 3 h', 'Contínuo em BIC'];

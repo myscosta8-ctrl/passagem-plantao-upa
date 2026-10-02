@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react';
 import { listarPrescricoes, criarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
-import { VIAS, UNIDADES_DOSE, FREQUENCIAS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, exigeAtm } from './constantes';
+import { VIAS, UNIDADES_DOSE, FREQUENCIAS, FREQUENCIAS_CUIDADOS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, exigeAtm } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
 import BotaoInvalidar, { SeloSituacao } from '../../components/InvalidarDocumento';
 import { quantidadeDia, APRESENTACOES, apresentacaoDaForma } from '../../lib/frequencia'
 import { hojeBelem, somarDias, textoValidade } from '../../lib/prescricaoValidade';
+import { filtrarCatalogo, rotuloMedicamento, descricaoMedicamento, detalheMedicamento } from '../../lib/catalogoMedicamentos';
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
   const [aberto, setAberto] = useState(false)
-  const termo = valor.trim().toLowerCase()
-  const sugestoes = termo.length >= 2
-    ? catalogo.filter((m) => m.nome.toLowerCase().includes(termo)).slice(0, 8)
-    : []
+  const sugestoes = filtrarCatalogo(catalogo, valor)
 
   return (
     <div className="autocomplete-wrap">
@@ -36,11 +34,8 @@ function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, plac
               className="autocomplete-item"
               onMouseDown={(e) => { e.preventDefault(); onSelecionar(m); setAberto(false) }}
             >
-              <span className="autocomplete-item-nome">{m.nome}</span>
-              <span className="autocomplete-item-sub">
-                {m.forma_farmaceutica}
-                {m.classe_controlada ? ` · ${m.classe_controlada}` : ''}
-              </span>
+              <span className="autocomplete-item-nome">{descricaoMedicamento(m)}</span>
+              <span className="autocomplete-item-sub">{detalheMedicamento(m)}</span>
             </button>
           ))}
         </div>
@@ -248,7 +243,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
   }
 
   function selecionarMedicamento(i, m) {
-    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, medicamento_nome: m.nome, via: VIAS.includes(m.via_padrao) ? m.via_padrao : it.via, apresentacao: apresentacaoDaForma(m.forma_farmaceutica) || it.apresentacao } : it)))
+    setItens((prev) => prev.map((it, idx) => (idx === i ? { ...it, medicamento_nome: rotuloMedicamento(m), via: VIAS.includes(m.via_padrao) ? m.via_padrao : it.via, apresentacao: apresentacaoDaForma(m.forma_farmaceutica) || it.apresentacao } : it)))
   }
 
   // O último item de `itens` é sempre o rascunho em edição; os anteriores já
@@ -529,7 +524,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                           catalogo={catalogo}
                           valor={it.medicamento_nome}
                           onChange={(v) => setItem(i, 'medicamento_nome', v)}
-                          onSelecionar={(m) => selecionarMedicamento(i, m)} placeholder="Medicamento (digite para buscar)"
+                          onSelecionar={(m) => selecionarMedicamento(i, m)} placeholder="Medicamento — princípio ativo ou nome comercial"
                         />
                         <button type="button" className="btn-calc-ped" onClick={() => abrirCalculadora(i)} title="Calculadora de Dose Pediátrica">
                           <i className="ph ph-calculator" /><i className="ph ph-baby" />
@@ -633,7 +628,11 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFe
                 {orientacaoEnfermagem.map((o, i) => (
                   <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: 12, alignItems: 'center' }}>
                     <input type="text" className="form-control" placeholder="ex: Monitorização contínua" value={o.texto} onChange={(e) => setOrientacao(i, 'texto', e.target.value)} />
-                    <input type="text" className="form-control" placeholder="Frequência (ex: 6/6h)" value={o.frequencia} onChange={(e) => setOrientacao(i, 'frequencia', e.target.value)} />
+                    <select className="form-control" value={o.frequencia || ''} onChange={(e) => setOrientacao(i, 'frequencia', e.target.value)} title="Horário de aferição/realização">
+                      <option value="">Horário</option>
+                      {FREQUENCIAS_CUIDADOS.map((f) => <option key={f} value={f}>{f}</option>)}
+                      {o.frequencia && !FREQUENCIAS_CUIDADOS.includes(o.frequencia) && <option value={o.frequencia}>{o.frequencia}</option>}
+                    </select>
                     {orientacaoEnfermagem.length > 1 && (
                       <button type="button" className="btn-cancel" style={{ padding: '6px 10px' }} onClick={() => removerOrientacao(i)}><i className="ph ph-trash" /></button>
                     )}

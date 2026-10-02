@@ -4,13 +4,11 @@ import { RECEITA_ITEM_VAZIO, VIAS_RECEITA, TAGS_INSTRUCAO, RECEITA_TIPO_LABEL } 
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
+import { filtrarCatalogo, rotuloMedicamento, descricaoMedicamento, detalheMedicamento } from '../../lib/catalogoMedicamentos'
 
 function AutocompleteMedicamentoReceita({ catalogo, valor, onChange, onSelecionar }) {
   const [aberto, setAberto] = useState(false)
-  const termo = valor.trim().toLowerCase()
-  const sugestoes = termo.length >= 2
-    ? catalogo.filter((m) => m.nome.toLowerCase().includes(termo)).slice(0, 8)
-    : []
+  const sugestoes = filtrarCatalogo(catalogo, valor)
 
   return (
     <div className="autocomplete-wrap">
@@ -32,12 +30,8 @@ function AutocompleteMedicamentoReceita({ catalogo, valor, onChange, onSeleciona
               className="autocomplete-item"
               onMouseDown={(e) => { e.preventDefault(); onSelecionar(m); setAberto(false) }}
             >
-              <span className="autocomplete-item-nome">{m.nome}</span>
-              <span className="autocomplete-item-sub">
-                {m.forma_farmaceutica}
-                {m.controlado ? ' · Controlado (Lista C1)' : ''}
-                {m.antimicrobiano ? ' · Antimicrobiano' : ''}
-              </span>
+              <span className="autocomplete-item-nome">{descricaoMedicamento(m)}</span>
+              <span className="autocomplete-item-sub">{detalheMedicamento(m)}</span>
             </button>
           ))}
         </div>
@@ -86,7 +80,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
   }
 
   function selecionarMedicamento(i, m) {
-    const dadosMed = { medicamento: m.nome, via: m.via_padrao || 'ORAL', controlado: !!m.controlado, antimicrobiano: !!m.antimicrobiano }
+    const dadosMed = { medicamento: rotuloMedicamento(m), via: m.via_padrao || 'ORAL', controlado: !!m.controlado, antimicrobiano: !!m.antimicrobiano }
 
     if (subTab === 'simples' && m.controlado) {
       // Bloqueio de mistura (Portaria 344/98): medicamento de Lista C1 não pode
