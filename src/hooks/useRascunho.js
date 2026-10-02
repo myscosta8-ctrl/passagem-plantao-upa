@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { buscarRascunho, descartarRascunho } from '../lib/documentos'
 
-// Rascunho de documento clínico ("Salvar"):
+// Rascunho de documento clínico ("Salvar Rascunho"):
 // - ao abrir a aba, reabre o último rascunho do próprio profissional neste
 //   atendimento (formulário restaurado exatamente como foi salvo);
 // - "Cancelar" antes da finalização descarta o rascunho em definitivo.

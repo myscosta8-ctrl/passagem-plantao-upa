@@ -233,7 +233,7 @@ export default function AbaFormNovo({ enfermeiroId, pessoaInicial, onCancelarEdi
             <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : pessoaInicial ? 'Salvar alterações' : 'Cadastrar paciente'}
           </button>
           <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
-            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}
           </button>
         </div>
       </div>

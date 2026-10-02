@@ -13,7 +13,7 @@ export function SeloSituacao({ registro }) {
   )
 }
 
-// "Invalidar" só existe para documento FINALIZADO (Salvar e Imprimir) e só
+// "Invalidar" só existe para documento FINALIZADO (Finalizar e Imprimir) e só
 // para quem o criou. O registro permanece, marcado como invalidado, com motivo.
 export default function BotaoInvalidar({ tabela, registro, meuId, onFeito }) {
   const [aberto, setAberto] = useState(false)

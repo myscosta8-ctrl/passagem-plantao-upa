@@ -262,7 +262,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
   const [dataReferencia, setDataReferencia] = useState(() => hojeBelem())
-  const rascunho = useRascunho({ tabela: 'prescricoes_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { observacoes: [observacoes, setObservacoes], dataReferencia: [dataReferencia, setDataReferencia], dieta: [dieta, setDieta], itens: [itens, setItens], orientacaoEnfermagem: [orientacaoEnfermagem, setOrientacaoEnfermagem], hemocomponentes: [hemocomponentes, setHemocomponentes], hemocomponenteObs: [hemocomponenteObs, setHemocomponenteObs] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
+  const rascunho = useRascunho({ tabela: 'prescricoes_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { observacoes: [observacoes, setObservacoes], dataReferencia: [dataReferencia, setDataReferencia], dieta: [dieta, setDieta], itens: [itens, setItens], orientacaoEnfermagem: [orientacaoEnfermagem, setOrientacaoEnfermagem], hemocomponentes: [hemocomponentes, setHemocomponentes], hemocomponenteObs: [hemocomponenteObs, setHemocomponenteObs] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])
@@ -342,7 +342,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
     if ('hemocomponentes' in e) setHemocomponentes(e.hemocomponentes)
     if ('hemocomponenteObs' in e) setHemocomponenteObs(e.hemocomponenteObs)
     setEditandoId(p.id)
-    setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Salvar e Imprimir" finaliza; "Cancelar" o descarta.')
+    setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Finalizar e Imprimir" finaliza; "Cancelar" o descarta.')
     window.scrollTo?.({ top: 0, behavior: 'smooth' })
   }
 
@@ -470,7 +470,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
     const emPacote = imprimir && data && onFinalizada
     if (emPacote) onFinalizada(data, { temAtm: restritos.length > 0, controlados: validos.filter((it) => ehControlado(it.medicamento_nome, catalogo)) })
     else if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); onAtualizarAtm?.(); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); onAtualizarAtm?.(); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
     setObservacoes('')
     setDieta('')
@@ -510,7 +510,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
                 <i className="ph ph-shield-warning" /> <strong>ATM obrigatória:</strong> {restritosSemAtm.map((it) => {
                   const venc = vigenteDe(it)?.validade
                   return `${it.medicamento_nome}${venc ? ` (ATM anterior ${textoValidadeAtm(venc)} — renovação)` : ''}`
-                }).join(', ')} {restritosSemAtm.length > 1 ? 'são antimicrobianos' : 'é antimicrobiano'} de uso restrito por via intravenosa. Ao clicar em "Salvar e Imprimir", a Solicitação de Uso de Antimicrobiano (ATM) abre já preenchida e sai junto com a prescrição, na mesma impressão.
+                }).join(', ')} {restritosSemAtm.length > 1 ? 'são antimicrobianos' : 'é antimicrobiano'} de uso restrito por via intravenosa. Ao clicar em "Finalizar e Imprimir", a Solicitação de Uso de Antimicrobiano (ATM) abre já preenchida e sai junto com a prescrição, na mesma impressão.
               </div>
             </div>
           )}
@@ -838,10 +838,10 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
           <div style={{ display: 'flex', gap: 10 }}>
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}
             </button>
             <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
-              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}
             </button>
           </div>
         </div>

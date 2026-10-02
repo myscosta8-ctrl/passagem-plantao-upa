@@ -43,7 +43,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
   const [editandoId, setEditandoId] = useState(null);
-  const rascunho = useRascunho({ tabela: 'apac_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
+  const rascunho = useRascunho({ tabela: 'apac_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') });
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
 
@@ -138,7 +138,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
     setSalvando(false);
     if (error) { console.error(error); setErro('Não foi possível registrar a APAC. Verifique os dados e tente novamente.'); return; }
     setEditandoId(imprimir ? null : (data?.id ?? null));
-    if (!imprimir) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return; }
+    if (!imprimir) { setSucesso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return; }
     setSucesso('Laudo de APAC registrado.');
     if (imprimir && data) onImprimir?.(data);
   }
@@ -293,8 +293,8 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
         <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> {rotuloFechar}</button>
         <div style={{ display: 'flex', gap: 10 }}>
           <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
-          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
-          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}</button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}</button>
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
-  const rascunho = useRascunho({ tabela: 'atestados_medicos', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { cid: [cid, setCid], diasAfastamento: [diasAfastamento, setDiasAfastamento], dataInicio: [dataInicio, setDataInicio], textoLivre: [textoLivre, setTextoLivre] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
+  const rascunho = useRascunho({ tabela: 'atestados_medicos', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { cid: [cid, setCid], diasAfastamento: [diasAfastamento, setDiasAfastamento], dataInicio: [dataInicio, setDataInicio], textoLivre: [textoLivre, setTextoLivre] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
@@ -40,7 +40,7 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
     setSalvando(false)
     if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
     setCid(''); setDiasAfastamento(''); setDataInicio(HOJE); setTextoLivre('')
   }
@@ -89,10 +89,10 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
         <div style={{ display: 'flex', gap: 10 }}>
           <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}
           </button>
           <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
-            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}
           </button>
         </div>
       </div>

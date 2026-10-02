@@ -2,7 +2,7 @@ import { supabase } from './supabaseClient.js'
 import { avisarErro } from './erros.js'
 
 // ===================== Regras de documento clínico =====================
-// "Salvar" grava como rascunho (editável pelo autor); "Salvar e Imprimir"
+// "Salvar Rascunho" grava como rascunho (editável pelo autor); "Finalizar e Imprimir"
 // finaliza (o banco bloqueia edição — só pode ser invalidado). Com `id`,
 // atualiza o próprio rascunho em vez de criar outro registro.
 // Avisa as telas (ex.: contador de "documentos não finalizados" no menu) que um documento mudou.
@@ -22,7 +22,7 @@ export async function invalidarRegistro(tabela, id, motivo) {
   return supabase.rpc('invalidar_registro', { p_tabela: tabela, p_id: id, p_motivo: motivo })
 }
 
-export const MSG_FINALIZADO = 'Este documento já foi finalizado (Salvar e Imprimir) e não pode mais ser editado — apenas invalidado.'
+export const MSG_FINALIZADO = 'Este documento já foi finalizado (Finalizar e Imprimir) e não pode mais ser editado — apenas invalidado.'
 
 // Metadados do documento: situação (rascunho/finalizado) e a data clínica do
 // registro — pode ser retroativa; a data de impressão é sempre a atual.

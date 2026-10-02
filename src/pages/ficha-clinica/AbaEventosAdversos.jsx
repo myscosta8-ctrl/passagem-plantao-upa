@@ -33,7 +33,7 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
   const [editandoId, setEditandoId] = useState(null);
-  const rascunho = useRascunho({ tabela: 'eventos_adversos', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setMsg({ t: 'Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.' }) });
+  const rascunho = useRascunho({ tabela: 'eventos_adversos', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setMsg({ t: 'Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.' }) });
   const [msg, setMsg] = useState(null);
 
   const set = (k, v) => setD((p) => ({ ...p, [k]: v }));
@@ -53,7 +53,7 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
     });
     setSalvando(false);
     if (error) { console.error(error); setMsg({ erro: true, t: 'Não foi possível registrar. Tente de novo.' }); return; }
-    if (!imprimir) { setEditandoId(data?.id ?? null); setMsg({ t: 'Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' }); return; }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setMsg({ t: 'Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.' }); return; }
     setEditandoId(null); setDataRegistro('');
     setMsg({ t: 'Intercorrência finalizada.' });
     if (data) onImprimir(data);
@@ -122,8 +122,8 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
           <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 12 }}>
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
-            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
-            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}</button>
+            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}</button>
           </div>
         </div>
       </div>

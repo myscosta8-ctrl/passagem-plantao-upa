@@ -92,7 +92,7 @@ export default function AbaNotificacaoSinan({ atendimento, onFechar }) {
         setMsg({ erro: true, texto: 'A notificação foi salva, mas não foi possível gerar a ficha para impressão.' })
       }
     } else {
-      setMsg({ texto: 'Rascunho salvo. Use "Salvar e Imprimir" para registrar e imprimir a ficha oficial.' })
+      setMsg({ texto: 'Rascunho salvo. Use "Finalizar e Imprimir" para registrar e imprimir a ficha oficial.' })
     }
     setFaltando(null)
     travaRef.current = false; setSalvando(false)
@@ -144,8 +144,8 @@ export default function AbaNotificacaoSinan({ atendimento, onFechar }) {
         <div className="sn-rodape">
           <button type="button" className="sn-btn" onClick={() => { setModo('lista'); setAtual(null) }}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" className="sn-btn" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
-            <button type="button" className="sn-btn prim" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> Salvar e Imprimir</button>
+            <button type="button" className="sn-btn" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}</button>
+            <button type="button" className="sn-btn prim" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> Finalizar e Imprimir</button>
           </div>
         </div>
       </div>

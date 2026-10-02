@@ -30,7 +30,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
 
   useEffect(() => { carregar() }, [])
   const [buscaCid, setBuscaCid] = useState('')
-  const rascunho = useRascunho({ tabela: 'regulacao_atualizacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { evolucao: [evolucao, setEvolucao], pendencias: [pendencias, setPendencias], conduta: [conduta, setConduta], numeroSer: [numeroSer, setNumeroSer], destSer: [destSer, setDestSer], destSisreg: [destSisreg, setDestSisreg], numeroSisreg: [numeroSisreg, setNumeroSisreg], diagnosticoRegulado: [diagnosticoRegulado, setDiagnosticoRegulado], mudancaDiagnostico: [mudancaDiagnostico, setMudancaDiagnostico], novoDiagnostico: [novoDiagnostico, setNovoDiagnostico], buscaCid: [buscaCid, setBuscaCid], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
+  const rascunho = useRascunho({ tabela: 'regulacao_atualizacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { evolucao: [evolucao, setEvolucao], pendencias: [pendencias, setPendencias], conduta: [conduta, setConduta], numeroSer: [numeroSer, setNumeroSer], destSer: [destSer, setDestSer], destSisreg: [destSisreg, setDestSisreg], numeroSisreg: [numeroSisreg, setNumeroSisreg], diagnosticoRegulado: [diagnosticoRegulado, setDiagnosticoRegulado], mudancaDiagnostico: [mudancaDiagnostico, setMudancaDiagnostico], novoDiagnostico: [novoDiagnostico, setNovoDiagnostico], buscaCid: [buscaCid, setBuscaCid], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
   useEffect(() => {
     const t = setTimeout(() => { pesquisarCid(buscaCid).then(setCids) }, 250)
     return () => clearTimeout(t)
@@ -78,7 +78,7 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
     setSalvando(false)
     if (error) { setErro('Não foi possível registrar a atualização.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar?.(); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
     setEvolucao(''); setPendencias(''); setConduta(''); setNumeroSer(''); setNumeroSisreg(''); setDestSer(false); setDestSisreg(false)
     setDiagnosticoRegulado(''); setMudancaDiagnostico(false); setNovoDiagnostico(''); setBuscaCid('')
@@ -193,8 +193,8 @@ export default function AbaRegulacao({ atendimento, medicoId, onImprimir, onFech
         <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
         <div style={{ display: 'flex', gap: 10 }}>
           <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
-          <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
-          <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+          <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}</button>
+          <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}</button>
         </div>
       </div>
     </div>

@@ -46,7 +46,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
 
   // Quem não é médico (enfermagem/recepção/administrativo) pré-preenche e ENCAMINHA a AIH a um
   // médico; só o médico finaliza (o banco também bloqueia). O médico destinatário encontra a
-  // AIH nas Pendências e ao abrir esta aba, revisa e assina com "Salvar e Imprimir".
+  // AIH nas Pendências e ao abrir esta aba, revisa e assina com "Finalizar e Imprimir".
   const { enfermeiro } = useAuth();
   const ehMedico = enfermeiro?.tipo === 'medico';
   const [medicos, setMedicos] = useState([]);
@@ -122,7 +122,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     }
     setSucesso(r?.encaminhado_em && !ehMedico
       ? 'Esta AIH já foi encaminhada ao médico. Enquanto ele não abrir, você ainda pode corrigir e encaminhar de novo.'
-      : 'Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.');
+      : 'Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.');
   } });
 
   useEffect(() => {
@@ -205,7 +205,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
       setErro('Escolha o médico que vai revisar e assinar esta AIH.');
       return;
     }
-    // Rascunho ("Salvar") grava como estiver; só a finalização/encaminhamento exige o mínimo.
+    // Rascunho ("Salvar Rascunho") grava como estiver; só a finalização/encaminhamento exige o mínimo.
     // O código SIGTAP (campo 28) não é obrigatório.
     if ((finalizar || encaminhar) && (!String(dados.procedimento_principal_nome || '').trim() || !String(dados.sinais_sintomas_clinicos || '').trim())) {
       setErro('Para finalizar, preencha ao menos a descrição do procedimento solicitado (27) e os sinais/sintomas clínicos (20).');
@@ -247,7 +247,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     }
     if (finalizar) setEncaminhada(null);
     setEditandoId(finalizar ? null : (novaAih?.id ?? null));
-    if (!finalizar) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' + (invalidos.length ? ` Atenção: CID ${invalidos.join(', ')} não está na tabela CID-10 — corrija antes de finalizar.` : '')); carregar(); return; }
+    if (!finalizar) { setSucesso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.' + (invalidos.length ? ` Atenção: CID ${invalidos.join(', ')} não está na tabela CID-10 — corrija antes de finalizar.` : '')); carregar(); return; }
     setSucesso('Laudo de AIH registrado. O diagnóstico da AIH passou a valer no Painel de Leitos, na Passagem de Plantão e no prontuário, e o paciente ficou como INTERNADO.');
     setTimeout(() => setSucesso(''), 8000);
     carregar();
@@ -396,7 +396,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                 <i className="ph ph-tray-arrow-down" />
                 <div>
                   <b>AIH encaminhada a você</b>
-                  <span>Pré-preenchida por {nomePreenchedor || 'outro profissional'}{encaminhada.em ? ` em ${new Date(encaminhada.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}. Revise todos os campos; ao clicar em "Salvar e Imprimir" o laudo sai com a sua assinatura.</span>
+                  <span>Pré-preenchida por {nomePreenchedor || 'outro profissional'}{encaminhada.em ? ` em ${new Date(encaminhada.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}. Revise todos os campos; ao clicar em "Finalizar e Imprimir" o laudo sai com a sua assinatura.</span>
                 </div>
               </div>
             </div>
@@ -634,7 +634,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
               onClick={() => salvar(false)}
               disabled={salvando}
             >
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}
             </button>
             <button
               type="button"
@@ -643,7 +643,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
               disabled={salvando}
             >
               {ehMedico
-                ? <><i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir"}</>
+                ? <><i className="ph ph-printer" /> {salvando ? "Salvando..." : "Finalizar e Imprimir"}</>
                 : <><i className="ph ph-paper-plane-tilt" /> {salvando ? "Encaminhando..." : "Encaminhar ao médico"}</>}
             </button>
           </div>

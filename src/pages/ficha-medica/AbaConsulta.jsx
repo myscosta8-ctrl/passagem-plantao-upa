@@ -56,7 +56,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
     hipotese_diagnostica: '',
     conduta_inicial: '',
   });
-  const rascunho = useRascunho({ tabela: 'consultas_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
+  const rascunho = useRascunho({ tabela: 'consultas_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') });
 
   const [comorbidades, setComorbidades] = useState([]);
 
@@ -137,7 +137,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
       return;
     }
     setEditandoId(imprimirApos ? null : (novaConsulta?.id ?? null));
-    if (!imprimirApos) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
+    if (!imprimirApos) { setSucesso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
     setSucesso('Admissão Médica salva com sucesso!');
     setTimeout(() => setSucesso(''), 4000);
     carregar();
@@ -402,7 +402,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
               onClick={() => salvar(false)}
               disabled={salvando}
             >
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}
             </button>
             <button
               type="button"
@@ -410,7 +410,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
               onClick={() => salvar(true)}
               disabled={salvando}
             >
-              <i className="ph ph-printer" /> {salvando ? "Salvando..." : "Salvar e Imprimir"}
+              <i className="ph ph-printer" /> {salvando ? "Salvando..." : "Finalizar e Imprimir"}
             </button>
           </div>
         </div>

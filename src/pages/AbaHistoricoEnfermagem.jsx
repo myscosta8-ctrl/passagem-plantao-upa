@@ -184,7 +184,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
     setSalvando(false)
     if (error) { console.error(error); setMensagem({ tipo: 'erro', texto: error.message?.includes('finalizado') ? error.message : 'Não foi possível salvar a admissão. Tente de novo.' }); return }
     setSalvo(data)
-    setMensagem({ tipo: 'ok', texto: imprimir ? 'Admissão de enfermagem finalizada.' : 'Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' })
+    setMensagem({ tipo: 'ok', texto: imprimir ? 'Admissão de enfermagem finalizada.' : 'Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.' })
     if (imprimir && data) onImprimir({ ...data, _variante: 'projeto' })
   }
 
@@ -419,8 +419,8 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
           <button type="button" className="btn-cancel" onClick={async () => { if (salvo?.situacao === 'rascunho') { if (!window.confirm('Cancelar descarta este rascunho em definitivo. Deseja continuar?')) return; const { error } = await descartarRascunho('historico_enfermagem', salvo.id); if (error) { avisarErro('Histórico de enfermagem', error); return } } onFechar?.() }}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 12 }}>
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
-            <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
-            <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+            <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}</button>
+            <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}</button>
           </div>
         </div>
       </div>

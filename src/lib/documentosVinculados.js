@@ -1,5 +1,5 @@
 // Documentos que acompanham a Prescrição Médica: Ficha de ATM (antimicrobiano restrito por via EV)
-// e Receita de Controle Especial (Portaria 344/98). Usado no "Salvar e Imprimir" da prescrição e
+// e Receita de Controle Especial (Portaria 344/98). Usado no "Finalizar e Imprimir" da prescrição e
 // na reimpressão (ícones no Histórico Clínico e na lista de prescrições).
 import { listarAtm, listarReceitasMedicas, buscarDadosParaSumario, listarCatalogoMedicamentos } from './pepMedico'
 import { exigeAtm, atbRestrito, atmPendentes, validadeAtm } from '../pages/ficha-medica/constantes'

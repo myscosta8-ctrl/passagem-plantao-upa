@@ -683,10 +683,10 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
             {msgExame && <div className={msgExame.erro ? 'erro-inline' : 'aviso-rascunho'} role="status"><i className={`ph ${msgExame.erro ? 'ph-warning-circle' : 'ph-check-circle'}`} /> {msgExame.t}</div>}
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}
             </button>
             <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
-              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}
             </button>
           </div>
         </div>

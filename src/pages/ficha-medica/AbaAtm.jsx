@@ -11,7 +11,7 @@ import { useRascunho } from '../../hooks/useRascunho'
 // os pendentes vêm do banco (prescrições não invalidadas com antimicrobiano restrito EV e ainda sem ATM),
 // então a fila aparece em qualquer aparelho e também para prescrição salva só como rascunho.
 
-// Em pacote (vinda do "Salvar e Imprimir" da prescrição): cada ATM finalizada entra na mesma
+// Em pacote (vinda do "Finalizar e Imprimir" da prescrição): cada ATM finalizada entra na mesma
 // impressão da prescrição; quando não sobra ATM pendente, o pacote inteiro é impresso.
 export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , headerTabs, emPacote = false, onAtmNoPacote, onImprimirPacoteAgora }) {
   const atdId = atendimento.atendimento_id
@@ -24,7 +24,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
-  const rascunho = useRascunho({ tabela: 'solicitacoes_atm', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') })
+  const rascunho = useRascunho({ tabela: 'solicitacoes_atm', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 
@@ -100,7 +100,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
       return
     }
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
 
     // Recarrega a fila (o antibiótico solicitado sai dela) e já abre o próximo pendente.
@@ -123,7 +123,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
         {emPacote && (
           <div className="allergy-alert" style={{ background: '#EFF6FF', borderColor: '#BFDBFE' }}>
             <div className="info" style={{ color: '#1E40AF', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-              <i className="ph ph-printer" /> <span><strong>Prescrição salva.</strong> Complete a ATM e clique em "Salvar e Imprimir": ela sai junto com a prescrição{pendentes.length > 1 ? ` (${pendentes.length} ATMs pendentes)` : ''}, na mesma impressão.</span>
+              <i className="ph ph-printer" /> <span><strong>Prescrição salva.</strong> Complete a ATM e clique em "Finalizar e Imprimir": ela sai junto com a prescrição{pendentes.length > 1 ? ` (${pendentes.length} ATMs pendentes)` : ''}, na mesma impressão.</span>
               <button type="button" className="btn-add-chip" style={{ marginLeft: 'auto' }} onClick={onImprimirPacoteAgora}>Imprimir a prescrição agora (ATM depois)</button>
             </div>
           </div>
@@ -254,10 +254,10 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
         <div style={{ display: 'flex', gap: 10 }}>
           <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
           <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
-            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+            <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}
           </button>
           <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
-            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+            <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}
           </button>
         </div>
       </div>

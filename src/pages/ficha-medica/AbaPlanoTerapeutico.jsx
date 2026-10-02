@@ -103,7 +103,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
     setSucesso(true)
     setSalvo(data)
     if (imprimir && data) onImprimir(data)
-    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
   }
 
@@ -262,10 +262,10 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
             )}
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}>
-              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}
+              <i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}
             </button>
             <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}>
-              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}
+              <i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}
             </button>
           </div>
         </div>

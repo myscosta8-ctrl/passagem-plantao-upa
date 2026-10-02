@@ -6,7 +6,7 @@ import CampoDataRegistro from '../../components/CampoDataRegistro';
 
 // Formulário genérico dos documentos multiprofissionais, montado a partir do esquema
 // (ver esquemas.js). Mesmo fluxo de todo documento clínico: Salvar = rascunho,
-// Salvar e Imprimir = finaliza (depois só invalidar), Cancelar = descarta o rascunho.
+// Finalizar e Imprimir = finaliza (depois só invalidar), Cancelar = descarta o rascunho.
 export default function AbaRegistroMulti({ atendimento, autorId, doc, podeCriar, onImprimir, onFechar }) {
   const { tabela, tipo, esquema } = doc;
   const [dados, setDados] = useState({});
@@ -21,7 +21,7 @@ export default function AbaRegistroMulti({ atendimento, autorId, doc, podeCriar,
   const rascunho = useRascunho({
     tabela, atendimentoId: atendimento?.atendimento_id, autorId, filtro,
     campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro,
-    onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.'),
+    onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.'),
   });
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function AbaRegistroMulti({ atendimento, autorId, doc, podeCriar,
     if (error) { console.error(error); setErro(mensagemErroSalvar(error, `a ${doc.titulo}`)); return; }
     if (!finalizar) {
       setEditandoId(data?.id ?? null);
-      setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.');
+      setSucesso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.');
       return;
     }
     setEditandoId(null);
@@ -141,8 +141,8 @@ export default function AbaRegistroMulti({ atendimento, autorId, doc, podeCriar,
           <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 10 }}>
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
-            <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
-            <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+            <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}</button>
+            <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}</button>
           </div>
         </div>
       )}

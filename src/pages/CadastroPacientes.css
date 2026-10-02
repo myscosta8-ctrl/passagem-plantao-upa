@@ -9,7 +9,7 @@
   align-items: center;
 }
 
-/* Botões de rodapé (Cancelar/Salvar/Salvar e Imprimir) — mesmo modelo visual
+/* Botões de rodapé (Cancelar/Salvar Rascunho/Finalizar e Imprimir) — mesmo modelo visual
    usado nos prontuários (AtendimentoMedico.css), reproduzido aqui sem escopo
    porque esta página não usa o container .atendimento-medico-container. */
 .btn-cancel {

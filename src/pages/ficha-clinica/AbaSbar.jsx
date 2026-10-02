@@ -41,7 +41,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
   const [editandoId, setEditandoId] = useState(null);
-  const rascunho = useRascunho({ tabela: 'transferencias_sbar', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setMsg({ t: 'Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.' }) });
+  const rascunho = useRascunho({ tabela: 'transferencias_sbar', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setMsg({ t: 'Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.' }) });
   const [msg, setMsg] = useState(null);
 
   useEffect(() => {
@@ -92,7 +92,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
     setSalvando(false);
     if (error) { console.error(error); setMsg({ erro: true, t: 'Não foi possível salvar a transferência. Tente de novo.' }); return; }
     setEditandoId(imprimir ? null : (data?.id ?? null));
-    setMsg({ t: imprimir ? 'Transferência SBAR finalizada.' : 'Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' });
+    setMsg({ t: imprimir ? 'Transferência SBAR finalizada.' : 'Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.' });
     if (imprimir && data) onImprimir(data);
   }
 
@@ -228,8 +228,8 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
         <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
         <div style={{ display: 'flex', gap: 12 }}>
           <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
-          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
-          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir SBAR'}</button>
+          <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}</button>
+          <button type="button" className="btn-save-print" onClick={() => salvar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir SBAR'}</button>
         </div>
       </div>
     </div>

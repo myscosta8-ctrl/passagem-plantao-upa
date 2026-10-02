@@ -38,7 +38,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
   const [editandoId, setEditandoId] = useState(null);
-  const rascunho = useRascunho({ tabela: 'evolucoes', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { texto: [texto, setTexto], nanda: [nanda, setNanda], nic: [nic, setNic], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAvisoRasc('Rascunho reaberto — continue editando. "Salvar" atualiza o rascunho; "Cancelar" o descarta.') });
+  const rascunho = useRascunho({ tabela: 'evolucoes', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { texto: [texto, setTexto], nanda: [nanda, setNanda], nic: [nic, setNic], sv: [sv, setSv] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAvisoRasc('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') });
   const [avisoRasc, setAvisoRasc] = useState('');
   // Duplicar (escolhido no Histórico Clínico): traz texto, NANDA e NIC; sinais vitais não são copiados.
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
     });
     setSalvando(false);
     if (error) { setErro('Não foi possível registrar. Tente de novo.'); console.error(error); return; }
-    if (!imprimir) { setEditandoId(data?.id ?? null); setErro(''); setAvisoRasc('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
+    if (!imprimir) { setEditandoId(data?.id ?? null); setErro(''); setAvisoRasc('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
     setEditandoId(null); setDataRegistro(''); setAvisoRasc('');
     if (data) onImprimir(data);
     setTexto(''); setNanda([]); setNic([]); setSv(SV_VAZIO);
@@ -183,8 +183,8 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
           <button type="button" className="btn-cancel" onClick={() => rascunho.cancelar(onFechar)}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 12 }}>
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
-            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>
-            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Salvar e Imprimir'}</button>
+            <button type="button" className="btn-save-draft" onClick={() => registrar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar Rascunho'}</button>
+            <button type="button" className="btn-save-print" onClick={() => registrar(true)} disabled={salvando}><i className="ph ph-printer" /> {salvando ? 'Salvando...' : 'Finalizar e Imprimir'}</button>
           </div>
         </div>
       </div>

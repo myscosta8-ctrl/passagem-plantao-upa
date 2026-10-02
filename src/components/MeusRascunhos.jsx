@@ -3,8 +3,8 @@ import { supabase } from '../lib/supabaseClient'
 import { FONTES } from '../lib/historicoClinico'
 import { EVENTO_DOCUMENTOS } from '../lib/documentos'
 
-// Documentos que o profissional salvou com "Salvar" (rascunho) e ainda não
-// finalizou com "Salvar e Imprimir". Só o próprio autor vê os seus.
+// Documentos que o profissional salvou com "Salvar Rascunho" e ainda não
+// finalizou com "Finalizar e Imprimir". Só o próprio autor vê os seus.
 const EXTRA = {
   prescricoes_medicas: { rotulo: 'Prescrição Médica', area: 'medico' },
   balanco_hidrico: { rotulo: 'Balanço Hídrico 24h', area: 'enfermagem' },
@@ -63,7 +63,7 @@ export default function MeusRascunhos({ compacto = false }) {
         <i className="ph ph-pencil-simple-line" />
         <div>
           <b>Meus documentos não finalizados ({lista.length})</b>
-          <span>Salvos com "Salvar", mas ainda sem "Salvar e Imprimir". Abra o paciente, vá na mesma aba — o rascunho reabre sozinho — e finalize ou cancele.</span>
+          <span>Salvos com "Salvar Rascunho", mas ainda sem "Finalizar e Imprimir". Abra o paciente, vá na mesma aba — o rascunho reabre sozinho — e finalize ou cancele.</span>
         </div>
       </div>
       {lista.map((r) => {

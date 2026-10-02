@@ -69,7 +69,7 @@ export default function DuplicarEvolucao({ categoria, atendimentoId, temConteudo
                 <span className="dup-evo-resumo">{cfg.resumo(r) || 'Sem texto'}</span>
               </button>
             ))}
-          <p className="dup-evo-nota"><i className="ph ph-info" /> Só aparecem evoluções {categoria === 'medico' ? 'médicas' : 'de enfermagem'} finalizadas (Salvar e Imprimir). Sinais vitais não são copiados.</p>
+          <p className="dup-evo-nota"><i className="ph ph-info" /> Só aparecem evoluções {categoria === 'medico' ? 'médicas' : 'de enfermagem'} finalizadas (Finalizar e Imprimir). Sinais vitais não são copiados.</p>
         </div>
       )}
     </div>

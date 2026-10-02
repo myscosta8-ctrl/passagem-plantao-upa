@@ -129,7 +129,7 @@ export async function listarPrescricoes(atendimentoId) {
 
 export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao, dataReferencia, id, situacao }) {
   // Os itens só podem ser regravados enquanto a prescrição é rascunho (trigger proteger_prescricao_item).
-  // Por isso o "Salvar e Imprimir" é feito em duas etapas: cabeçalho + itens como rascunho e, só depois,
+  // Por isso o "Finalizar e Imprimir" é feito em duas etapas: cabeçalho + itens como rascunho e, só depois,
   // a finalização. Se algo falhar no meio, fica um rascunho (nunca uma prescrição finalizada com itens antigos).
   const meta = typeof situacao === 'string' ? { situacao } : (situacao || {})
   const finalizar = meta.situacao === 'finalizado'
