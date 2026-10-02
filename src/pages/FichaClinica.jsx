@@ -35,7 +35,7 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
 
   if (imprimindo) {
     return (
-      <Suspense fallback={<div className="print-page" style={{ padding: 20, color: '#94A3B8' }}>Carregando visualização de impressão...</div>}>
+      <Suspense fallback={<div className="print-page" style={{ padding: 20, color: 'var(--c-text-muted)' }}>Carregando visualização de impressão...</div>}>
         <FichaClinicaPrint
           atendimentoId={atendimento.atendimento_id}
           tipo={imprimindo.tipo}

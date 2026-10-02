@@ -161,7 +161,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
           <span >
             <i className="ph ph-heartbeat" /> Triagem & Ferramentas
           </span>
-          <span style={{ fontSize: 12, color: '#94A3B8' }}>Recepção</span>
+          <span style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>Recepção</span>
         </div>
 
         <div className="tools-body">
@@ -193,7 +193,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
           </div>
 
           <div>
-            <h3 style={{ fontSize: 12, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
+            <h3 style={{ fontSize: 12, color: 'var(--c-text-muted)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
               <i className="ph ph-magic-wand" /> Modelos de Admissão
             </h3>
             <button

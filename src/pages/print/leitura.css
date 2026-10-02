@@ -1,38 +1,57 @@
 /* ===== Tamanho de letra dos documentos clínicos (legibilidade) =====
-   Meio-termo entre o tamanho antigo (6,5–7 pt, pequeno demais) e o padrão ABNT (12 pt):
-   texto 10 pt; tabelas e itens da prescrição 9,5 pt; cabeçalho do paciente, notas e
-   rodapé 8 pt; títulos das seções 10 pt negrito; título do documento 12 pt.
-   Vale só para documentos marcados com .doc-leitura (formulários oficiais do SUS —
-   AIH, APAC, SINAN, hemoterapia — mantêm o layout do modelo oficial). */
-.doc-leitura * { font-size: 10pt !important; line-height: 1.35 !important; }
+   Meio-termo entre o tamanho antigo (6,5–7 pt) e o padrão ABNT (12 pt). Vale só para
+   documentos marcados com .doc-leitura (formulários oficiais do SUS — AIH, APAC, SINAN,
+   hemoterapia — mantêm o layout do modelo oficial).
+
+   COMO AJUSTAR: os tamanhos ficam nas variáveis --lt-* abaixo. Para mudar TODOS os
+   documentos, altere o valor em .doc-leitura. Para mudar UM documento, redefina a variável
+   no bloco daquele documento (ex.: .doc-leitura .pr-page) — os demais não são afetados.
+   As regras usam !important porque precisam vencer os tamanhos fixos de cada modelo de
+   impresso; o valor vem sempre da variável. */
+.doc-leitura {
+  --lt-texto: 10pt;        --lt-lh: 1.35;          /* texto corrido */
+  --lt-pequeno: 8pt;       --lt-pequeno-lh: 1.25;  /* cabeçalho do paciente, notas e rodapé */
+  --lt-tabela: 9.5pt;      --lt-tabela-lh: 1.3;    /* tabelas */
+  --lt-th: 8.5pt;                                  /* cabeçalho das tabelas */
+  --lt-titulo: 11pt;                               /* título do documento */
+  --lt-nome: 8.5pt;                                /* nome da unidade no timbre */
+}
+.doc-leitura * { font-size: var(--lt-texto) !important; line-height: var(--lt-lh) !important; }
 .doc-leitura :is(.pr-topo, .pr-info, .doc-rodape-container, .doc-rodape-sistema, .doc-rodape-meta, .pr-nota),
 .doc-leitura :is(.pr-topo, .pr-info, .doc-rodape-container, .doc-rodape-sistema, .doc-rodape-meta, .pr-nota) * {
-  font-size: 8pt !important; line-height: 1.25 !important;
+  font-size: var(--lt-pequeno) !important; line-height: var(--lt-pequeno-lh) !important;
 }
-.doc-leitura table, .doc-leitura table * { font-size: 9.5pt !important; line-height: 1.3 !important; }
-.doc-leitura table th { font-size: 8.5pt !important; }
-.doc-leitura .pr-titulo { font-size: 11pt !important; font-weight: 700 !important; }
-.doc-leitura .pr-topo .nome, .doc-leitura .pr-topo .nome * { font-size: 8.5pt !important; }
+.doc-leitura table, .doc-leitura table * { font-size: var(--lt-tabela) !important; line-height: var(--lt-tabela-lh) !important; }
+.doc-leitura table th { font-size: var(--lt-th) !important; }
+.doc-leitura table th * { font-size: var(--lt-th-conteudo, var(--lt-tabela)) !important; }
+.doc-leitura table td .pr-nota, .doc-leitura table td .pr-nota * { font-size: var(--lt-nota-tabela, var(--lt-pequeno)) !important; }
+.doc-leitura .pr-titulo { font-size: var(--lt-titulo) !important; font-weight: 700 !important; }
+.doc-leitura .pr-topo .nome, .doc-leitura .pr-topo .nome * { font-size: var(--lt-nome) !important; }
+
 /* Identificação do paciente (timbre + tabela): 7 pt em TODOS os impressos — legível sem
    ocupar meia folha nem quebrar os campos em duas linhas. */
 .print-area .pr-topo .sub, .print-area .pr-topo .sub *,
 .print-area .pr-info, .print-area .pr-info * { font-size: 7pt !important; line-height: 1.2 !important; }
 .print-area .pr-info .pr-campo { padding-top: 1px !important; padding-bottom: 1px !important; }
+
 /* Altura mínima um pouco menor que a área útil do A4 (assinatura no pé da folha sem empurrar uma folha em branco) */
 .doc-leitura > * { min-height: 265mm !important; }
-.doc-leitura > .pr-page { min-height: 182mm !important; }
-/* Prescrição (paisagem, folha única): um pouco mais compacta para caber os medicamentos do dia */
-.doc-leitura .pr-page * { line-height: 1.2 !important; }
-.doc-leitura .pr-page table th, .doc-leitura .pr-page table th * { font-size: 7.5pt !important; }
-.doc-leitura .pr-page table td, .doc-leitura .pr-page table td * { font-size: 8pt !important; }
-.doc-leitura .pr-page table td .pr-nota, .doc-leitura .pr-page table td .pr-nota * { font-size: 7pt !important; }
-.doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade), .doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade) * { font-size: 8pt !important; }
-.doc-leitura .pr-page table.pr-tabela tbody td { height: 6.5mm; padding: 1.5px 5px !important; }
-/* Admissão de Enfermagem (formulário de marcações, 2 folhas): 9 pt para caber nas 2 folhas
-   sem a assinatura sobrar sozinha numa 3ª folha. */
-.doc-leitura .hef-page * { font-size: 9pt !important; line-height: 1.25 !important; }
-.doc-leitura .hef-page :is(.pr-topo, .pr-info, .doc-rodape-container) * { font-size: 7pt !important; }
+
 /* Bloco de assinatura/rodapé nunca se divide entre duas folhas: se o conteúdo passar
    da página, o documento continua na folha seguinte com a assinatura inteira. */
 .print-area :is(.doc-rodape-container, .doc-rodape-externo, .doc-bloco-assinatura) { break-inside: avoid; page-break-inside: avoid; }
+
+/* ----- Prescrição (paisagem, folha única, 2 vias): mais compacta para caber os medicamentos do dia ----- */
+.doc-leitura .pr-page {
+  --lt-lh: 1.2; --lt-pequeno-lh: 1.2; --lt-tabela-lh: 1.2;
+  --lt-tabela: 8pt; --lt-th: 7.5pt; --lt-th-conteudo: 7.5pt; --lt-nota-tabela: 7pt;
+}
+.doc-leitura > .pr-page { min-height: 182mm !important; }
+.doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade), .doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade) * { font-size: 8pt !important; }
+.doc-leitura .pr-page table.pr-tabela tbody td { height: 6.5mm; padding: 1.5px 5px !important; }
 .doc-leitura .pr-page .pr-via-faixa { font-size: 7pt !important; }
+
+/* ----- Admissão de Enfermagem (formulário de marcações, 2 folhas): 9 pt para caber nas 2 folhas
+   sem a assinatura sobrar sozinha numa 3ª folha. ----- */
+.doc-leitura .hef-page * { font-size: 9pt !important; line-height: 1.25 !important; }
+.doc-leitura .hef-page :is(.pr-topo, .pr-info, .doc-rodape-container) * { font-size: 7pt !important; }

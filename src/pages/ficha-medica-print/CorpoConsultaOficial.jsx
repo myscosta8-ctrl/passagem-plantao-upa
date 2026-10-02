@@ -1,4 +1,5 @@
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
+import RodapeAssinatura from '../print/RodapeAssinatura'
 
 // Réplica do modelo completo de Admissão Médica (17 seções) — cabeçalho
 // UPA/SUS, tabelas, checkboxes — SEM perder nenhum campo clínico já
@@ -68,24 +69,16 @@ export default function CorpoConsultaOficial({ registro, pessoa, atendimento, id
         </div>
       </div>
 
-      <div className="doc-rodape-container">
-        <div className="doc-rodape-externo">
-          <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
-            <div className="hora-envio"><b>Horário da Admissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
-          </div>
-          <div className="doc-bloco-assinatura">
-            <div className="linha-sig" />
-            <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Médico Examinador'}</div>
-            <div className="crm-sig">{medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}</div>
-            <div className="cargo-sig">Médico Plantonista — Clínica Médica</div>
-          </div>
-        </div>
-        <div className="doc-rodape-sistema">
-          <span>Prontuário Eletrônico do Paciente — UPA 24h Breves</span>
-          <span>Admissão Médica</span>
-        </div>
-      </div>
+      <RodapeAssinatura
+        data={new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}
+        rotuloHora='Horário da Admissão:'
+        hora={dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}
+        nome={medico?.nome_exibicao || medico?.nome || 'Médico Examinador'}
+        conselho={medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}
+        cargo='Médico Plantonista — Clínica Médica'
+        sistema='Prontuário Eletrônico do Paciente — UPA 24h Breves'
+        documento='Admissão Médica'
+      />
     </div>
   )
 }

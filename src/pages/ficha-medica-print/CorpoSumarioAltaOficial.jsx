@@ -1,4 +1,5 @@
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
+import RodapeAssinatura from '../print/RodapeAssinatura'
 
 function fmtDataAlta(data) {
   if (!data) return null
@@ -59,24 +60,16 @@ export default function CorpoSumarioAltaOficial({ registro, pessoa, atendimento,
         </div>
       </div>
 
-      <div className="doc-rodape-container">
-        <div className="doc-rodape-externo">
-          <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
-            <div className="hora-envio"><b>Horário da Alta:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
-          </div>
-          <div className="doc-bloco-assinatura">
-            <div className="linha-sig" />
-            <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Médico Assistente'}</div>
-            <div className="crm-sig">{medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}</div>
-            <div className="cargo-sig">Médico Assistente — UPA 24h Breves</div>
-          </div>
-        </div>
-        <div className="doc-rodape-sistema">
-          <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Sumário de Alta Hospitalar</span>
-        </div>
-      </div>
+      <RodapeAssinatura
+        data={new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}
+        rotuloHora='Horário da Alta:'
+        hora={dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}
+        nome={medico?.nome_exibicao || medico?.nome || 'Médico Assistente'}
+        conselho={medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}
+        cargo='Médico Assistente — UPA 24h Breves'
+        sistema='Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA'
+        documento='Sumário de Alta Hospitalar'
+      />
     </div>
   )
 }

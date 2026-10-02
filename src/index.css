@@ -64,7 +64,7 @@
   /* CORES CALMAS — ajuste aqui e o sistema todo muda */
   --c-fill:                #F1F5F9;
   --c-text-soft:           #475569;
-  --c-text-faint:          #94A3B8;
+  --c-text-faint:          #64748B; /* contraste AA (4,8:1) sobre branco */
   --c-danger-border-strong:#E6B3B3;
   --c-warning-text:        #7A5514;
   --c-success-text:        #3E5E4D;
@@ -166,7 +166,7 @@
   /* cores semânticas no tema escuro */
   --c-fill:                #1E2C45;
   --c-text-soft:           #B6C2D3;
-  --c-text-faint:          #71809A;
+  --c-text-faint:          #8593AB; /* contraste AA no tema escuro */
   --c-danger:              #EF4444;
   --c-danger-strong:       #FCA5A5;
   --c-danger-light:        rgba(220, 38, 38, 0.14);
@@ -431,3 +431,10 @@ a:hover { text-decoration: underline; color: var(--c-primary-hover); }
 
 .faixa-erro-app { position: sticky; top: 0; z-index: 2500; display: flex; align-items: center; gap: 8px; background: var(--c-danger-light); border-bottom: 1px solid var(--c-danger-border-strong); color: #991B1B; font-size: 12px; font-weight: 600; padding: 8px 14px; }
 .faixa-erro-app button { margin-left: auto; border: 1px solid var(--c-danger-border-strong); background: var(--c-surface); color: #991B1B; border-radius: 6px; padding: 2px 10px; cursor: pointer; font-weight: 700; }
+
+/* Acessibilidade: foco visível em tudo que é clicável pelo teclado (Tab), mesmo onde o estilo
+   local retirou o contorno. Só aparece na navegação por teclado (:focus-visible). */
+:is(button, a[href], [role="button"], [role="tab"], summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid #3B82F6 !important;
+  outline-offset: 2px !important;
+}

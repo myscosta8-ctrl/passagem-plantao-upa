@@ -327,7 +327,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
           </div>
 
           <div>
-            <h3 style={{ fontSize: 12, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
+            <h3 style={{ fontSize: 12, color: 'var(--c-text-muted)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
               <i className="ph ph-needle" /> Procedimentos SIGTAP Frequentes
             </h3>
             {PROCEDIMENTOS_RAPIDOS.map((p) => (

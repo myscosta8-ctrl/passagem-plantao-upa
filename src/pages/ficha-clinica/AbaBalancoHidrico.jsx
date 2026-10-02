@@ -51,7 +51,7 @@ function Tabela({ tipo, titulo, icon, cols, linhas, nova, setNova, itens, vias, 
           </thead>
           <tbody>
             {linhas.length === 0 && (
-              <tr><td colSpan={4} style={{ color: '#94A3B8', fontSize: 12 }}>Nenhum lançamento nas últimas 24h.</td></tr>
+              <tr><td colSpan={4} style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>Nenhum lançamento nas últimas 24h.</td></tr>
             )}
             {linhas.map((h) => (
               <tr key={h.id}>

@@ -681,7 +681,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
                       {o.frequencia && !FREQUENCIAS_CUIDADOS.includes(o.frequencia) && <option value={o.frequencia}>{o.frequencia}</option>}
                     </select>
                     {orientacaoEnfermagem.length > 1 && (
-                      <button type="button" className="btn-cancel" style={{ padding: '6px 10px' }} onClick={() => removerOrientacao(i)}><i className="ph ph-trash" /></button>
+                      <button type="button" className="btn-cancel" style={{ padding: '6px 10px' }} onClick={() => removerOrientacao(i)} aria-label="Remover orientação" title="Remover orientação"><i className="ph ph-trash" /></button>
                     )}
                   </div>
                 ))}

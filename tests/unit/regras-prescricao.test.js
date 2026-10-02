@@ -217,3 +217,25 @@ export function runModelosEvolucaoTests(test) {
     assert.deepEqual(aplicarModelo({ evolucao_dia: 'Refere dor.' }, modelo, 'substituir'), { evolucao_dia: 'Estável.' });
   });
 }
+
+// Impressos: prescrição e receituário sempre em paisagem; tamanhos de letra num lugar só.
+import fs from 'node:fs';
+export function runImpressaoTests(test) {
+  const ler = (p) => fs.readFileSync(new URL(`../../${p}`, import.meta.url), 'utf8');
+  test('Prescrição em paisagem: página nomeada e impressão avulsa (PaginaImpressao) em A4 landscape', () => {
+    assert.match(ler('src/pages/print/print-prescricao.css'), /@page prescricao\s*\{[^}]*size:\s*A4 landscape/);
+    assert.match(ler('src/pages/print/print-prescricao.css'), /\.pr-page\s*\{\s*page:\s*prescricao/);
+    assert.match(ler('src/pages/FichaMedicaPrint.jsx'), /paisagem=\{tipo === 'prescricao' \|\| tipo === 'receituario'\}/);
+    assert.match(ler('src/pages/print/pacote.css'), /\.pacote-prescricao\s*\{\s*page:\s*prescricao/);
+  });
+  test('Tamanhos de letra dos impressos definidos por variáveis (--lt-*) em leitura.css', () => {
+    const css = ler('src/pages/print/leitura.css');
+    assert.match(css, /\.doc-leitura\s*\{[^}]*--lt-texto:\s*10pt/);
+    assert.ok(!/font-size:\s*\d+(\.\d+)?pt\s*!important;\s*line-height/.test(css.split('Prescrição (paisagem')[0].replace(/\.print-area[^}]*\}/g, '')), 'as regras gerais devem usar var(--lt-*)');
+  });
+  test('Rodapé de assinatura padrão compartilhado pelos documentos clínicos', () => {
+    for (const f of ['ficha-medica-print/CorpoEvolucaoMedicaOficial.jsx', 'ficha-medica-print/CorpoConsultaOficial.jsx', 'ficha-clinica-print/CorpoEvolucaoSaeOficial.jsx']) {
+      assert.match(ler(`src/pages/${f}`), /<RodapeAssinatura/, f);
+    }
+  });
+}

@@ -1,4 +1,5 @@
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
+import RodapeAssinatura from '../print/RodapeAssinatura'
 
 export default function CorpoAtestadoOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const dataInicio = registro.data_inicio ? new Date(registro.data_inicio + 'T00:00:00').toLocaleDateString('pt-BR') : ''
@@ -23,23 +24,14 @@ export default function CorpoAtestadoOficial({ registro, pessoa, atendimento, id
         </div>
       </div>
 
-      <div className="doc-rodape-container">
-        <div className="doc-rodape-externo">
-          <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
-          </div>
-          <div className="doc-bloco-assinatura">
-            <div className="linha-sig" />
-            <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Médico Plantonista'}</div>
-            <div className="crm-sig">{medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}</div>
-            <div className="cargo-sig">Médico Plantonista — UPA 24h Breves</div>
-          </div>
-        </div>
-        <div className="doc-rodape-sistema">
-          <span>Prontuário Eletrônico do Paciente — UPA 24h Breves</span>
-          <span>Atestado Médico</span>
-        </div>
-      </div>
+      <RodapeAssinatura
+        data={new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}
+        nome={medico?.nome_exibicao || medico?.nome || 'Médico Plantonista'}
+        conselho={medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}
+        cargo='Médico Plantonista — UPA 24h Breves'
+        sistema='Prontuário Eletrônico do Paciente — UPA 24h Breves'
+        documento='Atestado Médico'
+      />
     </div>
   )
 }

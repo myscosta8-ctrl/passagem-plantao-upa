@@ -25,7 +25,7 @@
   font-family: 'IBM Plex Sans', Arial, sans-serif;
   color: #111;
   /* Cobre a tela inteira — sem isso, quando aparece como conteúdo extra
-     (ex: FichaMedica dentro de PainelMedico), fica embaixo do que já
+     (ex: FichaMedica aberta a partir do painel), fica embaixo do que já
      estava na página, em vez de substituir a visão inteira. */
   position: fixed;
   inset: 0;

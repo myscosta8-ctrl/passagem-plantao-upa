@@ -1,5 +1,6 @@
 import { EXAME_FISICO_CONFIG, INFO_COMPLEMENTARES_CAMPOS, COLETA_DADOS_OPCOES } from './historicoEnfermagemConfig'
 import CabecalhoPadraoUPA from './CabecalhoPadraoUPA'
+import RodapeAssinatura from './print/RodapeAssinatura'
 
 // ===================== Admissão de Enfermagem (Histórico de Enfermagem) =====================
 // Duas variantes de impressão: "Fiel" replica pixel a pixel o modelo
@@ -105,24 +106,17 @@ export function CorpoHistoricoEnfermagemFiel({ registro, pessoa, atendimento, id
         <div className="hef-linha-check">Obs: <span className="hef-extra hef-extra-largo">{registro.parecer_obs || ''}</span></div>
       </div>
 
-      <div className="doc-rodape-container">
-        <div className="doc-rodape-externo">
-          <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
-            <div className="hora-envio"><b>Horário da Admissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
-          </div>
-          <div className="doc-bloco-assinatura">
-            <div className="linha-sig" />
-            <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Enfermeiro(a) Responsável'}</div>
-            <div className="coren-sig">{medico?.coren ? `COREN-${medico.conselho_uf || 'PA'} ${medico.coren}` : (medico?.crm ? `COREN-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'COREN-PA')}</div>
-            <div className="cargo-sig">Enfermeiro(a) de Admissão — UPA 24h Breves</div>
-          </div>
-        </div>
-        <div className="doc-rodape-sistema">
-          <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Admissão de Enfermagem (Histórico)</span>
-        </div>
-      </div>
+      <RodapeAssinatura
+        data={new Date().toLocaleDateString('pt-BR')}
+        rotuloHora='Horário da Admissão:'
+        hora={dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}
+        nome={medico?.nome_exibicao || medico?.nome || 'Enfermeiro(a) Responsável'}
+        conselhoClasse='coren'
+        conselho={medico?.coren ? `COREN-${medico.conselho_uf || 'PA'} ${medico.coren}` : (medico?.crm ? `COREN-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'COREN-PA')}
+        cargo='Enfermeiro(a) de Admissão — UPA 24h Breves'
+        sistema='Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA'
+        documento='Admissão de Enfermagem (Histórico)'
+      />
     </div>
   )
 }
@@ -297,24 +291,17 @@ export function CorpoHistoricoEnfermagemProjeto({ registro, pessoa, atendimento,
       </div>
 
       {/* RODAPÉ FIXO NO FINAL DA FOLHA A4 */}
-      <div className="doc-rodape-container">
-        <div className="doc-rodape-externo">
-          <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date().toLocaleDateString('pt-BR')}</div>
-            <div className="hora-envio"><b>Horário da Admissão:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
-          </div>
-          <div className="doc-bloco-assinatura">
-            <div className="linha-sig" />
-            <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Enfermeiro(a) Responsável'}</div>
-            <div className="coren-sig">{medico?.coren ? `COREN-${medico.conselho_uf || 'PA'} ${medico.coren}` : (medico?.crm ? `COREN-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'COREN-PA')}</div>
-            <div className="cargo-sig">Enfermeiro(a) de Admissão — UPA 24h Breves</div>
-          </div>
-        </div>
-        <div className="doc-rodape-sistema">
-          <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Admissão de Enfermagem</span>
-        </div>
-      </div>
+      <RodapeAssinatura
+        data={new Date().toLocaleDateString('pt-BR')}
+        rotuloHora='Horário da Admissão:'
+        hora={dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}
+        nome={medico?.nome_exibicao || medico?.nome || 'Enfermeiro(a) Responsável'}
+        conselhoClasse='coren'
+        conselho={medico?.coren ? `COREN-${medico.conselho_uf || 'PA'} ${medico.coren}` : (medico?.crm ? `COREN-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'COREN-PA')}
+        cargo='Enfermeiro(a) de Admissão — UPA 24h Breves'
+        sistema='Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA'
+        documento='Admissão de Enfermagem'
+      />
     </div>
   )
 }

@@ -19,9 +19,6 @@ regra de quando o campo se aplica e a posição exata no PDF (pontos, origem no 
 - antirrabico.js — anti_rabico_v5.pdf
 - violencia.js — violencia_v5.pdf
 
-## Material herdado do Vitaloop (referência, não usado pela tela)
-`fichas.ts`, `schemas/`, `clinical-forms/`, `index.ts`, `rules.ts`, `types.ts`.
-
 ## Regras de preenchimento (todas as fichas)
 
 - Todos os campos da ficha ficam abertos para edição na tela; nenhum é escondido por depender de outro.

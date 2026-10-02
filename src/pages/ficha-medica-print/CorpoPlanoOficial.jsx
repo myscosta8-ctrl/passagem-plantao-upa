@@ -1,4 +1,5 @@
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
+import RodapeAssinatura from '../print/RodapeAssinatura'
 
 // Espelha literalmente as opções de mockups-fase2/07-plano-terapeutico-design.html
 // (seções 4 e 5), para o impresso refletir exatamente o que foi marcado na tela.
@@ -121,24 +122,17 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
         </div>
       </div>
 
-      <div className="doc-rodape-container">
-        <div className="doc-rodape-externo">
-          <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
-            <div className="hora-envio"><b>Elaborado às:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora} &bull; Prontuário Oficial</div>
-          </div>
-          <div className="doc-bloco-assinatura">
-            <div className="linha-sig" />
-            <div className="nome-sig">{medico?.nome_exibicao || medico?.nome || 'Médico Responsável'}</div>
-            <div className="crm-sig">{medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}</div>
-            <div className="cargo-sig">Médico Responsável pelo Plano Terapêutico</div>
-          </div>
-        </div>
-        <div className="doc-rodape-sistema">
-          <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Plano Terapêutico Hospitalar</span>
-        </div>
-      </div>
+      <RodapeAssinatura
+        data={new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}
+        rotuloHora='Elaborado às:'
+        hora={dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}
+        sufixoHora=' • Prontuário Oficial'
+        nome={medico?.nome_exibicao || medico?.nome || 'Médico Responsável'}
+        conselho={medico?.crm ? `CRM-${medico.conselho_uf || 'PA'} ${medico.crm}` : 'CRM/UF'}
+        cargo='Médico Responsável pelo Plano Terapêutico'
+        sistema='Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA'
+        documento='Plano Terapêutico Hospitalar'
+      />
     </div>
   )
 }

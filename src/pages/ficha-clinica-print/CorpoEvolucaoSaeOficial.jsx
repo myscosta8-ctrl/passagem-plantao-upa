@@ -1,4 +1,5 @@
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
+import RodapeAssinatura from '../print/RodapeAssinatura'
 
 export default function CorpoEvolucaoSaeOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
   const enf = registro.enfermeiros || medico || {}
@@ -49,24 +50,17 @@ export default function CorpoEvolucaoSaeOficial({ registro, pessoa, atendimento,
         </div>
       </div>
 
-      <div className="doc-rodape-container">
-        <div className="doc-rodape-externo">
-          <div className="doc-bloco-datahora">
-            <div className="cidade-data">Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
-            <div className="hora-envio"><b>Horário da Evolução:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
-          </div>
-          <div className="doc-bloco-assinatura">
-            <div className="linha-sig" />
-            <div className="nome-sig">{enf.nome_exibicao || enf.nome || 'Enfermeiro(a) Responsável'}</div>
-            <div className="coren-sig">{enf.coren ? `COREN-${enf.conselho_uf || 'PA'} ${enf.coren}` : (enf.crm ? `COREN-${enf.conselho_uf || 'PA'} ${enf.crm}` : 'COREN-PA')}</div>
-            <div className="cargo-sig">Enfermeiro(a) de Plantão — UPA 24h Breves</div>
-          </div>
-        </div>
-        <div className="doc-rodape-sistema">
-          <span>Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA</span>
-          <span>Evolução do Enfermeiro (SAE)</span>
-        </div>
-      </div>
+      <RodapeAssinatura
+        data={new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}
+        rotuloHora='Horário da Evolução:'
+        hora={dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}
+        nome={enf.nome_exibicao || enf.nome || 'Enfermeiro(a) Responsável'}
+        conselhoClasse='coren'
+        conselho={enf.coren ? `COREN-${enf.conselho_uf || 'PA'} ${enf.coren}` : (enf.crm ? `COREN-${enf.conselho_uf || 'PA'} ${enf.crm}` : 'COREN-PA')}
+        cargo='Enfermeiro(a) de Plantão — UPA 24h Breves'
+        sistema='Prontuário Eletrônico do Paciente — UPA 24h Breves / SEMSA'
+        documento='Evolução do Enfermeiro (SAE)'
+      />
     </div>
   )
 }

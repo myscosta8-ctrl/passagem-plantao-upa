@@ -178,7 +178,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
                     <option value="3">03 DIAS</option>
                     <option value="CONTÍNUO">CONTÍNUO</option>
                   </select></div>
-                  <button type="button" className="btn-remove-meta" onClick={() => removerProblema(i)}><i className="ph ph-trash" /></button>
+                  <button type="button" className="btn-remove-meta" onClick={() => removerProblema(i)} aria-label="Remover problema" title="Remover problema"><i className="ph ph-trash" /></button>
                 </div>
               ))}
             </div>

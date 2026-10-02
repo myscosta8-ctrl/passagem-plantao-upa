@@ -94,7 +94,7 @@ function PainelInterno({ setoresIds }) {
       {erroGeral && (
         <div className="error-box" style={{ marginBottom: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{erroGeral}</span>
-          <button onClick={() => setErroGeral('')} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontWeight: 700, cursor: 'pointer' }}><i className="ph ph-x" /></button>
+          <button type="button" aria-label="Fechar aviso" onClick={() => setErroGeral('')} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontWeight: 700, cursor: 'pointer' }}><i className="ph ph-x" /></button>
         </div>
       )}
 
