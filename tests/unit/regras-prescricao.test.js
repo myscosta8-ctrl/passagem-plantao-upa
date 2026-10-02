@@ -354,7 +354,55 @@ export function runCacheTests(test) {
   });
 
   test('Calculadora pediátrica da prescrição: numBR importado (abrir a calculadora não trava a tela)', () => {
+    const s = fs.readFileSync('src/pages/ficha-medica/prescricao/CalculadoraDosePediatrica.jsx', 'utf8');
+    assert.match(s, /import \{[^}]*\bnumBR\b[^}]*\} from '\.\.\/\.\.\/\.\.\/lib\/calculoPediatrico'/);
+  });
+}
+
+// Item 17 — Prescrição dividida em partes (./prescricao/) e "salvar documento" comum.
+import { itemParaBanco, itemDoBanco, camposPrescricaoParaBanco, aplicarCalculoAoItem, ITEM_VAZIO, textoDiluicao } from '../../src/pages/ficha-medica/prescricao/itemPrescricao.js';
+export function runDivisaoPrescricaoTests(test) {
+  test('Item da prescrição: formulário → banco → "Duplicar" volta igual', () => {
+    const form = { ...ITEM_VAZIO, medicamento_nome: ' Dipirona 500 mg/mL ', dose: '1,5', dose_unidade: 'g', via: 'EV', frequencia: '6/6h', condicao: 'Se dor', diluente: 'SF 0,9%', diluente_ml: '100', tempo_infusao: 'Em 30 min', apresentacao: 'AMP', qtd_por_dose: '2' };
+    const banco = itemParaBanco(form);
+    assert.equal(banco.medicamento_nome, 'Dipirona 500 mg/mL');
+    assert.equal(banco.dose, 1.5);
+    assert.equal(banco.diluicao, 'Diluir em 100 mL de SF 0,9% — Em 30 min');
+    assert.equal(banco.sn_aplic, true);
+    assert.equal(banco.observacoes, 'Se dor');
+    assert.equal(banco.qtd_por_dose, 2);
+    const volta = itemDoBanco(banco);
+    assert.equal(volta.dose, '1,5');
+    assert.equal(volta.condicao, 'Se dor');
+    assert.equal(volta.instrucoes, 'Diluir em 100 mL de SF 0,9% — Em 30 min');
+    assert.equal(textoDiluicao({ diluente: '', tempo_infusao: '' }), '');
+  });
+
+  test('Calculadora pediátrica aplicada ao item: dose, frequência e texto de reconstituição', () => {
+    const r = aplicarCalculoAoItem({ ...ITEM_VAZIO, medicamento_nome: 'Ceftriaxona 1 g', via: 'EV' },
+      { pesoKg: '12,5', doseAlvoMgKg: '50', tipoDose: 'dose', apresentacaoMg: '1000', diluenteMl: '10', soroMl: '', frequencia: '12/12h', arredondar: '' }, '');
+    assert.equal(r.item.dose, '625');
+    assert.equal(r.item.frequencia, '12/12h');
+    assert.equal(r.item.instrucoes, 'Reconstituir em 10 mL de AD e aspirar 6,3 mL (50 mg/kg × 12,5 kg)');
+    assert.equal(r.pesoUsado, '12,5');
+    assert.equal(aplicarCalculoAoItem(ITEM_VAZIO, { pesoKg: '', doseAlvoMgKg: '' }, ''), null, 'cálculo incompleto não altera o item');
+  });
+
+  test('Dieta, cuidados e hemocomponentes vão para o banco só com o que foi preenchido', () => {
+    const c = camposPrescricaoParaBanco({ dieta: '', orientacaoEnfermagem: [{ texto: 'SSVV', frequencia: '6/6h' }, { texto: '  ', frequencia: '' }], hemocomponentes: { hemacias: { marcado: true, quantidade: '2 unid.' }, plasma: { marcado: false } }, hemocomponenteObs: '' });
+    assert.equal(c.dieta, null);
+    assert.equal(c.orientacao_enfermagem.length, 1);
+    assert.deepEqual(c.hemocomponentes, [{ tipo: 'Concentrado de Hemácias', quantidade: '2 unid.' }]);
+  });
+
+  test('Aba Prescrição é só o orquestrador e usa o "salvar documento" comum', () => {
     const s = fs.readFileSync('src/pages/ficha-medica/AbaPrescricao.jsx', 'utf8');
-    assert.match(s, /import \{[^}]*\bnumBR\b[^}]*\} from '\.\.\/\.\.\/lib\/calculoPediatrico'/);
+    assert.ok(s.split('\n').length < 400, 'AbaPrescricao.jsx deve ter menos de 400 linhas');
+    assert.match(s, /useSalvarDocumento\(/);
+    for (const parte of ['CalculadoraDosePediatrica', 'EditorItem', 'ListaItens', 'HistoricoPrescricoes', 'GrupoOrientacoes', 'GrupoHemocomponentes', 'AlertasAtm']) {
+      assert.ok(fs.existsSync(`src/pages/ficha-medica/prescricao/${parte}.jsx`), `${parte}.jsx existe`);
+    }
+    const h = fs.readFileSync('src/hooks/useSalvarDocumento.js', 'utf8');
+    assert.match(h, /emAndamento\.current\) return null/, 'clique duplo não grava duas vezes');
   });
 }
