@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar, listarMedicosAtivos, normalizarCid, cidsExistentes } from '../../lib/pepMedico';
 import { useAuth } from '../../lib/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
-import { AIH_VAZIA } from './constantes';
+import { AIH_VAZIA, CLINICAS_AIH } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
@@ -110,7 +110,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
   // de um documento legal (Laudo de AIH/SUS), nunca podem carregar dado de exemplo.
   const [dados, setDados] = useState({
     ...AIH_VAZIA,
-    clinica: isPediatrico ? 'PEDIATRIA / OBSERVAÇÃO' : 'CLÍNICA MÉDICA / OBSERVAÇÃO',
+    clinica: isPediatrico ? 'CLÍNICA PEDIÁTRICA' : 'CLÍNICA MÉDICA',
     carater_internacao: 'URGENCIA',
   });
   const rascunho = useRascunho({ tabela: 'aih_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: (r) => {
@@ -527,7 +527,13 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             <div className="aih-grid" style={{ marginTop: 4 }}>
               <Campo n="27" rotulo="DESCRIÇÃO DO PROCEDIMENTO SOLICITADO" col={8} destaque valor={dados.procedimento_principal_nome} onChange={(v) => set('procedimento_principal_nome', v.toUpperCase())} />
               <Campo n="28" rotulo="CÓDIGO DO PROCEDIMENTO (SIGTAP) — OPCIONAL" col={4} valor={dados.procedimento_principal_codigo} onChange={(v) => set('procedimento_principal_codigo', v.replace(/\D/g, '').slice(0, 10))} placeholder="10 dígitos" />
-              <Campo n="29" rotulo="CLÍNICA" col={4} valor={dados.clinica} onChange={(v) => set('clinica', v.toUpperCase())} />
+              <Campo n="29" rotulo="CLÍNICA" col={4}>
+                <select className="aih-input" value={dados.clinica || ''} onChange={(e) => set('clinica', e.target.value)}>
+                  <option value="">— Selecione a clínica —</option>
+                  {CLINICAS_AIH.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {dados.clinica && !CLINICAS_AIH.includes(dados.clinica) && <option value={dados.clinica}>{dados.clinica}</option>}
+                </select>
+              </Campo>
               <Campo n="30" rotulo="CARÁTER DA INTERNAÇÃO" col={3}>
                 <select className="aih-input" value={dados.carater_internacao === 'ELETIVA' ? 'ELETIVA' : 'URGENCIA'} onChange={(e) => set('carater_internacao', e.target.value)}>
                   <option value="URGENCIA">URGÊNCIA</option>
