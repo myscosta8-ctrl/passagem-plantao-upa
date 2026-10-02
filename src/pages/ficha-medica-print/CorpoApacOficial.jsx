@@ -2,7 +2,10 @@ import { CampoComb, CampoSus, Digitos, limparPrefixo } from './helpersSus'
 
 export default function CorpoApacOficial({ registro, pessoa, atendimento, idade, leitoNumero: _leitoNumero, setorNome: _setorNome, medico, dataHora }) {
   const cf = registro.campos_formulario || {}
-  const enderecoCompleto = [pessoa.endereco, pessoa.endereco_numero, pessoa.bairro].filter(Boolean).join(', ')
+  const enderecoCompleto = cf.endereco || [pessoa.endereco, pessoa.endereco_numero, pessoa.bairro].filter(Boolean).join(', ')
+  // Campos 3-14: o laudo guarda o que foi conferido/corrigido na tela; sem isso, usa o cadastro.
+  const nasc = cf.data_nascimento || pessoa.data_nascimento
+  const sexo = String(cf.sexo || pessoa.sexo || '').charAt(0).toUpperCase()
   const cidPrincipal = registro.cid_principal || cf.cid_principal || ''
   const cidSecundario = registro.cid_secundario || cf.cid_secundario || ''
   const procNome = registro.procedimento_nome || cf.procedimento_nome || ''
@@ -54,25 +57,25 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
         <div className="sus-secao" style={{ border: '1.2px solid #000', padding: '3px 6px' }}>
           <div className="sus-secao-titulo" style={{ fontSize: '8px', fontWeight: 900 }}>IDENTIFICAÇÃO DO PACIENTE</div>
           <div className="sus-grid">
-            <CampoSus cap="3 - NOME DO PACIENTE" val={pessoa.nome} w={2.8} />
-            <CampoSus cap="4 - Nº DO PRONTUÁRIO" val={limparPrefixo(pessoa.prontuario_numero) || atendimento.numero_atendimento} w={1.1} />
-            <CampoComb cap="5 - CARTÃO NACIONAL DE SAÚDE (CNS)" val={pessoa.cns} digitos={15} w={2.3} />
+            <CampoSus cap="3 - NOME DO PACIENTE" val={cf.paciente_nome || pessoa.nome} w={2.8} />
+            <CampoSus cap="4 - Nº DO PRONTUÁRIO" val={limparPrefixo(cf.prontuario_numero || pessoa.prontuario_numero) || atendimento.numero_atendimento} w={1.1} />
+            <CampoComb cap="5 - CARTÃO NACIONAL DE SAÚDE (CNS)" val={cf.paciente_cns || pessoa.cns} digitos={15} w={2.3} />
           </div>
           <div className="sus-grid" style={{ borderTop: '1px solid #777' }}>
-            <CampoSus cap="6 - DATA DE NASCIMENTO" val={`${pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''}${idade ? ` (${idade} anos)` : ''}`} w={1.2} />
+            <CampoSus cap="6 - DATA DE NASCIMENTO" val={`${nasc ? new Date(String(nasc).slice(0, 10) + 'T00:00:00').toLocaleDateString('pt-BR') : ''}${idade ? ` (${idade} anos)` : ''}`} w={1.2} />
             <div className="sus-field" style={{ flexGrow: 1.2, flexBasis: 0 }}>
               <span className="cap">7 - SEXO</span>
-              <span className="val">{pessoa.sexo === 'M' ? '( X ) MASCULINO  ( ) FEMININO' : pessoa.sexo === 'F' ? '( ) MASCULINO  ( X ) FEMININO' : '( ) MASCULINO  ( ) FEMININO'}</span>
+              <span className="val">{sexo === 'M' ? '( X ) MASCULINO  ( ) FEMININO' : sexo === 'F' ? '( ) MASCULINO  ( X ) FEMININO' : '( ) MASCULINO  ( ) FEMININO'}</span>
             </div>
-            <CampoSus cap="8 - NOME DA MÃE OU RESPONSÁVEL" val={pessoa.nome_mae} w={2.2} />
-            <CampoSus cap="9 - TELEFONE DE CONTATO" val={pessoa.telefone || ''} w={1.4} />
+            <CampoSus cap="8 - NOME DA MÃE OU RESPONSÁVEL" val={cf.nome_mae || pessoa.nome_mae} w={2.2} />
+            <CampoSus cap="9 - TELEFONE DE CONTATO" val={cf.telefone || pessoa.telefone || pessoa.telefone_contato || ''} w={1.4} />
           </div>
           <div className="sus-grid" style={{ borderTop: '1px solid #777' }}>
             <CampoSus cap="10 - ENDEREÇO (RUA, Nº, BAIRRO)" val={enderecoCompleto || ''} w={2.5} />
-            <CampoSus cap="11 - MUNICÍPIO DE RESIDÊNCIA" val={pessoa.cidade || ''} w={1.2} />
-            <CampoComb cap="12 - CÓD. IBGE MUNICÍPIO" val={cf.ibge_municipio || ''} digitos={7} w={1.1} />
-            <CampoSus cap="13 - UF" val={pessoa.uf || 'PA'} w={0.4} />
-            <CampoComb cap="14 - CEP" val={pessoa.cep || ''} digitos={8} w={1.2} />
+            <CampoSus cap="11 - MUNICÍPIO DE RESIDÊNCIA" val={cf.municipio || pessoa.cidade || ''} w={1.2} />
+            <CampoComb cap="12 - CÓD. IBGE MUNICÍPIO" val={cf.ibge_municipio || pessoa.municipio_ibge || ''} digitos={7} w={1.1} />
+            <CampoSus cap="13 - UF" val={cf.uf || pessoa.uf || 'PA'} w={0.4} />
+            <CampoComb cap="14 - CEP" val={String(cf.cep || pessoa.cep || '').replace(/\D/g, '')} digitos={8} w={1.2} />
           </div>
         </div>
 
@@ -181,7 +184,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
           <div className="sus-grid" style={{ borderTop: '1px solid #777' }}>
             <CampoComb cap="49 - Nº DA AUTORIZAÇÃO (APAC)" val={registro.numero_autorizacao || cf.numero_autorizacao || ''} digitos={13} w={2.3} />
             <CampoSus cap="47 - DATA" val={cf.data_autorizacao ? new Date(cf.data_autorizacao + 'T00:00:00').toLocaleDateString('pt-BR') : '____/____/________'} w={1} />
-            <CampoSus cap="50 - PERÍODO DE VALIDADE DA APAC" val={registro.validade_inicio ? `${new Date(registro.validade_inicio + 'T00:00:00').toLocaleDateString('pt-BR')} A ${new Date(registro.validade_fim + 'T00:00:00').toLocaleDateString('pt-BR')}` : '____/____/________  A  ____/____/________'} w={2.5} />
+            <CampoSus cap="50 - PERÍODO DE VALIDADE DA APAC" val={(registro.validade_inicio || cf.validade_inicio) ? `${new Date((registro.validade_inicio || cf.validade_inicio) + 'T00:00:00').toLocaleDateString('pt-BR')} A ${(registro.validade_fim || cf.validade_fim) ? new Date((registro.validade_fim || cf.validade_fim) + 'T00:00:00').toLocaleDateString('pt-BR') : '____/____/________'}` : '____/____/________  A  ____/____/________'} w={2.5} />
           </div>
         </div>
 

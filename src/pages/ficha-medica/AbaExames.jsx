@@ -199,8 +199,8 @@ const APAC_VAZIA = {
 };
 
 export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar, abrirApacCompleto = false }) {
-  const [apacCompleto, setApacCompleto] = useState(abrirApacCompleto);
-  const [modalidade, setModalidade] = useState('lab'); // 'lab' | 'img' | 'ecg' | 'apac'
+  // APAC abre sempre o laudo oficial completo (52 campos), sem tela-resumo.
+  const [modalidade, setModalidade] = useState(abrirApacCompleto ? 'apac' : 'lab'); // 'lab' | 'img' | 'ecg' | 'apac'
   const [labSelecionados, setLabSelecionados] = useState({});
   const [imgSelecionados, setImgSelecionados] = useState({});
   const [ecgSelecionados, setEcgSelecionados] = useState({});
@@ -440,16 +440,28 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
 
   const cfg = MODALIDADE_CONFIG[modalidade];
 
-  if (apacCompleto) {
+  const navModalidades = (
+    <div className="modality-nav modality-nav-topo" role="tablist" aria-label="Tipo de pedido">
+      {[['lab', 'ph-flask', 'Laboratório', countLab], ['img', 'ph-scan', 'Imagem', countImg], ['ecg', 'ph-heartbeat', 'ECG', countEcg], ['apac', 'ph-file-text', 'APAC', 0]].map(([k, ic, rot, n]) => (
+        <button key={k} type="button" role="tab" aria-selected={modalidade === k} className={'modality-btn ' + (modalidade === k ? 'active' : '')} onClick={() => setModalidade(k)}>
+          <span><i className={'ph ' + ic} /> {rot}</span>
+          {n > 0 && <span className="modality-badge">{n}</span>}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (modalidade === 'apac') {
     return (
       <AbaApac
         atendimento={atendimento}
         medicoId={medicoId}
         medicoNome={medicoNome}
         medicoCrm={medicoCrm}
-        onImprimir={onImprimir}
-        onFechar={() => { setApacCompleto(false); setModalidade('apac'); }}
-        rotuloFechar="Voltar para Exames"
+        onImprimir={(registro) => onImprimir?.(registro, 'apac')}
+        onFechar={onFechar}
+        topo={navModalidades}
+        preset={apacDados.procedimento_nome ? apacDados : null}
       />
     );
   }
@@ -527,14 +539,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           </div><div style={{display:'flex', gap: 12, alignItems: 'center'}}><span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>Em Aberto - Urgência</span><button type="button" className="btn btn-outline" onClick={() => setHistoricoAberto(true)} style={{ height: 32, fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}><i className="ph ph-clock-counter-clockwise"></i> Ver Histórico</button></div></header>
 
         <div className="cc-body">
-          <div className="modality-nav modality-nav-topo" role="tablist" aria-label="Tipo de pedido">
-            {[['lab', 'ph-flask', 'Laboratório', countLab], ['img', 'ph-scan', 'Imagem', countImg], ['ecg', 'ph-heartbeat', 'ECG', countEcg], ['apac', 'ph-file-text', 'APAC', countApac]].map(([k, ic, rot, n]) => (
-              <button key={k} type="button" role="tab" aria-selected={modalidade === k} className={'modality-btn ' + (modalidade === k ? 'active' : '')} onClick={() => setModalidade(k)}>
-                <span><i className={'ph ' + ic} /> {rot}</span>
-                {n > 0 && <span className="modality-badge">{n}</span>}
-              </button>
-            ))}
-          </div>
+          {navModalidades}
 
           {/* 1. DADOS DO PEDIDO — por modalidade, com identificação real do atendimento/médico */}
           {(modalidade === 'lab' || modalidade === 'img' || modalidade === 'ecg') && (
@@ -586,100 +591,6 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
                   <input type="text" className="form-control" value={medicoSolicitante} readOnly />
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* 4ª MODALIDADE: LAUDO APAC — funcional de verdade (salva em apac_solicitacoes) */}
-          {modalidade === 'apac' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div className="allergy-alert" style={{ background: 'var(--c-primary-soft, #F0FDFA)', borderColor: 'var(--c-primary-borda, #99F6E4)' }}>
-                <div className="info" style={{ color: 'var(--c-primary-hover, #0F766E)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, width: '100%' }}>
-                  <span><i className="ph ph-file-text" /> Laudo oficial do Ministério da Saúde com os 52 campos (paciente, procedimentos secundários, autorização e executante).</span>
-                  <button type="button" className="btn-save-print" onClick={() => setApacCompleto(true)}>
-                    <i className="ph ph-arrow-square-out" /> Abrir Laudo APAC Completo
-                  </button>
-                </div>
-              </div>
-              <div className="form-section">
-                <div className="form-section-title">
-                  <span className="st-left"><i className="ph ph-buildings" /> Estabelecimento Solicitante (Campos 1 e 2)</span>
-                  <span style={{ fontSize: 12, color: 'var(--c-primary-hover, #0F766E)', fontWeight: 700 }}>Regulação Externa SUS / SER-PA</span>
-                </div>
-                <div className="grid-2">
-                  <div className="form-group">
-                    <label>1 - Nome do Estabelecimento de Saúde</label>
-                    <input type="text" className="form-control" value="UPA 24 HORAS BREVES" readOnly />
-                  </div>
-                  <div className="form-group">
-                    <label>2 - CNES</label>
-                    <input type="text" className="form-control" value="2418657" readOnly />
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-section">
-                <div className="form-section-title">
-                  <span className="st-left"><i className="ph ph-list-numbers" /> Procedimento Principal Solicitado (Campos 15, 16 e 17)</span>
-                </div>
-                <div className="grid-3">
-                  <div className="form-group">
-                    <label>15 - Código de Procedimento (SIGTAP)</label>
-                    <input type="text" className="form-control" placeholder="ex: 02.05.02.004-6" value={apacDados.procedimento_codigo} onChange={(e) => setApacCampo('procedimento_codigo', e.target.value)} />
-                  </div>
-                  <div className="form-group" style={{ gridColumn: 'span 1' }}>
-                    <label>16 - Nome do Procedimento Principal *</label>
-                    <input type="text" className="form-control" placeholder="ex: ULTRASSONOGRAFIA DE ABDOME TOTAL" value={apacDados.procedimento_nome} onChange={(e) => setApacCampo('procedimento_nome', e.target.value.toUpperCase())} />
-                  </div>
-                  <div className="form-group">
-                    <label>17 - Quantidade</label>
-                    <input type="number" min="1" className="form-control" value={apacDados.quantidade} onChange={(e) => setApacCampo('quantidade', e.target.value)} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-section">
-                <div className="form-section-title">
-                  <span className="st-left"><i className="ph ph-file-text" /> Justificativa do Procedimento (Campos 33 a 37)</span>
-                </div>
-                <div className="grid-3" style={{ marginBottom: 10 }}>
-                  <div className="form-group">
-                    <label>33 - Descrição do Diagnóstico</label>
-                    <input type="text" className="form-control" value={apacDados.descricao_diagnostico} onChange={(e) => setApacCampo('descricao_diagnostico', e.target.value.toUpperCase())} />
-                  </div>
-                  <div className="form-group">
-                    <label>34 - CID-10 Principal</label>
-                    <input type="text" className="form-control" placeholder="ex: N17.9" value={apacDados.cid_principal} onChange={(e) => setApacCampo('cid_principal', e.target.value.toUpperCase())} />
-                  </div>
-                  <div className="form-group">
-                    <label>35 - CID-10 Secundário</label>
-                    <input type="text" className="form-control" placeholder="ex: R10.4" value={apacDados.cid_secundario} onChange={(e) => setApacCampo('cid_secundario', e.target.value.toUpperCase())} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label>37 - Histórico / Justificativa Clínica (Campo Oficial do SUS) *</label>
-                  <textarea rows="4" className="form-control-area" placeholder="Descreva o quadro clínico, parâmetros de gravidade e a indicação do procedimento..." value={apacDados.justificativa} onChange={(e) => setApacCampo('justificativa', e.target.value)} />
-                </div>
-              </div>
-
-              <div className="form-section">
-                <div className="form-section-title">
-                  <span className="st-left"><i className="ph ph-user" /> Solicitação Médica (Campos 38 e 39)</span>
-                </div>
-                <div className="grid-3">
-                  <div className="form-group">
-                    <label>38 - Profissional Solicitante</label>
-                    <input type="text" className="form-control" value={medicoSolicitante} readOnly />
-                  </div>
-                  <div className="form-group">
-                    <label>39 - Data da Solicitação</label>
-                    <input type="text" className="form-control" value={dataHoraSolicitacao.split(',')[0] || dataHoraSolicitacao} readOnly />
-                  </div>
-                </div>
-              </div>
-
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
-                Este é um resumo rápido da APAC (campos essenciais). Para o laudo oficial com todos os 52 campos, use o botão "Abrir Laudo APAC Completo" acima.
-              </p>
             </div>
           )}
 

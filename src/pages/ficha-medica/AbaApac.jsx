@@ -3,6 +3,7 @@ import { criarApac, buscarCabecalhoImpressao } from '../../lib/pepMedico';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
+import { supabase } from '../../lib/supabaseClient';
 
 // Laudo para Solicitação/Autorização de Procedimento Ambulatorial (APAC) —
 // documento oficial do Ministério da Saúde, impresso 18-laudo-apac-procedimento-ambulatorial.html.
@@ -37,7 +38,7 @@ const APAC_VAZIA = {
 
 const soDigitos = (v) => String(v || '').replace(/\D/g, '');
 
-export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar, rotuloFechar = 'Cancelar' }) {
+export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar, rotuloFechar = 'Cancelar', topo = null, preset = null }) {
   const [dados, setDados] = useState(APAC_VAZIA);
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
@@ -48,6 +49,32 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
 
   useEffect(() => { preencherDoCadastro(); }, [atendimento?.atendimento_id]);
 
+  // Modelo rápido (ex.: "Preencher APAC - USG Total") vindo da tela de Exames.
+  useEffect(() => {
+    if (!preset) return;
+    setDados((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(preset).filter(([, v]) => v !== '' && v != null)) }));
+  }, [preset]);
+
+  // 40/41 (CNS/CPF do médico): o cadastro do profissional não guarda o número —
+  // reaproveita o que o mesmo médico informou na última APAC ou AIH dele.
+  useEffect(() => {
+    if (!medicoId) return;
+    let vivo = true;
+    (async () => {
+      for (const [tabela, col] of [['apac_solicitacoes', 'solicitante_id'], ['aih_solicitacoes', 'solicitante_id']]) {
+        const { data } = await supabase.from(tabela).select('campos_formulario').eq(col, medicoId)
+          .not('campos_formulario->>profissional_documento_numero', 'is', null)
+          .order('criado_em', { ascending: false }).limit(1).maybeSingle();
+        const cf = data?.campos_formulario;
+        if (cf?.profissional_documento_numero) {
+          if (vivo) setDados((prev) => (prev.profissional_documento_numero ? prev : { ...prev, profissional_documento_tipo: cf.profissional_documento_tipo || 'CNS', profissional_documento_numero: cf.profissional_documento_numero }));
+          return;
+        }
+      }
+    })();
+    return () => { vivo = false };
+  }, [medicoId]);
+
 
   async function preencherDoCadastro() {
     const base = { ...APAC_VAZIA, profissional_solicitante_nome: medicoNome || '', profissional_crm: medicoCrm ? `CRM ${medicoCrm}` : '' };
@@ -56,7 +83,9 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
       const cab = await buscarCabecalhoImpressao(atendimento.atendimento_id)
         .catch(() => new Promise((r) => setTimeout(r, 1500)).then(() => buscarCabecalhoImpressao(atendimento.atendimento_id)));
       const { pessoa: p, atendimento: a } = cab;
-      setDados({
+      // Junta com o que já estiver na tela (rascunho reaberto ou modelo rápido): o que o profissional
+      // já preencheu prevalece sobre o cadastro.
+      const doCadastro = {
         ...base,
         paciente_nome: p?.nome || '',
         prontuario_numero: p?.prontuario_numero || a?.numero_atendimento || '',
@@ -70,6 +99,11 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
         ibge_municipio: p?.municipio_ibge || '',
         uf: p?.uf || '',
         cep: soDigitos(p?.cep),
+      };
+      setDados((prev) => {
+        const novo = { ...doCadastro };
+        for (const [k, v] of Object.entries(prev)) if (v !== '' && v != null && v !== APAC_VAZIA[k]) novo[k] = v;
+        return novo;
       });
     } catch {
       setDados(base);
@@ -149,6 +183,7 @@ export default function AbaApac({ atendimento, medicoId, medicoNome, medicoCrm, 
       </div>
 
       <div className="cc-body">
+        {topo}
         {secao('ph-buildings', 'Identificação do Estabelecimento de Saúde (Solicitante) — Campos 1 e 2', grade('3fr 1fr', <>
           {input('estabelecimento_solicitante_nome', '1 - Nome do estabelecimento de saúde')}
           {input('estabelecimento_solicitante_cnes', '2 - CNES')}
