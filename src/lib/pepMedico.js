@@ -3,6 +3,7 @@ import { calcularIdade } from './pepAtendimentos.js'
 
 import { gravar, MSG_FINALIZADO } from './documentos.js'
 import { avisarErro } from './erros.js'
+import { avisando, dadosMudaram } from './cache.js'
 export { invalidarRegistro, MSG_FINALIZADO } from './documentos.js'
 
 
@@ -124,10 +125,18 @@ export async function listarPrescricoes(atendimentoId) {
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
   if (error) avisarErro('pepMedico', error)
-  return data ?? []
+  const lista = data ?? []
+  if (error) lista.falhou = true // falha ao carregar não fica guardada no cache
+  return lista
 }
 
-export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao, dataReferencia, id, situacao }) {
+// Os itens são gravados depois do cabeçalho: ao terminar (com ou sem erro), avisa o cache de novo
+// para nenhuma tela ficar com a prescrição sem os itens.
+export async function criarPrescricao(args) {
+  try { return await gravarPrescricao(args) } finally { dadosMudaram('prescricoes_medicas') }
+}
+
+async function gravarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao, dataReferencia, id, situacao }) {
   // Os itens só podem ser regravados enquanto a prescrição é rascunho (trigger proteger_prescricao_item).
   // Por isso o "Finalizar e Imprimir" é feito em duas etapas: cabeçalho + itens como rascunho e, só depois,
   // a finalização. Se algo falhar no meio, fica um rascunho (nunca uma prescrição finalizada com itens antigos).
@@ -279,7 +288,9 @@ export async function cidsExistentes(codigos) {
 export async function listarExames(atendimentoId) {
   const { data, error: erroConsulta11 } = await supabase.from('exames_solicitados').select('*, enfermeiros!exames_solicitados_solicitado_por_fkey(nome_exibicao, nome, crm, coren, conselho_uf)').eq('atendimento_id', atendimentoId).order('criado_em', { ascending: false })
   if (erroConsulta11) avisarErro('pepMedico', erroConsulta11)
-  return data ?? []
+  const lista = data ?? []
+  if (erroConsulta11) lista.falhou = true // falha ao carregar não fica guardada no cache
+  return lista
 }
 
 export async function criarExame({ atendimentoId, nome, preparo, agendadoPara, local, solicitadoPor, modalidade, exames, justificativa, urgencia, id, situacao }) {
@@ -384,7 +395,9 @@ export async function listarAtm(atendimentoId) {
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
   if (erroConsulta17) avisarErro('pepMedico', erroConsulta17)
-  return data ?? []
+  const lista = data ?? []
+  if (erroConsulta17) lista.falhou = true // falha ao carregar não fica guardada no cache
+  return lista
 }
 
 export async function criarAtm({ atendimentoId, solicitanteId, dados, id, situacao }) {
@@ -416,7 +429,9 @@ export async function listarEvolucoesMedicas(atendimentoId) {
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
   if (erroConsulta19) avisarErro('pepMedico', erroConsulta19)
-  return data ?? []
+  const lista = data ?? []
+  if (erroConsulta19) lista.falhou = true // falha ao carregar não fica guardada no cache
+  return lista
 }
 
 export async function criarEvolucaoMedica({ atendimentoId, criadoPor, dados, id, situacao }) {
@@ -542,14 +557,14 @@ export async function buscarAberturaRegulacao(atendimentoId) {
 }
 
 export async function abrirRegulacao(atendimentoId, tipo) {
-  return supabase
+  return avisando(supabase
     .from('atendimentos')
     .update({ regulacao_flag: true, regulacao_tipo: tipo, regulacao_aberta_em: new Date().toISOString() })
-    .eq('id', atendimentoId)
+    .eq('id', atendimentoId), 'atendimentos')
 }
 
 export async function encerrarRegulacao(atendimentoId) {
-  return supabase.from('atendimentos').update({ regulacao_flag: false }).eq('id', atendimentoId)
+  return avisando(supabase.from('atendimentos').update({ regulacao_flag: false }).eq('id', atendimentoId), 'atendimentos')
 }
 
 // ===================== Medicações contínuas =====================

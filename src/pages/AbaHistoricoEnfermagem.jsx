@@ -1,7 +1,8 @@
 import { avisarErro } from '../lib/erros'
 import { useEffect, useState } from 'react'
 import { buscarHistoricoEnfermagem, salvarHistoricoEnfermagem } from '../lib/pepMedico'
-import { listarEscalas, listarDispositivos, listarAlergias } from '../lib/pepClinico'
+import { listarEscalas, listarDispositivos } from '../lib/pepClinico'
+import { useAlergias } from '../lib/consultasPaciente'
 import AbaAlergias from './ficha-clinica/AbaAlergias'
 import AbaDispositivos from './ficha-clinica/AbaDispositivos'
 import AbaEscalas from './ficha-clinica/AbaEscalas'
@@ -134,12 +135,12 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
   const [gerenciar, setGerenciar] = useState(null) // 'alergias' | 'dispositivos' | 'escalas'
   const [escalas, setEscalas] = useState([])
   const [dispositivos, setDispositivos] = useState([])
-  const [alergias, setAlergias] = useState([])
+  const al = useAlergias(atendimento.pessoa_id) // cache entre abas; atualiza sozinho ao registrar
+  const alergias = al.falhou ? Object.assign([], { falhou: true }) : (al.lista || [])
 
   function carregarApoio() {
     listarEscalas(atendimento.atendimento_id).then(setEscalas)
     listarDispositivos(atendimento.atendimento_id).then(setDispositivos)
-    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then(setAlergias)
   }
 
   useEffect(() => {

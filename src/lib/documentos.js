@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient.js'
 import { avisarErro } from './erros.js'
+import { dadosMudaram } from './cache.js'
 
 // ===================== Regras de documento clínico =====================
 // "Salvar Rascunho" grava como rascunho (editável pelo autor); "Finalizar e Imprimir"
@@ -7,7 +8,11 @@ import { avisarErro } from './erros.js'
 // atualiza o próprio rascunho em vez de criar outro registro.
 // Avisa as telas (ex.: contador de "documentos não finalizados" no menu) que um documento mudou.
 export const EVENTO_DOCUMENTOS = 'documentos-alterados'
-function avisarMudanca() { try { window.dispatchEvent(new Event(EVENTO_DOCUMENTOS)) } catch { /* fora do navegador */ } }
+// Também avisa o cache entre abas (lib/cache.js) para as telas abertas buscarem de novo.
+function avisarMudanca(tabela) {
+  dadosMudaram(tabela)
+  try { window.dispatchEvent(new Event(EVENTO_DOCUMENTOS)) } catch { /* fora do navegador */ }
+}
 
 export function gravar(tabela, id, row, situacao, select = '*') {
   // situacao: 'rascunho' | 'finalizado' ou { situacao, data_registro } (ver metaDoc)
@@ -15,11 +20,13 @@ export function gravar(tabela, id, row, situacao, select = '*') {
   const linha = { ...row, ...meta }
   const q = id ? supabase.from(tabela).update(linha).eq('id', id) : supabase.from(tabela).insert(linha)
   // .then() transforma em Promise comum (executa a gravação uma única vez)
-  return q.select(select).single().then((r) => { if (!r.error) avisarMudanca(); return r })
+  return q.select(select).single().then((r) => { if (!r.error) avisarMudanca(tabela); return r })
 }
 
 export async function invalidarRegistro(tabela, id, motivo) {
-  return supabase.rpc('invalidar_registro', { p_tabela: tabela, p_id: id, p_motivo: motivo })
+  const r = await supabase.rpc('invalidar_registro', { p_tabela: tabela, p_id: id, p_motivo: motivo })
+  if (!r.error) avisarMudanca(tabela)
+  return r
 }
 
 export const MSG_FINALIZADO = 'Este documento já foi finalizado (Finalizar e Imprimir) e não pode mais ser editado — apenas invalidado.'
@@ -80,6 +87,6 @@ async function aihEncaminhada(atendimentoId, medicoId, id) {
 export async function descartarRascunho(tabela, id) {
   if (!id) return { error: null }
   const r = await supabase.from(tabela).delete().eq('id', id).eq('situacao', 'rascunho')
-  if (!r.error) avisarMudanca()
+  if (!r.error) avisarMudanca(tabela)
   return r
 }

@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { gravar, metaDoc } from '../../lib/documentos';
-import { buscarCabecalhoImpressao, mensagemErroSalvar } from '../../lib/pepMedico';
+import { mensagemErroSalvar } from '../../lib/pepMedico';
+import { useCabecalhoPaciente } from '../../lib/consultasPaciente';
 import { useRascunho } from '../../hooks/useRascunho';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 
@@ -15,7 +16,7 @@ export default function AbaRegistroMulti({ atendimento, autorId, doc, podeCriar,
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
-  const [idade, setIdade] = useState(null);
+  const idade = useCabecalhoPaciente(atendimento?.atendimento_id).data?.idade ?? null; // cache entre abas
   const filtro = useMemo(() => ({ tipo }), [tipo]);
 
   const rascunho = useRascunho({
@@ -23,13 +24,6 @@ export default function AbaRegistroMulti({ atendimento, autorId, doc, podeCriar,
     campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro,
     onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.'),
   });
-
-  useEffect(() => {
-    if (!atendimento?.atendimento_id) return;
-    let vivo = true;
-    buscarCabecalhoImpressao(atendimento.atendimento_id).then((c) => { if (vivo) setIdade(c?.idade ?? null); }).catch(() => {});
-    return () => { vivo = false; };
-  }, [atendimento?.atendimento_id]);
 
   const ctx = { idade };
   const set = (k, v) => setDados((p) => ({ ...p, [k]: v }));

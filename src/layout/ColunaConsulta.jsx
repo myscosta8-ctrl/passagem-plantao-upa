@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react'
-import { listarEvolucoes } from '../lib/pepClinico'
-import { listarEvolucoesMedicas, listarPrescricoes, listarExames } from '../lib/pepMedico'
+import { useEvolucoes, useEvolucoesMedicas, usePrescricoes, useExames } from '../lib/consultasPaciente'
 
 // Coluna de consulta à direita da janela flutuante (mockup 02): só leitura.
 // Última evolução da categoria, prescrição vigente e exames solicitados.
@@ -9,23 +7,16 @@ const nomeProf = (e) => (e ? e.nome_exibicao || e.nome : null)
 const finalizado = (r) => (r.situacao || 'finalizado') === 'finalizado'
 
 export default function ColunaConsulta({ atendimentoId, categoria }) {
-  const [evo, setEvo] = useState(undefined)
-  const [presc, setPresc] = useState(undefined)
-  const [exames, setExames] = useState(undefined)
-
-  useEffect(() => {
-    if (!atendimentoId) return undefined
-    let vivo = true
-    const buscaEvo = categoria === 'medico' ? listarEvolucoesMedicas(atendimentoId) : listarEvolucoes(atendimentoId)
-    buscaEvo.then((l) => {
-      if (!vivo) return
-      const validas = l.filter(finalizado).filter((r) => categoria === 'medico' || r.tipo !== 'medico')
-      setEvo(validas[0] || null)
-    })
-    listarPrescricoes(atendimentoId).then((l) => { if (vivo) setPresc(l.filter(finalizado).find((p) => !p.cancelada_em && !p.cancelado_em) || null) })
-    listarExames(atendimentoId).then((l) => { if (vivo) setExames(l.filter(finalizado).slice(0, 6)) })
-    return () => { vivo = false }
-  }, [atendimentoId, categoria])
+  // Cache entre abas (lib/cache.js): undefined = carregando; gravar um documento atualiza sozinho.
+  const medico = categoria === 'medico'
+  const qEvoMed = useEvolucoesMedicas(medico ? atendimentoId : null)
+  const qEvoEnf = useEvolucoes(medico ? null : atendimentoId)
+  const listaEvo = (medico ? qEvoMed : qEvoEnf).data
+  const listaPresc = usePrescricoes(atendimentoId).data
+  const listaExames = useExames(atendimentoId).data
+  const evo = listaEvo === undefined ? undefined : (listaEvo.filter(finalizado).filter((r) => medico || r.tipo !== 'medico')[0] || null)
+  const presc = listaPresc === undefined ? undefined : (listaPresc.filter(finalizado).find((p) => !p.cancelada_em && !p.cancelado_em) || null)
+  const exames = listaExames === undefined ? undefined : listaExames.filter(finalizado).slice(0, 6)
 
   const textoEvo = evo ? (categoria === 'medico' ? [evo.evolucao_dia, evo.conduta_medica].filter(Boolean).join(' — ') : evo.texto) : ''
   const itens = (presc?.prescricao_itens || []).filter((i) => i.status !== 'suspenso' && i.status !== 'cancelado')

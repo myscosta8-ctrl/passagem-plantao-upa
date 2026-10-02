@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { buscarOcupacaoAtiva, registrarTransferenciaSbar, listarAlergias, alergiasAtivas, listarSinaisVitais } from '../../lib/pepClinico';
+import { buscarOcupacaoAtiva, registrarTransferenciaSbar } from '../../lib/pepClinico';
+import { useAlergias, doCache } from '../../lib/consultasPaciente';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
@@ -35,7 +36,8 @@ const VAZIO = {
 export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) {
   const [d, setD] = useState(VAZIO);
   const [ocupacao, setOcupacao] = useState(null);
-  const [alergias, setAlergias] = useState([]);
+  const al = useAlergias(atendimento.pessoa_id);
+  const alergias = al.ativas || [];
   const [filtro, setFiltro] = useState('todas');
   const [recolhidas, setRecolhidas] = useState(() => new Set());
   const [salvando, setSalvando] = useState(false);
@@ -46,9 +48,8 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
 
   useEffect(() => {
     buscarOcupacaoAtiva(atendimento.atendimento_id).then(setOcupacao);
-    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => setAlergias(alergiasAtivas(l)));
     // Pré-preenche o embarque com a última aferição (editável).
-    listarSinaisVitais(atendimento.atendimento_id).then((l) => {
+    doCache('sinaisVitais', atendimento.atendimento_id).then((l) => {
       const s = l[0]; if (!s) return;
       setD((p) => ({
         ...p,
@@ -68,7 +69,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
 
   async function salvar(imprimir = false) {
     if (!d.hospital_destino.trim() || !d.diagnostico.trim()) { setMsg({ erro: true, t: 'Preencha ao menos o hospital/serviço de destino e o diagnóstico principal de saída.' }); return; }
-    if (imprimir && alergias.falhou) { setMsg({ erro: true, t: 'Não foi possível conferir as alergias do paciente (falha de conexão). Feche e abra a transferência de novo antes de finalizar.' }); return; }
+    if (imprimir && (al.falhou || al.carregando)) { setMsg({ erro: true, t: 'Não foi possível conferir as alergias do paciente (falha de conexão). Feche e abra a transferência de novo antes de finalizar.' }); return; }
     setMsg(null); setSalvando(true);
     const [pas, pad] = String(d.pa).split(/[x/]/i).map((x) => x.trim());
     const { data, error } = await registrarTransferenciaSbar({

@@ -1,23 +1,18 @@
-import { useEffect, useState } from 'react';
-import { listarAlergias, registrarAlergia, inativarAlergia } from '../../lib/pepClinico';
+import { useState } from 'react';
+import { registrarAlergia, inativarAlergia } from '../../lib/pepClinico';
+import { useAlergias } from '../../lib/consultasPaciente';
 import { GRAVIDADES } from './constantes';
 
 export default function AbaAlergias({ atendimento, onFechar }) {
-  const [lista, setLista] = useState([])
-  const [carregando, setCarregando] = useState(true)
+  // Lista do cache entre abas; registrar/inativar atualiza sozinho (lib/cache.js).
+  const al = useAlergias(atendimento.pessoa_id)
+  const lista = al.falhou ? Object.assign([], { falhou: true }) : (al.lista || [])
+  const carregando = al.carregando
   const [substancia, setSubstancia] = useState('')
   const [reacao, setReacao] = useState('')
   const [gravidade, setGravidade] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
-
-  useEffect(() => { carregar() }, [])
-
-  async function carregar() {
-    setCarregando(true)
-    setLista(await listarAlergias(atendimento.pessoa_id))
-    setCarregando(false)
-  }
 
   async function registrar() {
     if (!substancia.trim()) return
@@ -33,12 +28,10 @@ export default function AbaAlergias({ atendimento, onFechar }) {
     setSubstancia('')
     setReacao('')
     setGravidade('')
-    carregar()
   }
 
   async function inativar(id) {
     await inativarAlergia(id)
-    carregar()
   }
 
   const ativas = lista.filter((a) => a.status === 'ativa')
@@ -73,7 +66,7 @@ export default function AbaAlergias({ atendimento, onFechar }) {
       {carregando ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
       ) : lista.falhou ? (
-        <p style={{ color: '#B91C1C' }}><i className="ph ph-warning" /> Não foi possível carregar as alergias (falha de conexão). <button type="button" className="btn-add-chip" onClick={carregar}>Tentar de novo</button></p>
+        <p style={{ color: '#B91C1C' }}><i className="ph ph-warning" /> Não foi possível carregar as alergias (falha de conexão). <button type="button" className="btn-add-chip" onClick={al.recarregar}>Tentar de novo</button></p>
       ) : ativas.length === 0 ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma alergia ativa registrada.</p>
       ) : (

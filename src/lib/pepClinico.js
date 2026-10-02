@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient.js'
 import { gravar } from './documentos.js'
 import { avisarErro } from './erros.js'
+import { avisando } from './cache.js'
 
 // Fase 2 (piloto Observação/Internação) — ficha clínica contínua do
 // enfermeiro: admissão (exame físico por marcação) + sinais vitais em série.
@@ -13,7 +14,9 @@ export async function listarSinaisVitais(atendimentoId) {
     .eq('atendimento_id', atendimentoId)
     .order('registrado_em', { ascending: false })
   if (erroConsulta1) avisarErro('pepClinico', erroConsulta1)
-  return data ?? []
+  const lista = data ?? []
+  if (erroConsulta1) lista.falhou = true // falha ao carregar não fica guardada no cache
+  return lista
 }
 
 export async function registrarSinaisVitais({ atendimentoId, registradoPor, dados }) {
@@ -21,11 +24,11 @@ export async function registrarSinaisVitais({ atendimentoId, registradoPor, dado
   for (const chave of ['pa_sistolica', 'pa_diastolica', 'fc', 'fr', 'spo2', 'temperatura', 'glicemia', 'dor_escala']) {
     limpo[chave] = dados[chave] === '' || dados[chave] === undefined ? null : Number(dados[chave])
   }
-  return supabase
+  return avisando(supabase
     .from('sinais_vitais')
     .insert({ atendimento_id: atendimentoId, registrado_por: registradoPor, ...limpo })
     .select()
-    .single()
+    .single(), 'sinais_vitais')
 }
 
 export async function listarEvolucoes(atendimentoId) {
@@ -37,7 +40,9 @@ export async function listarEvolucoes(atendimentoId) {
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
   if (erroConsulta2) avisarErro('pepClinico', erroConsulta2)
-  return data ?? []
+  const lista = data ?? []
+  if (erroConsulta2) lista.falhou = true // falha ao carregar não fica guardada no cache
+  return lista
 }
 
 export async function registrarEvolucao({ atendimentoId, autorId, texto, diagnosticosNanda, prescricaoNic, objetivo, id, situacao }) {
@@ -60,7 +65,7 @@ export async function listarDispositivos(atendimentoId) {
 }
 
 export async function inserirDispositivo({ atendimentoId, tipo, localInsercao, trocaPrevistaEm }) {
-  return supabase
+  return avisando(supabase
     .from('dispositivos_invasivos')
     .insert({
       atendimento_id: atendimentoId,
@@ -69,16 +74,16 @@ export async function inserirDispositivo({ atendimentoId, tipo, localInsercao, t
       troca_prevista_em: trocaPrevistaEm || null,
     })
     .select()
-    .single()
+    .single(), 'dispositivos_invasivos')
 }
 
 export async function removerDispositivo({ id, motivo }) {
-  return supabase
+  return avisando(supabase
     .from('dispositivos_invasivos')
     .update({ removido_em: new Date().toISOString(), motivo_remocao: motivo || null })
     .eq('id', id)
     .select()
-    .single()
+    .single(), 'dispositivos_invasivos')
 }
 
 export async function listarBalancoHidrico(atendimentoId) {
@@ -114,11 +119,11 @@ export async function listarEscalas(atendimentoId) {
 }
 
 export async function registrarEscala({ atendimentoId, tipo, pontuacao, nivelRisco, detalhes }) {
-  return supabase
+  return avisando(supabase
     .from('escalas_enfermagem')
     .insert({ atendimento_id: atendimentoId, tipo, pontuacao, nivel_risco: nivelRisco, detalhes })
     .select()
-    .single()
+    .single(), 'escalas_enfermagem')
 }
 
 // Alergias são da PESSOA (atravessam internações diferentes), não do
@@ -145,15 +150,15 @@ export function alergiasAtivas(lista) {
 }
 
 export async function registrarAlergia({ pessoaId, substancia, reacao, gravidade }) {
-  return supabase
+  return avisando(supabase
     .from('alergias')
     .insert({ pessoa_id: pessoaId, substancia, reacao: reacao || null, gravidade: gravidade || null, status: 'ativa' })
     .select()
-    .single()
+    .single(), 'alergias')
 }
 
 export async function inativarAlergia(alergiaId) {
-  return supabase.from('alergias').update({ status: 'inativa' }).eq('id', alergiaId)
+  return avisando(supabase.from('alergias').update({ status: 'inativa' }).eq('id', alergiaId), 'alergias')
 }
 
 // ===================== Isolamentos =====================
@@ -171,18 +176,18 @@ export async function listarIsolamentos(atendimentoId) {
 }
 
 export async function registrarIsolamento({ atendimentoId, tipo, motivo, patogenoSuspeito, prescritoPor }) {
-  return supabase
+  return avisando(supabase
     .from('isolamentos')
     .insert({
       atendimento_id: atendimentoId, tipo, motivo: motivo || null, patogeno_suspeito: patogenoSuspeito || null,
       prescrito_por: prescritoPor || null, inicio_em: new Date().toISOString(), ativo: true,
     })
     .select()
-    .single()
+    .single(), 'isolamentos')
 }
 
 export async function encerrarIsolamento(id) {
-  return supabase.from('isolamentos').update({ ativo: false, fim_em: new Date().toISOString() }).eq('id', id)
+  return avisando(supabase.from('isolamentos').update({ ativo: false, fim_em: new Date().toISOString() }).eq('id', id), 'isolamentos')
 }
 
 // ===================== Transferência SBAR (handoff estruturado entre setores) =====================

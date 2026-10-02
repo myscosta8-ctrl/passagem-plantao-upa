@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { listarPrescricoes, criarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
+import { criarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
+import { doCache } from '../../lib/consultasPaciente';
 import { VIAS, UNIDADES_DOSE, FREQUENCIAS, FREQUENCIAS_CUIDADOS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, exigeAtm, dosesPorDia, atmCobre, textoValidadeAtm } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
@@ -9,7 +10,7 @@ import { quantidadeDia, APRESENTACOES, apresentacaoDaForma } from '../../lib/fre
 import { hojeBelem, somarDias, textoValidade } from '../../lib/prescricaoValidade';
 import { filtrarCatalogo, rotuloMedicamento, descricaoMedicamento, detalheMedicamento, ehControlado } from '../../lib/catalogoMedicamentos';
 import { precisaAtm, itensControlados } from '../../lib/documentosVinculados';
-import { CALC_VAZIA, ARREDONDAMENTOS, FREQ_CALC, calcularDosePediatrica } from '../../lib/calculoPediatrico';
+import { CALC_VAZIA, ARREDONDAMENTOS, FREQ_CALC, calcularDosePediatrica, numBR } from '../../lib/calculoPediatrico';
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
@@ -253,7 +254,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
 
   async function carregar() {
     setCarregando(true)
-    setHistorico(await listarPrescricoes(atendimento.atendimento_id))
+    setHistorico(await doCache('prescricoes', atendimento.atendimento_id)) // cache entre abas; salvar atualiza
     setCarregando(false)
   }
 

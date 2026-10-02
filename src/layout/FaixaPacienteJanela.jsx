@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react'
-import { buscarCabecalhoImpressao } from '../lib/pepMedico'
-import { listarAlergias, alergiasAtivas } from '../lib/pepClinico'
+import { useCabecalhoPaciente, useAlergias } from '../lib/consultasPaciente'
 import { MANCHESTER_CORES, normalizarNome } from '../pages/painel/constantes'
 
 // Faixa escura do paciente no topo da janela flutuante (mockup 02).
@@ -8,16 +6,9 @@ import { MANCHESTER_CORES, normalizarNome } from '../pages/painel/constantes'
 const limpar = (v) => String(v || '').replace(/^#?\s*(PEP|AT|REG)-?/i, '')
 
 export default function FaixaPacienteJanela({ atendimento, nomeFallback }) {
-  const [cab, setCab] = useState(null)
-  const [alergias, setAlergias] = useState([])
-
-  useEffect(() => {
-    if (!atendimento?.atendimento_id) return undefined
-    let vivo = true
-    buscarCabecalhoImpressao(atendimento.atendimento_id).then((c) => { if (vivo) setCab(c) }).catch(() => {})
-    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => { if (vivo) setAlergias(alergiasAtivas(l)) })
-    return () => { vivo = false }
-  }, [atendimento?.atendimento_id]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Cabeçalho e alergias vêm do cache entre abas (lib/cache.js): trocar de aba não busca de novo.
+  const { data: cab } = useCabecalhoPaciente(atendimento?.atendimento_id)
+  const alergias = useAlergias(atendimento?.pessoa_id).ativas || []
 
   const p = cab?.pessoa || {}
   const a = cab?.atendimento || {}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import AbaPrescricao from './AbaPrescricao';
 import AbaAtm from './AbaAtm';
-import { listarPrescricoes, listarAtm, criarReceitaMedica, buscarCabecalhoImpressao } from '../../lib/pepMedico';
+import { listarAtm, criarReceitaMedica, buscarCabecalhoImpressao } from '../../lib/pepMedico';
+import { doCache } from '../../lib/consultasPaciente';
 import { atmPendentes, atmsVigentes, alertasAtm } from './constantes';
 import { metaDoc } from '../../lib/documentos';
 import { itemReceitaControle, impressaoVinculada } from '../../lib/documentosVinculados';
@@ -30,8 +31,9 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
   const [situacaoAtm, setSituacaoAtm] = useState({ vigentes: new Map(), alertas: [] })
 
   // A sub-aba ATM aparece quando há antimicrobiano restrito EV prescrito (pendente) ou ATM já registrada.
+  // Usa o cache entre abas (trocar de sub-aba não busca de novo); gravar prescrição/ATM atualiza o cache.
   async function verificarAtm() {
-    const [prescricoes, atms] = await Promise.all([listarPrescricoes(atdId), listarAtm(atdId)])
+    const [prescricoes, atms] = await Promise.all([doCache('prescricoes', atdId), doCache('atm', atdId)])
     setTemAtm(atmPendentes(prescricoes, atms).length > 0 || atms.some((a) => a.situacao !== 'invalido'))
     setSituacaoAtm({ vigentes: atmsVigentes(atms), alertas: alertasAtm(prescricoes, atms) })
   }
@@ -46,7 +48,7 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
   async function prescricaoFinalizada(prescricao, { temAtm: temRestrito, controlados }) {
     const receita = controlados.length ? await gerarReceitaControle({ atendimentoId: atdId, medicoId, controlados }) : null
     // ATM ainda válida (dentro do tempo de uso) não é emitida nem impressa de novo: só entra no
-    // pacote a ATM que falta ou a renovação da que venceu.
+    // pacote a ATM que falta ou a renovação da que venceu. (Busca direto no banco: decisão na hora de imprimir.)
     const precisaAtm = temRestrito && atmPendentes([prescricao], await listarAtm(atdId)).length > 0
     if (!precisaAtm) { imprimirPacote({ prescricao, receita }); verificarAtm(); return }
     setPacote({ prescricao, receita, atms: [] })

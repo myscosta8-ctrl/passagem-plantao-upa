@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
@@ -14,19 +14,12 @@ import App from './App.jsx'
 import ErrorBoundary from './ErrorBoundary.jsx'
 import { lerTemaSalvo, aplicarTema } from './lib/theme.js'
 import { mostrarAvisoAtualizacao } from './lib/avisoAtualizacao.js'
+import { queryClient } from './lib/cache.js' // cache de dados entre abas (regras em lib/cache.js)
 
 // Guarda o app no aparelho pra recarregar quase na hora quando o navegador
 // derrubar a página sozinho (troca de app, minimizar). Versão nova publicada:
 // aparece um aviso "Atualizar agora" — nunca recarrega sozinho no meio de um registro.
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: false, // Prevents excessive re-fetching on tab switch
-    },
-  },
-})
 
 // Procura versão nova ao abrir e sempre que o app volta para a tela (celular
 // tirado do bolso, troca de app). No Android o app fica aberto em segundo plano

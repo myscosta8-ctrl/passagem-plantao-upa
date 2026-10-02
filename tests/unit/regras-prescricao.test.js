@@ -263,3 +263,98 @@ export function runPadraoVisualTests(test) {
     assert.deepEqual(fora, []);
   });
 }
+
+// Cache de dados entre abas (item 18): trocar de aba usa o que já foi buscado; toda gravação
+// avisa o cache; falha não fica guardada; sair do sistema apaga tudo.
+import { queryClient, dadosMudaram, buscarComCache, limparCache } from '../../src/lib/cache.js';
+import { registrarAlergia } from '../../src/lib/pepClinico.js';
+import { gravar } from '../../src/lib/documentos.js';
+const contador = () => { const c = { n: 0, fn: async () => { c.n++; return [{ id: c.n }]; } }; return c; };
+const estaInvalida = (chave) => queryClient.getQueryState(chave)?.isInvalidated === true;
+export function runCacheTests(test) {
+  test('Trocar de aba dentro de 20 s usa o cache (não busca de novo no banco)', () => emFila(async () => {
+    limparCache();
+    const c = contador();
+    await buscarComCache(['sinais_vitais', 'a1'], c.fn);
+    await buscarComCache(['sinais_vitais', 'a1'], c.fn);
+    assert.equal(c.n, 1);
+  }));
+
+  test('Gravação avisa o cache: a próxima abertura busca de novo', () => emFila(async () => {
+    limparCache();
+    const c = contador();
+    await buscarComCache(['prescricoes_medicas', 'a1'], c.fn);
+    dadosMudaram('prescricoes_medicas');
+    await buscarComCache(['prescricoes_medicas', 'a1'], c.fn);
+    assert.equal(c.n, 2);
+  }));
+
+  test('Alergia alterada também atualiza o cabeçalho do paciente', () => emFila(async () => {
+    limparCache();
+    await buscarComCache(['cabecalho', 'a1'], async () => ({ idade: 40 }));
+    dadosMudaram('alergias');
+    assert.equal(estaInvalida(['cabecalho', 'a1']), true);
+  }));
+
+  test('Falha ao carregar não fica guardada (próxima abertura tenta de novo)', () => emFila(async () => {
+    limparCache();
+    let n = 0;
+    const falha = async () => { n++; return Object.assign([], { falhou: true }); };
+    const r = await buscarComCache(['alergias', 'p1'], falha);
+    assert.equal(r.falhou, true);
+    await buscarComCache(['alergias', 'p1'], falha);
+    assert.equal(n, 2);
+  }));
+
+  test('Sair do sistema apaga o cache (nenhum dado de paciente fica na memória)', () => emFila(async () => {
+    await buscarComCache(['alergias', 'p9'], async () => [{ substancia: 'DIPIRONA' }]);
+    limparCache();
+    assert.equal(queryClient.getQueryCache().getAll().length, 0);
+    const auth = fs.readFileSync('src/lib/AuthContext.jsx', 'utf8');
+    assert.match(auth, /limparPermissoes\(\)\s*\n\s*limparCache\(\)/, 'logout chama limparCache');
+    assert.match(auth, /SIGNED_OUT'\)\s*\{\s*\n\s*limparCache\(\)/, 'sessão encerrada chama limparCache');
+  }));
+
+  test('Salvar Rascunho / Finalizar (gravar) e registrar alergia avisam o cache', () => emFila(async () => {
+    const db = bancoSimulado();
+    try {
+      limparCache();
+      await buscarComCache(['evolucoes', 'a1'], async () => []);
+      await buscarComCache(['alergias', 'p1'], async () => []);
+      await buscarComCache(['cabecalho', 'a1'], async () => ({}));
+      await gravar('evolucoes', null, { atendimento_id: 'a1' }, 'rascunho');
+      assert.equal(estaInvalida(['evolucoes', 'a1']), true);
+      await registrarAlergia({ pessoaId: 'p1', substancia: 'AAS' });
+      assert.equal(estaInvalida(['alergias', 'p1']), true);
+      assert.equal(estaInvalida(['cabecalho', 'a1']), true);
+    } finally { db.restaurar(); }
+  }));
+
+  test('Prescrição: cache atualizado ao terminar de gravar os itens, mesmo com erro', () => emFila(async () => {
+    const db = bancoSimulado({ falharEm: (o) => o.tabela === 'prescricao_itens' });
+    try {
+      limparCache();
+      await buscarComCache(['prescricoes_medicas', 'a1'], async () => []);
+      const { error } = await criarPrescricao({ ...base, situacao: metaDoc(false) });
+      assert.ok(error);
+      assert.equal(estaInvalida(['prescricoes_medicas', 'a1']), true);
+    } finally { db.restaurar(); }
+  }));
+
+  test('Telas da ficha usam o cache; impressos continuam buscando direto no banco', () => {
+    const ler = (p) => fs.readFileSync(p, 'utf8');
+    for (const p of ['src/layout/FaixaPacienteJanela.jsx', 'src/pages/ficha-clinica/BannerPacienteEnf.jsx', 'src/pages/ficha-clinica/AbaSbar.jsx',
+      'src/pages/ficha-clinica/AbaAlergias.jsx', 'src/pages/AbaHistoricoEnfermagem.jsx', 'src/pages/multi/AbaRegistroMulti.jsx', 'src/layout/ColunaConsulta.jsx']) {
+      const s = ler(p);
+      assert.doesNotMatch(s, /\b(listarAlergias|buscarCabecalhoImpressao|listarPrescricoes)\(/, `${p} busca direto em vez de usar o cache`);
+      assert.match(s, /consultasPaciente/, `${p} não usa o cache`);
+    }
+    assert.match(ler('src/pages/FichaClinicaPrint.jsx'), /buscarCabecalhoImpressao\(/);
+    assert.match(ler('src/main.jsx'), /import \{ queryClient \} from '\.\/lib\/cache\.js'/);
+  });
+
+  test('Calculadora pediátrica da prescrição: numBR importado (abrir a calculadora não trava a tela)', () => {
+    const s = fs.readFileSync('src/pages/ficha-medica/AbaPrescricao.jsx', 'utf8');
+    assert.match(s, /import \{[^}]*\bnumBR\b[^}]*\} from '\.\.\/\.\.\/lib\/calculoPediatrico'/);
+  });
+}

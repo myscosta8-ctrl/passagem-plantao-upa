@@ -15,7 +15,7 @@ export const ARREDONDAMENTOS = [
 export const FREQ_CALC = ['1/1h', '2/2h', '3/3h', '4/4h', '6/6h', '8/8h', '12/12h', '24/24h']
 
 // Aceita vírgula ou ponto como decimal ("12,5" ou "12.5").
-const numBR = (v) => { const n = parseFloat(String(v ?? '').trim().replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : 0 }
+export const numBR = (v) => { const n = parseFloat(String(v ?? '').trim().replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : 0 }
 // Mesma conta na tela da calculadora e no "Aplicar".
 export function calcularDosePediatrica(calc, pacientePeso) {
   const pesoKg = numBR(calc.pesoKg) || numBR(pacientePeso)

@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient.js'
 import { detectarDuplicatas } from './pepRecepcao.js'
 import { avisarErro } from './erros.js'
+import { dadosMudaram } from './cache.js'
 
 // Etapa H da Fase 0 do PEP — caminho novo de leitura/escrita, usado só quando
 // configuracoes.pep_ativo = true (ver pepConfig.js). Produz objetos com o MESMO
@@ -233,6 +234,7 @@ export async function internarPacientePep({ leito, dados, enfermeiroId: _enferme
       status: 'ativo',
     }),
   ])
+  dadosMudaram('leito_ocupacoes', 'atendimentos')
   if (erroInternacao) return { error: erroInternacao }
   if (erroLeito) return { error: erroLeito }
 
@@ -370,7 +372,12 @@ export async function salvarPassagemPep(payload) {
 // Identificação, no caminho novo, é espalhada em pessoas (dados fixos da pessoa),
 // internacoes (dados do episódio) e atendimentos (status_internacao) — e alergias
 // vira uma linha na tabela própria, não um campo solto.
-export async function salvarIdentificacaoPep({ atendimentoId, pessoaId, identificacao }) {
+// Altera pessoa, atendimento, internação e alergias: ao terminar, avisa o cache (cabeçalho e alergias).
+export async function salvarIdentificacaoPep(args) {
+  try { return await gravarIdentificacaoPep(args) } finally { dadosMudaram('pessoas', 'atendimentos', 'internacoes', 'alergias') }
+}
+
+async function gravarIdentificacaoPep({ atendimentoId, pessoaId, identificacao }) {
   // Indicador clínico "tempo até conduta": marca o instante em que o atendimento
   // deixa de estar "Em observação", uma única vez (nunca reescreve depois).
   const { data: atendimentoAtual, error: erroConsulta8 } = await supabase
@@ -452,6 +459,7 @@ export async function realocarAtendimentoPep({ atendimentoId, leitoOrigemId, lei
   const { error } = await supabase.rpc('realocar_atendimento', {
     p_atendimento_id: atendimentoId, p_leito_origem_id: leitoOrigemId, p_leito_destino_id: leitoDestinoId, p_setor_destino_id: setorDestinoId,
   })
+  if (!error) dadosMudaram('leito_ocupacoes', 'atendimentos')
   return { error }
 }
 
@@ -461,6 +469,7 @@ export async function registrarDesfechoPep({ atendimentoId, leitoId, tipo, detal
   const { error } = await supabase.rpc('registrar_desfecho', {
     p_atendimento_id: atendimentoId, p_leito_id: leitoId ?? null, p_tipo: tipo, p_detalhe: detalhe || null, p_dados_obito: dadosObito || null,
   })
+  if (!error) dadosMudaram('leito_ocupacoes', 'atendimentos', 'internacoes')
   return { error }
 }
 
@@ -518,5 +527,6 @@ export async function carregarResumoProntuario(atendimentoIds) {
 // Sinaliza observação <-> internado. A regra (perfil, auditoria, encerrado) fica no banco.
 export async function sinalizarInternacaoPep({ atendimentoId, novoStatus }) {
   const { data, error } = await supabase.rpc('sinalizar_internacao', { p_atendimento_id: atendimentoId, p_novo_status: novoStatus })
+  if (!error) dadosMudaram('atendimentos', 'internacoes')
   return { data, error }
 }

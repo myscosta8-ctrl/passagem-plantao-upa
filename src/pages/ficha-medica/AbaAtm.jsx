@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { criarAtm, listarAtm, listarPrescricoes, buscarDadosParaSumario } from '../../lib/pepMedico';
+import { criarAtm, buscarDadosParaSumario } from '../../lib/pepMedico';
+import { doCache } from '../../lib/consultasPaciente';
 import { ATM_VAZIA, ATM_RESTRITOS, atbRestrito, viaIntravenosa, atmPendentes, calculoDxIxT, atmsVigentes, alertasAtm, textoValidadeAtm, dataCurta } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
@@ -30,7 +31,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
 
   // Carrega a fila de ATM pendente e os dados da internação. Um rascunho reaberto (useRascunho) tem prioridade.
   async function carregarPendentes(preencher) {
-    const [prescricoes, atms, sug] = await Promise.all([listarPrescricoes(atdId), listarAtm(atdId), buscarDadosParaSumario(atdId)])
+    const [prescricoes, atms, sug] = await Promise.all([doCache('prescricoes', atdId), doCache('atm', atdId), buscarDadosParaSumario(atdId)])
     const lista = atmPendentes(prescricoes, atms)
     const b = { diagnostico: sug.diagnostico_internacao || '', data_internacao: sug.data_internacao || '' }
     setPendentes(lista); setBase(b); setVigentes(atmsVigentes(atms)); setAlertas(alertasAtm(prescricoes, atms))

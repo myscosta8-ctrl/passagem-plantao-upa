@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-import { buscarCabecalhoImpressao, buscarHistoricoEnfermagem } from '../../lib/pepMedico';
-import { listarAlergias, alergiasAtivas, listarSinaisVitais } from '../../lib/pepClinico';
+import { useState } from 'react';
+import { useCabecalhoPaciente, useAlergias, useSinaisVitais, useHistoricoEnfermagem } from '../../lib/consultasPaciente';
 import { MANCHESTER_CORES, normalizarNome } from '../painel/constantes';
 import { useAuth } from '../../lib/AuthContext';
 
@@ -11,23 +10,17 @@ const fmt = (v) => (v === null || v === undefined || v === '' ? '—' : v);
 const limpar = (v) => String(v || '').replace(/^#?\s*(PEP|AT|REG)-?/i, '');
 
 export default function BannerPacienteEnf({ atendimento, pilar, onVoltar, onTrocarPilar }) {
-  const [cab, setCab] = useState(null);
-  const [sv, setSv] = useState(null);
-  const [alergias, setAlergias] = useState([]);
   const [aberto, setAberto] = useState(false);
-  const [enfAdmissao, setEnfAdmissao] = useState(null);
   const { enfermeiro } = useAuth();
   const novaUI = enfermeiro?.pep_beta === true;
 
-  useEffect(() => {
-    if (!atendimento?.atendimento_id) return;
-    let vivo = true;
-    buscarCabecalhoImpressao(atendimento.atendimento_id).then((c) => { if (vivo) setCab(c); }).catch(() => {});
-    buscarHistoricoEnfermagem(atendimento.atendimento_id).then((h) => { if (vivo && h) setEnfAdmissao(h.enfermeiros?.nome_exibicao || h.enfermeiros?.nome || null); }).catch(() => {});
-    listarSinaisVitais(atendimento.atendimento_id).then((l) => { if (vivo) setSv(l[0] || null); });
-    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => { if (vivo) setAlergias(alergiasAtivas(l)); });
-    return () => { vivo = false; };
-  }, [atendimento?.atendimento_id]);
+  // Dados do cache entre abas (lib/cache.js): trocar de aba não busca de novo; gravar atualiza.
+  const { data: cab } = useCabecalhoPaciente(atendimento?.atendimento_id);
+  const { data: historico } = useHistoricoEnfermagem(atendimento?.atendimento_id);
+  const { data: sinais } = useSinaisVitais(atendimento?.atendimento_id);
+  const alergias = useAlergias(atendimento?.pessoa_id).ativas || [];
+  const sv = sinais?.[0] || null;
+  const enfAdmissao = historico ? (historico.enfermeiros?.nome_exibicao || historico.enfermeiros?.nome || null) : null;
 
   const p = cab?.pessoa || {};
   const a = cab?.atendimento || {};
