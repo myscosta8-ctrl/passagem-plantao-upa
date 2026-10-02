@@ -66,7 +66,7 @@ function FolhaPrescricao({ registro, pessoa, atendimento, idade, leitoNumero, se
                 <td>
                   <b>{i + (cf.dieta ? 2 : 1)} — {it.medicamento_nome}</b>{it.dose != null && it.dose !== '' && <> — <b>Dose: {String(it.dose).replace('.', ',')} {it.dose_unidade || ''}</b>{Number(it.qtd_por_dose) > 1 && it.apresentacao ? ` (${String(it.qtd_por_dose).replace('.', ',')} ${it.apresentacao})` : ''}</>}
                   {(it.diluicao || it.instrucoes) && (
-                    <span className="pr-nota">{[it.diluicao, it.instrucoes].filter(Boolean).join(' — ')}</span>
+                    <span className="pr-nota pr-nota-inline"> · {[it.diluicao, it.instrucoes].filter(Boolean).join(' — ')}</span>
                   )}
                 </td>
                 <td className="qtd" style={{ textAlign: 'center' }}>{quantidadeDia(it)}</td>

@@ -216,3 +216,5 @@ table.pr-tabela tbody td { height: 9mm; vertical-align: middle; }
 .pr-via-faixa { text-align: right; font-size: 7pt; font-weight: 700; letter-spacing: .04em; color: #334155; margin-bottom: 1mm; }
 .pr-segunda-via { break-before: page; page-break-before: always; }
 @media screen { .pr-segunda-via { margin-top: 18px; border-top: 2px dashed #CBD5E1; padding-top: 18px; } }
+/* Observação/diluição do item continua na mesma linha do medicamento quando há espaço (não abre linha nova). */
+.pr-nota.pr-nota-inline { display: inline; margin-top: 0; }
