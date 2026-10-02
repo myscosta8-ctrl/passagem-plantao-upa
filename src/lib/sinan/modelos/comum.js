@@ -19,7 +19,7 @@ export const EVOLUCAO = [['1', 'Cura'], ['2', 'Óbito pelo agravo notificado'], 
 // Dados fixos da unidade notificadora.
 export const UNIDADE = {
   uf: 'PA', municipio: 'BREVES', municipio_ibge: '150180', // SINAN usa o código IBGE de 6 dígitos (sem o verificador)
-  nome: 'UPA 24H BREVES', cnes: '0296796',
+  nome: 'UPA 24H BREVES', cnes: '2418657',
 }
 
 // Regras de quem aparece: gestante só para sexo feminino.

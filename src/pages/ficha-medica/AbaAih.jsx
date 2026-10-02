@@ -286,7 +286,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             <h3 style={{ color: '#166534', margin: 0, marginBottom: 4 }}><i className="ph ph-check" /> Estabelecimento UPA 24h</h3>
             <p style={{ fontSize: 12, color: '#14532D', margin: 0, lineHeight: 1.4 }}>
               <strong>Unidade:</strong> UPA 24H BREVES<br />
-              <strong>CNES:</strong> 02.967.963<br />
+              <strong>CNES:</strong> 2418657<br />
               <strong>Caráter:</strong> 02 - Urgência<br />
               <strong>Órgão:</strong> SEMSA BREVES / SUS
             </p>

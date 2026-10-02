@@ -412,7 +412,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
             justificativa: apacDados.justificativa,
             campos_formulario: {
               estabelecimento_solicitante_nome: 'UPA 24 HORAS BREVES',
-              estabelecimento_solicitante_cnes: '0296796',
+              estabelecimento_solicitante_cnes: '2418657',
               descricao_diagnostico: apacDados.descricao_diagnostico,
               profissional_solicitante_nome: medicoNome || '',
               profissional_crm: medicoCrm || '',
@@ -612,7 +612,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
                   </div>
                   <div className="form-group">
                     <label>2 - CNES</label>
-                    <input type="text" className="form-control" value="0296796" readOnly />
+                    <input type="text" className="form-control" value="2418657" readOnly />
                   </div>
                 </div>
               </div>

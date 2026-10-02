@@ -10,9 +10,9 @@ export const TEMPOS_INFUSAO = ['Bolus lento', 'Em 15 min', 'Em 30 min', 'Em 1 h'
 export const AIH_VAZIA = {
   // 1-4 · Identificação do estabelecimento de saúde
   estabelecimento_solicitante_nome: 'UPA 24H BREVES',
-  estabelecimento_solicitante_cnes: '0296796',
+  estabelecimento_solicitante_cnes: '2418657',
   estabelecimento_executante_nome: 'UPA 24H BREVES',
-  estabelecimento_executante_cnes: '0296796',
+  estabelecimento_executante_cnes: '2418657',
   // 10.1 / 13-19 · Identificação do paciente
   etnia: '',
   nome_responsavel: '',

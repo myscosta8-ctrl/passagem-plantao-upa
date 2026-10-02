@@ -13,7 +13,7 @@ const SECUNDARIOS = [1, 2, 3, 4, 5]; // campos 18-20, 21-23, 24-26, 27-29, 30-32
 const APAC_VAZIA = {
   // 1-2 Estabelecimento solicitante
   estabelecimento_solicitante_nome: 'UPA 24 HORAS BREVES',
-  estabelecimento_solicitante_cnes: '0296796',
+  estabelecimento_solicitante_cnes: '2418657',
   // 3-14 Paciente
   paciente_nome: '', prontuario_numero: '', paciente_cns: '', data_nascimento: '', sexo: '',
   nome_mae: '', telefone: '', endereco: '', municipio: '', ibge_municipio: '', uf: '', cep: '',

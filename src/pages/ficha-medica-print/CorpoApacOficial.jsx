@@ -46,7 +46,7 @@ export default function CorpoApacOficial({ registro, pessoa, atendimento, idade,
           <div className="sus-secao-titulo" style={{ fontSize: '8px', fontWeight: 900 }}>IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE SOLICITANTE</div>
           <div className="sus-grid">
             <CampoSus cap="1 - NOME DO ESTABELECIMENTO DE SAÚDE" val={cf.estabelecimento_solicitante_nome || 'UPA 24 HORAS BREVES'} w={3.5} />
-            <CampoComb cap="2 - CNES" val={cf.estabelecimento_solicitante_cnes || '0296796'} digitos={7} w={1.5} />
+            <CampoComb cap="2 - CNES" val={cf.estabelecimento_solicitante_cnes || '2418657'} digitos={7} w={1.5} />
           </div>
         </div>
 
