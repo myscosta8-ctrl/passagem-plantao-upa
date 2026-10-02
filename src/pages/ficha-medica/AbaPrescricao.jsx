@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarPrescricoes, criarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
-import { VIAS, UNIDADES_DOSE, FREQUENCIAS, FREQUENCIAS_CUIDADOS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, exigeAtm } from './constantes';
+import { VIAS, UNIDADES_DOSE, FREQUENCIAS, FREQUENCIAS_CUIDADOS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, exigeAtm, dosesPorDia } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
@@ -80,7 +80,17 @@ const HEMO_OPCOES_RAPIDAS = [
   { chave: 'plaquetas', label: 'Concentrado de Plaquetas', icon: 'ph-circle-dashed' },
   { chave: 'crio', label: 'Crioprecipitado', icon: 'ph-snowflake' },
 ]
-const CALC_VAZIA = { pesoKg: '', doseAlvoMgKg: '', apresentacaoMg: '', diluenteMl: '', soroMl: '' }
+const CALC_VAZIA = { pesoKg: '', doseAlvoMgKg: '', apresentacaoMg: '', diluenteMl: '', soroMl: '', tipoDose: 'dose', frequencia: '', arredondar: '' }
+// Arredondamento da dose por tomada, a critério médico.
+const ARREDONDAMENTOS = [
+  { v: '', r: 'Sem arredondar' },
+  { v: '0.1', r: '1 casa decimal (0,1 mg)' },
+  { v: '0.5', r: 'Múltiplo de 0,5 mg' },
+  { v: '1', r: 'Número inteiro (1 mg)' },
+  { v: '5', r: 'Múltiplo de 5 mg' },
+  { v: '10', r: 'Múltiplo de 10 mg' },
+]
+const FREQ_CALC = ['1/1h', '2/2h', '3/3h', '4/4h', '6/6h', '8/8h', '12/12h', '24/24h']
 
 // Aceita vírgula ou ponto como decimal ("12,5" ou "12.5").
 const numBR = (v) => { const n = parseFloat(String(v ?? '').trim().replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : 0 }
@@ -91,20 +101,26 @@ function calcularDosePediatrica(calc, pacientePeso) {
   const apresentacaoMg = numBR(calc.apresentacaoMg)
   const diluenteMl = numBR(calc.diluenteMl)
   const soroMl = numBR(calc.soroMl)
-  const doseTotalMg = pesoKg && doseAlvoMgKg ? pesoKg * doseAlvoMgKg : 0
+  // Dose alvo por tomada (mg/kg/dose) ou diária (mg/kg/dia ÷ nº de doses do horário escolhido: 6/6h → ÷ 4).
+  const porDia = calc.tipoDose === 'dia'
+  const dosesDia = porDia ? (dosesPorDia(calc.frequencia) || 0) : 1
+  const doseDiariaMg = porDia && pesoKg && doseAlvoMgKg ? pesoKg * doseAlvoMgKg : 0
+  const doseCalculadaMg = pesoKg && doseAlvoMgKg ? (porDia ? (dosesDia ? doseDiariaMg / dosesDia : 0) : pesoKg * doseAlvoMgKg) : 0
+  const passo = numBR(calc.arredondar)
+  const doseTotalMg = doseCalculadaMg && passo ? Math.max(passo, Math.round(doseCalculadaMg / passo) * passo) : doseCalculadaMg
   const concentracaoMgMl = apresentacaoMg && diluenteMl ? apresentacaoMg / diluenteMl : 0
   const volumeAspirarMl = doseTotalMg && concentracaoMgMl ? doseTotalMg / concentracaoMgMl : 0
-  return { pesoKg, doseAlvoMgKg, apresentacaoMg, diluenteMl, soroMl, doseTotalMg, concentracaoMgMl, volumeAspirarMl }
+  return { pesoKg, doseAlvoMgKg, apresentacaoMg, diluenteMl, soroMl, doseTotalMg, doseCalculadaMg, doseDiariaMg, dosesDia, porDia, concentracaoMgMl, volumeAspirarMl }
 }
-const fmtMg = (n) => (n >= 10 ? n.toFixed(0) : n.toFixed(1).replace('.', ','))
+const fmtMg = (n) => (Number.isInteger(n) ? String(n) : n >= 10 ? String(Math.round(n * 10) / 10).replace('.', ',') : String(Math.round(n * 100) / 100).replace('.', ','))
 const fmtMl = (n) => n.toFixed(1).replace('.', ',')
 
 function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar, pacienteNome, pacientePeso }) {
-  const { pesoKg, apresentacaoMg, diluenteMl, soroMl, doseTotalMg, concentracaoMgMl, volumeAspirarMl } = calcularDosePediatrica(calc, pacientePeso)
-  const faltando = [!pesoKg && 'peso', !numBR(calc.doseAlvoMgKg) && 'dose alvo', !apresentacaoMg && 'apresentação', !diluenteMl && 'diluente'].filter(Boolean)
+  const { pesoKg, apresentacaoMg, diluenteMl, soroMl, doseTotalMg, doseCalculadaMg, doseDiariaMg, dosesDia, porDia, concentracaoMgMl, volumeAspirarMl } = calcularDosePediatrica(calc, pacientePeso)
+  const faltando = [!pesoKg && 'peso', !numBR(calc.doseAlvoMgKg) && 'dose alvo', porDia && !dosesDia && 'horário de administração', !apresentacaoMg && 'apresentação', !diluenteMl && 'diluente'].filter(Boolean)
 
   const textoFinal = doseTotalMg && volumeAspirarMl
-    ? `${item.medicamento_nome || 'Medicação'} — Diluir em ${diluenteMl} mL (AD/Diluente). Aspirar ${fmtMl(volumeAspirarMl)} mL (${fmtMg(doseTotalMg)} mg)${soroMl ? ` e rediluir em ${soroMl} mL de SF 0,9%` : ''}. Administrar conforme via prescrita.`
+    ? `${item.medicamento_nome || 'Medicação'} — Diluir em ${diluenteMl} mL (AD/Diluente). Aspirar ${fmtMl(volumeAspirarMl)} mL (${fmtMg(doseTotalMg)} mg)${soroMl ? ` e rediluir em ${soroMl} mL de SF 0,9%` : ''}. ${calc.frequencia ? `Administrar de ${calc.frequencia}.` : 'Administrar conforme via prescrita.'}`
     : ''
 
   const podeAplicar = doseTotalMg > 0 && volumeAspirarMl > 0
@@ -138,14 +154,42 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
               <label>Medicação Selecionada</label>
               <input type="text" value={item.medicamento_nome || 'Selecione a medicação'} readOnly style={{ background: '#F8FAFC', fontWeight: 600 }} />
             </div>
-            <div className="calc-box" style={{ flex: 1 }}>
-              <label>Dose Alvo (mg/kg)</label>
+            <div className="calc-box" style={{ flex: 1.3 }}>
+              <label>Dose Alvo</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="text" inputMode="decimal" placeholder="ex.: 50" value={calc.doseAlvoMgKg} onChange={(e) => onChange('doseAlvoMgKg', e.target.value.replace(/[^\d.,]/g, ''))} />
-                <span style={{ fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>mg/kg</span>
+                <select value={calc.tipoDose || 'dose'} onChange={(e) => onChange('tipoDose', e.target.value)} style={{ fontSize: 12, fontWeight: 700 }} title="Dose por tomada ou dose diária total">
+                  <option value="dose">mg/kg/dose</option>
+                  <option value="dia">mg/kg/dia</option>
+                </select>
               </div>
             </div>
           </div>
+
+          <div className="calc-row">
+            <div className="calc-box">
+              <label>Horário de administração{porDia ? ' *' : ''}</label>
+              <select value={calc.frequencia || ''} onChange={(e) => onChange('frequencia', e.target.value)}>
+                <option value="">—</option>
+                {FREQ_CALC.map((f) => <option key={f} value={f}>{f} ({dosesPorDia(f)}x ao dia)</option>)}
+              </select>
+            </div>
+            <div className="calc-box">
+              <label>Arredondar a dose (critério médico)</label>
+              <select value={calc.arredondar || ''} onChange={(e) => onChange('arredondar', e.target.value)}>
+                {ARREDONDAMENTOS.map((a) => <option key={a.v} value={a.v}>{a.r}</option>)}
+              </select>
+            </div>
+          </div>
+          {porDia && doseDiariaMg > 0 && (
+            <div style={{ fontSize: 12, color: '#0F766E', fontWeight: 600 }}>
+              <i className="ph ph-divide" /> Dose diária {fmtMg(doseDiariaMg)} mg{dosesDia ? ` ÷ ${dosesDia} doses (${calc.frequencia}) = ${fmtMg(doseCalculadaMg)} mg por dose` : ' — escolha o horário de administração para dividir'}
+              {doseCalculadaMg > 0 && doseTotalMg !== doseCalculadaMg ? ` → arredondada para ${fmtMg(doseTotalMg)} mg` : ''}
+            </div>
+          )}
+          {!porDia && doseCalculadaMg > 0 && doseTotalMg !== doseCalculadaMg && (
+            <div style={{ fontSize: 12, color: '#0F766E', fontWeight: 600 }}><i className="ph ph-arrows-in-line-vertical" /> Dose calculada {fmtMg(doseCalculadaMg)} mg → arredondada para {fmtMg(doseTotalMg)} mg</div>
+          )}
 
           <div className="calc-row">
             <div className="calc-box">
@@ -173,7 +217,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
 
           <div style={{ display: 'flex', gap: 12 }}>
             <div className="calc-result-highlight" style={{ flex: 1 }}>
-              <span>Dose Total Resultante</span>
+              <span>Dose por Administração</span>
               <strong>{doseTotalMg ? `${fmtMg(doseTotalMg)} mg` : '—'}</strong>
             </div>
             <div className="calc-result-highlight" style={{ flex: 1, background: '#FFF1F2', borderColor: '#FECDD3' }}>
@@ -299,7 +343,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
 
   function abrirCalculadora(i) {
     // O peso informado numa conta continua preenchido nas próximas medicações desta prescrição.
-    setCalc({ ...CALC_VAZIA, pesoKg: pesoCalculo })
+    setCalc({ ...CALC_VAZIA, pesoKg: pesoCalculo, frequencia: FREQ_CALC.includes(itens[i]?.frequencia) ? itens[i].frequencia : '' })
     setCalcAberto(i)
   }
 
@@ -312,14 +356,18 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
   }
 
   function aplicarCalculadora(i) {
-    const { pesoKg, doseAlvoMgKg, diluenteMl, soroMl, doseTotalMg, volumeAspirarMl } = calcularDosePediatrica(calc, atendimento?.paciente?.peso)
+    const { pesoKg, doseAlvoMgKg, diluenteMl, soroMl, doseTotalMg, dosesDia, porDia, volumeAspirarMl } = calcularDosePediatrica(calc, atendimento?.paciente?.peso)
     if (!doseTotalMg || !volumeAspirarMl) return
-    const reconstituicao = `Reconstituir em ${diluenteMl} mL de AD e aspirar ${fmtMl(volumeAspirarMl)} mL (${String(doseAlvoMgKg).replace('.', ',')} mg/kg × ${String(pesoKg).replace('.', ',')} kg)`
+    const base = porDia
+      ? `${String(doseAlvoMgKg).replace('.', ',')} mg/kg/dia × ${String(pesoKg).replace('.', ',')} kg ÷ ${dosesDia} doses`
+      : `${String(doseAlvoMgKg).replace('.', ',')} mg/kg × ${String(pesoKg).replace('.', ',')} kg`
+    const reconstituicao = `Reconstituir em ${diluenteMl} mL de AD e aspirar ${fmtMl(volumeAspirarMl)} mL (${base}${calc.arredondar ? ', arredondado' : ''})`
     setPesoCalculo(String(calc.pesoKg || pesoKg))
     setItens((prev) => prev.map((it, idx) => (idx === i ? {
       ...it,
       dose: fmtMg(doseTotalMg),
       dose_unidade: 'mg',
+      ...(calc.frequencia ? { frequencia: calc.frequencia } : {}),
       diluente: soroMl ? 'SF 0,9%' : it.diluente,
       diluente_ml: soroMl ? String(soroMl) : it.diluente_ml,
       instrucoes: reconstituicao,

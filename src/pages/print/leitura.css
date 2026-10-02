@@ -35,3 +35,4 @@
 /* Bloco de assinatura/rodapé nunca se divide entre duas folhas: se o conteúdo passar
    da página, o documento continua na folha seguinte com a assinatura inteira. */
 .print-area :is(.doc-rodape-container, .doc-rodape-externo, .doc-bloco-assinatura) { break-inside: avoid; page-break-inside: avoid; }
+.doc-leitura .pr-page .pr-via-faixa { font-size: 7pt !important; }

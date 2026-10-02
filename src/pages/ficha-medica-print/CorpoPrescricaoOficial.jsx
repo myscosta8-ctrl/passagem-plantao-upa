@@ -13,13 +13,24 @@ function abreviarCondicao(v) {
   return t
 }
 
-export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+// A prescrição sai sempre em 2 vias (folhas separadas): 1ª via Enfermagem/Prontuário, 2ª via Farmácia.
+export default function CorpoPrescricaoOficial(props) {
+  return (
+    <>
+      <FolhaPrescricao {...props} via="1ª VIA — ENFERMAGEM / PRONTUÁRIO" />
+      <FolhaPrescricao {...props} via="2ª VIA — FARMÁCIA" segunda />
+    </>
+  )
+}
+
+function FolhaPrescricao({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora, via, segunda }) {
   const cf = registro.campos_prescricao || {}
   const itens = registro.prescricao_itens || []
   const orientacoes = cf.orientacao_enfermagem || []
 
   return (
-    <div className="pr-page">
+    <div className={'pr-page' + (segunda ? ' pr-segunda-via' : '')}>
+      <div className="pr-via-faixa">{via}</div>
       <div className="doc-corpo">
         <CabecalhoPadraoUPA
           titulo="PRESCRIÇÃO MÉDICA HOSPITALAR"
@@ -39,11 +50,11 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
         <table className="pr-tabela pr-tabela-salutem">
           <thead>
             <tr>
-              <th style={{ width: '45%' }}>MEDICAMENTOS</th>
-              <th style={{ width: '6%', textAlign: 'center' }}>QTD/UND</th>
-              <th style={{ width: '5%', textAlign: 'center' }}>SN/ACM</th>
-              <th style={{ width: '5%', textAlign: 'center' }}>VIA</th>
-              <th style={{ width: '8%', textAlign: 'center' }}>FREQ</th>
+              <th style={{ width: '51%' }}>MEDICAMENTOS</th>
+              <th style={{ width: '4.5%', textAlign: 'center' }}>QTD/UND</th>
+              <th style={{ width: '4%', textAlign: 'center' }}>SN/ACM</th>
+              <th style={{ width: '3.5%', textAlign: 'center' }}>VIA</th>
+              <th style={{ width: '6%', textAlign: 'center' }}>FREQ</th>
               <th style={{ width: '31%', textAlign: 'center' }}>HORÁRIO DE APLICAÇÃO</th>
             </tr>
           </thead>
