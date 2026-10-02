@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
+import { limparPermissoes } from './permissoes'
 
 const AuthContext = createContext(null)
 
@@ -146,6 +147,7 @@ export function AuthProvider({ children }) {
   async function logout() {
     try { localStorage.removeItem('app_ultima_atividade') } catch { /* sem storage */ }
     limparRascunhosLocais()
+    limparPermissoes()
     await supabase.auth.signOut({ scope: 'local' }) // sai só deste aparelho; não derruba o mesmo usuário em outros computadores
   }
 

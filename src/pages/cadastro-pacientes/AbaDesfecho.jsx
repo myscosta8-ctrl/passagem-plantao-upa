@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { carregarLeitosOcupadosPep, registrarDesfechoPep } from '../../lib/pepAtendimentos'
 import ModalDesfecho from '../ModalDesfecho'
+import { usePode } from '../../lib/permissoes'
 
-// Sinalização administrativa de desfecho — a Recepção registra o que
-// aconteceu (alta/transferência/evasão/óbito) sem tomar a decisão clínica,
-// que já foi tomada pela equipe assistencial antes de avisar aqui.
+// Desfecho (alta/transferência/evasão/óbito). Quem registra é definido no banco (área "desfecho":
+// enfermagem e médico); a Recepção só consulta quem está internado (decisão de 02/10).
 export default function AbaDesfecho() {
   const { enfermeiro } = useAuth()
+  const podeRegistrar = usePode('desfecho') === true
   const [pacientes, setPacientes] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [alvo, setAlvo] = useState(null) // { atendimentoId, leitoId, nome, numeroLeito }
@@ -50,10 +51,11 @@ export default function AbaDesfecho() {
 
   return (
     <div className="form-section">
-      <div className="form-section-title">Sinalizar desfecho</div>
+      <div className="form-section-title">{podeRegistrar ? 'Sinalizar desfecho' : 'Pacientes internados (consulta)'}</div>
       <p style={{ fontSize: 14, color: 'var(--c-text-muted)', marginTop: -8, marginBottom: 16 }}>
-        Registre aqui o que já foi decidido pela equipe assistencial (alta, transferência, evasão ou óbito) —
-        é só a sinalização administrativa que libera o leito, não uma decisão clínica.
+        {podeRegistrar
+          ? 'Registre aqui o que já foi decidido pela equipe assistencial (alta, transferência, evasão ou óbito) — libera o leito.'
+          : 'Somente consulta. Alta, transferência, evasão e óbito são registrados pela enfermagem ou pelo médico.'}
       </p>
       {erro && <div className="error-box" style={{ marginBottom: 14 }}>{erro}</div>}
       {carregando ? (
@@ -69,18 +71,20 @@ export default function AbaDesfecho() {
                 {p.diagnostico || 'Sem diagnóstico registrado'}
               </div>
             </div>
-            <button
-              type="button"
-              className="btn-cancel" style={{ color: "var(--color-danger)" }}
-              onClick={() => setAlvo({ atendimentoId: p.id, leitoId: p.leito_atual_id, nome: p.nome })}
-            >
-              Sinalizar desfecho
-            </button>
+            {podeRegistrar && (
+              <button
+                type="button"
+                className="btn-cancel" style={{ color: "var(--color-danger)" }}
+                onClick={() => setAlvo({ atendimentoId: p.id, leitoId: p.leito_atual_id, nome: p.nome })}
+              >
+                Sinalizar desfecho
+              </button>
+            )}
           </div>
         ))
       )}
 
-      {alvo && (
+      {alvo && podeRegistrar && (
         <ModalDesfecho
           nomePaciente={alvo.nome}
           processando={processando}

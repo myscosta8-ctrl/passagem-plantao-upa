@@ -1,6 +1,7 @@
 import { numeroLimpo } from '../lib/numeros'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/AuthContext'
+import { usePode } from '../lib/permissoes'
 import { listarCadastrosRecentes, listarDuplicatasPendentes } from '../lib/pepRecepcao'
 import {
   AbaDesfecho,
@@ -17,6 +18,7 @@ import './CadastroPacientes.css'
 // decide leito nem internação — isso é da equipe assistencial, em outra tela.
 export default function CadastroPacientes() {
   const { enfermeiro } = useAuth()
+  const podeDesfecho = usePode('desfecho') === true
   const [aba, setAba] = useState('buscar') // buscar (obrigatório primeiro) | novo | duplicatas | desfecho
   const [pessoaParaEditar, setPessoaParaEditar] = useState(null)
   const [recentes, setRecentes] = useState([])
@@ -77,7 +79,7 @@ export default function CadastroPacientes() {
             className={`doc-subtab ${aba === 'desfecho' ? 'active' : ''}`}
             onClick={() => { setAba('desfecho'); setPessoaParaEditar(null) }}
           >
-            <i className="ph ph-check-square-offset" /> Registrar desfecho
+            <i className="ph ph-check-square-offset" /> {podeDesfecho ? 'Registrar desfecho' : 'Desfechos (consulta)'}
           </button>
         </div>
 
