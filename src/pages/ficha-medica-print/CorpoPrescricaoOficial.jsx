@@ -39,12 +39,12 @@ export default function CorpoPrescricaoOficial({ registro, pessoa, atendimento, 
         <table className="pr-tabela pr-tabela-salutem">
           <thead>
             <tr>
-              <th style={{ width: '38%' }}>MEDICAMENTOS</th>
+              <th style={{ width: '45%' }}>MEDICAMENTOS</th>
               <th style={{ width: '6%', textAlign: 'center' }}>QTD/UND</th>
-              <th style={{ width: '7%', textAlign: 'center' }}>SN/ACM</th>
-              <th style={{ width: '6%', textAlign: 'center' }}>VIA</th>
-              <th style={{ width: '5.5%', textAlign: 'center' }}>FREQ</th>
-              <th style={{ width: '37.5%', textAlign: 'center' }}>HORÁRIO DE APLICAÇÃO</th>
+              <th style={{ width: '5%', textAlign: 'center' }}>SN/ACM</th>
+              <th style={{ width: '5%', textAlign: 'center' }}>VIA</th>
+              <th style={{ width: '8%', textAlign: 'center' }}>FREQ</th>
+              <th style={{ width: '31%', textAlign: 'center' }}>HORÁRIO DE APLICAÇÃO</th>
             </tr>
           </thead>
           <tbody>

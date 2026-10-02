@@ -22,10 +22,12 @@
 .doc-leitura > * { min-height: 265mm !important; }
 .doc-leitura > .pr-page { min-height: 182mm !important; }
 /* Prescrição (paisagem, folha única): um pouco mais compacta para caber os medicamentos do dia */
-.doc-leitura .pr-page * { line-height: 1.25 !important; }
-.doc-leitura .pr-page table td, .doc-leitura .pr-page table td * { font-size: 9pt !important; }
-.doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade), .doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade) * { font-size: 9pt !important; }
-.doc-leitura .pr-page table.pr-tabela tbody td { height: 7.5mm; }
+.doc-leitura .pr-page * { line-height: 1.2 !important; }
+.doc-leitura .pr-page table th, .doc-leitura .pr-page table th * { font-size: 7.5pt !important; }
+.doc-leitura .pr-page table td, .doc-leitura .pr-page table td * { font-size: 8pt !important; }
+.doc-leitura .pr-page table td .pr-nota, .doc-leitura .pr-page table td .pr-nota * { font-size: 7pt !important; }
+.doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade), .doc-leitura .pr-page :is(.pr-caixa, .pr-secao-titulo, .pr-validade) * { font-size: 8pt !important; }
+.doc-leitura .pr-page table.pr-tabela tbody td { height: 6.5mm; padding: 1.5px 5px !important; }
 /* Admissão de Enfermagem (formulário de marcações, 2 folhas): 9 pt para caber nas 2 folhas
    sem a assinatura sobrar sozinha numa 3ª folha. */
 .doc-leitura .hef-page * { font-size: 9pt !important; line-height: 1.25 !important; }
