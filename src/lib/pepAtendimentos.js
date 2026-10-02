@@ -169,39 +169,22 @@ async function carregarLeitosOcupadosPepAntigo() {
 // Último registro de sinais vitais de cada atendimento — usado só pra exibição
 // na grade da Passagem de Plantão Coletiva (não duplica o registro em si, que
 // continua sendo feito na aba própria de Sinais Vitais da Enfermagem).
-export async function listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds) {
-  if (!atendimentoIds?.length) return {}
-  const { data, error: erroConsulta2 } = await supabase
-    .from('sinais_vitais')
-    .select('*')
-    .in('atendimento_id', atendimentoIds)
-    .gte('registrado_em', new Date(Date.now() - 3 * 86400000).toISOString())
-    .order('registrado_em', { ascending: false })
-  if (erroConsulta2) avisarErro('pepAtendimentos', erroConsulta2)
-  const porAtendimento = {}
-  for (const sv of data ?? []) {
-    if (!porAtendimento[sv.atendimento_id]) porAtendimento[sv.atendimento_id] = sv
+// Painel: último sinal vital (3 dias) e totais do balanço hídrico de cada atendimento,
+// calculados no banco numa consulta só (função painel_resumo_clinico). Antes o navegador
+// baixava todas as linhas e o limite de 1.000 linhas da API deixava os totais errados.
+export async function carregarResumoClinicoPainel(atendimentoIds) {
+  if (!atendimentoIds?.length) return { sinais: {}, balanco: {} }
+  const { data, error } = await supabase.rpc('painel_resumo_clinico', { p_atendimentos: atendimentoIds })
+  if (error) { avisarErro('pepAtendimentos', error); return { sinais: {}, balanco: {} } }
+  const sinais = {}
+  const balanco = {}
+  for (const r of data ?? []) {
+    if (r.ultimo_sinal) sinais[r.atendimento_id] = r.ultimo_sinal
+    const entradas = Number(r.entradas_ml) || 0
+    const saidas = Number(r.saidas_ml) || 0
+    if (entradas || saidas) balanco[r.atendimento_id] = { entradas, saidas }
   }
-  return porAtendimento
-}
-
-// Totais de balanço hídrico (entradas/saídas) de cada atendimento — mesmo
-// dado já usado na aba de Balanço Hídrico, só somado aqui pra exibição rápida
-// na grade coletiva.
-export async function listarBalancoPorAtendimentos(atendimentoIds) {
-  if (!atendimentoIds?.length) return {}
-  const { data, error: erroConsulta3 } = await supabase
-    .from('balanco_hidrico')
-    .select('atendimento_id, tipo, volume_ml')
-    .in('atendimento_id', atendimentoIds)
-  if (erroConsulta3) avisarErro('pepAtendimentos', erroConsulta3)
-  const porAtendimento = {}
-  for (const registro of data ?? []) {
-    if (!porAtendimento[registro.atendimento_id]) porAtendimento[registro.atendimento_id] = { entradas: 0, saidas: 0 }
-    if (registro.tipo === 'entrada') porAtendimento[registro.atendimento_id].entradas += Number(registro.volume_ml)
-    else porAtendimento[registro.atendimento_id].saidas += Number(registro.volume_ml)
-  }
-  return porAtendimento
+  return { sinais, balanco }
 }
 
 // Atualização pontual do campo de pendências direto na grade da Passagem de

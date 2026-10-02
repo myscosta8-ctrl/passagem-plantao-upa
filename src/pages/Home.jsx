@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import Painel from './Painel'
 import PassagemColetivaTela from './PassagemColetivaTela'
 import ConfirmModal from './ConfirmModal'
+import ErroAba from '../components/ErroAba'
 import Sidebar from '../components/Sidebar'
 import TopNav from '../layout/TopNav'
 import './AberturaPlantao.css'
@@ -358,6 +359,7 @@ export default function Home() {
           </header>}
           <main className="main-viewport">
             {erroApp && (<div role="alert" className="faixa-erro-app"><i className="ph ph-warning-circle" /> Falha ao carregar dados ({erroApp.contexto}). Verifique a conexão — as informações exibidas podem estar incompletas.<button type="button" onClick={() => setErroApp(null)}>Fechar</button></div>)}
+            <ErroAba chave={tela}>
             <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
                 {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} />
@@ -369,6 +371,7 @@ export default function Home() {
                   : <CadastroPacientes />}
               </div>
             </Suspense>
+            </ErroAba>
           </main>
         </div>
       </div>
@@ -447,6 +450,7 @@ export default function Home() {
             </div>
 
           )}
+          <ErroAba chave={tela}>
           <Suspense fallback={<div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>Carregando módulo...</div>}>
             
             <div style={{ display: tela === 'ajuda' ? 'flex' : 'none', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
@@ -515,6 +519,7 @@ export default function Home() {
               </>
             )}
           </Suspense>
+          </ErroAba>
 
           {modalConfirmar && <ConfirmModal {...modalConfirmar} onCancelar={() => setModalConfirmar(null)} />}
         </main>

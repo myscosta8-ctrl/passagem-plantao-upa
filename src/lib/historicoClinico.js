@@ -86,21 +86,44 @@ export async function listarAtendimentosDaPessoa(pessoaId) {
   return data ?? []
 }
 
+// Tabelas e colunas pedidas ao banco (uma entrada por tabela; nutrição e serviço social
+// aparecem duas vezes em FONTES — admissão e evolução — e são separadas pelo filtro).
+const FONTES_BANCO = Object.values(FONTES.reduce((acc, f) => {
+  const cols = (f.colunas || 'id,atendimento_id,criado_em').split(',').map((c) => c.trim()).filter((c) => c && !/[()]/.test(c))
+  const atual = acc[f.tabela] || { tabela: f.tabela, colunas: [] }
+  atual.colunas = [...new Set([...atual.colunas, ...cols])]
+  acc[f.tabela] = atual
+  return acc
+}, {}))
+
+const paraItem = (f, r) => ({
+  id: `${f.tabela}:${r.id}`,
+  fonte: f,
+  registro: r,
+  data: r.data_registro || r[f.data || 'criado_em'] || r.criado_em,
+  autorId: COLUNAS_AUTOR.map((c) => r[c]).find((v) => typeof v === 'string' && v.length > 20) || null,
+  resumo: f.resumo(r),
+})
+
 // Todos os registros clínicos dos atendimentos informados, em ordem cronológica.
+// Uma consulta só ao banco (função historico_clinico_registros); antes eram 24.
 export async function listarRegistrosClinicos(atendimentoIds) {
   if (!atendimentoIds?.length) return []
-  const resultados = await Promise.all(FONTES.map(async (f) => {
-    const { data, error } = await supabase.from(f.tabela).select(f.colunas || '*').in('atendimento_id', atendimentoIds).limit(1000)
-    if (error) { avisarErro(`Histórico clínico — ${f.tabela}`, error); return [] }
-    return (data ?? []).filter((r) => (f.filtro ? f.filtro(r) : true)).map((r) => ({
-      id: `${f.tabela}:${r.id}`,
-      fonte: f,
-      registro: r,
-      data: r.data_registro || r[f.data || 'criado_em'] || r.criado_em,
-      autorId: COLUNAS_AUTOR.map((c) => r[c]).find((v) => typeof v === 'string' && v.length > 20) || null,
-      resumo: f.resumo(r),
+  const { data, error } = await supabase.rpc('historico_clinico_registros', { p_atendimentos: atendimentoIds, p_fontes: FONTES_BANCO })
+  let resultados
+  if (error) {
+    // Função indisponível (ex.: banco ainda sem ela): volta ao modo antigo, tabela por tabela.
+    avisarErro('Histórico clínico', error)
+    resultados = await Promise.all(FONTES.map(async (f) => {
+      const { data: linhas, error: e } = await supabase.from(f.tabela).select(f.colunas || '*').in('atendimento_id', atendimentoIds).limit(1000)
+      if (e) { avisarErro(`Histórico clínico — ${f.tabela}`, e); return [] }
+      return (linhas ?? []).filter((r) => (f.filtro ? f.filtro(r) : true)).map((r) => paraItem(f, r))
     }))
-  }))
+  } else {
+    const porTabela = {}
+    for (const { tabela, registro } of data ?? []) (porTabela[tabela] ||= []).push(registro)
+    resultados = FONTES.map((f) => (porTabela[f.tabela] || []).filter((r) => (f.filtro ? f.filtro(r) : true)).map((r) => paraItem(f, r)))
+  }
   const itens = resultados.flat()
 
   const idsAutores = [...new Set(itens.map((i) => i.autorId).filter(Boolean))]

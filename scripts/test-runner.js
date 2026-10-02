@@ -1,4 +1,5 @@
 import { runRegrasClinicasTests } from '../tests/unit/regras-clinicas.test.js';
+import { runRegrasPrescricaoTests } from '../tests/unit/regras-prescricao.test.js';
 import { runModelosImpressaoTests } from '../tests/fidelity/modelos-impressao.test.js';
 import { runMockupsFase2Tests } from '../tests/fidelity/mockups-fase2.test.js';
 import { runModularizacaoTests } from '../tests/architecture/modularizacao.test.js';
@@ -28,23 +29,26 @@ async function main() {
   let testesPassaram = 0;
   let testesFalharam = 0;
   const falhas = [];
+  const pendentes = [];
 
   function criarSuite(nomeSuite) {
     console.log(`${CORES.negrito}${CORES.amarelo}📂 [SUÍTE] ${nomeSuite}${CORES.reset}`);
     return function registrarTeste(nomeTeste, fn) {
       totalTestes++;
-      try {
-        const resultado = fn();
-        if (resultado instanceof Promise) {
-          throw new Error(`Teste assíncrono detectado em runner síncrono: ${nomeTeste}`);
-        }
-        testesPassaram++;
-        console.log(`  ${CORES.verde}✔${CORES.reset} ${nomeTeste}`);
-      } catch (err) {
+      const passou = () => { testesPassaram++; console.log(`  ${CORES.verde}✔${CORES.reset} ${nomeTeste}`); };
+      const falhou = (err) => {
         testesFalharam++;
         falhas.push({ suite: nomeSuite, teste: nomeTeste, erro: err });
         console.log(`  ${CORES.vermelho}✖${CORES.reset} ${nomeTeste}`);
         console.log(`    ${CORES.vermelho}${err.message}${CORES.reset}`);
+      };
+      try {
+        const resultado = fn();
+        // Teste assíncrono (ex.: ordem das gravações no banco simulado): conclui antes do resumo final.
+        if (resultado instanceof Promise) { pendentes.push(resultado.then(passou, falhou)); return; }
+        passou();
+      } catch (err) {
+        falhou(err);
       }
     };
   }
@@ -52,6 +56,7 @@ async function main() {
   // 1. Regras Clínicas e Cálculos Unitários
   const testRegras = criarSuite('Regras Clínicas e Cálculos Unitários (SUS/UPA)');
   runRegrasClinicasTests(testRegras);
+  runRegrasPrescricaoTests(criarSuite('Prescrição, ATM, Controle Especial, AIH e Rascunho/Finalização'));
   console.log('');
 
   // 2. Fidelidade Absoluta aos Modelos de Impressão HTML
@@ -80,6 +85,7 @@ async function main() {
   runTelasTests(testPwa);
   console.log('');
 
+  await Promise.all(pendentes);
   const fim = performance.now();
   const duracao = ((fim - inicio) / 1000).toFixed(2);
 

@@ -9,6 +9,7 @@ import { quantidadeDia, APRESENTACOES, apresentacaoDaForma } from '../../lib/fre
 import { hojeBelem, somarDias, textoValidade } from '../../lib/prescricaoValidade';
 import { filtrarCatalogo, rotuloMedicamento, descricaoMedicamento, detalheMedicamento, ehControlado } from '../../lib/catalogoMedicamentos';
 import { precisaAtm, itensControlados } from '../../lib/documentosVinculados';
+import { CALC_VAZIA, ARREDONDAMENTOS, FREQ_CALC, calcularDosePediatrica } from '../../lib/calculoPediatrico';
 
 
 function AutocompleteMedicamento({ catalogo, valor, onChange, onSelecionar, placeholder }) {
@@ -80,38 +81,6 @@ const HEMO_OPCOES_RAPIDAS = [
   { chave: 'plaquetas', label: 'Concentrado de Plaquetas', icon: 'ph-circle-dashed' },
   { chave: 'crio', label: 'Crioprecipitado', icon: 'ph-snowflake' },
 ]
-const CALC_VAZIA = { pesoKg: '', doseAlvoMgKg: '', apresentacaoMg: '', diluenteMl: '', soroMl: '', tipoDose: 'dose', frequencia: '', arredondar: '' }
-// Arredondamento da dose por tomada, a critério médico.
-const ARREDONDAMENTOS = [
-  { v: '', r: 'Sem arredondar' },
-  { v: '0.1', r: '1 casa decimal (0,1 mg)' },
-  { v: '0.5', r: 'Múltiplo de 0,5 mg' },
-  { v: '1', r: 'Número inteiro (1 mg)' },
-  { v: '5', r: 'Múltiplo de 5 mg' },
-  { v: '10', r: 'Múltiplo de 10 mg' },
-]
-const FREQ_CALC = ['1/1h', '2/2h', '3/3h', '4/4h', '6/6h', '8/8h', '12/12h', '24/24h']
-
-// Aceita vírgula ou ponto como decimal ("12,5" ou "12.5").
-const numBR = (v) => { const n = parseFloat(String(v ?? '').trim().replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : 0 }
-// Mesma conta na tela da calculadora e no "Aplicar".
-function calcularDosePediatrica(calc, pacientePeso) {
-  const pesoKg = numBR(calc.pesoKg) || numBR(pacientePeso)
-  const doseAlvoMgKg = numBR(calc.doseAlvoMgKg)
-  const apresentacaoMg = numBR(calc.apresentacaoMg)
-  const diluenteMl = numBR(calc.diluenteMl)
-  const soroMl = numBR(calc.soroMl)
-  // Dose alvo por tomada (mg/kg/dose) ou diária (mg/kg/dia ÷ nº de doses do horário escolhido: 6/6h → ÷ 4).
-  const porDia = calc.tipoDose === 'dia'
-  const dosesDia = porDia ? (dosesPorDia(calc.frequencia) || 0) : 1
-  const doseDiariaMg = porDia && pesoKg && doseAlvoMgKg ? pesoKg * doseAlvoMgKg : 0
-  const doseCalculadaMg = pesoKg && doseAlvoMgKg ? (porDia ? (dosesDia ? doseDiariaMg / dosesDia : 0) : pesoKg * doseAlvoMgKg) : 0
-  const passo = numBR(calc.arredondar)
-  const doseTotalMg = doseCalculadaMg && passo ? Math.max(passo, Math.round(doseCalculadaMg / passo) * passo) : doseCalculadaMg
-  const concentracaoMgMl = apresentacaoMg && diluenteMl ? apresentacaoMg / diluenteMl : 0
-  const volumeAspirarMl = doseTotalMg && concentracaoMgMl ? doseTotalMg / concentracaoMgMl : 0
-  return { pesoKg, doseAlvoMgKg, apresentacaoMg, diluenteMl, soroMl, doseTotalMg, doseCalculadaMg, doseDiariaMg, dosesDia, porDia, concentracaoMgMl, volumeAspirarMl }
-}
 const fmtMg = (n) => (Number.isInteger(n) ? String(n) : n >= 10 ? String(Math.round(n * 10) / 10).replace('.', ',') : String(Math.round(n * 100) / 100).replace('.', ','))
 const fmtMl = (n) => n.toFixed(1).replace('.', ',')
 

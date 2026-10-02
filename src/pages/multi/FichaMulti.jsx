@@ -7,6 +7,7 @@ import JanelaFormulario from '../../layout/JanelaFormulario';
 import AbasRolaveis from '../../components/AbasRolaveis';
 import BannerPacienteEnf from '../ficha-clinica/BannerPacienteEnf';
 import AbaRegistroMulti from './AbaRegistroMulti';
+import ErroAba from '../../components/ErroAba';
 import { DOCUMENTOS_MULTI } from './esquemas';
 import '../ficha-medica/AtendimentoMedico.css';
 import '../ficha-clinica/Enfermagem.css';
@@ -68,8 +69,10 @@ export default function FichaMulti({ atendimento, onFechar, onTrocarPilar, posAl
         )}
         <JanelaFormulario ativa aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={doc.titulo} paciente={atendimento?.nome} atendimento={atendimento} categoria="enfermagem"
           vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="multi" onEditarRascunho={rascunhoLiberado ? editarRascunho : undefined} />}>
-          <AbaRegistroMulti key={`${aba}-${seq}`} atendimento={atendimento} autorId={enfermeiro?.id} doc={doc} podeCriar={podeCriar}
-            onImprimir={(x) => { setImprimindo(x); setFormAberto(false); }} onFechar={() => setFormAberto(false)} />
+          <ErroAba chave={aba}>
+            <AbaRegistroMulti key={`${aba}-${seq}`} atendimento={atendimento} autorId={enfermeiro?.id} doc={doc} podeCriar={podeCriar}
+              onImprimir={(x) => { setImprimindo(x); setFormAberto(false); }} onFechar={() => setFormAberto(false)} />
+          </ErroAba>
         </JanelaFormulario>
       </div>
     </div>

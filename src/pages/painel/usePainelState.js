@@ -7,9 +7,12 @@ import { useAuth } from '../../lib/AuthContext'
 import { pepEstaAtivo } from '../../lib/pepConfig'
 import { carregarIndicadoresPainel } from '../../lib/pepPainel'
 import {
-  carregarLeitosOcupadosPep, internarPacientePep,
-  listarUltimosSinaisVitaisPorAtendimentos, listarBalancoPorAtendimentos,
+  carregarLeitosOcupadosPep, internarPacientePep, carregarResumoClinicoPainel,
 } from '../../lib/pepAtendimentos'
+
+// Painel de leitos se atualiza sozinho: a cada 60 s com a tela visível e ao voltar para o app.
+// Pausa enquanto uma janela de ação (internar, realocar, desfecho) está aberta.
+const ATUALIZAR_A_CADA_MS = 60 * 1000
 
 export function usePainelState() {
   const { enfermeiro } = useAuth()
@@ -29,6 +32,8 @@ export function usePainelState() {
 
   const queryClient = useQueryClient()
   const pepAtivoRef = useRef(false)
+  const modalAberto = useRef(false)
+  modalAberto.current = !!(modalLeito || modalRealocar || modalDesfecho)
 
   const { data: painelData, isLoading: carregando, error: erroCarga, refetch: carregarTudo } = useQuery({
     queryKey: ['painelDados', enfermeiro?.id],
@@ -58,9 +63,8 @@ export function usePainelState() {
         })
 
         const atendimentoIds = Object.values(mapa).map((p) => p.id)
-        const [svMapa, balancoMapa, indicadores] = await Promise.all([
-          listarUltimosSinaisVitaisPorAtendimentos(atendimentoIds),
-          listarBalancoPorAtendimentos(atendimentoIds),
+        const [{ sinais: svMapa, balanco: balancoMapa }, indicadores] = await Promise.all([
+          carregarResumoClinicoPainel(atendimentoIds),
           carregarIndicadoresPainel(atendimentoIds),
         ])
 
@@ -77,9 +81,12 @@ export function usePainelState() {
       }
 
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 30 * 1000,
     gcTime: 1000 * 60 * 10,
     refetchOnMount: false,
+    refetchOnWindowFocus: true,
+    refetchInterval: () => (modalAberto.current ? false : ATUALIZAR_A_CADA_MS),
+    refetchIntervalInBackground: false,
   })
 
   const setores = painelData?.setores || []

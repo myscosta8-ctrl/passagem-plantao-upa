@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import ErroAba from '../../components/ErroAba';
 // Cada aba carrega só quando é aberta (a Ficha Médica abre mais rápido).
 const AbaConsulta = lazy(() => import('./AbaConsulta'));
 const AbaAih = lazy(() => import('./AbaAih'));
@@ -95,8 +96,10 @@ function ConteudoAba({ atendimento, medicoId, medicoNome, medicoCrm, aba, onSele
 
 export default function FichaMedicaConteudo(props) {
   return (
-    <Suspense fallback={<div style={{ padding: 24, color: '#64748B', fontSize: 14 }}>Carregando...</div>}>
-      <ConteudoAba {...props} />
-    </Suspense>
+    <ErroAba chave={props.aba}>
+      <Suspense fallback={<div style={{ padding: 24, color: '#64748B', fontSize: 14 }}>Carregando...</div>}>
+        <ConteudoAba {...props} />
+      </Suspense>
+    </ErroAba>
   );
 }
