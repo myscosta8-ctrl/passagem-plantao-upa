@@ -1,3 +1,4 @@
+import { avisarErro } from '../../lib/erros'
 import { useEffect, useState } from 'react';
 import { buscarPlanoTerapeutico, salvarPlanoTerapeutico, mensagemErroSalvar } from '../../lib/pepMedico';
 import { PROTOCOLOS_OPCOES, EQUIPE_OPCOES, TEMPO_INTERNACAO_OPCOES, PROBLEMA_VAZIO } from './constantes';
@@ -249,7 +250,7 @@ export default function AbaPlanoTerapeutico({ atendimento, medicoId, onImprimir,
 
         <div className="cc-footer">
           <div>
-            <button type="button" className="btn-cancel" onClick={async () => { if (salvo?.situacao === 'rascunho') { if (!window.confirm('Cancelar descarta este rascunho em definitivo. Deseja continuar?')) return; const { error } = await descartarRascunho('planos_terapeuticos', salvo.id); if (error) { console.error(error); return } } onFechar?.() }}>
+            <button type="button" className="btn-cancel" onClick={async () => { if (salvo?.situacao === 'rascunho') { if (!window.confirm('Cancelar descarta este rascunho em definitivo. Deseja continuar?')) return; const { error } = await descartarRascunho('planos_terapeuticos', salvo.id); if (error) { avisarErro('Plano terapêutico', error); return } } onFechar?.() }}>
               <i className="ph ph-x-circle" /> Cancelar
             </button>
           </div>

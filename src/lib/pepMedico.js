@@ -123,12 +123,17 @@ export async function listarPrescricoes(atendimentoId) {
     .select('*, enfermeiros!prescricoes_medicas_medico_id_fkey(nome_exibicao, nome, crm, coren, conselho_uf), prescricao_itens(*)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
-  if (error) console.error('Erro ao listar prescrições:', error)
+  if (error) avisarErro('pepMedico', error)
   return data ?? []
 }
 
 export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consultaId, observacoes, itens, camposPrescricao, dataReferencia, id, situacao }) {
-  const { data: prescricao, error } = await gravar('prescricoes_medicas', id, {
+  // Os itens só podem ser regravados enquanto a prescrição é rascunho (trigger proteger_prescricao_item).
+  // Por isso o "Salvar e Imprimir" é feito em duas etapas: cabeçalho + itens como rascunho e, só depois,
+  // a finalização. Se algo falhar no meio, fica um rascunho (nunca uma prescrição finalizada com itens antigos).
+  const meta = typeof situacao === 'string' ? { situacao } : (situacao || {})
+  const finalizar = meta.situacao === 'finalizado'
+  const { data: cabecalho, error } = await gravar('prescricoes_medicas', id, {
     atendimento_id: atendimentoId,
     pessoa_id: pessoaId,
     medico_id: medicoId,
@@ -136,19 +141,25 @@ export async function criarPrescricao({ atendimentoId, pessoaId, medicoId, consu
     observacoes: observacoes || null,
     campos_prescricao: camposPrescricao || {},
     ...(dataReferencia ? { data_referencia: dataReferencia } : {}),
-  }, situacao)
+  }, finalizar ? { ...meta, situacao: 'rascunho' } : meta)
   if (error) return { error }
+  const rascunhoSalvo = { ...cabecalho, prescricao_itens: [] }
 
-  // Rascunho reaberto: os itens são regravados (o banco só permite isso
-  // enquanto a prescrição está em rascunho).
+  // Rascunho reaberto: os itens são regravados.
   if (id) {
     const { error: erroLimpa } = await supabase.from('prescricao_itens').delete().eq('prescricao_id', id)
-    if (erroLimpa) return { error: erroLimpa }
+    if (erroLimpa) return { error: erroLimpa, data: rascunhoSalvo }
   }
-  const itensPayload = itens.map((it) => ({ ...it, prescricao_id: prescricao.id }))
+  const itensPayload = itens.map((it) => ({ ...it, prescricao_id: cabecalho.id }))
   const { data: itensSalvos, error: erroItens } = await supabase.from('prescricao_itens').insert(itensPayload).select()
-  if (erroItens) return { error: erroItens }
+  if (erroItens) return { error: erroItens, data: rascunhoSalvo }
 
+  let prescricao = cabecalho
+  if (finalizar) {
+    const { data: fin, error: erroFin } = await gravar('prescricoes_medicas', cabecalho.id, {}, meta)
+    if (erroFin) return { error: erroFin, data: { ...cabecalho, prescricao_itens: itensSalvos ?? [] } }
+    prescricao = fin
+  }
   // Devolve já com os itens (o impresso lê prescricao_itens).
   return { data: { ...prescricao, prescricao_itens: itensSalvos ?? [] } }
 }
@@ -161,7 +172,7 @@ export async function listarAih(atendimentoId) {
     .select('*, enfermeiros!aih_solicitacoes_solicitante_id_fkey(nome_exibicao, nome, crm, coren, conselho_uf), cid_catalog!aih_solicitacoes_cid_principal_fkey(codigo, descricao)')
     .eq('atendimento_id', atendimentoId)
     .order('criado_em', { ascending: false })
-  if (error) console.error('Erro ao listar AIH:', error)
+  if (error) avisarErro('pepMedico', error)
   return data ?? []
 }
 

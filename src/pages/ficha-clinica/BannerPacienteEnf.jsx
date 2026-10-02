@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { buscarCabecalhoImpressao, buscarHistoricoEnfermagem } from '../../lib/pepMedico';
-import { listarAlergias, listarSinaisVitais } from '../../lib/pepClinico';
+import { listarAlergias, alergiasAtivas, listarSinaisVitais } from '../../lib/pepClinico';
 import { MANCHESTER_CORES, normalizarNome } from '../painel/constantes';
 import { useAuth } from '../../lib/AuthContext';
 
@@ -25,7 +25,7 @@ export default function BannerPacienteEnf({ atendimento, pilar, onVoltar, onTroc
     buscarCabecalhoImpressao(atendimento.atendimento_id).then((c) => { if (vivo) setCab(c); }).catch(() => {});
     buscarHistoricoEnfermagem(atendimento.atendimento_id).then((h) => { if (vivo && h) setEnfAdmissao(h.enfermeiros?.nome_exibicao || h.enfermeiros?.nome || null); }).catch(() => {});
     listarSinaisVitais(atendimento.atendimento_id).then((l) => { if (vivo) setSv(l[0] || null); });
-    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => { if (vivo) setAlergias(l.filter((a) => a.status !== 'inativa')); });
+    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => { if (vivo) setAlergias(alergiasAtivas(l)); });
     return () => { vivo = false; };
   }, [atendimento?.atendimento_id]);
 
@@ -38,7 +38,7 @@ export default function BannerPacienteEnf({ atendimento, pilar, onVoltar, onTroc
   const sexo = String(p.sexo || pac.sexo || '').toUpperCase().startsWith('F') ? 'Feminino' : (p.sexo || pac.sexo) ? 'Masculino' : null;
   const setor = cab?.setorNome || atendimento?.setorNome;
   const leito = cab?.leitoNumero || atendimento?.leito_numero;
-  const alergiaTxt = alergias.map((x) => x.substancia).join(', ') || pac.alergias_obs;
+  const alergiaTxt = alergias.map((x) => x.substancia).join(', ') || pac.alergias_obs || (alergias.falhou ? 'NÃO FOI POSSÍVEL CONFERIR (falha ao carregar)' : '');
   const hd = pac.diagnostico || a.queixa_principal;
   const cns = p.cns || null;
   const pediatrico = (typeof idade === 'number' && idade < 14) || /ped/i.test(String(setor || ''));

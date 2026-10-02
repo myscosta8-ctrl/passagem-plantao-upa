@@ -1,4 +1,5 @@
 import CabecalhoPadraoUPA from '../CabecalhoPadraoUPA'
+import { validadeAtm, dataCurta } from '../ficha-medica/constantes'
 
 // Réplica fiel do "FORMULÁRIO ANTIMICROBIANO - ATM" oficial (UPA Breves) —
 // mesma grade de caixas, ordem dos campos e lista de antibióticos de uso
@@ -19,6 +20,7 @@ function dataBR(v) {
 }
 
 export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, leitoNumero, setorNome, medico, dataHora }) {
+  const validade = validadeAtm(registro)
   const cf = registro.campos_extra || {}
 
   return (
@@ -65,7 +67,7 @@ export default function CorpoAtmOficial({ registro, pessoa, atendimento, idade, 
             <div className="grid-tratamento">
               <div><b>DOSE:</b> {registro.dose || '—'}</div>
               <div><b>INTERVALO:</b> {registro.intervalo || '—'}</div>
-              <div><b>TEMPO DE USO:</b> {registro.tempo_uso_dias ? `${registro.tempo_uso_dias} DIAS` : '—'}</div>
+              <div><b>TEMPO DE USO:</b> {registro.tempo_uso_dias ? `${registro.tempo_uso_dias} DIAS` : '—'}{validade ? ` (VÁLIDA DE ${dataCurta(validade.inicio)} A ${dataCurta(validade.venceEm)})` : ''}</div>
               <div style={{ textAlign: 'right', paddingRight: 4 }}><b>REGIME:</b> {cf.regime || '—'}</div>
             </div>
           </div>

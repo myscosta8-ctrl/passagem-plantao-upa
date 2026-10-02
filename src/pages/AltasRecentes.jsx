@@ -1,3 +1,4 @@
+import { avisarErro } from '../lib/erros'
 import { numeroLimpo } from '../lib/numeros'
 import { useEffect, useState, useCallback, lazy, Suspense } from 'react'
 import { supabase } from '../lib/supabaseClient'
@@ -114,7 +115,7 @@ export default function AltasRecentes({ onVoltar }) {
       .lte('encerrado_em', fim)
       .order('encerrado_em', { ascending: false })
       .limit(2000)
-    if (error) console.error('Erro ao carregar desfechos:', error)
+    if (error) avisarErro('Altas recentes', error)
 
     const todos = (atendimentosAlta ?? []).map(mapearDesfecho)
 

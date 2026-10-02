@@ -9,10 +9,25 @@ export function usernameToEmail(username) {
   return username.trim().toLowerCase().replace(/\s+/g, '.') + EMAIL_DOMAIN
 }
 
+// Rascunhos guardados só no navegador (passagem de plantão, internação) contêm dados de paciente:
+// ao sair, são apagados para o próximo usuário do mesmo computador não vê-los.
+function limparRascunhosLocais() {
+  try {
+    for (const k of Object.keys(localStorage)) {
+      if (k.startsWith('rascunho_') || k.startsWith('upa_rascunho_')) localStorage.removeItem(k)
+    }
+    sessionStorage.removeItem('prontuario_aberto_v1')
+  } catch { /* navegador sem armazenamento */ }
+}
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined) // undefined = loading, null = signed out
   const [enfermeiro, setEnfermeiro] = useState(null)
   const [profileLoading, setProfileLoading] = useState(false)
+  // Falha de rede/banco ao buscar o perfil ≠ perfil inexistente: mostra "tentar de novo"
+  // em vez de cair na tela de completar cadastro.
+  const [perfilErro, setPerfilErro] = useState(null)
+  const [tentativaPerfil, setTentativaPerfil] = useState(0)
   const [permissoes, setPermissoes] = useState([]) // permissões administrativas da conta (cargo + ajustes)
 
   useEffect(() => {
@@ -38,24 +53,31 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!enfermeiroId) {
       setEnfermeiro(null)
+      setPerfilErro(null)
       return
     }
     setProfileLoading(true)
+    setPerfilErro(null)
     supabase
       .from('enfermeiros')
       .select('*')
       .eq('id', enfermeiroId)
       .maybeSingle()
       .then(({ data, error }) => {
-        if (error) console.error('Erro ao buscar perfil:', error)
-        setEnfermeiro(data ?? null)
+        if (error) {
+          console.error('Erro ao buscar perfil:', error)
+          setPerfilErro(error)
+        } else {
+          setEnfermeiro(data ?? null)
+        }
         setProfileLoading(false)
       })
       .catch((err) => {
         console.error('Erro fatal ao buscar perfil:', err)
+        setPerfilErro(err)
         setProfileLoading(false)
       })
-  }, [enfermeiroId])
+  }, [enfermeiroId, tentativaPerfil])
 
   // Permissões administrativas (cadastrar funcionários, resetar senha...). A regra real vive no banco.
   useEffect(() => {
@@ -123,6 +145,7 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     try { localStorage.removeItem('app_ultima_atividade') } catch { /* sem storage */ }
+    limparRascunhosLocais()
     await supabase.auth.signOut({ scope: 'local' }) // sai só deste aparelho; não derruba o mesmo usuário em outros computadores
   }
 
@@ -152,6 +175,8 @@ export function AuthProvider({ children }) {
     enfermeiro,
     loading: session === undefined,
     profileLoading,
+    perfilErro,
+    tentarPerfilDeNovo: () => setTentativaPerfil((n) => n + 1),
     permissoes,
     temPermissao,
     login,

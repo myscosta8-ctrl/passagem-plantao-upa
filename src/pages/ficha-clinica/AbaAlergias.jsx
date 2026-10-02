@@ -72,6 +72,8 @@ export default function AbaAlergias({ atendimento, onFechar }) {
       <div className="form-section-title" style={{ marginTop: 24 }}>Ativas</div>
       {carregando ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Carregando...</p>
+      ) : lista.falhou ? (
+        <p style={{ color: '#B91C1C' }}><i className="ph ph-warning" /> Não foi possível carregar as alergias (falha de conexão). <button type="button" className="btn-add-chip" onClick={carregar}>Tentar de novo</button></p>
       ) : ativas.length === 0 ? (
         <p style={{ color: 'var(--c-text-muted)' }}>Nenhuma alergia ativa registrada.</p>
       ) : (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { buscarOcupacaoAtiva, registrarTransferenciaSbar, listarAlergias, listarSinaisVitais } from '../../lib/pepClinico';
+import { buscarOcupacaoAtiva, registrarTransferenciaSbar, listarAlergias, alergiasAtivas, listarSinaisVitais } from '../../lib/pepClinico';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
@@ -46,7 +46,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
 
   useEffect(() => {
     buscarOcupacaoAtiva(atendimento.atendimento_id).then(setOcupacao);
-    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => setAlergias(l.filter((a) => a.status !== 'inativa')));
+    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => setAlergias(alergiasAtivas(l)));
     // Pré-preenche o embarque com a última aferição (editável).
     listarSinaisVitais(atendimento.atendimento_id).then((l) => {
       const s = l[0]; if (!s) return;
@@ -68,6 +68,7 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
 
   async function salvar(imprimir = false) {
     if (!d.hospital_destino.trim() || !d.diagnostico.trim()) { setMsg({ erro: true, t: 'Preencha ao menos o hospital/serviço de destino e o diagnóstico principal de saída.' }); return; }
+    if (imprimir && alergias.falhou) { setMsg({ erro: true, t: 'Não foi possível conferir as alergias do paciente (falha de conexão). Feche e abra a transferência de novo antes de finalizar.' }); return; }
     setMsg(null); setSalvando(true);
     const [pas, pad] = String(d.pa).split(/[x/]/i).map((x) => x.trim());
     const { data, error } = await registrarTransferenciaSbar({
@@ -173,6 +174,8 @@ export default function AbaSbar({ atendimento, autorId, onImprimir, onFechar }) 
             {campo('antecedentes', 'Antecedentes Pessoais, Comorbidades e Cirurgias', null, { area: true })}
             {alergias.length > 0 ? (
               <div className="alergia-box"><strong><i className="ph ph-warning" /> ALERGIA CONFIRMADA:</strong> {alergiaTxt}</div>
+            ) : alergias.falhou ? (
+              <div className="alergia-box"><strong><i className="ph ph-warning" /> ALERGIAS:</strong> não foi possível carregar o cadastro de alergias. Verifique a conexão.</div>
             ) : (
               <div className="qs-vazio">Nenhuma alergia registrada no cadastro do paciente.</div>
             )}

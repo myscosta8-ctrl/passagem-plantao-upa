@@ -131,7 +131,17 @@ export async function listarAlergias(pessoaId) {
     .eq('pessoa_id', pessoaId)
     .order('criado_em', { ascending: false })
   if (erroConsulta6) avisarErro('pepClinico', erroConsulta6)
-  return data ?? []
+  // Falha ao carregar ≠ "sem alergias": a lista vazia leva a marca `falhou` para a tela avisar.
+  const lista = data ?? []
+  if (erroConsulta6) lista.falhou = true
+  return lista
+}
+
+// Lista ativa (sem inativadas), mantendo a marca de falha.
+export function alergiasAtivas(lista) {
+  const ativas = (lista || []).filter((a) => a.status !== 'inativa')
+  if (lista?.falhou) ativas.falhou = true
+  return ativas
 }
 
 export async function registrarAlergia({ pessoaId, substancia, reacao, gravidade }) {
@@ -201,7 +211,7 @@ export async function listarTransferenciasSbar(atendimentoId) {
     .select('*, setores:setor_destino_id(nome), entrega:enfermeiro_entrega(nome_exibicao, nome, coren, conselho_uf), recebe:enfermeiro_recebe(nome_exibicao, nome)')
     .or(filtro)
     .order('criado_em', { ascending: false })
-  if (error) console.error('Erro ao listar transferências SBAR:', error)
+  if (error) avisarErro('pepClinico', error)
   return data ?? []
 }
 

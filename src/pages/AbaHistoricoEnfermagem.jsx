@@ -1,3 +1,4 @@
+import { avisarErro } from '../lib/erros'
 import { useEffect, useState } from 'react'
 import { buscarHistoricoEnfermagem, salvarHistoricoEnfermagem } from '../lib/pepMedico'
 import { listarEscalas, listarDispositivos, listarAlergias } from '../lib/pepClinico'
@@ -271,7 +272,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
                 <span><i className="ph ph-shield-warning" style={{ color: 'var(--danger)', fontSize: 15 }} /> Alergias e Restrições</span>
                 <button type="button" className="qs-gerenciar" onClick={() => setGerenciar('alergias')}>Gerenciar</button>
               </div>
-              {alergias.length === 0 ? <span className="qs-vazio">Nenhuma registrada.</span> : alergias.map((a) => (
+              {alergias.falhou && alergias.length === 0 ? <span className="qs-vazio" style={{ color: '#B91C1C' }}>Não foi possível carregar (falha de conexão).</span> : alergias.length === 0 ? <span className="qs-vazio">Nenhuma registrada.</span> : alergias.map((a) => (
                 <div key={a.id} className="alergia-box"><strong>{String(a.substancia || '').toUpperCase()}</strong>{a.reacao ? `: ${a.reacao}` : a.gravidade ? ` — ${a.gravidade}` : ''}</div>
               ))}
             </div>
@@ -415,7 +416,7 @@ export default function AbaHistoricoEnfermagem({ atendimento, medicoId, onImprim
         </div>
 
         <div className="ac-footer">
-          <button type="button" className="btn-cancel" onClick={async () => { if (salvo?.situacao === 'rascunho') { if (!window.confirm('Cancelar descarta este rascunho em definitivo. Deseja continuar?')) return; const { error } = await descartarRascunho('historico_enfermagem', salvo.id); if (error) { console.error(error); return } } onFechar?.() }}><i className="ph ph-x-circle" /> Cancelar</button>
+          <button type="button" className="btn-cancel" onClick={async () => { if (salvo?.situacao === 'rascunho') { if (!window.confirm('Cancelar descarta este rascunho em definitivo. Deseja continuar?')) return; const { error } = await descartarRascunho('historico_enfermagem', salvo.id); if (error) { avisarErro('Histórico de enfermagem', error); return } } onFechar?.() }}><i className="ph ph-x-circle" /> Cancelar</button>
           <div style={{ display: 'flex', gap: 12 }}>
             <CampoDataRegistro valor={dataRegistro} onChange={setDataRegistro} />
             <button type="button" className="btn-save-draft" onClick={() => salvar(false)} disabled={salvando}><i className="ph ph-floppy-disk" /> {salvando ? 'Salvando...' : 'Salvar'}</button>

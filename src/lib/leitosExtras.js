@@ -21,16 +21,15 @@ export async function criarLeitoExtra(setorId) {
   return { error: new Error('Não foi possível gerar um número livre para o leito extra.') }
 }
 
-// Leito extra sem paciente sai do painel. Sem histórico: é apagado. Com histórico
-// (já teve paciente): não pode ser apagado — fica inativo e com o número liberado.
-export async function recolherLeitosExtras(ids) {
-  for (const id of ids || []) {
-    const { error } = await supabase.from('leitos').delete().eq('id', id)
-    if (!error) continue
-    if (error.code === '23503') {
-      const carimbo = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-      const { data: l } = await supabase.from('leitos').select('numero, ativo').eq('id', id).maybeSingle()
-      if (l?.ativo) await supabase.from('leitos').update({ ativo: false, numero: `${l.numero} (${carimbo})` }).eq('id', id)
-    }
-  }
+// Leito extra sem paciente sai do painel. Feito no banco (recolher_leitos_extras), numa
+// operação só: sem histórico é apagado; com histórico fica inativo e com o número liberado.
+// Extras abertos há menos de 15 min são preservados (outro profissional pode estar admitindo).
+// `imediato`: o próprio profissional cancelou a admissão do extra que acabou de abrir.
+export async function recolherLeitosExtras(ids = null, { imediato = false } = {}) {
+  const { data, error } = await supabase.rpc('recolher_leitos_extras', {
+    p_ids: ids && ids.length ? ids.map(Number) : null,
+    ...(imediato ? { p_min_idade: '0 seconds' } : {}),
+  })
+  if (error) console.error('Erro ao recolher leitos extras:', error)
+  return { recolhidos: data ?? 0, error }
 }

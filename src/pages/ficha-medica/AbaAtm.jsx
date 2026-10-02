@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { criarAtm, listarAtm, listarPrescricoes, buscarDadosParaSumario } from '../../lib/pepMedico';
-import { ATM_VAZIA, ATM_RESTRITOS, atbRestrito, viaIntravenosa, atmPendentes, calculoDxIxT } from './constantes';
+import { ATM_VAZIA, ATM_RESTRITOS, atbRestrito, viaIntravenosa, atmPendentes, calculoDxIxT, atmsVigentes, alertasAtm, textoValidadeAtm, dataCurta } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
@@ -16,6 +16,8 @@ import { useRascunho } from '../../hooks/useRascunho'
 export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , headerTabs, emPacote = false, onAtmNoPacote, onImprimirPacoteAgora }) {
   const atdId = atendimento.atendimento_id
   const [pendentes, setPendentes] = useState([])
+  const [vigentes, setVigentes] = useState(new Map()) // ATM mais recente de cada antimicrobiano + validade
+  const [alertas, setAlertas] = useState([])
   const [base, setBase] = useState({}) // diagnóstico e data de internação do atendimento
   const [dados, setDados] = useState(ATM_VAZIA)
   const [origemPrescricao, setOrigemPrescricao] = useState(false)
@@ -31,7 +33,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
     const [prescricoes, atms, sug] = await Promise.all([listarPrescricoes(atdId), listarAtm(atdId), buscarDadosParaSumario(atdId)])
     const lista = atmPendentes(prescricoes, atms)
     const b = { diagnostico: sug.diagnostico_internacao || '', data_internacao: sug.data_internacao || '' }
-    setPendentes(lista); setBase(b)
+    setPendentes(lista); setBase(b); setVigentes(atmsVigentes(atms)); setAlertas(alertasAtm(prescricoes, atms))
     if (preencher) {
       setDados((prev) => (prev.medicamento || prev.justificativa_clinica ? prev : { ...ATM_VAZIA, ...b, ...(lista[0] || {}) }))
       if (lista[0]) setOrigemPrescricao(true)
@@ -56,9 +58,21 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
   const restritoAtual = atbRestrito(dados.medicamento)
   const viaNaoEv = !!dados.via && !viaIntravenosa(dados.via)
 
+  // ATM ainda válida do mesmo antimicrobiano (outra ficha, já finalizada).
+  const vigenteAtual = restritoAtual ? vigentes.get(restritoAtual.rotulo) : null
+  const duplicada = vigenteAtual && !vigenteAtual.rascunho && vigenteAtual.atm.id !== editandoId && (!vigenteAtual.validade || !vigenteAtual.validade.vencida)
+
   async function salvar(imprimir = false) {
     if (!dados.medicamento.trim() || !dados.justificativa_clinica.trim()) {
       setErro('Preencha ao menos o medicamento solicitado e a justificativa clínica.')
+      return
+    }
+    if (imprimir && !(Number(dados.tempo_uso_dias) > 0)) {
+      setErro('Informe o tempo de uso (dias): ele define a validade da ficha — enquanto válida, não é preciso emitir outra.')
+      return
+    }
+    if (imprimir && duplicada) {
+      setErro(`Já existe ATM ${textoValidadeAtm(vigenteAtual.validade)} para ${vigenteAtual.atm.medicamento}. Não é preciso emitir outra — para reimprimir, use o botão "ATM" na prescrição.`)
       return
     }
     setErro('')
@@ -119,9 +133,30 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
             <div className="info" style={{ color: '#9A3412', display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
               <i className="ph ph-warning-circle" /> <strong>ATM pendente da prescrição:</strong>
               {pendentes.map((p) => (
-                <button key={p.medicamento} type="button" className={'btn-add-chip' + (p.medicamento === dados.medicamento ? ' on' : '')} onClick={() => usarPendente(p)}>
-                  {p.medicamento}
+                <button key={p.medicamento} type="button" className={'btn-add-chip' + (p.medicamento === dados.medicamento ? ' on' : '')} onClick={() => usarPendente(p)}
+                  title={p.renovacao ? `ATM anterior venceu em ${dataCurta(p.venceu_em)} e o antimicrobiano continua prescrito` : undefined}>
+                  {p.medicamento}{p.renovacao ? ` — renovação (venceu ${dataCurta(p.venceu_em)})` : ''}
                 </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {alertas.length > 0 && (
+          <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+            <div className="info" style={{ color: '#B91C1C' }}>
+              <i className="ph ph-alarm" /> <strong>Validade da ATM:</strong> {alertas.map((a) => `${a.medicamento} — ${a.texto}`).join('; ')}. O uso vai continuar? {alertas.some((a) => a.validade.vencida) ? 'Se sim, preencha a renovação (marcada acima como pendente); se não, suspenda o antimicrobiano na prescrição.' : 'Se sim, mantenha o antimicrobiano na prescrição — a renovação aparece aqui quando a ficha vencer; se não, suspenda-o.'}
+            </div>
+          </div>
+        )}
+        {vigentes.size > 0 && (
+          <div className="allergy-alert" style={{ background: '#F8FAFC', borderColor: '#E2E8F0' }}>
+            <div className="info" style={{ color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span><i className="ph ph-shield-check" /> <strong>ATMs emitidas neste atendimento:</strong></span>
+              {[...vigentes.values()].map((v) => (
+                <span key={v.rotulo} style={{ color: v.rascunho ? undefined : v.validade?.vencida ? '#B91C1C' : v.validade && v.validade.diasRestantes <= 1 ? '#B45309' : '#166534' }}>
+                  • {v.atm.medicamento} — {v.rascunho ? 'rascunho (não finalizada)' : textoValidadeAtm(v.validade)}
+                </span>
               ))}
             </div>
           </div>
@@ -154,6 +189,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
                 {origemPrescricao && <span className="badge-2vias" style={{ background: 'var(--c-primary-soft, #CCFBF1)', color: 'var(--c-primary-hover, #0F766E)' }}>Da prescrição</span>}
                 {dados.medicamento && !restritoAtual && <span className="badge-2vias">Fora da lista restrita</span>}
                 {restritoAtual && viaNaoEv && <span className="badge-2vias">Via não intravenosa — ATM não exigida</span>}
+                {duplicada && <span className="badge-2vias">Já há ATM {textoValidadeAtm(vigenteAtual.validade)}</span>}
               </label>
               <input type="text" list="atm-restritos" value={dados.medicamento} onChange={(e) => set('medicamento', e.target.value)} />
               <datalist id="atm-restritos">{ATM_RESTRITOS.map((a) => <option key={a.rotulo} value={a.rotulo} />)}</datalist>
@@ -163,7 +199,7 @@ export default function AbaAtm({  atendimento, medicoId, onImprimir, onFechar , 
           <div className="assess-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginTop: 12 }}>
             <div className="form-group"><label>Dose</label><input type="text" value={dados.dose} onChange={(e) => set('dose', e.target.value)} /></div>
             <div className="form-group"><label>Intervalo</label><input type="text" placeholder="Ex: 6/6 horas" value={dados.intervalo} onChange={(e) => set('intervalo', e.target.value)} /></div>
-            <div className="form-group"><label>Tempo de uso (dias)</label><input type="number" min="1" value={dados.tempo_uso_dias} onChange={(e) => set('tempo_uso_dias', e.target.value)} /></div>
+            <div className="form-group"><label>Tempo de uso (dias) *</label><input type="number" min="1" value={dados.tempo_uso_dias} onChange={(e) => set('tempo_uso_dias', e.target.value)} /></div>
             <div className="form-group"><label>Regime</label>
               <select value={dados.regime} onChange={(e) => set('regime', e.target.value)}>
                 <option value="">—</option><option>Contínuo</option><option>Intermitente</option><option>Dose única</option>

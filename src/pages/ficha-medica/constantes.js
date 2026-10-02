@@ -1,3 +1,4 @@
+import { hojeBelem, somarDias } from '../../lib/prescricaoValidade.js';
 export const VIAS = ['VO', 'IM', 'SC', 'EV', 'INAL', 'SL', 'ID', 'VR'];
 
 // Prescrição médica — opções guiadas
@@ -332,11 +333,60 @@ export function calculoDxIxT(intervalo, dias) {
 
 const ROTULO_VIA = { EV: 'Intravenosa (EV)', IV: 'Intravenosa (EV)' };
 
+// ===== Validade da Ficha de ATM =====
+// A ATM vale pelo tempo de uso definido: do dia do registro até (início + tempo_uso_dias − 1).
+// Ex.: metronidazol por 7 dias, registrada em 01/10 → válida de 01/10 a 07/10. Enquanto válida,
+// não se emite nem imprime outra para o mesmo antimicrobiano; vencida e ainda prescrito → nova ficha.
+const dataBelem = (v) => (!v ? null : /^\d{4}-\d{2}-\d{2}$/.test(String(v)) ? String(v) : hojeBelem(new Date(v)));
+const difDias = (de, ate) => Math.round((Date.parse(`${ate}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / 86400000);
+export const dataCurta = (iso) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : '');
+
+export function validadeAtm(atm, hoje = hojeBelem()) {
+  const dias = Number(atm?.tempo_uso_dias);
+  const inicio = dataBelem(atm?.data_registro || atm?.finalizado_em || atm?.criado_em);
+  if (!inicio || !(dias > 0)) return null; // sem tempo de uso definido: sem vencimento calculável
+  const venceEm = somarDias(inicio, dias - 1);
+  const diasRestantes = difDias(hoje, venceEm); // 0 = vence hoje
+  return { inicio, venceEm, dias, diaAtual: difDias(inicio, hoje) + 1, diasRestantes, vencida: diasRestantes < 0 };
+}
+
+// "válida até 07/10 (dia 3 de 7)" · "vence hoje (07/10)" · "vencida em 07/10"
+export function textoValidadeAtm(v) {
+  if (!v) return 'sem tempo de uso definido';
+  if (v.vencida) return `vencida em ${dataCurta(v.venceEm)}`;
+  if (v.diasRestantes === 0) return `vence hoje (${dataCurta(v.venceEm)}) — dia ${v.diaAtual} de ${v.dias}`;
+  if (v.diasRestantes === 1) return `vence amanhã (${dataCurta(v.venceEm)}) — dia ${v.diaAtual} de ${v.dias}`;
+  if (v.diaAtual < 1) return `válida de ${dataCurta(v.inicio)} a ${dataCurta(v.venceEm)}`;
+  return `válida até ${dataCurta(v.venceEm)} (dia ${v.diaAtual} de ${v.dias})`;
+}
+
+// ATM mais recente (não invalidada) de cada antimicrobiano restrito → { atm, validade }.
+export function atmsVigentes(atms = [], hoje = hojeBelem()) {
+  const porRotulo = new Map();
+  const ordenadas = [...atms].filter((a) => a.situacao !== 'invalido')
+    .sort((a, b) => String(b.data_registro || b.criado_em).localeCompare(String(a.data_registro || a.criado_em)));
+  for (const atm of ordenadas) {
+    const r = atbRestrito(atm.medicamento)?.rotulo;
+    if (r && !porRotulo.has(r)) porRotulo.set(r, { rotulo: r, atm, validade: validadeAtm(atm, hoje), rascunho: atm.situacao === 'rascunho' });
+  }
+  return porRotulo;
+}
+
+// A ATM cobre a prescrição do dia `dataPrescricao`? Rascunho conta (está em preenchimento);
+// finalizada sem tempo de uso não vence; com tempo de uso, cobre até o último dia de validade.
+export function atmCobre(vigente, dataPrescricao) {
+  if (!vigente) return false;
+  if (vigente.rascunho || !vigente.validade) return true;
+  return !dataPrescricao || dataPrescricao <= vigente.validade.venceEm;
+}
+
+const dataDaPrescricao = (p) => p.data_referencia || dataBelem(p.criado_em);
+
 // ATMs pendentes do atendimento, a partir do banco (não depende do navegador):
-// itens das prescrições não invalidadas (inclusive rascunho) que exigem ATM,
-// menos os antimicrobianos que já têm ATM não invalidada.
-export function atmPendentes(prescricoes = [], atms = []) {
-  const feitos = new Set(atms.filter((a) => a.situacao !== 'invalido').map((a) => atbRestrito(a.medicamento)?.rotulo).filter(Boolean));
+// itens das prescrições não invalidadas (inclusive rascunho) que exigem ATM e cuja
+// prescrição mais recente não está coberta por uma ATM válida (renovação quando a anterior venceu).
+export function atmPendentes(prescricoes = [], atms = [], hoje = hojeBelem()) {
+  const vigentes = atmsVigentes(atms, hoje);
   const vistos = new Set();
   const lista = [];
   const ordenadas = [...prescricoes].sort((a, b) => String(b.criado_em).localeCompare(String(a.criado_em)));
@@ -344,8 +394,10 @@ export function atmPendentes(prescricoes = [], atms = []) {
     if (p.situacao === 'invalido' || p.status === 'cancelada') continue;
     for (const it of p.prescricao_itens || []) {
       const r = exigeAtm(it.medicamento_nome, it.via);
-      if (!r || feitos.has(r.rotulo) || vistos.has(r.rotulo)) continue;
-      vistos.add(r.rotulo);
+      if (!r || vistos.has(r.rotulo)) continue;
+      vistos.add(r.rotulo); // só a prescrição mais recente de cada antimicrobiano decide
+      const vig = vigentes.get(r.rotulo);
+      if (atmCobre(vig, dataDaPrescricao(p))) continue;
       const dias = (String(it.duracao || '').match(/\d+/) || [''])[0];
       lista.push({
         medicamento: it.medicamento_nome,
@@ -355,10 +407,23 @@ export function atmPendentes(prescricoes = [], atms = []) {
         posologia: [it.diluicao, it.instrucoes].filter(Boolean).join(' — '),
         tempo_uso_dias: dias,
         dxixt: calculoDxIxT(it.frequencia, dias),
+        ...(vig ? { renovacao: true, venceu_em: vig.validade?.venceEm || '' } : {}),
       });
     }
   }
   return lista;
+}
+
+// Alertas de validade para a tela: ATMs que vencem hoje/amanhã ou já venceram de antimicrobiano
+// que continua na prescrição mais recente (pergunta se o uso vai continuar → nova ficha).
+export function alertasAtm(prescricoes = [], atms = [], hoje = hojeBelem()) {
+  const vigentes = atmsVigentes(atms, hoje);
+  const atual = [...prescricoes].filter((p) => p.situacao !== 'invalido' && p.status !== 'cancelada')
+    .sort((a, b) => String(b.criado_em).localeCompare(String(a.criado_em)))[0];
+  const prescritos = new Set((atual?.prescricao_itens || []).map((it) => exigeAtm(it.medicamento_nome, it.via)?.rotulo).filter(Boolean));
+  return [...vigentes.values()]
+    .filter((v) => !v.rascunho && v.validade && v.validade.diasRestantes <= 1 && prescritos.has(v.rotulo))
+    .map((v) => ({ medicamento: v.atm.medicamento, validade: v.validade, texto: textoValidadeAtm(v.validade) }));
 }
 
 // AIH — campo 29 (Clínica): clínicas/leitos de destino disponíveis na rede hospitalar (seleção, sem digitação).

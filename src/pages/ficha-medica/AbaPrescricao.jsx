@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listarPrescricoes, criarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
-import { VIAS, UNIDADES_DOSE, FREQUENCIAS, FREQUENCIAS_CUIDADOS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, exigeAtm, dosesPorDia } from './constantes';
+import { VIAS, UNIDADES_DOSE, FREQUENCIAS, FREQUENCIAS_CUIDADOS, CONDICOES_USO, DILUENTES, TEMPOS_INFUSAO, exigeAtm, dosesPorDia, atmCobre, textoValidadeAtm } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
@@ -248,7 +248,7 @@ function CalculadoraDosePediatrica({ item, calc, onChange, onAplicar, onCancelar
 }
 
 
-export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFinalizada, onReimprimirVinculado, onFechar, onAbrirAtm, onAtualizarAtm, headerTabs }) {
+export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFinalizada, onReimprimirVinculado, onFechar, onAbrirAtm, onAtualizarAtm, headerTabs, situacaoAtm }) {
   const [historico, setHistorico] = useState([])
   const [historicoAberto, setHistoricoAberto] = useState(false)
   const [carregando, setCarregando] = useState(true)
@@ -273,6 +273,11 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
   const [maisOpcoes, setMaisOpcoes] = useState({})
   // ATM só para antimicrobiano da lista restrita prescrito por via intravenosa.
   const itensRestritos = itens.filter((it) => exigeAtm(it.medicamento_nome, it.via))
+  // Validade da ATM: com ficha válida no dia desta prescrição, não se emite nem imprime outra.
+  const vigenteDe = (it) => situacaoAtm?.vigentes?.get(exigeAtm(it.medicamento_nome, it.via)?.rotulo)
+  const restritosCobertos = itensRestritos.filter((it) => atmCobre(vigenteDe(it), dataReferencia))
+  const restritosSemAtm = itensRestritos.filter((it) => !atmCobre(vigenteDe(it), dataReferencia))
+  const alertasAtm = (situacaoAtm?.alertas || []).filter((a) => !restritosSemAtm.some((it) => exigeAtm(it.medicamento_nome, it.via)?.rotulo === exigeAtm(a.medicamento, 'EV')?.rotulo))
 
   useEffect(() => { carregar() }, [])
   useEffect(() => { listarCatalogoMedicamentos().then(setCatalogo) }, [])
@@ -452,7 +457,11 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
     })
     setSalvando(false)
     if (error) {
-      setErro('Não foi possível salvar a prescrição. Tente de novo.')
+      // Se o cabeçalho chegou a ser gravado, ele ficou como rascunho: a próxima tentativa atualiza o mesmo registro.
+      if (data?.id) setEditandoId(data.id)
+      setErro(data?.id
+        ? 'A prescrição ficou salva como rascunho, mas não foi possível concluir. Confira a conexão e salve de novo.'
+        : 'Não foi possível salvar a prescrição. Tente de novo.')
       return
     }
     // ATM obrigatória: antimicrobiano restrito por via intravenosa → abre a ficha de ATM, já preenchida a partir da prescrição salva.
@@ -470,7 +479,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
     setHemocomponentes({})
     setHemocomponenteObs('')
     carregar()
-    if (restritos.length > 0 && !emPacote) onAbrirAtm?.()
+    if (restritosSemAtm.length > 0 && !emPacote) onAbrirAtm?.()
   }
 
   return (
@@ -495,10 +504,27 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
           </div>
 
         <div className="cc-body" id="presc-accordion" style={{ padding: 0 }}>
-          {itensRestritos.length > 0 && (
+          {restritosSemAtm.length > 0 && (
             <div className="allergy-alert" style={{ background: '#FFF7ED', borderColor: '#FDBA74', margin: '16px 20px 0' }}>
               <div className="info" style={{ color: '#9A3412' }}>
-                <i className="ph ph-shield-warning" /> <strong>ATM obrigatória:</strong> {itensRestritos.map((it) => it.medicamento_nome).join(', ')} {itensRestritos.length > 1 ? 'são antimicrobianos' : 'é antimicrobiano'} de uso restrito por via intravenosa. Ao clicar em "Salvar e Imprimir", a Solicitação de Uso de Antimicrobiano (ATM) abre já preenchida e sai junto com a prescrição, na mesma impressão.
+                <i className="ph ph-shield-warning" /> <strong>ATM obrigatória:</strong> {restritosSemAtm.map((it) => {
+                  const venc = vigenteDe(it)?.validade
+                  return `${it.medicamento_nome}${venc ? ` (ATM anterior ${textoValidadeAtm(venc)} — renovação)` : ''}`
+                }).join(', ')} {restritosSemAtm.length > 1 ? 'são antimicrobianos' : 'é antimicrobiano'} de uso restrito por via intravenosa. Ao clicar em "Salvar e Imprimir", a Solicitação de Uso de Antimicrobiano (ATM) abre já preenchida e sai junto com a prescrição, na mesma impressão.
+              </div>
+            </div>
+          )}
+          {restritosCobertos.length > 0 && (
+            <div className="allergy-alert" style={{ background: '#F0FDF4', borderColor: '#BBF7D0', margin: '16px 20px 0' }}>
+              <div className="info" style={{ color: '#166534' }}>
+                <i className="ph ph-shield-check" /> <strong>ATM em vigor:</strong> {restritosCobertos.map((it) => `${it.medicamento_nome} — ${textoValidadeAtm(vigenteDe(it)?.validade)}`).join('; ')}. A ficha não será emitida nem impressa de novo enquanto estiver válida.
+              </div>
+            </div>
+          )}
+          {alertasAtm.length > 0 && (
+            <div className="allergy-alert" style={{ background: '#FEF2F2', borderColor: '#FECACA', margin: '16px 20px 0' }}>
+              <div className="info" style={{ color: '#B91C1C', display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+                <i className="ph ph-alarm" /> <strong>Validade da ATM:</strong> {alertasAtm.map((a) => `${a.medicamento} — ${a.texto}`).join('; ')}. O uso vai continuar? {alertasAtm.some((a) => a.validade.vencida) ? 'Se sim, emita nova ficha na aba ATM (ao salvar e imprimir esta prescrição ela abre já preenchida); se não, suspenda o antimicrobiano.' : 'Se sim, mantenha o antimicrobiano na prescrição — a nova ficha será pedida quando a atual vencer; se não, suspenda-o.'}
               </div>
             </div>
           )}

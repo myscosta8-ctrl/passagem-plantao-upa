@@ -2,7 +2,8 @@
 // e Receita de Controle Especial (Portaria 344/98). Usado no "Salvar e Imprimir" da prescrição e
 // na reimpressão (ícones no Histórico Clínico e na lista de prescrições).
 import { listarAtm, listarReceitasMedicas, buscarDadosParaSumario, listarCatalogoMedicamentos } from './pepMedico'
-import { exigeAtm, atbRestrito, atmPendentes } from '../pages/ficha-medica/constantes'
+import { exigeAtm, atbRestrito, atmPendentes, validadeAtm } from '../pages/ficha-medica/constantes'
+import { hojeBelem } from './prescricaoValidade'
 import { ehControlado } from './catalogoMedicamentos'
 import { quantidadeDia } from './frequencia'
 
@@ -36,16 +37,26 @@ export function itemReceitaControle(it) {
 
 const mesmoDia = (a, b) => a && b && String(a).slice(0, 10) === String(b).slice(0, 10)
 
-// ATM(s) da prescrição: as já registradas para o mesmo antimicrobiano; as que faltam saem
+// ATM que valia no dia da prescrição (início ≤ dia ≤ vencimento); sem ela, a primeira emitida
+// depois que ainda cobre o dia; ATM sem tempo de uso definido não vence.
+function atmQueCobre(atms, dataP) {
+  const comValidade = atms.map((a) => ({ a, v: validadeAtm(a) }))
+    .sort((x, y) => String(x.a.data_registro || x.a.criado_em).localeCompare(String(y.a.data_registro || y.a.criado_em)))
+  const cobre = ({ v }) => !v || !dataP || dataP <= v.venceEm
+  return (comValidade.filter(cobre).reverse().find(({ v }) => !v || !dataP || v.inicio <= dataP) || comValidade.find(cobre))?.a || null
+}
+
+// ATM(s) da prescrição: as já registradas (válidas no dia da prescrição) para o mesmo antimicrobiano; as que faltam saem
 // preenchidas a partir da prescrição, com a justificativa em branco para preencher à mão.
 export async function atmsDaPrescricao(p) {
   const restritos = [...new Set(itensDe(p).map((it) => exigeAtm(it.medicamento_nome, it.via)?.rotulo).filter(Boolean))]
   if (!restritos.length) return []
   const [atms, base] = await Promise.all([listarAtm(p.atendimento_id), buscarDadosParaSumario(p.atendimento_id).catch(() => ({}))])
   const validas = atms.filter((a) => a.situacao !== 'invalido' && a.situacao !== 'rascunho')
+  const dataP = p.data_referencia || hojeBelem(new Date(p.criado_em || Date.now()))
   const docs = []
   for (const rotulo of restritos) {
-    const feita = validas.find((a) => atbRestrito(a.medicamento)?.rotulo === rotulo)
+    const feita = atmQueCobre(validas.filter((a) => atbRestrito(a.medicamento)?.rotulo === rotulo), dataP)
     if (feita) { docs.push(feita); continue }
     const pend = atmPendentes([{ ...p, situacao: 'finalizado' }], []).find((x) => atbRestrito(x.medicamento)?.rotulo === rotulo) || {}
     const { medicamento, dose, intervalo, posologia, tempo_uso_dias, ...extra } = pend

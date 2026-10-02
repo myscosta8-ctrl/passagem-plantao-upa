@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { buscarCabecalhoImpressao } from '../lib/pepMedico'
-import { listarAlergias } from '../lib/pepClinico'
+import { listarAlergias, alergiasAtivas } from '../lib/pepClinico'
 import { MANCHESTER_CORES, normalizarNome } from '../pages/painel/constantes'
 
 // Faixa escura do paciente no topo da janela flutuante (mockup 02).
@@ -15,7 +15,7 @@ export default function FaixaPacienteJanela({ atendimento, nomeFallback }) {
     if (!atendimento?.atendimento_id) return undefined
     let vivo = true
     buscarCabecalhoImpressao(atendimento.atendimento_id).then((c) => { if (vivo) setCab(c) }).catch(() => {})
-    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => { if (vivo) setAlergias(l.filter((a) => a.status !== 'inativa')) })
+    if (atendimento.pessoa_id) listarAlergias(atendimento.pessoa_id).then((l) => { if (vivo) setAlergias(alergiasAtivas(l)) })
     return () => { vivo = false }
   }, [atendimento?.atendimento_id]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -34,7 +34,7 @@ export default function FaixaPacienteJanela({ atendimento, nomeFallback }) {
   const dias = inicio ? Math.max(0, Math.floor((Date.now() - new Date(inicio).getTime()) / 86400000)) : null
   const classNome = a.classificacao_risco_cor || pac.classificacao_manchester || null
   const classif = classNome ? MANCHESTER_CORES.find((c) => normalizarNome(c.nome) === normalizarNome(classNome)) : null
-  const alergiaTxt = alergias.map((x) => x.substancia).filter(Boolean).join(', ') || pac.alergias_obs
+  const alergiaTxt = alergias.map((x) => x.substancia).filter(Boolean).join(', ') || pac.alergias_obs || (alergias.falhou ? 'NÃO FOI POSSÍVEL CONFERIR (falha ao carregar)' : '')
   const hd = pac.diagnostico || a.queixa_principal
 
   const meta = [

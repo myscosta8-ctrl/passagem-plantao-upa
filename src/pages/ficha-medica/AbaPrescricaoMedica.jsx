@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import AbaPrescricao from './AbaPrescricao';
 import AbaAtm from './AbaAtm';
 import { listarPrescricoes, listarAtm, criarReceitaMedica, buscarCabecalhoImpressao } from '../../lib/pepMedico';
-import { atmPendentes } from './constantes';
+import { atmPendentes, atmsVigentes, alertasAtm } from './constantes';
 import { metaDoc } from '../../lib/documentos';
 import { itemReceitaControle, impressaoVinculada } from '../../lib/documentosVinculados';
 
@@ -26,13 +26,16 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
   const [temAtm, setTemAtm] = useState(docInicial === 'atm')
   // Impressão conjunta: prescrição + ATM(s) + Receita de Controle Especial, quando houver necessidade.
   const [pacote, setPacote] = useState(null) // { prescricao, receita, atms: [] }
+  // Validade das ATMs já emitidas: { vigentes: Map(rotulo → { atm, validade }), alertas: [] }
+  const [situacaoAtm, setSituacaoAtm] = useState({ vigentes: new Map(), alertas: [] })
 
   // A sub-aba ATM aparece quando há antimicrobiano restrito EV prescrito (pendente) ou ATM já registrada.
   async function verificarAtm() {
     const [prescricoes, atms] = await Promise.all([listarPrescricoes(atdId), listarAtm(atdId)])
     setTemAtm(atmPendentes(prescricoes, atms).length > 0 || atms.some((a) => a.situacao !== 'invalido'))
+    setSituacaoAtm({ vigentes: atmsVigentes(atms), alertas: alertasAtm(prescricoes, atms) })
   }
-  useEffect(() => { verificarAtm() }, [atdId])
+  useEffect(() => { verificarAtm() }, [atdId, doc]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function imprimirPacote({ prescricao, receita, atms = [] }) {
     const extras = [...atms.map((a) => ({ tipo: 'atm', registro: a })), ...(receita ? [{ tipo: 'receituario', registro: receita }] : [])]
@@ -40,9 +43,12 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
     onImprimir({ tipo: 'prescricao', registro: prescricao, extras })
   }
 
-  async function prescricaoFinalizada(prescricao, { temAtm: precisaAtm, controlados }) {
+  async function prescricaoFinalizada(prescricao, { temAtm: temRestrito, controlados }) {
     const receita = controlados.length ? await gerarReceitaControle({ atendimentoId: atdId, medicoId, controlados }) : null
-    if (!precisaAtm) { imprimirPacote({ prescricao, receita }); return }
+    // ATM ainda válida (dentro do tempo de uso) não é emitida nem impressa de novo: só entra no
+    // pacote a ATM que falta ou a renovação da que venceu.
+    const precisaAtm = temRestrito && atmPendentes([prescricao], await listarAtm(atdId)).length > 0
+    if (!precisaAtm) { imprimirPacote({ prescricao, receita }); verificarAtm(); return }
     setPacote({ prescricao, receita, atms: [] })
     setTemAtm(true)
     setDoc('atm')
@@ -72,7 +78,7 @@ export default function AbaPrescricaoMedica({ atendimento, medicoId, onImprimir,
           <AbaAtm atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'atm', registro })} onFechar={onFechar} headerTabs={subtabs}
             emPacote={!!pacote} onAtmNoPacote={atmNoPacote} onImprimirPacoteAgora={() => pacote && imprimirPacote(pacote)} />
         ) : (
-          <AbaPrescricao atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })} onFinalizada={prescricaoFinalizada} onReimprimirVinculado={async (qual, p) => { const pedido = await impressaoVinculada(qual, p); if (pedido) onImprimir(pedido) }} onFechar={onFechar} headerTabs={subtabs} onAbrirAtm={() => { setTemAtm(true); setDoc('atm') }} onAtualizarAtm={verificarAtm} />
+          <AbaPrescricao atendimento={atendimento} medicoId={medicoId} onImprimir={(registro) => onImprimir({ tipo: 'prescricao', registro })} onFinalizada={prescricaoFinalizada} onReimprimirVinculado={async (qual, p) => { const pedido = await impressaoVinculada(qual, p); if (pedido) onImprimir(pedido) }} onFechar={onFechar} headerTabs={subtabs} situacaoAtm={situacaoAtm} onAbrirAtm={() => { setTemAtm(true); setDoc('atm') }} onAtualizarAtm={verificarAtm} />
         )}
       </div>
     </div>

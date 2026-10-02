@@ -11,11 +11,13 @@ export default defineConfig({
       // navegador recarregar a página sozinho (troca de app, minimizar) montar
       // a tela quase na hora em vez de baixar tudo de novo pela rede. Os dados
       // do paciente continuam vindo sempre do banco — nada disso fica em cache.
-      registerType: 'autoUpdate',
+      // Versão nova: o app avisa e o profissional escolhe a hora de atualizar (nunca recarrega
+      // sozinho no meio de um registro). Ver src/lib/avisoAtualizacao.js.
+      registerType: 'prompt',
       manifest: false, // usa o public/manifest.json existente, sem duplicar
       injectRegister: false, // registrado manualmente em src/main.jsx
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico,woff2}'],
         // O sprite SVG dos ícones Phosphor (~3MB) é só um fallback legado do
         // font-face — todo navegador moderno usa o .woff2 (bem menor), que já
         // fica no precache pelo globPattern acima. Sem isso o build do PWA
@@ -23,8 +25,6 @@ export default defineConfig({
         // não é realmente necessário offline.
         globIgnores: ['**/Phosphor-*.svg', '**/vendor-pdf-*.js'],
         cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
         navigateFallback: 'index.html',
         runtimeCaching: [
           {

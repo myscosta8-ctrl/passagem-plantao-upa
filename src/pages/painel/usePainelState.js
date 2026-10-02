@@ -109,7 +109,7 @@ export function usePainelState() {
     if (modalLeito?.tipo === 'extra' && !pacientesPorLeito[modalLeito.id]) {
       const extraId = modalLeito.id
       queryClient.setQueryData(['painelDados', enfermeiro?.id], (old) => ({ ...old, leitos: (old?.leitos || []).filter(l => l.id !== extraId) }))
-      await recolherLeitosExtras([extraId])
+      await recolherLeitosExtras([extraId], { imediato: true })
     }
     setModalLeito(null)
     setErroInternar('')

@@ -91,7 +91,7 @@ export async function listarRegistrosClinicos(atendimentoIds) {
   if (!atendimentoIds?.length) return []
   const resultados = await Promise.all(FONTES.map(async (f) => {
     const { data, error } = await supabase.from(f.tabela).select(f.colunas || '*').in('atendimento_id', atendimentoIds).limit(1000)
-    if (error) { console.error(`Histórico clínico — ${f.tabela}:`, error); return [] }
+    if (error) { avisarErro(`Histórico clínico — ${f.tabela}`, error); return [] }
     return (data ?? []).filter((r) => (f.filtro ? f.filtro(r) : true)).map((r) => ({
       id: `${f.tabela}:${r.id}`,
       fonte: f,
@@ -120,7 +120,7 @@ export async function listarAlteracoes(tabela, registroId) {
     .select('id, operacao, alterado_por, alterado_em, dados_anteriores, dados_novos')
     .eq('tabela', tabela).eq('registro_id', String(registroId))
     .order('alterado_em', { ascending: false })
-  if (error) { console.error('Erro ao listar alterações:', error); return [] }
+  if (error) { avisarErro('Histórico clínico — alterações', error); return [] }
   const ids = [...new Set((data ?? []).map((a) => a.alterado_por).filter(Boolean))]
   let porId = {}
   if (ids.length) {

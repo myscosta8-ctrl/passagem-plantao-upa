@@ -25,22 +25,10 @@ const GerenciarProfissionais = lazy(() => import('./GerenciarProfissionais'))
 const TelaApoio = lazy(() => import('./TelaApoio'))
 const CadastroPacientes = lazy(() => import('./CadastroPacientes'))
 
-// Leitos extras que não possuem paciente ativo desaparecem automaticamente
+// Leitos extras que não possuem paciente ativo desaparecem automaticamente (regra no banco).
 async function limparLeitosExtrasNaoUsados() {
-  const { data: candidatos, error: erroConsulta1 } = await supabase
-    .from('leitos')
-    .select('id')
-    .eq('tipo', 'extra')
-    .eq('ativo', true)
-  if (erroConsulta1) avisarErro('Home', erroConsulta1)
-  if (!candidatos?.length) return
-
-  const ids = candidatos.map((l) => l.id)
-  const { data: ocupacoesPep, error: erroConsulta2 } = await supabase.from('leito_ocupacoes').select('leito_id').eq('status', 'ativo').in('leito_id', ids)
-  if (erroConsulta2) avisarErro('Home', erroConsulta2)
-  const ocupadosSet = new Set((ocupacoesPep ?? []).map((o) => o.leito_id))
-  const paraExcluir = ids.filter((id) => !ocupadosSet.has(id))
-  if (paraExcluir.length) await recolherLeitosExtras(paraExcluir)
+  const { error } = await recolherLeitosExtras()
+  if (error) avisarErro('Home', error)
 }
 
 function hojeISOLocal() {
