@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { registrarEvolucao, listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
-import { NANDA_OPCOES, NIC_OPCOES } from './constantes';
+import { NANDA_GRUPOS, NIC_GRUPOS } from './saeCatalogo';
+import SaeSelecao from './SaeSelecao';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
@@ -144,16 +145,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
             <CabecalhoRecolhivel icone="ph-stethoscope" titulo="Diagnósticos de Enfermagem (NANDA-I)" aberto={abertos.nanda} onAlternar={() => alternar('nanda')}
               selecionados={nanda} rotuloAberto="Selecione os títulos prioritários" />
             {abertos.nanda && <div className="sae-body">
-              <div className="chips-container">
-                {NANDA_OPCOES.map((item) => {
-                  const on = nanda.includes(item);
-                  return (
-                    <button key={item} type="button" className={'nanda-chip' + (on ? ' selected' : '')} onClick={() => toggle(nanda, setNanda, item)}>
-                      <i className={'ph ' + (on ? 'ph-check-circle' : 'ph-plus-circle')} /> {item}
-                    </button>
-                  );
-                })}
-              </div>
+              <SaeSelecao grupos={NANDA_GRUPOS} selecionados={nanda} onAlternar={(v) => toggle(nanda, setNanda, v)} modo="chips" />
             </div>}
           </div>
 
@@ -161,20 +153,8 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
             <CabecalhoRecolhivel icone="ph-list-checks" titulo="Prescrição de Enfermagem e Cuidados (NIC)" aberto={abertos.nic} onAlternar={() => alternar('nic')}
               selecionados={nic} rotuloAberto="Aprazamento pelo Enfermeiro" />
             {abertos.nic && <div className="sae-body">
-              <div className="nic-list">
-                {NIC_OPCOES.map((n) => {
-                  const t = nicTexto(n);
-                  return (
-                    <label key={n.texto} className="nic-item">
-                      <div className="nic-left">
-                        <input type="checkbox" checked={nic.includes(t)} onChange={() => toggle(nic, setNic, t)} />
-                        <span>{n.texto}</span>
-                      </div>
-                      <span className="nic-freq">{n.frequencia.replace('/', ' / ')}</span>
-                    </label>
-                  );
-                })}
-              </div>
+              <SaeSelecao grupos={NIC_GRUPOS} selecionados={nic} onAlternar={(v) => toggle(nic, setNic, v)} modo="lista"
+                valorDe={nicTexto} rotuloDe={(n) => n.texto} detalheDe={(n) => n.frequencia.replace('/', ' / ')} />
             </div>}
           </div>
 

@@ -329,3 +329,17 @@
 .enf-banner { --enf-primary: #0D9488; --enf-hover: #0F766E; --enf-badge: #E8EDF3; --danger: #DC2626; --danger-light: #FBF3F3; }
 .enf-banner .pb-pediatrico { background: var(--c-warning-light); color: var(--c-warning-text); font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }
 .enf-banner .pb-classificacao { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }
+
+/* SAE: busca e grupos recolhíveis (diagnósticos e cuidados) */
+.enf-theme .sae-selecao { display: flex; flex-direction: column; gap: 6px; }
+.enf-theme .sae-busca { display: flex; align-items: center; gap: 8px; border: 1px solid var(--c-border-dark); border-radius: 8px; padding: 6px 10px; background: var(--c-surface); }
+.enf-theme .sae-busca i { color: var(--c-text-muted); }
+.enf-theme .sae-busca input, .enf-theme .sae-busca input:focus { border: 0 !important; outline: 0; box-shadow: none !important; padding: 2px 0 !important; height: auto; flex: 1; min-width: 0; font: inherit; font-size: 13px; background: transparent !important; color: var(--c-text); }
+.enf-theme .sae-grupo { border-bottom: 1px solid var(--c-border-light, #E2E8F0); padding-bottom: 6px; }
+.enf-theme .sae-grupo:last-child { border-bottom: 0; }
+.enf-theme .sae-grupo-titulo { width: 100%; display: flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 6px 2px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; color: var(--c-text-primary); text-align: left; }
+.enf-theme .sae-grupo-titulo:disabled { cursor: default; }
+.enf-theme .sae-grupo-titulo:focus-visible { outline: 2px solid var(--c-text-primary); outline-offset: 1px; border-radius: 4px; }
+.enf-theme .sae-grupo-cont { margin-left: auto; font-weight: 600; font-size: 12px; color: var(--c-text-muted); }
+.enf-theme .sae-grupo .chips-container, .enf-theme .sae-grupo .nic-list { padding: 4px 0 4px 20px; }
+.enf-theme .sae-vazio { font-size: 13px; color: var(--c-text-muted); padding: 6px 2px; }

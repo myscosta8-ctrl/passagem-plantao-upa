@@ -182,3 +182,27 @@ export function runRegrasPrescricaoTests(test) {
     } finally { db.restaurar(); }
   }));
 }
+
+// Catálogo da SAE (Evolução do Enfermeiro): textos antigos preservados e sem repetição.
+import { NANDA_OPCOES as SAE_NANDA, NIC_OPCOES as SAE_NIC, filtrarSae } from '../../src/pages/ficha-clinica/saeCatalogo.js';
+export function runCatalogoSaeTests(test) {
+  test('SAE: diagnósticos e cuidados já usados continuam com o mesmo texto', () => {
+    for (const d of ['Mobilidade Física Prejudicada', 'Risco de Queda', 'Risco de Integridade da Pele Prejudicada', 'Comunicação Verbal Prejudicada',
+      'Risco de Aspiração', 'Risco de Infecção', 'Padrão Respiratório Ineficaz', 'Débito Cardíaco Diminuído']) assert.ok(SAE_NANDA.includes(d), d);
+    const nic = SAE_NIC.map((n) => `${n.texto} (${n.frequencia})`);
+    for (const c of ['Mudança de decúbito e posicionamento no leito com coxins (2/2 horas)', 'Manter cabeceira elevada a 30° - 45° (Contínuo)',
+      'Manter grades laterais do leito sempre elevadas (Contínuo)', 'Aferir sinais vitais completos e registrar parâmetros (4/4 horas)',
+      'Avaliar e inspecionar inserção do AVP quanto a sinais de flebite (Por turno)', 'Balanço hídrico rigoroso (entradas e saídas) (24 horas)']) assert.ok(nic.includes(c), c);
+  });
+  test('SAE: sem itens repetidos e lista ampliada (≥ 50 diagnósticos, ≥ 80 cuidados)', () => {
+    assert.equal(new Set(SAE_NANDA).size, SAE_NANDA.length);
+    assert.equal(new Set(SAE_NIC.map((n) => n.texto)).size, SAE_NIC.length);
+    assert.ok(SAE_NANDA.length >= 50, `diagnósticos: ${SAE_NANDA.length}`);
+    assert.ok(SAE_NIC.length >= 80, `cuidados: ${SAE_NIC.length}`);
+  });
+  test('SAE: busca sem acento e com várias palavras', () => {
+    assert.equal(filtrarSae('Risco de Integridade da Pele Prejudicada', 'risco pele'), true);
+    assert.equal(filtrarSae('Débito Cardíaco Diminuído', 'debito'), true);
+    assert.equal(filtrarSae('Débito Cardíaco Diminuído', 'pele'), false);
+  });
+}
