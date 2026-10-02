@@ -21,6 +21,23 @@ const SV_CAMPOS = [
 ];
 const nicTexto = (n) => `${n.texto} (${n.frequencia})`;
 
+// Cabeçalho recolhível dos blocos da SAE: fechado mostra só o resumo do que foi marcado,
+// para o campo de evolução ficar em destaque. O impresso não muda.
+function CabecalhoRecolhivel({ icone, titulo, aberto, onAlternar, selecionados, rotuloAberto }) {
+  const resumo = selecionados.length
+    ? `${selecionados.length} selecionado${selecionados.length > 1 ? 's' : ''}: ${selecionados.map((t) => t.replace(/\s*\(.*\)$/, '')).join(' · ')}`
+    : 'Nenhum selecionado';
+  return (
+    <button type="button" className="sae-header sae-header-botao" aria-expanded={aberto} onClick={onAlternar}>
+      <span className="bloco-num"><i className={'ph ' + icone} /> {titulo}</span>
+      <span className="sae-header-sub sae-resumo" title={aberto ? undefined : resumo}>
+        {aberto ? rotuloAberto : resumo}
+        <i className={'ph ' + (aberto ? 'ph-caret-up' : 'ph-caret-down')} />
+      </span>
+    </button>
+  );
+}
+
 function resumoSv(s) {
   return [
     s.pa && `PA ${s.pa} mmHg`, s.fc && `FC ${s.fc} bpm`, s.fr && `FR ${s.fr} irpm`, s.temperatura && `Tax ${s.temperatura} °C`,
@@ -35,6 +52,8 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
   const [texto, setTexto] = useState('');
   const [nanda, setNanda] = useState([]);
   const [nic, setNic] = useState([]);
+  const [abertos, setAbertos] = useState({ nanda: false, nic: false });
+  const alternar = (k) => setAbertos((a) => ({ ...a, [k]: !a[k] }));
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
   const [editandoId, setEditandoId] = useState(null);
@@ -122,11 +141,9 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
           </div>
 
           <div className="sae-section">
-            <div className="sae-header">
-              <span className="bloco-num"><i className="ph ph-stethoscope" /> Diagnósticos de Enfermagem (NANDA-I)</span>
-              <span className="sae-header-sub">Selecione os títulos prioritários</span>
-            </div>
-            <div className="sae-body">
+            <CabecalhoRecolhivel icone="ph-stethoscope" titulo="Diagnósticos de Enfermagem (NANDA-I)" aberto={abertos.nanda} onAlternar={() => alternar('nanda')}
+              selecionados={nanda} rotuloAberto="Selecione os títulos prioritários" />
+            {abertos.nanda && <div className="sae-body">
               <div className="chips-container">
                 {NANDA_OPCOES.map((item) => {
                   const on = nanda.includes(item);
@@ -137,15 +154,13 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
                   );
                 })}
               </div>
-            </div>
+            </div>}
           </div>
 
           <div className="sae-section">
-            <div className="sae-header">
-              <span className="bloco-num"><i className="ph ph-list-checks" /> Prescrição de Enfermagem e Cuidados (NIC)</span>
-              <span className="sae-header-sub">Aprazamento pelo Enfermeiro</span>
-            </div>
-            <div className="sae-body">
+            <CabecalhoRecolhivel icone="ph-list-checks" titulo="Prescrição de Enfermagem e Cuidados (NIC)" aberto={abertos.nic} onAlternar={() => alternar('nic')}
+              selecionados={nic} rotuloAberto="Aprazamento pelo Enfermeiro" />
+            {abertos.nic && <div className="sae-body">
               <div className="nic-list">
                 {NIC_OPCOES.map((n) => {
                   const t = nicTexto(n);
@@ -160,7 +175,7 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
                   );
                 })}
               </div>
-            </div>
+            </div>}
           </div>
 
           <div className="enf-group">
