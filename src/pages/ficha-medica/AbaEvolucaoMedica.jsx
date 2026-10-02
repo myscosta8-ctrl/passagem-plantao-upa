@@ -6,6 +6,13 @@ import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
 import { useRascunho } from '../../hooks/useRascunho'
 import { retirarDuplicacao } from '../../lib/duplicarPendente'
+import ModelosEvolucao from '../../components/ModelosEvolucao'
+
+const CAMPOS_MODELO_MEDICO = [
+  { chave: 'evolucao_dia', rotulo: 'Evolução do dia' },
+  { chave: 'exame_fisico', rotulo: 'Exame físico' },
+  { chave: 'conduta_medica', rotulo: 'Conduta' },
+]
 
 export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, onFechar }) {
   const [dados, setDados] = useState(EVOLUCAO_VAZIA)
@@ -167,6 +174,10 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
               <label className="bloco-num" style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Dia e Queixas *</label>
+              {/* Modelo preenche evolução, exame físico e conduta; tudo continua editável. */}
+              <ModelosEvolucao categoria="medico" campos={CAMPOS_MODELO_MEDICO} autorId={medicoId}
+                valores={{ evolucao_dia: dados.evolucao_dia, exame_fisico: dados.exame_fisico, conduta_medica: dados.conduta_medica }}
+                onAplicar={(v) => setDados((p) => ({ ...p, ...v }))} />
             </div>
             <textarea className="form-control-area large" placeholder="Descreva o estado geral, queixas, evolução do quadro..." value={dados.evolucao_dia} onChange={(e) => set('evolucao_dia', e.target.value)} />
           </div>

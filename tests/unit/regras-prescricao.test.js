@@ -206,3 +206,14 @@ export function runCatalogoSaeTests(test) {
     assert.equal(filtrarSae('Débito Cardíaco Diminuído', 'pele'), false);
   });
 }
+
+// Modelos de evolução: aplicar substituindo ou acrescentando, só nos campos da tela.
+import { aplicarModelo } from '../../src/lib/modelosEvolucao.js';
+export function runModelosEvolucaoTests(test) {
+  test('Modelo de evolução: preenche vazio, substitui, acrescenta ao final e ignora campo que a tela não tem', () => {
+    const modelo = { evolucao_dia: 'Estável.', conduta_medica: 'Manter.', campo_inexistente: 'x' };
+    assert.deepEqual(aplicarModelo({ evolucao_dia: '', conduta_medica: '' }, modelo, 'substituir'), { evolucao_dia: 'Estável.', conduta_medica: 'Manter.' });
+    assert.deepEqual(aplicarModelo({ evolucao_dia: 'Refere dor.', conduta_medica: '' }, modelo, 'acrescentar'), { evolucao_dia: 'Refere dor.\n\nEstável.', conduta_medica: 'Manter.' });
+    assert.deepEqual(aplicarModelo({ evolucao_dia: 'Refere dor.' }, modelo, 'substituir'), { evolucao_dia: 'Estável.' });
+  });
+}

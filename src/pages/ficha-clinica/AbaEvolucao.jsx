@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { registrarEvolucao, listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
 import { NANDA_GRUPOS, NIC_GRUPOS } from './saeCatalogo';
 import SaeSelecao from './SaeSelecao';
+import ModelosEvolucao from '../../components/ModelosEvolucao';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { metaDoc } from '../../lib/documentos';
 import { useRascunho } from '../../hooks/useRascunho';
@@ -161,6 +162,8 @@ export default function AbaEvolucao({ atendimento, autorId, onImprimir, onFechar
           <div className="enf-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <label className="bloco-num" style={{ margin: 0 }}><i className="ph ph-text-align-left" /> Evolução Clínica do Enfermeiro (SOAP / Descritiva)</label>
+              <ModelosEvolucao categoria="enfermagem" campos={[{ chave: 'texto', rotulo: 'Evolução' }]} autorId={autorId}
+                valores={{ texto }} onAplicar={(v) => setTexto(v.texto)} />
             </div>
             <textarea className="enf-control" rows="4" value={texto} onChange={(e) => setTexto(e.target.value)} />
           </div>
