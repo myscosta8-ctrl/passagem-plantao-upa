@@ -48,7 +48,7 @@ function Telefone({ d }) {
 export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendimento, idade: _idade, leitoNumero, setorNome, medico, dataHora }) {
   const cf = registro.campos_formulario || {}
   const enderecoCompleto = [pessoa.endereco, pessoa.endereco_numero, pessoa.bairro].filter(Boolean).join(', ')
-  const cidPrincipal = registro.cid_catalog?.codigo || registro.cid_principal || ''
+  const cidPrincipal = registro.cid_catalog?.codigo || registro.cid_principal || cf.cid_principal_texto || ''
   const tel = soDigitos(pessoa.telefone || pessoa.telefone_contato)
   const telResp = soDigitos(cf.telefone_responsavel)
   const vinculo = normalizarVinculo(cf.vinculo_previdencia)
@@ -133,7 +133,7 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
           <div className="aih-linha">
             <F cap="23 - Diagnóstico inicial" w={3.3}><V v={cf.diagnostico_inicial_texto || registro.cid_catalog?.descricao} /></F>
             <F cap="24 - CID 10 principal" w={1.3}><V v={cidPrincipal} cls="centro" /></F>
-            <F cap="25 - CID 10 secundário" w={1.3}><V v={registro.cid_secundario || cf.cid_secundario} cls="centro" /></F>
+            <F cap="25 - CID 10 secundário" w={1.3}><V v={registro.cid_secundario || cf.cid_secundario || cf.cid_secundario_texto} cls="centro" /></F>
             <F cap="26 - CID 10 causas associadas" w={1.6}><V v={cf.cid_causas_associadas} cls="centro" /></F>
           </div>
         </div>

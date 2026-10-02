@@ -185,7 +185,7 @@ export async function buscarCabecalhoImpressao(atendimentoId) {
   }
 }
 
-export async function criarAih({ atendimentoId, pessoaId, solicitanteId,  dados, id, situacao, medicoDestinoId, encaminhar = false }) {
+export async function criarAih({ atendimentoId, pessoaId, solicitanteId,  dados, id, situacao, medicoDestinoId, encaminhar = false, cidTexto }) {
   // Só procedimento/CID vivem como coluna própria — o resto dos campos do
   // formulário oficial do SUS (sinais clínicos, diagnóstico inicial, clínica,
   // caráter da internação etc.) fica em campos_formulario (jsonb) pra não
@@ -204,7 +204,7 @@ export async function criarAih({ atendimentoId, pessoaId, solicitanteId,  dados,
     procedimento_secundario_codigo: procedimento_secundario_codigo || null,
     cid_principal: cid_principal || null,
     cid_secundario: cid_secundario || null,
-    campos_formulario: extras,
+    campos_formulario: { ...extras, ...(cidTexto || {}) },
     // AIH pré-preenchida pela enfermagem/recepção: vai para o médico que revisa e assina.
     ...(medicoDestinoId ? { medico_destino_id: medicoDestinoId } : {}),
     ...(encaminhar ? { encaminhado_em: new Date().toISOString() } : {}),
@@ -240,6 +240,21 @@ export async function pesquisarCid(termo) {
     .or(`codigo.ilike.${t}%,descricao.ilike.%${t}%`).order('codigo').limit(30)
   if (erroConsulta10) avisarErro('pepMedico', erroConsulta10)
   return data ?? []
+}
+
+// CID digitado à mão → formato do catálogo ("j189" → "J18.9"; "R50.9-Febre" → "R50.9").
+export function normalizarCid(v) {
+  const m = String(v || '').toUpperCase().match(/([A-Z])\s*(\d{2})\s*\.?\s*(\d)?/)
+  return m ? `${m[1]}${m[2]}${m[3] ? '.' + m[3] : ''}` : ''
+}
+
+// Confere no catálogo CID-10 quais códigos existem (a AIH só aceita CID do catálogo).
+export async function cidsExistentes(codigos) {
+  const lista = [...new Set(codigos.filter(Boolean))]
+  if (!lista.length) return new Set()
+  const { data, error } = await supabase.from('cid_catalog').select('codigo').in('codigo', lista)
+  if (error) { avisarErro('pepMedico', error); return new Set(lista) }
+  return new Set((data ?? []).map((c) => c.codigo))
 }
 
 // ===================== Exames / sorologias / hemoterapia (multi-item) =====================

@@ -1,6 +1,6 @@
 import { numeroLimpo } from '../../lib/numeros'
 import { useEffect, useState } from 'react';
-import { criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar, listarMedicosAtivos } from '../../lib/pepMedico';
+import { criarAih, listarConsultas, buscarCabecalhoImpressao, mensagemErroSalvar, listarMedicosAtivos, normalizarCid, cidsExistentes } from '../../lib/pepMedico';
 import { useAuth } from '../../lib/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { AIH_VAZIA } from './constantes';
@@ -205,20 +205,34 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
       setErro('Escolha o médico que vai revisar e assinar esta AIH.');
       return;
     }
-    if (!dados.procedimento_principal_nome.trim() || !dados.sinais_sintomas_clinicos.trim()) {
-      setErro('Preencha ao menos o procedimento solicitado e os sinais/sintomas clínicos.');
+    // Rascunho ("Salvar") grava como estiver; só a finalização/encaminhamento exige o mínimo.
+    // O código SIGTAP (campo 28) não é obrigatório.
+    if ((finalizar || encaminhar) && (!String(dados.procedimento_principal_nome || '').trim() || !String(dados.sinais_sintomas_clinicos || '').trim())) {
+      setErro('Para finalizar, preencha ao menos a descrição do procedimento solicitado (27) e os sinais/sintomas clínicos (20).');
+      return;
+    }
+    // CID: ajusta o formato e confere no catálogo CID-10. CID fora do catálogo impedia salvar.
+    const cid1 = normalizarCid(dados.cid_principal), cid2 = normalizarCid(dados.cid_secundario);
+    const existentes = await cidsExistentes([cid1, cid2]);
+    const invalidos = [[dados.cid_principal, cid1], [dados.cid_secundario, cid2]].filter(([orig, c]) => String(orig || '').trim() && !existentes.has(c)).map(([orig]) => orig);
+    if (invalidos.length && finalizar) {
+      setErro(`CID não encontrado na tabela CID-10: ${invalidos.join(', ')}. Confira o código (ex.: J18.9) antes de finalizar.`);
       return;
     }
     setErro('');
     setSalvando(true);
+    const dadosGravar = { ...dados, cid_principal: existentes.has(cid1) ? cid1 : '', cid_secundario: existentes.has(cid2) ? cid2 : '' };
+    // No rascunho, CID ainda não conferido fica guardado como texto (não se perde) até ser corrigido.
+    const cidTexto = invalidos.length ? { cid_principal_texto: existentes.has(cid1) ? '' : (dados.cid_principal || ''), cid_secundario_texto: existentes.has(cid2) ? '' : (dados.cid_secundario || '') } : null;
     const { data: novaAih, error } = await criarAih({
+      cidTexto,
       id: editandoId, situacao: metaDoc(finalizar, dataRegistro, rascunho.estado),
       atendimentoId: atendimento?.atendimento_id,
       pessoaId: atendimento?.pessoa_id,
       solicitanteId: ehMedico ? medicoId : medicoDestino,
       medicoDestinoId: ehMedico ? undefined : medicoDestino,
       encaminhar,
-      dados,
+      dados: dadosGravar,
     });
     setSalvando(false);
     if (error) {
@@ -233,7 +247,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     }
     if (finalizar) setEncaminhada(null);
     setEditandoId(finalizar ? null : (novaAih?.id ?? null));
-    if (!finalizar) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); carregar(); return; }
+    if (!finalizar) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' + (invalidos.length ? ` Atenção: CID ${invalidos.join(', ')} não está na tabela CID-10 — corrija antes de finalizar.` : '')); carregar(); return; }
     setSucesso('Laudo de AIH registrado com sucesso!');
     setTimeout(() => setSucesso(''), 4000);
     carregar();
@@ -512,7 +526,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
             </div>
             <div className="aih-grid" style={{ marginTop: 4 }}>
               <Campo n="27" rotulo="DESCRIÇÃO DO PROCEDIMENTO SOLICITADO" col={8} destaque valor={dados.procedimento_principal_nome} onChange={(v) => set('procedimento_principal_nome', v.toUpperCase())} />
-              <Campo n="28" rotulo="CÓDIGO DO PROCEDIMENTO (SIGTAP)" col={4} destaque valor={dados.procedimento_principal_codigo} onChange={(v) => set('procedimento_principal_codigo', v.replace(/\D/g, '').slice(0, 10))} placeholder="10 dígitos" />
+              <Campo n="28" rotulo="CÓDIGO DO PROCEDIMENTO (SIGTAP) — OPCIONAL" col={4} valor={dados.procedimento_principal_codigo} onChange={(v) => set('procedimento_principal_codigo', v.replace(/\D/g, '').slice(0, 10))} placeholder="10 dígitos" />
               <Campo n="29" rotulo="CLÍNICA" col={4} valor={dados.clinica} onChange={(v) => set('clinica', v.toUpperCase())} />
               <Campo n="30" rotulo="CARÁTER DA INTERNAÇÃO" col={3}>
                 <select className="aih-input" value={dados.carater_internacao === 'ELETIVA' ? 'ELETIVA' : 'URGENCIA'} onChange={(e) => set('carater_internacao', e.target.value)}>
