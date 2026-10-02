@@ -115,7 +115,7 @@ function CardLeitoV2({ leito, paciente, sn, classeRisco, ehMedico, abrirPassagem
       </div>
       <div className="pv-nome">{formatarNomePaciente(paciente.nome)}</div>
       <div className="pv-meta"><i className="ph ph-user" /> {paciente.idade ? `${paciente.idade} anos` : 'Adulto'} · {paciente.sexo === 'F' ? 'Fem' : 'Masc'}</div>
-      <div className="pv-hd"><b>HD:</b> {paciente.diagnostico || 'Não registrado'}</div>
+      <div className="pv-hd"><b>HD:</b> {paciente.diagnostico || 'Não registrado'} {paciente.diagnostico_fonte === 'aih' && <span className="hd-aih" title="Diagnóstico definido pela AIH do médico">AIH</span>}</div>
       <div className="pv-hd"><b>Entrada:</b> {dataCurta(paciente.data_admissao)}</div>
       <div className="pv-foot no-print" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="pv-pr" onClick={() => abrirPassagem(paciente, leito)}><i className="ph ph-folder" /> Prontuário</button>
@@ -286,7 +286,7 @@ export default function PainelCards({ setoresVisiveis }) {
                         </div>
 
                         <div className={cx('paciente-hd')}>
-                          <strong><i className={cx('ph', 'ph-stethoscope')} /> HD:</strong> {paciente.diagnostico || 'Não registrado'}
+                          <strong><i className={cx('ph', 'ph-stethoscope')} /> HD:</strong> {paciente.diagnostico || 'Não registrado'} {paciente.diagnostico_fonte === 'aih' && <span className="hd-aih" title="Diagnóstico definido pela AIH do médico">AIH</span>}
                         </div>
 
                         <div className={cx('paciente-admissao')}>

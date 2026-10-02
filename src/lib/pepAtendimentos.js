@@ -51,6 +51,8 @@ export async function carregarLeitosOcupadosPep() {
       pep_nativo: true,
       nome: pessoa.nome,
       diagnostico: internacao?.diagnostico_admissao ?? '',
+      // 'aih' = diagnóstico definido pela AIH finalizada do médico (só médico altera)
+      diagnostico_fonte: internacao?.diagnostico_fonte ?? null,
       idade: idadeExibida(pessoa),
       sexo: pessoa.sexo,
       data_admissao: internacao?.internado_em ? internacao.internado_em.slice(0, 10) : null,
@@ -123,6 +125,8 @@ async function carregarLeitosOcupadosPepAntigo() {
       pep_nativo: true, // id acima já é um atendimento de verdade — nunca passar pela ponte da seção 0
       nome: pessoa.nome,
       diagnostico: internacao?.diagnostico_admissao ?? '',
+      // 'aih' = diagnóstico definido pela AIH finalizada do médico (só médico altera)
+      diagnostico_fonte: internacao?.diagnostico_fonte ?? null,
       idade: idadeExibida(pessoa),
       sexo: pessoa.sexo,
       data_admissao: internacao?.internado_em ? internacao.internado_em.slice(0, 10) : null,

@@ -248,8 +248,8 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     if (finalizar) setEncaminhada(null);
     setEditandoId(finalizar ? null : (novaAih?.id ?? null));
     if (!finalizar) { setSucesso('Rascunho salvo — pode continuar editando. Após "Salvar e Imprimir" o documento é finalizado e só poderá ser invalidado.' + (invalidos.length ? ` Atenção: CID ${invalidos.join(', ')} não está na tabela CID-10 — corrija antes de finalizar.` : '')); carregar(); return; }
-    setSucesso('Laudo de AIH registrado com sucesso!');
-    setTimeout(() => setSucesso(''), 4000);
+    setSucesso('Laudo de AIH registrado. O diagnóstico da AIH passou a valer no Painel de Leitos, na Passagem de Plantão e no prontuário, e o paciente ficou como INTERNADO.');
+    setTimeout(() => setSucesso(''), 8000);
     carregar();
 
     if (finalizar && novaAih) {

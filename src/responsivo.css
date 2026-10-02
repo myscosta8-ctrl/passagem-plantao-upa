@@ -152,3 +152,6 @@ html .presc-apres { display: grid; grid-template-columns: 44px minmax(0, 1fr); g
     display: none !important;
   }
 }
+
+/* Diagnóstico confirmado pela AIH do médico (registro principal da internação) */
+.hd-aih { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 6px; background: #0F766E; color: #fff; font-size: 10px; font-weight: 700; line-height: 16px; vertical-align: middle; letter-spacing: .03em; }

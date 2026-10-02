@@ -92,7 +92,7 @@ export default function PainelTabela({ setoresVisiveis, onAbrirLeito }) {
                       {sn.avpDia && <span className={`pt-tag ${sn.avpDia >= 3 ? 'atencao' : ''}`} title={sn.avpDia >= 3 ? 'Avaliar troca do AVP' : ''}><i className="ph ph-syringe" /> AVP D{sn.avpDia}{sn.avpDia >= 3 ? ' — avaliar troca' : ''}</span>}
                     </div>
                   </div>
-                  <div className="pt-hd" title={paciente.diagnostico || ''}>{paciente.diagnostico || <span className="pt-muted">Sem diagnóstico</span>}</div>
+                  <div className="pt-hd" title={paciente.diagnostico || ''}>{paciente.diagnostico || <span className="pt-muted">Sem diagnóstico</span>} {paciente.diagnostico_fonte === 'aih' && <span className="hd-aih" title="Diagnóstico definido pela AIH do médico">AIH</span>}</div>
                   <div className="pt-perm">{sn.permanencia || '—'}</div>
                   <div className="pt-situacao">
                     <span className={`pt-chip presc-${sn.prescricao.nivel}`}><i className="ph ph-prescription" /> {sn.prescricao.nivel === 'ok' ? 'Prescrição ok' : sn.prescricao.texto}</span>

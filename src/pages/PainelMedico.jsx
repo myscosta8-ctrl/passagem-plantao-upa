@@ -112,7 +112,7 @@ export default function PainelMedico() {
                   <div className={cx('leito-body')}>
                     <div className={cx('paciente-nome')}>{formatarNomePaciente(a.nome)}</div>
                     <div className={cx('paciente-meta')}><span><i className="ph ph-user-circle" /> {[a.idade ? `${a.idade} anos` : 'Idade N/I', sx].filter(Boolean).join(' • ')}</span></div>
-                    <div className={cx('paciente-hd')}><strong><i className="ph ph-stethoscope" /> HD:</strong> {a.diagnostico || 'Não registrado'}</div>
+                    <div className={cx('paciente-hd')}><strong><i className="ph ph-stethoscope" /> HD:</strong> {a.diagnostico || 'Não registrado'} {a.diagnostico_fonte === 'aih' && <span className="hd-aih" title="Diagnóstico definido pela AIH do médico">AIH</span>}</div>
                     <div className={cx('paciente-admissao')}><strong><i className="ph ph-clock" /> Entrada:</strong> {entradaTexto(a.entrada)}</div>
                     {(a.alergias.length > 0 || a.isolamento || a.regulacao) && (
                       <div className="pl-linha pl-tags">

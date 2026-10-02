@@ -32,11 +32,14 @@ export async function listarAtendimentosAtivos() {
   const pessoaPorId = Object.fromEntries((pessoas ?? []).map((p) => [p.id, p]))
 
   // Mesmos sinais do card da enfermagem: alergia, isolamento e hipótese diagnóstica.
-  const [{ data: alergias }, { data: isolamentos }, { data: consultas }] = await Promise.all([
+  const [{ data: alergias }, { data: isolamentos }, { data: consultas }, { data: internacoesAih }] = await Promise.all([
     supabase.from('alergias').select('pessoa_id, substancia, status').in('pessoa_id', pessoaIds),
     supabase.from('isolamentos').select('atendimento_id, tipo, ativo, fim_em').in('atendimento_id', atendimentoIds),
     supabase.from('consultas_medicas').select('atendimento_id, hipotese_diagnostica, criado_em').in('atendimento_id', atendimentoIds).order('criado_em', { ascending: false }),
+    supabase.from('internacoes').select('atendimento_id, diagnostico_admissao').eq('diagnostico_fonte', 'aih').in('atendimento_id', atendimentoIds),
   ])
+  // AIH finalizada pelo médico é o registro principal da internação: o diagnóstico dela prevalece.
+  const hdAih = Object.fromEntries((internacoesAih ?? []).map((i) => [i.atendimento_id, i.diagnostico_admissao]))
   const alergiaPorPessoa = {}
   for (const x of alergias ?? []) {
     if (x.status && /inativ|descart|resolv/i.test(x.status)) continue
@@ -63,7 +66,8 @@ export async function listarAtendimentosAtivos() {
         status: atendimento.status,
         classificacao: atendimento.classificacao_risco_cor ?? atendimento.classificacao_manchester ?? null,
         status_internacao: atendimento.status_internacao ?? null,
-        diagnostico: hdPorAtend[atendimento.id] || atendimento.queixa_principal || null,
+        diagnostico: hdAih[atendimento.id] || hdPorAtend[atendimento.id] || atendimento.queixa_principal || null,
+        diagnostico_fonte: hdAih[atendimento.id] ? 'aih' : null,
         entrada: atendimento.criado_em,
         alergias: (alergiaPorPessoa[pessoa.id] || []).filter(Boolean),
         isolamento: isolamentoPorAtend[atendimento.id] || null,
@@ -565,14 +569,14 @@ export function mensagemErroSalvar(error, documento = 'o registro') {
 export async function buscarDadosParaSumario(atendimentoId) {
   const [{ data: atd }, { data: intern }, { data: cons }, { data: aih }] = await Promise.all([
     supabase.from('atendimentos').select('criado_em, queixa_principal').eq('id', atendimentoId).maybeSingle(),
-    supabase.from('internacoes').select('internado_em, diagnostico_admissao').eq('atendimento_id', atendimentoId).order('internado_em', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('internacoes').select('internado_em, diagnostico_admissao, diagnostico_fonte').eq('atendimento_id', atendimentoId).order('internado_em', { ascending: false }).limit(1).maybeSingle(),
     supabase.from('consultas_medicas').select('hipotese_diagnostica').eq('atendimento_id', atendimentoId).neq('situacao', 'invalido').order('criado_em', { ascending: false }).limit(1).maybeSingle(),
     supabase.from('aih_solicitacoes').select('cid_principal').eq('atendimento_id', atendimentoId).neq('situacao', 'invalido').order('criado_em', { ascending: false }).limit(1).maybeSingle(),
   ])
   const inicio = intern?.internado_em || atd?.criado_em
   return {
     data_internacao: inicio ? String(inicio).slice(0, 10) : '',
-    diagnostico_internacao: cons?.hipotese_diagnostica || intern?.diagnostico_admissao || atd?.queixa_principal || '',
+    diagnostico_internacao: (intern?.diagnostico_fonte === 'aih' && intern?.diagnostico_admissao) || cons?.hipotese_diagnostica || intern?.diagnostico_admissao || atd?.queixa_principal || '',
     cid_internacao: aih?.cid_principal || '',
   }
 }
