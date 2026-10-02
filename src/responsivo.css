@@ -143,3 +143,12 @@ html .print-page { z-index: 2600; }
 }
 html .presc-qtd-dia { font-size: 12px; color: var(--c-text-secondary); margin-top: 4px; }
 html .presc-apres { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px; }
+
+/* Impressão sem páginas em branco: o resto do programa (painel, prontuário, menus) continuava
+   ocupando espaço, só invisível, e gerava 3 ou 4 folhas vazias. Agora, quando há um impresso
+   aberto, só ele e os contêineres que o envolvem entram na impressão. */
+@media print {
+  html:has(.print-page, .hc-print-overlay) body *:not(:has(.print-page, .hc-print-overlay)):not(.print-page, .print-page *, .hc-print-overlay, .hc-print-overlay *) {
+    display: none !important;
+  }
+}

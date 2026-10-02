@@ -208,3 +208,6 @@ table.pr-tabela.pr-tabela-salutem td { border: 1px solid #94a3b8 !important; ver
 table.pr-tabela td.horario { padding: 2px 4px; }
 .pr-horarios { display: flex; gap: 2px; height: 100%; min-height: 18px; }
 .pr-horario-caixa { flex: 1; min-width: 0; border: 1px solid #94a3b8; border-radius: 1px; min-height: 18px; }
+
+/* Linhas da tabela de medicamentos mais altas: espaço para a enfermagem checar os horários */
+table.pr-tabela tbody td { height: 9mm; vertical-align: middle; }
