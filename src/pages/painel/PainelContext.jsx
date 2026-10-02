@@ -6,7 +6,7 @@ export const PainelContext = createContext(null)
 export function PainelProvider({ children, modo = 'enfermagem' }) {
   const state = usePainelState()
   return (
-    <PainelContext.Provider value={{ ...state, modo, ehMedico: modo === 'medico' }}>
+    <PainelContext.Provider value={{ ...state, modo, ehMedico: modo === 'medico' || modo === 'multi' }}>
       {children}
     </PainelContext.Provider>
   )

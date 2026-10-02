@@ -103,6 +103,8 @@ export default function Home() {
   const ehRecepcao = enfermeiro?.tipo === 'recepcao'
   // Demais funções da UPA (farmácia, serviço social, etc.): só consulta, sem plantão de enfermagem.
   const ehApoio = enfermeiro?.tipo === 'apoio'
+  // Nutricionista e assistente social: veem o painel de leitos e registram no prontuário multiprofissional.
+  const ehMulti = ehApoio && ['nutricionista', 'assistente_social'].includes(enfermeiro?.funcao)
   // "Encerrar plantonista" é destrutivo demais pra qualquer conta admin — só o Marcus.
   // Telas de administração: qualquer conta com papel admin no banco.
   // Administrador geral OU quem recebeu algum cargo/permissão administrativa (ver Profissionais → Cargo).
@@ -328,10 +330,10 @@ export default function Home() {
   if (ehMedico || ehRecepcao || ehApoio) {
     // Mesmo esqueleto visual da enfermagem (topo com trilha, relógio e avatar),
     // sem o fluxo de plantão.
-    const tituloInicio = ehMedico ? 'Painel Médico' : ehRecepcao ? 'Recepção' : 'Início'
+    const tituloInicio = ehMedico ? 'Painel Médico' : ehRecepcao ? 'Recepção' : ehMulti ? 'Painel de Leitos' : 'Início'
     const tituloTela = tela === 'conta' ? 'Minha conta' : tela === 'equipe' && podeAdministrar ? 'Painel de Equipe' : tela === 'profissionais' && podeAdministrar ? 'Profissionais' : tituloInicio
     const itensShell = [
-      { tela: 'painel', rotulo: tituloInicio, icone: ehMedico ? 'ph-bed' : ehRecepcao ? 'ph-identification-card' : 'ph-house' },
+      { tela: 'painel', rotulo: tituloInicio, icone: ehMedico || ehMulti ? 'ph-bed' : ehRecepcao ? 'ph-identification-card' : 'ph-house' },
       ...(podeAdministrar ? [{ tela: 'equipe', rotulo: 'Equipe', icone: 'ph-users-three' }, { tela: 'profissionais', rotulo: 'Profissionais', icone: 'ph-identification-badge' }] : []),
     ]
     return (
@@ -373,6 +375,7 @@ export default function Home() {
                 {tela === 'conta' ? <MinhaConta onVoltar={() => setTela('painel')} />
                   : tela === 'equipe' && podeAdministrar ? <PainelEquipe onVoltar={() => setTela('painel')} podeAdministrar={podeAdministrar} onGerenciar={(id) => { setFocoProfissional(id); setTela('profissionais') }} />
                   : tela === 'profissionais' && podeAdministrar ? <GerenciarProfissionais onVoltar={() => setTela('painel')} focoId={focoProfissional} onAbrirEquipe={() => setTela('equipe')} />
+                  : ehMulti ? <Painel modo="multi" />
                   : ehApoio ? <TelaApoio enfermeiro={enfermeiro} podeAdministrar={podeAdministrar} onEquipe={() => setTela('equipe')} onProfissionais={() => setTela('profissionais')} onConta={() => setTela('conta')} />
                   : ehMedico ? <Painel modo="medico" />
                   : <CadastroPacientes />}

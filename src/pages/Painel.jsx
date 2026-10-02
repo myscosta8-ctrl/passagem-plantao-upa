@@ -14,6 +14,7 @@ const EspacoPaciente = lazy(() => import('./EspacoPaciente'))
 function PainelInterno({ setoresIds }) {
   const {
     ehMedico,
+    modo,
     enfermeiro,
     setores,
     leitos,
@@ -134,7 +135,7 @@ function PainelInterno({ setoresIds }) {
             leito={modalPassagem.leito}
             setorNome={setores.find((s) => s.id === modalPassagem.leito.setor_id)?.nome}
             onFechar={fecharPassagem}
-            pilarInicial={ehMedico ? 'medico' : 'enfermagem'}
+            pilarInicial={modo === 'multi' ? 'multi' : ehMedico ? 'medico' : 'enfermagem'}
             abaInicial={modalPassagem.abaInicial}
           />
         </Suspense>

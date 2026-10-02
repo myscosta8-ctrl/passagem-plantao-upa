@@ -90,6 +90,16 @@ export const SECOES_AJUDA = [
     ],
   },
   {
+    id: 'multi', titulo: 'Nutrição e Serviço Social', icone: 'ph-hand-heart', perfis: TODOS,
+    itens: [
+      { p: 'Onde ficam?', r: 'No prontuário do paciente, botão "Multiprofissional" no topo (ao lado de Enfermagem e Médico). São 4 abas: Admissão Nutricional, Evolução Nutricional, Admissão do Serviço Social e Evolução do Serviço Social.' },
+      { p: 'Quem registra?', r: 'Só o(a) nutricionista registra os documentos de Nutrição e só o(a) assistente social registra os do Serviço Social. Os demais profissionais consultam e imprimem pelo Histórico Clínico (filtro "Multiprofissional").' },
+      { p: 'Como o(a) nutricionista ou assistente social entra?', r: 'Ao entrar no sistema, abre o Painel de Leitos. Toque em "Prontuário" no paciente: o prontuário já abre na parte Multiprofissional. O cadastro do profissional precisa estar com a função Nutricionista ou Assistente social (Profissionais → Editar).' },
+      { p: 'O que é calculado sozinho?', r: 'Na Nutrição: IMC e classificação (adulto e idoso), percentual de perda de peso, pontuação da triagem NRS-2002 (soma +1 ponto para 70 anos ou mais) com o resultado, VET e proteína total a partir do peso. Confira sempre antes de finalizar.' },
+      { p: 'Salvar, finalizar e invalidar', r: 'Igual aos outros documentos: "Salvar" guarda rascunho, "Salvar e Imprimir" finaliza e imprime, e depois só quem registrou pode invalidar. Nada é apagado.' },
+    ],
+  },
+  {
     id: 'recepcao', titulo: 'Recepção', icone: 'ph-identification-card', perfis: ['recepcao', 'admin', 'enfermagem'],
     itens: [
       { p: 'Cadastro do paciente', r: 'Menu → Recepção. Busque primeiro pelo nome, CPF ou CNS para evitar cadastro duplicado. Se não existir, use "Novo cadastro". Em "Duplicatas" dá para revisar cadastros repetidos.' },

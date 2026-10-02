@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import FichaClinica from './FichaClinica'
 import FichaMedica from './FichaMedica'
+import FichaMulti from './multi/FichaMulti'
 import { obterOuCriarAtendimentoParaPaciente } from '../lib/pepAtendimentos'
 import './EspacoPaciente.css'
 
@@ -166,7 +167,7 @@ export default function EspacoPaciente({
                   abaInicial={abaInicial}
                   atendimento={atendimentoResolvido}
                   onFechar={onFechar}
-                  onTrocarPilar={() => trocarPilar('medico')}
+                  onTrocarPilar={(c) => trocarPilar(typeof c === 'string' ? c : 'medico')}
                   posAlta={posAlta}
                 />
               )}
@@ -177,7 +178,16 @@ export default function EspacoPaciente({
                   {...(abaInicial ? { initialTab: abaInicial, abrirFormulario: true } : {})}
                   atendimento={atendimentoResolvido}
                   onFechar={onFechar}
-                  onTrocarPilar={() => trocarPilar('enfermagem')}
+                  onTrocarPilar={(c) => trocarPilar(typeof c === 'string' ? c : 'enfermagem')}
+                  posAlta={posAlta}
+                />
+              )}
+
+              {pilarAtivo === 'multi' && atendimentoResolvido && (
+                <FichaMulti
+                  atendimento={atendimentoResolvido}
+                  onFechar={onFechar}
+                  onTrocarPilar={(c) => trocarPilar(typeof c === 'string' ? c : 'enfermagem')}
                   posAlta={posAlta}
                 />
               )}

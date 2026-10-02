@@ -528,12 +528,12 @@ export async function encerrarRegulacao(atendimentoId) {
 
 // Profissional autor de um registro (quando o registro recém-salvo não veio
 // com o join de enfermeiros): procura pela coluna de autoria da tabela.
-const COLUNAS_AUTOR = ['autor_id', 'criado_por', 'enfermeiro_entrega', 'transferido_por', 'solicitado_por', 'solicitante_id', 'medico_id', 'relator_id', 'registrado_por', 'enfermeiro_id', 'profissional_responsavel', 'atualizado_por']
+const COLUNAS_AUTOR = ['autor_id', 'criado_por', 'enfermeiro_entrega', 'transferido_por', 'solicitado_por', 'solicitante_id', 'medico_id', 'relator_id', 'registrado_por', 'enfermeiro_id', 'profissional_responsavel', 'atualizado_por', 'autor_auth']
 export async function buscarAutorRegistro(registro) {
   if (!registro) return null
   const id = COLUNAS_AUTOR.map((c) => registro[c]).find((v) => typeof v === 'string' && v.length > 20)
   if (!id) return null
-  const { data, error: erroConsulta27 } = await supabase.from('enfermeiros').select('nome_exibicao, nome, crm, coren, conselho_uf').eq('id', id).maybeSingle()
+  const { data, error: erroConsulta27 } = await supabase.from('enfermeiros').select('nome_exibicao, nome, crm, coren, conselho_uf, funcao, registro_profissional').eq('id', id).maybeSingle()
   if (erroConsulta27) avisarErro('pepMedico', erroConsulta27)
   return data
 }

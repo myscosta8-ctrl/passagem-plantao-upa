@@ -52,6 +52,12 @@ export const FONTES = [
     resumo: (r) => txt(r.indicacao_clinica, r.urgencia && urg(r.urgencia)) },
   { tabela: 'receitas_medicas', colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,criado_por,tipo,itens,orientacoes_gerais', rotulo: 'Receituário', area: 'medico', impresso: 'receituario',
     resumo: (r) => txt({ controle_especial: 'Controle especial', antimicrobiano: 'Antimicrobiano' }[r.tipo], Array.isArray(r.itens) ? r.itens.map((i) => i?.medicamento).filter(Boolean).join(', ') : '', r.orientacoes_gerais) },
+  // Equipe multiprofissional — uma tabela por área, admissão e evolução separadas pelo campo `tipo`.
+  ...[['registros_nutricao', 'nutricao', 'Nutricional', 'nutricao'], ['registros_servico_social', 'servico_social', 'do Serviço Social', 'social']].flatMap(([tabela, area, nome, imp]) => ['admissao', 'evolucao'].map((tipo) => ({
+    tabela, area, colunas: 'id,atendimento_id,criado_em,data_registro,situacao,autor_auth,motivo_invalidacao,invalidado_em,tipo,resumo',
+    rotulo: `${tipo === 'admissao' ? 'Admissão' : 'Evolução'} ${nome}`, impresso: `${imp}_${tipo}`,
+    filtro: (r) => r.tipo === tipo, resumo: (r) => r.resumo || '',
+  }))),
 ]
 // Aba da ficha onde cada rascunho é editado ("Editar rascunho" no Histórico Clínico).
 // Exames (sem reabertura de rascunho) e a admissão antiga ficam de fora.
@@ -60,8 +66,9 @@ export const ABA_EDICAO = {
   consultas_medicas: 'consulta', evolucoes_medicas: 'evolucao', regulacao_atualizacoes: 'regulacao', notas_intercorrencia_medica: 'intercorrencia',
   tfd_solicitacoes: 'tfd', planos_terapeuticos: 'plano', atestados_medicos: 'atestado', sumarios_alta: 'alta', receitas_medicas: 'receituario',
   aih_solicitacoes: 'aih', apac_solicitacoes: 'apac', solicitacoes_atm: 'atm', solicitacoes_sangue: 'sangue',
+  registros_nutricao: 'multi', registros_servico_social: 'multi',
 }
-const COLUNAS_AUTOR = ['autor_id', 'solicitante_id', 'solicitado_por', 'criado_por', 'enfermeiro_entrega', 'transferido_por', 'relator_id', 'medico_id', 'profissional_responsavel', 'atualizado_por', 'enfermeiro_id']
+const COLUNAS_AUTOR = ['autor_id', 'solicitante_id', 'solicitado_por', 'criado_por', 'enfermeiro_entrega', 'transferido_por', 'relator_id', 'medico_id', 'profissional_responsavel', 'atualizado_por', 'enfermeiro_id', 'autor_auth']
 
 // Passagens (atendimentos) do paciente, mais recente primeiro.
 export async function listarAtendimentosDaPessoa(pessoaId) {

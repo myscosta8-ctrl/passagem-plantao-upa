@@ -6,7 +6,7 @@ import { buscarRascunho, descartarRascunho } from '../lib/documentos'
 //   atendimento (formulário restaurado exatamente como foi salvo);
 // - "Cancelar" antes da finalização descarta o rascunho em definitivo.
 // `campos` = { nome: [valor, setValor] } — o que é salvo e restaurado.
-export function useRascunho({ tabela, atendimentoId, autorId, campos, editandoId, setEditandoId, setDataRegistro, onReaberto }) {
+export function useRascunho({ tabela, atendimentoId, autorId, campos, editandoId, setEditandoId, setDataRegistro, onReaberto, filtro = null }) {
   const camposRef = useRef(campos)
   camposRef.current = campos
   const onReabertoRef = useRef(onReaberto)
@@ -14,7 +14,7 @@ export function useRascunho({ tabela, atendimentoId, autorId, campos, editandoId
 
   useEffect(() => {
     let vivo = true
-    buscarRascunho(tabela, atendimentoId, autorId).then((r) => {
+    buscarRascunho(tabela, atendimentoId, autorId, filtro).then((r) => {
       if (!vivo || !r) return
       const estado = r.rascunho_estado || {}
       for (const [nome, par] of Object.entries(camposRef.current)) {
@@ -28,7 +28,7 @@ export function useRascunho({ tabela, atendimentoId, autorId, campos, editandoId
       onReabertoRef.current?.(r)
     })
     return () => { vivo = false }
-  }, [tabela, atendimentoId, autorId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [tabela, atendimentoId, autorId, JSON.stringify(filtro)]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const estado = Object.fromEntries(Object.entries(campos).map(([nome, par]) => [nome, par[0]]))
 

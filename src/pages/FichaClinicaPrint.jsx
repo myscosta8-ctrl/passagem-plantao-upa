@@ -8,6 +8,8 @@ import CorpoSbarOficial from './ficha-clinica-print/CorpoSbarOficial'
 import CorpoEvolucaoSaeOficial from './ficha-clinica-print/CorpoEvolucaoSaeOficial'
 import CorpoIntercorrenciaOficial from './ficha-clinica-print/CorpoIntercorrenciaOficial'
 import CorpoBalancoHidricoOficial from './ficha-clinica-print/CorpoBalancoHidricoOficial'
+import CorpoMultiOficial from './ficha-clinica-print/CorpoMultiOficial'
+import { DOC_POR_IMPRESSO } from './multi/esquemas'
 
 export {
   CorpoSbarOficial,
@@ -59,7 +61,7 @@ export default function FichaClinicaPrint({ atendimentoId, tipo, registro = {}, 
           <CorpoHistoricoEnfermagemProjeto {...propsComuns} />
         )}
 
-        {(tipo === 'historico_enfermagem_fiel' || (!['historico_enfermagem_projeto', 'sbar', 'evolucao_sae', 'evolucao', 'intercorrencia', 'balanco'].includes(tipo) && tipo.includes('historico'))) && (
+        {(tipo === 'historico_enfermagem_fiel' || (!['historico_enfermagem_projeto', 'sbar', 'evolucao_sae', 'evolucao', 'intercorrencia', 'balanco'].includes(tipo) && !DOC_POR_IMPRESSO[tipo] && tipo.includes('historico'))) && (
           <CorpoHistoricoEnfermagemFiel {...propsComuns} />
         )}
 
@@ -77,6 +79,10 @@ export default function FichaClinicaPrint({ atendimentoId, tipo, registro = {}, 
 
         {tipo === 'balanco' && (
           <CorpoBalancoHidricoOficial {...propsComuns} />
+        )}
+
+        {DOC_POR_IMPRESSO[tipo] && (
+          <CorpoMultiOficial tipo={tipo} {...propsComuns} />
         )}
       </div>
     </div>

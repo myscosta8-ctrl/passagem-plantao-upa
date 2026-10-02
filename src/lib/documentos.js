@@ -40,13 +40,16 @@ let rascunhoAlvo = null
 export function definirRascunhoAlvo(tabela, id) { rascunhoAlvo = { tabela, id } }
 
 // Último rascunho do próprio profissional neste atendimento (ou null).
-export async function buscarRascunho(tabela, atendimentoId, autorId) {
+// `filtro` separa documentos que dividem a mesma tabela (ex.: admissão × evolução nutricional).
+export async function buscarRascunho(tabela, atendimentoId, autorId, filtro = null) {
   if (!atendimentoId || !autorId) return null
   if (rascunhoAlvo?.tabela === tabela) {
     const { id } = rascunhoAlvo
     rascunhoAlvo = null
-    const { data: alvo, error: erroAlvo } = await supabase.from(tabela).select('*')
-      .eq('id', id).eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('autor_auth', autorId).maybeSingle()
+    let qa = supabase.from(tabela).select('*')
+      .eq('id', id).eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('autor_auth', autorId)
+    if (filtro) qa = qa.match(filtro)
+    const { data: alvo, error: erroAlvo } = await qa.maybeSingle()
     if (erroAlvo) avisarErro('documentos', erroAlvo)
     if (alvo) return alvo
     if (tabela === 'aih_solicitacoes') {
@@ -54,9 +57,10 @@ export async function buscarRascunho(tabela, atendimentoId, autorId) {
       if (enc) return enc
     }
   }
-  const { data, error: erroConsulta1 } = await supabase.from(tabela).select('*')
+  let q = supabase.from(tabela).select('*')
     .eq('atendimento_id', atendimentoId).eq('situacao', 'rascunho').eq('autor_auth', autorId)
-    .order('criado_em', { ascending: false }).limit(1).maybeSingle()
+  if (filtro) q = q.match(filtro)
+  const { data, error: erroConsulta1 } = await q.order('criado_em', { ascending: false }).limit(1).maybeSingle()
   if (erroConsulta1) avisarErro('documentos', erroConsulta1)
   if (!data && tabela === 'aih_solicitacoes') return aihEncaminhada(atendimentoId, autorId)
   return data

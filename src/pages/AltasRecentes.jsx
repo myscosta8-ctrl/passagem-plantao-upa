@@ -183,7 +183,7 @@ export default function AltasRecentes({ onVoltar }) {
             leito={abertoPac.leito}
             setorNome={abertoPac.setorNome}
             onFechar={() => setAbertoPac(null)}
-            pilarInicial={enfermeiro?.tipo === 'medico' ? 'medico' : 'enfermagem'}
+            pilarInicial={enfermeiro?.tipo === 'medico' ? 'medico' : ['nutricionista', 'assistente_social'].includes(enfermeiro?.funcao) ? 'multi' : 'enfermagem'}
             posAlta={{ encerradoEm: abertoPac.data_desfecho, tipo: abertoPac.tipo_desfecho }}
           />
         </Suspense>

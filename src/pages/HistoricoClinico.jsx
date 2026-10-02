@@ -146,7 +146,7 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
   const nInvalidados = (estado.itens || []).filter((i) => i.registro.situacao === 'invalido').length
   useEffect(() => { onContarInvalidados?.(nInvalidados) }, [nInvalidados]) // eslint-disable-line react-hooks/exhaustive-deps
   const itens = (estado.itens || []).filter((i) => (mostrarInvalidados || i.registro.situacao !== 'invalido')).filter((i) =>
-    (filtroArea === 'todos' || i.fonte.area === filtroArea) &&
+    (filtroArea === 'todos' || i.fonte.area === filtroArea || (filtroArea === 'multi' && ['nutricao', 'servico_social'].includes(i.fonte.area))) &&
     (!termo || `${i.fonte.rotulo} ${i.resumo} ${i.autor?.nome_exibicao || ''} ${i.autor?.nome || ''}`.toLowerCase().includes(termo)))
 
   // Solto (nova interface): os registros do atendimento atual já aparecem abertos, sem o título do bloco.
@@ -277,7 +277,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
   } : null
   // "Editar rascunho": só os rascunhos do próprio profissional, deste atendimento e da ficha aberta (enfermagem/médico).
   const onEditar = onEditarRascunho && categoriaDuplicar ? {
-    pode: (item) => item.registro.atendimento_id === atendimentoId && item.fonte.area === categoriaDuplicar && !!ABA_EDICAO[item.fonte.tabela],
+    pode: (item) => item.registro.atendimento_id === atendimentoId && (item.fonte.area === categoriaDuplicar || (categoriaDuplicar === 'multi' && ['nutricao', 'servico_social'].includes(item.fonte.area))) && !!ABA_EDICAO[item.fonte.tabela],
     fazer: (item) => onEditarRascunho(item.fonte.tabela, item.registro.id, ABA_EDICAO[item.fonte.tabela]),
   } : null
   const pessoaId = atendimento?.pessoa_id
@@ -297,7 +297,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
           <div className="hc-filtros">
             <div className="hc-busca"><i className="ph ph-magnifying-glass" /><input type="text" placeholder="Pesquisar no histórico (texto, tipo de documento ou profissional)..." value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
             <div className="hc-areas">
-              {[['todos', 'Todos'], ['enfermagem', 'Enfermagem'], ['medico', 'Médico']].map(([k, r]) => (
+              {[['todos', 'Todos'], ['enfermagem', 'Enfermagem'], ['medico', 'Médico'], ['multi', 'Multiprofissional']].map(([k, r]) => (
                 <button key={k} type="button" className={filtroArea === k ? 'ativo' : ''} onClick={() => setFiltroArea(k)}>{r}</button>
               ))}
             </div>

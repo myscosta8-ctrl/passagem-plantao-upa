@@ -15,8 +15,11 @@ const EXTRA = {
   solicitacoes_tfd: { rotulo: 'TFD', area: 'medico' },
   sorologias_notificaveis: { rotulo: 'Sorologia notificável', area: 'enfermagem' },
   aih_encaminhada: { rotulo: 'Laudo de AIH — encaminhado a você para revisar e assinar', area: 'medico' },
+  registros_nutricao: { rotulo: 'Nutrição (admissão ou evolução)', area: 'nutricao' },
+  registros_servico_social: { rotulo: 'Serviço Social (admissão ou evolução)', area: 'servico_social' },
 }
-export const infoTabela = (t) => { const f = FONTES.find((x) => x.tabela === t); return f ? { rotulo: f.rotulo, area: f.area } : (EXTRA[t] || { rotulo: t, area: '' }) }
+const NOME_AREA = { medico: 'Médico', enfermagem: 'Enfermagem', nutricao: 'Nutrição', servico_social: 'Serviço Social' }
+export const infoTabela = (t) => { if (EXTRA[t]) return EXTRA[t]; const f = FONTES.find((x) => x.tabela === t); return f ? { rotulo: f.rotulo, area: f.area } : { rotulo: t, area: '' } }
 
 export async function listarMeusRascunhos() {
   const { data, error } = await supabase.rpc('meus_rascunhos')
@@ -67,7 +70,7 @@ export default function MeusRascunhos({ compacto = false }) {
         const info = infoTabela(r.tabela)
         return (
           <div key={r.tabela + r.registro_id} className="mr-item">
-            <span className={`mr-area ${info.area}`}>{info.area === 'medico' ? 'Médico' : 'Enfermagem'}</span>
+            <span className={`mr-area ${info.area}`}>{NOME_AREA[info.area] || 'Enfermagem'}</span>
             <div className="mr-info">
               <b>{info.rotulo}</b>
               <span><i className="ph ph-user" /> {r.paciente || 'Paciente'}{r.leito ? ` · Leito ${r.leito}${r.setor ? ` (${r.setor})` : ''}` : ' · sem leito (alta?)'}</span>

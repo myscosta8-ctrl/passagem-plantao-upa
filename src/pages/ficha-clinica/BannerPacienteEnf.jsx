@@ -86,8 +86,9 @@ export default function BannerPacienteEnf({ atendimento, pilar, onVoltar, onTroc
           </div>
           {pilar && onTrocarPilar && (
             <div className="chave-pilar escura" role="tablist" aria-label="Prontuário">
-              <button type="button" role="tab" aria-selected={pilar === 'enfermagem'} className={pilar === 'enfermagem' ? 'on' : ''} onClick={pilar === 'enfermagem' ? undefined : onTrocarPilar}>Enfermagem</button>
-              <button type="button" role="tab" aria-selected={pilar === 'medico'} className={pilar === 'medico' ? 'on' : ''} onClick={pilar === 'medico' ? undefined : onTrocarPilar}>Médico</button>
+              {[['enfermagem', 'Enfermagem'], ['medico', 'Médico'], ['multi', 'Multiprofissional']].map(([k, r]) => (
+                <button key={k} type="button" role="tab" aria-selected={pilar === k} className={pilar === k ? 'on' : ''} onClick={pilar === k ? undefined : () => onTrocarPilar(k)}>{r}</button>
+              ))}
             </div>
           )}
         </div>
