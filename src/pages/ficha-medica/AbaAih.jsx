@@ -14,6 +14,27 @@ const PROCEDIMENTOS_RAPIDOS = [
   { cod: '0303010069', codFormatado: '03.03.01.006-9', desc: 'TRATAMENTO DE TRANSTORNOS DIGESTIVOS / DIARREIA AGUDA', rotulo: 'Transtornos Digestivos' },
 ];
 
+// Caixa de campo no padrão do formulário oficial (número + rótulo + valor).
+function Campo({ n, rotulo, col = 4, valor, onChange, readOnly, placeholder, destaque, children }) {
+  return (
+    <div className={`col-${col}`}>
+      <div className={'aih-field-box' + (readOnly ? ' readonly' : '') + (destaque ? ' highlight' : '')}>
+        <div className="aih-field-header"><label>{n} - {rotulo}</label></div>
+        {children || (readOnly
+          ? <div className="aih-field-value">{valor || '—'}</div>
+          : <input type="text" className="aih-input" value={valor || ''} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />)}
+      </div>
+    </div>
+  );
+}
+
+const VINCULOS = [
+  { valor: 'empregado', rotulo: 'Empregado' }, { valor: 'empregador', rotulo: 'Empregador' },
+  { valor: 'autonomo', rotulo: 'Autônomo' }, { valor: 'desempregado', rotulo: 'Desempregado' },
+  { valor: 'aposentado', rotulo: 'Aposentado' }, { valor: 'nao_segurado', rotulo: 'Não segurado' },
+];
+const RACAS = ['BRANCA', 'PRETA', 'PARDA', 'AMARELA', 'INDÍGENA', 'SEM INFORMAÇÃO'];
+
 export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar }) {
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
@@ -32,6 +53,22 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
   const [medicoDestino, setMedicoDestino] = useState('');
   const [encaminhada, setEncaminhada] = useState(null); // AIH recebida (médico) — { preenchidoPor, em }
   useEffect(() => { listarMedicosAtivos().then(setMedicos); }, []);
+  // Campos 31/32 (CNS/CPF do médico): o cadastro do profissional não guarda esse número,
+  // então reaproveita o que o mesmo médico informou na última AIH dele.
+  const medicoDoc = ehMedico ? medicoId : medicoDestino;
+  useEffect(() => {
+    if (!medicoDoc) return;
+    let vivo = true;
+    supabase.from('aih_solicitacoes').select('campos_formulario').eq('solicitante_id', medicoDoc)
+      .not('campos_formulario->>profissional_documento_numero', 'is', null)
+      .order('criado_em', { ascending: false }).limit(1).maybeSingle()
+      .then(({ data }) => {
+        const cf = data?.campos_formulario;
+        if (!vivo || !cf?.profissional_documento_numero) return;
+        setDados((prev) => (prev.profissional_documento_numero ? prev : { ...prev, profissional_documento_tipo: cf.profissional_documento_tipo || 'CNS', profissional_documento_numero: cf.profissional_documento_numero }));
+      });
+    return () => { vivo = false };
+  }, [medicoDoc]);
   const nomeMedico = (id) => { const m = medicos.find((x) => x.id === id); return m ? (m.nome_exibicao || m.nome) : ''; };
   const [nomePreenchedor, setNomePreenchedor] = useState('');
   useEffect(() => {
@@ -53,6 +90,19 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     return () => { vivo = false };
   }, [atendimento?.atendimento_id]);
   const pessoa = cabecalho?.pessoa || {};
+  // Campos 10 e 16-19: vêm do cadastro; editáveis aqui só para este laudo.
+  useEffect(() => {
+    if (!cabecalho?.pessoa) return;
+    const pe = cabecalho.pessoa;
+    setDados((prev) => ({
+      ...prev,
+      raca_cor: prev.raca_cor || (pe.raca_cor || '').toUpperCase(),
+      municipio_residencia_nome: prev.municipio_residencia_nome || (pe.cidade || 'BREVES').toUpperCase(),
+      municipio_residencia_uf: pe.uf || prev.municipio_residencia_uf,
+      municipio_residencia_cep: pe.cep || prev.municipio_residencia_cep,
+      municipio_residencia_ibge: pe.municipio_ibge || prev.municipio_residencia_ibge,
+    }));
+  }, [cabecalho]);
 
   // Só a clínica (pediatria vs. clínica médica) é inferida de dado real (idade do
   // paciente) — todo o resto começa vazio (AIH_VAZIA) e é preenchido pelo médico.
@@ -61,7 +111,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
   const [dados, setDados] = useState({
     ...AIH_VAZIA,
     clinica: isPediatrico ? 'PEDIATRIA / OBSERVAÇÃO' : 'CLÍNICA MÉDICA / OBSERVAÇÃO',
-    carater_internacao: '02 - URGÊNCIA',
+    carater_internacao: 'URGENCIA',
   });
   const rascunho = useRascunho({ tabela: 'aih_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: (r) => {
     if (r?.medico_destino_id) setMedicoDestino(r.medico_destino_id);
@@ -122,21 +172,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     });
   }
 
-  function insertExamSnippet(tipo) {
-    let snippet = '';
-    if (tipo === 'rx-leuco') {
-      snippet = '1. RAIO-X DE TÓRAX (UPA 24H BREVES): Infiltrado alveolar homogêneo em base pulmonar direita.\n2. LEUCOGRAMA: 16.800 leucócitos/mm³ com desvio à esquerda. PCR: 48 mg/L.';
-    } else if (tipo === 'gaso') {
-      snippet = 'GASOMETRIA ARTERIAL: pH 7.36, pCO2 38 mmHg, pO2 88 mmHg, HCO3 22 mEq/L, BE -1.5, SatO2 96%.';
-    } else if (tipo === 'pcr-eletr') {
-      snippet = 'PCR: 48 mg/L. SÓDIO: 138 mEq/L. POTÁSSIO: 4.1 mEq/L. URÉIA: 24 mg/dL. CREATININA: 0.6 mg/dL.';
-    }
 
-    setDados((prev) => {
-      const atual = prev.resultados_provas_diagnosticas || '';
-      return { ...prev, resultados_provas_diagnosticas: atual ? `${atual}\n${snippet}` : snippet };
-    });
-  }
 
   async function reSyncAll() {
     try {
@@ -218,7 +254,6 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')
     : (paciente?.idade ? `${paciente.idade} anos` : '');
   const sexoPaciente = (pessoa?.sexo || paciente?.sexo || atendimento?.sexo || '').toUpperCase().startsWith('F') ? 'FEMININO' : (pessoa?.sexo || paciente?.sexo || atendimento?.sexo) ? 'MASCULINO' : '';
-  const racaPaciente = '';
   const maePaciente = (pessoa?.nome_mae || '').toUpperCase();
   const telPaciente = pessoa?.telefone || '';
   const enderecoPaciente = pessoa?.endereco
@@ -369,97 +404,41 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
               <span>1. IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE</span>
             </div>
             <div className="aih-grid" style={{ marginTop: 4 }}>
-              <div className="col-8">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>1 - NOME DO ESTABELECIMENTO SOLICITANTE</label></div>
-                  <div className="aih-field-value">{dados.estabelecimento_solicitante_nome}</div>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>2 - CNES</label></div>
-                  <div className="aih-field-value" style={{ letterSpacing: 2, fontWeight: 800, color: 'var(--c-primary, #0D9488)' }}>
-                    0 2 9 6 7 9 6
-                  </div>
-                </div>
-              </div>
-              <div className="col-8">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>3 - NOME DO ESTABELECIMENTO EXECUTANTE</label></div>
-                  <div className="aih-field-value">{dados.estabelecimento_executante_nome}</div>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>4 - CNES</label></div>
-                  <div className="aih-field-value" style={{ letterSpacing: 2, fontWeight: 800, color: 'var(--c-primary, #0D9488)' }}>
-                    0 2 9 6 7 9 6
-                  </div>
-                </div>
-              </div>
+              <Campo n="1" rotulo="NOME DO ESTABELECIMENTO SOLICITANTE" col={8} valor={dados.estabelecimento_solicitante_nome} onChange={(v) => set('estabelecimento_solicitante_nome', v.toUpperCase())} />
+              <Campo n="2" rotulo="CNES" col={4} valor={dados.estabelecimento_solicitante_cnes} onChange={(v) => set('estabelecimento_solicitante_cnes', v.replace(/\D/g, '').slice(0, 7))} />
+              <Campo n="3" rotulo="NOME DO ESTABELECIMENTO EXECUTANTE" col={8} valor={dados.estabelecimento_executante_nome} onChange={(v) => set('estabelecimento_executante_nome', v.toUpperCase())} />
+              <Campo n="4" rotulo="CNES" col={4} valor={dados.estabelecimento_executante_cnes} onChange={(v) => set('estabelecimento_executante_cnes', v.replace(/\D/g, '').slice(0, 7))} />
             </div>
           </div>
 
-          {/* SEÇÃO 2: IDENTIFICAÇÃO DO PACIENTE */}
+          {/* SEÇÃO 2: IDENTIFICAÇÃO DO PACIENTE — 5 a 9, 11, 12 e 15 vêm do cadastro (Recepção) */}
           <div className="aih-secao-box">
             <div className="aih-secao-legend">
               <span>2. IDENTIFICAÇÃO DO PACIENTE</span>
             </div>
             <div className="aih-grid" style={{ marginTop: 4 }}>
-              <div className="col-8">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>5 - NOME DO PACIENTE</label></div>
-                  <div className="aih-field-value">{nomePaciente}</div>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>6 - Nº DO PRONTUÁRIO</label></div>
-                  <div className="aih-field-value">{prontuarioNum}</div>
-                </div>
-              </div>
-              <div className="col-6">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>7 - CARTÃO NACIONAL DE SAÚDE (CNS)</label></div>
-                  <div className="aih-field-value" style={{ letterSpacing: 1 }}>{cnsPaciente}</div>
-                </div>
-              </div>
-              <div className="col-2">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>8 - NASCIMENTO</label></div>
-                  <div className="aih-field-value">{nascPaciente}</div>
-                </div>
-              </div>
-              <div className="col-2">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>9 - SEXO</label></div>
-                  <div className="aih-field-value">{sexoPaciente}</div>
-                </div>
-              </div>
-              <div className="col-2">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>10 - RAÇA / COR</label></div>
-                  <div className="aih-field-value">{racaPaciente}</div>
-                </div>
-              </div>
-              <div className="col-7">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>11 - NOME DA MÃE</label></div>
-                  <div className="aih-field-value">{maePaciente}</div>
-                </div>
-              </div>
-              <div className="col-5">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>12 - TELEFONE</label></div>
-                  <div className="aih-field-value">{telPaciente}</div>
-                </div>
-              </div>
-              <div className="col-12">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>15 - ENDEREÇO COMPLETO</label></div>
-                  <div className="aih-field-value">{enderecoPaciente}</div>
-                </div>
-              </div>
+              <Campo n="5" rotulo="NOME DO PACIENTE" col={8} readOnly valor={nomePaciente} />
+              <Campo n="6" rotulo="Nº DO PRONTUÁRIO" col={4} readOnly valor={prontuarioNum} />
+              <Campo n="7" rotulo="CARTÃO NACIONAL DE SAÚDE (CNS)" col={5} readOnly valor={cnsPaciente} />
+              <Campo n="8" rotulo="DATA DE NASCIMENTO" col={3} readOnly valor={nascPaciente} />
+              <Campo n="9" rotulo="SEXO" col={2} readOnly valor={sexoPaciente} />
+              <Campo n="10" rotulo="RAÇA/COR" col={2}>
+                <select className="aih-input" value={dados.raca_cor || ''} onChange={(e) => set('raca_cor', e.target.value)}>
+                  <option value="">—</option>
+                  {RACAS.map((r) => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </Campo>
+              <Campo n="10.1" rotulo="ETNIA (SE INDÍGENA)" col={3} valor={dados.etnia} onChange={(v) => set('etnia', v.toUpperCase())} />
+              <Campo n="11" rotulo="NOME DA MÃE" col={6} readOnly valor={maePaciente} />
+              <Campo n="12" rotulo="TELEFONE DE CONTATO" col={3} readOnly valor={telPaciente} />
+              <Campo n="13" rotulo="NOME DO RESPONSÁVEL" col={8} valor={dados.nome_responsavel} onChange={(v) => set('nome_responsavel', v.toUpperCase())} />
+              <Campo n="14" rotulo="TELEFONE DO RESPONSÁVEL" col={4} valor={dados.telefone_responsavel} onChange={(v) => set('telefone_responsavel', v)} placeholder="(91) 9 0000-0000" />
+              <Campo n="15" rotulo="ENDEREÇO (RUA, Nº, BAIRRO)" col={12} readOnly valor={enderecoPaciente} />
+              <Campo n="16" rotulo="MUNICÍPIO DE RESIDÊNCIA" col={5} valor={dados.municipio_residencia_nome} onChange={(v) => set('municipio_residencia_nome', v.toUpperCase())} />
+              <Campo n="17" rotulo="CÓD. IBGE MUNICÍPIO" col={3} valor={dados.municipio_residencia_ibge} onChange={(v) => set('municipio_residencia_ibge', v.replace(/\D/g, '').slice(0, 7))} />
+              <Campo n="18" rotulo="UF" col={1} valor={dados.municipio_residencia_uf} onChange={(v) => set('municipio_residencia_uf', v.toUpperCase().slice(0, 2))} />
+              <Campo n="19" rotulo="CEP" col={3} valor={dados.municipio_residencia_cep} onChange={(v) => set('municipio_residencia_cep', v)} />
+              <div className="col-12 aih-dica"><i className="ph ph-info" /> Nome, CNS, nascimento, sexo, mãe, telefone e endereço vêm do cadastro do paciente — para corrigir, use Recepção → Completar dados.</div>
             </div>
           </div>
 
@@ -516,47 +495,13 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
                     value={dados.resultados_provas_diagnosticas}
                     onChange={(e) => set('resultados_provas_diagnosticas', e.target.value)}
                   />
-                  <div className="quick-chips">
-                    <span className="quick-chip" onClick={() => insertExamSnippet('rx-leuco')}>
-                      + Inserir Raio-X + Leucograma
-                    </span>
-                    <span className="quick-chip" onClick={() => insertExamSnippet('gaso')}>
-                      + Inserir Gasometria
-                    </span>
-                    <span className="quick-chip" onClick={() => insertExamSnippet('pcr-eletr')}>
-                      + Inserir PCR + Eletrólitos
-                    </span>
-                  </div>
                 </div>
               </div>
 
-              <div className="col-6">
-                <div className="aih-field-box highlight">
-                  <div className="aih-field-header">
-                    <label>24 - CID-10 PRINCIPAL</label>
-                  </div>
-                  <input
-                    type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 800, color: 'var(--c-primary, #0D9488)', background: 'transparent' }}
-                    value={dados.cid_principal}
-                    onChange={(e) => set('cid_principal', e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="col-6">
-                <div className="aih-field-box">
-                  <div className="aih-field-header">
-                    <label>25 - CID-10 SECUNDÁRIO (COMORBIDADES)</label>
-                  </div>
-                  <input
-                    type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, background: 'transparent' }}
-                    value={dados.cid_secundario}
-                    onChange={(e) => set('cid_secundario', e.target.value)}
-                  />
-                </div>
-              </div>
+              <Campo n="23" rotulo="DIAGNÓSTICO INICIAL" col={12} destaque valor={dados.diagnostico_inicial_texto} onChange={(v) => set('diagnostico_inicial_texto', v.toUpperCase())} placeholder="Ex.: ABSCESSO GLÚTEO / INFECÇÃO DE PELE E PARTES MOLES" />
+              <Campo n="24" rotulo="CID-10 PRINCIPAL" col={4} destaque valor={dados.cid_principal} onChange={(v) => set('cid_principal', v.toUpperCase().replace(/\s/g, ''))} placeholder="Ex.: L02.3" />
+              <Campo n="25" rotulo="CID-10 SECUNDÁRIO" col={4} valor={dados.cid_secundario} onChange={(v) => set('cid_secundario', v.toUpperCase().replace(/\s/g, ''))} />
+              <Campo n="26" rotulo="CID-10 CAUSAS ASSOCIADAS" col={4} valor={dados.cid_causas_associadas} onChange={(v) => set('cid_causas_associadas', v.toUpperCase().replace(/\s/g, ''))} />
             </div>
           </div>
 
@@ -566,130 +511,56 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
               <span>4. PROCEDIMENTO SOLICITADO</span>
             </div>
             <div className="aih-grid" style={{ marginTop: 4 }}>
-              <div className="col-8">
-                <div className="aih-field-box highlight">
-                  <div className="aih-field-header">
-                    <label>27 - DESCRIÇÃO DO PROCEDIMENTO SIGTAP</label>
-                  </div>
-                  <input
-                    type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, color: 'var(--c-primary, #0D9488)', background: 'transparent' }}
-                    value={dados.procedimento_principal_nome}
-                    onChange={(e) => set('procedimento_principal_nome', e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="aih-field-box highlight">
-                  <div className="aih-field-header"><label>28 - CÓDIGO SIGTAP</label></div>
-                  <input
-                    type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 800, color: 'var(--c-primary, #0D9488)', letterSpacing: 2, background: 'transparent' }}
-                    value={dados.procedimento_principal_codigo}
-                    onChange={(e) => set('procedimento_principal_codigo', e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="aih-field-box">
-                  <div className="aih-field-header"><label>29 - CLÍNICA</label></div>
-                  <input
-                    type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, background: 'transparent' }}
-                    value={dados.clinica}
-                    onChange={(e) => set('clinica', e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="aih-field-box">
-                  <div className="aih-field-header"><label>30 - CARÁTER DA INTERNAÇÃO</label></div>
-                  <input
-                    type="text"
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, background: 'transparent' }}
-                    value={dados.carater_internacao}
-                    onChange={(e) => set('carater_internacao', e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>32 - CNS DO SOLICITANTE</label></div>
-                  <div className="aih-field-value">704600614714321</div>
-                </div>
-              </div>
-              <div className="col-8">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>33 - NOME DO PROFISSIONAL SOLICITANTE</label></div>
-                  <div className="aih-field-value">
-                    {(() => {
-                      const m = ehMedico ? { nome: medicoNome, crm: medicoCrm } : (() => { const x = medicos.find((y) => y.id === medicoDestino); return x ? { nome: x.nome_exibicao || x.nome, crm: x.crm } : {}; })();
-                      return m.nome ? `${m.nome.toUpperCase()}${m.crm ? ` \u2022 CRM-PA: ${m.crm}` : ''} (UPA 24H BREVES)` : (ehMedico ? 'NÃO INFORMADO' : 'ESCOLHA O MÉDICO ACIMA');
-                    })()}
-                  </div>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="aih-field-box readonly">
-                  <div className="aih-field-header"><label>34 - DATA DA SOLICITAÇÃO</label></div>
-                  <div className="aih-field-value">{dataHoraAtual}</div>
-                </div>
-              </div>
+              <Campo n="27" rotulo="DESCRIÇÃO DO PROCEDIMENTO SOLICITADO" col={8} destaque valor={dados.procedimento_principal_nome} onChange={(v) => set('procedimento_principal_nome', v.toUpperCase())} />
+              <Campo n="28" rotulo="CÓDIGO DO PROCEDIMENTO (SIGTAP)" col={4} destaque valor={dados.procedimento_principal_codigo} onChange={(v) => set('procedimento_principal_codigo', v.replace(/\D/g, '').slice(0, 10))} placeholder="10 dígitos" />
+              <Campo n="29" rotulo="CLÍNICA" col={4} valor={dados.clinica} onChange={(v) => set('clinica', v.toUpperCase())} />
+              <Campo n="30" rotulo="CARÁTER DA INTERNAÇÃO" col={3}>
+                <select className="aih-input" value={dados.carater_internacao === 'ELETIVA' ? 'ELETIVA' : 'URGENCIA'} onChange={(e) => set('carater_internacao', e.target.value)}>
+                  <option value="URGENCIA">URGÊNCIA</option>
+                  <option value="ELETIVA">ELETIVA</option>
+                </select>
+              </Campo>
+              <Campo n="31" rotulo="DOCUMENTO" col={2}>
+                <select className="aih-input" value={dados.profissional_documento_tipo || 'CNS'} onChange={(e) => set('profissional_documento_tipo', e.target.value)}>
+                  <option value="CNS">CNS</option>
+                  <option value="CPF">CPF</option>
+                </select>
+              </Campo>
+              <Campo n="32" rotulo={`Nº DO ${dados.profissional_documento_tipo || 'CNS'} DO PROFISSIONAL SOLICITANTE`} col={3} valor={dados.profissional_documento_numero} onChange={(v) => set('profissional_documento_numero', v.replace(/[^\d.-]/g, ''))} placeholder="do médico que assina" />
+              <Campo n="33" rotulo="NOME DO PROFISSIONAL SOLICITANTE" col={8} readOnly valor={(() => {
+                const m = ehMedico ? { nome: medicoNome, crm: medicoCrm } : (() => { const x = medicos.find((y) => y.id === medicoDestino); return x ? { nome: x.nome_exibicao || x.nome, crm: x.crm } : {}; })();
+                return m.nome ? `${m.nome.toUpperCase()}${m.crm ? ` \u2022 CRM-PA ${m.crm}` : ''}` : (ehMedico ? 'NÃO INFORMADO' : 'ESCOLHA O MÉDICO ACIMA');
+              })()} />
+              <Campo n="34" rotulo="DATA DA SOLICITAÇÃO" col={4} readOnly valor={ehMedico ? `${dataHoraAtual} (data da assinatura)` : 'Data em que o médico assinar'} />
             </div>
           </div>
 
-          {/* SEÇÃO 5: CAUSAS EXTERNAS */}
+          {/* SEÇÃO 5: CAUSAS EXTERNAS (36 a 45) */}
           <div className="aih-secao-box">
             <div className="aih-secao-legend">
-              <span>5. PREENCHER EM CASO DE CAUSAS EXTERNAS</span>
+              <span>5. PREENCHER EM CASO DE CAUSAS EXTERNAS (ACIDENTES OU VIOLÊNCIAS)</span>
             </div>
             <div className="aih-grid" style={{ marginTop: 4 }}>
-              <div className="col-4">
-                <label style={{ fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={dados.causa_externa_transito}
-                    onChange={(e) => set('causa_externa_transito', e.target.checked)}
-                  />
-                  36 - Acidente de Trânsito
-                </label>
-              </div>
-              <div className="col-4">
-                <label style={{ fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={dados.causa_externa_trabalho_tipico}
-                    onChange={(e) => set('causa_externa_trabalho_tipico', e.target.checked)}
-                  />
-                  37 - Acidente de Trabalho Típico
-                </label>
-              </div>
-              <div className="col-4">
-                <label style={{ fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={dados.causa_externa_trabalho_trajeto}
-                    onChange={(e) => set('causa_externa_trabalho_trajeto', e.target.checked)}
-                  />
-                  38 - Acidente de Trajeto
-                </label>
-              </div>
-              <div className="col-12" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 4, padding: '6px 10px', marginTop: 2 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
-                  45 - Vínculo Previdenciário:
-                </span>
-                <div style={{ display: 'flex', gap: 14, marginTop: 4, fontSize: 12, fontWeight: 600, flexWrap: 'wrap' }}>
-                  {['Empregado', 'Autônomo', 'Aposentado', isPediatrico ? 'NÃO SEGURADO (MENOR)' : 'Não Segurado'].map((v) => (
-                    <label key={v} style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
-                      <input
-                        type="radio"
-                        name="prev"
-                        checked={dados.vinculo_previdencia === v}
-                        onChange={() => set('vinculo_previdencia', v)}
-                      />
-                      {v}
+              {[['causa_externa_transito', '36 - Acidente de trânsito'], ['causa_externa_trabalho_tipico', '37 - Acidente de trabalho típico'], ['causa_externa_trabalho_trajeto', '38 - Acidente de trabalho trajeto']].map(([k, r]) => (
+                <div key={k} className="col-4">
+                  <label className="aih-check"><input type="checkbox" checked={!!dados[k]} onChange={(e) => set(k, e.target.checked)} /> {r}</label>
+                </div>
+              ))}
+              <Campo n="39" rotulo="CNPJ DA SEGURADORA" col={5} valor={dados.cnpj_seguradora} onChange={(v) => set('cnpj_seguradora', v)} />
+              <Campo n="40" rotulo="Nº DO BILHETE" col={4} valor={dados.numero_bilhete} onChange={(v) => set('numero_bilhete', v)} />
+              <Campo n="41" rotulo="SÉRIE" col={3} valor={dados.serie_bilhete} onChange={(v) => set('serie_bilhete', v)} />
+              <Campo n="42" rotulo="CNPJ DA EMPRESA" col={5} valor={dados.cnpj_empresa} onChange={(v) => set('cnpj_empresa', v)} />
+              <Campo n="43" rotulo="CNAE DA EMPRESA" col={4} valor={dados.cnae_empresa} onChange={(v) => set('cnae_empresa', v)} />
+              <Campo n="44" rotulo="CBOR" col={3} valor={dados.cbor} onChange={(v) => set('cbor', v)} />
+              <div className="col-12 aih-vinculo">
+                <span>45 - VÍNCULO COM A PREVIDÊNCIA</span>
+                <div>
+                  {VINCULOS.map((op) => (
+                    <label key={op.valor} className="aih-check">
+                      <input type="radio" name="aih-vinculo" checked={dados.vinculo_previdencia === op.valor} onChange={() => set('vinculo_previdencia', op.valor)} /> {op.rotulo}
                     </label>
                   ))}
+                  {dados.vinculo_previdencia && <button type="button" className="aih-limpar" onClick={() => set('vinculo_previdencia', '')}>limpar</button>}
                 </div>
               </div>
             </div>
@@ -698,7 +569,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
           {/* SEÇÃO 6: AUTORIZAÇÃO */}
           <div className="aih-secao-box">
             <div className="aih-secao-legend">
-              <span>6. AUTORIZAÇÃO</span>
+              <span>6. AUTORIZAÇÃO (46 a 52 — preenchido pela Regulação)</span>
             </div>
             <div className="aih-grid" style={{ marginTop: 4 }}>
               <div className="col-6">

@@ -1249,3 +1249,19 @@
 .atendimento-medico-container .aih-encaminhar-txt span { display: block; font-size: 13px; color: var(--c-text-secondary, #334155); line-height: 1.4; }
 .atendimento-medico-container .aih-encaminhar-campo { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; color: var(--c-text-secondary, #334155); flex: 0 1 340px; min-width: 220px; }
 .atendimento-medico-container .aih-encaminhar-campo select { height: 38px; border: 1px solid var(--c-border-dark, #CBD5E1); border-radius: 8px; padding: 0 10px; font: inherit; font-size: 14px; background: #fff; }
+
+/* AIH: campos editáveis no padrão das caixas do formulário oficial */
+.atendimento-medico-container .aih-input { width: 100%; border: 0; outline: none; background: transparent; font: inherit; font-size: 13px; font-weight: 700; color: var(--c-text-primary, #0F2230); padding: 2px 0; min-height: 22px; }
+.atendimento-medico-container select.aih-input { cursor: pointer; }
+.atendimento-medico-container .aih-field-box:focus-within { border-color: var(--c-primary, #1B4555); box-shadow: 0 0 0 2px rgba(27, 69, 85, .12); }
+.atendimento-medico-container .aih-field-box.highlight .aih-input { color: var(--c-primary, #1B4555); }
+.atendimento-medico-container .aih-input::placeholder { color: #A0AEBB; font-weight: 500; }
+.atendimento-medico-container .aih-dica { font-size: 12px; color: var(--c-text-muted, #6B7C8C); display: flex; align-items: center; gap: 6px; }
+.atendimento-medico-container .aih-check { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.atendimento-medico-container .aih-vinculo { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 8px 10px; }
+.atendimento-medico-container .aih-vinculo > span { font-size: 12px; font-weight: 700; color: var(--c-text-muted, #6B7C8C); }
+.atendimento-medico-container .aih-vinculo > div { display: flex; gap: 8px 16px; flex-wrap: wrap; margin-top: 6px; align-items: center; }
+.atendimento-medico-container .aih-limpar { border: 0; background: none; color: var(--c-text-muted, #6B7C8C); text-decoration: underline; cursor: pointer; font-size: 12px; }
+@media (max-width: 700px) {
+  .atendimento-medico-container .aih-grid > [class^="col-"] { grid-column: span 12; }
+}

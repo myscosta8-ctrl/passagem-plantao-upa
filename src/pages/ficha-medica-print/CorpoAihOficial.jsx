@@ -17,6 +17,11 @@ const VINCULO_PREVIDENCIA_OPCOES = [
   { valor: 'nao_segurado', rotulo: 'Não segurado' },
 ]
 
+// Laudos antigos guardavam o rótulo ("Não Segurado", "Autônomo"...) em vez do código.
+const normalizarVinculo = (v) => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\(.*\)/, '').trim().replace(/\s+/g, '_')
+// Data da solicitação = dia em que o médico assinou (AIH pré-preenchida pela enfermagem pode ter sido criada antes).
+const dataSolicitacao = (r) => { const d = r.finalizado_em || r.data_registro || r.criado_em; if (!d) return ''; const x = new Date(d); return new Date(x.getTime() - x.getTimezoneOffset() * 60000).toISOString().slice(0, 10) }
+
 // Réplica do formulário oficial do SUS "Laudo para Solicitação de Autorização
 // de Internação Hospitalar" — layout de caixas burocráticas padrão nacional,
 // igual ao documento físico usado hoje na UPA, campo por campo, sem omitir
@@ -74,24 +79,24 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
           <CampoComb cap="7. Cartão Nacional de Saúde (CNS)" val={pessoa.cns} digitos={15} w={2} />
           <CampoData cap="8. Data de nascimento" valorISO={pessoa.data_nascimento} />
           <CampoSexo sexo={pessoa.sexo} />
-          <CampoSus cap="10. Raça/Cor · 10.1 Etnia" val={[pessoa.raca_cor, cf.etnia].filter(Boolean).join(' · ')} />
+          <CampoSus cap="10. Raça/Cor · 10.1 Etnia" val={[cf.raca_cor || pessoa.raca_cor, cf.etnia].filter(Boolean).join(' · ')} />
         </div>
         <div className="sus-grid">
           <CampoSus cap="11. Nome da mãe" val={pessoa.nome_mae} w={2} />
-          <CampoTelefone cap="12. Telefone de contato" valor={pessoa.telefone} w={2} />
+          <CampoTelefone cap="12. Telefone de contato" valor={pessoa.telefone || pessoa.telefone_contato} w={2} />
         </div>
         <div className="sus-grid">
           <CampoSus cap="13. Nome do responsável" val={cf.nome_responsavel} w={2} />
-          <CampoTelefone cap="14. Telefone de contato" valor="" w={2} />
+          <CampoTelefone cap="14. Telefone de contato" valor={cf.telefone_responsavel || ''} w={2} />
         </div>
         <div className="sus-grid">
           <CampoSus cap="15. Endereço (rua, nº, bairro)" val={enderecoCompleto} full />
         </div>
         <div className="sus-grid">
-          <CampoSus cap="16. Município de residência" val={pessoa.cidade} w={2} />
-          <CampoComb cap="17. Cód. IBGE município" val={cf.municipio_residencia_ibge} digitos={7} />
-          <CampoSus cap="18. UF" val={cf.municipio_residencia_uf} />
-          <CampoComb cap="19. CEP" val={cf.municipio_residencia_cep} digitos={8} />
+          <CampoSus cap="16. Município de residência" val={cf.municipio_residencia_nome || pessoa.cidade} w={2} />
+          <CampoComb cap="17. Cód. IBGE município" val={cf.municipio_residencia_ibge || pessoa.municipio_ibge} digitos={7} />
+          <CampoSus cap="18. UF" val={cf.municipio_residencia_uf || pessoa.uf} />
+          <CampoComb cap="19. CEP" val={String(cf.municipio_residencia_cep || pessoa.cep || '').replace(/\D/g, '')} digitos={8} />
         </div>
       </div>
 
@@ -103,7 +108,7 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
         <div className="sus-grid" style={{ borderTop: '1px solid #000' }}>
           <CampoSus cap="23. Diagnóstico inicial" val={cf.diagnostico_inicial_texto} w={2.6} />
           <CampoSus cap="24. CID 10 principal" val={cidPrincipal} w={0.9} />
-          <CampoSus cap="25. CID 10 secundário" val={registro.cid_secundario} w={0.9} />
+          <CampoSus cap="25. CID 10 secundário" val={registro.cid_secundario || cf.cid_secundario} w={0.9} />
           <CampoSus cap="26. CID 10 causas associadas" val={cf.cid_causas_associadas} w={0.9} />
         </div>
       </div>
@@ -116,7 +121,7 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
         </div>
         <div className="sus-grid">
           <CampoSus cap="29. Clínica" val={cf.clinica || (leitoNumero ? `Leito ${leitoNumero} — ${setorNome}` : '')} />
-          <CampoSus cap="30. Caráter da internação" val={cf.carater_internacao === 'ELETIVA' ? 'Eletiva' : 'Urgência'} />
+          <CampoSus cap="30. Caráter da internação" val={/ELETIV/i.test(cf.carater_internacao || '') ? 'Eletiva' : 'Urgência'} />
           <div className="sus-field" style={{ flexGrow: 1.4, flexBasis: 0, whiteSpace: 'nowrap' }}>
             <span className="cap">31. Documento</span>
             <div style={{ marginTop: 1, display: 'flex', gap: 6 }}>
@@ -128,7 +133,7 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
         </div>
         <div className="sus-grid">
           <CampoSus cap="33. Nome do profissional solicitante/assistente" val={medico?.nome_exibicao || medico?.nome} w={1.8} />
-          <CampoData cap="34. Data da solicitação" valorISO={registro.criado_em ? registro.criado_em.slice(0, 10) : ''} w={1.4} />
+          <CampoData cap="34. Data da solicitação" valorISO={dataSolicitacao(registro)} w={1.4} />
           <CampoSus cap="35. Assinatura e carimbo (nº do registro do conselho)" val={medico?.crm ? `CRM ${medico.crm}` : ''} w={1.8} />
         </div>
       </div>
@@ -160,7 +165,7 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
             <span className="cap">45. Vínculo com a previdência</span>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 2 }}>
               {VINCULO_PREVIDENCIA_OPCOES.map((op) => (
-                <span key={op.valor} className="sus-checkbox"><Marca marcado={cf.vinculo_previdencia === op.valor} /> {op.rotulo}</span>
+                <span key={op.valor} className="sus-checkbox"><Marca marcado={normalizarVinculo(cf.vinculo_previdencia) === op.valor} /> {op.rotulo}</span>
               ))}
             </div>
           </div>
