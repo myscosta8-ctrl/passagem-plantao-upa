@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
 import { limparPermissoes } from './permissoes'
-import { limparCache } from './cache'
+import { encerrarSessaoNoCache } from './cache'
 
 const AuthContext = createContext(null)
 
@@ -38,8 +38,9 @@ export function AuthProvider({ children }) {
       // Previne o bug de unmount (que causa perda de abas abertas) ao mudar de aba
       // ignorando eventos que enviam session vazia indevidamente, a menos que seja um logout real.
       if (event === 'SIGNED_OUT') {
-        limparCache() // sessão encerrada (inclusive por expiração): nada de paciente fica na memória
-        setSession(null)
+        // Sessão encerrada (inclusive por expiração): primeiro sai da tela, depois apaga o cache
+        // (nada de paciente fica na memória e nenhuma tela busca de novo já sem login).
+        encerrarSessaoNoCache(() => setSession(null))
       } else if (s) {
         setSession(s)
       }
@@ -150,7 +151,9 @@ export function AuthProvider({ children }) {
     try { localStorage.removeItem('app_ultima_atividade') } catch { /* sem storage */ }
     limparRascunhosLocais()
     limparPermissoes()
-    limparCache() // dados de paciente guardados entre abas
+    // Tira as telas do sistema e apaga o cache ANTES de encerrar a sessão: assim nenhuma
+    // tela aberta (painel, ficha) dispara busca ao banco já sem login.
+    await encerrarSessaoNoCache(() => setSession(null))
     await supabase.auth.signOut({ scope: 'local' }) // sai só deste aparelho; não derruba o mesmo usuário em outros computadores
   }
 

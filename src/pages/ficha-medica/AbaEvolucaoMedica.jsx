@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { criarEvolucaoMedica } from '../../lib/pepMedico';
-import { listarSinaisVitais } from '../../lib/pepClinico';
+import { listarSinaisVitais, registrarSinaisVitais } from '../../lib/pepClinico';
+import { avisarErro } from '../../lib/erros';
+import { camposDaEnfermagem, dadosParaTabela, mesmosSinais, medidaRecente } from './sinaisVitaisMedico';
 import { EVOLUCAO_VAZIA } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro'
 import { metaDoc } from '../../lib/documentos'
@@ -38,6 +40,17 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
 
   function set(campo, valor) { setDados((prev) => ({ ...prev, [campo]: valor })) }
 
+  // Sinais vitais: a evolução nova já abre com a última medida da enfermagem (até 6 h);
+  // ao finalizar, o que o médico mediu ou corrigiu entra no histórico único de sinais vitais.
+  const svPuxados = useRef(null)
+  const quemMediu = (u) => u.enfermeiros?.nome_exibicao || u.enfermeiros?.nome || 'Enfermagem'
+  function aplicarSinais(ultimo) {
+    const campos = camposDaEnfermagem(ultimo)
+    svPuxados.current = campos
+    setDados((prev) => ({ ...prev, ...campos }))
+    setSvInfo(`Puxado de ${new Date(ultimo.registrado_em).toLocaleString('pt-BR')} — ${quemMediu(ultimo)}. Os campos podem ser editados abaixo.`)
+  }
+
   async function puxarSinaisVitaisDaEnfermagem() {
     setPuxandoSv(true)
     setSvInfo('')
@@ -48,18 +61,25 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
       setSvInfo('Nenhum sinal vital registrado pela enfermagem para este atendimento.')
       return
     }
-    setDados((prev) => ({
-      ...prev,
-      sv_pa_sistolica: ultimo.pa_sistolica ?? '',
-      sv_pa_diastolica: ultimo.pa_diastolica ?? '',
-      sv_fc: ultimo.fc ?? '',
-      sv_fr: ultimo.fr ?? '',
-      sv_temperatura: ultimo.temperatura ?? '',
-      sv_spo2: ultimo.spo2 ?? '',
-      sv_hgt: ultimo.hgt ?? '',
-    }))
-    setSvInfo(`Puxado de ${new Date(ultimo.registrado_em).toLocaleString('pt-BR')} — ${ultimo.enfermeiros?.nome_exibicao || ultimo.enfermeiros?.nome || 'Enfermagem'}. Os campos podem ser editados abaixo.`)
+    aplicarSinais(ultimo)
   }
+
+  // Evolução nova: espera o rascunho (se houver) abrir; só preenche se os sinais estiverem vazios.
+  const dadosAtuais = useRef(dados)
+  dadosAtuais.current = dados
+  useEffect(() => {
+    if (!atendimento?.atendimento_id) return undefined
+    let ativo = true
+    const t = setTimeout(async () => {
+      const registros = await listarSinaisVitais(atendimento.atendimento_id)
+      const ultimo = registros[0]
+      const vazios = Object.keys(camposDaEnfermagem({})).every((c) => String(dadosAtuais.current[c] ?? '') === '')
+      if (!ativo || !ultimo || !vazios) return
+      if (medidaRecente(ultimo.registrado_em)) aplicarSinais(ultimo)
+      else setSvInfo(`Última medida da enfermagem: ${new Date(ultimo.registrado_em).toLocaleString('pt-BR')} (mais de 6 h). Use "Puxar da Enfermagem" se quiser usar mesmo assim.`)
+    }, 900)
+    return () => { ativo = false; clearTimeout(t) }
+  }, [atendimento?.atendimento_id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function salvar(imprimir = false) {
     if (!dados.evolucao_dia.trim() || !dados.exame_fisico.trim()) {
@@ -87,13 +107,25 @@ export default function AbaEvolucaoMedica({  atendimento, medicoId, onImprimir, 
         sv_hgt: dados.sv_hgt === '' ? null : Number(dados.sv_hgt),
       },
     })
+    if (error) { setSalvando(false); setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
+    // Finalizada: sinais medidos ou corrigidos pelo médico entram no histórico de sinais vitais
+    // do atendimento (painel, passagem, SBAR). Os que vieram da enfermagem sem mudança não
+    // são gravados de novo.
+    const sinais = imprimir ? dadosParaTabela(dados) : null
+    const jaRegistrados = async () => mesmosSinais(dados, svPuxados.current)
+      // rascunho reaberto: compara também com a última medida da enfermagem
+      || mesmosSinais(dados, camposDaEnfermagem((await listarSinaisVitais(atendimento.atendimento_id))[0]))
+    if (sinais && !(await jaRegistrados())) {
+      const { error: erroSv } = await registrarSinaisVitais({ atendimentoId: atendimento.atendimento_id, registradoPor: medicoId, dados: sinais })
+      if (erroSv) avisarErro('AbaEvolucaoMedica (sinais vitais)', erroSv)
+    }
     setSalvando(false)
-    if (error) { setErro('Não foi possível salvar. Tente de novo.'); console.error(error); return }
     if (imprimir && data) onImprimir(data)
     if (!imprimir) { setEditandoId(data?.id ?? null); setAviso('Rascunho salvo — pode continuar editando. Após "Finalizar e Imprimir" o documento é finalizado e só poderá ser invalidado.'); return }
     setEditandoId(null); setDataRegistro(''); setAviso('')
     setDados(EVOLUCAO_VAZIA)
     setSvInfo('')
+    svPuxados.current = null
   }
 
   return (

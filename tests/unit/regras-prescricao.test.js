@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { supabase } from '../../src/lib/supabaseClient.js';
 import { criarPrescricao, normalizarCid } from '../../src/lib/pepMedico.js';
 import { idadeDetalhada } from '../../src/lib/idadeDetalhada.js';
+import { camposDaEnfermagem, dadosParaTabela, mesmosSinais, medidaRecente } from '../../src/pages/ficha-medica/sinaisVitaisMedico.js';
 import { metaDoc } from '../../src/lib/documentos.js';
 import {
   exigeAtm, atbRestrito, calculoDxIxT, dosesPorDia as dosesPorDiaAtm,
@@ -267,7 +268,8 @@ export function runPadraoVisualTests(test) {
 
 // Cache de dados entre abas (item 18): trocar de aba usa o que já foi buscado; toda gravação
 // avisa o cache; falha não fica guardada; sair do sistema apaga tudo.
-import { queryClient, dadosMudaram, buscarComCache, limparCache } from '../../src/lib/cache.js';
+import { queryClient, dadosMudaram, buscarComCache, limparCache, encerrarSessaoNoCache } from '../../src/lib/cache.js';
+import { QueryObserver } from '@tanstack/react-query';
 import { registrarAlergia } from '../../src/lib/pepClinico.js';
 import { gravar } from '../../src/lib/documentos.js';
 const contador = () => { const c = { n: 0, fn: async () => { c.n++; return [{ id: c.n }]; } }; return c; };
@@ -312,8 +314,25 @@ export function runCacheTests(test) {
     limparCache();
     assert.equal(queryClient.getQueryCache().getAll().length, 0);
     const auth = fs.readFileSync('src/lib/AuthContext.jsx', 'utf8');
-    assert.match(auth, /limparPermissoes\(\)\s*\n\s*limparCache\(\)/, 'logout chama limparCache');
-    assert.match(auth, /SIGNED_OUT'\)\s*\{\s*\n\s*limparCache\(\)/, 'sessão encerrada chama limparCache');
+    assert.match(auth, /await encerrarSessaoNoCache\(\(\) => setSession\(null\)\)\s*\n\s*await supabase\.auth\.signOut/, 'logout: sai da tela e apaga o cache antes de encerrar a sessão');
+    assert.match(auth, /SIGNED_OUT'\)\s*\{[\s\S]{0,300}encerrarSessaoNoCache\(\(\) => setSession\(null\)\)/, 'sessão encerrada apaga o cache');
+  }));
+
+  test('Sair do sistema: nenhuma tela busca no banco depois do logout (sem "permission denied" nos registros)', () => emFila(async () => {
+    let buscas = 0;
+    const opcoes = { queryKey: ['painelDados', 'saida'], queryFn: async () => { buscas++; return { leitos: [] }; } };
+    const painel = new QueryObserver(queryClient, opcoes); // painel aberto na tela
+    const desmontar = painel.subscribe(() => {});
+    await new Promise((r) => setTimeout(r, 20));
+    const antes = buscas;
+    let telaSaiu = false;
+    await encerrarSessaoNoCache(() => { telaSaiu = true; desmontar(); }, 5);
+    assert.ok(telaSaiu, 'a tela sai antes de apagar o cache');
+    assert.equal(queryClient.getQueryCache().getAll().length, 0, 'cache apagado');
+    painel.setOptions(opcoes); // uma atualização tardia da tela já desmontada não volta a buscar
+    await new Promise((r) => setTimeout(r, 30));
+    assert.equal(buscas, antes, 'nenhuma busca depois de sair');
+    queryClient.clear();
   }));
 
   test('Salvar Rascunho / Finalizar (gravar) e registrar alergia avisam o cache', () => emFila(async () => {
@@ -594,5 +613,39 @@ export function runPadraoImpressoTests(test) {
     assert.equal(idadeDetalhada('2000-02-29', new Date(2026, 1, 28)), '25A 11M 30D');
     assert.equal(idadeDetalhada('', '05/08/2026'), '');
     assert.equal(idadeDetalhada('2030-01-01', new Date(2026, 0, 1)), '');
+  });
+}
+
+// Sinais vitais na Evolução Médica: abre com a última medida da enfermagem e, ao finalizar, o
+// que o médico mediu entra no histórico único de sinais vitais (sem duplicar o que veio da enfermagem).
+export function runSinaisVitaisMedicoTests(test) {
+  test('Puxar da enfermagem traz também o HGT (glicemia) e os registros antigos', () => {
+    const c = camposDaEnfermagem({ pa_sistolica: 120, pa_diastolica: 80, fc: 88, fr: 18, temperatura: 36.5, spo2: 97, glicemia: 110 });
+    assert.deepEqual(c, { sv_pa_sistolica: 120, sv_pa_diastolica: 80, sv_fc: 88, sv_fr: 18, sv_temperatura: 36.5, sv_spo2: 97, sv_hgt: 110 });
+    assert.equal(camposDaEnfermagem({ frequencia_cardiaca: 70, hgt: 95 }).sv_fc, 70);
+    assert.equal(camposDaEnfermagem({ frequencia_cardiaca: 70, hgt: 95 }).sv_hgt, 95);
+    assert.equal(camposDaEnfermagem({ fc: null }).sv_fc, '');
+  });
+  test('Ao finalizar: grava só o que o médico mediu ou corrigiu (nada vazio, nada duplicado)', () => {
+    assert.equal(dadosParaTabela({ sv_fc: '', sv_spo2: '' }), null, 'sem sinais não grava');
+    assert.deepEqual(dadosParaTabela({ sv_pa_sistolica: '130', sv_pa_diastolica: '85', sv_fc: '', sv_hgt: '140' }),
+      { pa_sistolica: 130, pa_diastolica: 85, fc: '', fr: '', temperatura: '', spo2: '', glicemia: 140 });
+    const puxados = camposDaEnfermagem({ fc: 88, spo2: 97 });
+    assert.ok(mesmosSinais({ ...puxados, sv_fc: '88' }, puxados), 'veio da enfermagem sem mudança: não grava de novo');
+    assert.ok(!mesmosSinais({ ...puxados, sv_fc: '92' }, puxados), 'médico corrigiu: grava');
+    assert.ok(!mesmosSinais({ sv_fc: '92' }, null), 'médico mediu sem puxar: grava');
+  });
+  test('Evolução nova só recebe sozinha a medida das últimas 6 horas', () => {
+    const agora = new Date('2026-10-03T12:00:00Z');
+    assert.ok(medidaRecente('2026-10-03T07:00:00Z', agora));
+    assert.ok(!medidaRecente('2026-10-03T05:30:00Z', agora));
+    assert.ok(!medidaRecente('2026-10-03T13:00:00Z', agora));
+    assert.ok(!medidaRecente(null, agora));
+  });
+  test('Evolução Médica usa o histórico único de sinais vitais', () => {
+    const t = fs.readFileSync('src/pages/ficha-medica/AbaEvolucaoMedica.jsx', 'utf8');
+    assert.match(t, /registrarSinaisVitais\(\{ atendimentoId: atendimento\.atendimento_id, registradoPor: medicoId, dados: sinais \}\)/);
+    assert.match(t, /const sinais = imprimir \? dadosParaTabela\(dados\) : null/, 'só ao finalizar (rascunho não grava)');
+    assert.ok(!/ultimo\.hgt/.test(t), 'HGT vem de camposDaEnfermagem');
   });
 }

@@ -57,6 +57,18 @@ export function limparCache() {
   queryClient.clear()
 }
 
+// Fim de sessão sem pedidos soltos ao banco. Apagar o cache com as telas ainda abertas fazia
+// o painel e a ficha buscarem tudo de novo na mesma hora, já sem login, e o banco registrava
+// uma rajada de "permission denied". Ordem: para as buscas em andamento, tira as telas do
+// sistema (tirarTela desmonta painel, fichas e atualizações automáticas), espera elas saírem
+// e só então apaga o cache.
+export async function encerrarSessaoNoCache(tirarTela, esperaMs = 60) {
+  await queryClient.cancelQueries()
+  tirarTela?.()
+  await new Promise((r) => setTimeout(r, esperaMs))
+  limparCache()
+}
+
 // Executa uma gravação e, se deu certo, avisa o cache das tabelas alteradas.
 export function avisando(gravacao, ...tabelas) {
   return Promise.resolve(gravacao).then((r) => { if (!r?.error) dadosMudaram(...tabelas); return r })
