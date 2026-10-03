@@ -439,3 +439,53 @@ export function runDivisaoExamesTests(test) {
     assert.match(s, /function setModalidade\(m\)[\s\S]*setEditandoId\(null\)/, 'trocar de modalidade solta o rascunho da anterior');
   });
 }
+
+// Item 17 — Laudo de AIH dividido; dados da admissão nunca apagam o que o médico escreveu.
+import { alternarJustificativa, dadosDaAdmissao, separarCids, identificacaoPaciente } from '../../src/pages/ficha-medica/aih/aihRegras.js';
+export function runDivisaoAihTests(test) {
+  const consulta = { queixa_principal: 'tosse e febre', hipotese_diagnostica: 'J18.9 Pneumonia', sv: { pa: '120x80', fc: 98, temp: 38.5, spo2: 93 } };
+  test('AIH: ao abrir, a admissão só preenche campo vazio (rascunho e texto do médico são mantidos — defeito de 02/10)', () => {
+    const vazio = dadosDaAdmissao(consulta, { sinais_sintomas_clinicos: '', diagnostico_inicial_texto: '', cid_principal: '' });
+    assert.equal(vazio.sinais_sintomas_clinicos, 'PACIENTE ADMITIDO NA UPA 24H BREVES COM HISTÓRIA DE: TOSSE E FEBRE');
+    assert.equal(vazio.cid_principal, 'J18.9');
+    const escrito = { sinais_sintomas_clinicos: 'TEXTO DO MÉDICO', diagnostico_inicial_texto: 'PNEUMONIA GRAVE', cid_principal: 'J15.9' };
+    assert.deepEqual(dadosDaAdmissao(consulta, escrito), escrito);
+    const resinc = dadosDaAdmissao(consulta, escrito, true);
+    assert.match(resinc.sinais_sintomas_clinicos, /SINAIS VITAIS: PA 120x80, FC 98, TEMP 38.5°C, SPO2 93%/);
+    const s = fs.readFileSync('src/pages/ficha-medica/AbaAih.jsx', 'utf8');
+    assert.doesNotMatch(s, /\bcarregar\(\)/, 'salvar não puxa a admissão de novo por cima do formulário');
+  });
+
+  test('AIH: atalhos do campo 21 ligam e desligam sem deixar "; " solto', () => {
+    let t = alternarJustificativa('', 'A');
+    t = alternarJustificativa(t, 'B');
+    assert.equal(t, 'A; B');
+    assert.equal(alternarJustificativa(t, 'A'), 'B');
+    assert.equal(alternarJustificativa('A; B; C', 'B'), 'A; C');
+  });
+
+  test('AIH: CID fora do catálogo não vai para a coluna, mas fica guardado como texto no rascunho', () => {
+    const r = separarCids({ cid_principal: 'j189', cid_secundario: 'X99.9' }, 'J18.9', 'X99.9', new Set(['J18.9']));
+    assert.deepEqual(r.invalidos, ['X99.9']);
+    assert.equal(r.dadosGravar.cid_principal, 'J18.9');
+    assert.equal(r.dadosGravar.cid_secundario, '');
+    assert.deepEqual(r.cidTexto, { cid_principal_texto: '', cid_secundario_texto: 'X99.9' });
+    assert.equal(separarCids({ cid_principal: 'J18.9' }, 'J18.9', '', new Set(['J18.9'])).cidTexto, null);
+  });
+
+  test('AIH: identificação do paciente vem do cadastro, sem inventar dado', () => {
+    const id = identificacaoPaciente({ nome: 'FULANO', prontuario_numero: 'PEP-12', sexo: 'f', endereco: 'Rua A', endereco_numero: '1', bairro: 'Centro' }, {}, {});
+    assert.equal(id.prontuario, '12');
+    assert.equal(id.sexo, 'FEMININO');
+    assert.equal(id.endereco, 'RUA A, 1, CENTRO — BREVES/PA');
+    assert.equal(identificacaoPaciente({}, {}, {}).sexo, '');
+    const s = fs.readFileSync('src/pages/ficha-medica/AbaAih.jsx', 'utf8');
+    assert.ok(s.split('\n').length < 320, 'AbaAih.jsx deve ter menos de 320 linhas');
+    assert.match(s, /useSalvarDocumento\(/);
+  });
+
+  test('Exames: campos que não eram gravados (mobilidade, radioproteção, local e orientações do ECG) saíram da tela', () => {
+    const tudo = ['AbaExames.jsx', 'exames/DadosPedido.jsx', 'exames/JustificativaExame.jsx'].map((f) => fs.readFileSync(`src/pages/ficha-medica/${f}`, 'utf8')).join('\n');
+    assert.doesNotMatch(tudo, /mobilidade|radioprotecao|localEcg|orientacoesEcg/i);
+  });
+}

@@ -178,12 +178,6 @@ export const MODALIDADE_CONFIG = {
   },
 };
 
-export const MOBILIDADE_OPCOES = [
-  ['maca', 'Maca / Leito (Sem deambulação)'],
-  ['cadeira', 'Cadeira de Rodas'],
-  ['deambulando', 'Deambulando com auxílio'],
-];
-
 export const APAC_VAZIA = {
   procedimento_codigo: '',
   procedimento_nome: '',

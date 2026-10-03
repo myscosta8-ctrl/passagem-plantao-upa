@@ -24,12 +24,8 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
   const [labJustificativa, setLabJustificativa] = useState('');
   const [imgJustificativa, setImgJustificativa] = useState('');
   const [ecgJustificativa, setEcgJustificativa] = useState('');
-  const [radioprotecao, setRadioprotecao] = useState('');
-  const [orientacoesEcg, setOrientacoesEcg] = useState('');
 
   const [prioridade, setPrioridade] = useState({ lab: 'urgencia', img: 'urgencia', ecg: 'urgencia' });
-  const [mobilidade, setMobilidade] = useState('maca');
-  const [localEcg, setLocalEcg] = useState('leito');
   const [apacDados, setApacDados] = useState(APAC_VAZIA);
   const [msgExame, setMsgExame] = useState(null);
   const [dataRegistro, setDataRegistro] = useState('');
@@ -51,8 +47,6 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
     selecionados: [atual[0], atual[1]],
     justificativa: [atual[2], atual[3]],
     prioridade: [prioridade[modalidade], prio(modalidade)[1]],
-    ...(modalidade === 'img' ? { mobilidade: [mobilidade, setMobilidade], radioprotecao: [radioprotecao, setRadioprotecao] } : {}),
-    ...(modalidade === 'ecg' ? { localEcg: [localEcg, setLocalEcg], orientacoesEcg: [orientacoesEcg, setOrientacoesEcg] } : {}),
   };
   const rascunho = useRascunho({
     tabela: 'exames_solicitados', atendimentoId: atual ? atendimento?.atendimento_id : null, autorId: medicoId,
@@ -171,15 +165,13 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
 
           {/* 1. DADOS DO PEDIDO — por modalidade, com identificação real do atendimento/médico */}
           <DadosPedido modalidade={modalidade} cfg={cfg} prioridade={prioridade} setPrioridade={setPrioridade} localLeito={localLeito}
-            mobilidade={mobilidade} setMobilidade={setMobilidade} localEcg={localEcg} setLocalEcg={setLocalEcg}
             dataHoraSolicitacao={dataHoraSolicitacao} medicoSolicitante={medicoSolicitante} />
 
           {/* 2. GRADE DE EXAMES/PROCEDIMENTOS */}
           <GradeExames modalidade={modalidade} selecionados={atual[0]} onAlternar={(nome) => atual[1]((prev) => ({ ...prev, [nome]: !prev[nome] }))} />
 
           {/* 3. JUSTIFICATIVA CLÍNICA (por último, como no mockup) */}
-          <JustificativaExame modalidade={modalidade} cfg={cfg} justificativa={atual[2]} setJustificativa={atual[3]}
-            radioprotecao={radioprotecao} setRadioprotecao={setRadioprotecao} orientacoesEcg={orientacoesEcg} setOrientacoesEcg={setOrientacoesEcg} />
+          <JustificativaExame modalidade={modalidade} cfg={cfg} justificativa={atual[2]} setJustificativa={atual[3]} />
 
         </div>
 

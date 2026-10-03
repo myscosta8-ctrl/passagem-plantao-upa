@@ -1,7 +1,5 @@
-import { MOBILIDADE_OPCOES } from './catalogoExames'
-
-// 1. Dados do pedido: caráter, local (coleta / mobilidade / local do ECG), data e médico solicitante.
-export default function DadosPedido({ modalidade, cfg, prioridade, setPrioridade, localLeito, mobilidade, setMobilidade, localEcg, setLocalEcg, dataHoraSolicitacao, medicoSolicitante }) {
+// 1. Dados do pedido: caráter, local da coleta (laboratório), data e médico solicitante.
+export default function DadosPedido({ modalidade, cfg, prioridade, setPrioridade, localLeito, dataHoraSolicitacao, medicoSolicitante }) {
   return (
     <div className="form-section">
       <div className="form-section-title">
@@ -19,26 +17,6 @@ export default function DadosPedido({ modalidade, cfg, prioridade, setPrioridade
           <div className="form-group">
             <label>Local da Coleta</label>
             <input type="text" className="form-control" value={localLeito} readOnly />
-          </div>
-        )}
-
-        {modalidade === 'img' && (
-          <div className="form-group">
-            <label>Condição de Mobilidade</label>
-            <select className="form-control" value={mobilidade} onChange={(e) => setMobilidade(e.target.value)}>
-              {MOBILIDADE_OPCOES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-          </div>
-        )}
-
-        {modalidade === 'ecg' && (
-          <div className="form-group">
-            <label>Local de Realização</label>
-            <select className="form-control" value={localEcg} onChange={(e) => setLocalEcg(e.target.value)}>
-              <option value="leito">{localLeito}</option>
-              <option value="sala_ecg">Sala de Eletrocardiografia / Emergência</option>
-              <option value="vermelha">Sala Vermelha (Emergência Crítica)</option>
-            </select>
           </div>
         )}
 
