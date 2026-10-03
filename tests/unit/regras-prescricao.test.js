@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { supabase } from '../../src/lib/supabaseClient.js';
-import { criarPrescricao, normalizarCid } from '../../src/lib/pepMedico.js';
+import { criarPrescricao, normalizarCid, buscarCabecalhoImpressao, separarCabecalho } from '../../src/lib/pepMedico.js';
 import { idadeDetalhada } from '../../src/lib/idadeDetalhada.js';
 import { camposDaEnfermagem, dadosParaTabela, mesmosSinais, medidaRecente } from '../../src/pages/ficha-medica/sinaisVitaisMedico.js';
 import { metaDoc } from '../../src/lib/documentos.js';
@@ -663,5 +663,41 @@ export function runHistoricoRapidoTests(test) {
     assert.match(t, /queryClient\.getQueryData\(chave\)/);
     assert.match(t, /chave=\{\['historico_clinico', 'atual', atendimentoId\]\}/);
     assert.match(fs.readFileSync('src/lib/historicoClinico.js', 'utf8'), /autoresConhecidos/, 'nomes dos profissionais não são buscados de novo');
+  });
+}
+
+// Abertura de documento mais rápida: cabeçalho do impresso numa consulta só, sem repetir a
+// mesma busca em seguida (exceto se algo foi gravado) e sem a espera do <Suspense>.
+export function runAberturaDocumentoTests(test) {
+  const linha = {
+    id: 'a1', pessoa_id: 'p1', numero_atendimento: '62',
+    pessoas: { id: 'p1', nome: 'PACIENTE TESTE - NAO ATENDER', data_nascimento: '1998-11-14', alergias: [{ substancia: 'DIPIRONA', status: 'ativa' }, { substancia: 'IODO', status: 'inativa' }] },
+    leito_ocupacoes: [{ status: 'ativo', leitos: { numero: '05', setores: { nome: 'Observação' } } }],
+  };
+  test('Cabeçalho do impresso: uma consulta traz paciente, alergias ativas e leito ativo', () => {
+    const c = separarCabecalho(linha);
+    assert.equal(c.pessoa.nome, 'PACIENTE TESTE - NAO ATENDER');
+    assert.deepEqual(c.pessoa.alergias_ativas, ['DIPIRONA']);
+    assert.equal(c.leitoNumero, '05'); assert.equal(c.setorNome, 'Observação');
+    assert.ok(!('pessoas' in c.atendimento) && !('leito_ocupacoes' in c.atendimento), 'atendimento sem os campos embutidos');
+    assert.ok(!('alergias' in c.pessoa));
+    assert.equal(separarCabecalho({ ...linha, leito_ocupacoes: [] }).leitoNumero, null);
+  });
+  test('Cabeçalho: a mesma busca em seguida é feita uma vez só; depois de gravar algo, busca de novo', () => emFila(async () => {
+    const original = supabase.from; let consultas = 0;
+    supabase.from = () => { const q = { select: () => q, eq: () => q, single: () => q, then: (ok, nok) => { consultas++; return Promise.resolve({ data: linha, error: null }).then(ok, nok); } }; return q; };
+    try {
+      const [a, b] = await Promise.all([buscarCabecalhoImpressao('dedupe-1'), buscarCabecalhoImpressao('dedupe-1')]);
+      assert.equal(consultas, 1, 'clique + impresso: uma consulta');
+      assert.equal(a.pessoa.nome, b.pessoa.nome);
+      dadosMudaram('alergias');
+      await buscarCabecalhoImpressao('dedupe-1');
+      assert.equal(consultas, 2, 'alergia gravada: busca de novo');
+    } finally { supabase.from = original; }
+  }));
+  test('Histórico: documento já baixado abre sem passar pelo Suspense (sem a espera de ~0,3 s)', () => {
+    const t = fs.readFileSync('src/pages/HistoricoClinico.jsx', 'utf8');
+    assert.match(t, /const C = prontos\.medica \|\| FichaMedicaPrintLazy/);
+    assert.match(t, /buscarCabecalhoImpressao\(item\.registro\.atendimento_id\)/, 'cabeçalho começa junto com o documento');
   });
 }

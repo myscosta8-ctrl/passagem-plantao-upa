@@ -3,7 +3,7 @@ import { calcularIdade } from './pepAtendimentos.js'
 
 import { gravar, MSG_FINALIZADO } from './documentos.js'
 import { avisarErro } from './erros.js'
-import { avisando, dadosMudaram } from './cache.js'
+import { avisando, dadosMudaram, versaoDosDados } from './cache.js'
 export { invalidarRegistro, MSG_FINALIZADO } from './documentos.js'
 
 
@@ -186,27 +186,64 @@ export async function listarAih(atendimentoId) {
 }
 
 // Cabeçalho completo (pessoa + atendimento + leito atual), padrão de todo documento impresso.
-export async function buscarCabecalhoImpressao(atendimentoId) {
-  const { data: atendimento, error: erroConsulta5 } = await supabase.from('atendimentos').select('*').eq('id', atendimentoId).single()
-  if (erroConsulta5) avisarErro('pepMedico', erroConsulta5)
-  const { data: pessoa, error: erroConsulta6 } = await supabase.from('pessoas').select('*').eq('id', atendimento.pessoa_id).single()
-  if (erroConsulta6) avisarErro('pepMedico', erroConsulta6)
-  const { data: ocupacao, error: erroConsulta7 } = await supabase
-    .from('leito_ocupacoes')
-    .select('leitos(numero, setores(nome))')
-    .eq('atendimento_id', atendimentoId)
-    .eq('status', 'ativo')
-    .maybeSingle()
-  if (erroConsulta7) avisarErro('pepMedico', erroConsulta7)
-  const { data: alergias, error: erroConsulta8 } = await supabase.from('alergias').select('substancia').eq('pessoa_id', atendimento.pessoa_id).eq('status', 'ativa')
-  if (erroConsulta8) avisarErro('pepMedico', erroConsulta8)
+// Cabeçalho dos impressos (paciente, atendimento, leito e alergias ativas) numa única ida ao
+// banco: o atendimento já traz o paciente, as alergias ativas e o leito ativo embutidos.
+// Antes eram 4 consultas uma depois da outra (~0,15 s cada). Se a consulta única falhar,
+// usa o caminho antigo, com as consultas independentes em paralelo.
+const SELECT_CABECALHO = '*, pessoas(*, alergias(substancia, status)), leito_ocupacoes(status, leitos(numero, setores(nome)))'
+
+export function montarCabecalho(atendimento, pessoa, alergias, ocupacao) {
   return {
     pessoa: { ...pessoa, alergias_ativas: (alergias ?? []).map((a) => a.substancia).filter(Boolean) },
     atendimento,
-    idade: calcularIdade(pessoa.data_nascimento) ?? pessoa.idade_informada ?? null,
+    idade: calcularIdade(pessoa?.data_nascimento) ?? pessoa?.idade_informada ?? null,
     leitoNumero: ocupacao?.leitos?.numero ?? null,
     setorNome: ocupacao?.leitos?.setores?.nome ?? null,
   }
+}
+
+// Resposta da consulta única → partes separadas (o atendimento sai sem os campos embutidos).
+export function separarCabecalho(linha) {
+  const { pessoas, leito_ocupacoes: ocupacoes, ...atendimento } = linha || {}
+  const { alergias, ...pessoa } = pessoas || {}
+  const ativa = (ocupacoes || []).find((o) => o.status === 'ativo') || null
+  return montarCabecalho(atendimento, pessoa, (alergias || []).filter((a) => a.status === 'ativa'), ativa)
+}
+
+// A mesma busca pedida duas vezes em seguida (o Histórico começa a buscar no clique em
+// Visualizar, junto com o documento; o impresso pede de novo ao abrir) é feita uma vez só.
+// Reaproveita só por 3 s e só se nada foi gravado nesse meio-tempo (uma alergia registrada
+// agora já sai no impresso) — impresso sempre com dado atual.
+const cabecalhosRecentes = new Map()
+export function buscarCabecalhoImpressao(atendimentoId) {
+  const recente = cabecalhosRecentes.get(atendimentoId)
+  if (recente && Date.now() - recente.em < 3000 && recente.versao === versaoDosDados()) return recente.promessa
+  const promessa = buscarCabecalhoNoBanco(atendimentoId)
+  cabecalhosRecentes.set(atendimentoId, { em: Date.now(), versao: versaoDosDados(), promessa })
+  promessa.catch(() => cabecalhosRecentes.delete(atendimentoId))
+  return promessa
+}
+
+async function buscarCabecalhoNoBanco(atendimentoId) {
+  const { data, error } = await supabase.from('atendimentos').select(SELECT_CABECALHO)
+    .eq('id', atendimentoId).eq('leito_ocupacoes.status', 'ativo').eq('pessoas.alergias.status', 'ativa')
+    .single()
+  if (!error && data?.pessoas) return separarCabecalho(data)
+  if (error) avisarErro('pepMedico (cabeçalho em uma consulta)', error)
+
+  const [{ data: atendimento, error: erroConsulta5 }, { data: ocupacao, error: erroConsulta7 }] = await Promise.all([
+    supabase.from('atendimentos').select('*').eq('id', atendimentoId).single(),
+    supabase.from('leito_ocupacoes').select('leitos(numero, setores(nome))').eq('atendimento_id', atendimentoId).eq('status', 'ativo').maybeSingle(),
+  ])
+  if (erroConsulta5) avisarErro('pepMedico', erroConsulta5)
+  if (erroConsulta7) avisarErro('pepMedico', erroConsulta7)
+  const [{ data: pessoa, error: erroConsulta6 }, { data: alergias, error: erroConsulta8 }] = await Promise.all([
+    supabase.from('pessoas').select('*').eq('id', atendimento.pessoa_id).single(),
+    supabase.from('alergias').select('substancia').eq('pessoa_id', atendimento.pessoa_id).eq('status', 'ativa'),
+  ])
+  if (erroConsulta6) avisarErro('pepMedico', erroConsulta6)
+  if (erroConsulta8) avisarErro('pepMedico', erroConsulta8)
+  return montarCabecalho(atendimento, pessoa, alergias, ocupacao)
 }
 
 export async function criarAih({ atendimentoId, pessoaId, solicitanteId,  dados, id, situacao, medicoDestinoId, encaminhar = false, cidTexto }) {

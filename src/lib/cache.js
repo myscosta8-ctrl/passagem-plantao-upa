@@ -34,7 +34,13 @@ const AFETAM_CABECALHO = new Set(['pessoas', 'atendimentos', 'alergias', 'leito_
 
 // Chamada depois de qualquer gravação: as telas abertas que mostram essas tabelas buscam de novo.
 // A chave de cada consulta começa pelo nome da tabela (ex.: ['prescricoes_medicas', atendimentoId]).
+// Conta as gravações feitas neste aparelho: quem reaproveita uma busca por poucos segundos
+// (cabeçalho dos impressos) compara este número e busca de novo se algo foi gravado.
+let gravacoes = 0
+export const versaoDosDados = () => gravacoes
+
 export function dadosMudaram(...tabelas) {
+  gravacoes += 1
   let cabecalho = false
   for (const t of tabelas) {
     if (!t) continue

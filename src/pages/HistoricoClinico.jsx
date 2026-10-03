@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { queryClient } from '../lib/cache'
+import { buscarCabecalhoImpressao } from '../lib/pepMedico'
 import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes, buscarRegistroCompleto, ABA_EDICAO } from '../lib/historicoClinico'
 import { invalidarRegistro } from '../lib/documentos'
 import { useAuth } from '../lib/AuthContext'
@@ -7,10 +8,16 @@ import { definirDuplicacao } from '../lib/duplicarPendente'
 import { precisaAtm, itensControlados, carregarCatalogo, impressaoVinculada } from '../lib/documentosVinculados'
 import './HistoricoClinico.css'
 
-const importarMedica = () => import('./FichaMedicaPrint')
-const importarClinica = () => import('./FichaClinicaPrint')
-const FichaMedicaPrint = lazy(importarMedica)
-const FichaClinicaPrint = lazy(importarClinica)
+// Módulos de impressão: baixados em segundo plano quando o histórico abre. Depois de prontos,
+// o documento usa o módulo direto, sem passar pelo <Suspense> — no React 19, a primeira
+// suspensão espera ~0,3 s antes de mostrar o conteúdo, mesmo com o módulo já baixado.
+const prontos = {}
+const importarMedica = () => import('./FichaMedicaPrint').then((m) => { prontos.medica = m.default; return m })
+const importarClinica = () => import('./FichaClinicaPrint').then((m) => { prontos.clinica = m.default; return m })
+const FichaMedicaPrintLazy = lazy(importarMedica)
+const FichaClinicaPrintLazy = lazy(importarClinica)
+function FichaMedicaPrint(props) { const C = prontos.medica || FichaMedicaPrintLazy; return <C {...props} /> }
+function FichaClinicaPrint(props) { const C = prontos.clinica || FichaClinicaPrintLazy; return <C {...props} /> }
 
 // Visão única do paciente: registros clínicos de enfermagem e médicos em ordem
 // cronológica. Fica recolhida — só carrega quando o profissional expande
@@ -320,6 +327,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
   async function abrirImpressao(item, opcoes = {}) {
     const pedido = ++pedidoAtual.current
     setImprimindo({ ...item, carregando: true })
+    buscarCabecalhoImpressao(item.registro.atendimento_id).catch(() => {}) // em paralelo com o documento
     const completo = await buscarRegistroCompleto(item.fonte.tabela, item.registro.id, item.fonte.selectCompleto)
     if (pedido !== pedidoAtual.current) return
     if (opcoes.vinculado) {
