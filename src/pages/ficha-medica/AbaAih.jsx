@@ -155,9 +155,10 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
       return;
     }
     // Rascunho ("Salvar Rascunho") grava como estiver; só a finalização/encaminhamento exige o mínimo.
-    // O código SIGTAP (campo 28) não é obrigatório.
-    if ((finalizar || encaminhar) && (!String(dados.procedimento_principal_nome || '').trim() || !String(dados.sinais_sintomas_clinicos || '').trim())) {
-      setErro('Para finalizar, preencha ao menos a descrição do procedimento solicitado (27) e os sinais/sintomas clínicos (20).');
+    // Procedimento solicitado (27) e código SIGTAP (28) não são obrigatórios; só os sinais e
+    // sintomas clínicos (20) são exigidos para finalizar ou encaminhar.
+    if ((finalizar || encaminhar) && !String(dados.sinais_sintomas_clinicos || '').trim()) {
+      setErro('Para finalizar, preencha ao menos os sinais e sintomas clínicos (20).');
       return;
     }
     // CID: ajusta o formato e confere no catálogo CID-10. CID fora do catálogo impedia salvar.

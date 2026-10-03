@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { supabase } from '../../src/lib/supabaseClient.js';
 import { criarPrescricao, normalizarCid, buscarCabecalhoImpressao, separarCabecalho } from '../../src/lib/pepMedico.js';
 import { idadeDetalhada } from '../../src/lib/idadeDetalhada.js';
+import { paginasVisiveis } from '../../src/lib/paginacao.js';
 import { grupoDiagnostico, resumirDesfechos, chaveTempo } from '../../src/lib/indicadoresDesfechos.js';
 import { contarSetores, nomeCurto } from '../../src/pages/painel/setoresPainel.js';
 import { camposDaEnfermagem, dadosParaTabela, mesmosSinais, medidaRecente } from '../../src/pages/ficha-medica/sinaisVitaisMedico.js';
@@ -791,5 +792,29 @@ export function runIndicadoresDesfechosTests(test) {
     assert.equal(chaveTempo(new Date('2026-10-01T15:00:00Z'), 'semana').rotulo, '28/09');
     assert.equal(chaveTempo(new Date('2026-10-01T02:00:00Z'), 'dia').rotulo, '30/09', '23h de 30/09 em Belém');
     assert.equal(chaveTempo(new Date('2026-10-01T15:00:00Z'), 'mes').chave, '2026-10');
+  });
+}
+
+// Histórico Clínico paginado (15 por página) e AIH sem exigir o procedimento solicitado (27).
+export function runHistoricoPaginasTests(test) {
+  test('Histórico: páginas de 15 registros, data ao lado da hora, sem título e sem rolagem própria', () => {
+    const t = fs.readFileSync('src/pages/HistoricoClinico.jsx', 'utf8');
+    assert.match(fs.readFileSync('src/lib/paginacao.js', 'utf8'), /export const POR_PAGINA = 15/);
+    assert.match(t, /<Paginacao /);
+    assert.ok(!/<span><i className="ph ph-clock-counter-clockwise" \/> Histórico Clínico do Paciente<\/span>\s*<\/div>\s*\{corpo\}/.test(t.slice(t.indexOf('if (embutido)'))), 'aba sem o título');
+    assert.ok(!/className="hc-dia"/.test(t), 'sem divisória por dia');
+    assert.ok(!/max-height: 460px/.test(fs.readFileSync('src/pages/HistoricoClinico.css', 'utf8')), 'lista sem rolagem dentro da rolagem da tela');
+  });
+  test('Histórico: botões de página com reticências quando há muitas páginas', () => {
+    assert.deepEqual(paginasVisiveis(1, 3), [1, 2, 3]);
+    assert.deepEqual(paginasVisiveis(5, 12), [1, '…', 4, 5, 6, '…', 12]);
+    assert.deepEqual(paginasVisiveis(1, 12), [1, 2, '…', 12]);
+    assert.deepEqual(paginasVisiveis(12, 12), [1, '…', 11, 12]);
+  });
+  test('AIH: finalizar não exige o procedimento solicitado (27) nem o código SIGTAP (28)', () => {
+    const a = fs.readFileSync('src/pages/ficha-medica/AbaAih.jsx', 'utf8');
+    const trecho = a.slice(a.indexOf('async function salvar'), a.indexOf('setErro(\'\');', a.indexOf('async function salvar')));
+    assert.ok(!/procedimento_principal_nome/.test(trecho), 'campo 27 não bloqueia a finalização');
+    assert.match(trecho, /sinais_sintomas_clinicos/);
   });
 }

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { queryClient } from '../lib/cache'
+import { POR_PAGINA, paginasVisiveis } from '../lib/paginacao'
 import { buscarCabecalhoImpressao } from '../lib/pepMedico'
 import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes, buscarRegistroCompleto, ABA_EDICAO } from '../lib/historicoClinico'
 import { invalidarRegistro } from '../lib/documentos'
@@ -26,13 +27,26 @@ const fmtData = (d) => (d ? new Date(d).toLocaleString('pt-BR', { day: '2-digit'
 const limpar = (v) => String(v || '').replace(/^#?\s*(PEP|AT|REG)-?/i, '')
 
 const fmtHora = (d) => (d ? new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—')
-// Rótulo do dia no agrupamento: Hoje · 30/09, Ontem · 29/09, 28/09.
-function rotuloDia(d) {
-  const dt = new Date(d); const hoje = new Date(); const ontem = new Date(); ontem.setDate(hoje.getDate() - 1)
-  const dm = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-  if (dt.toDateString() === hoje.toDateString()) return `Hoje · ${dm}`
-  if (dt.toDateString() === ontem.toDateString()) return `Ontem · ${dm}`
-  return dt.getFullYear() === hoje.getFullYear() ? dm : dt.toLocaleDateString('pt-BR')
+// Data e hora na mesma coluna ("03/10 12:22"); de outro ano mostra o ano ("28/12/25 08:10").
+const fmtDataHora = (d) => {
+  if (!d) return '—'
+  const dt = new Date(d)
+  const data = dt.getFullYear() === new Date().getFullYear()
+    ? dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+    : dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+  return `${data} ${fmtHora(dt)}`
+}
+function Paginacao({ pagina, total, onPagina }) {
+  if (total <= 1) return null
+  return (
+    <nav className="hc-paginas" aria-label="Páginas do histórico">
+      <button type="button" disabled={pagina === 1} onClick={() => onPagina(pagina - 1)} aria-label="Página anterior"><i className="ph ph-caret-left" /></button>
+      {paginasVisiveis(pagina, total).map((n, i) => (n === '…'
+        ? <span key={`r${i}`} className="hc-pag-ret">…</span>
+        : <button type="button" key={n} className={n === pagina ? 'on' : ''} aria-current={n === pagina ? 'page' : undefined} onClick={() => onPagina(n)}>{n}</button>))}
+      <button type="button" disabled={pagina === total} onClick={() => onPagina(pagina + 1)} aria-label="Próxima página"><i className="ph ph-caret-right" /></button>
+    </nav>
+  )
 }
 // Nome curto do tipo de documento na lista (o nome completo fica no impresso).
 const ROTULO_CURTO = {
@@ -80,7 +94,7 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHo
   return (
     <div className={`hc-item ${fonte.area} ${situacao === 'invalido' ? 'hc-invalido' : ''}`}>
       <div className="hc-item-topo" onClick={() => setAberto((v) => !v)} title={aberto ? 'Fechar detalhes' : 'Ver detalhes e histórico de alterações'}>
-        <span className={soHora ? 'hc-data hc-hora' : 'hc-data'}>{soHora ? fmtHora(item.data) : fmtData(item.data)}</span>
+        <span className={soHora ? 'hc-data hc-hora' : 'hc-data'}>{soHora ? fmtDataHora(item.data) : fmtData(item.data)}</span>
         <span className="hc-col-tipo"><span className={`hc-tipo ${fonte.area}`} title={fonte.rotulo}>{rotuloCurto(fonte)}</span></span>
         <span className="hc-autor">
           {autor ? <><b>{autor.nome_exibicao || autor.nome}</b>{(autor.crm || autor.coren) && <span className="hc-conselho">{autor.crm ? `CRM ${autor.crm}` : `COREN ${autor.coren}`}</span>}</> : '—'}
@@ -180,12 +194,22 @@ function Bloco({ titulo, subtitulo, chave, carregar, busca, filtroArea, onImprim
     await buscar()
   }
 
+  const [pagina, setPagina] = useState(1)
+  const topoRef = useRef(null)
   const termo = busca.trim().toLowerCase()
   const nInvalidados = (estado.itens || []).filter((i) => i.registro.situacao === 'invalido').length
   useEffect(() => { onContarInvalidados?.(nInvalidados) }, [nInvalidados]) // eslint-disable-line react-hooks/exhaustive-deps
   const itens = (estado.itens || []).filter((i) => (mostrarInvalidados || i.registro.situacao !== 'invalido')).filter((i) =>
     (filtroArea === 'todos' || i.fonte.area === filtroArea || (filtroArea === 'multi' && ['nutricao', 'servico_social'].includes(i.fonte.area))) &&
     (!termo || `${i.fonte.rotulo} ${i.resumo} ${i.autor?.nome_exibicao || ''} ${i.autor?.nome || ''}`.toLowerCase().includes(termo)))
+
+  // Páginas de 15 registros (a lista não cresce sem fim com os dias de internação). Mudou a busca,
+  // o filtro ou a lista: volta para a página 1.
+  const totalPaginas = Math.max(1, Math.ceil(itens.length / POR_PAGINA))
+  useEffect(() => { setPagina(1) }, [termo, filtroArea, mostrarInvalidados, estado.itens])
+  const paginaAtual = Math.min(pagina, totalPaginas)
+  const daPagina = itens.slice((paginaAtual - 1) * POR_PAGINA, paginaAtual * POR_PAGINA)
+  const irPara = (n) => { setPagina(n); topoRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }) }
 
   // Solto (nova interface): os registros do atendimento atual já aparecem abertos, sem o título do bloco.
   useEffect(() => { if (solto && !aberto) abrir() }, [solto]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -194,7 +218,7 @@ function Bloco({ titulo, subtitulo, chave, carregar, busca, filtroArea, onImprim
   useEffect(() => { if (termo && !aberto) abrir() }, [termo]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className={solto ? 'hc-bloco hc-solto' : 'hc-bloco'}>
+    <div className={solto ? 'hc-bloco hc-solto' : 'hc-bloco'} ref={topoRef}>
       {!solto && <button type="button" className="hc-bloco-topo" onClick={abrir}>
         <i className={`ph ph-caret-${aberto ? 'down' : 'right'}`} />
         <span className="hc-bloco-titulo">{titulo}</span>
@@ -208,13 +232,13 @@ function Bloco({ titulo, subtitulo, chave, carregar, busca, filtroArea, onImprim
           {solto && atualizando && <p className="hc-vazio" style={{ padding: '2px 0', fontSize: 'var(--fs-xs)' }}>Atualizando...</p>}
           {!estado.carregando && estado.itens && itens.length === 0 && <p className="hc-vazio">Nenhum registro encontrado.</p>}
           {!estado.carregando && itens.length > 0 && (
-            <div className={agruparPorAtendimento ? 'hc-cabecalho hc-data-completa' : 'hc-cabecalho'} aria-hidden="true">
-              <span>{agruparPorAtendimento ? 'Data' : 'Hora'}</span><span>Documento</span><span>Profissional</span><span className="hc-col-sit">Situação</span><span className="hc-cab-acoes">Ações</span>
+            <div className={agruparPorAtendimento ? 'hc-cabecalho hc-data-completa' : 'hc-cabecalho hc-data-curta'} aria-hidden="true">
+              <span>Data/hora</span><span>Documento</span><span>Profissional</span><span className="hc-col-sit">Situação</span><span className="hc-cab-acoes">Ações</span>
             </div>
           )}
           {!estado.carregando && agruparPorAtendimento
             ? estado.atendimentos.map((a) => {
-              const doAt = itens.filter((i) => i.registro.atendimento_id === a.id)
+              const doAt = daPagina.filter((i) => i.registro.atendimento_id === a.id)
               if (doAt.length === 0) return null
               return (
                 <div key={a.id} className="hc-atendimento hc-data-completa">
@@ -225,15 +249,10 @@ function Bloco({ titulo, subtitulo, chave, carregar, busca, filtroArea, onImprim
                 </div>
               )
             })
-            : itens.map((i, k) => (
-              <div key={i.id}>
-                {(k === 0 || rotuloDia(itens[k - 1].data) !== rotuloDia(i.data)) && (() => {
-                  const n = itens.filter((x) => rotuloDia(x.data) === rotuloDia(i.data)).length
-                  return <div className="hc-dia">{rotuloDia(i.data)}<small>{n} {n === 1 ? 'registro' : 'registros'}</small></div>
-                })()}
-                <Linha item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} onDuplicar={onDuplicar} onEditar={onEditar} soHora />
-              </div>
-            ))}
+            : <div className="hc-data-curta">{daPagina.map((i) => (
+              <Linha key={i.id} item={i} onImprimir={onImprimir} meuId={meuId} onAlterado={recarregar} onDuplicar={onDuplicar} onEditar={onEditar} soHora />
+            ))}</div>}
+          {!estado.carregando && <Paginacao pagina={paginaAtual} total={totalPaginas} onPagina={irPara} />}
         </div>
       )}
     </div>
@@ -409,10 +428,7 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
   if (embutido) {
     return (
       <>
-        <section className="hc-embutido no-print" style={esconder}>
-          <div className="hc-gaveta-topo">
-            <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
-          </div>
+        <section className="hc-embutido no-print" style={esconder} aria-label="Histórico clínico do paciente">
           {corpo}
         </section>
         {janela}

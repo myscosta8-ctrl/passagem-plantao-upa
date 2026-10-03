@@ -16,7 +16,7 @@
 .hc-bloco-titulo { font-size: var(--fs-xs); font-weight: 700; color: var(--c-text-primary); }
 .hc-bloco-sub { font-size: var(--fs-xs); color: var(--c-text-muted); flex: 1; }
 .hc-contador { background: var(--c-fill); color: var(--c-text-secondary); font-size: var(--fs-xs); font-weight: 700; border-radius: 10px; padding: 1px 8px; }
-.hc-bloco-corpo { padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 6px; max-height: 460px; overflow-y: auto; }
+.hc-bloco-corpo { padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 6px; } /* sem rolagem própria: a lista é paginada e rola com a tela */
 .hc-vazio { font-size: var(--fs-xs); color: var(--c-text-muted); margin: 4px 0; }
 .hc-atendimento { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
 .hc-atendimento-topo { font-size: var(--fs-xs); font-weight: 700; color: var(--c-text-secondary); background: var(--c-fill); border-radius: 4px; padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
@@ -210,3 +210,20 @@ html .hc-acoes-linha .hc-ic { visibility: visible; width: 28px; height: 28px; fo
   .hc-item .hc-motivo, .hc-item .hc-acoes, .hc-item .hc-invalidar, .hc-data-completa .hc-item :is(.hc-motivo, .hc-acoes, .hc-invalidar) { padding-left: 10px; padding-right: 10px; }
   .hc-item .hc-alteracoes, .hc-data-completa .hc-item .hc-alteracoes { margin-left: 10px; }
 }
+
+/* Data e hora na mesma coluna ("03/10 12:22") no atendimento atual, sem divisória por dia. */
+.hc-cabecalho.hc-data-curta, .hc-data-curta .hc-item-topo { grid-template-columns: 96px minmax(150px, 190px) minmax(0, 1fr) 112px 140px; }
+.hc-data-curta .hc-item :is(.hc-motivo, .hc-acoes, .hc-invalidar) { padding-left: 120px; }
+.hc-data-curta .hc-item .hc-alteracoes { margin-left: 120px; }
+@media (max-width: 1024px) {
+  .hc-cabecalho.hc-data-curta, .hc-data-curta .hc-item-topo { grid-template-columns: 90px minmax(120px, 170px) minmax(0, 1fr) auto auto; }
+}
+@media (max-width: 640px) {
+  .hc-data-curta .hc-item-topo { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+}
+/* Páginas do histórico: ‹ 1 2 3 … › */
+.hc-paginas { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 10px 0 4px; flex-wrap: wrap; }
+.hc-paginas button { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid var(--c-border); border-radius: 8px; background: var(--c-surface); color: var(--c-text-primary); font: inherit; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; }
+.hc-paginas button.on { background: var(--c-primary); border-color: var(--c-primary); color: #fff; }
+.hc-paginas button:disabled { opacity: .4; cursor: default; }
+.hc-pag-ret { padding: 0 4px; color: var(--c-text-muted); }
