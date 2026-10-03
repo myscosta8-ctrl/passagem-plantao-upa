@@ -489,3 +489,30 @@ export function runDivisaoAihTests(test) {
     assert.doesNotMatch(tudo, /mobilidade|radioprotecao|localEcg|orientacoesEcg/i);
   });
 }
+
+// Item 17 — Passagem Coletiva dividida em partes.
+import { telaImpressaoDoSetor, camposParaGravar, juntarPendencia, permanencia, textoAlergia } from '../../src/pages/passagem-coletiva/regrasColetiva.js';
+export function runDivisaoColetivaTests(test) {
+  test('Passagem Coletiva: impresso do setor, campos para gravar e atalhos de pendência', () => {
+    assert.equal(telaImpressaoDoSetor('Sala Vermelha'), 'print1');
+    assert.equal(telaImpressaoDoSetor('Observação'), 'print2');
+    assert.equal(telaImpressaoDoSetor('Outro'), 'print1');
+    const { meta, limpo } = camposParaGravar({ pendencias: '  ', nivel_consciencia: 'Alerta ', dispositivos: ['AVP'], _meta: { leito_id: 'l1' } });
+    assert.deepEqual(meta, { leito_id: 'l1' });
+    assert.deepEqual(limpo, { pendencias: null, nivel_consciencia: 'Alerta', dispositivos: ['AVP'] });
+    assert.equal(juntarPendencia('', 'Trocar curativo'), 'Trocar curativo');
+    assert.equal(juntarPendencia('Aguarda RX', 'Trocar curativo'), 'Aguarda RX · Trocar curativo');
+    assert.equal(textoAlergia({ alergias_obs: 'Dipirona' }), 'Dipirona');
+    assert.equal(permanencia({}), null);
+  });
+
+  test('Passagem Coletiva: se um leito falhar ao salvar, só ele continua pendente (os outros não são reenviados)', () => {
+    const s = fs.readFileSync('src/pages/PassagemColetiva.jsx', 'utf8');
+    assert.ok(s.split('\n').length < 250, 'PassagemColetiva.jsx deve ter menos de 250 linhas');
+    assert.match(s, /const falharam = new Set\(/);
+    assert.match(s, /pendenciaDe\(editavelDoLeito\(l\)\)/, 'contagem de pendências inclui o que foi digitado e ainda não salvo');
+    for (const parte of ['BarraSetores', 'VistaCards', 'VistaTabela', 'VistaDetalhe', 'CamposPassagem']) {
+      assert.ok(fs.existsSync(`src/pages/passagem-coletiva/${parte}.jsx`), `${parte}.jsx existe`);
+    }
+  });
+}
