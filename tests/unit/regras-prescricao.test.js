@@ -649,3 +649,19 @@ export function runSinaisVitaisMedicoTests(test) {
     assert.ok(!/ultimo\.hgt/.test(t), 'HGT vem de camposDaEnfermagem');
   });
 }
+
+// Histórico Clínico: visualizar um documento não recarrega a lista; reabrir mostra na hora.
+export function runHistoricoRapidoTests(test) {
+  const t = fs.readFileSync('src/pages/HistoricoClinico.jsx', 'utf8');
+  test('Histórico: o documento abre por cima da lista (Voltar não recarrega evoluções e prescrições)', () => {
+    assert.ok(!/if \(imprimindo\) return <VisualizarRegistro/.test(t), 'a lista não é desmontada ao visualizar');
+    assert.match(t, /\{janela\}/);
+    assert.match(t, /setImprimindo\(\{ \.\.\.item, carregando: true \}\)/, 'janela abre na hora do clique');
+    assert.match(t, /if \(pedido !== pedidoAtual\.current\) return/, 'resposta atrasada não reabre a janela');
+  });
+  test('Histórico: reabrir mostra na hora o que já foi carregado e atualiza em segundo plano', () => {
+    assert.match(t, /queryClient\.getQueryData\(chave\)/);
+    assert.match(t, /chave=\{\['historico_clinico', 'atual', atendimentoId\]\}/);
+    assert.match(fs.readFileSync('src/lib/historicoClinico.js', 'utf8'), /autoresConhecidos/, 'nomes dos profissionais não são buscados de novo');
+  });
+}

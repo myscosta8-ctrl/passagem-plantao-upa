@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { queryClient } from '../lib/cache'
 import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes, buscarRegistroCompleto, ABA_EDICAO } from '../lib/historicoClinico'
 import { invalidarRegistro } from '../lib/documentos'
 import { useAuth } from '../lib/AuthContext'
@@ -6,8 +7,10 @@ import { definirDuplicacao } from '../lib/duplicarPendente'
 import { precisaAtm, itensControlados, carregarCatalogo, impressaoVinculada } from '../lib/documentosVinculados'
 import './HistoricoClinico.css'
 
-const FichaMedicaPrint = lazy(() => import('./FichaMedicaPrint'))
-const FichaClinicaPrint = lazy(() => import('./FichaClinicaPrint'))
+const importarMedica = () => import('./FichaMedicaPrint')
+const importarClinica = () => import('./FichaClinicaPrint')
+const FichaMedicaPrint = lazy(importarMedica)
+const FichaClinicaPrint = lazy(importarClinica)
 
 // Visão única do paciente: registros clínicos de enfermagem e médicos em ordem
 // cronológica. Fica recolhida — só carrega quando o profissional expande
@@ -136,23 +139,38 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHo
   )
 }
 
-function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento, meuId, solto = false, onDuplicar, onEditar, mostrarInvalidados = true, onContarInvalidados }) {
+// Lista guardada por alguns minutos (chave): ao reabrir o histórico aparece na hora o que já
+// foi carregado e, ao mesmo tempo, busca de novo em segundo plano ("Atualizando...").
+function Bloco({ titulo, subtitulo, chave, carregar, busca, filtroArea, onImprimir, agruparPorAtendimento, meuId, solto = false, onDuplicar, onEditar, mostrarInvalidados = true, onContarInvalidados }) {
   const [aberto, setAberto] = useState(false)
   const [estado, setEstado] = useState({ carregando: false, itens: null, atendimentos: [] })
+  const [atualizando, setAtualizando] = useState(false)
+  const ativo = useRef(true)
+  useEffect(() => () => { ativo.current = false }, [])
 
-  async function recarregar() {
+  async function buscar() {
     const r = await carregar()
-    setEstado({ carregando: false, ...r })
+    if (!r.falhou) queryClient.setQueryData(chave, r)
+    if (ativo.current) setEstado({ carregando: false, ...r })
+    return r
   }
+
+  async function recarregar() { await buscar() }
 
   async function abrir() {
     const novo = !aberto
     setAberto(novo)
-    if (novo && !estado.itens && !estado.carregando) {
-      setEstado((s) => ({ ...s, carregando: true }))
-      const r = await carregar()
-      setEstado({ carregando: false, ...r })
+    if (!novo || estado.itens || estado.carregando) return
+    const guardado = queryClient.getQueryData(chave)
+    if (guardado) {
+      setEstado({ carregando: false, ...guardado })
+      setAtualizando(true)
+      await buscar()
+      if (ativo.current) setAtualizando(false)
+      return
     }
+    setEstado((s) => ({ ...s, carregando: true }))
+    await buscar()
   }
 
   const termo = busca.trim().toLowerCase()
@@ -175,10 +193,12 @@ function Bloco({ titulo, subtitulo, carregar, busca, filtroArea, onImprimir, agr
         <span className="hc-bloco-titulo">{titulo}</span>
         <span className="hc-bloco-sub">{subtitulo}</span>
         {estado.itens && <span className="hc-contador">{itens.length}</span>}
+        {atualizando && <span className="hc-bloco-sub">Atualizando...</span>}
       </button>}
       {aberto && (
         <div className="hc-bloco-corpo">
           {estado.carregando && <p className="hc-vazio">Carregando registros...</p>}
+          {solto && atualizando && <p className="hc-vazio" style={{ padding: '2px 0', fontSize: 'var(--fs-xs)' }}>Atualizando...</p>}
           {!estado.carregando && estado.itens && itens.length === 0 && <p className="hc-vazio">Nenhum registro encontrado.</p>}
           {!estado.carregando && itens.length > 0 && (
             <div className={agruparPorAtendimento ? 'hc-cabecalho hc-data-completa' : 'hc-cabecalho'} aria-hidden="true">
@@ -236,6 +256,19 @@ export function VisualizarRegistro({ item, onFechar, imprimirAoAbrir = false }) 
     return () => clearInterval(t)
   }, [imprimirAoAbrir])
   const Print = item.fonte.area === 'medico' ? FichaMedicaPrint : FichaClinicaPrint
+  // Janela abre na hora do clique; o documento completo chega em seguida.
+  if (item.carregando) {
+    return (
+      <div className="hc-print-overlay" onClick={onFechar}>
+        <div className="hc-doc-janela" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+          <div className="hc-doc-corpo"><p style={{ padding: 20 }}>Carregando documento...</p></div>
+          <div className="hc-doc-rodape no-print">
+            <button type="button" className="hc-doc-voltar" onClick={onFechar}><i className="ph ph-arrow-left" /> Voltar</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
   // Mais de um documento (ex.: duas ATMs da mesma prescrição): impressão conjunta, com Voltar/Imprimir próprios.
   if (conjunta) {
     return (
@@ -280,16 +313,29 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
   const [nInv, setNInv] = useState({ atual: 0, anteriores: 0 })
   const [imprimindo, setImprimindo] = useState(null)
   const { enfermeiro } = useAuth()
+  // Cada clique abre a janela na hora ("Carregando documento..."); se o profissional voltar
+  // antes de o documento chegar, a resposta atrasada não reabre a janela.
+  const pedidoAtual = useRef(0)
+  const fecharImpressao = () => { pedidoAtual.current += 1; setImprimindo(null) }
   async function abrirImpressao(item, opcoes = {}) {
+    const pedido = ++pedidoAtual.current
+    setImprimindo({ ...item, carregando: true })
     const completo = await buscarRegistroCompleto(item.fonte.tabela, item.registro.id, item.fonte.selectCompleto)
+    if (pedido !== pedidoAtual.current) return
     if (opcoes.vinculado) {
-      const pedido = await impressaoVinculada(opcoes.vinculado, completo || item.registro)
-      if (!pedido) return
-      setImprimindo({ ...item, fonte: { ...item.fonte, area: 'medico', impresso: pedido.tipo }, registro: pedido.registro, extras: pedido.extras, imprimirAoAbrir: true })
+      const vinc = await impressaoVinculada(opcoes.vinculado, completo || item.registro)
+      if (pedido !== pedidoAtual.current) return
+      if (!vinc) { setImprimindo(null); return }
+      setImprimindo({ ...item, fonte: { ...item.fonte, area: 'medico', impresso: vinc.tipo }, registro: vinc.registro, extras: vinc.extras, imprimirAoAbrir: true })
       return
     }
     setImprimindo({ ...item, registro: completo || item.registro, imprimirAoAbrir: !!opcoes.imprimir })
   }
+  // Os módulos de impressão já vêm baixados em segundo plano: o primeiro "Visualizar" não espera.
+  useEffect(() => {
+    const t = setTimeout(() => { importarMedica().catch(() => {}); importarClinica().catch(() => {}) }, 1500)
+    return () => clearTimeout(t)
+  }, [])
   const atendimentoId = atendimento?.atendimento_id
   // Botão "Duplicar" nas evoluções finalizadas do atendimento atual, da mesma categoria da ficha aberta.
   const TABELA_DUP = { enfermagem: 'evolucoes', medico: 'evolucoes_medicas' }
@@ -317,9 +363,13 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
     return { itens: await listarRegistrosClinicos(ats.map((a) => a.id)), atendimentos: ats }
   }, [pessoaId, atendimentoId])
 
-  if (imprimindo) return <VisualizarRegistro item={imprimindo} imprimirAoAbrir={imprimindo.imprimirAoAbrir} onFechar={() => setImprimindo(null)} />
-
   if (!aberto && !embutido) return null
+
+  // O documento abre POR CIMA do histórico: a lista continua carregada (e na mesma posição)
+  // e "Voltar" é imediato, sem buscar evoluções e prescrições de novo.
+  const janela = imprimindo && <VisualizarRegistro item={imprimindo} imprimirAoAbrir={imprimindo.imprimirAoAbrir} onFechar={fecharImpressao} />
+  // Impressão conjunta ocupa a tela toda: o histórico fica escondido (sem desmontar) até voltar.
+  const esconder = imprimindo?.extras?.length ? { display: 'none' } : undefined
 
   const corpo = (
         <div className="hc-corpo">
@@ -335,32 +385,38 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
               <span className="hc-switch" /> Mostrar invalidados{nInv.atual + nInv.anteriores > 0 ? ` (${nInv.atual + nInv.anteriores})` : ''}
             </label>
           </div>
-          <Bloco titulo="Este atendimento" subtitulo="Registros da internação atual, do mais recente para o mais antigo" solto={embutido} carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} onDuplicar={onDuplicar} onEditar={onEditar} mostrarInvalidados={verInvalidados} onContarInvalidados={(n) => setNInv((v) => ({ ...v, atual: n }))} />
-          <Bloco titulo="Atendimentos anteriores" subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} agruparPorAtendimento meuId={enfermeiro?.id} onDuplicar={onDuplicar} mostrarInvalidados={verInvalidados} onContarInvalidados={(n) => setNInv((v) => ({ ...v, anteriores: n }))} />
+          <Bloco titulo="Este atendimento" chave={['historico_clinico', 'atual', atendimentoId]} subtitulo="Registros da internação atual, do mais recente para o mais antigo" solto={embutido} carregar={carregarAtual} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} meuId={enfermeiro?.id} onDuplicar={onDuplicar} onEditar={onEditar} mostrarInvalidados={verInvalidados} onContarInvalidados={(n) => setNInv((v) => ({ ...v, atual: n }))} />
+          <Bloco titulo="Atendimentos anteriores" chave={['historico_clinico', 'anteriores', pessoaId, atendimentoId]} subtitulo="Passagens anteriores do paciente pela unidade" carregar={carregarAnteriores} busca={busca} filtroArea={filtroArea} onImprimir={abrirImpressao} agruparPorAtendimento meuId={enfermeiro?.id} onDuplicar={onDuplicar} mostrarInvalidados={verInvalidados} onContarInvalidados={(n) => setNInv((v) => ({ ...v, anteriores: n }))} />
         </div>
   )
 
   // Nova interface: histórico completo embutido na área livre abaixo das abas.
   if (embutido) {
     return (
-      <section className="hc-embutido no-print">
-        <div className="hc-gaveta-topo">
-          <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
-        </div>
-        {corpo}
-      </section>
+      <>
+        <section className="hc-embutido no-print" style={esconder}>
+          <div className="hc-gaveta-topo">
+            <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
+          </div>
+          {corpo}
+        </section>
+        {janela}
+      </>
     )
   }
 
   return (
-    <div className="hc-gaveta-fundo no-print" onClick={onFechar}>
-      <aside className="hc-gaveta" onClick={(e) => e.stopPropagation()}>
-        <div className="hc-gaveta-topo">
-          <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
-          <button type="button" className="hc-fechar" onClick={onFechar} title="Fechar"><i className="ph ph-x" /></button>
-        </div>
-        {corpo}
-      </aside>
-    </div>
+    <>
+      <div className="hc-gaveta-fundo no-print" onClick={onFechar} style={esconder}>
+        <aside className="hc-gaveta" onClick={(e) => e.stopPropagation()}>
+          <div className="hc-gaveta-topo">
+            <span><i className="ph ph-clock-counter-clockwise" /> Histórico Clínico do Paciente</span>
+            <button type="button" className="hc-fechar" onClick={onFechar} title="Fechar"><i className="ph ph-x" /></button>
+          </div>
+          {corpo}
+        </aside>
+      </div>
+      {janela}
+    </>
   )
 }

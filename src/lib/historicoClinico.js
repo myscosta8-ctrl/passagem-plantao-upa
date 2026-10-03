@@ -105,6 +105,8 @@ const paraItem = (f, r) => ({
   resumo: f.resumo(r),
 })
 
+const autoresConhecidos = new Map()
+
 // Todos os registros clínicos dos atendimentos informados, em ordem cronológica.
 // Uma consulta só ao banco (função historico_clinico_registros); antes eram 24.
 export async function listarRegistrosClinicos(atendimentoIds) {
@@ -126,13 +128,16 @@ export async function listarRegistrosClinicos(atendimentoIds) {
   }
   const itens = resultados.flat()
 
+  // Nome/conselho dos profissionais: guardados durante a sessão; só os que ainda não vieram
+  // são pedidos ao banco (reabrir o histórico não repete essa consulta).
   const idsAutores = [...new Set(itens.map((i) => i.autorId).filter(Boolean))]
-  if (idsAutores.length) {
-    const { data: profs, error: erroConsulta2 } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome, crm, coren, tipo').in('id', idsAutores)
+  const faltam = idsAutores.filter((id) => !autoresConhecidos.has(id))
+  if (faltam.length) {
+    const { data: profs, error: erroConsulta2 } = await supabase.from('enfermeiros').select('id, nome_exibicao, nome, crm, coren, tipo').in('id', faltam)
     if (erroConsulta2) avisarErro('historicoClinico', erroConsulta2)
-    const porId = Object.fromEntries((profs ?? []).map((p) => [p.id, p]))
-    itens.forEach((i) => { i.autor = porId[i.autorId] || null })
+    for (const p of profs ?? []) autoresConhecidos.set(p.id, p)
   }
+  itens.forEach((i) => { i.autor = autoresConhecidos.get(i.autorId) || null })
   return itens.sort((a, b) => new Date(b.data) - new Date(a.data)) // mais recente primeiro
 }
 
