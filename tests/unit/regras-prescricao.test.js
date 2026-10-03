@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { supabase } from '../../src/lib/supabaseClient.js';
 import { criarPrescricao, normalizarCid, buscarCabecalhoImpressao, separarCabecalho } from '../../src/lib/pepMedico.js';
 import { idadeDetalhada } from '../../src/lib/idadeDetalhada.js';
+import { grupoDiagnostico, resumirDesfechos, chaveTempo } from '../../src/lib/indicadoresDesfechos.js';
 import { contarSetores, nomeCurto } from '../../src/pages/painel/setoresPainel.js';
 import { camposDaEnfermagem, dadosParaTabela, mesmosSinais, medidaRecente } from '../../src/pages/ficha-medica/sinaisVitaisMedico.js';
 import { metaDoc } from '../../src/lib/documentos.js';
@@ -601,10 +602,10 @@ export function runPadraoImpressoTests(test) {
   test('Impressos: uma só identificação do paciente em todos os impressos (sem quadros, 4 colunas alinhadas)', () => {
     const cab = fs.readFileSync('src/pages/CabecalhoPadraoUPA.jsx', 'utf8');
     const id = fs.readFileSync('src/pages/print/identificacao-padrao.css', 'utf8');
-    const grade = cab.slice(cab.indexOf('function IdentificacaoGrade'));
-    const corpo = grade.slice(0, grade.indexOf('\n}\n'));
-    const colunas = [...corpo.matchAll(/<Campo\b([^>]*)>/g)].map((m) => Number((m[1].match(/span=\{(\d+)\}/) || [0, 1])[1]));
-    assert.equal(colunas.reduce((a, b) => a + b, 0) % 4, 0, 'cada linha preenche as 4 colunas');
+    const soma = (nome) => [...cab.slice(cab.indexOf(`const ${nome} = [`), cab.indexOf(']\n', cab.indexOf(`const ${nome} = [`))).matchAll(/', (\d+)\]/g)].reduce((a, m) => a + Number(m[1]), 0);
+    assert.equal(soma('LAYOUT_PADRAO') % 4, 0, 'cada linha preenche as 4 colunas');
+    assert.equal(soma('LAYOUT_COMPACTO') % 3, 0, 'receituário: cada linha preenche as 3 colunas');
+    assert.match(fs.readFileSync('src/pages/ficha-medica-print/CorpoReceituarioOficial.jsx', 'utf8'), /<CabecalhoPadraoUPA compacta/);
     assert.match(cab, /import '\.\/print\/identificacao-padrao\.css'/);
     assert.match(id, /grid-template-columns: minmax\(0, 1\.6fr\) repeat\(3, minmax\(max-content, 1fr\)\)/);
     assert.ok(!/classica|identificacao=/.test(cab), 'sem variação de identificação');
@@ -754,5 +755,41 @@ export function runDuplicarPrescricaoTests(test) {
     assert.match(a, /Duplicar última/);
     assert.ok(!/window\.scrollTo/.test(a), 'rola a janela do formulário, não a página');
     assert.match(fs.readFileSync('src/pages/FichaMedica.jsx', 'utf8'), /aposDuplicar = \(abaDestino = 'evolucao'\)/);
+  });
+}
+
+// Indicadores: saídas do período (altas, transferências, óbitos, evasões) e grupos de diagnóstico.
+export function runIndicadoresDesfechosTests(test) {
+  test('Indicadores: diagnóstico em texto livre agrupado por palavras-chave', () => {
+    assert.equal(grupoDiagnostico('PNM/DPOC'), 'Respiratório');
+    assert.equal(grupoDiagnostico('TENTATIVA DE SUICÍDIO'), 'Saúde mental / intoxicação');
+    assert.equal(grupoDiagnostico('ICC DESCOMPENSADA/PNM'), 'Cardiovascular / AVC');
+    assert.equal(grupoDiagnostico('ÊMESE , TONTURA , FEBRE'), 'Digestivo / abdome');
+    assert.equal(grupoDiagnostico('NEOPLASIA CEREBRAL/PALIATIVO'), 'Neoplasia / paliativo');
+    assert.equal(grupoDiagnostico('SEPTICEMIA'), 'Sepse');
+    assert.equal(grupoDiagnostico(''), 'Sem diagnóstico registrado');
+    assert.equal(grupoDiagnostico('XYZ'), 'Outros');
+  });
+  test('Indicadores: totais, % das saídas, óbito < 24 h e data do óbito informada', () => {
+    const l = [
+      { desfecho_tipo: 'Alta', desfecho_em: '2026-10-01T15:00:00Z', internado_em: '2026-09-29T15:00:00Z', diagnostico_admissao: 'PAC' },
+      { desfecho_tipo: 'Óbito', desfecho_em: '2026-10-03T15:00:00Z', internado_em: '2026-09-30T10:00:00Z', diagnostico_admissao: 'SEPSE', dados_obito: { data_hora_obito: '2026-09-30T20:00:00Z', causa_mortis: 'Choque séptico' } },
+      { desfecho_tipo: 'Evasão', desfecho_em: '2026-10-02T03:00:00Z', internado_em: '2026-10-01T03:00:00Z', diagnostico_admissao: 'SURTO PSICOTICO' },
+      { desfecho_tipo: null, desfecho_em: null },
+    ];
+    const r = resumirDesfechos(l, 'dia');
+    assert.equal(r.saidas, 3);
+    assert.equal(r.totais['Óbito'], 1);
+    assert.equal(Math.round(r.pct(1)), 33);
+    assert.equal(r.obitos.menos24h, 1, 'óbito conta pela data/hora do óbito (10 h após a admissão)');
+    assert.equal(r.obitos.lista[0].causa, 'Choque séptico');
+    assert.equal(r.evasoes.noite, 1, 'evasão à meia-noite de Belém = turno da noite');
+    assert.deepEqual(r.obitos.grupos, [['Sepse', 1]]);
+    assert.equal(r.serie.length, 3);
+  });
+  test('Indicadores: agrupamento por semana (começa na segunda) e por mês, no fuso de Belém', () => {
+    assert.equal(chaveTempo(new Date('2026-10-01T15:00:00Z'), 'semana').rotulo, '28/09');
+    assert.equal(chaveTempo(new Date('2026-10-01T02:00:00Z'), 'dia').rotulo, '30/09', '23h de 30/09 em Belém');
+    assert.equal(chaveTempo(new Date('2026-10-01T15:00:00Z'), 'mes').chave, '2026-10');
   });
 }

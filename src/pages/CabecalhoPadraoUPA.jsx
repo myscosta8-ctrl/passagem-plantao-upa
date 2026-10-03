@@ -24,13 +24,32 @@ const dataHoraCurta = (v) => (v ? new Date(v).toLocaleString('pt-BR', { dateStyl
 // largura do maior dado que contêm.
 // Campos sem fonte no cadastro (raça, nacionalidade fixa) e a unidade (já no timbre) saíram.
 // span = quantas das 4 colunas o campo ocupa; largo = texto livre que pode quebrar linha
-// (o rótulo nunca fica separado do dado: espaço inseparável entre eles). data-linha marca os
-// campos longos, que ocupam a linha toda nas folhas estreitas (receituário em 2 vias).
+// (o rótulo nunca fica separado do dado: espaço inseparável entre eles).
 function Campo({ rotulo, span = 1, largo, children }) {
-  return <div className={'pr-campo' + (largo ? ' largo' : '')} style={span > 1 ? { gridColumn: `span ${span}` } : undefined} data-linha={span > 1 ? '' : undefined}><b>{rotulo}</b>{'\u00a0'}{children}</div>
+  return <div className={'pr-campo' + (largo ? ' largo' : '')} style={span > 1 ? { gridColumn: `span ${span}` } : undefined}><b>{rotulo}</b>{'\u00a0'}{children}</div>
 }
 
-function IdentificacaoGrade({ pessoa, atendimento, idade, leitoNumero, setorNome, prof, rotuloProf, docConselho, nascimento, dataHora }) {
+// Ordem dos campos (Protocolo de Identificação do Paciente): quem é, alertas, onde está,
+// registros, contato e atendimento. [campo, colunas que ocupa].
+const LAYOUT_PADRAO = [ // 4 colunas
+  ['paciente', 3], ['idade', 1], ['mae', 2], ['nasc', 1], ['sexo', 1],
+  ['alergia', 2], ['peso', 1], ['classificacao', 1],
+  ['setor', 2], ['internacao', 1], ['alta', 1],
+  ['prontuario', 1], ['rg', 1], ['cns', 1], ['cpf', 1],
+  ['endereco', 3], ['telefone', 1],
+  ['entrada', 1], ['carater', 1], ['convenio', 1], ['dtficha', 1], ['profissional', 4],
+]
+// Folha estreita (receituário: 2 vias lado a lado): mesma ordem em 3 colunas iguais, alinhadas.
+const LAYOUT_COMPACTO = [
+  ['paciente', 3], ['nasc', 1], ['idade', 1], ['sexo', 1], ['mae', 2], ['peso', 1],
+  ['alergia', 2], ['classificacao', 1],
+  ['setor', 1], ['internacao', 1], ['alta', 1],
+  ['prontuario', 1], ['cns', 1], ['cpf', 1], ['rg', 1], ['telefone', 2],
+  ['endereco', 3],
+  ['entrada', 1], ['carater', 1], ['convenio', 1], ['profissional', 2], ['dtficha', 1],
+]
+
+function IdentificacaoGrade({ pessoa, atendimento, idade, leitoNumero, setorNome, prof, rotuloProf, docConselho, nascimento, dataHora, compacta }) {
   const sexo = pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : ''
   const alergias = pessoa.alergias_ativas?.length ? pessoa.alergias_ativas.join(', ') : ''
   // Idade sai sozinha da data de nascimento; sem ela, a idade informada na admissão.
@@ -38,48 +57,45 @@ function IdentificacaoGrade({ pessoa, atendimento, idade, leitoNumero, setorNome
   const classificacao = atendimento?.classificacao_risco_cor
     ? atendimento.classificacao_risco_cor.charAt(0).toUpperCase() + atendimento.classificacao_risco_cor.slice(1).toLowerCase() : ''
   const dataFicha = String(dataHora || '').replace(',', '').replace(/(\d{2}:\d{2}):\d{2}/, '$1')
+  // rotulo, conteúdo e se é texto livre (pode quebrar linha)
+  const campos = {
+    paciente: ['PACIENTE:', <strong key="n">{pessoa.nome}</strong>, true],
+    idade: ['IDADE:', idadeTexto],
+    mae: ['MÃE:', pessoa.nome_mae || '', true],
+    nasc: ['NASC.:', nascimento],
+    sexo: ['SEXO:', sexo],
+    alergia: ['ALERGIA:', <span key="a" className="dc-alerta-cab">{alergias}</span>, true],
+    peso: ['PESO:', ''],
+    classificacao: ['CLASSIFICAÇÃO:', classificacao],
+    setor: ['SETOR:', <>{setorNome || ''}<span className="pr-campo-junto"><b>LEITO:</b>{'\u00a0'}{leitoNumero || ''}</span></>, true],
+    internacao: ['INTERNAÇÃO:', dataHoraCurta(atendimento?.criado_em)],
+    alta: ['ALTA:', dataHoraCurta(atendimento?.encerrado_em)],
+    prontuario: ['PRONTUÁRIO:', <>{limparPrefixo(pessoa.prontuario_numero)}<span className="pr-campo-junto"><b>REGISTRO:</b>{'\u00a0'}{limparPrefixo(atendimento?.numero_atendimento)}</span></>, true],
+    rg: ['R.G.:', pessoa.rg || ''],
+    cns: ['C.N.S.:', pessoa.cns || ''],
+    cpf: ['C.P.F.:', pessoa.cpf || ''],
+    endereco: ['ENDEREÇO:', [pessoa.endereco, pessoa.endereco_numero, pessoa.bairro, pessoa.cidade].filter(Boolean).join(', '), true],
+    telefone: ['TELEFONE:', pessoa.telefone || ''],
+    entrada: ['ENTRADA:', atendimento?.tipo_entrada || '', true],
+    carater: ['CARÁTER:', atendimento?.carater || 'Urgência'],
+    convenio: ['CONVÊNIO:', atendimento?.convenio || 'SUS'],
+    dtficha: ['DT FICHA:', dataFicha],
+    profissional: [rotuloProf.replace('RESPONSÁVEL:', 'RESP.:'), <>{prof?.nome_exibicao || prof?.nome || ''}{docConselho ? <>&nbsp; <b>{docConselho}</b></> : ''}</>, true],
+  }
   return (
-    <div className="pr-info pr-info-grade">
-      {/* 1. Quem é: identificadores conferidos antes de medicar ou coletar */}
-      <Campo rotulo="PACIENTE:" span={3} largo><strong>{pessoa.nome}</strong></Campo>
-      <Campo rotulo="IDADE:">{idadeTexto}</Campo>
-      <Campo rotulo="MÃE:" span={2} largo>{pessoa.nome_mae || ''}</Campo>
-      <Campo rotulo="NASC.:">{nascimento}</Campo>
-      <Campo rotulo="SEXO:">{sexo}</Campo>
-
-      {/* 2. Alertas, colados na identificação (peso: base das doses) */}
-      <Campo rotulo="ALERGIA:" span={2} largo><span className="dc-alerta-cab">{alergias}</span></Campo>
-      <Campo rotulo="PESO:">{''}</Campo>
-      <Campo rotulo="CLASSIFICAÇÃO:">{classificacao}</Campo>
-
-      {/* 3. Onde está */}
-      <Campo rotulo="SETOR:" span={2} largo>{setorNome || ''}<span className="pr-campo-junto"><b>LEITO:</b>{'\u00a0'}{leitoNumero || ''}</span></Campo>
-      <Campo rotulo="INTERNAÇÃO:">{dataHoraCurta(atendimento?.criado_em)}</Campo>
-      <Campo rotulo="ALTA:">{dataHoraCurta(atendimento?.encerrado_em)}</Campo>
-
-      {/* 4. Registros */}
-      <Campo rotulo="PRONTUÁRIO:" largo>{limparPrefixo(pessoa.prontuario_numero)}<span className="pr-campo-junto"><b>REGISTRO:</b>{'\u00a0'}{limparPrefixo(atendimento?.numero_atendimento)}</span></Campo>
-      <Campo rotulo="R.G.:">{pessoa.rg || ''}</Campo>
-      <Campo rotulo="C.N.S.:">{pessoa.cns || ''}</Campo>
-      <Campo rotulo="C.P.F.:">{pessoa.cpf || ''}</Campo>
-
-      {/* 5. Contato */}
-      <Campo rotulo="ENDEREÇO:" span={3} largo>{[pessoa.endereco, pessoa.endereco_numero, pessoa.bairro, pessoa.cidade].filter(Boolean).join(', ')}</Campo>
-      <Campo rotulo="TELEFONE:">{pessoa.telefone || ''}</Campo>
-
-      {/* 6. Atendimento */}
-      <Campo rotulo="ENTRADA:" largo>{atendimento?.tipo_entrada || ''}</Campo>
-      <Campo rotulo="CARÁTER:">{atendimento?.carater || 'Urgência'}</Campo>
-      <Campo rotulo="CONVÊNIO:">{atendimento?.convenio || 'SUS'}</Campo>
-      <Campo rotulo="DT FICHA:">{dataFicha}</Campo>
-      <Campo rotulo={rotuloProf.replace('RESPONSÁVEL:', 'RESP.:')} span={4} largo>{prof?.nome_exibicao || prof?.nome || ''}{docConselho ? <>&nbsp; <b>{docConselho}</b></> : ''}</Campo>
+    <div className={'pr-info pr-info-grade' + (compacta ? ' compacta' : '')}>
+      {(compacta ? LAYOUT_COMPACTO : LAYOUT_PADRAO).map(([k, span]) => {
+        const [rotulo, conteudo, largo] = campos[k]
+        return <Campo key={k} rotulo={rotulo} span={span} largo={largo || compacta}>{conteudo}</Campo>
+      })}
     </div>
   )
 }
 
 // Timbre + título + identificação padrão: a mesma em todos os impressos (estilo em
-// ./print/identificacao-padrao.css).
-export default function CabecalhoPadraoUPA({ titulo, pessoa = {}, atendimento = {}, idade, leitoNumero, setorNome, medico, profissional, profissionalRotulo, dataHora }) {
+// ./print/identificacao-padrao.css). compacta: folha estreita (receituário em 2 vias), mesmos
+// campos e mesma ordem em 3 colunas iguais.
+export default function CabecalhoPadraoUPA({ titulo, pessoa = {}, atendimento = {}, idade, leitoNumero, setorNome, medico, profissional, profissionalRotulo, dataHora, compacta }) {
   const nascimento = pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''
   const prof = profissional || medico
   const rotuloProf = profissionalRotulo || (medico ? 'MÉDICO RESPONSÁVEL:' : 'PROFISSIONAL RESPONSÁVEL:')
@@ -103,7 +119,7 @@ export default function CabecalhoPadraoUPA({ titulo, pessoa = {}, atendimento = 
 
       <div className="pr-titulo">{titulo}</div>
 
-      <IdentificacaoGrade pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} prof={prof} rotuloProf={rotuloProf} docConselho={docConselho} nascimento={nascimento} dataHora={dataHora} />
+      <IdentificacaoGrade pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} prof={prof} rotuloProf={rotuloProf} docConselho={docConselho} nascimento={nascimento} dataHora={dataHora} compacta={compacta} />
     </>
   )
 }

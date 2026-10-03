@@ -35,8 +35,6 @@
 .pr-info-grade.pr-info-grade.pr-info-grade .pr-campo-junto { margin-left: 14px; white-space: nowrap; }
 .pr-info-grade.pr-info-grade.pr-info-grade .dc-alerta-cab { color: #b91c1c !important; font-weight: 700 !important; }
 
-/* Folha estreita (receituário: 2 vias lado a lado): 3 colunas; os campos longos (nome, mãe,
-   alergia, setor, endereço, responsável) ocupam a linha toda e os curtos se encaixam aos trios. */
-.rxf-coluna .pr-info-grade.pr-info-grade.pr-info-grade { grid-template-columns: repeat(3, auto); grid-auto-flow: row dense; column-gap: 10px; }
-.rxf-coluna .pr-info-grade.pr-info-grade.pr-info-grade > .pr-campo { grid-column: auto !important; }
-.rxf-coluna .pr-info-grade.pr-info-grade.pr-info-grade > .pr-campo[data-linha] { grid-column: 1 / -1 !important; }
+/* Folha estreita (receituário: 2 vias lado a lado): mesmos campos, mesma ordem, em 3 colunas
+   iguais — cada coluna alinha com a de cima; texto longo quebra dentro da própria coluna. */
+.pr-info-grade.pr-info-grade.pr-info-grade.compacta { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 10px; }

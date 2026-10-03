@@ -102,3 +102,26 @@ export async function calcularIndicadoresClinicos(periodo, datas = {}) {
     porManchester,
   }
 }
+
+// Desfechos do período (altas, transferências, óbitos e evasões) para os blocos de saídas.
+// Vem das internações com desfecho registrado; o setor é o do último leito ocupado.
+export async function buscarDesfechos(periodo, datas = {}) {
+  const custom = periodo === 'custom' && datas.inicio
+  const desdeISO = custom ? new Date(`${datas.inicio}T00:00:00-03:00`).toISOString() : inicioPeriodoISO(periodo)
+  const ateISO = custom && datas.fim ? new Date(`${datas.fim}T23:59:59-03:00`).toISOString() : new Date(Date.now() + 60000).toISOString()
+  const { data, error } = await supabase.from('internacoes')
+    .select('desfecho_tipo, desfecho_em, internado_em, diagnostico_admissao, desfecho_obs, dados_obito, atendimentos(numero_atendimento, pessoas(data_nascimento, prontuario_numero), leito_ocupacoes(alocado_em, leitos(setores(nome))))')
+    .not('desfecho_tipo', 'is', null).gte('desfecho_em', desdeISO).lte('desfecho_em', ateISO)
+    .order('desfecho_em', { ascending: false }).limit(5000)
+  if (error) throw error
+  return (data ?? []).map((l) => {
+    const at = l.atendimentos || {}
+    const ocup = [...(at.leito_ocupacoes || [])].sort((a, b) => String(b.alocado_em).localeCompare(String(a.alocado_em)))[0]
+    return {
+      ...l,
+      nascimento: at.pessoas?.data_nascimento || null,
+      prontuario: String(at.pessoas?.prontuario_numero || '').replace(/^#?\s*(PEP|AT|REG)-?/i, ''),
+      setor: ocup?.leitos?.setores?.nome || '',
+    }
+  })
+}

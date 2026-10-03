@@ -1,0 +1,48 @@
+/* Saídas do período (Indicadores). Cores das séries validadas para daltonismo (claro e escuro). */
+.ds { --ds-s1: #2a78d6; --ds-s2: #eb6834; --ds-s3: #1baf7a; --ds-s4: #eda100; margin-top: 20px; }
+:root[data-tema="escuro"] .ds { --ds-s1: #3987e5; --ds-s2: #d95926; --ds-s3: #199e70; --ds-s4: #c98500; }
+.ds-titulo { font-size: var(--fs-lg); margin: 0 0 10px; color: var(--c-text-primary); }
+.ds-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+.ds-tile, .ds-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px; }
+.ds-tile { padding: 12px 14px; }
+.ds-tile small { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--c-text-soft); }
+.ds-tile b { display: block; font-size: var(--fs-2xl); color: var(--c-text-primary); margin: 2px 0; }
+.ds-tile span { font-size: var(--fs-xs); color: var(--c-text-soft); }
+.ds-tile i, .ds-leg i, .ds-dica i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.ds-card { padding: 14px 16px; }
+.ds-card h3 { margin: 0; font-size: var(--fs-md); color: var(--c-text-primary); }
+.ds-sub { margin: 2px 0 10px; font-size: var(--fs-xs); color: var(--c-text-soft); }
+.ds-sub-t { margin-bottom: 4px; }
+.ds-card-topo { display: flex; align-items: flex-start; gap: 10px; }
+.ds-seg { margin-left: auto; display: flex; gap: 4px; }
+.ds-seg button { border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text-primary); border-radius: 8px; padding: 4px 10px; font: inherit; font-size: var(--fs-xs); font-weight: 600; cursor: pointer; }
+.ds-seg button.on { background: var(--c-primary); border-color: var(--c-primary); color: #fff; }
+.ds-leg { display: flex; gap: 14px; flex-wrap: wrap; font-size: var(--fs-xs); color: var(--c-text-soft); margin-bottom: 4px; }
+.ds-leg span { display: flex; align-items: center; gap: 5px; }
+.ds-leg b { color: var(--c-text-primary); }
+.ds-graf { position: relative; overflow-x: auto; }
+.ds-grade { stroke: var(--c-border); stroke-width: 1; }
+.ds-eixo { font-size: var(--fs-xs); fill: var(--c-text-soft); }
+.ds-total { font-size: var(--fs-xs); font-weight: 700; fill: var(--c-text-primary); }
+.ds-dica { position: absolute; top: 8px; transform: translateX(-50%); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 8px; padding: 8px 10px; font-size: var(--fs-xs); color: var(--c-text-primary); box-shadow: 0 4px 14px rgba(0, 0, 0, .12); pointer-events: none; min-width: 150px; }
+.ds-dica div { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+.ds-dica span { margin-left: auto; font-weight: 700; }
+.ds-g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; align-items: start; }
+.ds-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.ds-mini div { background: var(--c-surface-inset); border-radius: 9px; padding: 8px 10px; }
+.ds-mini small { display: block; font-size: var(--fs-xs); color: var(--c-text-soft); }
+.ds-mini b { font-size: var(--fs-lg); color: var(--c-text-primary); }
+.ds-bar { display: block; width: 100%; border: 0; background: transparent; padding: 3px 0; text-align: left; cursor: pointer; font: inherit; color: var(--c-text-primary); }
+.ds-bar-l { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-sm); }
+.ds-bar i { display: block; height: 8px; border-radius: 4px; background: var(--c-fill); margin-top: 3px; }
+.ds-bar i em { display: block; height: 100%; border-radius: 4px; background: var(--c-primary); }
+.ds-bar.on .ds-bar-l, .ds-bar:hover .ds-bar-l { font-weight: 700; }
+.ds-link { border: 0; background: transparent; color: var(--c-primary); font: inherit; font-size: var(--fs-xs); font-weight: 700; cursor: pointer; padding: 6px 0 0; }
+.ds-tab-wrap { max-height: 320px; overflow: auto; margin-top: 8px; border: 1px solid var(--c-border); border-radius: 8px; }
+.ds-tab { width: 100%; border-collapse: collapse; font-size: var(--fs-xs); }
+.ds-tab th { position: sticky; top: 0; background: var(--c-surface-inset); text-align: left; padding: 6px 8px; color: var(--c-text-soft); }
+.ds-tab td { padding: 6px 8px; border-top: 1px solid var(--c-border); color: var(--c-text-primary); vertical-align: top; }
+.ds-nota { margin: 12px 0 0; font-size: var(--fs-xs); color: var(--c-text-soft); background: var(--c-warning-light); border: 1px solid var(--c-warning-border); border-radius: 9px; padding: 8px 10px; }
+.ds-vazio { padding: 16px; text-align: center; color: var(--c-text-soft); font-size: var(--fs-sm); }
+@media (max-width: 1024px) { .ds-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ds-g3 { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .ds-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ds-card-topo { flex-direction: column; } .ds-seg { margin-left: 0; } }

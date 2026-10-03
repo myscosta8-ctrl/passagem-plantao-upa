@@ -3,6 +3,7 @@ import { calcularIndicadoresClinicos } from '../lib/pepIndicadores'
 import { useAuth } from '../lib/AuthContext'
 import './IndicadoresPainel.css'
 import CampoPeriodo, { periodoPadrao } from '../components/CampoPeriodo'
+import PainelDesfechos from './indicadores/PainelDesfechos'
 
 const PERIODOS = [
   { chave: 'hoje', rotulo: 'Hoje' },
@@ -47,7 +48,7 @@ export default function IndicadoresPainel({ onVoltar }) {
       <div className="workspace ind-v2">
         <div className="ind-topo">
           <h1>Indicadores Clínicos</h1>
-          <span className="ind-sub">Métricas da unidade e dos plantões</span>
+          <span className="ind-sub">Métricas da unidade e dos plantões: ocupação, tempos e saídas (óbitos, evasões, transferências)</span>
           <div className="ind-per">
             {periodo === 'custom' && <CampoPeriodo inicio={dataIni} fim={dataFim} onInicio={setDataIni} onFim={setDataFim} />}
             <div className="ind-seg">
@@ -106,6 +107,7 @@ export default function IndicadoresPainel({ onVoltar }) {
             </div>
           </>
         )}
+        {!(periodo === 'custom' && !dataIni) && <PainelDesfechos periodo={periodo} datas={{ inicio: dataIni, fim: dataFim }} />}
       </div>
     )
   }
@@ -211,6 +213,7 @@ export default function IndicadoresPainel({ onVoltar }) {
           </div>
         </>
       )}
+      <PainelDesfechos periodo={periodo} datas={{ inicio: dataIni, fim: dataFim }} />
     </div>
   )
 }

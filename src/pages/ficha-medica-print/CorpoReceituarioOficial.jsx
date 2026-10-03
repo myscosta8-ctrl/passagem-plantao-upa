@@ -11,7 +11,7 @@ function ReceitaColuna({ via, viaRotulo, registro, pessoa, atendimento, idade, l
 
   return (
     <div className="rxf-coluna">
-      <CabecalhoPadraoUPA
+      <CabecalhoPadraoUPA compacta
         titulo={registro?.tipo === 'controle_especial' ? 'RECEITUÁRIO DE CONTROLE ESPECIAL' : 'RECEITUÁRIO MÉDICO'}
         pessoa={pessoa}
         atendimento={atendimento}
