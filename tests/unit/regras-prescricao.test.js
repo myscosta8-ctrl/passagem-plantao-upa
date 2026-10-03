@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { supabase } from '../../src/lib/supabaseClient.js';
 import { criarPrescricao, normalizarCid } from '../../src/lib/pepMedico.js';
+import { idadeDetalhada } from '../../src/lib/idadeDetalhada.js';
 import { metaDoc } from '../../src/lib/documentos.js';
 import {
   exigeAtm, atbRestrito, calculoDxIxT, dosesPorDia as dosesPorDiaAtm,
@@ -542,5 +543,56 @@ export function runDivisaoInicioTests(test) {
     assert.match(p, /if \(erroEncerrar\) avisarErro/, 'falha ao encerrar a participação aparece na faixa de erro');
     const sess = fs.readFileSync('src/pages/inicio/useSessaoInativa.js', 'utf8');
     assert.match(sess, /2 \* 60 \* 60 \* 1000/, 'encerramento após 2 h sem uso mantido');
+  });
+}
+
+// Padrão visual dos documentos clínicos impressos (evoluções, admissões, plano, notas, alta...).
+export function runPadraoImpressoTests(test) {
+  const css = fs.readFileSync('src/pages/print/documento-clinico.css', 'utf8');
+  test('Impressos: uma família de letra e só 4 tamanhos (título, texto, rótulo, legenda)', () => {
+    const tamanhos = [...css.matchAll(/(\d+(?:\.\d+)?)pt/g)].map((m) => m[1]);
+    assert.deepEqual([...new Set(tamanhos)].sort(), ['12', '7', '8', '9.5'].sort(), 'só os 4 tamanhos definidos nas variáveis');
+    assert.match(css, /--dc-fonte: 'IBM Plex Sans'/);
+    for (const f of ['src/pages/FichaMedicaPrint.jsx', 'src/pages/FichaClinicaPrint.jsx']) {
+      assert.match(fs.readFileSync(f, 'utf8'), /import '\.\/print\/documento-clinico\.css'/, `${f} usa o padrão`);
+    }
+  });
+
+  test('Impressos: letra embutida no sistema (imprime igual sem internet)', () => {
+    const main = fs.readFileSync('src/main.jsx', 'utf8');
+    for (const p of ['400', '500', '600', '700']) assert.match(main, new RegExp(`@fontsource/ibm-plex-sans/${p}\\.css`));
+    assert.ok(JSON.parse(fs.readFileSync('package.json', 'utf8')).dependencies['@fontsource/ibm-plex-sans']);
+  });
+
+  test('Impressos: Prescrição fora do padrão novo (layout aprovado) e alergia em destaque', () => {
+    const semComentarios = css.replace(/\/\*[\s\S]*?\*\//g, '');
+    assert.ok(!/\.pr-page[^)]/.test(semComentarios.replace(/:not\(\.pr-page\)/g, '')), 'nenhuma regra mira a Prescrição');
+    assert.match(css, /\.dc-alerta/);
+    assert.match(fs.readFileSync('src/pages/CabecalhoPadraoUPA.jsx', 'utf8'), /className="dc-alerta-cab"/);
+  });
+  test('Impressos: uma só identificação do paciente em todos os impressos (sem quadros, 4 colunas alinhadas)', () => {
+    const cab = fs.readFileSync('src/pages/CabecalhoPadraoUPA.jsx', 'utf8');
+    const id = fs.readFileSync('src/pages/print/identificacao-padrao.css', 'utf8');
+    const grade = cab.slice(cab.indexOf('function IdentificacaoGrade'));
+    const corpo = grade.slice(0, grade.indexOf('\n}\n'));
+    const colunas = [...corpo.matchAll(/<Campo\b([^>]*)>/g)].map((m) => Number((m[1].match(/span=\{(\d+)\}/) || [0, 1])[1]));
+    assert.equal(colunas.reduce((a, b) => a + b, 0) % 4, 0, 'cada linha preenche as 4 colunas');
+    assert.match(cab, /import '\.\/print\/identificacao-padrao\.css'/);
+    assert.match(id, /grid-template-columns: minmax\(0, 1\.6fr\) repeat\(3, minmax\(max-content, 1fr\)\)/);
+    assert.ok(!/classica|identificacao=/.test(cab), 'sem variação de identificação');
+    for (const f of ['ficha-medica-print/CorpoPrescricaoOficial', 'ficha-medica-print/CorpoReceituarioOficial', 'ficha-medica-print/CorpoAtmOficial',
+      'ficha-medica-print/CorpoRequisicaoExamesOficial', 'ficha-clinica-print/CorpoBalancoHidricoOficial', 'FichaMedicaPrint']) {
+      const t = fs.readFileSync(`src/pages/${f}.jsx`, 'utf8');
+      assert.match(t, /<CabecalhoPadraoUPA/, `${f} usa a identificação padrão`);
+      assert.ok(!/identificacao=/.test(t), `${f} sem identificação própria`);
+    }
+  });
+
+  test('Impressos: idade sai sozinha da data de nascimento (anos, meses e dias na data do documento)', () => {
+    assert.equal(idadeDetalhada('1998-11-14', '05/08/2026, 17:45:12'), '27A 8M 22D');
+    assert.equal(idadeDetalhada('2026-07-31', new Date(2026, 7, 5)), '0A 0M 5D');
+    assert.equal(idadeDetalhada('2000-02-29', new Date(2026, 1, 28)), '25A 11M 30D');
+    assert.equal(idadeDetalhada('', '05/08/2026'), '');
+    assert.equal(idadeDetalhada('2030-01-01', new Date(2026, 0, 1)), '');
   });
 }

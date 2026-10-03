@@ -48,7 +48,7 @@ export default function CorpoMultiOficial({ tipo, registro, pessoa, atendimento,
         <div style={{ borderTop: '1px solid #000', width: 320, margin: '0 auto 3px' }} />
         <div style={{ fontWeight: 700, fontSize: 11 }}>{prof.nome_exibicao || prof.nome || ''}</div>
         <div style={{ fontSize: 10 }}>{doc.funcao === 'nutricionista' ? 'Nutricionista' : 'Assistente Social'}{registroConselho ? ` — ${registroConselho}` : ''}</div>
-        <div style={{ fontSize: 9, color: '#555', marginTop: 2 }}>Registrado em {dataHora}</div>
+        <div style={{ fontSize: 9, marginTop: 2 }}>Registrado em {dataHora}</div>
       </div>
     </div>
   )

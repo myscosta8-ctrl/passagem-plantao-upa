@@ -15,17 +15,17 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
           <div className="med-secao-body">
             <div><b>Principal:</b> {registro.diagnosticos || 'Sem diagnóstico ativo informado.'}</div>
             {(registro.comorbidades || registro.comorbidades_texto) && (
-              <div style={{ marginTop: '2px', color: '#475569' }}>
+              <div style={{ marginTop: '2px' }}>
                 <b>Comorbidades / Antecedentes:</b> {registro.comorbidades_texto || (registro.comorbidades ? 'Presentes' : 'Negadas')}
               </div>
             )}
             {(registro.reconciliacao_medicamentosa || registro.reconciliacao_texto) && (
-              <div style={{ marginTop: '2px', color: '#475569' }}>
+              <div style={{ marginTop: '2px' }}>
                 <b>Reconciliação Medicamentosa:</b> {registro.reconciliacao_texto || ''}
               </div>
             )}
             {registro.alergias_texto && (
-              <div style={{ marginTop: '2px', color: '#b91c1c' }}>
+              <div className="dc-alerta" style={{ marginTop: '2px' }}>
                 <b>Alergias Relatadas:</b> {registro.alergias_texto}
               </div>
             )}
@@ -68,7 +68,7 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
             {(registro.exames_laboratorio || registro.aguarda_exames_texto) && (
               <div style={{ marginTop: '3px', paddingTop: '2px', borderTop: '1px dashed #cbd5e1' }}>
                 {registro.exames_laboratorio && <div><b>Exames:</b> {registro.exames_laboratorio}</div>}
-                {registro.aguarda_exames_texto && <div style={{ color: '#0369a1' }}><b>Aguarda:</b> {registro.aguarda_exames_texto}</div>}
+                {registro.aguarda_exames_texto && <div><b>Aguarda:</b> {registro.aguarda_exames_texto}</div>}
               </div>
             )}
           </div>
@@ -79,7 +79,7 @@ export default function CorpoEvolucaoMedicaOficial({ registro, pessoa, atendimen
           <div className="med-secao-body" style={{ minHeight: '22mm', whiteSpace: 'pre-wrap' }}>
             {registro.conduta_medica || registro.plano_terapeutico || ''}
             {registro.data_prevista_alta && (
-              <div style={{ marginTop: '3px', fontWeight: 700, color: '#15803d' }}>
+              <div style={{ marginTop: '3px', fontWeight: 700 }}>
                 Previsão de Alta: {new Date(registro.data_prevista_alta + 'T00:00:00').toLocaleDateString('pt-BR')}
               </div>
             )}

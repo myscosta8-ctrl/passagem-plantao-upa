@@ -3,6 +3,7 @@ import { buscarCabecalhoImpressao, buscarAutorRegistro } from '../lib/pepMedico'
 import { CorpoHistoricoEnfermagemFiel, CorpoHistoricoEnfermagemProjeto } from './CorpoHistoricoEnfermagem'
 import './PrintView.css'
 import './print/leitura.css'
+import './print/documento-clinico.css'
 import PaginaImpressao from '../components/PaginaImpressao'
 
 import CorpoSbarOficial from './ficha-clinica-print/CorpoSbarOficial'

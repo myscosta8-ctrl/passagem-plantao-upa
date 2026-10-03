@@ -29,8 +29,8 @@ export default function CorpoRegulacaoOficial({ registro, pessoa, atendimento, i
         {/* Bloco de Identificação da Regulação */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '4px', background: '#f8fafc', padding: '5px 8px', border: '1px solid #cbd5e1', borderRadius: '4px', marginTop: '3mm', marginBottom: '2mm', fontSize: '9px' }}>
           <div style={{ gridColumn: '1 / -1' }}><b>DESTINO:</b> SER (<SerCheck marcado={registro.destino_ser || (!registro.destino_sisreg && !!registro.numero_solicitacao_ser)} />) SISREG (<SerCheck marcado={registro.destino_sisreg} />)</div>
-          {(registro.destino_ser || (!registro.destino_sisreg && registro.numero_solicitacao_ser)) && <div><b>Nº SOLICITAÇÃO NO SER:</b> <span style={{ color: '#0284c7', fontWeight: 700 }}>{registro.numero_solicitacao_ser || ''}</span></div>}
-          {registro.destino_sisreg && <div><b>Nº SOLICITAÇÃO NO SISREG:</b> <span style={{ color: '#0284c7', fontWeight: 700 }}>{registro.numero_solicitacao_sisreg || ''}</span></div>}
+          {(registro.destino_ser || (!registro.destino_sisreg && registro.numero_solicitacao_ser)) && <div><b>Nº SOLICITAÇÃO NO SER:</b> <span style={{ fontWeight: 700 }}>{registro.numero_solicitacao_ser || ''}</span></div>}
+          {registro.destino_sisreg && <div><b>Nº SOLICITAÇÃO NO SISREG:</b> <span style={{ fontWeight: 700 }}>{registro.numero_solicitacao_sisreg || ''}</span></div>}
           <div><b>DATA DO CADASTRO:</b> {dataCadastro}</div>
           <div style={{ gridColumn: '1 / -1' }}><b>DIAGNÓSTICO REGULADO:</b> {registro.diagnostico_regulado || ''}</div>
           <div style={{ gridColumn: '1 / -1' }}>

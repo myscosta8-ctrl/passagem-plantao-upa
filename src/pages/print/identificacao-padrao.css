@@ -1,0 +1,42 @@
+/* ===== Identificação do paciente — padrão único de TODOS os impressos =====
+   Usada pelo CabecalhoPadraoUPA em qualquer documento (evoluções, admissões, prescrição,
+   receituário, ATM, exames, balanço hídrico...). Fora dela só os formulários oficiais do SUS
+   (AIH, APAC, hemoterapia, SINAN), que seguem o modelo oficial.
+   Sem quadros: 4 colunas alinhadas entre as linhas (a 1ª, dos textos longos, é a maior; as
+   outras nunca ficam menores que o dado que contêm e dividem a sobra nas folhas largas);
+   filete na cor da unidade em cima e filete claro embaixo; rótulo em cinza, dado em
+   quase-preto, alergia em vermelho.
+   O seletor repete a classe (.pr-info-grade.pr-info-grade.pr-info-grade) só para ter mais força
+   que as regras antigas de .pr-info de cada documento, sem depender da ordem dos arquivos.
+   Tamanho igual em todas as folhas (inclusive prescrição, receituário, balanço hídrico e
+   admissão de enfermagem): 8 pt no dado e 7 pt no rótulo. */
+
+.pr-info-grade.pr-info-grade.pr-info-grade {
+  --id-valor: 8pt; --id-rotulo: 7pt; --id-lh: 1.3; --id-cor: #1B4555; --id-linha: #c7d2d8;
+  display: grid !important; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(max-content, 1fr)); column-gap: 12px; row-gap: 1px;
+  width: 100%; box-sizing: border-box; background: #fff;
+  border: 0 !important; border-radius: 0 !important;
+  border-top: 1.2px solid var(--id-cor) !important; border-bottom: 1px solid var(--id-linha) !important;
+  padding: 4px 2px !important; margin-bottom: 7px !important;
+  font-family: 'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif !important;
+}
+
+.pr-info-grade.pr-info-grade.pr-info-grade > .pr-campo {
+  border: 0 !important; padding: 1px 0 !important; min-width: 0; white-space: nowrap;
+  font-size: var(--id-valor) !important; line-height: var(--id-lh) !important; color: #111827 !important; font-weight: 400;
+}
+.pr-info-grade.pr-info-grade.pr-info-grade > .pr-campo :is(strong, span) { font-size: var(--id-valor) !important; line-height: var(--id-lh) !important; }
+.pr-info-grade.pr-info-grade.pr-info-grade > .pr-campo strong { font-weight: 700 !important; color: #111827 !important; }
+.pr-info-grade.pr-info-grade.pr-info-grade > .pr-campo b {
+  font-size: var(--id-rotulo) !important; font-weight: 600 !important; color: #6b7280 !important; letter-spacing: .03em; margin: 0 !important;
+}
+/* Texto livre quebra linha e não alarga as colunas dos números. */
+.pr-info-grade.pr-info-grade.pr-info-grade > .pr-campo.largo { white-space: normal; overflow-wrap: break-word; contain: inline-size; }
+.pr-info-grade.pr-info-grade.pr-info-grade .pr-campo-junto { margin-left: 14px; white-space: nowrap; }
+.pr-info-grade.pr-info-grade.pr-info-grade .dc-alerta-cab { color: #b91c1c !important; font-weight: 700 !important; }
+
+/* Folha estreita (receituário: 2 vias lado a lado): 3 colunas; os campos longos (nome, mãe,
+   alergia, setor, endereço, responsável) ocupam a linha toda e os curtos se encaixam aos trios. */
+.rxf-coluna .pr-info-grade.pr-info-grade.pr-info-grade { grid-template-columns: repeat(3, auto); grid-auto-flow: row dense; column-gap: 10px; }
+.rxf-coluna .pr-info-grade.pr-info-grade.pr-info-grade > .pr-campo { grid-column: auto !important; }
+.rxf-coluna .pr-info-grade.pr-info-grade.pr-info-grade > .pr-campo[data-linha] { grid-column: 1 / -1 !important; }

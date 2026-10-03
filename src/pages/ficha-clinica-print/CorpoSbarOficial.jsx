@@ -49,7 +49,7 @@ export default function CorpoSbarOficial({ registro, pessoa, atendimento, idade,
             <div className="sbar-secao-header"><span className="sbar-badge">B</span> 2. Breve Histórico (Antecedentes e Condutas na UPA)</div>
             <div className="sbar-secao-body">
               <div style={{ whiteSpace: 'pre-wrap' }}><b>Antecedentes / Comorbidades:</b> {registro.breve_historico || '—'}</div>
-              <div style={{ marginTop: 3 }}><b>Alergias:</b> {cf.alergias || (registro.alergia ? 'Sim' : 'Nenhuma registrada')}</div>
+              <div className={cf.alergias || registro.alergia ? 'dc-alerta' : undefined} style={{ marginTop: 3 }}><b>Alergias:</b> {cf.alergias || (registro.alergia ? 'Sim' : 'Nenhuma registrada')}</div>
               {cf.condutas && <div style={{ marginTop: 3, whiteSpace: 'pre-wrap' }}><b>Condutas Realizadas na UPA:</b> {cf.condutas}</div>}
             </div>
           </div>
@@ -94,7 +94,7 @@ export default function CorpoSbarOficial({ registro, pessoa, atendimento, idade,
           <div className="doc-bloco-datahora">
             <div className="cidade-data">Breves/PA, {new Date(registro?.data_registro || registro?.criado_em || Date.now()).toLocaleDateString('pt-BR')}</div>
             <div className="hora-envio"><b>Horário da Transferência:</b> {dataHora.includes(',') ? dataHora.split(',')[1].trim() : dataHora}</div>
-            <div style={{ fontSize: '8px', color: '#64748b', marginTop: 2 }}>Origem: {setorNome || 'Setor de Origem'} &bull; Leito {leitoNumero || '—'}</div>
+            <div style={{ fontSize: '8px', marginTop: 2 }}>Origem: {setorNome || 'Setor de Origem'} &bull; Leito {leitoNumero || '—'}</div>
           </div>
           <div style={{ display: 'flex', gap: 16 }}>
             <div className="doc-bloco-assinatura" style={{ minWidth: 190 }}>

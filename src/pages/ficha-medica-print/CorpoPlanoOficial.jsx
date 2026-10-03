@@ -45,7 +45,7 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
               <div style={{ marginTop: '2px' }}><b>2. SECUNDÁRIOS:</b> {extra.diagnosticos_texto}</div>
             )}
             {extra.comorbidades_antecedentes && (
-              <div style={{ marginTop: '2px', color: '#475569' }}><b>Comorbidades / Antecedentes:</b> {extra.comorbidades_antecedentes}</div>
+              <div style={{ marginTop: '2px' }}><b>Comorbidades / Antecedentes:</b> {extra.comorbidades_antecedentes}</div>
             )}
           </div>
         </div>
@@ -100,7 +100,7 @@ export default function CorpoPlanoOficial({ registro, pessoa, atendimento, idade
                   {registro.tempo_internacao_previsto_dias ? `${String(registro.tempo_internacao_previsto_dias).padStart(2, '0')} DIAS` : '24 a 48H'}
                 </span>
                 <span className="sub">Tempo Previsto na UPA</span>
-                <span style={{ fontSize: '8px', color: '#334155', marginTop: '3px' }}>
+                <span style={{ fontSize: '8px', marginTop: '3px' }}>
                   {extra.observacao_alta ? `Condicionante da alta: ${extra.observacao_alta}` : 'Estabilização clínica e definição de desfecho'}
                 </span>
               </div>

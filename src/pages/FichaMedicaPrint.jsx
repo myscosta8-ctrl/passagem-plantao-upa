@@ -3,11 +3,12 @@ import { createPortal } from 'react-dom'
 import { buscarCabecalhoImpressao, buscarAutorRegistro } from '../lib/pepMedico'
 import './PrintView.css'
 import './print/leitura.css'
+import './print/documento-clinico.css'
 
 import { corpoDoTipo, DocumentoPacote, TIPOS_LEITURA, dataHoraDe } from './ficha-medica-print/corposMedicos'
 import PaginaImpressao from '../components/PaginaImpressao'
+import CabecalhoPadraoUPA from './CabecalhoPadraoUPA'
 
-import { limparPrefixo } from './ficha-medica-print/helpersSus'
 import CorpoConsultaOficial from './ficha-medica-print/CorpoConsultaOficial'
 import CorpoPrescricaoOficial from './ficha-medica-print/CorpoPrescricaoOficial'
 import CorpoAihOficial from './ficha-medica-print/CorpoAihOficial'
@@ -125,34 +126,13 @@ export default function FichaMedicaPrint({ atendimentoId, tipo, registro, extras
     )
   }
 
-  // Layout genérico de fallback para tipos sem modelo estruturado dedicado
+  // Layout genérico de fallback para tipos sem modelo estruturado dedicado (mesma identificação padrão)
   return (
     <div className="print-page">
       <BotoesImpressao onVoltar={onVoltar} />
 
       <div className="print-area doc-page">
-        <div className="print-header">
-          <div className="print-header-logos">
-            <img src="./logos/brasao-breves.jpg" alt="Prefeitura de Breves" />
-            <img src="./logos/semsa.jpg" alt="SEMSA" />
-            <img src="./logos/upa24h.jpg" alt="UPA 24h" />
-          </div>
-        </div>
-
-        <div className="doc-titulo">{TITULOS[tipo] || 'Documento Médico'}</div>
-
-        <div className="doc-cabecalho">
-          <div><span className="rotulo">Nome:</span>{pessoa.nome}</div>
-          <div><span className="rotulo">Prontuário:</span>{limparPrefixo(pessoa.prontuario_numero)}</div>
-          <div><span className="rotulo">Atendimento:</span>{limparPrefixo(atendimento.numero_atendimento)}</div>
-          <div><span className="rotulo">Nascimento:</span>{pessoa.data_nascimento ? new Date(pessoa.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR') : ''}{idade ? ` (${idade} anos)` : ''}</div>
-          <div><span className="rotulo">Sexo:</span>{pessoa.sexo === 'F' ? 'Feminino' : pessoa.sexo === 'M' ? 'Masculino' : ''}</div>
-          <div><span className="rotulo">Mãe:</span>{pessoa.nome_mae || ''}</div>
-          <div><span className="rotulo">CNS:</span>{pessoa.cns || ''}</div>
-          <div><span className="rotulo">CPF:</span>{pessoa.cpf || ''}</div>
-          <div><span className="rotulo">Convênio:</span>{atendimento.convenio || 'SUS'}</div>
-          <div className="campo-largo"><span className="rotulo">Leito/Setor:</span>{leitoNumero ? `Leito ${leitoNumero} — ${setorNome}` : ''}</div>
-        </div>
+        <CabecalhoPadraoUPA titulo={(TITULOS[tipo] || 'Documento Médico').toUpperCase()} pessoa={pessoa} atendimento={atendimento} idade={idade} leitoNumero={leitoNumero} setorNome={setorNome} medico={medico} dataHora={dataHora} />
 
         <div className="doc-assinatura">
           <div className="linha-assinatura" />

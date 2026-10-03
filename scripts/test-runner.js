@@ -1,5 +1,5 @@
 import { runRegrasClinicasTests } from '../tests/unit/regras-clinicas.test.js';
-import { runRegrasPrescricaoTests, runCatalogoSaeTests, runModelosEvolucaoTests, runImpressaoTests, runPadraoVisualTests, runCacheTests, runDivisaoPrescricaoTests, runDivisaoExamesTests, runDivisaoAihTests, runDivisaoColetivaTests, runDivisaoInicioTests } from '../tests/unit/regras-prescricao.test.js';
+import { runRegrasPrescricaoTests, runCatalogoSaeTests, runModelosEvolucaoTests, runImpressaoTests, runPadraoVisualTests, runCacheTests, runDivisaoPrescricaoTests, runDivisaoExamesTests, runDivisaoAihTests, runDivisaoColetivaTests, runDivisaoInicioTests, runPadraoImpressoTests } from '../tests/unit/regras-prescricao.test.js';
 import { runModelosImpressaoTests } from '../tests/fidelity/modelos-impressao.test.js';
 import { runMockupsFase2Tests } from '../tests/fidelity/mockups-fase2.test.js';
 import { runModularizacaoTests } from '../tests/architecture/modularizacao.test.js';
@@ -67,6 +67,7 @@ async function main() {
   runDivisaoAihTests(criarSuite('Laudo de AIH dividido em partes (item 17)'));
   runDivisaoColetivaTests(criarSuite('Passagem Coletiva dividida em partes (item 17)'));
   runDivisaoInicioTests(criarSuite('Início dividido em partes (item 17)'));
+  runPadraoImpressoTests(criarSuite('Padrão visual dos documentos impressos'));
   console.log('');
 
   // 2. Fidelidade Absoluta aos Modelos de Impressão HTML

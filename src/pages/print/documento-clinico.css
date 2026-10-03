@@ -1,0 +1,124 @@
+/* ===== Padrão visual dos documentos clínicos impressos =====
+   Vale para todo documento com .doc-leitura (evoluções, admissões, plano terapêutico, notas,
+   sumário de alta, atestado, SBAR, intercorrências, registros multiprofissionais...).
+   Ficam de fora: a Prescrição (.pr-page, layout próprio já aprovado), o Balanço Hídrico e os
+   formulários oficiais do SUS (AIH, APAC, SINAN, hemoterapia), que seguem o modelo oficial.
+
+   Uma única família de letra (IBM Plex Sans, embutida no sistema — imprime igual mesmo sem
+   internet) e só 4 tamanhos, com a mesma função em todos os documentos:
+     --dc-titulo   título do documento
+     --dc-texto    texto escrito pelo profissional (o que mais importa ler)
+     --dc-rotulo   títulos de seção, rótulos e dados de identificação
+     --dc-legenda  timbre, rodapé e observações miúdas
+   Cor: texto em quase-preto; títulos de seção na cor da unidade; vermelho só para alerta
+   clínico (alergia). Para ajustar todos os documentos, altere só as variáveis abaixo. */
+
+.doc-leitura {
+  --dc-fonte: 'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif;
+  --dc-titulo: 12pt;
+  --dc-texto: 9.5pt;
+  --dc-rotulo: 8pt;
+  --dc-legenda: 7pt;
+  --dc-lh: 1.42;
+  --dc-tinta: #111827;
+  --dc-tinta-2: #374151;
+  --dc-tinta-3: #6b7280;
+  --dc-cor: #1B4555;
+  --dc-faixa: #eef3f5;
+  --dc-linha: #c7d2d8;
+  --dc-alerta: #b91c1c;
+}
+
+/* Admissão de Enfermagem (formulário de 2 folhas): mesmo timbre, identificação, títulos e rodapé;
+   o corpo continua em 9 pt para caber nas 2 folhas. */
+.doc-leitura > .hef-page .pr-info .pr-campo { font-size: var(--dc-rotulo) !important; padding: 1px 4px !important; }
+
+/* --- Família e tamanho base (o texto do profissional) ---
+   Prescrição e Admissão de Enfermagem (formulário de marcações em 2 folhas) mantêm os tamanhos
+   próprios; recebem só a mesma família de letra. */
+.doc-leitura, .doc-leitura *:not(i):not(.ph) { font-family: var(--dc-fonte) !important; }
+.doc-leitura > :not(.pr-page):not(.hef-page) * {
+  --lt-texto: var(--dc-texto); --lt-lh: var(--dc-lh);
+  --lt-tabela: var(--dc-texto); --lt-tabela-lh: 1.35;
+  --lt-th: var(--dc-rotulo); --lt-th-conteudo: var(--dc-rotulo);
+  --lt-pequeno: var(--dc-legenda); --lt-pequeno-lh: 1.3;
+  --lt-titulo: var(--dc-titulo); --lt-nome: var(--dc-rotulo);
+  color: var(--dc-tinta);
+}
+
+/* Folha branca (sem o fundo cinza da tela). */
+.doc-leitura > :not(.pr-page) { background: #fff !important; }
+
+/* --- Timbre --- */
+.doc-leitura > :not(.pr-page) .pr-topo .nome { font-size: var(--dc-rotulo) !important; font-weight: 700 !important; letter-spacing: .02em; }
+.doc-leitura > :not(.pr-page) .pr-topo .sub { font-size: var(--dc-legenda) !important; color: var(--dc-tinta-2) !important; line-height: 1.3 !important; }
+.doc-leitura > :not(.pr-page) .pr-topo-hr { border-top: 1.2px solid var(--dc-cor) !important; margin: 4px 0 5px !important; }
+
+/* --- Título do documento --- */
+.doc-leitura > :not(.pr-page) .pr-titulo {
+  font-size: var(--dc-titulo) !important; font-weight: 700 !important; letter-spacing: .08em !important;
+  color: var(--dc-cor) !important; text-align: center; margin: 2px 0 6px !important;
+}
+
+/* --- Identificação do paciente: rótulo pequeno em cinza, dado em tamanho de leitura --- */
+.doc-leitura > :not(.pr-page) .pr-info { border: 1px solid var(--dc-linha) !important; border-radius: 2px; margin-bottom: 7px !important; }
+.doc-leitura > :not(.pr-page) .pr-info .pr-linha { border-color: var(--dc-linha) !important; }
+.doc-leitura > :not(.pr-page) .pr-info .pr-campo {
+  font-size: var(--dc-rotulo) !important; line-height: 1.3 !important; color: var(--dc-tinta) !important;
+  border-color: var(--dc-linha) !important; padding: 2px 5px !important;
+}
+.doc-leitura > :not(.pr-page) .pr-info .pr-campo b,
+.doc-leitura > :not(.pr-page) .pr-info .pr-campo .rotulo {
+  font-size: var(--dc-legenda) !important; font-weight: 600 !important; color: var(--dc-tinta-3) !important; letter-spacing: .03em;
+}
+
+/* --- Seções: título em faixa clara com filete na cor da unidade; corpo sem moldura pesada --- */
+.doc-leitura :is(.med-secao, .cons-secao, .notm-secao, .alta-secao, .sae-secao, .sbar-secao, .not-secao, .serf-secao, .enf-secao) {
+  border: 0 !important; border-radius: 0 !important; margin: 0 0 6px !important; background: transparent !important;
+  border-bottom: 1px solid var(--dc-linha) !important; padding-bottom: 3px !important;
+}
+.doc-leitura :is(.med-secao-header, .cons-secao-header, .notm-secao-header, .alta-secao-header, .sae-secao-header, .sbar-secao-header, .not-secao-header, .serf-secao-titulo, .enf-secao-header, .hef-secao-titulo) {
+  font-size: var(--dc-rotulo) !important; font-weight: 700 !important; line-height: 1.3 !important;
+  text-transform: uppercase; letter-spacing: .05em !important; color: var(--dc-cor) !important;
+  background: var(--dc-faixa) !important; border: 0 !important; border-left: 3px solid var(--dc-cor) !important;
+  padding: 3px 7px !important; margin: 0 0 3px !important;
+}
+.doc-leitura :is(.med-secao-header, .cons-secao-header, .notm-secao-header, .alta-secao-header, .sae-secao-header, .sbar-secao-header, .not-secao-header, .serf-secao-titulo, .enf-secao-header, .hef-secao-titulo) * {
+  font-size: inherit !important; color: inherit !important;
+}
+.doc-leitura :is(.med-secao-body, .cons-secao-body, .notm-secao-body, .alta-secao-body, .sae-secao-body, .sbar-secao-body, .not-secao-body, .serf-secao-corpo, .enf-secao-body) {
+  padding: 2px 7px 1px 10px !important; background: transparent !important; border: 0 !important;
+}
+
+/* Rótulos dentro do texto ("Principal:", "Risco TEV:") no mesmo tamanho do texto, em seminegrito. */
+.doc-leitura > :not(.pr-page):not(.hef-page) :is(.med-secao-body, .cons-secao-body, .notm-secao-body, .alta-secao-body, .sae-secao-body, .sbar-secao-body, .not-secao-body, .serf-secao-corpo, .enf-secao-body) b {
+  font-weight: 600 !important; color: var(--dc-tinta-2) !important;
+}
+/* Caixas internas (grades de risco, sinais vitais) sem fundo cinza nem moldura grossa. */
+.doc-leitura > :not(.pr-page):not(.hef-page) :is(.med-grid-3, .alta-grid-2, .grid-sinais-tfd, .serf-vitais, .not-card-mini) {
+  background: transparent !important; border-color: var(--dc-linha) !important;
+}
+.doc-leitura > :not(.pr-page):not(.hef-page) table th { background: var(--dc-faixa) !important; color: var(--dc-tinta-2) !important; font-weight: 600 !important; }
+.doc-leitura > :not(.pr-page):not(.hef-page) :is(table th, table td) { border-color: var(--dc-linha) !important; }
+
+/* Quadros pequenos (classificação, médico notificado, horário): título como rótulo de seção. */
+.doc-leitura > :not(.pr-page):not(.hef-page) .not-card-mini .card-header {
+  font-size: var(--dc-rotulo) !important; font-weight: 700 !important; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--dc-cor) !important; background: var(--dc-faixa) !important; border-color: var(--dc-linha) !important;
+}
+
+/* Alerta clínico: alergia sempre em vermelho (rótulo e texto). */
+.doc-leitura > :not(.pr-page) .dc-alerta, .doc-leitura > :not(.pr-page) .dc-alerta * { color: var(--dc-alerta) !important; }
+
+/* --- Rodapé e assinatura --- */
+.doc-leitura > :not(.pr-page) .doc-rodape-container * { font-size: var(--dc-rotulo) !important; color: var(--dc-tinta-2) !important; }
+.doc-leitura > :not(.pr-page) .doc-rodape-container :is(.doc-rodape-nome, .nome-sig) { font-size: var(--dc-texto) !important; font-weight: 700 !important; color: var(--dc-tinta) !important; }
+.doc-leitura > :not(.pr-page) :is(.doc-rodape-sistema, .doc-rodape-meta, .doc-rodape-sistema *, .doc-rodape-meta *) { font-size: var(--dc-legenda) !important; color: var(--dc-tinta-3) !important; }
+.doc-leitura > :not(.pr-page) .pr-info .dc-alerta-cab { color: var(--dc-alerta) !important; font-weight: 700 !important; }
+
+/* Selo das letras S-B-A-R: letra branca sobre a cor da unidade. */
+.doc-leitura :is(.sbar-badge, .laudo-badge, .sbar-letra) { color: #fff !important; background: var(--dc-cor) !important; }
+/* Admissão de Enfermagem: os títulos fecham as caixas do formulário (mantêm a moldura). */
+.doc-leitura > .hef-page .hef-secao-titulo { border: 1px solid var(--dc-linha) !important; border-left: 3px solid var(--dc-cor) !important; border-top: none !important; text-align: left !important; margin: 0 !important; }
+.doc-leitura > .hef-page :is(.hef-caixa, .hef-par .hef-caixa) { border-color: var(--dc-linha) !important; }
+/* A identificação do paciente (igual em todos os impressos) fica em ./identificacao-padrao.css. */
