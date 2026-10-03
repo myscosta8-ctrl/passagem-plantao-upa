@@ -14,7 +14,7 @@ export default function AbaAtestadoMedico({ atendimento, medicoId, onImprimir, o
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
-  const rascunho = useRascunho({ tabela: 'atestados_medicos', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { cid: [cid, setCid], diasAfastamento: [diasAfastamento, setDiasAfastamento], dataInicio: [dataInicio, setDataInicio], textoLivre: [textoLivre, setTextoLivre] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
+  const rascunho = useRascunho({ tabela: 'atestados_medicos', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { cid: [cid, setCid], diasAfastamento: [diasAfastamento, setDiasAfastamento], dataInicio: [dataInicio, setDataInicio], textoLivre: [textoLivre, setTextoLivre] }, editandoId, setEditandoId, setDataRegistro, onCopiado: (m) => setAviso(m), onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 

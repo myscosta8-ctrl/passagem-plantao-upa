@@ -1,5 +1,5 @@
 import { runRegrasClinicasTests } from '../tests/unit/regras-clinicas.test.js';
-import { runRegrasPrescricaoTests, runCatalogoSaeTests, runModelosEvolucaoTests, runImpressaoTests, runPadraoVisualTests, runCacheTests, runDivisaoPrescricaoTests, runDivisaoExamesTests, runDivisaoAihTests, runDivisaoColetivaTests, runDivisaoInicioTests, runPadraoImpressoTests, runSinaisVitaisMedicoTests, runHistoricoRapidoTests, runAberturaDocumentoTests, runTopoPainelTests, runDuplicarPrescricaoTests, runIndicadoresDesfechosTests, runHistoricoPaginasTests, runAihIdentificacaoTests, runListaCuidadosTests } from '../tests/unit/regras-prescricao.test.js';
+import { runRegrasPrescricaoTests, runCatalogoSaeTests, runModelosEvolucaoTests, runImpressaoTests, runPadraoVisualTests, runCacheTests, runDivisaoPrescricaoTests, runDivisaoExamesTests, runDivisaoAihTests, runDivisaoColetivaTests, runDivisaoInicioTests, runPadraoImpressoTests, runSinaisVitaisMedicoTests, runHistoricoRapidoTests, runAberturaDocumentoTests, runTopoPainelTests, runDuplicarPrescricaoTests, runIndicadoresDesfechosTests, runHistoricoPaginasTests, runAihIdentificacaoTests, runListaCuidadosTests, runDuplicarDocumentosTests } from '../tests/unit/regras-prescricao.test.js';
 import { runModelosImpressaoTests } from '../tests/fidelity/modelos-impressao.test.js';
 import { runMockupsFase2Tests } from '../tests/fidelity/mockups-fase2.test.js';
 import { runModularizacaoTests } from '../tests/architecture/modularizacao.test.js';
@@ -77,6 +77,7 @@ async function main() {
   runHistoricoPaginasTests(criarSuite('Histórico paginado e AIH'));
   runAihIdentificacaoTests(criarSuite('AIH: identificação editável e caminho de volta'));
   runListaCuidadosTests(criarSuite('Prescrição: cuidados e hemocomponentes em lista com busca'));
+  runDuplicarDocumentosTests(criarSuite('Duplicar todos os documentos pelo histórico'));
   console.log('');
 
   // 2. Fidelidade Absoluta aos Modelos de Impressão HTML

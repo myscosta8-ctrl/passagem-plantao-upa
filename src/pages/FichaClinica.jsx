@@ -21,7 +21,7 @@ export default function FichaClinica({ atendimento, onFechar, onTrocarPilar, aba
   // Nova interface: o formulário da aba abre em janela flutuante (contas com pep_beta).
   const novaUI = enfermeiro?.pep_beta === true;
   const [dupSeq, setDupSeq] = useState(0);
-  const aposDuplicar = () => { setHistoricoAberto(false); setAba('evolucao'); setFormAberto(true); setDupSeq((n) => n + 1); };
+  const aposDuplicar = (abaDestino = 'evolucao') => { setHistoricoAberto(false); setAba(abaDestino); setFormAberto(true); setDupSeq((n) => n + 1); };
   // Histórico Clínico → "Editar rascunho": abre a aba do documento já com aquele rascunho carregado.
   const editarRascunho = (tabela, id, abaDestino) => { definirRascunhoAlvo(tabela, id); setHistoricoAberto(false); setAba(abaDestino); setFormAberto(true); setDupSeq((n) => n + 1); };
   // Paciente que já saiu (aberto pela tela Desfechos): só consulta e impressão pelo histórico;

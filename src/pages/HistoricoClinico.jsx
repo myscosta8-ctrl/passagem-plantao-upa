@@ -5,7 +5,8 @@ import { buscarCabecalhoImpressao } from '../lib/pepMedico'
 import { listarAtendimentosDaPessoa, listarRegistrosClinicos, listarAlteracoes, buscarRegistroCompleto, ABA_EDICAO } from '../lib/historicoClinico'
 import { invalidarRegistro } from '../lib/documentos'
 import { useAuth } from '../lib/AuthContext'
-import { definirDuplicacao } from '../lib/duplicarPendente'
+import { definirDuplicacao, definirCopia } from '../lib/duplicarPendente'
+import { podeCopiar, estadoParaCopia, filtroDaCopia, ABA_DA_COPIA } from '../lib/copiaDocumento'
 import { precisaAtm, itensControlados, carregarCatalogo, impressaoVinculada } from '../lib/documentosVinculados'
 import './HistoricoClinico.css'
 
@@ -120,7 +121,7 @@ function Linha({ item, onImprimir, meuId, onAlterado, onDuplicar, onEditar, soHo
             <button type="button" className="hc-ic perigo" title="Invalidar documento" aria-label="Invalidar" onClick={() => { setAberto(true); setInvalidando(true) }}><i className="ph ph-prohibit" /></button>
           )}
           {onDuplicar && situacao === 'finalizado' && onDuplicar.pode(item) && (
-            <button type="button" className="hc-ic" title={item.fonte.tabela === 'prescricoes_medicas' ? 'Duplicar: copiar para uma nova prescrição' : 'Duplicar: copiar para uma nova evolução (sinais vitais não são copiados)'} aria-label="Duplicar" onClick={() => onDuplicar.fazer(item)}><i className="ph ph-copy" /></button>
+            <button type="button" className="hc-ic" title={item.fonte.tabela === 'prescricoes_medicas' ? 'Duplicar: copiar para uma nova prescrição' : `Duplicar: copiar para um novo documento (${rotuloCurto(item.fonte)}) — sinais vitais não são copiados`} aria-label="Duplicar" onClick={() => onDuplicar.fazer(item)}><i className="ph ph-copy" /></button>
           )}
         </span>
       </div>
@@ -332,7 +333,7 @@ export async function ultimoDocumentoDoAutor(atendimentoId, autorId) {
   return { ...it, registro: completo || it.registro }
 }
 
-export default function HistoricoClinico({ atendimento, aberto, onFechar, embutido = false, categoriaDuplicar, onDuplicado, onEditarRascunho }) {
+export default function HistoricoClinico({ atendimento, aberto, onFechar, embutido = false, categoriaDuplicar, onDuplicado, onEditarRascunho, permiteDuplicar }) {
   const [busca, setBusca] = useState('')
   const [filtroArea, setFiltroArea] = useState('todos')
   const [verInvalidados, setVerInvalidados] = useState(false)
@@ -364,12 +365,16 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
     return () => clearTimeout(t)
   }, [])
   const atendimentoId = atendimento?.atendimento_id
-  // Botão "Duplicar" nas evoluções do atendimento atual, da mesma categoria da ficha aberta, e
-  // (na ficha médica) também nas prescrições: abre a aba do documento já com a cópia.
+  // Botão "Duplicar": evoluções e prescrição (cópia própria) e todos os outros documentos do
+  // atendimento atual, da área da ficha aberta (copiaDocumento.js): abre a aba já com a cópia.
   const TABELA_DUP = { enfermagem: ['evolucoes'], medico: ['evolucoes_medicas', 'prescricoes_medicas'] }
   const onDuplicar = categoriaDuplicar && onDuplicado ? {
-    pode: (item) => (TABELA_DUP[categoriaDuplicar] || []).includes(item.fonte.tabela) && item.registro.atendimento_id === atendimentoId
-      && item.registro.situacao !== 'invalido' && (categoriaDuplicar !== 'enfermagem' || item.registro.tipo !== 'medico'),
+    pode: (item) => {
+      if (permiteDuplicar && !permiteDuplicar(item)) return false
+      if (podeCopiar(categoriaDuplicar, item.fonte.tabela, item.registro, atendimentoId)) return true
+      return (TABELA_DUP[categoriaDuplicar] || []).includes(item.fonte.tabela) && item.registro.atendimento_id === atendimentoId
+        && item.registro.situacao !== 'invalido' && (categoriaDuplicar !== 'enfermagem' || item.registro.tipo !== 'medico')
+    },
     fazer: async (item) => {
       const completo = await buscarRegistroCompleto(item.fonte.tabela, item.registro.id, item.fonte.selectCompleto)
       if (!completo) return
@@ -377,11 +382,18 @@ export default function HistoricoClinico({ atendimento, aberto, onFechar, embuti
       const quando = new Date(item.data).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
       if (item.fonte.tabela === 'prescricoes_medicas') {
         definirDuplicacao('prescricao', completo, `Copiada da prescrição de ${quando} (${quem}).`)
-        onDuplicado('prescricao')
+        onDuplicado('prescricao', item)
+        return
+      }
+      const estado = estadoParaCopia(item.fonte.tabela, completo)
+      if (estado) {
+        const nome = rotuloCurto(item.fonte)
+        definirCopia(item.fonte.tabela, estado, `Cópia de ${nome} de ${quando} (${quem}) — documento novo. Revise e atualize tudo antes de salvar; data, sinais vitais e dados de autorização não são copiados.`, filtroDaCopia(item.fonte.tabela, completo))
+        onDuplicado(ABA_EDICAO[item.fonte.tabela] || ABA_DA_COPIA[item.fonte.tabela], item)
         return
       }
       definirDuplicacao(categoriaDuplicar, completo, `Copiado da evolução de ${quando} (${quem}). Revise e atualize tudo antes de salvar — os sinais vitais não são copiados.`)
-      onDuplicado('evolucao')
+      onDuplicado('evolucao', item)
     },
   } : null
   // "Editar rascunho": só os rascunhos do próprio profissional, deste atendimento e da ficha aberta (enfermagem/médico).

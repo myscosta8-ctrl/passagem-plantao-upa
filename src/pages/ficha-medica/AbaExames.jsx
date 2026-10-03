@@ -9,6 +9,7 @@ import GradeExames from './exames/GradeExames';
 import DadosPedido from './exames/DadosPedido';
 import JustificativaExame from './exames/JustificativaExame';
 import PainelFerramentas from './exames/PainelFerramentas';
+import { espiarCopia } from '../../lib/duplicarPendente';
 
 // Aba Solicitação de Exames: guarda o estado e as regras (protocolos, salvar). Catálogo e regras sem
 // tela em ./exames/catalogoExames.js; partes da tela em ./exames/. APAC abre o laudo oficial (AbaApac).
@@ -16,7 +17,7 @@ import PainelFerramentas from './exames/PainelFerramentas';
 
 export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar, abrirApacCompleto = false }) {
   // APAC abre sempre o laudo oficial completo (52 campos), sem tela-resumo.
-  const [modalidade, setModalidadeAtual] = useState(abrirApacCompleto ? 'apac' : 'lab'); // 'lab' | 'img' | 'ecg' | 'apac'
+  const [modalidade, setModalidadeAtual] = useState(abrirApacCompleto ? 'apac' : (espiarCopia('exames_solicitados')?.filtro?.modalidade || 'lab')); // 'lab' | 'img' | 'ecg' | 'apac' (Duplicar abre na modalidade copiada)
   const [labSelecionados, setLabSelecionados] = useState({});
   const [imgSelecionados, setImgSelecionados] = useState({});
   const [ecgSelecionados, setEcgSelecionados] = useState({});
@@ -51,7 +52,7 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
   const rascunho = useRascunho({
     tabela: 'exames_solicitados', atendimentoId: atual ? atendimento?.atendimento_id : null, autorId: medicoId,
     filtro: { modalidade }, campos: camposRascunho, editandoId, setEditandoId, setDataRegistro,
-    onReaberto: () => setMsgExame({ t: 'Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Finalizar e Imprimir" finaliza.' }),
+    onCopiado: (m) => setMsgExame({ t: m }), onReaberto: () => setMsgExame({ t: 'Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Finalizar e Imprimir" finaliza.' }),
   });
   const { salvando, salvar: salvarDocumento } = useSalvarDocumento({ rascunho, dataRegistro, editandoId, setEditandoId, setDataRegistro });
 

@@ -33,7 +33,7 @@ export default function AbaEventosAdversos({ atendimento, autorId, onImprimir, o
   const [salvando, setSalvando] = useState(false);
   const [dataRegistro, setDataRegistro] = useState('');
   const [editandoId, setEditandoId] = useState(null);
-  const rascunho = useRascunho({ tabela: 'eventos_adversos', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setMsg({ t: 'Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.' }) });
+  const rascunho = useRascunho({ tabela: 'eventos_adversos', atendimentoId: atendimento?.atendimento_id, autorId: autorId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onCopiado: (m) => setMsg({ t: m }), onReaberto: () => setMsg({ t: 'Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.' }) });
   const [msg, setMsg] = useState(null);
 
   const set = (k, v) => setD((p) => ({ ...p, [k]: v }));

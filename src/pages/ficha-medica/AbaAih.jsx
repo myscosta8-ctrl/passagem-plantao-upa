@@ -98,7 +98,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     clinica: isPediatrico ? 'CLÍNICA PEDIÁTRICA' : 'CLÍNICA MÉDICA',
     carater_internacao: 'URGENCIA',
   });
-  const rascunho = useRascunho({ tabela: 'aih_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: (r) => {
+  const rascunho = useRascunho({ tabela: 'aih_solicitacoes', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onCopiado: (m) => setSucesso(m), onReaberto: (r) => {
     if (r?.medico_destino_id) setMedicoDestino(r.medico_destino_id);
     if (r && r.autor_auth !== medicoId && r.medico_destino_id === medicoId) {
       setEncaminhada({ preenchidoPor: r.preenchido_por || r.autor_auth, em: r.encaminhado_em });

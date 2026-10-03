@@ -36,6 +36,11 @@ export default function FichaMulti({ atendimento, onFechar, onTrocarPilar, posAl
     if (!chave) return;
     definirRascunhoAlvo(tabela, id); setAba(chave); setFormAberto(true); setSeq((n) => n + 1);
   };
+  // Histórico → Duplicar: abre a aba do mesmo documento (admissão ou evolução) já com a cópia.
+  const chaveDoItem = (item) => Object.keys(DOCUMENTOS_MULTI).find((k) => DOCUMENTOS_MULTI[k].tabela === item.fonte.tabela && DOCUMENTOS_MULTI[k].tipo === item.registro.tipo);
+  const aposDuplicar = (_aba, item) => { const chave = chaveDoItem(item); if (!chave) return; setAba(chave); setFormAberto(true); setSeq((n) => n + 1); };
+  // Cada profissional duplica só os documentos da própria área.
+  const permiteDuplicar = (item) => DOCUMENTOS_MULTI[chaveDoItem(item)]?.funcao === funcao;
   const escolherAba = (a) => { setAba(a); setFormAberto(true); };
 
   if (imprimindo) {
@@ -68,7 +73,7 @@ export default function FichaMulti({ atendimento, onFechar, onTrocarPilar, posAl
           </div>
         )}
         <JanelaFormulario ativa aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={doc.titulo} paciente={atendimento?.nome} atendimento={atendimento} categoria="enfermagem"
-          vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="multi" onEditarRascunho={rascunhoLiberado ? editarRascunho : undefined} />}>
+          vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="multi" onDuplicado={posAlta ? undefined : aposDuplicar} permiteDuplicar={permiteDuplicar} onEditarRascunho={rascunhoLiberado ? editarRascunho : undefined} />}>
           <ErroAba chave={aba}>
             <AbaRegistroMulti key={`${aba}-${seq}`} atendimento={atendimento} autorId={enfermeiro?.id} doc={doc} podeCriar={podeCriar}
               onImprimir={(x) => { setImprimindo(x); setFormAberto(false); }} onFechar={() => setFormAberto(false)} />

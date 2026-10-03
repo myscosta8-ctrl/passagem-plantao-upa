@@ -2,12 +2,14 @@ import { useState } from 'react';
 import AbaReceituarioMedico from './AbaReceituarioMedico';
 import AbaAtestadoMedico from './AbaAtestadoMedico';
 import AbaSumarioAlta from './AbaSumarioAlta';
+import { espiarCopia } from '../../lib/duplicarPendente';
 
 // Tela única "Receituário & Alta" (mockup 05-receituario-alta-design.html):
 // Receita Simples, Controle Especial, Atestado e Sumário de Alta como
 // sub-abas de um mesmo painel de Documentos de Alta.
 export default function AbaDocumentosAlta({ atendimento, medicoId, onImprimir, onFechar, docInicial = 'simples' }) {
-  const [doc, setDoc] = useState(docInicial);
+  // Duplicar uma receita de controle especial abre direto na sub-aba dela.
+  const [doc, setDoc] = useState(docInicial === 'simples' && espiarCopia('receitas_medicas')?.estado?.itensControle ? 'controle' : docInicial);
   const [pulse, setPulse] = useState(false);
 
   const abas = [

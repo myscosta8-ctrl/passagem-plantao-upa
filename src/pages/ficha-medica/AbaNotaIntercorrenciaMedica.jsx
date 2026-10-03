@@ -17,7 +17,7 @@ export default function AbaNotaIntercorrenciaMedica({ atendimento, medicoId, onI
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
-  const rascunho = useRascunho({ tabela: 'notas_intercorrencia_medica', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
+  const rascunho = useRascunho({ tabela: 'notas_intercorrencia_medica', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { d: [d, setD] }, editandoId, setEditandoId, setDataRegistro, onCopiado: (m) => setAviso(m), onReaberto: () => setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
   const [aviso, setAviso] = useState('')
   const [erro, setErro] = useState('')
 

@@ -903,3 +903,63 @@ export function runListaCuidadosTests(test) {
     for (const f of ['GrupoOrientacoes', 'GrupoHemocomponentes']) assert.match(fs.readFileSync(`src/pages/ficha-medica/prescricao/${f}.jsx`, 'utf8'), /<BuscaLista/);
   });
 }
+
+// Duplicar qualquer documento pelo Histórico Clínico (Atualização de Quadro, exames, multiprofissional...).
+import { COPIAVEIS, estadoParaCopia, filtroDaCopia, podeCopiar } from '../../src/lib/copiaDocumento.js';
+import { definirCopia, retirarCopia, espiarCopia } from '../../src/lib/duplicarPendente.js';
+export function runDuplicarDocumentosTests(test) {
+  test('Duplicar: Atualização de Quadro copia o texto e o destino, sem sinais vitais', () => {
+    const e = estadoParaCopia('regulacao_atualizacoes', { evolucao: 'Estável', conduta: 'Manter', destino_ser: true, numero_solicitacao_ser: '123', destino_sisreg: false, mudanca_diagnostico: null, sinais_vitais: { fc: 80 } });
+    assert.equal(e.evolucao, 'Estável');
+    assert.equal(e.destSer, true);
+    assert.equal(e.numeroSer, '123');
+    assert.equal(e.pendencias, '');
+    assert.ok(!('sv' in e));
+  });
+  test('Duplicar: só documento finalizado, do atendimento aberto e da área da ficha', () => {
+    const r = { situacao: 'finalizado', atendimento_id: 'a1' };
+    assert.ok(podeCopiar('medico', 'regulacao_atualizacoes', r, 'a1'));
+    assert.ok(!podeCopiar('medico', 'regulacao_atualizacoes', { ...r, situacao: 'rascunho' }, 'a1'));
+    assert.ok(!podeCopiar('medico', 'regulacao_atualizacoes', r, 'a2'));
+    assert.ok(!podeCopiar('enfermagem', 'regulacao_atualizacoes', r, 'a1'), 'enfermagem não duplica documento médico');
+    assert.ok(podeCopiar('multi', 'registros_nutricao', r, 'a1'));
+    assert.ok(podeCopiar('enfermagem', 'transferencias_sbar', r, 'a1'));
+    assert.ok(!podeCopiar('medico', 'exames_solicitados', { ...r, modalidade: null }, 'a1'), 'exame antigo sem modalidade não abre em lugar nenhum');
+    for (const tabelas of Object.values(COPIAVEIS)) for (const t of tabelas) assert.ok(estadoParaCopia(t, {}), `${t} tem cópia`);
+  });
+  test('Duplicar: não copia data, sinais vitais, autorização nem conferência do banco de sangue', () => {
+    const tfd = estadoParaCopia('tfd_solicitacoes', { diagnostico: 'X', tempo_provavel_dias: 5, campos_extra: { sv_pa: '120x80', carater: 'Urgência' } }).dados;
+    assert.deepEqual(tfd, { diagnostico: 'X', tempo_provavel_dias: '5', carater: 'Urgência' });
+    const aih = estadoParaCopia('aih_solicitacoes', { cid_principal: 'A41.9', campos_formulario: { numero_autorizacao: '9', autorizador_nome: 'Y', clinica: 'CLÍNICA MÉDICA', data_solicitacao_aih: '01/10/2026' } }).dados;
+    assert.deepEqual(aih, { cid_principal: 'A41.9', clinica: 'CLÍNICA MÉDICA' });
+    const apac = estadoParaCopia('apac_solicitacoes', { procedimento_nome: 'P', campos_formulario: { validade_fim: 'x', data_autorizacao: 'y', justificativa: 'J' } }).dados;
+    assert.deepEqual(apac, { procedimento_nome: 'P', justificativa: 'J' });
+    const sg = estadoParaCopia('solicitacoes_sangue', { indicacao_clinica: 'Anemia', campos_extra: { peso: '70', coletado_por: 'Z', pai_i: 'N', hemopa_data: 'd' } }).dados;
+    assert.deepEqual(sg, { indicacao_clinica: 'Anemia', peso: '70' });
+    const cons = estadoParaCopia('consultas_medicas', { queixa_principal: 'Dor', campos_admissao: { sv: { pa: '1' } } }).dados;
+    assert.deepEqual(cons, { queixa_principal: 'Dor' });
+    const sbar = estadoParaCopia('transferencias_sbar', { impressao_diagnostica: 'Sepse', sinais_vitais: { fc: 90 }, campos_extra: { hospital_destino: 'HR', checklist: ['a'], alergias: 'x' } }).d;
+    assert.deepEqual(sbar, { hospital_destino: 'HR', diagnostico: 'Sepse' });
+  });
+  test('Duplicar: exames, receita de controle e documentos multiprofissionais', () => {
+    assert.deepEqual(estadoParaCopia('exames_solicitados', { exames: [{ nome: 'Hemograma' }, { nome: 'PCR' }], justificativa_clinica: 'Febre' }), { selecionados: { Hemograma: true, PCR: true }, justificativa: 'Febre' });
+    assert.deepEqual(filtroDaCopia('exames_solicitados', { modalidade: 'img' }), { modalidade: 'img' });
+    assert.deepEqual(Object.keys(estadoParaCopia('receitas_medicas', { tipo: 'controle_especial', itens: [{ medicamento: 'Morfina' }, { medicamento: '' }] })), ['itensControle']);
+    assert.equal(estadoParaCopia('receitas_medicas', { tipo: 'simples', itens: [{ medicamento: 'Dipirona' }] }).itensSimples.length, 1);
+    assert.deepEqual(estadoParaCopia('registros_nutricao', { tipo: 'evolucao', dados: { dieta: 'Branda', idade_no_registro: 40 } }), { dados: { dieta: 'Branda' } });
+    assert.deepEqual(filtroDaCopia('registros_nutricao', { tipo: 'evolucao' }), { tipo: 'evolucao' });
+  });
+  test('Duplicar: a cópia é entregue uma vez, só ao formulário certo', () => {
+    definirCopia('registros_nutricao', { dados: { a: 1 } }, 'm', { tipo: 'evolucao' });
+    assert.equal(retirarCopia('registros_nutricao', { tipo: 'admissao' }), null, 'admissão não pega cópia da evolução');
+    assert.ok(espiarCopia('registros_nutricao'));
+    assert.equal(retirarCopia('registros_nutricao', { tipo: 'evolucao' }).mensagem, 'm');
+    assert.equal(retirarCopia('registros_nutricao', { tipo: 'evolucao' }), null);
+  });
+  test('Duplicar: as abas avisam a cópia e o histórico usa a cópia genérica', () => {
+    for (const f of ['ficha-medica/AbaRegulacao', 'ficha-medica/AbaExames', 'ficha-medica/AbaAih', 'ficha-medica/AbaReceituarioMedico', 'ficha-clinica/AbaSbar', 'ficha-clinica/AbaEventosAdversos', 'multi/AbaRegistroMulti']) assert.match(fs.readFileSync(`src/pages/${f}.jsx`, 'utf8'), /onCopiado:/, f);
+    assert.match(fs.readFileSync('src/pages/HistoricoClinico.jsx', 'utf8'), /podeCopiar\(categoriaDuplicar/);
+    assert.match(fs.readFileSync('src/pages/multi/FichaMulti.jsx', 'utf8'), /onDuplicado=/);
+    assert.match(fs.readFileSync('src/hooks/useRascunho.js', 'utf8'), /retirarCopia\(tabela, filtro\)/);
+  });
+}

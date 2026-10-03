@@ -22,7 +22,7 @@ export default function AbaRegistroMulti({ atendimento, autorId, doc, podeCriar,
   const rascunho = useRascunho({
     tabela, atendimentoId: atendimento?.atendimento_id, autorId, filtro,
     campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro,
-    onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.'),
+    onCopiado: (m) => setSucesso(m), onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.'),
   });
 
   const ctx = { idade };

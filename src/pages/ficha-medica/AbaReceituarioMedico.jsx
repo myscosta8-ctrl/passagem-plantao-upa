@@ -58,7 +58,7 @@ export default function AbaReceituarioMedico({ atendimento, medicoId, onImprimir
   const [salvando, setSalvando] = useState(false)
   const [dataRegistro, setDataRegistro] = useState('')
   const [editandoId, setEditandoId] = useState(null)
-  const rascunho = useRascunho({ tabela: 'receitas_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { itensSimples: [itensSimples, setItensSimples], itensControle: [itensControle, setItensControle], enderecoPaciente: [enderecoPaciente, setEnderecoPaciente] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setAvisoRasc('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
+  const rascunho = useRascunho({ tabela: 'receitas_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { itensSimples: [itensSimples, setItensSimples], itensControle: [itensControle, setItensControle], enderecoPaciente: [enderecoPaciente, setEnderecoPaciente] }, editandoId, setEditandoId, setDataRegistro, onCopiado: (m) => setAvisoRasc(m), onReaberto: () => setAvisoRasc('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') })
   const [avisoRasc, setAvisoRasc] = useState('')
   const [erro, setErro] = useState('')
   const [catalogo, setCatalogo] = useState([])

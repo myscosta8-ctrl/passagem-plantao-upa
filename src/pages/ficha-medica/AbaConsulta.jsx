@@ -56,7 +56,7 @@ export default function AbaConsulta({ atendimento, medicoId, medicoNome, medicoC
     hipotese_diagnostica: '',
     conduta_inicial: '',
   });
-  const rascunho = useRascunho({ tabela: 'consultas_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') });
+  const rascunho = useRascunho({ tabela: 'consultas_medicas', atendimentoId: atendimento?.atendimento_id, autorId: medicoId, campos: { dados: [dados, setDados] }, editandoId, setEditandoId, setDataRegistro, onCopiado: (m) => setSucesso(m), onReaberto: () => setSucesso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Cancelar" o descarta.') });
 
   const [comorbidades, setComorbidades] = useState([]);
 
