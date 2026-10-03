@@ -1113,13 +1113,32 @@
 
 
 /* Hemocomponentes e Derivados (Prescrição Médica) — chips de seleção rápida */
-.atendimento-medico-container .hemo-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.atendimento-medico-container .hemo-chip { display: flex; align-items: center; gap: 6px; }
-.atendimento-medico-container .hemo-chip-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border-strong, var(--c-border-dark)); background: var(--c-surface); color: var(--text-secondary, var(--c-text-secondary)); font-size: var(--fs-xs); font-weight: 600; cursor: pointer; transition: 0.15s; white-space: nowrap; }
-.atendimento-medico-container .hemo-chip-btn:hover { border-color: var(--primary, var(--c-primary)); }
-.atendimento-medico-container .hemo-chip-btn i { font-size: var(--fs-sm); }
-.atendimento-medico-container .hemo-chip.ativo .hemo-chip-btn { background: var(--c-surface-inset); border-color: var(--primary, var(--c-primary)); color: var(--primary, var(--c-primary)); }
-.atendimento-medico-container .hemo-chip-qtd { width: 110px; padding: 7px 10px; font-size: var(--fs-xs); border: 1px solid var(--primary, var(--c-border-dark)); border-radius: 20px; outline: none; text-align: center; }
+/* Lista com busca (cuidados de enfermagem e hemocomponentes da prescrição) */
+.atendimento-medico-container .bl-wrap { position: relative; }
+.atendimento-medico-container .bl-busca { position: relative; display: flex; align-items: center; }
+.atendimento-medico-container .bl-busca > i { position: absolute; left: 11px; color: var(--c-text-soft); font-size: var(--fs-sm); pointer-events: none; }
+.atendimento-medico-container .bl-busca input { padding-left: 34px; padding-right: 36px; }
+.atendimento-medico-container .bl-abrir { position: absolute; right: 4px; border: 0; background: transparent; color: var(--c-text-soft); padding: 6px 8px; cursor: pointer; font-size: var(--fs-sm); }
+.atendimento-medico-container .bl-lista { margin-top: 4px; max-height: 300px; overflow-y: auto; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 8px; padding: 4px 0; }
+.atendimento-medico-container .bl-grupo { position: sticky; top: -4px; background: var(--c-surface); padding: 8px 12px 4px; font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--c-text-soft); }
+.atendimento-medico-container .bl-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 12px; border: 0; background: transparent; color: var(--c-text-primary); font-size: var(--fs-sm); text-align: left; cursor: pointer; }
+.atendimento-medico-container .bl-item.ativo { background: var(--c-surface-inset); }
+.atendimento-medico-container .bl-item.marcado { color: var(--c-primary); font-weight: 600; }
+.atendimento-medico-container .bl-item > i { font-size: var(--fs-sm); color: var(--c-text-soft); }
+.atendimento-medico-container .bl-item.marcado > i { color: var(--c-primary); }
+.atendimento-medico-container .bl-texto { flex: 1; min-width: 0; }
+.atendimento-medico-container .bl-extra { font-size: var(--fs-xs); color: var(--c-text-soft); white-space: nowrap; font-weight: 400; }
+.atendimento-medico-container .bl-livre { border-top: 1px solid var(--c-border); margin-top: 4px; }
+.atendimento-medico-container .bl-vazio, .atendimento-medico-container .bl-nenhum { padding: 6px 2px; font-size: var(--fs-xs); color: var(--c-text-soft); }
+.atendimento-medico-container .bl-vazio { padding: 8px 12px; }
+.atendimento-medico-container .bl-linha { display: grid; grid-template-columns: 22px 2fr 1fr auto; gap: 10px; align-items: center; }
+.atendimento-medico-container .bl-num { font-size: var(--fs-xs); font-weight: 700; color: var(--c-text-soft); text-align: right; }
+.atendimento-medico-container .bl-rotulo { font-size: var(--fs-sm); font-weight: 600; color: var(--c-text-primary); }
+.atendimento-medico-container .bl-remover { padding: 6px 10px; }
+@media (max-width: 640px) {
+  .atendimento-medico-container .bl-linha { grid-template-columns: 22px 1fr auto; }
+  .atendimento-medico-container .bl-linha > :nth-child(3) { grid-column: 2 / 3; }
+}
 
 /* MOCKUP 16 APAC */
 .atendimento-medico-container .blocking-alert-box {

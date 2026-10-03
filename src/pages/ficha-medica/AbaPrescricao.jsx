@@ -17,6 +17,7 @@ import GrupoPrescricao from './prescricao/GrupoPrescricao';
 import ListaItens from './prescricao/ListaItens';
 import EditorItem from './prescricao/EditorItem';
 import GrupoOrientacoes from './prescricao/GrupoOrientacoes';
+import { alternarCuidado } from './prescricao/catalogoCuidados';
 import GrupoHemocomponentes from './prescricao/GrupoHemocomponentes';
 import HistoricoPrescricoes from './prescricao/HistoricoPrescricoes';
 
@@ -161,8 +162,9 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
     setOrientacaoEnfermagem((prev) => prev.map((o, idx) => (idx === i ? { ...o, [campo]: valor } : o)))
   }
 
-  function adicionarOrientacao() {
-    setOrientacaoEnfermagem((prev) => [...prev, { ...ORIENTACAO_VAZIA }])
+  // Escolher na lista de cuidados (ou texto livre): entra na prescrição ou sai, se já estava.
+  function alternarOrientacao(opcao) {
+    setOrientacaoEnfermagem((prev) => alternarCuidado(prev, opcao))
   }
 
   function removerOrientacao(i) {
@@ -336,7 +338,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
             </GrupoPrescricao>
 
             <GrupoPrescricao titulo="3. Cuidados e Orientações de Enfermagem" icone="ph-first-aid-kit" fechado={gruposFechados.orientacoes} onAlternar={() => toggleGrupo('orientacoes')} estiloLista={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <GrupoOrientacoes orientacoes={orientacaoEnfermagem} onCampo={setOrientacao} onAdicionar={adicionarOrientacao} onRemover={removerOrientacao} />
+              <GrupoOrientacoes orientacoes={orientacaoEnfermagem} onCampo={setOrientacao} onAlternar={alternarOrientacao} onRemover={removerOrientacao} />
             </GrupoPrescricao>
 
             <GrupoPrescricao titulo="4. Hemocomponentes e Derivados" icone="ph-drop" fechado={gruposFechados.hemo} onAlternar={() => toggleGrupo('hemo')} estiloLista={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>

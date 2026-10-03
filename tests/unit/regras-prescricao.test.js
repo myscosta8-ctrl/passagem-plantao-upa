@@ -869,3 +869,37 @@ export function runAihIdentificacaoTests(test) {
     assert.match(rec, /\.is\.null/, 'grava só em coluna vazia');
   });
 }
+
+// Prescrição: cuidados de enfermagem e hemocomponentes escolhidos numa lista com busca.
+import { CUIDADOS_ENFERMAGEM, filtrarOpcoes, alternarCuidado } from '../../src/pages/ficha-medica/prescricao/catalogoCuidados.js';
+export function runListaCuidadosTests(test) {
+  test('Cuidados: a lista tem acesso venoso, aspiração, deambulação e cabeceira 30°/45°', () => {
+    const textos = CUIDADOS_ENFERMAGEM.map((c) => c.texto);
+    for (const t of ['Puncionar acesso venoso periférico calibroso', 'Aspiração de vias aéreas superiores', 'Estimular deambulação', 'Elevar cabeceira do leito a 30°', 'Elevar cabeceira do leito a 45°', 'Sinais vitais (PA, FC, FR, Tax e SatO2)']) assert.ok(textos.includes(t), t);
+    assert.equal(new Set(textos).size, textos.length, 'sem itens repetidos');
+    assert.ok(CUIDADOS_ENFERMAGEM.every((c) => c.grupo && c.frequencia !== undefined));
+  });
+  test('Cuidados: busca sem acento e por partes da palavra, em qualquer ordem', () => {
+    assert.ok(filtrarOpcoes(CUIDADOS_ENFERMAGEM, 'cabeceira 45').some((c) => c.texto.includes('45°')));
+    assert.ok(filtrarOpcoes(CUIDADOS_ENFERMAGEM, 'decubito').some((c) => c.texto === 'Mudança de decúbito'));
+    assert.ok(filtrarOpcoes(CUIDADOS_ENFERMAGEM, 'aspir').length >= 2);
+    assert.equal(filtrarOpcoes(CUIDADOS_ENFERMAGEM, '').length, CUIDADOS_ENFERMAGEM.length);
+  });
+  test('Cuidados: escolher entra com o horário padrão no lugar da linha vazia; escolher de novo tira', () => {
+    const op = CUIDADOS_ENFERMAGEM.find((c) => c.texto === 'Estimular deambulação');
+    const l1 = alternarCuidado([{ texto: '', frequencia: '' }], op);
+    assert.deepEqual(l1, [{ texto: 'Estimular deambulação', frequencia: 'Por turno' }]);
+    const l2 = alternarCuidado(l1, { texto: 'Curativo em MID com SF', frequencia: '' });
+    assert.equal(l2.length, 2, 'texto livre também entra');
+    assert.deepEqual(alternarCuidado(l2, op), [{ texto: 'Curativo em MID com SF', frequencia: '' }]);
+  });
+  test('Hemocomponentes: derivado escolhido na lista é gravado e volta ao duplicar', () => {
+    const marc = { albumina: { marcado: true, quantidade: '50 mL 12/12h' }, hemacias: { marcado: true, quantidade: '2 unidades' } };
+    const cp = camposPrescricaoParaBanco({ dieta: '', orientacaoEnfermagem: [], hemocomponentes: marc, hemocomponenteObs: '' });
+    assert.deepEqual(cp.hemocomponentes, [{ tipo: 'Concentrado de Hemácias', quantidade: '2 unidades' }, { tipo: 'Albumina Humana 20%', quantidade: '50 mL 12/12h' }]);
+    assert.deepEqual(hemocomponentesDoBanco(cp.hemocomponentes), marc);
+  });
+  test('Prescrição: os dois campos usam a lista com busca', () => {
+    for (const f of ['GrupoOrientacoes', 'GrupoHemocomponentes']) assert.match(fs.readFileSync(`src/pages/ficha-medica/prescricao/${f}.jsx`, 'utf8'), /<BuscaLista/);
+  });
+}

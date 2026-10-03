@@ -4,11 +4,24 @@ import { calcularDosePediatrica } from '../../../lib/calculoPediatrico.js'
 
 export const ITEM_VAZIO = { medicamento_nome: '', dose: '', dose_unidade: 'mg', via: 'VO', frequencia: '', duracao: '', instrucoes: '', condicao: '', diluente: '', diluente_ml: '', tempo_infusao: '', apresentacao: '', qtd_por_dose: '1' }
 export const ORIENTACAO_VAZIA = { texto: '', frequencia: '' }
+// Hemocomponentes e derivados que o médico escolhe na lista (gravados como { tipo, quantidade }).
+const HC = 'Hemocomponentes'
+const DV = 'Derivados'
 export const HEMO_OPCOES_RAPIDAS = [
-  { chave: 'hemacias', label: 'Concentrado de Hemácias', icon: 'ph-drop' },
-  { chave: 'plasma', label: 'Plasma Fresco Congelado', icon: 'ph-flask' },
-  { chave: 'plaquetas', label: 'Concentrado de Plaquetas', icon: 'ph-circle-dashed' },
-  { chave: 'crio', label: 'Crioprecipitado', icon: 'ph-snowflake' },
+  { chave: 'hemacias', label: 'Concentrado de Hemácias', grupo: HC },
+  { chave: 'hemacias_filtradas', label: 'Concentrado de Hemácias Filtradas', grupo: HC },
+  { chave: 'hemacias_irradiadas', label: 'Concentrado de Hemácias Irradiadas', grupo: HC },
+  { chave: 'hemacias_lavadas', label: 'Concentrado de Hemácias Lavadas', grupo: HC },
+  { chave: 'plasma', label: 'Plasma Fresco Congelado', grupo: HC },
+  { chave: 'plaquetas', label: 'Concentrado de Plaquetas', grupo: HC },
+  { chave: 'plaquetas_aferese', label: 'Plaquetas por Aférese', grupo: HC },
+  { chave: 'crio', label: 'Crioprecipitado', grupo: HC },
+  { chave: 'albumina', label: 'Albumina Humana 20%', grupo: DV },
+  { chave: 'complexo_protrombinico', label: 'Complexo Protrombínico', grupo: DV },
+  { chave: 'fibrinogenio', label: 'Concentrado de Fibrinogênio', grupo: DV },
+  { chave: 'imunoglobulina', label: 'Imunoglobulina Humana', grupo: DV },
+  { chave: 'fator_viii', label: 'Concentrado de Fator VIII', grupo: DV },
+  { chave: 'fator_ix', label: 'Concentrado de Fator IX', grupo: DV },
 ]
 
 export const fmtMg = (n) => (Number.isInteger(n) ? String(n) : n >= 10 ? String(Math.round(n * 10) / 10).replace('.', ',') : String(Math.round(n * 100) / 100).replace('.', ','))
