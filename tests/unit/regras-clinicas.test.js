@@ -70,7 +70,8 @@ export function runRegrasClinicasTests(test) {
     }
 
     const hoje = new Date();
-    const formatar = (d) => d.toISOString().slice(0, 10);
+    // Data local (como a função calcula), não UTC: entre 21h e 24h em Belém o dia UTC já virou.
+    const formatar = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
     const dataHoje = formatar(hoje);
     assert.equal(calcularPermanencia(dataHoje), 'Admitido hoje');

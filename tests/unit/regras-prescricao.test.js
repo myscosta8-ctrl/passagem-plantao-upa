@@ -406,3 +406,36 @@ export function runDivisaoPrescricaoTests(test) {
     assert.match(h, /emAndamento\.current\) return null/, 'clique duplo não grava duas vezes');
   });
 }
+
+// Item 17 — Solicitação de Exames dividida e com o "salvar documento" comum.
+import { itensSelecionados, requisicaoParaBanco, protocoloRapido, EXAMES_LAB_CATALOGO } from '../../src/pages/ficha-medica/exames/catalogoExames.js';
+export function runDivisaoExamesTests(test) {
+  test('Exames: itens marcados vão ao banco na ordem do catálogo, com amostra (lab) ou projeção (imagem/ECG)', () => {
+    const hemo = EXAMES_LAB_CATALOGO[0].itens[0].nome;
+    const ureia = EXAMES_LAB_CATALOGO[1].itens[0].nome;
+    const itens = itensSelecionados('lab', { [ureia]: true, [hemo]: true, outro: false });
+    assert.deepEqual(itens.map((i) => i.nome), [hemo, ureia]);
+    assert.ok(itens[0].amostra && !('projecao' in itens[0]));
+    const img = itensSelecionados('img', protocoloRapido('abdome').selecionados);
+    assert.equal(img.length, 2);
+    assert.ok(img.every((i) => i.projecao));
+  });
+
+  test('Exames: nome, caráter e setor executante de cada modalidade iguais aos de antes', () => {
+    const it = [{ nome: 'x' }];
+    assert.deepEqual(requisicaoParaBanco('lab', { itens: it, prioridade: 'rotina', justificativa: 'j' }),
+      { nome: 'Requisição Laboratorial (1 exames)', preparo: 'Rotina', urgencia: 'Rotina', local: 'Laboratório Interno UPA 24h', modalidade: 'lab', exames: it, justificativa: 'j' });
+    assert.equal(requisicaoParaBanco('img', { itens: it, prioridade: 'eletivo' }).urgencia, 'Eletivo');
+    assert.equal(requisicaoParaBanco('ecg', { itens: it, prioridade: 'rotina' }).urgencia, 'Urgência / Emergência');
+    assert.equal(Object.keys(protocoloRapido('sepse').selecionados).length, 14);
+    assert.equal(protocoloRapido('apac_usg').apac.procedimento_codigo, '02.05.02.004-6');
+  });
+
+  test('Exames: Salvar Rascunho reabre e atualiza o mesmo rascunho de cada modalidade', () => {
+    const s = fs.readFileSync('src/pages/ficha-medica/AbaExames.jsx', 'utf8');
+    assert.ok(s.split('\n').length < 300, 'AbaExames.jsx deve ter menos de 300 linhas');
+    assert.match(s, /useSalvarDocumento\(/);
+    assert.match(s, /useRascunho\(\{[\s\S]*filtro: \{ modalidade \}/);
+    assert.match(s, /function setModalidade\(m\)[\s\S]*setEditandoId\(null\)/, 'trocar de modalidade solta o rascunho da anterior');
+  });
+}

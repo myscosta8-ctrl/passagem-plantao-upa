@@ -1,206 +1,22 @@
 import { useEffect, useState } from 'react';
-import { criarExame, buscarCabecalhoImpressao, criarApac } from '../../lib/pepMedico';
+import { criarExame, buscarCabecalhoImpressao } from '../../lib/pepMedico';
 import AbaApac from './AbaApac';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
-import { metaDoc } from '../../lib/documentos';
+import { useRascunho } from '../../hooks/useRascunho';
+import { useSalvarDocumento, MSG_RASCUNHO_SALVO } from '../../hooks/useSalvarDocumento';
+import { MODALIDADE_CONFIG, APAC_VAZIA, itensSelecionados, requisicaoParaBanco, protocoloRapido, MSG_SEM_EXAME } from './exames/catalogoExames';
+import GradeExames from './exames/GradeExames';
+import DadosPedido from './exames/DadosPedido';
+import JustificativaExame from './exames/JustificativaExame';
+import PainelFerramentas from './exames/PainelFerramentas';
 
-// ==========================================
-// CATÁLOGO COMPLETO FIEL AO MOCKUP FASE 2
-// (mockups-fase2/16-solicitacao-exames-apac-design.html)
-// ==========================================
-const EXAMES_LAB_CATALOGO = [
-  {
-    grupo: '1. Hematologia & Hemostasia',
-    itens: [
-      { nome: 'Hemograma Completo com Contagem de Plaquetas e Índices Hematimétricos', label: 'Hemograma Completo (Eritrograma + Leucograma + Plaquetas)', amostra: 'Sangue Total (EDTA - Tubo Roxo)', padrao: true },
-      { nome: 'Tipagem Sanguínea (Determinação de Grupos ABO e Fator Rh)', label: 'Tipagem Sanguínea (Grupos ABO e Fator Rh)', amostra: 'Sangue Total (EDTA - Tubo Roxo)', padrao: true },
-      { nome: 'Coagulograma Completo (Tempo de Protrombina / TP / INR + TTPA)', label: 'Coagulograma Completo (TP / INR + TTPA)', amostra: 'Plasma Citratado (Tubo Azul)', padrao: true },
-      { nome: 'D-Dímero Quantitativo de Alta Sensibilidade', label: 'D-Dímero Quantitativo de Alta Sensibilidade', amostra: 'Plasma Citratado (Tubo Azul)' },
-      { nome: 'Fibrinogênio Plasmático de Urgência', label: 'Fibrinogênio Plasmático de Urgência', amostra: 'Plasma Citratado (Tubo Azul)' },
-      { nome: 'Velocidade de Hemossedimentação (VHS)', label: 'VHS (Velocidade de Hemossedimentação)', amostra: 'Sangue Total (EDTA - Tubo Roxo)' },
-      { nome: 'Contagem de Reticulócitos', label: 'Contagem de Reticulócitos', amostra: 'Sangue Total (EDTA - Tubo Roxo)' },
-      { nome: 'Tempo de Sangramento (TS) e Tempo de Coagulação (TC)', label: 'Tempo de Sangramento (TS) e Tempo de Coagulação (TC)', amostra: 'In Vivo / Sangue Capilar' },
-    ]
-  },
-  {
-    grupo: '2. Bioquímica, Função Renal & Hepática',
-    itens: [
-      { nome: 'Dosagem de Ureia Sérica', label: 'Ureia Sérica', amostra: 'Soro / Gel Separador (Tubo Amarelo)', padrao: true },
-      { nome: 'Dosagem de Creatinina Sérica (com estimativa de TFG)', label: 'Creatinina Sérica (com estimativa de TFG)', amostra: 'Soro / Gel Separador (Tubo Amarelo)', padrao: true },
-      { nome: 'Transaminase Oxalacética (TGO / AST)', label: 'TGO / AST (Transaminase Oxalacética)', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Transaminase Pirúvica (TGP / ALT)', label: 'TGP / ALT (Transaminase Pirúvica)', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Bilirrubinas Totais e Frações (Direta e Indireta)', label: 'Bilirrubinas Totais e Frações (Direta e Indireta)', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Gama-Glutamiltransferase (Gama-GT) e Fosfatase Alcalina (FA)', label: 'Fosfatase Alcalina (FA) e Gama-GT', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Amilase Sérica e Lipase Sérica de Urgência', label: 'Amilase Sérica e Lipase Sérica', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Ácido Úrico Sérico', label: 'Ácido Úrico Sérico', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Proteínas Totais e Frações (Albumina e Globulinas)', label: 'Proteínas Totais e Frações (Albumina e Globulinas)', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-    ]
-  },
-  {
-    grupo: '3. Eletrólitos, Metabolismo & Glicemia',
-    itens: [
-      { nome: 'Dosagem de Sódio Sérico (Na+)', label: 'Sódio Sérico (Na+)', amostra: 'Soro / Gel Separador (Tubo Amarelo)', padrao: true },
-      { nome: 'Dosagem de Potássio Sérico (K+)', label: 'Potássio Sérico (K+)', amostra: 'Soro / Gel Separador (Tubo Amarelo)', padrao: true },
-      { nome: 'Glicemia de Urgência em Jejum/Casual', label: 'Glicemia de Urgência Casual / Jejum', amostra: 'Fluoreto de Sódio (Tubo Cinza)', padrao: true },
-      { nome: 'Dosagem de Ácido Láctico Sérico (Lactato de Urgência)', label: 'Lactato Sérico de Urgência (Ácido Láctico)', amostra: 'Plasma Fluoretado / Soro Gel', padrao: true },
-      { nome: 'Dosagem de Cloreto Sérico (Cl-)', label: 'Cloreto Sérico (Cl-)', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Cálcio Total e Cálcio Iônico', label: 'Cálcio Total e Cálcio Iônico', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Dosagem de Magnésio Sérico', label: 'Magnésio Sérico', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Dosagem de Fósforo Sérico', label: 'Fósforo Sérico', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-    ]
-  },
-  {
-    grupo: '4. Gasometria, Marcadores Cardíacos & Inflamatórios',
-    itens: [
-      { nome: 'Gasometria Arterial Completa (pH, pO2, pCO2, HCO3, BE, SatO2, Eletrólitos e Lactato)', label: 'Gasometria Arterial Completa (com eletrólitos e lactato)', amostra: 'Sangue Arterial (Seringa Heparinizada)', padrao: true },
-      { nome: 'Gasometria Venosa (pH, pCO2, HCO3, BE e SatO2 Venosa)', label: 'Gasometria Venosa Central / Periférica', amostra: 'Sangue Venoso (Seringa Heparinizada)' },
-      { nome: 'Troponina I de Alta Sensibilidade (Quantitativa)', label: 'Troponina I de Alta Sensibilidade (Quantitativa)', amostra: 'Soro / Plasma Heparinizado', padrao: true },
-      { nome: 'CK-MB (Massa / Atividade) e CPK Total', label: 'CK-MB (Massa) e CPK Total', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'Proteína C-Reativa Quantitativa (PCR de Alta Sensibilidade)', label: 'Proteína C-Reativa Quantitativa (PCR-as)', amostra: 'Soro / Gel Separador (Tubo Amarelo)', padrao: true },
-      { nome: 'Procalcitonina (PCT) Quantitativa', label: 'Procalcitonina (PCT) Quantitativa', amostra: 'Soro / Gel Separador (Tubo Amarelo)' },
-      { nome: 'BNP / NT-proBNP (Peptídeo Natriurético Cerebral)', label: 'BNP / NT-proBNP (Marcador de ICC)', amostra: 'Plasma EDTA (Tubo Roxo)' },
-    ]
-  },
-  {
-    grupo: '5. Urinálise & Sedimento Urinário',
-    itens: [
-      { nome: 'Exame Físico-Químico e Microscópico da Urina (EAS / Sumário de Urina)', label: 'EAS / Sumário de Urina com Sedimento', amostra: 'Urina Jato Médio / Coletor Estéril', padrao: true },
-      { nome: 'Proteinúria de Amostra Isolada / Relação Proteína/Creatinina Urinária', label: 'Proteinúria de Amostra Isolada / Relação P/C', amostra: 'Urina Jato Médio' },
-      { nome: 'Pesquisa de Corpos Cetônicos na Urina', label: 'Pesquisa de Corpos Cetônicos na Urina', amostra: 'Urina Recente' },
-    ]
-  },
-  {
-    grupo: '6. Testes Rápidos Point-of-Care (Triagem UPA)',
-    itens: [
-      { nome: 'Teste Rápido para Dengue (Antígeno NS1 e Anticorpos IgG/IgM)', label: 'Teste Rápido Dengue (NS1 Ag / IgG / IgM)', amostra: 'Sangue Total / Soro' },
-      { nome: 'Teste Rápido / Gota Espessa para Malária (Pan / Plasmodium falciparum)', label: 'Teste Rápido / Gota Espessa para Malária', amostra: 'Sangue Total / Capilar' },
-      { nome: 'Teste Rápido Painel Respiratório COVID-19 / Influenza A+B', label: 'Teste Rápido COVID-19 / Influenza A+B', amostra: 'Swab Nasofaríngeo' },
-      { nome: 'Teste Rápido de Triagem para HIV 1/2 e Sífilis', label: 'Teste Rápido HIV 1/2 e Sífilis', amostra: 'Sangue Total' },
-      { nome: 'Teste Imunológico Rápido de Gravidez (Beta-HCG Qualitativo)', label: 'Beta-HCG Qualitativo de Urgência', amostra: 'Soro / Urina' },
-    ]
-  }
-];
-
-const EXAMES_IMG_CATALOGO = [
-  {
-    grupo: '1. Radiologia Digital — Tórax & Abdome',
-    itens: [
-      { nome: 'Radiografia de Tórax (Incidências Posteroanterior - PA e Perfil)', label: 'Tórax (PA e Perfil)', projecao: 'Ortostase / Grade Antidifusora', padrao: true },
-      { nome: 'Rotina Radiológica de Abdome Agudo Completa (Tórax PA em Cúpulas Frênicas + Abdome em Ortostase e Decúbito Dorsal)', label: 'Rotina Radiológica de Abdome Agudo Completa (Cúpulas + Abdome em Pé + Decúbito)', projecao: 'Ortostático + Decúbito Dorsal', padrao: true },
-      { nome: 'Radiografia de Tórax no Leito (Incidência Anteroposterior - AP)', label: 'Tórax no Leito (Incidência AP)', projecao: 'Leito / Feixe AP Portátil' },
-      { nome: 'Radiografia Simples de Abdome (Incidência Anteroposterior - AP em Decúbito Dorsal)', label: 'Abdome Simples (AP em Decúbito Dorsal)', projecao: 'Decúbito Dorsal / AP' },
-      { nome: 'Radiografia de Tórax em Decúbito Lateral com Raios Horizontais (Manobra de Laurel)', label: 'Tórax em Decúbito Lateral (Manobra de Laurel)', projecao: 'Decúbito Lateral / Feixe Horizontal' },
-      { nome: 'Radiografia de Arcos Costais / Hemitórax (Incidências AP e Oblíquas)', label: 'Arcos Costais / Gradil Costal (AP e Oblíquas)', projecao: 'AP + Oblíqua Específica' },
-    ]
-  },
-  {
-    grupo: '2. Radiologia Digital — Pelve Óssea & Articulação Coxofemoral',
-    itens: [
-      { nome: 'Radiografia de Pelve Óssea Panorâmica (Incidência Anteroposterior - AP)', label: 'Pelve Óssea Panorâmica (Incidência AP)', projecao: 'Decúbito Dorsal / AP Panorâmica' },
-      { nome: 'Radiografia de Articulação Coxofemoral / Quadril (Incidências AP e Perfil / Rã)', label: 'Articulação Coxofemoral / Quadril (AP e Perfil / Rã)', projecao: 'AP + Perfil / Posição de Rã (Lauenstein)' },
-      { nome: 'Radiografia de Articulações Sacroilíacas (Incidências Oblíquas Bilaterais)', label: 'Articulações Sacroilíacas (Oblíquas)', projecao: 'Oblíquas Direita e Esquerda' },
-    ]
-  },
-  {
-    grupo: '3. Radiologia Digital — Coluna Vertebral & Crânio / Face',
-    itens: [
-      { nome: 'Radiografia de Coluna Cervical (Incidências AP, Perfil e Transoral / Nadador)', label: 'Coluna Cervical (AP, Perfil e Transoral)', projecao: 'AP + Perfil + Transoral' },
-      { nome: 'Radiografia de Coluna Torácica / Dorsal (Incidências AP e Perfil)', label: 'Coluna Torácica (AP e Perfil)', projecao: 'AP + Perfil' },
-      { nome: 'Radiografia de Coluna Lombossacra (Incidências AP, Perfil e Dinâmica)', label: 'Coluna Lombossacra (AP e Perfil)', projecao: 'AP + Perfil com L5-S1' },
-      { nome: 'Radiografia de Crânio (Incidências Posteroanterior - PA e Perfil)', label: 'Crânio (PA e Perfil)', projecao: 'PA + Perfil' },
-      { nome: 'Radiografia de Seios da Face / Maciço Facial (Incidências de Waters e Caldwell)', label: 'Seios da Face (Incidências de Waters e Caldwell)', projecao: 'Mento-Naso (Waters) + Fronto-Naso (Caldwell)' },
-    ]
-  },
-  {
-    grupo: '4. Radiologia Digital — Cintura Escapular & Segmentos do Membro Superior',
-    itens: [
-      { nome: 'Radiografia de Cintura Escapular & Articulação do Ombro (Incidências AP e Axilar)', label: 'Cintura Escapular & Ombro (AP e Axilar)', projecao: 'AP Verdadeiro + Axilar / Perfil Escapular' },
-      { nome: 'Radiografia de Clavícula (Incidências AP e Axial com Angulação Cefálica)', label: 'Clavícula (AP e Axial)', projecao: 'AP + Axial (Angulação de 15-30°)' },
-      { nome: 'Radiografia de Braço / Úmero (Incidências AP e Perfil)', label: 'Braço / Úmero (AP e Perfil)', projecao: 'AP + Perfil Incluindo Articulações' },
-      { nome: 'Radiografia de Cotovelo & Antebraço (Incidências AP e Perfil)', label: 'Cotovelo & Antebraço (AP e Perfil)', projecao: 'AP + Perfil' },
-      { nome: 'Radiografia de Punho e Mão / Quirodáctilos (Incidências PA e Oblíqua)', label: 'Punho e Mão (PA e Oblíqua)', projecao: 'PA + Oblíqua / Perfil' },
-    ]
-  },
-  {
-    grupo: '5. Radiologia Digital — Segmentos do Membro Inferior',
-    itens: [
-      { nome: 'Radiografia de Coxa / Fêmur (Incidências AP e Perfil)', label: 'Coxa / Fêmur (AP e Perfil)', projecao: 'AP + Perfil Incluindo Joelho ou Quadril' },
-      { nome: 'Radiografia de Articulação do Joelho (Incidências AP e Perfil com Carga)', label: 'Joelho (AP e Perfil com Carga)', projecao: 'AP + Perfil (Bilateral se Indicado)' },
-      { nome: 'Radiografia de Perna / Tíbia e Fíbula (Incidências AP e Perfil)', label: 'Perna / Tíbia e Fíbula (AP e Perfil)', projecao: 'AP + Perfil Incluindo Articulações' },
-      { nome: 'Radiografia de Articulação do Tornozelo e Pé / Pododáctilos (Incidências AP, Perfil e Oblíqua)', label: 'Tornozelo e Pé (AP, Perfil e Oblíqua)', projecao: 'AP + Perfil + Oblíqua (Mortise)' },
-    ]
-  }
-];
-
-const EXAMES_ECG_CATALOGO = [
-  {
-    grupo: 'Eletrocardiografia Clínica & Derivações Especiais',
-    itens: [
-      { nome: 'Eletrocardiograma Convencional de 12 Derivações com Registro Contínuo em DII Longo', label: 'Eletrocardiograma Convencional de 12 Derivações com Registro Contínuo em DII Longo', projecao: '12 Derivações Simultâneas + DII Longo', padrao: true },
-      { nome: 'Eletrocardiograma com Derivações Direitas e Posteriores (V3R, V4R, V7, V8 e V9)', label: 'Eletrocardiograma com Derivações Direitas e Posteriores (V3R, V4R, V7, V8 e V9)', projecao: 'Derivações Especiais Direitas e Dorsais' },
-      { nome: 'Eletrocardiograma Seriado para Protocolo de Síndrome Coronariana Aguda (SCA)', label: 'Eletrocardiograma Seriado (Protocolo de Dor Torácica / SCA)', projecao: 'Traçados Seriados de 15/30 min' },
-      { nome: 'Monitorização Eletrocardiográfica Contínua em Sala de Emergência', label: 'Monitorização Eletrocardiográfica Contínua / Ritmo', projecao: 'Derivação Contínua de Ritmo em Monitor Multiparamétrico' },
-    ]
-  }
-];
-
-// Configuração por modalidade — espelha literalmente as seções e opções do
-// mockup (Dados do Pedido → Grade de Exames/Procedimento → Justificativa),
-// em vez de um bloco genérico compartilhado entre as 4 guias.
-const MODALIDADE_CONFIG = {
-  lab: {
-    titulo: 'Requisição de Exames Laboratoriais',
-    subtitulo: 'Documento exclusivo para o posto de análises clínicas da UPA 24h Breves · Modelo 19',
-    icon: 'ph ph-flask',
-    tituloDados: 'Dados da Coleta Laboratorial',
-    prioridadeOpcoes: [['urgencia', 'Urgência / Emergência'], ['rotina', 'Rotina de Enfermaria']],
-    tituloJustificativa: 'Justificativa Clínica / Hipótese Diagnóstica (Laboratório)',
-    labelJustificativa: 'Justificativa Clínica / Hipótese Diagnóstica',
-  },
-  img: {
-    titulo: 'Requisição de Imagem & Radiologia (Setor Interno)',
-    subtitulo: 'Documento exclusivo para o setor de Radiologia Digital da UPA 24h Breves · Modelo 20',
-    icon: 'ph ph-scan',
-    tituloDados: 'Dados do Atendimento Radiológico',
-    prioridadeOpcoes: [['urgencia', 'Urgência / Emergência'], ['eletivo', 'Eletivo Interno']],
-    tituloJustificativa: 'Indicação Clínica & Alertas para o Técnico em Radiologia',
-    labelJustificativa: 'Suspeita Diagnóstica / Justificativa',
-  },
-  ecg: {
-    titulo: 'Requisição de Eletrocardiograma — ECG (Métodos Gráficos)',
-    subtitulo: 'Documento exclusivo para o setor de eletrocardiografia e emergência da UPA 24h Breves · Modelo 21',
-    icon: 'ph ph-heartbeat',
-    tituloDados: 'Dados da Solicitação de Eletrocardiograma (ECG)',
-    prioridadeOpcoes: [['urgencia', 'Urgência / Emergência (Imediato)'], ['rotina', 'Rotina de Acompanhamento']],
-    tituloJustificativa: 'Indicação Clínica & Hipótese Diagnóstica (ECG)',
-    labelJustificativa: 'Suspeita Diagnóstica / Justificativa Cardiológica',
-  },
-  apac: {
-    titulo: 'Laudo APAC — Procedimento Ambulatorial (Regulação SUS)',
-    subtitulo: 'Documento oficial do SUS idêntico ao modelo físico (Campos 1 a 52) · Modelo 18',
-    icon: 'ph ph-file-text',
-  },
-};
-
-const MOBILIDADE_OPCOES = [
-  ['maca', 'Maca / Leito (Sem deambulação)'],
-  ['cadeira', 'Cadeira de Rodas'],
-  ['deambulando', 'Deambulando com auxílio'],
-];
-
-const APAC_VAZIA = {
-  procedimento_codigo: '',
-  procedimento_nome: '',
-  quantidade: '1',
-  descricao_diagnostico: '',
-  cid_principal: '',
-  cid_secundario: '',
-  justificativa: '',
-};
+// Aba Solicitação de Exames: guarda o estado e as regras (protocolos, salvar). Catálogo e regras sem
+// tela em ./exames/catalogoExames.js; partes da tela em ./exames/. APAC abre o laudo oficial (AbaApac).
+// Cada modalidade (laboratório, imagem, ECG) tem o seu próprio rascunho.
 
 export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm, onImprimir, onFechar, abrirApacCompleto = false }) {
   // APAC abre sempre o laudo oficial completo (52 campos), sem tela-resumo.
-  const [modalidade, setModalidade] = useState(abrirApacCompleto ? 'apac' : 'lab'); // 'lab' | 'img' | 'ecg' | 'apac'
+  const [modalidade, setModalidadeAtual] = useState(abrirApacCompleto ? 'apac' : 'lab'); // 'lab' | 'img' | 'ecg' | 'apac'
   const [labSelecionados, setLabSelecionados] = useState({});
   const [imgSelecionados, setImgSelecionados] = useState({});
   const [ecgSelecionados, setEcgSelecionados] = useState({});
@@ -215,11 +31,43 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
   const [mobilidade, setMobilidade] = useState('maca');
   const [localEcg, setLocalEcg] = useState('leito');
   const [apacDados, setApacDados] = useState(APAC_VAZIA);
-  const [salvando, setSalvando] = useState(false);
   const [msgExame, setMsgExame] = useState(null);
   const [dataRegistro, setDataRegistro] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [cabecalho, setCabecalho] = useState(null);
+
+  // Estado de cada modalidade: [selecionados, setSelecionados, justificativa, setJustificativa].
+  const porModalidade = {
+    lab: [labSelecionados, setLabSelecionados, labJustificativa, setLabJustificativa],
+    img: [imgSelecionados, setImgSelecionados, imgJustificativa, setImgJustificativa],
+    ecg: [ecgSelecionados, setEcgSelecionados, ecgJustificativa, setEcgJustificativa],
+  };
+  const atual = porModalidade[modalidade];
+  const prio = (p) => [prioridade, (v) => setPrioridade((prev) => ({ ...prev, [p]: v }))];
+
+  // Rascunho da modalidade aberta: guarda só os campos dela e reabre ao voltar para ela.
+  const camposRascunho = !atual ? {} : {
+    selecionados: [atual[0], atual[1]],
+    justificativa: [atual[2], atual[3]],
+    prioridade: [prioridade[modalidade], prio(modalidade)[1]],
+    ...(modalidade === 'img' ? { mobilidade: [mobilidade, setMobilidade], radioprotecao: [radioprotecao, setRadioprotecao] } : {}),
+    ...(modalidade === 'ecg' ? { localEcg: [localEcg, setLocalEcg], orientacoesEcg: [orientacoesEcg, setOrientacoesEcg] } : {}),
+  };
+  const rascunho = useRascunho({
+    tabela: 'exames_solicitados', atendimentoId: atual ? atendimento?.atendimento_id : null, autorId: medicoId,
+    filtro: { modalidade }, campos: camposRascunho, editandoId, setEditandoId, setDataRegistro,
+    onReaberto: () => setMsgExame({ t: 'Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Finalizar e Imprimir" finaliza.' }),
+  });
+  const { salvando, salvar: salvarDocumento } = useSalvarDocumento({ rascunho, dataRegistro, editandoId, setEditandoId, setDataRegistro });
+
+  // Trocar de modalidade solta o rascunho da anterior (cada uma grava o seu próprio registro).
+  function setModalidade(m) {
+    if (m === modalidade) return;
+    setEditandoId(null);
+    setDataRegistro('');
+    setModalidadeAtual(m);
+  }
 
   useEffect(() => {
     buscarCabecalhoImpressao(atendimento.atendimento_id).then(setCabecalho).catch(() => {});
@@ -235,60 +83,14 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
     : 'Beira do Leito (Sala/Leito do paciente)';
   const medicoSolicitante = medicoNome ? `${medicoNome}${medicoCrm ? ` — CRM ${medicoCrm}` : ''}` : 'Médico Solicitante';
   const dataHoraSolicitacao = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  const dataSolicitacaoIso = new Date().toISOString().slice(0, 10);
 
-  function setApacCampo(campo, valor) {
-    setApacDados((prev) => ({ ...prev, [campo]: valor }));
-  }
-
-  function toggleLab(nome) {
-    setLabSelecionados(prev => ({ ...prev, [nome]: !prev[nome] }));
-  }
-  function toggleImg(nome) {
-    setImgSelecionados(prev => ({ ...prev, [nome]: !prev[nome] }));
-  }
-  function toggleEcg(nome) {
-    setEcgSelecionados(prev => ({ ...prev, [nome]: !prev[nome] }));
-  }
-
-  // Protocolos Rápidos — marcam de fato os exames/campos correspondentes
-  // (nunca preenchem diagnóstico/motivo com dado fabricado do paciente,
-  // apenas os itens de catálogo e, no caso de APAC, o procedimento/CID
-  // de um exemplo oficial que o médico ainda revisa antes de salvar).
   function aplicarProtocolo(tipo) {
-    if (tipo === 'sepse') {
-      setModalidade('lab');
-      const sepsisMatch = ['Hemograma', 'Tipagem', 'Coagulograma', 'Ureia', 'Creatinina', 'Sódio', 'Potássio', 'Glicemia', 'Lactato', 'Gasometria Arterial', 'Troponina', 'Proteína C-Reativa', 'EAS'];
-      const novo = {};
-      EXAMES_LAB_CATALOGO.forEach(g => g.itens.forEach(it => {
-        if (sepsisMatch.some(m => it.nome.includes(m))) novo[it.nome] = true;
-      }));
-      setLabSelecionados(novo);
-      setMsgExame({ t: 'Protocolo Sepse / IRA aplicado com sucesso (exames essenciais marcados)!' });
-    } else if (tipo === 'abdome') {
-      setModalidade('img');
-      const abdomeMatch = ['Tórax (Incidências Posteroanterior', 'Rotina Radiológica de Abdome'];
-      const novo = {};
-      EXAMES_IMG_CATALOGO.forEach(g => g.itens.forEach(it => {
-        if (abdomeMatch.some(m => it.nome.includes(m))) novo[it.nome] = true;
-      }));
-      setImgSelecionados(novo);
-      setMsgExame({ t: 'Protocolo Abdome Agudo aplicado (Tórax PA/Perfil + Rotina Abdome Agudo)!' });
-    } else if (tipo === 'ecg_urgencia') {
-      setModalidade('ecg');
-      const novo = { [EXAMES_ECG_CATALOGO[0].itens[0].nome]: true };
-      setEcgSelecionados(novo);
-      setMsgExame({ t: 'Protocolo ECG Urgência aplicado (12 Derivações com DII longo marcado)!' });
-    } else if (tipo === 'apac_usg') {
-      setModalidade('apac');
-      setApacDados((prev) => ({
-        ...prev,
-        procedimento_codigo: '02.05.02.004-6',
-        procedimento_nome: 'ULTRASSONOGRAFIA DE ABDOME TOTAL',
-        quantidade: '1',
-      }));
-      setMsgExame({ t: 'Modelo de procedimento preenchido (USG de Abdome Total) — revise diagnóstico, CID e justificativa antes de salvar.' });
-    }
+    const p = protocoloRapido(tipo);
+    if (!p) return;
+    setModalidade(p.modalidade);
+    if (p.selecionados) porModalidade[p.modalidade][1](p.selecionados);
+    if (p.apac) setApacDados((prev) => ({ ...prev, ...p.apac }));
+    setMsgExame({ t: p.mensagem });
   }
 
   function limparModalidadeAtiva() {
@@ -300,142 +102,27 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
   }
 
   async function salvar(imprimir = true) {
-    setSalvando(true); setMsgExame(null);
-    try {
-      if (modalidade === 'lab') {
-        const itens = [];
-        EXAMES_LAB_CATALOGO.forEach(g => g.itens.forEach(it => {
-          if (labSelecionados[it.nome]) {
-            itens.push({ grupo: g.grupo, nome: it.nome, amostra: it.amostra });
-          }
-        }));
-
-        if (itens.length === 0) {
-          setMsgExame({ erro: true, t: 'Atenção: Selecione ao menos um exame laboratorial.' });
-          setSalvando(false);
-          return;
-        }
-
-        const { data: reg, error: erroEx } = await criarExame({
-          situacao: metaDoc(imprimir, dataRegistro),
-          atendimentoId: atendimento.atendimento_id,
-          nome: `Requisição Laboratorial (${itens.length} exames)`,
-          preparo: prioridade.lab === 'urgencia' ? 'Urgência' : 'Rotina',
-          solicitadoPor: medicoId,
-          modalidade: 'lab',
-          exames: itens,
-          justificativa: labJustificativa,
-          urgencia: prioridade.lab === 'urgencia' ? 'Urgência' : 'Rotina',
-          local: 'Laboratório Interno UPA 24h',
-        });
-
-        if (erroEx) { console.error(erroEx); setMsgExame({ erro: true, t: 'Não foi possível registrar a requisição. Tente novamente.' }); setSalvando(false); return; }
-        if (imprimir && reg) onImprimir?.(reg, 'exame_lab');
-
-      } else if (modalidade === 'img') {
-        const itens = [];
-        EXAMES_IMG_CATALOGO.forEach(g => g.itens.forEach(it => {
-          if (imgSelecionados[it.nome]) {
-            itens.push({ grupo: g.grupo, nome: it.nome, projecao: it.projecao });
-          }
-        }));
-
-        if (itens.length === 0) {
-          setMsgExame({ erro: true, t: 'Atenção: Selecione ao menos um exame radiológico.' });
-          setSalvando(false);
-          return;
-        }
-
-        const { data: reg, error: erroEx } = await criarExame({
-          situacao: metaDoc(imprimir, dataRegistro),
-          atendimentoId: atendimento.atendimento_id,
-          nome: `Requisição de Radiologia (${itens.length} exames)`,
-          preparo: prioridade.img === 'urgencia' ? 'Urgência' : 'Eletivo',
-          solicitadoPor: medicoId,
-          modalidade: 'img',
-          exames: itens,
-          justificativa: imgJustificativa,
-          urgencia: prioridade.img === 'urgencia' ? 'Urgência' : 'Eletivo',
-          local: 'Radiologia Digital UPA 24h',
-        });
-
-        if (erroEx) { console.error(erroEx); setMsgExame({ erro: true, t: 'Não foi possível registrar a requisição. Tente novamente.' }); setSalvando(false); return; }
-        if (imprimir && reg) onImprimir?.(reg, 'exame_img');
-
-      } else if (modalidade === 'ecg') {
-        const itens = [];
-        EXAMES_ECG_CATALOGO.forEach(g => g.itens.forEach(it => {
-          if (ecgSelecionados[it.nome]) {
-            itens.push({ grupo: g.grupo, nome: it.nome, projecao: it.projecao });
-          }
-        }));
-
-        if (itens.length === 0) {
-          setMsgExame({ erro: true, t: 'Atenção: Selecione ao menos um procedimento de ECG.' });
-          setSalvando(false);
-          return;
-        }
-
-        const { data: reg, error: erroEx } = await criarExame({
-          situacao: metaDoc(imprimir, dataRegistro),
-          atendimentoId: atendimento.atendimento_id,
-          nome: `Requisição de ECG (${itens.length} traçados)`,
-          preparo: 'Urgência / Emergência',
-          solicitadoPor: medicoId,
-          modalidade: 'ecg',
-          exames: itens,
-          justificativa: ecgJustificativa,
-          urgencia: 'Urgência / Emergência',
-          local: 'Métodos Gráficos UPA 24h',
-        });
-
-        if (erroEx) { console.error(erroEx); setMsgExame({ erro: true, t: 'Não foi possível registrar a requisição. Tente novamente.' }); setSalvando(false); return; }
-        if (imprimir && reg) onImprimir?.(reg, 'exame_ecg');
-
-      } else if (modalidade === 'apac') {
-        if (!apacDados.procedimento_nome.trim() || !apacDados.justificativa.trim()) {
-          setMsgExame({ erro: true, t: 'Atenção: preencha ao menos o procedimento principal e a justificativa clínica da APAC.' });
-          setSalvando(false);
-          return;
-        }
-
-        const { data, error } = await criarApac({
-          situacao: metaDoc(imprimir, dataRegistro),
-          atendimentoId: atendimento.atendimento_id,
-          solicitanteId: medicoId,
-          dados: {
-            procedimento_nome: apacDados.procedimento_nome,
-            procedimento_codigo: apacDados.procedimento_codigo || null,
-            quantidade: apacDados.quantidade ? Number(apacDados.quantidade) : 1,
-            cid_principal: apacDados.cid_principal || null,
-            cid_secundario: apacDados.cid_secundario || null,
-            justificativa: apacDados.justificativa,
-            campos_formulario: {
-              estabelecimento_solicitante_nome: 'UPA 24 HORAS BREVES',
-              estabelecimento_solicitante_cnes: '2418657',
-              descricao_diagnostico: apacDados.descricao_diagnostico,
-              profissional_solicitante_nome: medicoNome || '',
-              profissional_crm: medicoCrm || '',
-              data_solicitacao: dataSolicitacaoIso,
-            },
-          },
-        });
-
-        if (error) {
-          console.error(error);
-          setMsgExame({ erro: true, t: 'Não foi possível registrar a APAC. Verifique os dados e tente novamente.' });
-          setSalvando(false);
-          return;
-        }
-
-        if (imprimir && data) onImprimir?.(data, 'apac');
-      }
-    } catch (e) {
-      console.error(e);
-      setMsgExame({ erro: true, t: 'Erro ao emitir requisição.' });
-    } finally {
-      setSalvando(false);
-    }
+    setMsgExame(null);
+    const [selecionados, setSelecionados, justificativa, setJustificativa] = atual;
+    const itens = itensSelecionados(modalidade, selecionados);
+    if (itens.length === 0) { setMsgExame({ erro: true, t: MSG_SEM_EXAME[modalidade] }); return; }
+    const req = requisicaoParaBanco(modalidade, { itens, prioridade: prioridade[modalidade], justificativa });
+    const tipoImpresso = 'exame_' + modalidade;
+    await salvarDocumento(imprimir, ({ id, situacao }) => criarExame({
+      id, situacao,
+      atendimentoId: atendimento.atendimento_id,
+      solicitadoPor: medicoId,
+      ...req,
+    }), {
+      aoFalhar: (erro) => { console.error(erro); setMsgExame({ erro: true, t: 'Não foi possível registrar a requisição. Tente novamente.' }); },
+      aoSalvarRascunho: () => setMsgExame({ t: MSG_RASCUNHO_SALVO }),
+      aoFinalizar: (reg) => {
+        if (reg) onImprimir?.(reg, tipoImpresso);
+        // Requisição finalizada: a guia fica limpa para um novo pedido (evita finalizar o mesmo pedido duas vezes).
+        setSelecionados({}); setJustificativa('');
+        setMsgExame({ t: 'Requisição finalizada.' });
+      },
+    });
   }
 
   const cfg = MODALIDADE_CONFIG[modalidade];
@@ -468,69 +155,10 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
 
   return (
     <div className="clinical-split">
-      
       {historicoAberto && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9998 }} onClick={() => setHistoricoAberto(false)} />
-          <aside className="tools-pane" style={{ position: 'fixed', top: 0, right: 0, width: 420, maxWidth: '100vw', height: '100vh', zIndex: 9999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', background: '#fff', overflowY: 'auto' }}>
-<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0' }}><button type="button" onClick={() => setHistoricoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-lg)', color: 'var(--text-muted)' }}><i className="ph ph-x"></i></button></div>
-
-        <div className="pane-header">
-          <span><i className="ph ph-navigation-arrow" /> Modalidade do Pedido</span>
-        </div>
-        <div className="tools-body">
-          <div className="summary-box">
-            <h3><i className="ph ph-shield-check" /> Guia Ativa (Bloqueio Mútuo)</h3>
-            <div className="modality-nav">
-              <button type="button" className={'modality-btn ' + (modalidade === 'lab' ? 'active' : '')} onClick={() => setModalidade('lab')}>
-                <span><i className="ph ph-flask" /> 1. Laboratório Interno</span>
-                <span className="modality-badge">{countLab} exames</span>
-              </button>
-              <button type="button" className={'modality-btn ' + (modalidade === 'img' ? 'active' : '')} onClick={() => setModalidade('img')}>
-                <span><i className="ph ph-scan" /> 2. Imagem & Radiologia</span>
-                <span className="modality-badge">{countImg} exames</span>
-              </button>
-              <button type="button" className={'modality-btn ' + (modalidade === 'ecg' ? 'active' : '')} onClick={() => setModalidade('ecg')}>
-                <span><i className="ph ph-heartbeat" /> 3. Eletrocardiograma (ECG)</span>
-                <span className="modality-badge">{countEcg} exame</span>
-              </button>
-              <button type="button" className={'modality-btn ' + (modalidade === 'apac' ? 'active' : '')} onClick={() => setModalidade('apac')}>
-                <span><i className="ph ph-file-text" /> 4. Laudo APAC (Regulação)</span>
-                <span className="modality-badge">{countApac} proced.</span>
-              </button>
-            </div>
-            <button type="button" className="btn-cancel"  onClick={limparModalidadeAtiva}>
-              <i className="ph ph-trash" /> Limpar Seleção desta Guia
-            </button>
-          </div>
-
-          <div className="blocking-alert-box">
-            <strong><i className="ph ph-lock-key" /> Separação Física Obrigatória</strong>
-            O Laboratório de Análises Clínicas, a Radiologia Digital, o Eletrocardiograma (ECG) e a Regulação de APAC são setores/fluxos distintos. Guias mistas são bloqueadas institucionalmente.
-          </div>
-
-          <div className="summary-box">
-            <h3><i className="ph ph-lightning" /> Protocolos Rápidos de Emergência</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <button type="button" className="btn-cancel" style={{ justifyContent: 'flex-start', width: '100%', textAlign: 'left' }} onClick={() => aplicarProtocolo('sepse')}>
-                <i className="ph ph-shield-warning" style={{ color: '#d97706' }} /> Combo Sepse / IRA (Lab)
-              </button>
-              <button type="button" className="btn-cancel" style={{ justifyContent: 'flex-start', width: '100%', textAlign: 'left' }} onClick={() => aplicarProtocolo('abdome')}>
-                <i className="ph ph-scan" style={{ color: 'var(--c-primary, #0D9488)' }} /> Rotina Abdome Agudo (RX)
-              </button>
-              <button type="button" className="btn-cancel" style={{ justifyContent: 'flex-start', width: '100%', textAlign: 'left' }} onClick={() => aplicarProtocolo('ecg_urgencia')}>
-                <i className="ph ph-heartbeat" style={{ color: '#dc2626' }} /> Protocolo ECG 12D (ECG)
-              </button>
-              <button type="button" className="btn-cancel" style={{ justifyContent: 'flex-start', width: '100%', textAlign: 'left' }} onClick={() => aplicarProtocolo('apac_usg')}>
-                <i className="ph ph-file-text" style={{ color: '#059669' }} /> Preencher APAC - USG Total
-              </button>
-            </div>
-          </div>
-        </div>
-      </aside>
-        </>
+        <PainelFerramentas modalidade={modalidade} countLab={countLab} countImg={countImg} countEcg={countEcg} countApac={countApac}
+          setModalidade={setModalidade} onFechar={() => setHistoricoAberto(false)} limparModalidadeAtiva={limparModalidadeAtiva} aplicarProtocolo={aplicarProtocolo} />
       )}
-
 
       <section className="clinical-card">
         <header className="cc-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: 16 }}><div>
@@ -542,136 +170,16 @@ export default function AbaExames({ atendimento, medicoId, medicoNome, medicoCrm
           {navModalidades}
 
           {/* 1. DADOS DO PEDIDO — por modalidade, com identificação real do atendimento/médico */}
-          {(modalidade === 'lab' || modalidade === 'img' || modalidade === 'ecg') && (
-            <div className="form-section">
-              <div className="form-section-title">
-                <span className="st-left"><i className="ph ph-identification-card" /> {cfg.tituloDados}</span>
-              </div>
-              <div className="grid-4">
-                <div className="form-group">
-                  <label>Caráter {modalidade === 'lab' ? 'da Coleta' : 'do Exame'}</label>
-                  <select className="form-control" value={prioridade[modalidade]} onChange={(e) => setPrioridade(prev => ({ ...prev, [modalidade]: e.target.value }))}>
-                    {cfg.prioridadeOpcoes.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                  </select>
-                </div>
-
-                {modalidade === 'lab' && (
-                  <div className="form-group">
-                    <label>Local da Coleta</label>
-                    <input type="text" className="form-control" value={localLeito} readOnly />
-                  </div>
-                )}
-
-                {modalidade === 'img' && (
-                  <div className="form-group">
-                    <label>Condição de Mobilidade</label>
-                    <select className="form-control" value={mobilidade} onChange={(e) => setMobilidade(e.target.value)}>
-                      {MOBILIDADE_OPCOES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                    </select>
-                  </div>
-                )}
-
-                {modalidade === 'ecg' && (
-                  <div className="form-group">
-                    <label>Local de Realização</label>
-                    <select className="form-control" value={localEcg} onChange={(e) => setLocalEcg(e.target.value)}>
-                      <option value="leito">{localLeito}</option>
-                      <option value="sala_ecg">Sala de Eletrocardiografia / Emergência</option>
-                      <option value="vermelha">Sala Vermelha (Emergência Crítica)</option>
-                    </select>
-                  </div>
-                )}
-
-                <div className="form-group">
-                  <label>Data/Hora Solicitação</label>
-                  <input type="text" className="form-control" value={dataHoraSolicitacao} readOnly />
-                </div>
-                <div className="form-group">
-                  <label>Médico Solicitante</label>
-                  <input type="text" className="form-control" value={medicoSolicitante} readOnly />
-                </div>
-              </div>
-            </div>
-          )}
+          <DadosPedido modalidade={modalidade} cfg={cfg} prioridade={prioridade} setPrioridade={setPrioridade} localLeito={localLeito}
+            mobilidade={mobilidade} setMobilidade={setMobilidade} localEcg={localEcg} setLocalEcg={setLocalEcg}
+            dataHoraSolicitacao={dataHoraSolicitacao} medicoSolicitante={medicoSolicitante} />
 
           {/* 2. GRADE DE EXAMES/PROCEDIMENTOS */}
-          {modalidade === 'lab' && EXAMES_LAB_CATALOGO.map((grupo, idx) => (
-            <div className="exam-group-box" key={idx}>
-              <div className="exam-group-header">{grupo.grupo}</div>
-              <div className="exam-checkbox-grid">
-                {grupo.itens.map((it) => {
-                  const checked = !!labSelecionados[it.nome]
-                  return (
-                    <label key={it.nome} className={'exam-check-item ' + (checked ? 'checked' : '')}>
-                      <input type="checkbox" checked={checked} onChange={() => toggleLab(it.nome)} />
-                      <span><strong>{it.label}</strong> ({it.amostra})</span>
-                    </label>
-                  )
-                })}
-              </div>
-            </div>
-          ))}
+          <GradeExames modalidade={modalidade} selecionados={atual[0]} onAlternar={(nome) => atual[1]((prev) => ({ ...prev, [nome]: !prev[nome] }))} />
 
-          {modalidade === 'img' && EXAMES_IMG_CATALOGO.map((grupo, idx) => (
-            <div className="exam-group-box" key={idx}>
-              <div className="exam-group-header">{grupo.grupo}</div>
-              <div className="exam-checkbox-grid">
-                {grupo.itens.map((it) => {
-                  const checked = !!imgSelecionados[it.nome]
-                  return (
-                    <label key={it.nome} className={'exam-check-item ' + (checked ? 'checked' : '')}>
-                      <input type="checkbox" checked={checked} onChange={() => toggleImg(it.nome)} />
-                      <span><strong>{it.label}</strong> ({it.projecao})</span>
-                    </label>
-                  )
-                })}
-              </div>
-            </div>
-          ))}
-
-          {modalidade === 'ecg' && EXAMES_ECG_CATALOGO.map((grupo, idx) => (
-            <div className="exam-group-box" key={idx}>
-              <div className="exam-group-header">{grupo.grupo}</div>
-              <div className="exam-checkbox-grid">
-                {grupo.itens.map((it) => {
-                  const checked = !!ecgSelecionados[it.nome]
-                  return (
-                    <label key={it.nome} className={'exam-check-item ' + (checked ? 'checked' : '')}>
-                      <input type="checkbox" checked={checked} onChange={() => toggleEcg(it.nome)} />
-                      <span><strong>{it.label}</strong> ({it.projecao})</span>
-                    </label>
-                  )
-                })}
-              </div>
-            </div>
-          ))}
-
-          {/* 3. JUSTIFICATIVA CLÍNICA (por último, como no mockup) — não se aplica à APAC, que já tem a sua própria seção 33-37 acima */}
-          {(modalidade === 'lab' || modalidade === 'img' || modalidade === 'ecg') && (
-            <div className="form-section">
-              <div className="form-section-title">
-                <span className="st-left"><i className="ph ph-chat-text" /> {cfg.tituloJustificativa}</span>
-              </div>
-              <div className="form-group" style={{ marginBottom: modalidade === 'lab' ? 0 : 8 }}>
-                <label>{cfg.labelJustificativa}</label>
-                {modalidade === 'lab' && <textarea className="form-control-area" rows="3" value={labJustificativa} onChange={e => setLabJustificativa(e.target.value)} />}
-                {modalidade === 'img' && <textarea className="form-control-area" rows="3" value={imgJustificativa} onChange={e => setImgJustificativa(e.target.value)} />}
-                {modalidade === 'ecg' && <textarea className="form-control-area" rows="3" value={ecgJustificativa} onChange={e => setEcgJustificativa(e.target.value)} />}
-              </div>
-              {modalidade === 'img' && (
-                <div className="form-group">
-                  <label>Recomendações Especiais de Radioproteção</label>
-                  <input type="text" className="form-control" placeholder="Ex: colimação estrita e proteção gonadal/plumbífera quando indicado..." value={radioprotecao} onChange={(e) => setRadioprotecao(e.target.value)} />
-                </div>
-              )}
-              {modalidade === 'ecg' && (
-                <div className="form-group">
-                  <label>Orientações ao Técnico / Enfermagem</label>
-                  <input type="text" className="form-control" placeholder="Ex: realizar o traçado em repouso absoluto, anexar fita ao prontuário..." value={orientacoesEcg} onChange={(e) => setOrientacoesEcg(e.target.value)} />
-                </div>
-              )}
-            </div>
-          )}
+          {/* 3. JUSTIFICATIVA CLÍNICA (por último, como no mockup) */}
+          <JustificativaExame modalidade={modalidade} cfg={cfg} justificativa={atual[2]} setJustificativa={atual[3]}
+            radioprotecao={radioprotecao} setRadioprotecao={setRadioprotecao} orientacoesEcg={orientacoesEcg} setOrientacoesEcg={setOrientacoesEcg} />
 
         </div>
 
