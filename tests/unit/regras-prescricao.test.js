@@ -516,3 +516,31 @@ export function runDivisaoColetivaTests(test) {
     }
   });
 }
+
+// Item 17 — Início (Home) dividido: plantão, inatividade, avisos e telas em ./inicio/.
+import { turnoAtualPorHora, iniciais, lerTelaSalva, TELAS_VALIDAS, TITULO_TELA } from '../../src/pages/inicio/regrasInicio.js';
+export function runDivisaoInicioTests(test) {
+  test('Início: turno pelo horário de Belém (07h–18h59 Diurno) e iniciais do avatar', () => {
+    assert.equal(turnoAtualPorHora(new Date('2026-10-02T10:00:00Z')), 'Diurno');   // 07h00 em Belém
+    assert.equal(turnoAtualPorHora(new Date('2026-10-02T09:59:00Z')), 'Noturno');  // 06h59
+    assert.equal(turnoAtualPorHora(new Date('2026-10-02T21:59:00Z')), 'Diurno');   // 18h59
+    assert.equal(turnoAtualPorHora(new Date('2026-10-02T22:00:00Z')), 'Noturno');  // 19h00
+    assert.equal(iniciais('Marcus Costa'), 'MC');
+    assert.equal(iniciais(''), 'MC');
+  });
+
+  test('Início: tela salva inválida ou sem armazenamento volta para o Painel; toda tela tem título', () => {
+    assert.equal(lerTelaSalva(), 'painel');
+    for (const t of TELAS_VALIDAS) assert.ok(TITULO_TELA[t], `título da tela ${t}`);
+  });
+
+  test('Início: Home.jsx só decide o perfil e a tela; o resto fica em ./inicio/', () => {
+    const s = fs.readFileSync('src/pages/Home.jsx', 'utf8');
+    assert.ok(s.split('\n').length < 150, 'Home.jsx deve ter menos de 150 linhas');
+    for (const h of ['usePlantao(', 'useSessaoInativa(', 'useRelogio(', 'useErroApp(', 'useRascunhosPendentes(']) assert.ok(s.includes(h), h);
+    const p = fs.readFileSync('src/pages/inicio/usePlantao.js', 'utf8');
+    assert.match(p, /if \(erroEncerrar\) avisarErro/, 'falha ao encerrar a participação aparece na faixa de erro');
+    const sess = fs.readFileSync('src/pages/inicio/useSessaoInativa.js', 'utf8');
+    assert.match(sess, /2 \* 60 \* 60 \* 1000/, 'encerramento após 2 h sem uso mantido');
+  });
+}

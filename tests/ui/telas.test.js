@@ -20,7 +20,8 @@ export function runTelasTests(test) {
   });
 
   test('Tela médica usa o mesmo Painel de Leitos da enfermagem (modo consulta)', () => {
-    const home = fs.readFileSync(path.join(SRC, 'pages/Home.jsx'), 'utf8');
+    // Desde o item 17 o início do médico fica em pages/inicio/ShellProfissional.jsx.
+    const home = fs.readFileSync(path.join(SRC, 'pages/inicio/ShellProfissional.jsx'), 'utf8');
     assert.match(home, /<Painel modo="medico"/, 'médico deve usar o mesmo componente Painel');
     assert.match(home, /className="breadcrumb"[\s\S]*Prontuário Eletrônico/, 'topo igual ao da enfermagem');
     const cards = fs.readFileSync(path.join(SRC, 'pages/painel/PainelCards.jsx'), 'utf8');
