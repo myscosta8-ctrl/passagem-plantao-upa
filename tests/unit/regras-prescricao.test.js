@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { supabase } from '../../src/lib/supabaseClient.js';
 import { criarPrescricao, normalizarCid, buscarCabecalhoImpressao, separarCabecalho } from '../../src/lib/pepMedico.js';
 import { idadeDetalhada } from '../../src/lib/idadeDetalhada.js';
+import { contarSetores, nomeCurto } from '../../src/pages/painel/setoresPainel.js';
 import { camposDaEnfermagem, dadosParaTabela, mesmosSinais, medidaRecente } from '../../src/pages/ficha-medica/sinaisVitaisMedico.js';
 import { metaDoc } from '../../src/lib/documentos.js';
 import {
@@ -380,7 +381,7 @@ export function runCacheTests(test) {
 }
 
 // Item 17 — Prescrição dividida em partes (./prescricao/) e "salvar documento" comum.
-import { itemParaBanco, itemDoBanco, camposPrescricaoParaBanco, aplicarCalculoAoItem, ITEM_VAZIO, textoDiluicao } from '../../src/pages/ficha-medica/prescricao/itemPrescricao.js';
+import { itemParaBanco, itemDoBanco, camposPrescricaoParaBanco, aplicarCalculoAoItem, ITEM_VAZIO, textoDiluicao, hemocomponentesDoBanco } from '../../src/pages/ficha-medica/prescricao/itemPrescricao.js';
 export function runDivisaoPrescricaoTests(test) {
   test('Item da prescrição: formulário → banco → "Duplicar" volta igual', () => {
     const form = { ...ITEM_VAZIO, medicamento_nome: ' Dipirona 500 mg/mL ', dose: '1,5', dose_unidade: 'g', via: 'EV', frequencia: '6/6h', condicao: 'Se dor', diluente: 'SF 0,9%', diluente_ml: '100', tempo_infusao: 'Em 30 min', apresentacao: 'AMP', qtd_por_dose: '2' };
@@ -394,7 +395,15 @@ export function runDivisaoPrescricaoTests(test) {
     const volta = itemDoBanco(banco);
     assert.equal(volta.dose, '1,5');
     assert.equal(volta.condicao, 'Se dor');
-    assert.equal(volta.instrucoes, 'Diluir em 100 mL de SF 0,9% — Em 30 min');
+    assert.equal(volta.diluente, 'SF 0,9%');
+    assert.equal(volta.diluente_ml, '100');
+    assert.equal(volta.tempo_infusao, 'Em 30 min');
+    assert.equal(volta.instrucoes, '');
+    // Duplicar duas vezes seguidas não repete diluição nem tempo de infusão.
+    const deNovo = itemParaBanco(volta);
+    assert.equal(deNovo.diluicao, banco.diluicao);
+    assert.equal(deNovo.instrucoes, null);
+    assert.deepEqual(itemDoBanco({ ...banco, diluicao: 'Correr lento', instrucoes: 'Proteger da luz' }).instrucoes, 'Correr lento — Proteger da luz');
     assert.equal(textoDiluicao({ diluente: '', tempo_infusao: '' }), '');
   });
 
@@ -699,5 +708,51 @@ export function runAberturaDocumentoTests(test) {
     const t = fs.readFileSync('src/pages/HistoricoClinico.jsx', 'utf8');
     assert.match(t, /const C = prontos\.medica \|\| FichaMedicaPrintLazy/);
     assert.match(t, /buscarCabecalhoImpressao\(item\.registro\.atendimento_id\)/, 'cabeçalho começa junto com o documento');
+  });
+}
+
+// Painel de Leitos: setores no topo (no lugar dos indicadores grandes) e alertas compactos.
+export function runTopoPainelTests(test) {
+  test('Painel: botões de setor com a ocupação de cada um (setor sem leito não aparece)', () => {
+    const setores = [{ id: 's1', nome: 'Sala Vermelha' }, { id: 's2', nome: 'Observação' }, { id: 's3', nome: 'Sala Vermelha (Emergência)' }];
+    const leitos = [{ id: 'l1', setor_id: 's1' }, { id: 'l2', setor_id: 's1' }, { id: 'l3', setor_id: 's2' }];
+    assert.deepEqual(contarSetores(setores, leitos, { l2: { id: 'p' }, l3: { id: 'q' } }), [
+      { id: 's1', nome: 'Sala Vermelha', ocupados: 1, total: 2 },
+      { id: 's2', nome: 'Observação', ocupados: 1, total: 1 },
+    ]);
+  });
+  test('Painel: nomes dos botões de setor (Sala Vermelha, Internação, Pediatria, Observação)', () => {
+    assert.deepEqual(['Sala Vermelha (Emergência)', 'Internação', 'Pediatria', 'Observação Pediátrica', 'Observação', 'Isolamento', 'Observação Feminina'].map(nomeCurto),
+      ['Sala Vermelha', 'Internação', 'Pediatria', 'Pediatria', 'Observação', 'Isolamento', 'Observação Feminina']);
+  });
+  test('Painel: alertas sem "regulados" e "exames pendentes"; card sem idade e sexo', () => {
+    const r = fs.readFileSync('src/pages/painel/PainelResumo.jsx', 'utf8');
+    assert.ok(!/regulados|exames pendentes|em regulação|com exames\/pendências/.test(r));
+    const c = fs.readFileSync('src/pages/painel/PainelCards.jsx', 'utf8');
+    assert.ok(!/paciente\.idade|paciente\.sexo/.test(c), 'card do paciente sem idade e sexo');
+  });
+  test('Painel: o setor sai de "Filtrar" e vai para o topo; escolha lembrada no aparelho', () => {
+    assert.ok(!/Todos os setores/.test(fs.readFileSync('src/pages/painel/PainelControles.jsx', 'utf8')), 'Filtrar sem o seletor de setor');
+    const r = fs.readFileSync('src/pages/painel/PainelResumo.jsx', 'utf8');
+    assert.match(r, /setor-btn/); assert.match(r, /aria-pressed/);
+    assert.match(fs.readFileSync('src/pages/painel/usePainelState.js', 'utf8'), /localStorage\.setItem\('painel_setor'/);
+  });
+}
+
+// Duplicar prescrição: no Histórico Clínico (como nas evoluções) e no topo da aba Prescrição.
+export function runDuplicarPrescricaoTests(test) {
+  test('Duplicar prescrição: hemocomponentes da prescrição copiada voltam marcados', () => {
+    assert.deepEqual(hemocomponentesDoBanco([{ tipo: 'Concentrado de Hemácias', quantidade: '2 UI' }]), { hemacias: { marcado: true, quantidade: '2 UI' } });
+    assert.deepEqual(hemocomponentesDoBanco(null), {});
+  });
+  test('Duplicar prescrição: botão no Histórico Clínico e "Duplicar última" na aba', () => {
+    const h = fs.readFileSync('src/pages/HistoricoClinico.jsx', 'utf8');
+    assert.match(h, /medico: \['evolucoes_medicas', 'prescricoes_medicas'\]/);
+    assert.match(h, /definirDuplicacao\('prescricao'/);
+    const a = fs.readFileSync('src/pages/ficha-medica/AbaPrescricao.jsx', 'utf8');
+    assert.match(a, /retirarDuplicacao\('prescricao'\)/);
+    assert.match(a, /Duplicar última/);
+    assert.ok(!/window\.scrollTo/.test(a), 'rola a janela do formulário, não a página');
+    assert.match(fs.readFileSync('src/pages/FichaMedica.jsx', 'utf8'), /aposDuplicar = \(abaDestino = 'evolucao'\)/);
   });
 }

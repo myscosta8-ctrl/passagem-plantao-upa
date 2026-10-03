@@ -19,7 +19,8 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
   // Nova interface: o formulário da aba abre em janela flutuante (contas com pep_beta).
   const novaUI = enfermeiro?.pep_beta === true;
   const [dupSeq, setDupSeq] = useState(0);
-  const aposDuplicar = () => { setHistoricoAberto(false); setAba('evolucao'); setFormAberto(true); setDupSeq((n) => n + 1); };
+  // Histórico Clínico → "Duplicar": abre a aba do documento (Evolução ou Prescrição) já com a cópia.
+  const aposDuplicar = (abaDestino = 'evolucao') => { setHistoricoAberto(false); setAba(abaDestino); setFormAberto(true); setDupSeq((n) => n + 1); };
   // Histórico Clínico → "Editar rascunho": abre a aba do documento já com aquele rascunho carregado.
   const editarRascunho = (tabela, id, abaDestino) => { definirRascunhoAlvo(tabela, id); setHistoricoAberto(false); setAba(abaDestino); setFormAberto(true); setDupSeq((n) => n + 1); };
   // Paciente que já saiu (aberto pela tela Desfechos): só consulta e impressão pelo histórico;
@@ -79,7 +80,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
         medicoCrm={enfermeiro?.crm}
         onTrocarPilar={onTrocarPilar}
       />}
-      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="medico" onDuplicado={posAlta ? undefined : aposDuplicar} onEditarRascunho={onEditarRascunhoPerm} />
+      <HistoricoClinico atendimento={atendimento} aberto={historicoAberto} onFechar={() => setHistoricoAberto(false)} categoriaDuplicar="medico" onDuplicado={posAlta || !podeCriar ? undefined : aposDuplicar} onEditarRascunho={onEditarRascunhoPerm} />
       <div className="workspace" ref={areaRef}>
         <BannerPacienteEnf atendimento={atendimento} pilar="medico" onVoltar={onFechar} onTrocarPilar={onTrocarPilar} />
         {somenteLeitura && (
@@ -96,7 +97,7 @@ export default function FichaMedica({ atendimento, onFechar, onTrocarPilar, init
           </button>)}
         </div>}
         <JanelaFormulario ativa={novaUI || !!posAlta} aberta={formAberto} onFechar={() => setFormAberto(false)} titulo={rotuloAbaAtual} paciente={atendimento?.nome} atendimento={atendimento} categoria="medico"
-          vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="medico" onDuplicado={posAlta ? undefined : aposDuplicar} onEditarRascunho={onEditarRascunhoPerm} />}>
+          vazio={<HistoricoClinico atendimento={atendimento} embutido categoriaDuplicar="medico" onDuplicado={posAlta || !podeCriar ? undefined : aposDuplicar} onEditarRascunho={onEditarRascunhoPerm} />}>
         <FichaMedicaConteudo
           key={dupSeq}
           atendimento={atendimento}

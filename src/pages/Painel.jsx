@@ -76,7 +76,7 @@ function PainelInterno({ setoresIds }) {
           <div className="pv-barra-top">
             <h1>{ehMedico ? 'Painel Médico' : 'Painel de Leitos'}</h1>
             <span className="pv-sub">{ehMedico ? 'Pacientes internados e em observação' : 'Ocupação, risco e pendências do plantão'}</span>
-            <div className="pv-ctr"><PainelControles setoresVisiveis={setoresVisiveis} /></div>
+            <div className="pv-ctr"><PainelControles /></div>
           </div>
           <PainelResumo setoresVisiveis={setoresVisiveis} />
         </>
@@ -87,7 +87,7 @@ function PainelInterno({ setoresIds }) {
           <p>{ehMedico ? 'Pacientes internados e em observação. Clique no paciente para abrir o prontuário médico.' : 'Visão geral de ocupação, classificação de risco e admissão de pacientes da UPA.'}</p>
         </div>
         <PainelResumo setoresVisiveis={setoresVisiveis} />
-        <PainelControles setoresVisiveis={setoresVisiveis} />
+        <PainelControles />
       </div>
       )}
 

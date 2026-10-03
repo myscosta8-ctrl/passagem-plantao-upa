@@ -25,7 +25,10 @@ export function usePainelState() {
   const [menuAcoesLeitoId, setMenuAcoesLeitoId] = useState(null)
   const [visualizacao, setVisualizacao] = useState('cards')
   const [buscaTabela, setBuscaTabela] = useState('')
-  const [setorFiltro, setSetorFiltro] = useState('')
+  // Setor escolhido no topo do painel: lembrado neste aparelho (quem fica num setor não
+  // precisa escolher de novo a cada abertura).
+  const [setorFiltro, setSetorFiltroEstado] = useState(() => { try { return localStorage.getItem('painel_setor') || '' } catch { return '' } })
+  const setSetorFiltro = (id) => { setSetorFiltroEstado(id); try { if (id) localStorage.setItem('painel_setor', id); else localStorage.removeItem('painel_setor') } catch { /* sem storage */ } }
   const [statusFiltro, setStatusFiltro] = useState('')
   const [modalDesfecho, setModalDesfecho] = useState(null)
   const [processandoDesfecho, setProcessandoDesfecho] = useState(false)

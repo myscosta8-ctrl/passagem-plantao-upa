@@ -1,12 +1,11 @@
 import { usePainel } from './PainelContext'
 import { useState } from 'react'
 
-export default function PainelControles({ setoresVisiveis }) {
+// O setor é escolhido nos botões do topo do painel (PainelResumo); aqui ficam busca, status e vista.
+export default function PainelControles() {
   const {
     buscaTabela,
     setBuscaTabela,
-    setorFiltro,
-    setSetorFiltro,
     statusFiltro,
     setStatusFiltro,
     visualizacao,
@@ -27,13 +26,6 @@ export default function PainelControles({ setoresVisiveis }) {
         </button>
         {filtroAberto && (
           <div className="painel-filtro-dropdown">
-            <div className="tabela-filtro-campo">
-              <label>Setor</label>
-              <select value={setorFiltro} onChange={(e) => setSetorFiltro(e.target.value)}>
-                <option value="">Todos os setores</option>
-                {setoresVisiveis.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
-              </select>
-            </div>
             <div className="tabela-filtro-campo">
               <label>Status</label>
               <select value={statusFiltro} onChange={(e) => setStatusFiltro(e.target.value)}>

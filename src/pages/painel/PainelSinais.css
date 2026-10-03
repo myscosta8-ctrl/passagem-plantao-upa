@@ -1,14 +1,25 @@
 /* Painel de Leitos — faixa de resumo, informações do card e alertas */
-.pl-resumo { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
-.pl-resumo-item { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text-soft); border-radius: 18px; padding: 5px 12px; font-size: var(--fs-xs); font-weight: 700; cursor: pointer; }
-.pl-resumo-item:hover { border-color: var(--c-primary); }
-/* Resumo neutro: só o ícone ganha cor quando há algo a resolver; "ok" não pinta nada. */
-.pl-resumo-item.critico { border-color: var(--c-border); }
-.pl-resumo-item.critico i { color: var(--c-danger-strong); }
-.pl-resumo-item.atencao { border-color: var(--c-border); }
-.pl-resumo-item.atencao i { color: var(--c-warning-text); }
-.pl-resumo-item.ativo { outline: 2px solid var(--c-primary); outline-offset: 1px; }
-.pl-resumo-limpar { border: none; background: transparent; color: var(--c-primary); font-weight: 700; font-size: var(--fs-xs); cursor: pointer; }
+/* Topo do painel (interface clássica): setores com a ocupação e alertas compactos. */
+.pl-topo-painel { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; }
+.pl-setores { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.pl-setor-btn { flex: 0 0 auto; display: flex; align-items: baseline; gap: 6px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text); border-radius: 9px; padding: 6px 12px; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; white-space: nowrap; }
+.pl-setor-btn b { color: var(--c-text-soft); font-variant-numeric: tabular-nums; }
+.pl-setor-btn:hover { border-color: var(--c-primary); }
+.pl-setor-btn.ativo { background: var(--c-primary); border-color: var(--c-primary); color: #fff; }
+.pl-setor-btn.ativo b { color: rgba(255, 255, 255, .85); }
+.pl-avisos { display: flex; flex-wrap: wrap; gap: 6px; }
+.pl-aviso { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text-soft); border-radius: 999px; padding: 3px 9px; font-size: var(--fs-xs); cursor: pointer; white-space: nowrap; }
+.pl-aviso b { color: var(--c-text); }
+.pl-aviso.zero { opacity: .6; }
+.pl-aviso.critico, .pl-aviso.critico b { color: var(--c-danger-strong); }
+.pl-aviso.ativo { outline: 2px solid var(--c-primary); outline-offset: 1px; opacity: 1; }
+.pl-aviso.limpar { color: var(--c-primary); font-weight: 700; }
+@media (max-width: 640px) {
+  .pl-avisos { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+  .pl-setores { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
+  .pl-setor-btn { justify-content: space-between; min-width: 0; }
+  .pl-setor-btn span { overflow: hidden; text-overflow: ellipsis; }
+}
 
 .pl-permanencia { font-size: var(--fs-xs); font-weight: 600; color: var(--c-text-muted); background: transparent; border-radius: 10px; padding: 2px 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
 .pl-linha { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: var(--fs-xs); color: var(--c-text-secondary); margin-top: 6px; }

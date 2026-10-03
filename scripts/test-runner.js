@@ -1,5 +1,5 @@
 import { runRegrasClinicasTests } from '../tests/unit/regras-clinicas.test.js';
-import { runRegrasPrescricaoTests, runCatalogoSaeTests, runModelosEvolucaoTests, runImpressaoTests, runPadraoVisualTests, runCacheTests, runDivisaoPrescricaoTests, runDivisaoExamesTests, runDivisaoAihTests, runDivisaoColetivaTests, runDivisaoInicioTests, runPadraoImpressoTests, runSinaisVitaisMedicoTests, runHistoricoRapidoTests, runAberturaDocumentoTests } from '../tests/unit/regras-prescricao.test.js';
+import { runRegrasPrescricaoTests, runCatalogoSaeTests, runModelosEvolucaoTests, runImpressaoTests, runPadraoVisualTests, runCacheTests, runDivisaoPrescricaoTests, runDivisaoExamesTests, runDivisaoAihTests, runDivisaoColetivaTests, runDivisaoInicioTests, runPadraoImpressoTests, runSinaisVitaisMedicoTests, runHistoricoRapidoTests, runAberturaDocumentoTests, runTopoPainelTests, runDuplicarPrescricaoTests } from '../tests/unit/regras-prescricao.test.js';
 import { runModelosImpressaoTests } from '../tests/fidelity/modelos-impressao.test.js';
 import { runMockupsFase2Tests } from '../tests/fidelity/mockups-fase2.test.js';
 import { runModularizacaoTests } from '../tests/architecture/modularizacao.test.js';
@@ -71,6 +71,8 @@ async function main() {
   runSinaisVitaisMedicoTests(criarSuite('Sinais vitais na Evolução Médica'));
   runHistoricoRapidoTests(criarSuite('Histórico Clínico sem recarregar'));
   runAberturaDocumentoTests(criarSuite('Abertura de documento mais rápida'));
+  runTopoPainelTests(criarSuite('Topo do Painel de Leitos (setores e alertas)'));
+  runDuplicarPrescricaoTests(criarSuite('Duplicar prescrição'));
   console.log('');
 
   // 2. Fidelidade Absoluta aos Modelos de Impressão HTML

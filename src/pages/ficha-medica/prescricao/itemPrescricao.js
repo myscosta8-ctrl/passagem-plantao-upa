@@ -41,6 +41,17 @@ export function itemParaBanco(it) {
   }
 }
 
+// Texto de diluição gravado → campos guiados do formulário ("Diluir em 100 mL de SF 0,9% — Em
+// 30 min" volta como diluente SF 0,9%, 100 mL e tempo "Em 30 min"). O que não seguir esse
+// formato fica no campo de instruções, sem repetir o tempo de infusão.
+export function diluicaoDoBanco(diluicao, tempo) {
+  const partes = String(diluicao || '').split(' — ').map((x) => x.trim()).filter(Boolean)
+    .filter((x) => !tempo || x !== String(tempo).trim())
+  const m = partes[0]?.match(/^Diluir em (?:(\d+(?:[.,]\d+)?) mL de )?(.+)$/)
+  if (m) return { diluente: m[2], diluente_ml: m[1] || '', resto: partes.slice(1).join(' — ') }
+  return { diluente: '', diluente_ml: '', resto: partes.join(' — ') }
+}
+
 // Item gravado → formulário (usado em "Duplicar" uma prescrição anterior).
 export function itemDoBanco(it) {
   return {
@@ -53,10 +64,21 @@ export function itemDoBanco(it) {
     duracao: it.duracao || '',
     condicao: it.sn_aplic ? (it.observacoes || '') : '',
     tempo_infusao: it.velocidade_infusao || '',
-    instrucoes: [it.diluicao, it.instrucoes].filter(Boolean).join(' — '),
+    // Diluição volta para os campos guiados (sem repetir o tempo de infusão a cada duplicação).
+    ...(() => { const d = diluicaoDoBanco(it.diluicao, it.velocidade_infusao); return { diluente: d.diluente, diluente_ml: d.diluente_ml, instrucoes: [d.resto, it.instrucoes].filter(Boolean).join(' — ') } })(),
     apresentacao: it.apresentacao || '',
     qtd_por_dose: it.qtd_por_dose != null ? String(it.qtd_por_dose).replace('.', ',') : '1',
   }
+}
+
+// Hemocomponentes gravados ([{ tipo, quantidade }]) → marcações do formulário (usado em "Duplicar").
+export function hemocomponentesDoBanco(lista) {
+  const marcados = {}
+  for (const h of HEMO_OPCOES_RAPIDAS) {
+    const g = (lista || []).find((x) => x?.tipo === h.label)
+    if (g) marcados[h.chave] = { marcado: true, quantidade: g.quantidade || '' }
+  }
+  return marcados
 }
 
 // Campos extras da prescrição (dieta, cuidados, hemocomponentes) como vão para o banco.

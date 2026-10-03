@@ -9,15 +9,8 @@ import { sinaisDoLeito, FILTROS_RESUMO } from './sinaisLeito'
 import './PainelSinais.css'
 const cx = (...classes) => classes.filter(Boolean).map(c => styles[c] || c).join(' ')
 
-export function formatarNomeSetor(nome) {
-  if (!nome) return ''
-  const n = nome.toLowerCase()
-  if (n.includes('vermelha')) return 'Sala Vermelha - Emergência'
-  if (n === 'internação' || n === 'internacao') return 'Internação Adulto'
-  if (n.includes('pediátr') || n.includes('pediatr')) return 'Observação Pediátrica'
-  if (n.includes('observa')) return 'Sala Amarela - Observação Adulto'
-  return nome
-}
+import { formatarNomeSetor } from './setoresPainel.js'
+export { formatarNomeSetor }
 
 export function formatarNumeroLeito(numero) {
   if (!numero) return ''
@@ -114,7 +107,6 @@ function CardLeitoV2({ leito, paciente, sn, classeRisco, ehMedico, abrirPassagem
         {sn.permanencia && <span className="pv-perm" title="Tempo de permanência"><i className="ph ph-clock" /> {sn.permanencia}</span>}
       </div>
       <div className="pv-nome">{formatarNomePaciente(paciente.nome)}</div>
-      <div className="pv-meta"><i className="ph ph-user" /> {paciente.idade ? `${paciente.idade} anos` : 'Adulto'} · {paciente.sexo === 'F' ? 'Fem' : 'Masc'}</div>
       <div className="pv-hd"><b>HD:</b> {paciente.diagnostico || 'Não registrado'} {paciente.diagnostico_fonte === 'aih' && <span className="hd-aih" title="Diagnóstico definido pela AIH do médico">AIH</span>}</div>
       <div className="pv-hd"><b>Entrada:</b> {dataCurta(paciente.data_admissao)}</div>
       <div className="pv-foot no-print" onClick={(e) => e.stopPropagation()}>
@@ -175,7 +167,7 @@ export default function PainelCards({ setoresVisiveis }) {
   return (
     <>
       {setoresVisiveis
-        .filter((setor) => !setorFiltro || setor.id === setorFiltro)
+        .filter((setor) => !setorFiltro || setor.id === setorFiltro || !setoresVisiveis.some((x) => x.id === setorFiltro))
         .map((setor) => {
           const leitosDoSetor = (leitos || [])
             .filter((l) => l.setor_id === setor.id)
@@ -279,10 +271,6 @@ export default function PainelCards({ setoresVisiveis }) {
                       <div className={cx('leito-body')}>
                         <div className={cx('paciente-nome')}>
                           {formatarNomePaciente(paciente.nome)}
-                        </div>
-
-                        <div className={cx('paciente-meta')}>
-                          <span><i className={cx('ph', 'ph-user-circle')} /> {paciente.idade ? `${paciente.idade} anos` : 'Adulto'} • {paciente.sexo === 'F' ? 'Fem' : 'Masc'}</span>
                         </div>
 
                         <div className={cx('paciente-hd')}>

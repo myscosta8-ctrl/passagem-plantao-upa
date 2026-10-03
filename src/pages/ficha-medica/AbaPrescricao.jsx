@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { retirarDuplicacao } from '../../lib/duplicarPendente';
 import { criarPrescricao, listarCatalogoMedicamentos } from '../../lib/pepMedico';
 import { doCache } from '../../lib/consultasPaciente';
 import { VIAS, exigeAtm, atmCobre } from './constantes';
@@ -9,7 +10,7 @@ import { apresentacaoDaForma } from '../../lib/frequencia'
 import { hojeBelem, somarDias, textoValidade } from '../../lib/prescricaoValidade';
 import { rotuloMedicamento, ehControlado } from '../../lib/catalogoMedicamentos';
 import { CALC_VAZIA, FREQ_CALC } from '../../lib/calculoPediatrico';
-import { ITEM_VAZIO, ORIENTACAO_VAZIA, itemParaBanco, itemDoBanco, camposPrescricaoParaBanco, aplicarCalculoAoItem } from './prescricao/itemPrescricao';
+import { ITEM_VAZIO, ORIENTACAO_VAZIA, itemParaBanco, itemDoBanco, camposPrescricaoParaBanco, aplicarCalculoAoItem, hemocomponentesDoBanco } from './prescricao/itemPrescricao';
 import CalculadoraDosePediatrica from './prescricao/CalculadoraDosePediatrica';
 import AlertasAtm from './prescricao/AlertasAtm';
 import GrupoPrescricao from './prescricao/GrupoPrescricao';
@@ -54,6 +55,16 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
   const { salvando, salvar: salvarDocumento } = useSalvarDocumento({ rascunho, dataRegistro, editandoId, setEditandoId, setDataRegistro })
 
   useEffect(() => { carregar() }, [])
+  // "Duplicar" escolhido no Histórico Clínico: a aba abre já com a cópia (depois do rascunho, se houver).
+  useEffect(() => {
+    const d = retirarDuplicacao('prescricao')
+    if (!d) return undefined
+    const t = setTimeout(() => duplicar(d.registro, d.mensagem), 400)
+    return () => clearTimeout(t)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const topoRef = useRef(null)
+  // Última prescrição válida do atendimento (para o botão "Duplicar última" no topo).
+  const ultimaPrescricao = historico.find((p) => p.situacao !== 'invalido' && p.status !== 'cancelada' && (p.prescricao_itens || []).length > 0)
   useEffect(() => { listarCatalogoMedicamentos().then(setCatalogo) }, [])
 
   async function carregar() {
@@ -121,7 +132,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
     if ('hemocomponenteObs' in e) setHemocomponenteObs(e.hemocomponenteObs)
     setEditandoId(p.id)
     setAviso('Rascunho reaberto — continue editando. "Salvar Rascunho" atualiza o rascunho; "Finalizar e Imprimir" finaliza; "Cancelar" o descarta.')
-    window.scrollTo?.({ top: 0, behavior: 'smooth' })
+    setTimeout(() => topoRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }), 0)
   }
 
   function abrirCalculadora(i) {
@@ -167,19 +178,21 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
   }
 
   // Copia uma prescrição anterior para uma nova (data = hoje, alterável).
-  function duplicar(p) {
+  function duplicar(p, origem = '') {
     const temConteudo = itens.some((it) => it.medicamento_nome?.trim())
     if (temConteudo && !window.confirm('Substituir o que já foi preenchido pela cópia desta prescrição?')) return
     const cp = p.campos_prescricao || {}
     setItens([...(p.prescricao_itens || []).map(itemDoBanco), { ...ITEM_VAZIO }])
     setDieta(cp.dieta || '')
     setOrientacaoEnfermagem(cp.orientacao_enfermagem?.length ? cp.orientacao_enfermagem : [{ ...ORIENTACAO_VAZIA }])
+    setHemocomponentes(hemocomponentesDoBanco(cp.hemocomponentes))
     setHemocomponenteObs(cp.hemocomponente_obs || '')
     setObservacoes(p.observacoes || '')
     setDataReferencia(hojeBelem())
     setEditandoId(null)
-    setAviso(`Prescrição copiada para hoje (${textoValidade(hojeBelem(), new Date())}). Revise, ajuste a data se precisar e salve.`)
-    window.scrollTo?.({ top: 0, behavior: 'smooth' })
+    setAviso(`${origem ? `${origem} ` : ''}Prescrição copiada para hoje (${textoValidade(hojeBelem(), new Date())}). Revise, ajuste a data se precisar e salve.`)
+    // A aba fica numa janela com rolagem própria: leva o topo do formulário à vista.
+    setTimeout(() => topoRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }), 0)
   }
 
   function limparFormulario() {
@@ -236,7 +249,7 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
     <div className="clinical-split">
 
       
-      <div className="clinical-card" style={{ flex: 1 }}>
+      <div className="clinical-card" style={{ flex: 1 }} ref={topoRef}>
         <div className="cc-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="cc-title">
               <h2><i className="ph ph-pill" /> Prescrição Médica Hospitalar</h2>
@@ -251,6 +264,14 @@ export default function AbaPrescricao({  atendimento, medicoId, onImprimir, onFi
               <i className="ph ph-clock-counter-clockwise"></i>
               Ver Histórico
             </button>
+            {ultimaPrescricao && (
+              <button type="button" className="btn btn-outline" onClick={() => duplicar(ultimaPrescricao)}
+                title="Copia medicamentos, dieta, cuidados e hemocomponentes da última prescrição para uma nova"
+                style={{ display: 'flex', gap: 6, alignItems: 'center', height: 36, marginLeft: 8 }}>
+                <i className="ph ph-copy"></i>
+                Duplicar última
+              </button>
+            )}
           </div>
 
         <div className="cc-body" id="presc-accordion" style={{ padding: 0 }}>

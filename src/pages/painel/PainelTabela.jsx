@@ -18,7 +18,7 @@ export default function PainelTabela({ setoresVisiveis, onAbrirLeito }) {
   const buscaNorm = normalizarNome(busca || '')
 
   const grupos = setoresVisiveis
-    .filter((setor) => !setorFiltro || setor.id === setorFiltro)
+    .filter((setor) => !setorFiltro || setor.id === setorFiltro || !setoresVisiveis.some((x) => x.id === setorFiltro))
     .map((setor) => {
       const linhas = (leitos || [])
         .filter((l) => l.setor_id === setor.id)
