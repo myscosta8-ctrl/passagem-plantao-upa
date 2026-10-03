@@ -31,8 +31,9 @@ export default function SecaoProcedimento({ dados, set, nomeProfissional, dataSo
           </select>
         </Campo>
         <Campo n="32" rotulo={`Nº DO ${dados.profissional_documento_tipo || 'CNS'} DO PROFISSIONAL SOLICITANTE`} col={3} valor={dados.profissional_documento_numero} onChange={(v) => set('profissional_documento_numero', v.replace(/[^\d.-]/g, ''))} placeholder="do médico que assina" />
-        <Campo n="33" rotulo="NOME DO PROFISSIONAL SOLICITANTE" col={8} readOnly valor={nomeProfissional} />
-        <Campo n="34" rotulo="DATA DA SOLICITAÇÃO" col={4} readOnly valor={dataSolicitacao} />
+        {/* 33 e 34: em branco usam o médico que assina e a data da assinatura; escrever aqui substitui no laudo. */}
+        <Campo n="33" rotulo="NOME DO PROFISSIONAL SOLICITANTE" col={8} valor={dados.profissional_nome_aih} onChange={(v) => set('profissional_nome_aih', v.toUpperCase())} placeholder={nomeProfissional} />
+        <Campo n="34" rotulo="DATA DA SOLICITAÇÃO" col={4} valor={dados.data_solicitacao_aih} onChange={(v) => set('data_solicitacao_aih', v.replace(/\D/g, '').slice(0, 8).replace(/^(\d{2})(\d)/, '$1/$2').replace(/^(\d{2}\/\d{2})(\d)/, '$1/$2'))} placeholder={dataSolicitacao} />
       </div>
     </div>
   )

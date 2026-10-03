@@ -89,3 +89,72 @@ export function separarCids(dados, cid1, cid2, existentes) {
     : null
   return { invalidos, dadosGravar, cidTexto }
 }
+
+// ===== Identificação do paciente editável na AIH (campos 5-9, 11, 12 e 15) =====
+// A recepção nem sempre completa o cadastro a tempo: o médico pode escrever esses campos no
+// laudo. Eles começam com o que está no cadastro e, ao salvar, o que estava VAZIO no cadastro
+// é completado com o que foi escrito na AIH (caminho de volta). Dado que a recepção já
+// registrou nunca é trocado — a diferença é avisada para conferência.
+const so = (v) => String(v ?? '').trim()
+const digitos = (v) => so(v).replace(/\D/g, '')
+
+export function camposPacienteDoCadastro(pessoa = {}) {
+  const nasc = pessoa?.data_nascimento ? new Date(`${pessoa.data_nascimento}T00:00:00`).toLocaleDateString('pt-BR') : ''
+  const sexo = String(pessoa?.sexo || '').toUpperCase().startsWith('F') ? 'F' : pessoa?.sexo ? 'M' : ''
+  return {
+    paciente_nome: so(pessoa?.nome).toUpperCase(),
+    paciente_prontuario: numeroLimpo(pessoa?.prontuario_numero) || '',
+    paciente_cns: digitos(pessoa?.cns),
+    paciente_nascimento: nasc,
+    paciente_sexo: sexo,
+    paciente_mae: so(pessoa?.nome_mae).toUpperCase(),
+    paciente_telefone: so(pessoa?.telefone || pessoa?.telefone_contato),
+    paciente_endereco: [pessoa?.endereco, pessoa?.endereco_numero, pessoa?.bairro].filter(Boolean).join(', ').toUpperCase(),
+  }
+}
+
+// Completa no formulário só o que ainda está vazio (rascunho e o que o médico escreveu ficam).
+export function preencherVazios(dados, base) {
+  const novo = { ...dados }
+  for (const [k, v] of Object.entries(base)) if (!so(novo[k]) && so(v)) novo[k] = v
+  return novo
+}
+
+// "dd/mm/aaaa" → "aaaa-mm-dd" (data válida e não futura) ou null.
+export function dataISO(br) {
+  const m = so(br).match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (!m) return null
+  const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]))
+  if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1 || d > new Date() || Number(m[3]) < 1900) return null
+  return `${m[3]}-${m[2]}-${m[1]}`
+}
+
+// O que gravar no cadastro (só colunas vazias lá) e o que difere do cadastro (para avisar).
+export function atualizacaoDoCadastro(pessoa = {}, dados = {}) {
+  const alvo = [
+    ['cns', 'CNS', digitos(dados.paciente_cns).length === 15 ? digitos(dados.paciente_cns) : '', digitos(pessoa.cns)],
+    ['data_nascimento', 'data de nascimento', dataISO(dados.paciente_nascimento) || '', so(pessoa.data_nascimento)],
+    ['sexo', 'sexo', ['M', 'F'].includes(dados.paciente_sexo) ? dados.paciente_sexo : '', so(pessoa.sexo).toUpperCase().slice(0, 1)],
+    ['nome_mae', 'nome da mãe', so(dados.paciente_mae).toUpperCase(), so(pessoa.nome_mae).toUpperCase()],
+    ['telefone', 'telefone', so(dados.paciente_telefone), so(pessoa.telefone)],
+    ['endereco', 'endereço', so(dados.paciente_endereco).toUpperCase(), [pessoa.endereco, pessoa.endereco_numero, pessoa.bairro].filter(Boolean).join(', ').toUpperCase()],
+    ['raca_cor', 'raça/cor', so(dados.raca_cor).toUpperCase(), so(pessoa.raca_cor).toUpperCase()],
+    ['cidade', 'município', so(dados.municipio_residencia_nome).toUpperCase(), so(pessoa.cidade).toUpperCase()],
+    ['municipio_ibge', 'código IBGE', digitos(dados.municipio_residencia_ibge), digitos(pessoa.municipio_ibge)],
+    ['uf', 'UF', so(dados.municipio_residencia_uf).toUpperCase(), so(pessoa.uf).toUpperCase()],
+    ['cep', 'CEP', so(dados.municipio_residencia_cep), so(pessoa.cep)],
+  ]
+  // Município 16-19 com o padrão do formulário (Breves/PA) não foi escrito pelo médico: não vai ao cadastro.
+  const padraoBreves = so(dados.municipio_residencia_nome).toUpperCase() === 'BREVES' && digitos(dados.municipio_residencia_ibge) === '1501808'
+    && so(dados.municipio_residencia_uf).toUpperCase() === 'PA' && digitos(dados.municipio_residencia_cep) === '68800000'
+  const alterar = {}
+  const preenchidos = []
+  const divergentes = []
+  for (const [col, rotulo, novo, atual] of alvo) {
+    if (!novo || (padraoBreves && ['cidade', 'municipio_ibge', 'uf', 'cep'].includes(col))) continue
+    const numerico = ['cns', 'telefone', 'municipio_ibge', 'cep'].includes(col)
+    const igual = numerico ? digitos(novo) === digitos(atual) : novo.toUpperCase() === atual.toUpperCase()
+    if (!atual) { alterar[col] = novo; preenchidos.push(rotulo) } else if (!igual) divergentes.push(rotulo)
+  }
+  return { alterar, preenchidos, divergentes }
+}

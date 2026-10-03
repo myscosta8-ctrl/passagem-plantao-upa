@@ -6,7 +6,8 @@ import { AIH_VAZIA } from './constantes';
 import CampoDataRegistro from '../../components/CampoDataRegistro';
 import { useRascunho } from '../../hooks/useRascunho';
 import { useSalvarDocumento, MSG_RASCUNHO_SALVO } from '../../hooks/useSalvarDocumento';
-import { alternarJustificativa, identificacaoPaciente, dadosDaAdmissao, separarCids } from './aih/aihRegras';
+import { alternarJustificativa, dadosDaAdmissao, separarCids, camposPacienteDoCadastro, preencherVazios, atualizacaoDoCadastro } from './aih/aihRegras';
+import { completarCadastroPelaAih } from '../../lib/pepRecepcao';
 import PainelRegulacao from './aih/PainelRegulacao';
 import EncaminharAih from './aih/EncaminharAih';
 import SecaoEstabelecimento from './aih/SecaoEstabelecimento';
@@ -72,12 +73,13 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
     return () => { vivo = false };
   }, [atendimento?.atendimento_id]);
   const pessoa = cabecalho?.pessoa || {};
-  // Campos 10 e 16-19: vêm do cadastro; editáveis aqui só para este laudo.
+  // Identificação (5-19): vem do cadastro e é editável; ao salvar, completa o que faltava no cadastro.
   useEffect(() => {
     if (!cabecalho?.pessoa) return;
     const pe = cabecalho.pessoa;
     setDados((prev) => ({
-      ...prev,
+      // Campos 5-9, 11, 12 e 15: começam com o cadastro e podem ser escritos pelo médico.
+      ...preencherVazios(prev, camposPacienteDoCadastro(pe)),
       raca_cor: prev.raca_cor || (pe.raca_cor || '').toUpperCase(),
       municipio_residencia_nome: prev.municipio_residencia_nome || (pe.cidade || 'BREVES').toUpperCase(),
       municipio_residencia_uf: pe.uf || prev.municipio_residencia_uf,
@@ -170,6 +172,18 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
       return;
     }
     setErro('');
+    // Caminho de volta: o que o médico escreveu na identificação completa o cadastro do paciente
+    // (só o que estava vazio lá; o que a recepção registrou não é trocado).
+    const { alterar, preenchidos, divergentes } = atualizacaoDoCadastro(pessoa, dados);
+    let avisoCadastro = '';
+    if (pessoa.id && preenchidos.length) {
+      const { error: erroCad } = await completarCadastroPelaAih(pessoa.id, alterar);
+      if (!erroCad) {
+        avisoCadastro = ` Cadastro do paciente completado com: ${preenchidos.join(', ')}.`;
+        buscarCabecalhoImpressao(atendimento.atendimento_id).then(setCabecalho);
+      }
+    }
+    if (divergentes.length) avisoCadastro += ` Diferente do cadastro (mantido na Recepção, confira): ${divergentes.join(', ')}.`;
     await salvarDocumento(finalizar, ({ id, situacao }) => criarAih({
       cidTexto,
       id, situacao,
@@ -183,21 +197,20 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
       aoFalhar: (error) => { console.error(error); setErro(mensagemErroSalvar(error, 'o Laudo de AIH')); },
       aoSalvarRascunho: () => {
         if (encaminhar) {
-          setSucesso(`AIH encaminhada a ${nomeMedico(medicoDestino) || 'o médico'}. Ela aparece nas Pendências dele; ele revisa e assina com o próprio login.`);
+          setSucesso(`AIH encaminhada a ${nomeMedico(medicoDestino) || 'o médico'}. Ela aparece nas Pendências dele; ele revisa e assina com o próprio login.${avisoCadastro}`);
           return;
         }
-        setSucesso(MSG_RASCUNHO_SALVO + (invalidos.length ? ` Atenção: CID ${invalidos.join(', ')} não está na tabela CID-10 — corrija antes de finalizar.` : ''));
+        setSucesso(MSG_RASCUNHO_SALVO + (invalidos.length ? ` Atenção: CID ${invalidos.join(', ')} não está na tabela CID-10 — corrija antes de finalizar.` : '') + avisoCadastro);
       },
       aoFinalizar: (novaAih) => {
         setEncaminhada(null);
-        setSucesso('Laudo de AIH registrado. O diagnóstico da AIH passou a valer no Painel de Leitos, na Passagem de Plantão e no prontuário, e o paciente ficou como INTERNADO.');
+        setSucesso('Laudo de AIH registrado. O diagnóstico da AIH passou a valer no Painel de Leitos, na Passagem de Plantão e no prontuário, e o paciente ficou como INTERNADO.' + avisoCadastro);
         setTimeout(() => setSucesso(''), 8000);
         if (novaAih) onImprimir(novaAih);
       },
     });
   }
 
-  const ident = identificacaoPaciente(pessoa, paciente, atendimento);
   const dataHoraAtual = new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
   // Campo 33: o médico que assina (o próprio médico, ou o escolhido no encaminhamento).
   const profissional = ehMedico ? { nome: medicoNome, crm: medicoCrm } : (() => { const x = medicos.find((y) => y.id === medicoDestino); return x ? { nome: x.nome_exibicao || x.nome, crm: x.crm } : {}; })();
@@ -237,7 +250,7 @@ export default function AbaAih({ atendimento, medicoId, medicoNome, medicoCrm, o
           )}
 
           <SecaoEstabelecimento dados={dados} set={set} />
-          <SecaoPaciente dados={dados} set={set} ident={ident} />
+          <SecaoPaciente dados={dados} set={set} />
           <SecaoJustificativa dados={dados} set={set} alternarChip={toggleJustChip} />
           <SecaoProcedimento dados={dados} set={set} nomeProfissional={nomeProfissional} dataSolicitacao={ehMedico ? `${dataHoraAtual} (data da assinatura)` : 'Data em que o médico assinar'} />
           <SecaoCausasExternas dados={dados} set={set} />

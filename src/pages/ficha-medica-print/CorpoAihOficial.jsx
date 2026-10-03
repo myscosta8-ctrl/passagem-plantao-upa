@@ -47,9 +47,11 @@ function Telefone({ d }) {
 // dimensionamento do modelo, ocupando a folha A4 inteira.
 export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendimento, idade: _idade, leitoNumero, setorNome, medico, dataHora }) {
   const cf = registro.campos_formulario || {}
-  const enderecoCompleto = [pessoa.endereco, pessoa.endereco_numero, pessoa.bairro].filter(Boolean).join(', ')
+  // Identificação: o que foi escrito no laudo (campos editáveis) vale; senão, o cadastro.
+  const enderecoCompleto = cf.paciente_endereco || [pessoa.endereco, pessoa.endereco_numero, pessoa.bairro].filter(Boolean).join(', ')
   const cidPrincipal = registro.cid_catalog?.codigo || registro.cid_principal || cf.cid_principal_texto || ''
-  const tel = soDigitos(pessoa.telefone || pessoa.telefone_contato)
+  const tel = soDigitos(cf.paciente_telefone || pessoa.telefone || pessoa.telefone_contato)
+  const sexoAih = cf.paciente_sexo || (String(pessoa.sexo || '').toUpperCase().startsWith('F') ? 'F' : pessoa.sexo ? 'M' : '')
   const telResp = soDigitos(cf.telefone_responsavel)
   const vinculo = normalizarVinculo(cf.vinculo_previdencia)
 
@@ -94,20 +96,20 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
         <div className="aih-sec">
           <div className="aih-sec-tit">Identificação do Paciente</div>
           <div className="aih-linha">
-            <F cap="5 - Nome do paciente" w={4}><V v={pessoa.nome} /></F>
-            <F cap="6 - Nº do prontuário" w={1}><V v={numeroLimpo(pessoa.prontuario_numero)} cls="dir" /></F>
+            <F cap="5 - Nome do paciente" w={4}><V v={cf.paciente_nome || pessoa.nome} /></F>
+            <F cap="6 - Nº do prontuário" w={1}><V v={cf.paciente_prontuario || numeroLimpo(pessoa.prontuario_numero)} cls="dir" /></F>
           </div>
           <div className="aih-linha">
-            <F cap="7 - Cartão Nacional de Saúde (CNS)" w={3.2}><Comb v={pessoa.cns} n={15} /></F>
-            <F cap="8 - Data de nascimento" w={1.3}><V v={dataBR(pessoa.data_nascimento)} cls="centro" /></F>
+            <F cap="7 - Cartão Nacional de Saúde (CNS)" w={3.2}><Comb v={cf.paciente_cns || pessoa.cns} n={15} /></F>
+            <F cap="8 - Data de nascimento" w={1.3}><V v={cf.paciente_nascimento || dataBR(pessoa.data_nascimento)} cls="centro" /></F>
             <F cap="9 - Sexo" w={1.45}>
-              <div className="aih-opcoes">Masc. <span className="aih-quad">{pessoa.sexo === 'M' ? 'X' : ''}</span>1 &nbsp;Fem. <span className="aih-quad">{pessoa.sexo === 'F' ? 'X' : ''}</span>3</div>
+              <div className="aih-opcoes">Masc. <span className="aih-quad">{sexoAih === 'M' ? 'X' : ''}</span>1 &nbsp;Fem. <span className="aih-quad">{sexoAih === 'F' ? 'X' : ''}</span>3</div>
             </F>
             <F cap="10 - Raça/Cor" w={1.1}><V v={cf.raca_cor || pessoa.raca_cor} cls="centro" /></F>
             <F cap="10.1 - Etnia" w={0.9}><V v={cf.etnia} cls="centro" /></F>
           </div>
           <div className="aih-linha">
-            <F cap="11 - Nome da mãe" w={3}><V v={pessoa.nome_mae} /></F>
+            <F cap="11 - Nome da mãe" w={3}><V v={cf.paciente_mae || pessoa.nome_mae} /></F>
             <F cap="12 - Telefone de contato" w={1.7}><Telefone d={tel} /></F>
           </div>
           <div className="aih-linha">
@@ -153,8 +155,8 @@ export default function CorpoAihOficial({ registro, pessoa, atendimento: _atendi
             <F cap="32 - Nº documento (CNS/CPF) do profissional solicitante/assistente" w={3.2}><Comb v={cf.profissional_documento_numero} n={15} /></F>
           </div>
           <div className="aih-linha">
-            <F cap="33 - Nome do profissional solicitante/assistente" w={2.6}><V v={medico?.nome_exibicao || medico?.nome} /></F>
-            <F cap="34 - Data da solicitação" w={1.1}><V v={dataBR(dataSolicitacao(registro))} cls="centro" /></F>
+            <F cap="33 - Nome do profissional solicitante/assistente" w={2.6}><V v={cf.profissional_nome_aih || medico?.nome_exibicao || medico?.nome} /></F>
+            <F cap="34 - Data da solicitação" w={1.1}><V v={cf.data_solicitacao_aih || dataBR(dataSolicitacao(registro))} cls="centro" /></F>
             <F cap="35 - Assinatura e carimbo (nº do registro do conselho)" w={1.9}><V v={medico?.crm ? `CRM: ${medico.crm}` : ''} /></F>
           </div>
         </div>

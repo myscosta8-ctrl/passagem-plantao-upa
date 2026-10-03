@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient.js'
 import { registrarEventoAuditoria } from './pepAtendimentos.js'
 import { avisarErro } from './erros.js'
+import { dadosMudaram } from './cache.js'
 
 // Camada de dados da Recepção (Fase 1b do PEP) — cadastro de identidade
 // completo (Ficha de Identificação do Paciente, UPA Breves) + abertura do
@@ -45,6 +46,20 @@ export async function criarPessoaCompleta(dados) {
     })
     .select()
     .single()
+}
+
+// AIH → cadastro (caminho de volta): grava cada dado só se a coluna ainda estiver vazia no
+// banco — se a recepção preencheu enquanto o médico escrevia, o dado dela fica.
+export async function completarCadastroPelaAih(pessoaId, alterar) {
+  const cols = Object.entries(alterar || {})
+  if (!pessoaId || cols.length === 0) return { error: null }
+  const res = await Promise.all(cols.map(([col, valor]) => supabase.from('pessoas')
+    .update({ [col]: valor }).eq('id', pessoaId)
+    .or(col === 'data_nascimento' ? `${col}.is.null` : `${col}.is.null,${col}.eq.`)))
+  const error = res.find((r) => r.error)?.error || null
+  if (error) avisarErro('Cadastro pela AIH', error)
+  dadosMudaram('pessoas')
+  return { error }
 }
 
 export async function atualizarPessoaCompleta(pessoaId, dados) {

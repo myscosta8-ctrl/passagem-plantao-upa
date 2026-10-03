@@ -472,7 +472,7 @@ export function runDivisaoExamesTests(test) {
 }
 
 // Item 17 — Laudo de AIH dividido; dados da admissão nunca apagam o que o médico escreveu.
-import { alternarJustificativa, dadosDaAdmissao, separarCids, identificacaoPaciente } from '../../src/pages/ficha-medica/aih/aihRegras.js';
+import { alternarJustificativa, dadosDaAdmissao, separarCids, identificacaoPaciente, camposPacienteDoCadastro, preencherVazios, dataISO, atualizacaoDoCadastro } from '../../src/pages/ficha-medica/aih/aihRegras.js';
 export function runDivisaoAihTests(test) {
   const consulta = { queixa_principal: 'tosse e febre', hipotese_diagnostica: 'J18.9 Pneumonia', sv: { pa: '120x80', fc: 98, temp: 38.5, spo2: 93 } };
   test('AIH: ao abrir, a admissão só preenche campo vazio (rascunho e texto do médico são mantidos — defeito de 02/10)', () => {
@@ -816,5 +816,56 @@ export function runHistoricoPaginasTests(test) {
     const trecho = a.slice(a.indexOf('async function salvar'), a.indexOf('setErro(\'\');', a.indexOf('async function salvar')));
     assert.ok(!/procedimento_principal_nome/.test(trecho), 'campo 27 não bloqueia a finalização');
     assert.match(trecho, /sinais_sintomas_clinicos/);
+  });
+}
+
+// AIH: identificação do paciente editável e caminho de volta para o cadastro.
+export function runAihIdentificacaoTests(test) {
+  const pessoa = { id: 'p1', nome: 'Paciente Teste - Nao Atender', prontuario_numero: '000123', cns: '', data_nascimento: '1980-05-02', sexo: 'M', nome_mae: '', telefone: '(91) 99999-0000', endereco: '', cidade: 'Breves' };
+  test('AIH: campos do paciente começam com o cadastro', () => {
+    const c = camposPacienteDoCadastro(pessoa);
+    assert.equal(c.paciente_nome, 'PACIENTE TESTE - NAO ATENDER');
+    assert.equal(c.paciente_nascimento, '02/05/1980');
+    assert.equal(c.paciente_sexo, 'M');
+    assert.equal(c.paciente_cns, '');
+  });
+  test('AIH: completar o formulário não apaga o que o médico já escreveu', () => {
+    const r = preencherVazios({ paciente_cns: '123', paciente_mae: '' }, { paciente_cns: '999', paciente_mae: 'MARIA', paciente_sexo: '' });
+    assert.equal(r.paciente_cns, '123');
+    assert.equal(r.paciente_mae, 'MARIA');
+  });
+  test('AIH: data dd/mm/aaaa válida vira ISO; inválida ou futura é recusada', () => {
+    assert.equal(dataISO('02/05/1980'), '1980-05-02');
+    assert.equal(dataISO('31/02/1980'), null);
+    assert.equal(dataISO('01/01/2999'), null);
+    assert.equal(dataISO('1980-05-02'), null);
+  });
+  test('AIH: caminho de volta só preenche o que está vazio no cadastro e avisa diferenças', () => {
+    const dados = { paciente_cns: '700000000000005', paciente_mae: 'maria da silva', paciente_telefone: '91 98888-1111', paciente_nascimento: '03/05/1980', paciente_sexo: 'M', municipio_residencia_nome: 'Breves', municipio_residencia_uf: 'PA' };
+    const r = atualizacaoDoCadastro(pessoa, dados);
+    assert.deepEqual(r.alterar, { cns: '700000000000005', nome_mae: 'MARIA DA SILVA', uf: 'PA' });
+    assert.ok(r.divergentes.includes('telefone') && r.divergentes.includes('data de nascimento'));
+    assert.ok(!r.divergentes.includes('município') && !r.divergentes.includes('sexo'));
+    assert.ok(!('telefone' in r.alterar) && !('data_nascimento' in r.alterar), 'nunca troca dado da recepção');
+  });
+  test('AIH: CNS incompleto não vai para o cadastro', () => {
+    assert.deepEqual(atualizacaoDoCadastro(pessoa, { paciente_cns: '12345' }).alterar, {});
+  });
+  test('AIH: município padrão do formulário (Breves) não é gravado no cadastro como se fosse informado', () => {
+    const r = atualizacaoDoCadastro({ id: 'p2' }, { municipio_residencia_nome: 'BREVES', municipio_residencia_uf: 'PA', municipio_residencia_cep: '68800-000', municipio_residencia_ibge: '1501808' });
+    assert.deepEqual(r.alterar, {});
+    const r2 = atualizacaoDoCadastro({ id: 'p2' }, { municipio_residencia_nome: 'MELGAÇO', municipio_residencia_uf: 'PA', municipio_residencia_cep: '68490-000', municipio_residencia_ibge: '1504406' });
+    assert.equal(r2.alterar.cidade, 'MELGAÇO');
+  });
+  test('AIH: identificação e campos 33/34 editáveis; impressão usa o que foi escrito', () => {
+    const sp = fs.readFileSync('src/pages/ficha-medica/aih/SecaoPaciente.jsx', 'utf8');
+    assert.ok(!/readOnly/.test(sp), 'nenhum campo do paciente travado');
+    assert.match(sp, /paciente_nome/);
+    assert.match(fs.readFileSync('src/pages/ficha-medica/aih/SecaoProcedimento.jsx', 'utf8'), /profissional_nome_aih/);
+    const pr = fs.readFileSync('src/pages/ficha-medica-print/CorpoAihOficial.jsx', 'utf8');
+    assert.match(pr, /cf\.paciente_nome/);
+    assert.match(pr, /cf\.data_solicitacao_aih/);
+    const rec = fs.readFileSync('src/lib/pepRecepcao.js', 'utf8');
+    assert.match(rec, /\.is\.null/, 'grava só em coluna vazia');
   });
 }
